@@ -17,6 +17,13 @@ rules:
   # suite (tests/integration/backend/OpenApi, step 2.7).
   oas3-schema: off
 
+  # `oas3-unused-component` is disabled: the root specs' `components` maps are
+  # whole-file `$ref`s (openapi.yaml) or wrappers re-exporting schemas actually
+  # consumed via external refs in the feature files (inertia/shared.yaml), so
+  # cross-file usage is invisible to the rule and every stitched component is
+  # reported as unused.
+  oas3-unused-component: off
+
   # Custom rules (docs/detailed-spec/openapi.md, table "Custom rules enforced by .spectral.yaml").
   # `operation-operationId-unique` is inherited from `spectral:oas` (error severity,
   # custom `oasOpIdUnique` function — pure-YAML rulesets cannot express uniqueness).
@@ -90,7 +97,7 @@ rules:
     then:
       function: pattern
       functionOptions:
-        match: '^/?(?:[a-z0-9]+(?:-[a-z0-9]+)*|\{[a-z0-9]+(?:-[a-z0-9]+)*\})(?:/(?:[a-z0-9]+(?:-[a-z0-9]+)*|\{[a-z0-9]+(?:-[a-z0-9]+)*\}))*$'
+        match: '^(?:/|/?(?:[a-z0-9]+(?:-[a-z0-9]+)*|\{[a-z0-9]+(?:-[a-z0-9]+)*\})(?:/(?:[a-z0-9]+(?:-[a-z0-9]+)*|\{[a-z0-9]+(?:-[a-z0-9]+)*\}))*)$'
 
   no-unused-components-schemas:
     description: Validates the `components.schemas` map is present and well-formed (true dead-schema detection is not implemented).

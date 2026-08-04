@@ -285,6 +285,7 @@ paths:
     get:
       tags: [Portfolio]
       summary: Landing page
+      description: Public landing page with hero, about, featured projects, and skills.
       operationId: landingPage
       responses:
         '200':
@@ -310,6 +311,7 @@ paths:
     get:
       tags: [Admin]
       summary: Admin dashboard
+      description: Admin dashboard with recent stats and quick links.
       operationId: dashboardPage
       responses:
         '200':
@@ -318,11 +320,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DashboardPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/about:
     get:
       tags: [Admin]
       summary: Edit about info
+      description: About section edit form (hero, bio, relocation readiness).
       operationId: aboutEditPage
       responses:
         '200':
@@ -331,11 +340,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AboutEditPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/contacts:
     get:
       tags: [Admin]
       summary: Contacts list
+      description: Contacts management list with read/forward actions.
       operationId: contactsListPage
       responses:
         '200':
@@ -344,11 +360,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ContactsListPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/feedback:
     get:
       tags: [Admin]
       summary: Feedback list
+      description: Feedback submissions list with pagination.
       operationId: feedbackListPage
       responses:
         '200':
@@ -357,11 +380,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FeedbackListPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/feedback/{feedback}:
     get:
       tags: [Admin]
       summary: Feedback detail
+      description: Single feedback submission detail view.
       operationId: feedbackDetailPage
       parameters:
         - name: feedback
@@ -376,3 +406,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FeedbackDetailPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'

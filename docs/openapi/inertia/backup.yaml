@@ -72,6 +72,7 @@ paths:
     get:
       tags: [Admin]
       summary: Backup management page
+      description: Backup list with pagination and encryption key status.
       operationId: backupListPage
       responses:
         '200':
@@ -80,6 +81,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BackupListPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/backups/{backup}/status:
     get:

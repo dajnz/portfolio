@@ -221,6 +221,7 @@ paths:
     get:
       tags: [Experience]
       summary: Experience timeline (public)
+      description: Public career timeline with infinite scroll pagination.
       operationId: experienceTimelinePage
       responses:
         '200':
@@ -246,6 +247,7 @@ paths:
     get:
       tags: [Admin]
       summary: Experience list (admin)
+      description: Admin experience item management list.
       operationId: experienceListPage
       responses:
         '200':
@@ -254,11 +256,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExperienceListPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/experience/create:
     get:
       tags: [Admin]
       summary: Create experience item form
+      description: Empty experience item creation form with available skills and projects.
       operationId: experienceCreatePage
       responses:
         '200':
@@ -267,11 +276,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExperienceFormPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/experience/{item}/edit:
     get:
       tags: [Admin]
       summary: Edit experience item form
+      description: Experience item edit form with existing data, skills, and projects.
       operationId: experienceEditPage
       parameters:
         - name: item
@@ -286,3 +302,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExperienceFormPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'

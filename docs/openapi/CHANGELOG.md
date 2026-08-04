@@ -12,6 +12,16 @@ runtime support.
 
 ### Changed
 
+- **Docs-only completeness pass (v1.0.1):** `info.contact` added to both root
+  specs; `info.version` bumped to `1.0.1`. `GET /api/tags/search` and
+  `GET /api/blog-tags/search` now document a `429` (rate limit) response (no
+  schema changes — reuses `ErrorResponse`). Inertia page operations gained
+  `description` fields and admin pages document a `419` (session/CSRF expiry)
+  response via `InertiaErrorProps`; the inertia root now defines `servers`
+  (placeholder), global `tags`, and the `cookieAuth` security scheme inline.
+  The `cookieAuth` scheme moved from `components/security.yaml` into
+  `openapi.yaml` (stitched `securitySchemes` maps are not resolvable by
+  Spectral).
 - **Dual-response filter parameters:** `GET /blog` now documents `article_tags`,
   `skill_tags`, and `year` query parameters; `GET /projects` documents `tags`
   (AND/intersection semantics). The obsolete `tag` (`tagFilter`) parameter was

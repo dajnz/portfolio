@@ -303,6 +303,7 @@ paths:
     get:
       tags: [Projects]
       summary: Projects index (public)
+      description: Public projects card list with infinite scroll and tag filters.
       operationId: projectsIndexPage
       responses:
         '200':
@@ -328,6 +329,7 @@ paths:
     get:
       tags: [Projects]
       summary: Project detail (public)
+      description: Public project detail page.
       operationId: projectDetailPage
       parameters:
         - name: project
@@ -360,6 +362,7 @@ paths:
     get:
       tags: [Admin]
       summary: Projects list (admin)
+      description: Admin projects management list.
       operationId: projectsListPage
       responses:
         '200':
@@ -368,11 +371,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProjectsListPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/projects/create:
     get:
       tags: [Admin]
       summary: Create project form
+      description: Empty project creation form with available skills.
       operationId: projectCreatePage
       responses:
         '200':
@@ -381,11 +391,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProjectFormPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/projects/{project}/edit:
     get:
       tags: [Admin]
       summary: Edit project form
+      description: Project edit form with existing data and skills.
       operationId: projectEditPage
       parameters:
         - name: project
@@ -400,6 +417,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProjectFormPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/preview/projects/{project}:
     get:
@@ -423,4 +446,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProjectDetailPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 

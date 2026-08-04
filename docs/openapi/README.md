@@ -10,8 +10,7 @@ docs/openapi/
 ├── openapi.yaml           # Root — info, servers, tags, paths ($ref stitching)
 ├── components/
 │   ├── schemas.yaml       # Shared DTOs, error envelopes, pagination
-│   ├── parameters.yaml    # Shared query/path/header parameters
-│   └── security.yaml      # Auth schemes
+│   └── parameters.yaml    # Shared query/path/header parameters
 ├── features/
 │   ├── portfolio.yaml     # Feedback endpoint
 │   ├── blog.yaml          # Reactions, tags

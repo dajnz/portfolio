@@ -26,6 +26,7 @@ paths:
     get:
       tags: [Admin]
       summary: Settings page
+      description: Settings form with current values for the site settings table.
       operationId: settingsPage
       responses:
         '200':
@@ -34,6 +35,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SettingsPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/settings/feature-flags:
     patch:
@@ -77,3 +84,15 @@ paths:
                             type: boolean
                           social_reactions:
                             type: boolean
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+        '422':
+          description: Validation error — `flags` missing or not a boolean pair.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ValidationErrorResponse'

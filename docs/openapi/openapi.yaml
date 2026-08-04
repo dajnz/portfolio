@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Portfolio API
-  version: '1.0.0'
+  version: '1.0.1'
   description: |
     Public REST API for the portfolio site. This is the **single source of truth**
     for all API contracts — endpoints are implemented to match these specs, not the
@@ -17,6 +17,10 @@ info:
     - Success: `{ "data": ... }` envelope
     - Validation error (422): `{ "message": "...", "errors": { "field": [...] } }`
     - General error: `{ "message": "..." }`
+
+  contact:
+    name: Portfolio Administrator
+    url: 'https://portfolio.dev.lan'
 
 servers:
   - url: 'https://portfolio.dev.lan'
@@ -80,7 +84,14 @@ paths:
 
 components:
   securitySchemes:
-    $ref: './components/security.yaml#/components/securitySchemes'
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: portfolio_session
+      description: |
+        Laravel session cookie. The same session used for the admin web
+        interface. Endpoints marked **auth required** need an authenticated
+        admin session to return a non-401 response.
   schemas:
     $ref: './components/schemas.yaml#/components/schemas'
   parameters:
