@@ -11,12 +11,16 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      *
-     * Composed in Phase 2.2 (SettingsSeeder + FeatureFlagSeeder + single-row
-     * entities + demo content per assumption B7). Must never touch the
-     * `admins` table.
+     * Composes SettingsSeeder + FeatureFlagSeeder (per assumption B7).
+     * The single-row entities (about_info, resume_config) and demo content
+     * land with their feature phases (4.x+). Must never touch the `admins`
+     * table.
      */
     public function run(): void
     {
-        //
+        $this->call([
+            SettingsSeeder::class,
+            FeatureFlagSeeder::class,
+        ]);
     }
 }
