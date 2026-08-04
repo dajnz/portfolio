@@ -1,0 +1,11 @@
+{
+    "extends": ["html-validate:recommended"],
+    "rules": {
+        "no-unknown-elements": [
+            "error",
+            { "pattern": "^[a-z][a-z0-9-]*$" }
+        ],
+        "no-unknown-attributes": "off",
+        "no-inline-style": "off"
+    }
+}
