@@ -33,6 +33,7 @@ paths:
     get:
       tags: [Admin]
       summary: Resume settings page
+      description: Resume configuration — generation mode, layout, manual file, and per-locale about text.
       operationId: resumeEditPage
       responses:
         '200':
@@ -41,3 +42,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResumeEditPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'

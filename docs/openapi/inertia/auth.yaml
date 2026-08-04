@@ -95,6 +95,7 @@ paths:
     get:
       tags: [Auth]
       summary: Login page
+      description: Login form with optional GitHub OAuth button.
       operationId: loginPage
       responses:
         '200':
@@ -103,11 +104,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginPageProps'
+        '419':
+          description: Session expired (CSRF token expiry). Renders the error page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/login/totp:
     get:
       tags: [Auth]
       summary: TOTP verification page
+      description: TOTP code entry form shown after the login step.
       operationId: totpVerificationPage
       responses:
         '200':
@@ -116,11 +124,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TotpVerificationPageProps'
+        '419':
+          description: Session expired (CSRF token expiry). Renders the error page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/profile:
     get:
       tags: [Auth]
       summary: Profile page
+      description: Admin profile with credentials and security settings.
       operationId: profilePage
       responses:
         '200':
@@ -129,6 +144,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProfilePageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/profile/github-link/totp:
     get:
@@ -147,6 +168,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TotpVerificationPageProps'
+        '419':
+          description: Session expired (CSRF token expiry). Renders the error page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/profile/totp-enable:
     post:

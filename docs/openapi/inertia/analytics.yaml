@@ -37,6 +37,7 @@ paths:
     get:
       tags: [Admin]
       summary: Analytics dashboard
+      description: Report selection and per-report data views for the admin analytics dashboard.
       operationId: analyticsDashboardPage
       responses:
         '200':
@@ -45,3 +46,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AnalyticsDashboardPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'

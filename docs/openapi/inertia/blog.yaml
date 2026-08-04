@@ -239,6 +239,7 @@ paths:
     get:
       tags: [Blog]
       summary: Blog index (public)
+      description: Public blog article list with pagination and filter controls.
       operationId: blogIndexPage
       responses:
         '200':
@@ -264,6 +265,7 @@ paths:
     get:
       tags: [Blog]
       summary: Blog article (public)
+      description: Public blog article detail page.
       operationId: blogArticlePage
       parameters:
         - name: article
@@ -296,6 +298,7 @@ paths:
     get:
       tags: [Admin]
       summary: Blog article list (admin)
+      description: Admin blog article management list.
       operationId: blogListPage
       responses:
         '200':
@@ -304,11 +307,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlogListPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/blog/create:
     get:
       tags: [Admin]
       summary: Create blog article form
+      description: Empty blog article creation form.
       operationId: blogCreatePage
       responses:
         '200':
@@ -317,11 +327,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlogFormPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/blog/{article}/edit:
     get:
       tags: [Admin]
       summary: Edit blog article form
+      description: Blog article edit form with existing data.
       operationId: blogEditPage
       parameters:
         - name: article
@@ -336,11 +353,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlogFormPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/tags:
     get:
       tags: [Admin]
       summary: Tags management list
+      description: Admin article tags management list.
       operationId: tagsListPage
       responses:
         '200':
@@ -349,6 +373,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TagListPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/tags/create:
     get:
@@ -363,6 +393,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TagFormPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/tags/{tag}/edit:
     get:
@@ -383,6 +419,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TagFormPageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
 
   /admin/preview/blog/{article}:
     get:
@@ -406,3 +448,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BlogArticlePageProps'
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
