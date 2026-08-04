@@ -11,7 +11,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Landing page */
+        /**
+         * Landing page
+         * @description Public landing page with hero, about, featured projects, and skills.
+         */
         get: operations["landingPage"];
         put?: never;
         post?: never;
@@ -28,7 +31,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Admin dashboard */
+        /**
+         * Admin dashboard
+         * @description Admin dashboard with recent stats and quick links.
+         */
         get: operations["dashboardPage"];
         put?: never;
         post?: never;
@@ -45,7 +51,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Edit about info */
+        /**
+         * Edit about info
+         * @description About section edit form (hero, bio, relocation readiness).
+         */
         get: operations["aboutEditPage"];
         put?: never;
         post?: never;
@@ -62,7 +71,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Contacts list */
+        /**
+         * Contacts list
+         * @description Contacts management list with read/forward actions.
+         */
         get: operations["contactsListPage"];
         put?: never;
         post?: never;
@@ -79,7 +91,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Feedback list */
+        /**
+         * Feedback list
+         * @description Feedback submissions list with pagination.
+         */
         get: operations["feedbackListPage"];
         put?: never;
         post?: never;
@@ -96,7 +111,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Feedback detail */
+        /**
+         * Feedback detail
+         * @description Single feedback submission detail view.
+         */
         get: operations["feedbackDetailPage"];
         put?: never;
         post?: never;
@@ -113,7 +131,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Blog index (public) */
+        /**
+         * Blog index (public)
+         * @description Public blog article list with pagination and filter controls.
+         */
         get: operations["blogIndexPage"];
         put?: never;
         post?: never;
@@ -130,7 +151,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Blog article (public) */
+        /**
+         * Blog article (public)
+         * @description Public blog article detail page.
+         */
         get: operations["blogArticlePage"];
         put?: never;
         post?: never;
@@ -147,7 +171,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Blog article list (admin) */
+        /**
+         * Blog article list (admin)
+         * @description Admin blog article management list.
+         */
         get: operations["blogListPage"];
         put?: never;
         post?: never;
@@ -164,7 +191,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Create blog article form */
+        /**
+         * Create blog article form
+         * @description Empty blog article creation form.
+         */
         get: operations["blogCreatePage"];
         put?: never;
         post?: never;
@@ -181,7 +211,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Edit blog article form */
+        /**
+         * Edit blog article form
+         * @description Blog article edit form with existing data.
+         */
         get: operations["blogEditPage"];
         put?: never;
         post?: never;
@@ -198,7 +231,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Tags management list */
+        /**
+         * Tags management list
+         * @description Admin article tags management list.
+         */
         get: operations["tagsListPage"];
         put?: never;
         post?: never;
@@ -277,7 +313,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Projects index (public) */
+        /**
+         * Projects index (public)
+         * @description Public projects card list with infinite scroll and tag filters.
+         */
         get: operations["projectsIndexPage"];
         put?: never;
         post?: never;
@@ -294,7 +333,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Project detail (public) */
+        /**
+         * Project detail (public)
+         * @description Public project detail page.
+         */
         get: operations["projectDetailPage"];
         put?: never;
         post?: never;
@@ -311,7 +353,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Projects list (admin) */
+        /**
+         * Projects list (admin)
+         * @description Admin projects management list.
+         */
         get: operations["projectsListPage"];
         put?: never;
         post?: never;
@@ -328,7 +373,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Create project form */
+        /**
+         * Create project form
+         * @description Empty project creation form with available skills.
+         */
         get: operations["projectCreatePage"];
         put?: never;
         post?: never;
@@ -345,7 +393,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Edit project form */
+        /**
+         * Edit project form
+         * @description Project edit form with existing data and skills.
+         */
         get: operations["projectEditPage"];
         put?: never;
         post?: never;
@@ -404,7 +455,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Experience timeline (public) */
+        /**
+         * Experience timeline (public)
+         * @description Public career timeline with infinite scroll pagination.
+         */
         get: operations["experienceTimelinePage"];
         put?: never;
         post?: never;
@@ -421,7 +475,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Experience list (admin) */
+        /**
+         * Experience list (admin)
+         * @description Admin experience item management list.
+         */
         get: operations["experienceListPage"];
         put?: never;
         post?: never;
@@ -438,7 +495,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Create experience item form */
+        /**
+         * Create experience item form
+         * @description Empty experience item creation form with available skills and projects.
+         */
         get: operations["experienceCreatePage"];
         put?: never;
         post?: never;
@@ -455,7 +515,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Edit experience item form */
+        /**
+         * Edit experience item form
+         * @description Experience item edit form with existing data, skills, and projects.
+         */
         get: operations["experienceEditPage"];
         put?: never;
         post?: never;
@@ -472,7 +535,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Login page */
+        /**
+         * Login page
+         * @description Login form with optional GitHub OAuth button.
+         */
         get: operations["loginPage"];
         put?: never;
         post?: never;
@@ -489,7 +555,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** TOTP verification page */
+        /**
+         * TOTP verification page
+         * @description TOTP code entry form shown after the login step.
+         */
         get: operations["totpVerificationPage"];
         put?: never;
         post?: never;
@@ -506,7 +575,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Profile page */
+        /**
+         * Profile page
+         * @description Admin profile with credentials and security settings.
+         */
         get: operations["profilePage"];
         put?: never;
         post?: never;
@@ -578,7 +650,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Resume settings page */
+        /**
+         * Resume settings page
+         * @description Resume configuration — generation mode, layout, manual file, and per-locale about text.
+         */
         get: operations["resumeEditPage"];
         put?: never;
         post?: never;
@@ -595,7 +670,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Analytics dashboard */
+        /**
+         * Analytics dashboard
+         * @description Report selection and per-report data views for the admin analytics dashboard.
+         */
         get: operations["analyticsDashboardPage"];
         put?: never;
         post?: never;
@@ -612,7 +690,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Settings page */
+        /**
+         * Settings page
+         * @description Settings form with current values for the site settings table.
+         */
         get: operations["settingsPage"];
         put?: never;
         post?: never;
@@ -650,7 +731,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Backup management page */
+        /**
+         * Backup management page
+         * @description Backup list with pagination and encryption key status.
+         */
         get: operations["backupListPage"];
         put?: never;
         post?: never;
@@ -1474,6 +1558,15 @@ export interface operations {
                     "application/json": components["schemas"]["DashboardPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     aboutEditPage: {
@@ -1492,6 +1585,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AboutEditPageProps"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };
@@ -1514,6 +1616,15 @@ export interface operations {
                     "application/json": components["schemas"]["ContactsListPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     feedbackListPage: {
@@ -1532,6 +1643,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FeedbackListPageProps"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };
@@ -1554,6 +1674,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FeedbackDetailPageProps"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };
@@ -1655,6 +1784,15 @@ export interface operations {
                     "application/json": components["schemas"]["BlogListPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     blogCreatePage: {
@@ -1673,6 +1811,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BlogFormPageProps"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };
@@ -1697,6 +1844,15 @@ export interface operations {
                     "application/json": components["schemas"]["BlogFormPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     tagsListPage: {
@@ -1717,6 +1873,15 @@ export interface operations {
                     "application/json": components["schemas"]["TagListPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     tagCreatePage: {
@@ -1735,6 +1900,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TagFormPageProps"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };
@@ -1759,6 +1933,15 @@ export interface operations {
                     "application/json": components["schemas"]["TagFormPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     blogPreviewPage: {
@@ -1779,6 +1962,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BlogArticlePageProps"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };
@@ -1880,6 +2072,15 @@ export interface operations {
                     "application/json": components["schemas"]["ProjectsListPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     projectCreatePage: {
@@ -1898,6 +2099,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProjectFormPageProps"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };
@@ -1922,6 +2132,15 @@ export interface operations {
                     "application/json": components["schemas"]["ProjectFormPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     projectPreviewPage: {
@@ -1944,6 +2163,15 @@ export interface operations {
                     "application/json": components["schemas"]["ProjectDetailPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     skillsListPage: {
@@ -1962,6 +2190,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SkillsListPageProps"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };
@@ -2022,6 +2259,15 @@ export interface operations {
                     "application/json": components["schemas"]["ExperienceListPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     experienceCreatePage: {
@@ -2040,6 +2286,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExperienceFormPageProps"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };
@@ -2064,6 +2319,15 @@ export interface operations {
                     "application/json": components["schemas"]["ExperienceFormPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     loginPage: {
@@ -2082,6 +2346,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LoginPageProps"];
+                };
+            };
+            /** @description Session expired (CSRF token expiry). Renders the error page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };
@@ -2104,6 +2377,15 @@ export interface operations {
                     "application/json": components["schemas"]["TotpVerificationPageProps"];
                 };
             };
+            /** @description Session expired (CSRF token expiry). Renders the error page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     profilePage: {
@@ -2124,6 +2406,15 @@ export interface operations {
                     "application/json": components["schemas"]["ProfilePageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     githubLinkTotpPage: {
@@ -2142,6 +2433,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TotpVerificationPageProps"];
+                };
+            };
+            /** @description Session expired (CSRF token expiry). Renders the error page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };
@@ -2219,6 +2519,15 @@ export interface operations {
                     "application/json": components["schemas"]["ResumeEditPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     analyticsDashboardPage: {
@@ -2239,6 +2548,15 @@ export interface operations {
                     "application/json": components["schemas"]["AnalyticsDashboardPageProps"];
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
         };
     };
     settingsPage: {
@@ -2257,6 +2575,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SettingsPageProps"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };
@@ -2295,6 +2622,24 @@ export interface operations {
                     };
                 };
             };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
+            /** @description Validation error — `flags` missing or not a boolean pair. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
         };
     };
     backupListPage: {
@@ -2313,6 +2658,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BackupListPageProps"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
                 };
             };
         };

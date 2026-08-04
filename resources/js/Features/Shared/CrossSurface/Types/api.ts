@@ -773,6 +773,15 @@ export interface operations {
                     "application/json": components["schemas"]["TagSearchResponse"];
                 };
             };
+            /** @description Rate limit exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
         };
     };
     searchUnifiedBlogTags: {
@@ -794,6 +803,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UnifiedTagSearchResponse"];
+                };
+            };
+            /** @description Rate limit exceeded. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
         };
