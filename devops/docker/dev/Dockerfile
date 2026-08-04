@@ -13,5 +13,9 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY devops/docker/dev/xdebug.ini /usr/local/etc/php/conf.d/
 COPY devops/docker/dev/php.ini /usr/local/etc/php/conf.d/
 RUN adduser -D -u 1000 portfolio
+# Git runs as root, but the bind-mounted repo is owned by the host user
+# (uid 1000) — without this, git refuses the repo ("dubious ownership"),
+# which breaks `make commitlint` inside the dev container.
+RUN git config --global --add safe.directory /var/www/html
 WORKDIR /var/www/html
 CMD ["sleep", "infinity"]

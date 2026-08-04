@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build install migrate seed setup setup-localhost test test-unit test-feature test-frontend lint lint\:css format typecheck health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build install migrate seed setup setup-localhost test test-unit test-feature test-frontend lint lint\:css spectral commitlint format typecheck health secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -105,13 +105,30 @@ test-feature: ## Run backend feature tests only
 test-frontend: ## Run frontend tests only
 	$(DE) npx vitest run
 
-lint: ## Lint all code
+lint: ## Lint all code (mirrors the CI lint job: pint, biome, eslint, stylelint, spectral, commitlint)
 	$(DE) ./vendor/bin/pint --test
 	$(DE) npx biome ci resources/js
 	$(DE) npx eslint resources/js
+	$(DE) npx stylelint "resources/js/**/*.vue" || true
+	$(DE) npx @stoplight/spectral-cli lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
+	$(DE) npx @stoplight/spectral-cli lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
+	@MAIN="$$(git rev-parse --verify -q main 2>/dev/null)"; \
+	if [ -n "$$MAIN" ] && [ "$$MAIN" != "$$(git rev-parse HEAD)" ]; then \
+		$(DE) npx commitlint --from main --to HEAD; \
+	fi
 
 lint\:css: ## Validate CSS in Vue <style> blocks (non-blocking)
 	$(DE) npx stylelint "resources/js/**/*.vue" || true
+
+spectral: ## Lint both OpenAPI specs with the project ruleset (.spectral.yaml)
+	$(DE) npx @stoplight/spectral-cli lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
+	$(DE) npx @stoplight/spectral-cli lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
+
+commitlint: ## Lint commit messages (conventional commits; current branch vs main)
+	@MAIN="$$(git rev-parse --verify -q main 2>/dev/null)"; \
+	if [ -n "$$MAIN" ] && [ "$$MAIN" != "$$(git rev-parse HEAD)" ]; then \
+		$(DE) npx commitlint --from main --to HEAD; \
+	fi
 
 format: ## Auto-format code
 	$(DE) ./vendor/bin/pint

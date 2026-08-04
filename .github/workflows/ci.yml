@@ -1,0 +1,240 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so commitlint can lint every commit of a PR.
+          fetch-depth: 0
+      - uses: shivammathur/setup-php@v3
+        with:
+          php-version: '8.5'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: composer install --no-progress
+      - run: ./vendor/bin/pint --test            # Laravel Pint (PSR-12)
+      - run: npm ci
+      - run: npx biome ci resources/js           # Lint + format: TS, Vue script blocks
+      - run: npx eslint resources/js             # Template linting only (.vue <template>)
+      - run: npx stylelint "resources/js/**/*.vue" || true   # CSS validation (non-blocking, warnings only)
+      - run: npx @stoplight/spectral-cli lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
+      - run: npx @stoplight/spectral-cli lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
+      - name: Lint commit messages (commitlint)
+        run: |
+          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
+          if git rev-parse --verify "$BASE" >/dev/null 2>&1; then
+            npx commitlint --from "$BASE" --to HEAD
+          fi
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npm run typecheck            # generates API + Inertia types, then vue-tsc --noEmit
+
+  test-backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: portfolio_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v3
+        with:
+          php-version: '8.5'
+          coverage: pcov
+      - run: cp .env.example .env
+      - run: composer install --no-progress
+      - run: php artisan key:generate
+      - run: |
+          cat <<'EOF' >> .env
+          DB_HOST=127.0.0.1
+          DB_PORT=5432
+          DB_DATABASE=portfolio_test
+          DB_USERNAME=test
+          DB_PASSWORD=test
+          CACHE_STORE=array
+          SESSION_DRIVER=array
+          QUEUE_CONNECTION=sync
+          EOF
+      - run: php artisan migrate --env=testing
+      - run: php artisan test --env=testing --parallel --recreate-databases --coverage --min=80
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci
+      - run: npx vitest run --coverage
+
+  # Non-blocking per assumption B31 (flipped to blocking in step 13.2) —
+  # depends on steps 3.1/3.6 (SSR build + Playwright harness).
+  test-e2e:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: portfolio_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      rustfs:
+        image: rustfs/rustfs:latest
+        env:
+          RUSTFS_ROOT_USER: rustfsadmin
+          RUSTFS_ROOT_PASSWORD: rustfsadmin
+        ports:
+          - 9000:9000
+        options: >-
+          --health-cmd "wget -q -O /dev/null http://localhost:9000/minio/health/live"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: cp .env.example .env
+      - run: composer install --no-progress
+      - run: php artisan key:generate
+      - run: |
+          cat <<'EOF' >> .env
+          DB_HOST=127.0.0.1
+          DB_PORT=5432
+          DB_DATABASE=portfolio_test
+          DB_USERNAME=test
+          DB_PASSWORD=test
+          APP_URL=http://127.0.0.1:8000
+          CACHE_STORE=array
+          SESSION_DRIVER=file
+          QUEUE_CONNECTION=sync
+          MAIL_MAILER=log
+          RUSTFS_ENDPOINT=http://localhost:9000
+          RUSTFS_BUCKET=portfolio
+          RUSTFS_ACCESS_KEY=rustfsadmin
+          RUSTFS_SECRET_KEY=rustfsadmin
+          RUSTFS_USE_PATH_STYLE_ENDPOINT=true
+          RUSTFS_BACKUPS_ACCESS_KEY=rustfsadmin
+          RUSTFS_BACKUPS_SECRET_KEY=rustfsadmin
+          RUSTFS_BACKUPS_BUCKET=backups
+          EOF
+      - run: php artisan migrate --env=testing
+      # Create both RustFS buckets (portfolio + backups) — the e2e suite
+      # exercises backup creation/restore, which needs the backups bucket.
+      - run: |
+          docker run --rm --network host minio/mc:latest alias set local http://localhost:9000 rustfsadmin rustfsadmin \
+            && docker run --rm --network host minio/mc:latest mb --ignore-existing local/portfolio \
+            && docker run --rm --network host minio/mc:latest mb --ignore-existing local/backups
+      - run: npm ci
+      - run: npm run build -- --mode testing
+      - run: npm run ssr:build -- --mode testing
+      - run: npx playwright install --with-deps
+      # global-setup.ts handles seeding (E2ETestSeeder is idempotent:
+      # uses TRUNCATE ... CASCADE before insertions).
+      # The Laravel app and the Inertia SSR Node process must run inside the
+      # SAME step — GitHub Actions kills background processes between steps.
+      # CI has no Nginx/DNS/`portfolio.dev.lan`, so Playwright points at
+      # 127.0.0.1:8000.
+      - name: Run Playwright e2e tests
+        run: |
+          php artisan serve --env=testing --port=8000 &
+          php artisan inertia:start-ssr --env=testing &
+          npx wait-on tcp:127.0.0.1:8000 && npx wait-on http://127.0.0.1:8000
+          PLAYWRIGHT_BASE_URL=http://127.0.0.1:8000 npx playwright test
+
+  # Only on push to main: detect changed service sources, update image tags in
+  # devops/deploy/manifest.yml, and commit the manifest back (see devops.md
+  # "Manifest Update Job"). The auto-commit carries [skip ci] so it never
+  # re-triggers the workflow.
+  update-manifest:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: mikefarah/yq@v4.45.1
+
+      - name: Determine changed services
+        id: changes
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+
+          changed() {
+            git diff --name-only HEAD^ HEAD | grep -qE "$1" && echo "true" || echo "false"
+          }
+
+          BACKEND_CHANGED=$(changed '^(app/|config/|database/|routes/|bootstrap/|composer\.(json|lock)|devops/docker/php/|resources/views/)')
+          NODE_CHANGED=$(changed '^(resources/js/|package(-lock)?\.json|vite\.config\.ts)')
+          NGINX_CHANGED=$(changed '^devops/docker/nginx/')
+
+          echo "backend_changed=$BACKEND_CHANGED" >> $GITHUB_OUTPUT
+          echo "node_changed=$NODE_CHANGED" >> $GITHUB_OUTPUT
+          echo "nginx_changed=$NGINX_CHANGED" >> $GITHUB_OUTPUT
+          echo "sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+
+      - name: Update manifest
+        run: |
+          MANIFEST="devops/deploy/manifest.yml"
+          SHA="${{ steps.changes.outputs.sha }}"
+
+          mkdir -p devops/deploy
+          [ -f "$MANIFEST" ] || echo "services: {}" > "$MANIFEST"
+
+          if [ "${{ steps.changes.outputs.backend_changed }}" = "true" ]; then
+            yq -i ".services.app = \"$SHA\"" "$MANIFEST"
+            yq -i ".services.queue = \"$SHA\"" "$MANIFEST"
+            yq -i ".services.scheduler = \"$SHA\"" "$MANIFEST"
+          fi
+          if [ "${{ steps.changes.outputs.node_changed }}" = "true" ]; then
+            yq -i ".services.node = \"$SHA\"" "$MANIFEST"
+          fi
+          if [ "${{ steps.changes.outputs.nginx_changed }}" = "true" ]; then
+            yq -i ".services.nginx = \"$SHA\"" "$MANIFEST"
+          fi
+
+          cat "$MANIFEST"
+
+      - name: Commit updated manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add devops/deploy/manifest.yml
+          git diff --staged --quiet || git commit -m "chore(deploy): update image manifest [skip ci]"
+          git push

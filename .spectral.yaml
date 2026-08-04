@@ -1,0 +1,105 @@
+# Project-specific Spectral ruleset — extends the built-in OpenAPI and AsyncAPI
+# rulesets and adds the project conventions documented in
+# docs/detailed-spec/openapi.md#spectral-validation-ci.
+#
+# Usage:
+#   npx @stoplight/spectral-cli lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
+#   npx @stoplight/spectral-cli lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
+extends:
+  - spectral:oas
+  - spectral:asyncapi
+
+rules:
+  # `oas3-schema` is disabled: the root specs are $ref-stitching documents
+  # (docs/openapi/README.md) and the rule's structural validation does not
+  # support refs to whole objects/maps (false positives on every path item and
+  # components map). Structural conformance is covered by the contract test
+  # suite (tests/integration/backend/OpenApi, step 2.7).
+  oas3-schema: off
+
+  # Custom rules (docs/detailed-spec/openapi.md, table "Custom rules enforced by .spectral.yaml").
+  # `operation-operationId-unique` is inherited from `spectral:oas` (error severity,
+  # custom `oasOpIdUnique` function — pure-YAML rulesets cannot express uniqueness).
+
+  operation-tags:
+    description: Every operation must have at least one tag.
+    severity: error
+    recommended: true
+    given: $.paths[*][get,put,post,delete,options,head,patch,trace]
+    then:
+      field: tags
+      function: truthy
+
+  error-response-4xx:
+    description: Every operation should define at least one 4xx response.
+    severity: warn
+    recommended: true
+    given: $.paths[*][get,put,post,delete,options,head,patch,trace]
+    then:
+      field: responses
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          anyOf:
+            - required: ['400']
+            - required: ['401']
+            - required: ['403']
+            - required: ['404']
+            - required: ['405']
+            - required: ['409']
+            - required: ['410']
+            - required: ['419']
+            - required: ['422']
+            - required: ['429']
+
+  deprecated-with-date:
+    description: Deprecated operations must declare an `x-deprecation-date` extension.
+    severity: warn
+    recommended: true
+    given: $.paths[*][get,put,post,delete,options,head,patch,trace]
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          if:
+            properties:
+              deprecated:
+                const: true
+            required: [deprecated]
+          then:
+            required: [x-deprecation-date]
+
+  semver-info-version:
+    description: info.version must follow MAJOR.MINOR.PATCH (SemVer).
+    severity: error
+    recommended: true
+    given: $.info
+    then:
+      field: version
+      function: pattern
+      functionOptions:
+        match: '^[0-9]+\.[0-9]+\.[0-9]+$'
+
+  path-kebab-case:
+    description: Path segments should use kebab-case.
+    severity: warn
+    recommended: true
+    given: $.paths[*]~
+    then:
+      function: pattern
+      functionOptions:
+        match: '^/?(?:[a-z0-9]+(?:-[a-z0-9]+)*|\{[a-z0-9]+(?:-[a-z0-9]+)*\})(?:/(?:[a-z0-9]+(?:-[a-z0-9]+)*|\{[a-z0-9]+(?:-[a-z0-9]+)*\}))*$'
+
+  no-unused-components-schemas:
+    description: Validates the `components.schemas` map is present and well-formed (true dead-schema detection is not implemented).
+    severity: warn
+    recommended: true
+    given: $.components.schemas
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          type: object
+          minProperties: 1
