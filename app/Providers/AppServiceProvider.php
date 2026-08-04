@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Settings\Infra\Repositories\EloquentSettingRepository;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -21,6 +23,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             TechSkillReadRepositoryInterface::class,
             EloquentTechSkillReadRepository::class,
+        );
+
+        $this->app->bind(
+            SettingRepositoryInterface::class,
+            EloquentSettingRepository::class,
         );
     }
 
