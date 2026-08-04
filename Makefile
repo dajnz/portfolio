@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build install migrate seed setup setup-localhost test test-unit test-feature test-frontend lint lint\:css spectral commitlint format typecheck health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build install migrate seed setup setup-localhost test test-unit test-int test-backend test-frontend test-e2e coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck health secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -91,19 +91,36 @@ setup-localhost: ## First-run setup in localhost mode (no Traefik required)
 	$(create-rustfs-buckets)
 	$(DE_LOCALHOST) php artisan backup:generate-key --name "initial"
 
-test: ## Run all test suites
+test: ## Run all test suites except e2e (backend + frontend)
 	$(DE) php artisan test
 	$(DE) npx vitest run
+
+test-unit: ## Run unit tests (backend + frontend)
+	$(DE) php artisan test tests/unit/backend/
+	$(DE) npx vitest run tests/unit/frontend/
+
+test-int: ## Run integration tests (backend + frontend)
+	$(DE) php artisan test tests/integration/backend/
+	$(DE) npx vitest run tests/integration/frontend/
+
+test-backend: ## Run all backend tests (unit + integration)
+	$(DE) php artisan test
+
+test-frontend: ## Run all frontend tests (unit + integration)
+	$(DE) npx vitest run
+
+test-e2e: ## Run e2e tests
 	$(DE) npx playwright test
 
-test-unit: ## Run backend unit tests only
-	$(DE) php artisan test tests/unit/backend/
+coverage: ## Run all test suites with coverage (80% line coverage threshold, per testing spec)
+	$(DE) env XDEBUG_MODE=coverage php artisan test --coverage --min=80
+	$(DE) npx vitest run --coverage
 
-test-feature: ## Run backend feature tests only
-	$(DE) php artisan test tests/integration/backend/
+coverage-backend: ## Run backend tests with coverage (80% line coverage threshold)
+	$(DE) env XDEBUG_MODE=coverage php artisan test --coverage --min=80
 
-test-frontend: ## Run frontend tests only
-	$(DE) npx vitest run
+coverage-frontend: ## Run frontend tests with coverage (80% line coverage threshold)
+	$(DE) npx vitest run --coverage
 
 lint: ## Lint all code (mirrors the CI lint job: pint, biome, eslint, stylelint, spectral, commitlint)
 	$(DE) ./vendor/bin/pint --test
