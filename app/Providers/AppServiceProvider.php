@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Settings\Infra\Repositories\EloquentFeatureFlagRepository;
 use App\Features\Settings\Infra\Repositories\EloquentSettingRepository;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
@@ -28,6 +30,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             SettingRepositoryInterface::class,
             EloquentSettingRepository::class,
+        );
+
+        $this->app->bind(
+            FeatureFlagRepositoryInterface::class,
+            EloquentFeatureFlagRepository::class,
         );
     }
 
