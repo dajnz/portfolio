@@ -9,6 +9,7 @@
         "php": "8.5.*",
         "barryvdh/laravel-dompdf": "^3.1",
         "endroid/qr-code": "^6",
+        "inertiajs/inertia-laravel": "^3.0",
         "laravel/framework": "^13.0",
         "laravel/horizon": "^5.48",
         "laravel/socialite": "^5.29",
