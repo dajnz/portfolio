@@ -1,0 +1,19 @@
+# docker-compose.localhost.yml
+# Plain HTTP development without Traefik — access at http://localhost:8888
+# Run: docker compose -f docker-compose.yml -f docker-compose.localhost.yml up -d
+
+services:
+  nginx:
+    labels: []                        # no Traefik labels — Nginx is accessed directly
+    ports:
+      - "127.0.0.1:8888:80"          # expose Nginx HTTP on localhost:8888
+    # Compose merges service `networks` by name (union), so a plain list cannot
+    # remove the base file's `traefik` attachment — `!override` replaces it.
+    # localhost mode must not attach to the external Traefik network (created
+    # manually for the TLS-mode reverse proxy) and must not manage it either.
+    networks: !override [default]
+
+# No `networks:` override: the base file's external `traefik` network remains
+# declared but unreferenced, so Compose neither creates it nor warns about it.
+# (The spec's `external: false` flip is unnecessary once nginx no longer
+# attaches — and harmful: it makes the project claim a manually created network.)

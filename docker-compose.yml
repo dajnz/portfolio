@@ -1,0 +1,186 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  app:         # PHP-FPM + Laravel
+    build:
+      context: .
+      dockerfile: devops/docker/php/Dockerfile
+    restart: unless-stopped
+    logging: *default-logging
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+      - redis
+      - rustfs
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -x php-fpm || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  nginx:       # Web server (HTTP only — Traefik handles TLS in dev)
+    build: devops/docker/nginx/
+    restart: unless-stopped
+    expose:
+      - 80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portfolio.rule=Host(`portfolio.dev.lan`)"
+      - "traefik.http.routers.portfolio.tls=true"
+      - "traefik.http.services.portfolio.loadbalancer.server.port=80"
+    networks:
+      - default
+      - traefik
+    logging: *default-logging
+    depends_on:
+      - app
+      - rustfs
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:80 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  db:          # PostgreSQL
+    image: postgres:18-alpine
+    # postgres:18+ images require the mount at /var/lib/postgresql (data goes
+    # into a major-version subdirectory) — mounting the old /var/lib/postgresql/data
+    # path makes the entrypoint refuse to start.
+    volumes: ["pgdata:/var/lib/postgresql"]
+    environment:
+      POSTGRES_DB: "${DB_DATABASE}"
+      POSTGRES_USER: "${DB_USERNAME}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:       # Cache + queues + sessions
+    image: redis:8-alpine
+    volumes: ["redisdata:/data"]
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  queue:       # Queue worker (processes queued jobs from Redis)
+    build:
+      context: .
+      dockerfile: devops/docker/php/Dockerfile
+    command: php artisan queue:work --tries=3
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -fx 'php artisan queue:work --tries=3' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  scheduler:   # Laravel scheduler (runs schedule:work to invoke scheduled commands)
+    build:
+      context: .
+      dockerfile: devops/docker/php/Dockerfile
+    command: php artisan schedule:work
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -fx 'php artisan schedule:work' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  rustfs:       # S3-compatible object storage
+    image: rustfs/rustfs
+    command: server /data --console-address ":9001"
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes: ["rustfsdata:/data"]
+    environment:
+      RUSTFS_ROOT_USER: "${RUSTFS_ACCESS_KEY}"
+      RUSTFS_ROOT_PASSWORD: "${RUSTFS_SECRET_KEY}"
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:9000/minio/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  mailpit:     # Local SMTP catcher (dev only) — caught mail at http://localhost:8025
+    image: axllent/mailpit
+    ports: ["127.0.0.1:8025:8025"]
+    environment:
+      MP_SMTP_LISTEN: ":1025"
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8025/api/v1/messages || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  dev:         # Dev container — PHP 8.5 CLI + Node.js 24 + Composer + Xdebug
+    build:
+      context: .
+      dockerfile: devops/docker/dev/Dockerfile
+    ports:
+      - "5173:5173"          # Vite dev server / HMR (npm run dev)
+      - "3000:3000"          # Inertia SSR dev server (npm run ssr:dev) — app reaches it via INERTIA_SSR_URL
+    volumes:
+      - .:/var/www/html
+      - composer_cache:/home/portfolio/.composer
+      - npm_cache:/home/portfolio/.npm
+    depends_on:
+      - db
+      - redis
+      - rustfs
+    stdin_open: true
+    tty: true
+    logging: *default-logging
+    healthcheck:
+      test: ["CMD-SHELL", "php -v && node -v || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 2
+      start_period: 10s
+
+volumes:
+  pgdata:
+  redisdata:
+  rustfsdata:
+  composer_cache:
+  npm_cache:
+
+networks:
+  default:
+    name: portfolio_dev
+  traefik:
+    external: true
+    name: dev-env-network

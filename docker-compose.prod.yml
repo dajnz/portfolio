@@ -1,0 +1,251 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  app:
+    image: 127.0.0.1:5000/portfolio-app:${APP_TAG:-latest}
+    build:
+      context: .
+      dockerfile: devops/docker/php/Dockerfile
+      args:
+        - APP_ENV=production
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - INERTIA_SSR_URL=${INERTIA_SSR_URL:-http://node:3000}
+    logging: *default-logging
+    deploy:
+      replicas: 2
+      update_config:
+        order: start-first
+        failure_action: rollback
+        monitor: 30s
+        max_failure_ratio: 0.5
+      rollback_config:
+        order: start-first
+        failure_action: pause
+        monitor: 30s
+      restart_policy:
+        condition: any
+        delay: 5s
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -x php-fpm || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  node:
+    image: 127.0.0.1:5000/portfolio-node:${NODE_TAG:-latest}
+    build:
+      context: .
+      dockerfile: devops/docker/node/Dockerfile
+    command: node /var/www/html/bootstrap/ssr/ssr.js
+    environment:
+      - NODE_ENV=production
+    logging: *default-logging
+    deploy:
+      replicas: 2
+      update_config:
+        order: start-first
+        failure_action: rollback
+        monitor: 20s
+      rollback_config:
+        order: start-first
+        failure_action: pause
+        monitor: 20s
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -fx 'node /var/www/html/bootstrap/ssr/ssr.js' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  nginx:
+    image: 127.0.0.1:5000/portfolio-nginx:${NGINX_TAG:-latest}
+    build: devops/docker/nginx/
+    ports:
+      - target: 80
+        published: 80
+        mode: ingress
+      - target: 443
+        published: 443
+        mode: ingress
+    environment:
+      - DOMAIN=${DOMAIN}
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    logging: *default-logging
+    deploy:
+      replicas: 2
+      update_config:
+        order: start-first
+        failure_action: rollback
+        monitor: 10s
+      rollback_config:
+        order: start-first
+        failure_action: pause
+        monitor: 10s
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:80 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  db:
+    image: postgres:18-alpine
+    # postgres:18+ images require the mount at /var/lib/postgresql (data goes
+    # into a major-version subdirectory) — mounting the old /var/lib/postgresql/data
+    # path makes the entrypoint refuse to start.
+    volumes:
+      - pgdata:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: "${DB_DATABASE}"
+      POSTGRES_USER: "${DB_USERNAME}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+    logging: *default-logging
+    deploy:
+      replicas: 1
+      update_config:
+        order: start-first
+        failure_action: rollback
+      placement:
+        constraints:
+          - node.role == manager
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:8-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redisdata:/data
+    logging: *default-logging
+    deploy:
+      replicas: 1
+      update_config:
+        order: start-first
+        failure_action: rollback
+      placement:
+        constraints:
+          - node.role == manager
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  queue:
+    image: 127.0.0.1:5000/portfolio-queue:${APP_TAG:-latest}
+    build:
+      context: .
+      dockerfile: devops/docker/php/Dockerfile
+      args:
+        - APP_ENV=production
+    command: php artisan queue:work --tries=3
+    logging: *default-logging
+    deploy:
+      replicas: 2
+      update_config:
+        order: start-first
+        failure_action: rollback
+        monitor: 30s
+      rollback_config:
+        order: start-first
+        failure_action: pause
+        monitor: 30s
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -fx 'php artisan queue:work --tries=3' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  scheduler:
+    image: 127.0.0.1:5000/portfolio-scheduler:${APP_TAG:-latest}
+    build:
+      context: .
+      dockerfile: devops/docker/php/Dockerfile
+      args:
+        - APP_ENV=production
+    command: php artisan schedule:work
+    logging: *default-logging
+    deploy:
+      replicas: 1
+      update_config:
+        order: start-first
+        failure_action: rollback
+        monitor: 30s
+      rollback_config:
+        order: start-first
+        failure_action: pause
+        monitor: 30s
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep -fx 'php artisan schedule:work' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  rustfs:
+    image: rustfs/rustfs
+    command: server /data --console-address ":9001"
+    environment:
+      RUSTFS_ROOT_USER: "${RUSTFS_ACCESS_KEY}"
+      RUSTFS_ROOT_PASSWORD: "${RUSTFS_SECRET_KEY}"
+    volumes:
+      - rustfsdata:/data
+    logging: *default-logging
+    deploy:
+      replicas: 1
+      update_config:
+        order: start-first
+        failure_action: rollback
+      placement:
+        constraints:
+          - node.role == manager
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:9000/minio/health/live || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    logging: *default-logging
+    # After certificate renewal, nginx containers must be restarted to pick up
+    # the new certificate. Use `docker service update --force portfolio_nginx`
+    # or trigger a rolling restart. The nginx entrypoint script
+    # (devops/docker/nginx/entrypoint.sh) handles enabling the HTTPS block
+    # when cert files are present at container start.
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+networks:
+  default:
+    driver: overlay
+
+volumes:
+  pgdata:
+  redisdata:
+  rustfsdata:
+  certbot_certs:
+  certbot_www:
