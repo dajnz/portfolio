@@ -62,6 +62,32 @@ return [
             'report' => false,
         ],
 
+        'rustfs' => [
+            'driver' => 's3',
+            'key' => env('RUSTFS_ACCESS_KEY'),
+            'secret' => env('RUSTFS_SECRET_KEY'),
+            'region' => env('RUSTFS_REGION', 'us-east-1'),
+            'bucket' => env('RUSTFS_BUCKET', 'portfolio'),
+            'endpoint' => env('RUSTFS_ENDPOINT'),
+            'use_path_style_endpoint' => env('RUSTFS_USE_PATH_STYLE_ENDPOINT', true),
+            'visibility' => 'public',
+            'throw' => true,
+            'report' => false,
+        ],
+
+        'rustfs-backups' => [
+            'driver' => 's3',
+            'key' => env('RUSTFS_BACKUPS_ACCESS_KEY'),
+            'secret' => env('RUSTFS_BACKUPS_SECRET_KEY'),
+            'region' => env('RUSTFS_BACKUPS_REGION', 'us-east-1'),
+            'bucket' => env('RUSTFS_BACKUPS_BUCKET', 'backups'),
+            'endpoint' => env('RUSTFS_ENDPOINT'),
+            'use_path_style_endpoint' => env('RUSTFS_USE_PATH_STYLE_ENDPOINT', true),
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
     ],
 
     /*
