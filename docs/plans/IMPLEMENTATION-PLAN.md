@@ -91,6 +91,7 @@ Defaults approved by the user 2026-08-04. Assumptions only fill spec gaps — th
 | B44 | **Nginx healthcheck uses `http://127.0.0.1:80` instead of `localhost`** — in the nginx container `localhost` resolves to `::1` only (IPv6) and busybox wget does not fall back to IPv4, so the spec's `localhost` probe always fails (verified) while nginx listens IPv4-only. | Minor (healthcheck fix) |
 | B45 | **Makefile details**: `lint\:css` must be backslash-escaped (GNU Make 4.3 parses `lint:css` as a rule → "multiple target patterns"); the rustfs image ships no `mc` binary, so bucket creation uses a one-off `minio/mc` container on the `portfolio_dev` network (same approach as the CI e2e job) reading creds from `.env`; the `portfolio` bucket additionally gets a public-read ("download") policy — required by the same-origin `/assets/ → rustfs:9000/portfolio/` design (A7), the `backups` bucket stays private. | Minor (toolchain/env fixes) |
 | B46 | **`docker-compose.prod.yml` `build.context: .` for app/node images** already matches the full-context requirement (B38); the node Dockerfile's `npm run ssr:build` step expects the `ssr:build` script added in Step 3.1 — the node image is only built by the prod stack (not by dev compose) and is not part of this step's acceptance. | Minor (ordering note) |
+| B47 | **Scaffold migrations removed in 1.1** (user-approved 2026-08-04): the Laravel scaffold's `0001_01_01_000000_create_users_table.php` (users/password_reset_tokens/sessions), `0001_01_01_000001_create_cache_table.php`, and `0001_01_01_000002_create_jobs_table.php` were deleted along with `app/Models/User.php` and `database/factories/UserFactory.php` — the spec explicitly forbids a `users` table (`authentication.md:35,61`) and its migration-order list (`database.md:567-584`) contains no cache/jobs/sessions tables (all Redis-backed); `DatabaseSeeder` neutralized pending its B7 composition in 2.2 (still must never touch `admins`). | User-approved |
 
 ## 3. Non-goals
 
@@ -108,6 +109,8 @@ Explicitly out of scope (from `architecture.md` + spec statements — do not bui
 - Multi-version API runtime support; auto-promotion of non-blocking perf budgets (stays warning-level initially).
 
 ## 4. Current state
+
+**Step 1.1 complete** (2026-08-04): migrations for `admins` (`2026_08_04_000001_create_admins_table.php`, all auth columns per `database.md:7-30`: totp_secret/recovery_codes/failed_attempts/locked_until, session_version, unique email+login, no unique constraint on `github_id`), `settings` (`000002`, key PK + value + type default 'string' per `database.md:32-56`), `feature_flags` (`000003`, key PK + enabled + description per `database.md:58-69`). Per spec ("no `users` table", `authentication.md:35,61`; schema lists no cache/jobs/sessions tables — all Redis-backed): deleted the three scaffold migrations (`0001_01_01_000000_create_users_table`, `*_cache_table`, `*_jobs_table`), `app/Models/User.php`, `database/factories/UserFactory.php`; `DatabaseSeeder` neutralized (will be composed per B7 in 2.2; still must never touch `admins`). **Verified in-container**: `php artisan migrate:fresh` succeeds (3 migrations, no scaffold tables created); `php artisan migrate:rollback --step=3` drops all three without FK errors; re-run `migrate` re-creates them; `\d` on all three tables matches the spec columns/defaults/nullability exactly; `pint --test database/ app/` PASS (6 files); no code references to the removed `User` model or `users` table remain.
 
 **Step 0.1 complete** (2026-08-04): Laravel 13.23.0 scaffolded on PHP 8.5.8, all backend dependencies installed (Pest 4, Pint, Socialite, google2fa-laravel, endroid/qr-code, league/commonmark, laravel-dompdf, flysystem-aws-s3-v3, Horizon, ziggy, l5-swagger, openapi-psr7-validator), `App\Features` PSR-4 autoload, `declare(strict_types=1)` via Pint (`pint --test` exit 0), `app/Features/{Feature}/{Domain,App,Infra}` skeleton (11 features), `.editorconfig` per `tech-stack.md`. Verified on host toolchain (PHP 8.5.8, identical to the dev image spec); the `docker compose exec dev ...` acceptance run becomes available at step 0.4.
 
@@ -148,7 +151,7 @@ Explicitly out of scope (from `architecture.md` + spec statements — do not bui
 
 ### Phase 1 — Data layer (migrations)
 
-- [ ] **1.1 Migrations: auth + config tables**
+- [x] **1.1 Migrations: auth + config tables**
   `admins` (all auth columns incl. totp/recovery/session_version), `settings` (key PK, type), `feature_flags` (key PK).
   Files: `database/migrations/*admins*`, `*settings*`, `*feature_flags*`
   Acceptance: `docker compose exec dev php artisan migrate:fresh` succeeds; `docker compose exec dev php artisan migrate:rollback --step=3` drops all three without FK errors.
