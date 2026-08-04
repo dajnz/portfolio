@@ -1,0 +1,426 @@
+components:
+  schemas:
+    ProjectsIndexPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Projects/Public/Pages/ProjectsIndexPage'
+            props:
+              type: object
+              properties:
+                projects:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ProjectCardData'
+                skill_tags:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/SkillTagData'
+                has_more:
+                  type: boolean
+                next_cursor:
+                  type: string
+                  nullable: true
+
+    ProjectDetailPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Projects/Public/Pages/ProjectDetailPage'
+            props:
+              type: object
+              properties:
+                project:
+                  $ref: '#/components/schemas/ProjectDetailData'
+
+    ProjectsListPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Projects/Admin/Pages/ProjectsListPage'
+            props:
+              type: object
+              properties:
+                projects:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ProjectTableRowData'
+                meta:
+                  $ref: '../components/schemas.yaml#/components/schemas/PaginationMeta'
+
+    ProjectFormPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Projects/Admin/Pages/ProjectFormPage'
+            props:
+              type: object
+              properties:
+                project:
+                  $ref: '#/components/schemas/ProjectEditData'
+                  nullable: true
+                  description: Existing project on edit; null when creating.
+                skills:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/SkillTagData'
+
+    ProjectCardData:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        brief_description:
+          type: string
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        preview_image:
+          type: string
+          nullable: true
+        preview_image_alt:
+          type: object
+          properties:
+            en:
+              type: string
+            ru:
+              type: string
+        github_url:
+          type: string
+          nullable: true
+        live_demo_url:
+          type: string
+          nullable: true
+        is_featured:
+          type: boolean
+        tech_tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillTagData'
+        screenshots:
+          type: array
+          nullable: true
+          items:
+            type: object
+            properties:
+              image_path:
+                type: string
+              alt_text:
+                type: object
+                properties:
+                  en:
+                    type: string
+                  ru:
+                    type: string
+
+    ProjectDetailData:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        full_description:
+          type: string
+        brief_description:
+          type: string
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        preview_image:
+          type: string
+          nullable: true
+        preview_image_alt:
+          type: object
+          properties:
+            en:
+              type: string
+            ru:
+              type: string
+        github_url:
+          type: string
+          nullable: true
+        live_demo_url:
+          type: string
+          nullable: true
+        is_featured:
+          type: boolean
+        tech_tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillTagData'
+        screenshots:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScreenshotData'
+        detail_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetailItemData'
+
+    ProjectEditData:
+      allOf:
+        - $ref: '#/components/schemas/ProjectDetailData'
+        - type: object
+          properties:
+            is_published:
+              type: boolean
+            tech_writeup_article_id:
+              type: integer
+              nullable: true
+              description: Linked blog article id (tech writeup). Null removes the link.
+
+    ProjectTableRowData:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        is_published:
+          type: boolean
+        is_featured:
+          type: boolean
+        featured_sort_order:
+          type: integer
+          nullable: true
+        tech_tags_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SkillTagData:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        icon:
+          type: string
+          description: Iconify identifier, e.g. `heroicons:code-bracket`.
+
+    SkillGroupEditData:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        icon:
+          type: string
+        sort_order:
+          type: integer
+        skills:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              icon:
+                type: string
+              proficiency:
+                type: integer
+              sort_order:
+                type: integer
+              include_in_resume:
+                type: boolean
+
+    ScreenshotData:
+      type: object
+      properties:
+        id:
+          type: integer
+        image_path:
+          type: string
+        title:
+          type: object
+          properties:
+            en:
+              type: string
+            ru:
+              type: string
+        description:
+          type: object
+          properties:
+            en:
+              type: string
+            ru:
+              type: string
+        alt_text:
+          type: object
+          properties:
+            en:
+              type: string
+            ru:
+              type: string
+        sort_order:
+          type: integer
+
+    DetailItemData:
+      type: object
+      properties:
+        id:
+          type: integer
+        icon:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+
+paths:
+  /projects:
+    get:
+      tags: [Projects]
+      summary: Projects index (public)
+      operationId: projectsIndexPage
+      responses:
+        '200':
+          description: Project card list with infinite scroll.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectsIndexPageProps'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+        '500':
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+
+  /projects/{project}:
+    get:
+      tags: [Projects]
+      summary: Project detail (public)
+      operationId: projectDetailPage
+      parameters:
+        - name: project
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Project slug (route binding {project:slug}).
+      responses:
+        '200':
+          description: Project detail page.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDetailPageProps'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+        '500':
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+
+  /admin/projects:
+    get:
+      tags: [Admin]
+      summary: Projects list (admin)
+      operationId: projectsListPage
+      responses:
+        '200':
+          description: Admin projects management list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectsListPageProps'
+
+  /admin/projects/create:
+    get:
+      tags: [Admin]
+      summary: Create project form
+      operationId: projectCreatePage
+      responses:
+        '200':
+          description: Project creation form with available skills.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectFormPageProps'
+
+  /admin/projects/{project}/edit:
+    get:
+      tags: [Admin]
+      summary: Edit project form
+      operationId: projectEditPage
+      parameters:
+        - name: project
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Project edit form with existing data and skills.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectFormPageProps'
+
+  /admin/preview/projects/{project}:
+    get:
+      tags: [Admin]
+      summary: Project preview (signed URL)
+      description: |
+        Signed temporary URL (1-hour expiry via URL::temporarySignedRoute), excluded
+        from auth middleware. Renders the public project page, bypassing the
+        is_published scope.
+      operationId: projectPreviewPage
+      parameters:
+        - name: project
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Public project page in preview mode.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDetailPageProps'
+

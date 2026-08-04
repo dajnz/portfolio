@@ -1,0 +1,32 @@
+components:
+  schemas:
+    SkillsListPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'TechSkills/Admin/Pages/SkillsListPage'
+            props:
+              type: object
+              properties:
+                skillGroups:
+                  type: array
+                  items:
+                    $ref: './projects.yaml#/components/schemas/SkillGroupEditData'
+
+paths:
+  /admin/skills:
+    get:
+      tags: [Admin]
+      summary: Skills list
+      description: Skill and skill group management with drag-and-drop reordering.
+      operationId: skillsListPage
+      responses:
+        '200':
+          description: Skills management list with groups.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillsListPageProps'

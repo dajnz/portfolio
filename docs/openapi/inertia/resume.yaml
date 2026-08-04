@@ -1,0 +1,43 @@
+components:
+  schemas:
+    ResumeEditPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Resume/Admin/Pages/ResumeEditPage'
+            props:
+              type: object
+              properties:
+                mode:
+                  type: string
+                  enum: [auto, manual]
+                  description: Resume generation mode (auto = generate PDF from data, manual = serve uploaded file).
+                layout:
+                  type: object
+                  description: Resume layout JSON — template selection + section visibility/ordering.
+                custom_resume_file:
+                  type: string
+                  nullable: true
+                  description: RustFS path of the manually uploaded resume (mode = manual).
+                about_texts:
+                  type: object
+                  additionalProperties:
+                    type: string
+                  description: Per-locale about_text for the auto-generated resume (falls back to about_info short_pitch).
+
+paths:
+  /admin/resume:
+    get:
+      tags: [Admin]
+      summary: Resume settings page
+      operationId: resumeEditPage
+      responses:
+        '200':
+          description: Resume configuration form (mode, layout, manual file, per-locale about text).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResumeEditPageProps'

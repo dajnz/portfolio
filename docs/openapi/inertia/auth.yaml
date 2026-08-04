@@ -1,0 +1,212 @@
+components:
+  schemas:
+    LoginPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Auth/Admin/Pages/LoginPage'
+            props:
+              type: object
+              properties:
+                github_oauth_enabled:
+                  type: boolean
+                  description: Whether GitHub OAuth feature flag is enabled.
+                loginPage:
+                  type: boolean
+                  const: true
+
+    TotpVerificationPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Auth/Admin/Pages/TotpVerificationPage'
+            props:
+              type: object
+              properties:
+                lock_remaining_seconds:
+                  type: integer
+                  nullable: true
+                  description: Seconds remaining until TOTP lockout expires, null if not locked.
+
+    ProfilePageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Auth/Admin/Pages/ProfilePage'
+            props:
+              type: object
+              properties:
+                admin:
+                  type: object
+                  properties:
+                    login:
+                      type: string
+                    email:
+                      type: string
+                    github_linked:
+                      type: boolean
+                    totp_enabled:
+                      type: boolean
+                    session_version:
+                      type: integer
+                github_oauth_enabled:
+                  type: boolean
+
+    TotpEnableStartResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [qr_code_svg, manual_key]
+          properties:
+            qr_code_svg:
+              type: string
+              description: Inline SVG string of the TOTP QR code (rendered server-side via endroid/qr-code).
+            manual_key:
+              type: string
+              description: The TOTP secret in base32 for manual entry into an authenticator app.
+
+    TotpEnableVerifyResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [recovery_codes]
+          properties:
+            recovery_codes:
+              type: array
+              description: 10 single-use recovery codes (displayed once).
+              items:
+                type: string
+
+paths:
+  /admin/login:
+    get:
+      tags: [Auth]
+      summary: Login page
+      operationId: loginPage
+      responses:
+        '200':
+          description: Login form with optional GitHub OAuth button.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginPageProps'
+
+  /admin/login/totp:
+    get:
+      tags: [Auth]
+      summary: TOTP verification page
+      operationId: totpVerificationPage
+      responses:
+        '200':
+          description: TOTP code entry form with lockout state.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotpVerificationPageProps'
+
+  /admin/profile:
+    get:
+      tags: [Auth]
+      summary: Profile page
+      operationId: profilePage
+      responses:
+        '200':
+          description: Admin profile with credentials and security settings.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfilePageProps'
+
+  /admin/profile/github-link/totp:
+    get:
+      tags: [Auth]
+      summary: GitHub link TOTP confirmation page
+      description: |
+        Re-verifies TOTP before persisting a new GitHub link. Gated by the
+        totp.pending.github_link middleware (half-auth pattern keyed on
+        github_link.pending_admin_id), not auth. Renders the same
+        TotpVerificationPage component as the login flow.
+      operationId: githubLinkTotpPage
+      responses:
+        '200':
+          description: TOTP code entry form for GitHub link confirmation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TotpVerificationPageProps'
+
+  /admin/profile/totp-enable:
+    post:
+      tags: [Auth]
+      summary: Enable TOTP (dual-purpose — start enrollment or verify & enable)
+      description: |
+        Dual-purpose endpoint. The response shape depends on whether a `code`
+        parameter is present in the request body:
+
+        - **Without `code`** (start enrollment): generates a TOTP secret,
+          stores it temporarily in the session (`totp_enroll.pending_secret`),
+          and returns `{ data: { qr_code_svg, manual_key } }`.
+        - **With `code`** (verify & enable): verifies the 6-digit code
+          against the pending secret, stores `totp_secret` (encrypted),
+          sets `totp_enabled = true`, increments `session_version`, and
+          returns `{ data: { recovery_codes: [...] } }` (10 single-use
+          codes displayed once).
+
+        See [authentication.md](authentication.md#totp-2fa) for the full flow.
+      operationId: enableTotp
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  nullable: true
+                  description: 6-digit TOTP code from authenticator app. Omit to start enrollment; include to verify & enable.
+                  maxLength: 6
+      responses:
+        '200':
+          description: |
+            Response shape depends on the request. Without `code`: returns
+            the QR code SVG and manual key. With `code`: returns the 10
+            recovery codes. The frontend distinguishes the two by checking
+            which fields are present in `data`.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/TotpEnableStartResponse'
+                  - $ref: '#/components/schemas/TotpEnableVerifyResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'
+        '422':
+          description: |
+            Validation error. Returned when:
+            - `code` is present but is not a valid 6-digit TOTP code
+            - the pending secret has expired (session timeout)
+            - the code does not match the pending secret
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ValidationErrorResponse'

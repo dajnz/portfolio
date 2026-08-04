@@ -1,0 +1,378 @@
+components:
+  schemas:
+    LandingPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Portfolio/Public/Pages/LandingPage'
+            props:
+              type: object
+              properties:
+                about:
+                  $ref: '#/components/schemas/AboutData'
+                skills:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/SkillGroupData'
+                featured_projects:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FeaturedProjectData'
+                experience_items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TimelineItemData'
+                contacts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ContactData'
+
+    DashboardPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Portfolio/Admin/Pages/DashboardPage'
+            props:
+              type: object
+              properties:
+                stats:
+                  type: object
+                  properties:
+                    total_views:
+                      type: integer
+                    blog_views:
+                      type: integer
+                    projects_count:
+                      type: integer
+                    articles_count:
+                      type: integer
+
+    AboutEditPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Portfolio/Admin/Pages/AboutEditPage'
+            props:
+              type: object
+              properties:
+                about:
+                  $ref: '#/components/schemas/AboutData'
+
+    ContactsListPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Portfolio/Admin/Pages/ContactsListPage'
+            props:
+              type: object
+              properties:
+                contacts:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ContactData'
+
+    FeedbackListPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Portfolio/Admin/Pages/FeedbackListPage'
+            props:
+              type: object
+              properties:
+                feedback:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FeedbackItemData'
+                meta:
+                  $ref: '../components/schemas.yaml#/components/schemas/PaginationMeta'
+
+    FeedbackDetailPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Portfolio/Admin/Pages/FeedbackDetailPage'
+            props:
+              type: object
+              properties:
+                item:
+                  $ref: '#/components/schemas/FeedbackItemData'
+
+    AboutData:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Per-locale translatable name (from about_info_translations).
+        title:
+          type: string
+        short_pitch:
+          type: string
+        photo:
+          type: string
+          nullable: true
+        photo_alt:
+          type: object
+          properties:
+            en:
+              type: string
+            ru:
+              type: string
+        location:
+          type: string
+          description: Per-locale translatable location (e.g. city name), resolved server-side.
+        show_location:
+          type: boolean
+          description: Whether to display the location on the public landing page. Controlled by admin.
+        timezone:
+          type: string
+        availability_status:
+          type: string
+        work_type:
+          type: string
+        relocation_readiness:
+          type: boolean
+
+    SkillGroupData:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        icon:
+          type: string
+        skills:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              icon:
+                type: string
+              proficiency:
+                type: integer
+
+    FeaturedProjectData:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        brief_description:
+          type: string
+        preview_image:
+          type: string
+          nullable: true
+        tech_tags:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              icon:
+                type: string
+                description: Iconify identifier, e.g. `heroicons:code-bracket`.
+
+    TimelineItemData:
+      type: object
+      properties:
+        id:
+          type: integer
+        position:
+          type: string
+        company_name:
+          type: string
+        company_country:
+          type: string
+        project_name:
+          type: string
+          nullable: true
+        short_description:
+          type: string
+        started_at:
+          type: string
+          format: date
+        ended_at:
+          type: string
+          format: date
+          nullable: true
+        achievements:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              project_link:
+                type: string
+        tech_tags:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              icon:
+                type: string
+                description: Iconify identifier, e.g. `heroicons:code-bracket`.
+
+    ContactData:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+          description: Per-locale translatable contact name (e.g. "GitHub" / "Гитхаб").
+        icon:
+          type: string
+        value:
+          type: string
+        url:
+          type: string
+          nullable: true
+
+    FeedbackItemData:
+      type: object
+      properties:
+        id:
+          type: integer
+        sender_name:
+          type: string
+        sender_email:
+          type: string
+        message:
+          type: string
+        is_read:
+          type: boolean
+        is_forwarded:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+paths:
+  /:
+    get:
+      tags: [Portfolio]
+      summary: Landing page
+      operationId: landingPage
+      responses:
+        '200':
+          description: Landing page with all public data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LandingPageProps'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+        '500':
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+
+  /admin:
+    get:
+      tags: [Admin]
+      summary: Admin dashboard
+      operationId: dashboardPage
+      responses:
+        '200':
+          description: Dashboard with stats.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardPageProps'
+
+  /admin/about:
+    get:
+      tags: [Admin]
+      summary: Edit about info
+      operationId: aboutEditPage
+      responses:
+        '200':
+          description: About edit form.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AboutEditPageProps'
+
+  /admin/contacts:
+    get:
+      tags: [Admin]
+      summary: Contacts list
+      operationId: contactsListPage
+      responses:
+        '200':
+          description: Contacts management list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactsListPageProps'
+
+  /admin/feedback:
+    get:
+      tags: [Admin]
+      summary: Feedback list
+      operationId: feedbackListPage
+      responses:
+        '200':
+          description: Feedback list with pagination.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackListPageProps'
+
+  /admin/feedback/{feedback}:
+    get:
+      tags: [Admin]
+      summary: Feedback detail
+      operationId: feedbackDetailPage
+      parameters:
+        - name: feedback
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Single feedback submission detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedbackDetailPageProps'

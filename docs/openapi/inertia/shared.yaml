@@ -1,0 +1,145 @@
+components:
+  schemas:
+    InertiaSharedProps:
+      type: object
+      required:
+        - locale
+        - theme
+        - auth
+        - ziggy
+        - flash
+        - notification
+        - errors
+        - cspNonce
+        - featureFlags
+        - settings
+      properties:
+        locale:
+          type: string
+          enum: [en, ru]
+          description: Current locale from SetLocaleMiddleware.
+        theme:
+          type: string
+          enum: [light, dark]
+          description: Current theme from ThemeMiddleware.
+        auth:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/AdminUser'
+          description: Authenticated admin user, or null for public pages.
+        ziggy:
+          type: object
+          properties:
+            url:
+              type: string
+            port:
+              type: integer
+              nullable: true
+            defaults:
+              type: object
+            routes:
+              type: object
+          description: Ziggy route definitions for the route() helper in Vue.
+        flash:
+          type: object
+          properties:
+            success:
+              type: string
+              description: Success flash message.
+            error:
+              type: string
+              description: Error flash message.
+          description: Session flash messages.
+        notification:
+          type: object
+          nullable: true
+          properties:
+            type:
+              type: string
+              enum: [success, error, warning, info]
+            message:
+              type: string
+          required: [type, message]
+          description: UI notification from session flash (via HandleInertiaRequests).
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+          description: Laravel validation errors bag (field name -> error message).
+        cspNonce:
+          type: string
+          description: CSP nonce from CspNonceMiddleware.
+        featureFlags:
+          type: object
+          properties:
+            github_oauth:
+              type: boolean
+            social_reactions:
+              type: boolean
+          required: [github_oauth, social_reactions]
+          description: Feature flags from FeatureFlagMiddleware.
+        settings:
+          type: object
+          properties:
+            locale:
+              type: string
+            theme:
+              type: string
+            items_per_page:
+              type: integer
+          description: Public settings from SettingsService.
+
+    AdminUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        login:
+          type: string
+        email:
+          type: string
+        github_linked:
+          type: boolean
+        totp_enabled:
+          type: boolean
+
+    InertiaPage:
+      type: object
+      required: [component, props]
+      properties:
+        component:
+          type: string
+          description: Vue page component name resolved by the Inertia protocol.
+        props:
+          allOf:
+            - $ref: '#/components/schemas/InertiaSharedProps'
+          description: Page props — the shared props are always present; page-specific schemas extend this object.
+        url:
+          type: string
+          description: Current request URL.
+        version:
+          type: string
+          description: Inertia asset version (manifest hash). Used for cache busting.
+
+    InertiaErrorProps:
+      allOf:
+        - $ref: '#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              enum: ['Shared/CrossSurface/Pages/ErrorPage']
+            props:
+              type: object
+              required: [status, message, request_id]
+              properties:
+                status:
+                  type: integer
+                  description: HTTP status code (403, 404, 419, 422, 429, 500, 503)
+                message:
+                  type: string
+                  description: Human-readable error message from the errors locale group.
+                request_id:
+                  type: string
+                  description: UUID request identifier for error reporting.

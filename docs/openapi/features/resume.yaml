@@ -1,0 +1,38 @@
+paths:
+  /api/resume/regenerate:
+    post:
+      tags: [Resume]
+      summary: Regenerate resume PDFs
+      description: |
+        Auth required. Clears the resume PDF cache and deletes generated PDFs
+        from RustFS. The next request to `/cv` will generate fresh PDFs from
+        the current structured data (about info, skills, contacts, experience).
+      operationId: regenerateResume
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Cache cleared. Resume PDFs will be regenerated on next request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: Resume cache cleared. PDFs will be regenerated on next request.
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: Failed to clear cache or delete files.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'

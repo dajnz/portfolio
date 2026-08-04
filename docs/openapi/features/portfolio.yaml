@@ -1,0 +1,33 @@
+paths:
+  /api/feedback:
+    post:
+      tags: [Portfolio]
+      summary: Submit a feedback message
+      description: |
+        Public contact form submission. Rate-limited (5/min per IP, 3/hour per
+        IP+fingerprint). Honeypot bot detection is applied server-side as a
+        secondary defense (not part of the request schema — the field name is
+        randomized per session).
+      operationId: submitFeedback
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/FeedbackRequest'
+      responses:
+        '201':
+          description: Feedback submitted successfully.
+        '422':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ValidationErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'

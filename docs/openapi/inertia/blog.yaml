@@ -1,0 +1,408 @@
+components:
+  schemas:
+    BlogIndexPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Blog/Public/Pages/BlogIndexPage'
+            props:
+              type: object
+              properties:
+                articles:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ArticleCardData'
+                tags:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TagData'
+                years:
+                  type: array
+                  items:
+                    type: integer
+                has_more:
+                  type: boolean
+                next_cursor:
+                  type: string
+                  nullable: true
+
+    BlogArticlePageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Blog/Public/Pages/BlogArticlePage'
+            props:
+              type: object
+              properties:
+                article:
+                  $ref: '#/components/schemas/ArticleDetailData'
+                reactions:
+                  type: object
+                  properties:
+                    user_reaction:
+                      type: string
+                      nullable: true
+                    likes:
+                      type: integer
+                    dislikes:
+                      type: integer
+
+    BlogListPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Blog/Admin/Pages/BlogListPage'
+            props:
+              type: object
+              properties:
+                articles:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ArticleTableRowData'
+                meta:
+                  $ref: '../components/schemas.yaml#/components/schemas/PaginationMeta'
+                tags:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TagData'
+
+    BlogFormPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Blog/Admin/Pages/BlogFormPage'
+            props:
+              type: object
+              properties:
+                article:
+                  $ref: '#/components/schemas/ArticleEditData'
+                  nullable: true
+                  description: Existing article on edit; null when creating.
+
+    TagListPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Blog/Admin/Pages/TagListPage'
+            props:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TagData'
+
+    TagFormPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Blog/Admin/Pages/TagFormPage'
+            props:
+              type: object
+              properties:
+                tag:
+                  $ref: '#/components/schemas/TagData'
+                  nullable: true
+                  description: Existing tag on edit; null when creating.
+
+    ArticleCardData:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        short_description:
+          type: string
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        reading_time_minutes:
+          type: integer
+        lead_image:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagData'
+
+    ArticleDetailData:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        content:
+          type: string
+        short_description:
+          type: string
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        reading_time_minutes:
+          type: integer
+        lead_image:
+          type: string
+          nullable: true
+        lead_image_alt:
+          type: object
+          properties:
+            en:
+              type: string
+            ru:
+              type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagData'
+        related:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArticleCardData'
+
+    ArticleEditData:
+      allOf:
+        - $ref: '#/components/schemas/ArticleDetailData'
+        - type: object
+          properties:
+            is_published:
+              type: boolean
+            related_article_ids:
+              type: array
+              items:
+                type: integer
+
+    ArticleTableRowData:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        slug:
+          type: string
+        is_published:
+          type: boolean
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        reading_time_minutes:
+          type: integer
+        views:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    TagData:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        name:
+          type: string
+
+paths:
+  /blog:
+    get:
+      tags: [Blog]
+      summary: Blog index (public)
+      operationId: blogIndexPage
+      responses:
+        '200':
+          description: Paginated blog article list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogIndexPageProps'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+        '500':
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+
+  /blog/{article}:
+    get:
+      tags: [Blog]
+      summary: Blog article (public)
+      operationId: blogArticlePage
+      parameters:
+        - name: article
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Article slug (route binding {article:slug}).
+      responses:
+        '200':
+          description: Blog article detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogArticlePageProps'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+        '500':
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+
+  /admin/blog:
+    get:
+      tags: [Admin]
+      summary: Blog article list (admin)
+      operationId: blogListPage
+      responses:
+        '200':
+          description: Admin blog management list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogListPageProps'
+
+  /admin/blog/create:
+    get:
+      tags: [Admin]
+      summary: Create blog article form
+      operationId: blogCreatePage
+      responses:
+        '200':
+          description: Empty blog creation form.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogFormPageProps'
+
+  /admin/blog/{article}/edit:
+    get:
+      tags: [Admin]
+      summary: Edit blog article form
+      operationId: blogEditPage
+      parameters:
+        - name: article
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Blog article edit form with existing data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogFormPageProps'
+
+  /admin/tags:
+    get:
+      tags: [Admin]
+      summary: Tags management list
+      operationId: tagsListPage
+      responses:
+        '200':
+          description: Tags management list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagListPageProps'
+
+  /admin/tags/create:
+    get:
+      tags: [Admin]
+      summary: Create article tag form
+      description: Empty tag creation form (slug + per-locale name).
+      operationId: tagCreatePage
+      responses:
+        '200':
+          description: Empty tag creation form.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagFormPageProps'
+
+  /admin/tags/{tag}/edit:
+    get:
+      tags: [Admin]
+      summary: Edit article tag form
+      description: Tag edit form with existing data.
+      operationId: tagEditPage
+      parameters:
+        - name: tag
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Tag edit form with existing data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TagFormPageProps'
+
+  /admin/preview/blog/{article}:
+    get:
+      tags: [Admin]
+      summary: Blog article preview (signed URL)
+      description: |
+        Signed temporary URL (1-hour expiry via URL::temporarySignedRoute), excluded
+        from auth middleware. Renders the public article page, bypassing the
+        is_published scope.
+      operationId: blogPreviewPage
+      parameters:
+        - name: article
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Public blog article page in preview mode.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlogArticlePageProps'

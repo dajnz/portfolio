@@ -1,0 +1,288 @@
+components:
+  schemas:
+    ExperienceTimelinePageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Experience/Public/Pages/ExperienceTimelinePage'
+            props:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TimelineItemCardData'
+                has_more:
+                  type: boolean
+                next_cursor:
+                  type: string
+                  nullable: true
+
+    ExperienceListPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Experience/Admin/Pages/ExperienceListPage'
+            props:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TimelineItemTableRowData'
+                meta:
+                  $ref: '../components/schemas.yaml#/components/schemas/PaginationMeta'
+
+    ExperienceFormPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Experience/Admin/Pages/ExperienceFormPage'
+            props:
+              type: object
+              properties:
+                item:
+                  $ref: '#/components/schemas/TimelineItemEditData'
+                  nullable: true
+                  description: Existing timeline item on edit; null when creating.
+                skills:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      icon:
+                        type: string
+                        description: Iconify identifier, e.g. `heroicons:code-bracket`.
+                projects:
+                  type: array
+                  description: Portfolio projects available for the searchable combobox.
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      title:
+                        type: string
+                      slug:
+                        type: string
+
+    TimelineItemCardData:
+      type: object
+      properties:
+        id:
+          type: integer
+        position:
+          type: string
+        company_name:
+          type: string
+        company_country:
+          type: string
+        project_id:
+          type: integer
+          nullable: true
+        project_name:
+          type: string
+          nullable: true
+          description: Display name — resolved from projects.title (locale-aware) or external_project_name
+        project_slug:
+          type: string
+          nullable: true
+          description: Present only when project_id is set. Used to build /projects/{slug} link.
+        short_description:
+          type: string
+        started_at:
+          type: string
+          format: date
+        ended_at:
+          type: string
+          format: date
+          nullable: true
+        is_current:
+          type: boolean
+          description: True when ended_at is null (ongoing position).
+        tech_tags:
+          type: array
+          description: Deduplicated union of the experience item's own tags and the linked project's tags (if any).
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              icon:
+                type: string
+                description: Iconify identifier, e.g. `heroicons:code-bracket`.
+        achievements:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              project_link:
+                type: string
+                nullable: true
+
+    TimelineItemEditData:
+      type: object
+      properties:
+        id:
+          type: integer
+        position:
+          type: string
+        company_name:
+          type: string
+        company_country:
+          type: string
+        project_id:
+          type: integer
+          nullable: true
+          description: Set when referencing a portfolio project. Mutually exclusive with external_project_name.
+        external_project_name:
+          type: string
+          nullable: true
+          description: Set when referencing an external/non-portfolio project. Mutually exclusive with project_id.
+        short_description:
+          type: string
+        started_at:
+          type: string
+          format: date
+        ended_at:
+          type: string
+          format: date
+          nullable: true
+        is_published:
+          type: boolean
+        sort_order:
+          type: integer
+        include_in_resume:
+          type: boolean
+        achievements:
+          type: array
+          items:
+            type: object
+            properties:
+              description:
+                type: string
+              project_link:
+                type: string
+                nullable: true
+        tech_tags:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              icon:
+                type: string
+                description: Iconify identifier, e.g. `heroicons:code-bracket`.
+
+    TimelineItemTableRowData:
+      type: object
+      properties:
+        id:
+          type: integer
+        position:
+          type: string
+        company_name:
+          type: string
+        started_at:
+          type: string
+          format: date
+        ended_at:
+          type: string
+          format: date
+          nullable: true
+        is_published:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+paths:
+  /experience:
+    get:
+      tags: [Experience]
+      summary: Experience timeline (public)
+      operationId: experienceTimelinePage
+      responses:
+        '200':
+          description: Timeline with infinite scroll.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperienceTimelinePageProps'
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+        '500':
+          description: Server error.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+
+  /admin/experience:
+    get:
+      tags: [Admin]
+      summary: Experience list (admin)
+      operationId: experienceListPage
+      responses:
+        '200':
+          description: Admin experience management list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperienceListPageProps'
+
+  /admin/experience/create:
+    get:
+      tags: [Admin]
+      summary: Create experience item form
+      operationId: experienceCreatePage
+      responses:
+        '200':
+          description: Creation form with available skills.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperienceFormPageProps'
+
+  /admin/experience/{item}/edit:
+    get:
+      tags: [Admin]
+      summary: Edit experience item form
+      operationId: experienceEditPage
+      parameters:
+        - name: item
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Edit form with existing data and skills.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperienceFormPageProps'

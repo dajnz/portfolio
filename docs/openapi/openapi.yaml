@@ -1,0 +1,87 @@
+openapi: 3.1.0
+info:
+  title: Portfolio API
+  version: '1.0.0'
+  description: |
+    Public REST API for the portfolio site. This is the **single source of truth**
+    for all API contracts — endpoints are implemented to match these specs, not the
+    other way around.
+
+    ## Authentication
+
+    Endpoints marked **auth required** use cookie-based session authentication
+    (the same session guard as the admin web app). No API tokens or JWT.
+
+    ## Response Conventions
+
+    - Success: `{ "data": ... }` envelope
+    - Validation error (422): `{ "message": "...", "errors": { "field": [...] } }`
+    - General error: `{ "message": "..." }`
+
+servers:
+  - url: 'https://portfolio.dev.lan'
+    description: Local development (Traefik TLS)
+  - url: 'https://{domain}'
+    description: Production
+    variables:
+      domain:
+        default: portfolio.example.com
+
+tags:
+  - name: Portfolio
+    description: Landing page, feedback form
+  - name: Blog
+    description: Articles, tags, reactions
+  - name: Analytics
+    description: Event tracking
+  - name: Shared
+    description: File uploads, cross-cutting
+  - name: Resume
+    description: Resume PDF generation and caching
+  - name: Public
+    description: Dual-response (HTML+JSON) endpoints for blog and projects
+
+paths:
+  # Portfolio
+  /api/feedback:
+    $ref: './features/portfolio.yaml#/paths/~1api~1feedback'
+
+  # Blog
+  /api/blog/{article}/reaction:
+    $ref: './features/blog.yaml#/paths/~1api~1blog~1{article}~1reaction'
+  /api/tags:
+    $ref: './features/blog.yaml#/paths/~1api~1tags'
+
+  # Analytics
+  /api/analytics/track:
+    $ref: './features/analytics.yaml#/paths/~1api~1analytics~1track'
+
+  # Shared
+  /api/upload:
+    $ref: './features/shared.yaml#/paths/~1api~1upload'
+
+  # Search / Autocomplete
+  /api/skills/search:
+    $ref: './features/shared.yaml#/paths/~1api~1skills~1search'
+  /api/tags/search:
+    $ref: './features/blog.yaml#/paths/~1api~1tags~1search'
+  /api/blog-tags/search:
+    $ref: './features/blog.yaml#/paths/~1api~1blog-tags~1search'
+
+  # Resume
+  /api/resume/regenerate:
+    $ref: './features/resume.yaml#/paths/~1api~1resume~1regenerate'
+
+  # Dual-response
+  /blog:
+    $ref: './features/dual-response.yaml#/paths/~1blog'
+  /projects:
+    $ref: './features/dual-response.yaml#/paths/~1projects'
+
+components:
+  securitySchemes:
+    $ref: './components/security.yaml#/components/securitySchemes'
+  schemas:
+    $ref: './components/schemas.yaml#/components/schemas'
+  parameters:
+    $ref: './components/parameters.yaml#/components/parameters'

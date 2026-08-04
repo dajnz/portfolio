@@ -1,0 +1,121 @@
+components:
+  schemas:
+    BackupListPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Backup/Admin/Pages/BackupListPage'
+            props:
+              type: object
+              properties:
+                backups:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/BackupEntryData'
+                meta:
+                  $ref: '../components/schemas.yaml#/components/schemas/PaginationMeta'
+                encryption_key_prompt:
+                  type: boolean
+                  description: Whether the encryption key modal needs to be shown (no active key in DB).
+
+    BackupEntryData:
+      type: object
+      properties:
+        id:
+          type: integer
+        filename:
+          type: string
+        size_bytes:
+          type: integer
+        status:
+          type: string
+          enum: [pending, processing, completed, failed]
+        created_at:
+          type: string
+          format: date-time
+
+    BackupStatusResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [id, status]
+          properties:
+            id:
+              type: integer
+              description: Backup record ID.
+            status:
+              type: string
+              enum: [pending, processing, completed, failed]
+            progress:
+              type: integer
+              minimum: 0
+              maximum: 100
+              nullable: true
+              description: Completion percentage 0–100. Present only when status is `processing`.
+            completed_at:
+              type: string
+              format: date-time
+              nullable: true
+              description: Timestamp when the backup completed or failed. Null while pending/processing.
+            error_message:
+              type: string
+              nullable: true
+              description: Error details when status is `failed`. Null otherwise.
+
+paths:
+  /admin/backups:
+    get:
+      tags: [Admin]
+      summary: Backup management page
+      operationId: backupListPage
+      responses:
+        '200':
+          description: Backup list with pagination and encryption key status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupListPageProps'
+
+  /admin/backups/{backup}/status:
+    get:
+      tags: [Admin]
+      summary: Poll backup status (restore progress)
+      description: |
+        Returns the current status of a backup record. Used by the admin UI
+        to poll restore progress via `GET /admin/backups/{backup}/status`
+        while the site is in maintenance mode. SSE is an explicit non-goal
+        (see architecture.md) — polling is the mechanism.
+      operationId: backupStatus
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: backup
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Backup record ID.
+      responses:
+        '200':
+          description: Current backup status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackupStatusResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'
+        '404':
+          description: Backup record not found.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'

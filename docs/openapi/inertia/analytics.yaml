@@ -1,0 +1,47 @@
+components:
+  schemas:
+    AnalyticsDashboardPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Analytics/Admin/Pages/AnalyticsDashboardPage'
+            props:
+              type: object
+              properties:
+                reports:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/AnalyticsReportData'
+
+    AnalyticsReportData:
+      type: object
+      properties:
+        report_type:
+          type: string
+          enum: [overall, blog, projects, feedback]
+        period_start:
+          type: string
+          format: date
+        period_end:
+          type: string
+          format: date
+        data:
+          type: object
+          description: Report-type-specific payload (views, unique_visitors, etc.).
+
+paths:
+  /admin/analytics:
+    get:
+      tags: [Admin]
+      summary: Analytics dashboard
+      operationId: analyticsDashboardPage
+      responses:
+        '200':
+          description: Analytics reports for recent periods.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsDashboardPageProps'

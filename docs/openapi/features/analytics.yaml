@@ -1,0 +1,38 @@
+paths:
+  /api/analytics/track:
+    post:
+      tags: [Analytics]
+      summary: Track analytics events
+      description: |
+        Public endpoint for client-side analytics. Accepts an array of events
+        to batch-track in a single request. Rate-limited.
+      operationId: trackEvents
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/AnalyticsTrackRequest'
+      responses:
+        '204':
+          description: Events accepted. No content returned.
+        '422':
+          description: |
+            Validation error. Returned when:
+            - batch contains more than 100 events
+            - total payload exceeds 50 KB
+            - `page_url` exceeds 500 chars
+            - `metadata.referrer` exceeds 2 KB
+            - `metadata.seconds` is outside 0–86400
+            - `metadata.percentage_completed` is outside 0–100
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ValidationErrorResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'

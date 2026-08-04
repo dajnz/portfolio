@@ -1,0 +1,103 @@
+paths:
+  /api/upload:
+    post:
+      tags: [Shared]
+      summary: Upload a file
+      description: |
+        Auth required. Uploads a file to RustFS and returns the stored reference.
+        The returned `path` is stored in the appropriate DB column by the caller.
+        MIME type validation depends on `entity_type` (images: 3 MB, PDFs: 5 MB).
+      operationId: uploadFile
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, entity_type]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload.
+                entity_type:
+                  type: string
+                  enum: [blog, projects, about]
+                  description: Target entity type for MIME and size validation.
+      responses:
+        '200':
+          description: File uploaded.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/UploadResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error (invalid file type, too large).
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ValidationErrorResponse'
+
+    delete:
+      tags: [Shared]
+      summary: Delete an uploaded file
+      description: |
+        Auth required. Deletes a file from RustFS by path. Used when replacing
+        or removing an image/media reference in admin forms.
+      operationId: deleteFile
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/UploadDeleteRequest'
+      responses:
+        '200':
+          description: File deleted.
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'
+        '404':
+          description: File not found at the given path.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'
+
+  /api/skills/search:
+    get:
+      tags: [Shared]
+      summary: Search tech skills for autocomplete
+      description: |
+        No auth required. Autocomplete endpoint for tech skills.
+        Returns matching skills with id, name, and icon.
+      operationId: searchSkills
+      security: []
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/searchQuery'
+      responses:
+        '200':
+          description: Matching skills.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/SkillSearchResponse'
+        '429':
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'

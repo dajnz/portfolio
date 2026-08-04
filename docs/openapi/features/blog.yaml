@@ -1,0 +1,116 @@
+paths:
+  /api/blog/{article}/reaction:
+    post:
+      tags: [Blog]
+      summary: Toggle a reaction on a blog article
+      description: |
+        Feature-flagged (`social_reactions`). One reaction per fingerprint per
+        article — submitting again toggles the reaction type.
+        Used from the public article page.
+      operationId: toggleArticleReaction
+      security: []
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/articleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/ReactionRequest'
+      responses:
+        '200':
+          description: Reaction toggled.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ReactionResponse'
+        '404':
+          description: Article not found.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error — `reaction` must be `like` or `dislike`.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ValidationErrorResponse'
+
+  /api/tags:
+    post:
+      tags: [Blog]
+      summary: Create a new article tag
+      description: |
+        Auth required. Used for inline tag creation from the blog article form.
+        Returns the created tag so the frontend can add it to the article's tag
+        selection without a page reload.
+      operationId: createTag
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components/schemas.yaml#/components/schemas/TagRequest'
+      responses:
+        '201':
+          description: Tag created.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/TagResponse'
+        '401':
+          description: Not authenticated.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ValidationErrorResponse'
+
+  /api/tags/search:
+    get:
+      tags: [Blog]
+      summary: Search article tags for autocomplete
+      description: |
+        No auth required. Autocomplete endpoint for article tags.
+        Returns matching tags by name with id, name, and slug.
+      operationId: searchTags
+      security: []
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/searchQuery'
+      responses:
+        '200':
+          description: Matching article tags.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/TagSearchResponse'
+
+  /api/blog-tags/search:
+    get:
+      tags: [Blog]
+      summary: Unified search across article tags and tech skills
+      description: |
+        No auth required. Unified autocomplete for blog filtering.
+        Searches both article_tags and tech skills, returning results
+        with a type discriminator (`skill` or `tag`).
+        Used by the blog filter UI to populate a single autocomplete
+        dropdown with results from both sources.
+      operationId: searchUnifiedBlogTags
+      security: []
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/searchQuery'
+      responses:
+        '200':
+          description: Matching tags and skills.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/UnifiedTagSearchResponse'

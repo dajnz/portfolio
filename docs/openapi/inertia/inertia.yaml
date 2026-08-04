@@ -1,0 +1,117 @@
+openapi: '3.1.0'
+
+info:
+  title: Portfolio — Inertia Page Response Contracts
+  description: |
+    Internal page-props contracts for Inertia.js routes. These schemas
+    describe the shape of page props passed from Laravel controllers to
+    Vue page components. Not a public API.
+
+    Locale-prefixed public routes (`/{locale}/...`) are not listed here —
+    they render the same page components with the same props as their
+    non-prefixed counterparts (only the locale resolution differs).
+  version: '1.0.0'
+
+paths:
+  # Portfolio pages
+  /:
+    $ref: './portfolio.yaml#/paths/~1'
+  /admin:
+    $ref: './portfolio.yaml#/paths/~1admin'
+  /admin/about:
+    $ref: './portfolio.yaml#/paths/~1admin~1about'
+  /admin/contacts:
+    $ref: './portfolio.yaml#/paths/~1admin~1contacts'
+  /admin/feedback:
+    $ref: './portfolio.yaml#/paths/~1admin~1feedback'
+  /admin/feedback/{feedback}:
+    $ref: './portfolio.yaml#/paths/~1admin~1feedback~1%7Bfeedback%7D'
+
+  # Blog pages
+  /blog:
+    $ref: './blog.yaml#/paths/~1blog'
+  /blog/{article}:
+    $ref: './blog.yaml#/paths/~1blog~1%7Barticle%7D'
+  /admin/blog:
+    $ref: './blog.yaml#/paths/~1admin~1blog'
+  /admin/blog/create:
+    $ref: './blog.yaml#/paths/~1admin~1blog~1create'
+  /admin/blog/{article}/edit:
+    $ref: './blog.yaml#/paths/~1admin~1blog~1%7Barticle%7D~1edit'
+  /admin/tags:
+    $ref: './blog.yaml#/paths/~1admin~1tags'
+  /admin/tags/create:
+    $ref: './blog.yaml#/paths/~1admin~1tags~1create'
+  /admin/tags/{tag}/edit:
+    $ref: './blog.yaml#/paths/~1admin~1tags~1%7Btag%7D~1edit'
+  /admin/preview/blog/{article}:
+    $ref: './blog.yaml#/paths/~1admin~1preview~1blog~1%7Barticle%7D'
+
+  # Projects pages
+  /projects:
+    $ref: './projects.yaml#/paths/~1projects'
+  /projects/{project}:
+    $ref: './projects.yaml#/paths/~1projects~1%7Bproject%7D'
+  /admin/projects:
+    $ref: './projects.yaml#/paths/~1admin~1projects'
+  /admin/projects/create:
+    $ref: './projects.yaml#/paths/~1admin~1projects~1create'
+  /admin/projects/{project}/edit:
+    $ref: './projects.yaml#/paths/~1admin~1projects~1%7Bproject%7D~1edit'
+  /admin/preview/projects/{project}:
+    $ref: './projects.yaml#/paths/~1admin~1preview~1projects~1%7Bproject%7D'
+
+  # TechSkills pages
+  /admin/skills:
+    $ref: './techskills.yaml#/paths/~1admin~1skills'
+
+  # Experience pages
+  /experience:
+    $ref: './experience.yaml#/paths/~1experience'
+  /admin/experience:
+    $ref: './experience.yaml#/paths/~1admin~1experience'
+  /admin/experience/create:
+    $ref: './experience.yaml#/paths/~1admin~1experience~1create'
+  /admin/experience/{item}/edit:
+    $ref: './experience.yaml#/paths/~1admin~1experience~1%7Bitem%7D~1edit'
+
+  # Auth pages
+  /admin/login:
+    $ref: './auth.yaml#/paths/~1admin~1login'
+  /admin/login/totp:
+    $ref: './auth.yaml#/paths/~1admin~1login~1totp'
+  /admin/profile:
+    $ref: './auth.yaml#/paths/~1admin~1profile'
+  /admin/profile/github-link/totp:
+    $ref: './auth.yaml#/paths/~1admin~1profile~1github-link~1totp'
+  /admin/profile/totp-enable:
+    $ref: './auth.yaml#/paths/~1admin~1profile~1totp-enable'
+
+  # Resume page
+  /admin/resume:
+    $ref: './resume.yaml#/paths/~1admin~1resume'
+
+  # Analytics page
+  /admin/analytics:
+    $ref: './analytics.yaml#/paths/~1admin~1analytics'
+
+  # Settings pages
+  /admin/settings:
+    $ref: './settings.yaml#/paths/~1admin~1settings'
+  /admin/settings/feature-flags:
+    $ref: './settings.yaml#/paths/~1admin~1settings~1feature-flags'
+
+  # Backup pages
+  /admin/backups:
+    $ref: './backup.yaml#/paths/~1admin~1backups'
+  /admin/backups/{backup}/status:
+    $ref: './backup.yaml#/paths/~1admin~1backups~1%7Bbackup%7D~1status'
+
+components:
+  schemas:
+    InertiaPage:
+      $ref: './shared.yaml#/components/schemas/InertiaPage'
+    InertiaSharedProps:
+      $ref: './shared.yaml#/components/schemas/InertiaSharedProps'
+    InertiaErrorProps:
+      $ref: './shared.yaml#/components/schemas/InertiaErrorProps'

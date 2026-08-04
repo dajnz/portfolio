@@ -1,0 +1,81 @@
+paths:
+  /blog:
+    get:
+      tags: [Public]
+      summary: List published blog articles (JSON)
+      description: |
+        Returns JSON when requested with `Accept: application/json`.
+        Used by the blog search autocomplete and filtering UI.
+        Unpublished articles are excluded.
+      operationId: listBlogArticlesJson
+      security: []
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/acceptJson'
+        - $ref: '../components/parameters.yaml#/components/parameters/page'
+        - $ref: '../components/parameters.yaml#/components/parameters/perPage'
+        - $ref: '../components/parameters.yaml#/components/parameters/searchQuery'
+        - $ref: '../components/parameters.yaml#/components/parameters/articleTags'
+        - $ref: '../components/parameters.yaml#/components/parameters/skillTags'
+        - $ref: '../components/parameters.yaml#/components/parameters/year'
+      responses:
+        '200':
+          description: Paginated list of published articles.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/BlogIndexResponse'
+        '404':
+          description: |
+            Not found (JSON branch). Returned when a locale-prefixed route
+            requests a locale that has no articles, or when the endpoint is
+            requested with an invalid `Accept: application/json` negotiation.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error (JSON branch). Returned on unexpected backend failures.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'
+
+  /projects:
+    get:
+      tags: [Public]
+      summary: List published projects (JSON)
+      description: |
+        Returns JSON when requested with `Accept: application/json`.
+        Used for project filtering and search.
+        Unpublished projects are excluded.
+      operationId: listProjectsJson
+      security: []
+      parameters:
+        - $ref: '../components/parameters.yaml#/components/parameters/acceptJson'
+        - $ref: '../components/parameters.yaml#/components/parameters/page'
+        - $ref: '../components/parameters.yaml#/components/parameters/perPage'
+        - $ref: '../components/parameters.yaml#/components/parameters/searchQuery'
+        - $ref: '../components/parameters.yaml#/components/parameters/projectTags'
+        - $ref: '../components/parameters.yaml#/components/parameters/projectSort'
+      responses:
+        '200':
+          description: Paginated list of published projects.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ProjectsIndexResponse'
+        '404':
+          description: |
+            Not found (JSON branch). Returned when a locale-prefixed route
+            requests a locale that has no projects, or when the endpoint is
+            requested with an invalid `Accept: application/json` negotiation.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error (JSON branch). Returned on unexpected backend failures.
+          content:
+            application/json:
+              schema:
+                $ref: '../components/schemas.yaml#/components/schemas/ErrorResponse'

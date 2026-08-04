@@ -1,0 +1,91 @@
+components:
+  parameters:
+    articleId:
+      name: article
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Blog article ID.
+
+    locale:
+      name: locale
+      in: query
+      schema:
+        type: string
+        enum: [en, ru]
+        default: en
+      description: Content locale.
+
+    searchQuery:
+      name: q
+      in: query
+      schema:
+        type: string
+        maxLength: 200
+      description: Full-text search terms.
+
+    articleTags:
+      name: article_tags
+      in: query
+      schema:
+        type: string
+      description: Comma-separated article tag IDs (e.g. `5,12`). AND/intersection — articles must contain ALL specified tags.
+
+    skillTags:
+      name: skill_tags
+      in: query
+      schema:
+        type: string
+      description: Comma-separated skill IDs (e.g. `3`). AND/intersection — articles must contain ALL specified skills. Kept separate from article_tags to avoid ID collisions between the article_tags and skills tables.
+
+    projectTags:
+      name: tags
+      in: query
+      schema:
+        type: string
+      description: Comma-separated tech skill IDs from project_tech_tags (e.g. `1,5`). AND/intersection — projects must have ALL specified tech tags.
+
+    year:
+      name: year
+      in: query
+      schema:
+        type: integer
+      description: Restrict to items published in the given year.
+
+    projectSort:
+      name: sort
+      in: query
+      schema:
+        type: string
+        enum: [date, complexity]
+        default: date
+      description: Sort order for projects index.
+
+    acceptJson:
+      name: Accept
+      in: header
+      required: false
+      schema:
+        type: string
+        const: application/json
+      description: Set to application/json for dual-response endpoints to return JSON instead of HTML.
+
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number for paginated JSON responses.
+
+    perPage:
+      name: per_page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 50
+        default: 10
+      description: Items per page for paginated JSON responses.

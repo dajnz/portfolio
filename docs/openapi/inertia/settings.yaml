@@ -1,0 +1,79 @@
+components:
+  schemas:
+    SettingsPageProps:
+      allOf:
+        - $ref: './shared.yaml#/components/schemas/InertiaPage'
+        - type: object
+          properties:
+            component:
+              type: string
+              const: 'Settings/Admin/Pages/SettingsPage'
+            props:
+              type: object
+              properties:
+                settings:
+                  type: object
+                  description: Flat key-value map of all current settings.
+                  additionalProperties:
+                    oneOf:
+                      - type: string
+                      - type: integer
+                      - type: boolean
+                      - type: object
+
+paths:
+  /admin/settings:
+    get:
+      tags: [Admin]
+      summary: Settings page
+      operationId: settingsPage
+      responses:
+        '200':
+          description: Settings form with current values.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingsPageProps'
+
+  /admin/settings/feature-flags:
+    patch:
+      tags: [Admin]
+      summary: Update feature flags
+      operationId: updateFeatureFlags
+      description: |
+        Toggles feature flags (feature_flags table). Separate endpoint from
+        PUT /admin/settings (settings table).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [flags]
+              properties:
+                flags:
+                  type: object
+                  required: [github_oauth, social_reactions]
+                  properties:
+                    github_oauth:
+                      type: boolean
+                    social_reactions:
+                      type: boolean
+      responses:
+        '200':
+          description: Updated feature flags.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      flags:
+                        type: object
+                        properties:
+                          github_oauth:
+                            type: boolean
+                          social_reactions:
+                            type: boolean
