@@ -44,5 +44,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
+
+        $this->commands([
+            \App\Features\Settings\Infra\Commands\ResetMaintenanceCommand::class,
+        ]);
     }
 }
