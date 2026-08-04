@@ -18,6 +18,7 @@ docs/plans
 /.vscode
 /.zed
 /auth.json
+/coverage
 /node_modules
 /public/build
 /public/fonts-manifest.dev.json
@@ -25,6 +26,7 @@ docs/plans
 /public/storage
 /storage/*.key
 /storage/pail
+/test-results
 /vendor
 _ide_helper.php
 Homestead.json
