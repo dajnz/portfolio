@@ -79,6 +79,7 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(Login::class, LoginListener::class);
 
         $this->commands([
+            \App\Console\Commands\ExportLangCommand::class,
             \App\Features\Settings\Infra\Commands\ResetMaintenanceCommand::class,
             \App\Features\Auth\Infra\Commands\CreateAdminCommand::class,
             \App\Features\Auth\Infra\Commands\ResetAdminPasswordCommand::class,
