@@ -20,7 +20,7 @@ function createSearchFixture(): array
         'laravel' => SkillModel::factory()->create([
             'skill_group_id' => $group->id,
             'name' => 'Laravel',
-            'icon' => 'simple-icons:laravel',
+            'icon' => 'devicon:laravel',
             'proficiency' => 5,
             'sort_order' => 1,
         ]),
@@ -46,7 +46,7 @@ describe('SkillSearchController', function (): void {
                     [
                         'id' => $fixture['laravel']->id,
                         'name' => 'Laravel',
-                        'icon' => 'simple-icons:laravel',
+                        'icon' => 'devicon:laravel',
                     ],
                 ],
             ]);
