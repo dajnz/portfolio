@@ -30,5 +30,8 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <!-- Null log channel: tests must only print framework/test output —
+             no `testing.INFO/WARNING/ERROR` lines (error-handling.md). -->
+        <env name="LOG_CHANNEL" value="null"/>
     </php>
 </phpunit>

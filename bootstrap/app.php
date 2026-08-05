@@ -9,6 +9,7 @@ use App\Features\Auth\Infra\Middleware\RequireTotpPending;
 use App\Features\Auth\Infra\Providers\HorizonGateProvider;
 use App\Features\Settings\Infra\Middleware\FeatureFlagMiddleware;
 use App\Features\Shared\Infra\Controllers\HealthController;
+use App\Features\Shared\Infra\Exceptions\ErrorResponseFactory;
 use App\Features\Shared\Infra\Middleware\CheckMaintenanceModeMiddleware;
 use App\Features\Shared\Infra\Middleware\CspNonceMiddleware;
 use App\Features\Shared\Infra\Middleware\HandleInertiaRequests;
@@ -26,6 +27,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpFoundation\Response;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withProviders([
@@ -101,9 +103,18 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         // JSON for API routes and JSON-expecting clients (e.g. the
         // `postJson`-style admin endpoints like TOTP enrollment, whose
-        // OpenAPI contract documents JSON 422s). Step 2.5 defines the
-        // full error mapping.
+        // OpenAPI contract documents JSON 422s).
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // Step 2.5 — the full error mapping (error-handling.md:53-68,
+        // 175-179): JSON envelope for API/JSON requests, `ErrorPage`
+        // Inertia response for `X-Inertia` requests, and `null` (fall
+        // through) for Blade — the framework then renders the
+        // `resources/views/errors/{status}` views. Returning `null`
+        // from a render callback defers to the default handling.
+        $exceptions->render(fn (Throwable $exception, Request $request): ?Response => app(
+            ErrorResponseFactory::class
+        )->make($exception, $request));
     })->create();
