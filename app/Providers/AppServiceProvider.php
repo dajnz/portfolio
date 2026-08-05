@@ -62,10 +62,17 @@ class AppServiceProvider extends ServiceProvider
     {
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
 
-        // authentication.md:21-27 — 5 attempts per minute per IP. The
-        // `feedback` and `analytics` limiters land with step 2.4.
+        // authentication.md:21-27 — 5 attempts per minute per IP.
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
         RateLimiter::for('totp', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
+
+        // authentication.md:333-343 — layered feedback protection: layer 1
+        // is this per-IP limiter (5/min), layer 2 is the
+        // `rate_limit.fingerprint` middleware (3/h per IP+UA fingerprint).
+        RateLimiter::for('feedback', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
+
+        // analytics.md:52 — event ingestion cap (60/min/IP).
+        RateLimiter::for('analytics', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
 
         // authentication.md:363 — repopulates `session_version` after
         // remember-me (recaller cookie) re-authentication.
@@ -75,6 +82,8 @@ class AppServiceProvider extends ServiceProvider
             \App\Features\Settings\Infra\Commands\ResetMaintenanceCommand::class,
             \App\Features\Auth\Infra\Commands\CreateAdminCommand::class,
             \App\Features\Auth\Infra\Commands\ResetAdminPasswordCommand::class,
+            \App\Features\Shared\Infra\Commands\CleanupOrphanedFilesCommand::class,
+            \App\Features\Shared\Infra\Commands\PruneTrashedItemsCommand::class,
         ]);
     }
 }
