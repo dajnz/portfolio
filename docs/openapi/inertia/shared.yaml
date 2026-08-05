@@ -89,12 +89,19 @@ components:
             items_per_page:
               type: integer
           description: Public settings from SettingsService.
+        request_id:
+          type: string
+          format: uuid
+          description: UUID request identifier for error reporting (error-handling.md:266-273).
 
     AdminUser:
       type: object
       properties:
         id:
           type: integer
+        name:
+          type: string
+          description: Display name (mirrors the login — B56).
         login:
           type: string
         email:
@@ -103,6 +110,9 @@ components:
           type: boolean
         totp_enabled:
           type: boolean
+        is_oauth_primary:
+          type: boolean
+          description: 'Computed: (github_id IS NOT NULL) && (password IS NULL) — B27/B35.'
 
     InertiaPage:
       type: object

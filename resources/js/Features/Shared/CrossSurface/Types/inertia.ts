@@ -833,6 +833,11 @@ export interface components {
                 theme?: string;
                 items_per_page?: number;
             };
+            /**
+             * Format: uuid
+             * @description UUID request identifier for error reporting (error-handling.md:266-273).
+             */
+            request_id?: string;
         };
         InertiaErrorProps: components["schemas"]["InertiaPage"] & {
             /** @enum {string} */
@@ -848,10 +853,14 @@ export interface components {
         };
         AdminUser: {
             id?: number;
+            /** @description Display name (mirrors the login — B56). */
+            name?: string;
             login?: string;
             email?: string;
             github_linked?: boolean;
             totp_enabled?: boolean;
+            /** @description Computed: (github_id IS NOT NULL) && (password IS NULL) — B27/B35. */
+            is_oauth_primary?: boolean;
         };
         AboutData: {
             /** @description Per-locale translatable name (from about_info_translations). */

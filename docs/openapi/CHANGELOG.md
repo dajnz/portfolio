@@ -10,6 +10,14 @@ runtime support.
 
 ## [Unreleased]
 
+### Added
+
+- **Inertia shared props (v1.0.2):** `InertiaSharedProps` documents the
+  `request_id` UUID prop (per `error-handling.md:266-273`); `AdminUser`
+  documents `name` and `is_oauth_primary` (per B3/B27/B35). Both additions
+  are optional properties — the required-set is unchanged. `info.version`
+  bumped to `1.0.2` in `inertia.yaml` (openapi.yaml unaffected).
+
 ### Changed
 
 - **Docs-only completeness pass (v1.0.1):** `info.contact` added to both root
