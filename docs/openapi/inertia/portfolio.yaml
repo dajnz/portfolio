@@ -170,6 +170,7 @@ components:
                 type: string
               icon:
                 type: string
+                description: Iconify identifier, e.g. `devicon:laravel`.
               proficiency:
                 type: integer
 

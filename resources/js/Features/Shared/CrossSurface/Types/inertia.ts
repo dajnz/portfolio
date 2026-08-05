@@ -879,6 +879,7 @@ export interface components {
             skills?: {
                 id?: number;
                 name?: string;
+                /** @description Iconify identifier, e.g. `devicon:laravel`. */
                 icon?: string;
                 proficiency?: number;
             }[];
@@ -1235,6 +1236,7 @@ export interface components {
             skills?: {
                 id?: number;
                 name?: string;
+                /** @description Iconify identifier, e.g. `devicon:laravel`. */
                 icon?: string;
                 proficiency?: number;
                 sort_order?: number;

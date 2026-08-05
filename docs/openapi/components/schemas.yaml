@@ -220,7 +220,7 @@ components:
           type: string
         icon:
           type: string
-          description: Iconify icon identifier in {prefix}:{name} format.
+          description: Iconify icon identifier in {prefix}:{name} format (e.g. `devicon:laravel`).
 
     SkillSearchResponse:
       type: object
