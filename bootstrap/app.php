@@ -17,6 +17,7 @@ use App\Features\Shared\Infra\Middleware\LogContextMiddleware;
 use App\Features\Shared\Infra\Middleware\RateLimitWithFingerprintMiddleware;
 use App\Features\Shared\Infra\Middleware\SetLocaleFromPathMiddleware;
 use App\Features\Shared\Infra\Middleware\SetLocaleMiddleware;
+use App\Features\Shared\Infra\Middleware\SwaggerLocalOnlyMiddleware;
 use App\Features\Shared\Infra\Middleware\ThemeMiddleware;
 use App\Features\Shared\Infra\Middleware\TrailingSlashRedirectMiddleware;
 use App\Features\Shared\Infra\Middleware\ValidateApiAgainstSpec;
@@ -93,6 +94,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'maintenance' => CheckMaintenanceModeMiddleware::class,
             'rate_limit.fingerprint' => RateLimitWithFingerprintMiddleware::class,
             'validate_api_spec' => ValidateApiAgainstSpec::class,
+            // openapi.md:273-275 — the Swagger UI routes are local-only.
+            'swagger.local' => SwaggerLocalOnlyMiddleware::class,
             // routes.md:288 — the session stack for the auth-required API
             // endpoints (`POST /api/upload` etc.); not in the framework's
             // default alias set.
