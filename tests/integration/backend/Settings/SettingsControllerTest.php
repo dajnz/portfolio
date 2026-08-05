@@ -9,10 +9,14 @@ use App\Features\Settings\Infra\Models\FeatureFlagModel;
 use App\Features\Settings\Infra\Models\SettingModel;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\Support\Traits\InteractsWithAdmin;
+
+uses(InteractsWithAdmin::class);
 
 describe('SettingsController', function (): void {
     beforeEach(function (): void {
         $this->seed(\Database\Seeders\SettingsSeeder::class);
+        $this->loginAsAdmin($this->createAdmin());
     });
 
     it('renders the settings page with a typed key => value map', function (): void {
