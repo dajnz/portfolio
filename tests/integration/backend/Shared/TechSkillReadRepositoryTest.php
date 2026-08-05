@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\Shared;
 
-use App\Features\Shared\Domain\DTOs\GroupedTechSkillsDTO;
-use App\Features\Shared\Domain\DTOs\TechSkillDTO;
-use App\Features\Shared\Domain\DTOs\TechSkillGroupDTO;
+use App\Features\Shared\Domain\Entities\TechSkill;
+use App\Features\Shared\Domain\Entities\TechSkillGroup;
 use App\Features\Shared\Infra\Models\SkillGroupModel;
 use App\Features\Shared\Infra\Models\SkillGroupTranslationModel;
 use App\Features\Shared\Infra\Models\SkillModel;
@@ -60,7 +59,7 @@ describe('EloquentTechSkillReadRepository', function (): void {
         $skills = $repository->findAll('en');
 
         expect(array_map(
-            static fn (TechSkillDTO $skill): string => $skill->name,
+            static fn (TechSkill $skill): string => $skill->toName(),
             $skills,
         ))->toBe(['TypeScript', 'Vue.js', 'PHP', 'Laravel']);
     });
@@ -80,7 +79,7 @@ describe('EloquentTechSkillReadRepository', function (): void {
         $skills = $repository->findAll('ru');
 
         expect(array_map(
-            static fn (TechSkillDTO $skill): string => $skill->group->name,
+            static fn (TechSkill $skill): string => $skill->toGroupName(),
             $skills,
         ))->toBe(['Бэкенд', 'Frontend']);
     });
@@ -88,27 +87,24 @@ describe('EloquentTechSkillReadRepository', function (): void {
     it('hydrates full skill and group read models', function (): void {
         $backend = createSkillGroup(1, 'heroicons:server');
         translateGroup($backend, 'en', 'Backend');
-        $skill = createSkill($backend, 'Laravel', 5, 1, 'simple-icons:laravel');
+        $skill = createSkill($backend, 'Laravel', 5, 1, 'devicon:laravel');
 
         $repository = new EloquentTechSkillReadRepository();
 
-        /** @var TechSkillDTO $dto */
-        $dto = $repository->findAll('en')[0];
+        /** @var TechSkill $entity */
+        $entity = $repository->findAll('en')[0];
 
-        expect($dto)->toBeInstanceOf(TechSkillDTO::class)
-            ->and($dto->id)->toBe($skill->id)
-            ->and($dto->name)->toBe('Laravel')
-            ->and($dto->icon)->toBe('simple-icons:laravel')
-            ->and($dto->proficiency)->toBe(5)
-            ->and($dto->sortOrder)->toBe(1)
-            ->and($dto->group)->toBeInstanceOf(TechSkillGroupDTO::class)
-            ->and($dto->group->id)->toBe($backend->id)
-            ->and($dto->group->name)->toBe('Backend')
-            ->and($dto->group->icon)->toBe('heroicons:server')
-            ->and($dto->group->sortOrder)->toBe(1);
+        expect($entity)->toBeInstanceOf(TechSkill::class)
+            ->and($entity->toId())->toBe($skill->id)
+            ->and($entity->toName())->toBe('Laravel')
+            ->and($entity->toIcon())->toBe('devicon:laravel')
+            ->and($entity->toProficiency())->toBe(5)
+            ->and($entity->toSortOrder())->toBe(1)
+            ->and($entity->toGroupId())->toBe($backend->id)
+            ->and($entity->toGroupName())->toBe('Backend');
     });
 
-    it('resolves proficiency labels via the skills.proficiency translation keys', function (): void {
+    it('provides the translation key for proficiency labels', function (): void {
         $group = createSkillGroup(1);
         translateGroup($group, 'en', 'Backend');
         createSkill($group, 'Laravel', 3, 1);
@@ -117,7 +113,7 @@ describe('EloquentTechSkillReadRepository', function (): void {
 
         $skill = $repository->findAll('en')[0];
 
-        expect($skill->proficiencyLabel)->toBe(__('skills.proficiency.3'));
+        expect($skill->toProficiencyLabelKey())->toBe('skills.proficiency.3');
     });
 
     it('finds skills by their ids in sort order, not input order', function (): void {
@@ -132,7 +128,7 @@ describe('EloquentTechSkillReadRepository', function (): void {
         $skills = $repository->findByIds([$second->id, $first->id], 'en');
 
         expect(array_map(
-            static fn (TechSkillDTO $skill): int => $skill->id,
+            static fn (TechSkill $skill): int => $skill->toId(),
             $skills,
         ))->toBe([$first->id, $second->id]);
     });
@@ -166,17 +162,17 @@ describe('EloquentTechSkillReadRepository', function (): void {
         $grouped = $repository->findAllGrouped('en');
 
         expect($grouped)->toHaveCount(2)
-            ->and($grouped[0])->toBeInstanceOf(GroupedTechSkillsDTO::class)
-            ->and($grouped[0]->group->name)->toBe('Backend')
-            ->and($grouped[0]->group->icon)->toBe('heroicons:server')
+            ->and($grouped[0])->toBeInstanceOf(TechSkillGroup::class)
+            ->and($grouped[0]->toName())->toBe('Backend')
+            ->and($grouped[0]->toIcon())->toBe('heroicons:server')
             ->and(array_map(
-                static fn (TechSkillDTO $skill): string => $skill->name,
-                $grouped[0]->skills,
+                static fn (TechSkill $skill): string => $skill->toName(),
+                $grouped[0]->toSkills(),
             ))->toBe(['PHP', 'Laravel'])
-            ->and($grouped[1]->group->name)->toBe('Frontend')
+            ->and($grouped[1]->toName())->toBe('Frontend')
             ->and(array_map(
-                static fn (TechSkillDTO $skill): string => $skill->name,
-                $grouped[1]->skills,
+                static fn (TechSkill $skill): string => $skill->toName(),
+                $grouped[1]->toSkills(),
             ))->toBe(['Vue.js']);
     });
 });

@@ -22,7 +22,7 @@ final class SkillModelFactory extends Factory
         return [
             'skill_group_id' => SkillGroupModelFactory::new(),
             'name' => $this->faker->unique()->words(2, true),
-            'icon' => $this->faker->randomElement(['heroicons:code-bracket', 'heroicons:server', 'simple-icons:laravel', null]),
+            'icon' => $this->faker->randomElement(['devicon:laravel', 'devicon:php', 'devicon:vuejs', 'devicon:typescript', null]),
             'proficiency' => $this->faker->numberBetween(1, 5),
             'include_in_resume' => true,
             'sort_order' => 0,

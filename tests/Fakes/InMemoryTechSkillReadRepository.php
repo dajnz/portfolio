@@ -4,28 +4,29 @@ declare(strict_types=1);
 
 namespace Tests\Fakes;
 
-use App\Features\Shared\Domain\DTOs\GroupedTechSkillsDTO;
-use App\Features\Shared\Domain\DTOs\TechSkillDTO;
+use App\Features\Shared\Domain\Entities\TechSkill;
+use App\Features\Shared\Domain\Entities\TechSkillGroup;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 
 /**
- * In-memory repository fake for unit tests — only the methods exercised by
- * `SearchSkillsUseCase` are implemented (testing.md allows in-memory
- * repository implementations for interface-based use cases).
+ * In-memory repository fake for unit tests.
  */
 final class InMemoryTechSkillReadRepository implements TechSkillReadRepositoryInterface
 {
     public ?string $lastLocale = null;
 
     /**
-     * @param  TechSkillDTO[]  $skills
+     * @param  TechSkill[]     $skills
+     * @param  TechSkillGroup[] $groups
      */
-    public function __construct(private readonly array $skills)
-    {
+    public function __construct(
+        private readonly array $skills,
+        private readonly array $groups = [],
+    ) {
     }
 
     /**
-     * @return TechSkillDTO[]
+     * @return TechSkill[]
      */
     public function findAll(string $locale): array
     {
@@ -36,21 +37,23 @@ final class InMemoryTechSkillReadRepository implements TechSkillReadRepositoryIn
 
     /**
      * @param  int[]  $ids
-     * @return TechSkillDTO[]
+     * @return TechSkill[]
      */
     public function findByIds(array $ids, string $locale): array
     {
         return array_values(array_filter(
             $this->skills,
-            static fn (TechSkillDTO $skill): bool => in_array($skill->id, $ids, true),
+            static fn (TechSkill $skill): bool => in_array($skill->toId(), $ids, true),
         ));
     }
 
     /**
-     * @return GroupedTechSkillsDTO[]
+     * @return TechSkillGroup[]
      */
     public function findAllGrouped(string $locale): array
     {
-        return [];
+        $this->lastLocale = $locale;
+
+        return $this->groups;
     }
 }

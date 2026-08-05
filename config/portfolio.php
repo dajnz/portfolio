@@ -102,6 +102,11 @@ return [
                     'heroicons:wrench-screwdriver' => 'DevOps / Tooling',
                 ],
             ],
+            'devicon' => [
+                'prefix' => 'devicon',
+                'label' => 'Tech Stack Icons',
+                'description' => 'Languages, frameworks, dev tools — for skills',
+            ],
             'ui' => [
                 'prefix' => 'heroicons',
                 'label' => 'UI Icons',

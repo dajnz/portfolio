@@ -331,7 +331,7 @@ export interface components {
         SkillSearchItem: {
             id?: number;
             name?: string;
-            /** @description Iconify icon identifier in {prefix}:{name} format. */
+            /** @description Iconify icon identifier in {prefix}:{name} format (e.g. `devicon:laravel`). */
             icon?: string;
         };
         SkillSearchResponse: {
