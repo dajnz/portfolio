@@ -20,7 +20,7 @@ describe('FeatureFlag', function (): void {
     it('holds the name, enabled state and optional description', function (): void {
         $flag = new FeatureFlag(FeatureFlagName::GithubOauth, true, 'Enables GitHub login.');
 
-        expect($flag->toName())->toBe(FeatureFlagName::GithubOauth)
+        expect($flag->toName())->toBe('github_oauth')
             ->and($flag->toEnabled())->toBeTrue()
             ->and($flag->toDescription())->toBe('Enables GitHub login.');
     });

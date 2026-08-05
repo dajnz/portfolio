@@ -19,7 +19,7 @@ describe('FeatureFlagRepository', function (): void {
         $flags = app(FeatureFlagRepositoryInterface::class)->findAll();
 
         expect(array_map(
-            static fn (FeatureFlag $flag): string => $flag->toName()->value,
+            static fn (FeatureFlag $flag): string => $flag->toName(),
             $flags,
         ))->toBe(['console_greeting', 'github_oauth', 'social_reactions']);
     });

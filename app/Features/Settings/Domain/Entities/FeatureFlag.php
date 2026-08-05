@@ -31,9 +31,9 @@ final readonly class FeatureFlag
         return FeatureFlagName::tryFrom($name) !== null;
     }
 
-    public function toName(): FeatureFlagName
+    public function toName(): string
     {
-        return $this->name;
+        return $this->name->value;
     }
 
     public function toEnabled(): bool
