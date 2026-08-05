@@ -1,0 +1,137 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Integration\Backend\OpenApi;
+
+use App\Features\Shared\Infra\Models\SkillGroupModel;
+use App\Features\Shared\Infra\Models\SkillGroupTranslationModel;
+use App\Features\Shared\Infra\Models\SkillModel;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use LogicException;
+use Tests\Support\Traits\InteractsWithAdmin;
+use Tests\Support\Traits\OpenApiContractAssertions;
+
+uses(OpenApiContractAssertions::class, InteractsWithAdmin::class);
+
+/*
+|--------------------------------------------------------------------------
+| OpenAPI contract suite (step 2.7, testing.md:200)
+|--------------------------------------------------------------------------
+|
+| For every operation in docs/openapi/openapi.yaml a real request is sent
+| and the response status/body is validated against the operation's
+| declared responses via league/openapi-psr7-validator. Operations whose
+| endpoints do not exist yet are asserted as 404 + `{message}` envelope
+| until their feature step lands (see `self::scenarios()`).
+| Inertia pages are excluded — validated via vue-tsc and Spectral separately.
+|
+*/
+
+beforeEach(function (): void {
+    Storage::fake('rustfs');
+});
+
+it('covers every operation declared in docs/openapi/openapi.yaml', function (): void {
+    $specOperations = $this->document()->operations();
+    $operationIds = array_column($specOperations, 'operationId');
+
+    foreach (self::scenarios() as $operationId => $scenario) {
+        expect($operationIds)->toContain($operationId)
+            ->and($scenario['path'])->toBeIn(
+                array_column($specOperations, 'path')
+            );
+    }
+
+    foreach ($specOperations as $operation) {
+        $scenario = self::scenarios()[$operation['operationId']] ?? null;
+
+        expect($scenario)->not->toBeNull("No scenario for spec operation {$operation['operationId']}")
+            ->and($scenario['path'])->toBe($operation['path'])
+            ->and($scenario['method'])->toBe($operation['method']);
+    }
+});
+
+it('validates the searchSkills response against the spec', function (): void {
+    $group = SkillGroupModel::factory()->create();
+    SkillGroupTranslationModel::factory()->create([
+        'skill_group_id' => $group->id,
+        'locale' => 'en',
+        'name' => 'Backend',
+    ]);
+    SkillModel::factory()->create([
+        'skill_group_id' => $group->id,
+        'name' => 'Laravel',
+        'icon' => 'devicon:laravel',
+        'proficiency' => 5,
+        'sort_order' => 1,
+    ]);
+
+    $this->assertConformsToSpec('searchSkills', 0, $this->getJson('/api/skills/search?q=lar'));
+});
+
+it('validates the uploadFile responses against the spec', function (): void {
+    $this->assertConformsToSpec('uploadFile', 0, $this->postJson('/api/upload', [
+        'file' => UploadedFile::fake()->image('x.png'),
+        'entity_type' => 'blog',
+    ]));
+
+    $this->loginAsAdmin($this->createAdmin());
+
+    $this->assertConformsToSpec('uploadFile', 1, $this->postJson('/api/upload', [
+        'file' => UploadedFile::fake()->image('x.png'),
+        'entity_type' => 'blog',
+    ]));
+
+    $this->assertConformsToSpec('uploadFile', 2, $this->postJson('/api/upload', [
+        'file' => UploadedFile::fake()->image('x.png'),
+        'entity_type' => 'avatar',
+    ]));
+});
+
+it('validates the deleteFile responses against the spec', function (): void {
+    $this->assertConformsToSpec('deleteFile', 0, $this->deleteJson('/api/upload', [
+        'path' => 'blog/missing.png',
+    ]));
+
+    $this->loginAsAdmin($this->createAdmin());
+
+    $this->assertConformsToSpec('deleteFile', 1, $this->deleteJson('/api/upload', [
+        'path' => 'blog/missing.png',
+    ]));
+
+    Storage::disk('rustfs')->put('blog/exists.png', 'x');
+
+    $this->assertConformsToSpec('deleteFile', 2, $this->deleteJson('/api/upload', [
+        'path' => 'blog/exists.png',
+    ]));
+});
+
+it('answers 404 with the error envelope for not-yet-implemented operations', function (): void {
+    foreach (array_keys(array_filter(
+        self::scenarios(),
+        static fn (array $scenario): bool => ! $scenario['implemented'],
+    )) as $operationId) {
+        $response = match ($operationId) {
+            'submitFeedback' => $this->postJson('/api/feedback', [
+                'sender_name' => 'Jane Doe',
+                'sender_email' => 'jane@example.com',
+                'message' => 'This is a valid feedback message.',
+            ]),
+            'toggleArticleReaction' => $this->postJson('/api/blog/1/reaction', ['reaction' => 'like']),
+            'createTag' => $this->postJson('/api/tags', ['slug' => 'new-tag', 'name' => 'New tag']),
+            'searchTags' => $this->getJson('/api/tags/search?q=php'),
+            'searchUnifiedBlogTags' => $this->getJson('/api/blog-tags/search?q=php'),
+            'trackEvents' => $this->postJson('/api/analytics/track', ['events' => [
+                ['event_type' => 'page_view', 'session_id' => 'contract-test-session'],
+            ]]),
+            'regenerateResume' => $this->postJson('/api/resume/regenerate'),
+            'listBlogArticlesJson' => $this->getJson('/blog'),
+            'listProjectsJson' => $this->getJson('/projects'),
+            default => throw new LogicException("No pending-request builder for [{$operationId}]."),
+        };
+
+        $this->assertPendingOperation($response);
+    }
+});
