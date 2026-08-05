@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Shared\App\UseCases;
 
 use App\Features\Shared\App\BaseUseCase;
-use App\Features\Shared\Domain\DTOs\TechSkillDTO;
+use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 
 /**
@@ -24,7 +24,7 @@ final class SearchSkillsUseCase extends BaseUseCase
     }
 
     /**
-     * @return TechSkillDTO[]
+     * @return TechSkill[]
      */
     public function search(string $query, string $locale): array
     {
@@ -36,14 +36,14 @@ final class SearchSkillsUseCase extends BaseUseCase
 
         $matches = array_values(array_filter(
             $this->repository->findAll($locale),
-            static fn (TechSkillDTO $skill): bool => str_contains(mb_strtolower($skill->name), $needle),
+            static fn (TechSkill $skill): bool => str_contains(mb_strtolower($skill->toName()), $needle),
         ));
 
         usort(
             $matches,
-            static fn (TechSkillDTO $a, TechSkillDTO $b): int => strcmp(
-                mb_strtolower($a->name),
-                mb_strtolower($b->name),
+            static fn (TechSkill $a, TechSkill $b): int => strcmp(
+                mb_strtolower($a->toName()),
+                mb_strtolower($b->toName()),
             ),
         );
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Shared\Infra\Controllers;
 
 use App\Features\Shared\App\UseCases\SearchSkillsUseCase;
-use App\Features\Shared\Domain\DTOs\TechSkillDTO;
+use App\Features\Shared\Domain\Entities\TechSkill;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -26,10 +26,10 @@ final class SkillSearchController
 
         return response()->json([
             'data' => array_map(
-                static fn (TechSkillDTO $skill): array => [
-                    'id' => $skill->id,
-                    'name' => $skill->name,
-                    'icon' => $skill->icon,
+                static fn (TechSkill $skill): array => [
+                    'id' => $skill->toId(),
+                    'name' => $skill->toName(),
+                    'icon' => $skill->toIcon(),
                 ],
                 $skills,
             ),
