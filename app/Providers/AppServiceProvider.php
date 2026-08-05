@@ -15,6 +15,7 @@ use App\Features\Settings\Infra\Repositories\EloquentFeatureFlagRepository;
 use App\Features\Settings\Infra\Repositories\EloquentSettingRepository;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
+use App\Features\Shared\Infra\Swagger\SwaggerUiService;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -77,6 +78,13 @@ class AppServiceProvider extends ServiceProvider
         // authentication.md:363 — repopulates `session_version` after
         // remember-me (recaller cookie) re-authentication.
         Event::listen(Login::class, LoginListener::class);
+
+        // openapi.md:269-275 — the Swagger UI (l5-swagger) serves the
+        // dereferenced `docs/openapi/openapi.yaml` contract. Production
+        // skips the sync (the package is a require-dev dependency).
+        if (! app()->isProduction()) {
+            app(SwaggerUiService::class)->sync();
+        }
 
         $this->commands([
             \App\Console\Commands\ExportLangCommand::class,
