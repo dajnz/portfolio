@@ -12,25 +12,11 @@ use InvalidArgumentException;
 
 describe('EloquentSettingRepository', function (): void {
     beforeEach(function (): void {
-        SettingModel::query()->create([
-            'key' => 'items_per_page',
-            'value' => '12',
-            'type' => 'integer',
-        ]);
-        SettingModel::query()->create([
-            'key' => 'site_maintenance_mode',
-            'value' => '0',
-            'type' => 'boolean',
-        ]);
-        SettingModel::query()->create([
-            'key' => 'supported_locales',
-            'value' => '["en","ru"]',
-            'type' => 'json',
-        ]);
-        SettingModel::query()->create([
-            'key' => 'mail_host',
-            'value' => 'smtp.example.com',
-            'type' => 'string',
+        SettingModel::insert([
+            ['key' => 'items_per_page', 'value' => '12', 'type' => 'integer'],
+            ['key' => 'site_maintenance_mode', 'value' => '0', 'type' => 'boolean'],
+            ['key' => 'supported_locales', 'value' => '["en","ru"]', 'type' => 'json'],
+            ['key' => 'mail_host', 'value' => 'smtp.example.com', 'type' => 'string'],
         ]);
     });
 
