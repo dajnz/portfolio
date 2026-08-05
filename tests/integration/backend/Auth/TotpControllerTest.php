@@ -86,6 +86,8 @@ describe('TotpController login flow', function (): void {
     });
 
     it('applies the escalating lockout tiers (4-6 → 1 minute)', function (): void {
+        $this->freezeTime();
+
         $admin = $this->adminWithTotp();
 
         foreach (range(1, 3) as $_) {
@@ -101,8 +103,8 @@ describe('TotpController login flow', function (): void {
         expect($fresh->totp_failed_attempts)->toBe(4)
             ->and($fresh->totp_locked_until)->not->toBeNull()
             ->and($fresh->totp_locked_until->getTimestamp())->toBeBetween(
-                now()->addSeconds(50)->getTimestamp(),
-                now()->addMinutes(2)->getTimestamp(),
+                now()->addSeconds(59)->getTimestamp(),
+                now()->addSeconds(61)->getTimestamp(),
             );
     });
 
