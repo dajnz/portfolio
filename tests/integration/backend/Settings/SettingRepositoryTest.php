@@ -130,7 +130,7 @@ describe('EloquentSettingRepository', function (): void {
         $settings = app(SettingRepositoryInterface::class)->findAll();
 
         expect(array_map(
-            static fn ($setting): string => $setting->name->value,
+            static fn ($setting): string => $setting->toName(),
             $settings,
         ))->toBe(['items_per_page', 'mail_host', 'site_maintenance_mode', 'supported_locales']);
     });

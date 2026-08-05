@@ -20,9 +20,9 @@ describe('FeatureFlag', function (): void {
     it('holds the name, enabled state and optional description', function (): void {
         $flag = new FeatureFlag(FeatureFlagName::GithubOauth, true, 'Enables GitHub login.');
 
-        expect($flag->name)->toBe(FeatureFlagName::GithubOauth)
-            ->and($flag->enabled)->toBeTrue()
-            ->and($flag->description)->toBe('Enables GitHub login.');
+        expect($flag->toName())->toBe(FeatureFlagName::GithubOauth)
+            ->and($flag->toEnabled())->toBeTrue()
+            ->and($flag->toDescription())->toBe('Enables GitHub login.');
     });
 
     it('limits the description size', function (): void {
@@ -40,6 +40,6 @@ describe('FeatureFlag', function (): void {
     });
 
     it('allows a null description', function (): void {
-        expect((new FeatureFlag(FeatureFlagName::GithubOauth, false, null))->description)->toBeNull();
+        expect((new FeatureFlag(FeatureFlagName::GithubOauth, false, null))->toDescription())->toBeNull();
     });
 });

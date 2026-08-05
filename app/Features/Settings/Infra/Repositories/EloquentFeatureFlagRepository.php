@@ -46,7 +46,7 @@ final class EloquentFeatureFlagRepository implements FeatureFlagRepositoryInterf
         return Cache::remember(
             $this->cacheKey($name),
             self::CACHE_TTL_SECONDS,
-            fn (): bool => $this->find($name)?->enabled ?? false,
+            fn (): bool => $this->find($name)?->toEnabled() ?? false,
         );
     }
 

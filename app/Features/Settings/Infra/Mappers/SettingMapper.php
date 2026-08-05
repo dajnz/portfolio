@@ -29,9 +29,9 @@ final class SettingMapper
     public function toRow(Setting $setting): array
     {
         return [
-            'key' => $setting->name->value,
+            'key' => $setting->toName(),
             'value' => $setting->rawValue(),
-            'type' => $setting->name->type()->value,
+            'type' => SettingName::from($setting->toName())->type()->value,
         ];
     }
 }
