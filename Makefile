@@ -95,19 +95,19 @@ setup-localhost: ## First-run setup in localhost mode (no Traefik required)
 	$(DE_LOCALHOST) php artisan backup:generate-key --name "initial"
 
 test: ## Run all test suites except e2e (backend + frontend)
-	$(DE) php artisan test
+	$(DE) env XDEBUG_MODE=off php artisan test --parallel --recreate-databases --drop-databases --processes=8
 	$(DE) npx vitest run
 
 test-unit: ## Run unit tests (backend + frontend)
-	$(DE) php artisan test tests/unit/backend/
+	$(DE) env XDEBUG_MODE=off php artisan test tests/unit/backend/
 	$(DE) npx vitest run tests/unit/frontend/
 
 test-int: ## Run integration tests (backend + frontend)
-	$(DE) php artisan test tests/integration/backend/
+	$(DE) env XDEBUG_MODE=off php artisan test tests/integration/backend/ --parallel --recreate-databases --drop-databases --processes=8
 	$(DE) npx vitest run tests/integration/frontend/
 
 test-backend: ## Run all backend tests (unit + integration)
-	$(DE) php artisan test
+	$(DE) env XDEBUG_MODE=off php artisan test --parallel --recreate-databases --drop-databases --processes=8
 
 test-frontend: ## Run all frontend tests (unit + integration)
 	$(DE) npx vitest run
