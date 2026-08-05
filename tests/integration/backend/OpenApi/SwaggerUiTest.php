@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\OpenApi;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Support\Traits\InteractsWithAdmin;
 
 /*
@@ -21,7 +20,7 @@ use Tests\Support\Traits\InteractsWithAdmin;
 |
 */
 
-uses(RefreshDatabase::class, InteractsWithAdmin::class);
+uses(InteractsWithAdmin::class);
 
 describe('in the local environment', function (): void {
     beforeEach(function (): void {
