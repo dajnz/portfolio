@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /*
-| Auth backend messages (step 2.3). Static strings flashed to the user
-| from the Auth feature — the full catalogs are authored in step 2.6 (B10).
+| Сообщения бэкенда аутентификации (шаг 2.3) — статические строки,
+| показываемые пользователю из функции Auth.
 */
 
 return [
