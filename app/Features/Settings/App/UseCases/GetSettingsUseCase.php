@@ -25,7 +25,7 @@ final class GetSettingsUseCase
         $settings = [];
 
         foreach ($this->repository->findAll() as $setting) {
-            $settings[$setting->name->value] = $setting->name === SettingName::MailPassword
+            $settings[$setting->toName()] = $setting->toName() === SettingName::MailPassword->value
                 ? ''
                 : $setting->value();
         }

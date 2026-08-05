@@ -9,18 +9,11 @@ use App\Features\Settings\Domain\Enums\SettingType;
 use App\Features\Settings\Domain\ValueObjects\SettingValue;
 use InvalidArgumentException;
 
-/**
- * One `settings` row: a strictly defined name plus a type-conformant
- * value. The value type is fixed by the name, and each name has its own
- * value domain (numeric bounds per A8, the report-frequency enum) — both
- * are enforced in the constructor, so an invalid `Setting` can never be
- * constructed.
- */
 final readonly class Setting
 {
     public function __construct(
-        public SettingName $name,
-        public SettingValue $value,
+        private SettingName $name,
+        private SettingValue $value,
     ) {
         if ($this->value->type !== $this->name->type()) {
             throw new InvalidArgumentException(
@@ -41,10 +34,16 @@ final readonly class Setting
         return SettingName::tryFrom($name) !== null;
     }
 
-    /**
-     * Returns a new setting with a different value; the value type and
-     * domain are restricted to the name's (enforced by the constructor).
-     */
+    public function toName(): string
+    {
+        return $this->name->value;
+    }
+
+    public function toValue(): SettingValue
+    {
+        return $this->value;
+    }
+
     public function updateValue(SettingValue $value): self
     {
         return new self($this->name, $value);
@@ -80,11 +79,6 @@ final readonly class Setting
         return $this->value->toRaw();
     }
 
-    /**
-     * Per-name value domains (A8): per-page and backup counts must be
-     * positive, `trash_retention_days` may be 0 (pruning disabled), and
-     * the report frequency is restricted to the documented cadences.
-     */
     private function assertValueInDomain(): void
     {
         $minimum = match ($this->name) {

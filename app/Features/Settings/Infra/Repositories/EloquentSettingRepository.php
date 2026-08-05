@@ -63,11 +63,11 @@ final class EloquentSettingRepository implements SettingRepositoryInterface
     public function save(Setting $setting): void
     {
         SettingModel::query()->updateOrCreate(
-            ['key' => $setting->name->value],
+            ['key' => $setting->toName()],
             $this->mapper->toRow($setting),
         );
 
-        Cache::forget($this->cacheKey($setting->name));
+        Cache::forget($this->cacheKey(SettingName::from($setting->toName())));
     }
 
     public function saveValue(SettingName $name, mixed $value): void
