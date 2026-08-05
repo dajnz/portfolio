@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Features\Shared\Domain\RepositoryInterfaces;
 
-use App\Features\Shared\Domain\DTOs\GroupedTechSkillsDTO;
-use App\Features\Shared\Domain\DTOs\TechSkillDTO;
+use App\Features\Shared\Domain\Entities\TechSkill;
+use App\Features\Shared\Domain\Entities\TechSkillGroup;
 
 /**
  * Read-only access to tech skills for all features.
@@ -17,18 +17,18 @@ use App\Features\Shared\Domain\DTOs\TechSkillDTO;
 interface TechSkillReadRepositoryInterface
 {
     /**
-     * @return TechSkillDTO[]
+     * @return TechSkill[]
      */
     public function findAll(string $locale): array;
 
     /**
      * @param  int[]  $ids  Skill IDs (skills.id)
-     * @return TechSkillDTO[]
+     * @return TechSkill[]
      */
     public function findByIds(array $ids, string $locale): array;
 
     /**
-     * @return GroupedTechSkillsDTO[]
+     * @return TechSkillGroup[]
      */
     public function findAllGrouped(string $locale): array;
 }
