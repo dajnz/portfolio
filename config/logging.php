@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Features\Shared\Infra\Logging\SensitiveFieldsTap;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -54,9 +55,14 @@ return [
 
     'channels' => [
 
+        // error-handling.md:216-225 — the default stack combines `stderr`
+        // (captured by the Docker entrypoint) with `daily` (local fallback,
+        // 14-day retention). The `stderr`/`daily` members carry the
+        // `SensitiveFieldsTap` redaction (SENSITIVE_FIELDS), so sensitive
+        // context values never reach the log files or the Docker stream.
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
+            'channels' => explode(',', (string) env('LOG_STACK', 'stderr,daily')),
             'ignore_exceptions' => false,
         ],
 
@@ -73,6 +79,9 @@ return [
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => env('LOG_DAILY_DAYS', 14),
             'replace_placeholders' => true,
+            // error-handling.md:287 — channel-level context redaction
+            // reusing the LogContextMiddleware::SENSITIVE_FIELDS constant.
+            'tap' => [SensitiveFieldsTap::class],
         ],
 
         'slack' => [
@@ -105,6 +114,15 @@ return [
             ],
             'formatter' => env('LOG_STDERR_FORMATTER'),
             'processors' => [PsrLogMessageProcessor::class],
+            'tap' => [SensitiveFieldsTap::class],
+        ],
+
+        'analytics' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/analytics.log'),
+            'level' => 'info',
+            'days' => 90,
+            'replace_placeholders' => true,
         ],
 
         'syslog' => [
