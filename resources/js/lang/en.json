@@ -106,6 +106,26 @@
             "total_views": "Total Views",
             "unread_feedback": "Unread Feedback"
         },
+        "editor": {
+            "blockquote": "Blockquote",
+            "bold": "Bold",
+            "bullet_list": "Bullet list",
+            "callout": "Callout",
+            "callout_important": "Important",
+            "callout_tip": "Tip",
+            "callout_tradeoff": "Trade-off",
+            "callout_warning": "Warning",
+            "code": "Code",
+            "code_block": "Code block",
+            "code_language": "Code language",
+            "heading": "Heading",
+            "insert_image": "Insert image",
+            "italic": "Italic",
+            "link": "Link",
+            "ordered_list": "Ordered list",
+            "placeholder": "Start writing...",
+            "toolbar": "Editor toolbar"
+        },
         "experience": {
             "achievements": "Achievements",
             "add": "Add Experience",
@@ -141,6 +161,11 @@
             "status": "Status",
             "title": "Feedback",
             "unread": "Unread"
+        },
+        "icon_picker": {
+            "no_icons_match": "No icons match",
+            "search_placeholder": "Search icons...",
+            "select_placeholder": "Select an icon..."
         },
         "lists": {
             "actions": "Actions",
@@ -336,6 +361,7 @@
             "article_count": "Article Count",
             "articles_use_count": "{count, plural, one {# article uses this tag} other {# articles use this tag}}",
             "edit": "Edit Tag",
+            "search_placeholder": "Search tags...",
             "slug_hint": "Auto-generated from the EN name. Lowercase letters, numbers and dashes.",
             "title": "Tags"
         },
@@ -346,6 +372,13 @@
             "mark_read_failed": "Could not mark as read",
             "settings_saved": "Settings saved successfully.",
             "upload_failed": "Upload failed, try again."
+        },
+        "upload": {
+            "drag_drop_or_browse": "Drag and drop or click to browse",
+            "file_too_large": "File is too large.",
+            "remove": "Remove",
+            "replace": "Replace",
+            "uploading": "Uploading..."
         }
     },
     "auth": {

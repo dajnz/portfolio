@@ -210,6 +210,42 @@ return [
         'article_count' => 'Количество статей',
         'slug_hint' => 'Генерируется автоматически из английского названия. Строчные буквы, цифры и дефисы.',
         'articles_use_count' => '{count, plural, one {# статья использует этот тег} few {# статьи используют этот тег} many {# статей используют этот тег} other {# статей используют этот тег}}',
+        'search_placeholder' => 'Поиск тегов...',
+    ],
+
+    'icon_picker' => [
+        'select_placeholder' => 'Выберите иконку...',
+        'search_placeholder' => 'Поиск иконок...',
+        'no_icons_match' => 'Иконки не найдены',
+    ],
+
+    'editor' => [
+        'placeholder' => 'Начните писать...',
+        'toolbar' => 'Панель редактора',
+        'bold' => 'Полужирный',
+        'italic' => 'Курсив',
+        'code' => 'Код',
+        'code_block' => 'Блок кода',
+        'code_language' => 'Язык кода',
+        'heading' => 'Заголовок',
+        'blockquote' => 'Цитата',
+        'bullet_list' => 'Маркированный список',
+        'ordered_list' => 'Нумерованный список',
+        'link' => 'Ссылка',
+        'insert_image' => 'Вставить изображение',
+        'callout' => 'Примечание',
+        'callout_warning' => 'Предупреждение',
+        'callout_tip' => 'Совет',
+        'callout_important' => 'Важно',
+        'callout_tradeoff' => 'Компромисс',
+    ],
+
+    'upload' => [
+        'drag_drop_or_browse' => 'Перетащите файл или нажмите для выбора',
+        'replace' => 'Заменить',
+        'remove' => 'Удалить',
+        'file_too_large' => 'Файл слишком большой.',
+        'uploading' => 'Загрузка...',
     ],
 
     'feedback' => [
