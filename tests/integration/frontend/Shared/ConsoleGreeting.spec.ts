@@ -25,19 +25,21 @@ describe('ConsoleGreeting', () => {
         document.head.innerHTML = '';
         vi.mocked(usePage).mockReturnValue({
             props: {
+                errors: {},
                 cspNonce: 'test-nonce',
                 featureFlags: { console_greeting: false },
             },
-        });
+        } as unknown as ReturnType<typeof usePage>);
     });
 
     it('injects a nonced script into the head when the flag is enabled', () => {
         vi.mocked(usePage).mockReturnValue({
             props: {
+                errors: {},
                 cspNonce: 'test-nonce',
                 featureFlags: { console_greeting: true },
             },
-        });
+        } as unknown as ReturnType<typeof usePage>);
 
         mount(ConsoleGreeting, {
             props: {

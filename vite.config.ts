@@ -19,6 +19,12 @@ export default defineConfig(({ isSsrBuild }) => ({
                 bunny('Instrument Sans', {
                     weights: [400, 500, 600],
                 }),
+                bunny('Inter', {
+                    weights: [400, 500, 600, 700, 800],
+                }),
+                bunny('JetBrains Mono', {
+                    weights: [400, 500, 600],
+                }),
             ],
         }),
         vue(),
@@ -26,24 +32,28 @@ export default defineConfig(({ isSsrBuild }) => ({
     ],
     resolve: {
         alias: {
-            '@portfolio-public': featureAlias('Portfolio/Public'),
-            '@portfolio-admin': featureAlias('Portfolio/Admin'),
-            '@blog-public': featureAlias('Blog/Public'),
-            '@blog-admin': featureAlias('Blog/Admin'),
+            // Convention (user-approved 2026-08-06, step 3.4 rework):
+            // components live in `{Feature}/{Area}/Components/` — pages
+            // land in `{Feature}/{Area}/Pages/` (Inertia glob resolution),
+            // aux modules (editor extensions, etc.) in sibling dirs.
+            '@portfolio-public': featureAlias('Portfolio/Public/Components'),
+            '@portfolio-admin': featureAlias('Portfolio/Admin/Components'),
+            '@blog-public': featureAlias('Blog/Public/Components'),
+            '@blog-admin': featureAlias('Blog/Admin/Components'),
             '@blog-shared': featureAlias('Blog/Shared'),
-            '@projects-public': featureAlias('Projects/Public'),
-            '@projects-admin': featureAlias('Projects/Admin'),
-            '@experience-public': featureAlias('Experience/Public'),
-            '@experience-admin': featureAlias('Experience/Admin'),
+            '@projects-public': featureAlias('Projects/Public/Components'),
+            '@projects-admin': featureAlias('Projects/Admin/Components'),
+            '@experience-public': featureAlias('Experience/Public/Components'),
+            '@experience-admin': featureAlias('Experience/Admin/Components'),
             '@experience-shared': featureAlias('Experience/Shared'),
-            '@auth-admin': featureAlias('Auth/Admin'),
-            '@analytics-admin': featureAlias('Analytics/Admin'),
-            '@settings-admin': featureAlias('Settings/Admin'),
-            '@backup-admin': featureAlias('Backup/Admin'),
-            '@techskills-admin': featureAlias('TechSkills/Admin'),
-            '@resume-admin': featureAlias('Resume/Admin'),
-            '@shared-public': featureAlias('Shared/Public'),
-            '@shared-admin': featureAlias('Shared/Admin'),
+            '@auth-admin': featureAlias('Auth/Admin/Components'),
+            '@analytics-admin': featureAlias('Analytics/Admin/Components'),
+            '@settings-admin': featureAlias('Settings/Admin/Components'),
+            '@backup-admin': featureAlias('Backup/Admin/Components'),
+            '@techskills-admin': featureAlias('TechSkills/Admin/Components'),
+            '@resume-admin': featureAlias('Resume/Admin/Components'),
+            '@shared-public': featureAlias('Shared/Public/Components'),
+            '@shared-admin': featureAlias('Shared/Admin/Components'),
             '@shared-cross': featureAlias('Shared/CrossSurface'),
             // Root alias for anything outside the Features tree (lang JSON,
             // app entries). Listed last — the longer feature aliases above
@@ -79,6 +89,25 @@ export default defineConfig(({ isSsrBuild }) => ({
             'tests/unit/frontend/**/*.spec.ts',
             'tests/integration/frontend/**/*.spec.ts',
         ],
+        alias: {
+            // The vendored icon-set JSONs are large (heroicons ~1500
+            // icons / 1.6 MB, simple-icons ~3700 icons / 5.4 MB).
+            // setup.ts statically registers heroicons for every test
+            // file, so the real module would be transformed once per
+            // file; simple-icons is loaded on demand by AdminIconPicker
+            // and costs ~700 ms per file even when mocked (the runner
+            // parses the real JSON before substituting). Both are
+            // aliased to tiny fixtures covering every icon name used in
+            // the frontend + tests — the picker specs verify behavior,
+            // not the vendored data. Test-only aliases: app builds keep
+            // the real sets.
+            '@iconify-json/heroicons/icons.json': fileURLToPath(
+                new URL('./tests/Support/Frontend/fixtures/heroicons.json', import.meta.url),
+            ),
+            '@iconify-json/simple-icons/icons.json': fileURLToPath(
+                new URL('./tests/Support/Frontend/fixtures/simple-icons.json', import.meta.url),
+            ),
+        },
         coverage: {
             provider: 'v8',
             thresholds: {

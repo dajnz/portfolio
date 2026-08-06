@@ -11,9 +11,10 @@ vi.mock('@inertiajs/vue3', () => ({
 import { useFocusManagement } from '@shared-cross/Composables/useFocusManagement';
 
 function finishHandler(): (() => void) | undefined {
-    const call = onMock.mock.calls.find(([type]) => type === 'finish');
+    const calls = onMock.mock.calls as unknown as Array<[string, () => void]>;
+    const call = calls.find(([type]) => type === 'finish');
 
-    return call?.[1] as (() => void) | undefined;
+    return call?.[1];
 }
 
 describe('useFocusManagement', () => {

@@ -16,8 +16,23 @@ vi.mock('@inertiajs/vue3', () => ({
 import { useFormHandler } from '@shared-cross/Composables/useFormHandler';
 import { useToastStore } from '@shared-cross/Stores/toastStore';
 
-function lastVisitCall(mock: ReturnType<typeof vi.fn>): { url: string; data: Record<string, unknown>; options: Record<string, unknown> } {
-    const call = mock.mock.calls.at(-1);
+interface VisitOptions {
+    preserveScroll: boolean;
+    onSuccess: () => void;
+    onError: (errors: Record<string, string>) => void;
+    onHttpException: (error: { status: number }) => void;
+}
+
+function lastVisitCall(mock: ReturnType<typeof vi.fn>): {
+    url: string;
+    data: Record<string, unknown>;
+    options: VisitOptions;
+} {
+    const call = mock.mock.calls.at(-1) as unknown as [
+        string,
+        Record<string, unknown>,
+        VisitOptions,
+    ];
 
     return { url: call[0], data: call[1], options: call[2] };
 }
@@ -79,7 +94,7 @@ describe('useFormHandler', () => {
         const handler = useFormHandler({ title: 'Initial', tags: ['vue'] }, '/admin/blog');
 
         handler.form.title = 'Changed';
-        handler.form.tags.push('inertia');
+        (handler.form.tags as string[]).push('inertia');
 
         handler.submit();
         lastVisitCall(postMock).options.onSuccess();
@@ -139,7 +154,7 @@ describe('useFormHandler', () => {
         const handler = useFormHandler({ title: 'Initial', translations: { en: { content: 'x' } } }, '/admin/blog');
 
         handler.form.title = 'Changed';
-        handler.form.translations.en.content = 'y';
+        (handler.form.translations as { en: { content: string } }).en.content = 'y';
 
         handler.reset();
 

@@ -67,7 +67,7 @@ function isAlert(variant: string): boolean {
           <Icon
             v-else-if="toast.variant === 'warning'"
             class="toast__icon-image"
-            icon="heroicons:exclamation"
+            icon="heroicons:exclamation-circle"
           />
           <Icon
             v-else

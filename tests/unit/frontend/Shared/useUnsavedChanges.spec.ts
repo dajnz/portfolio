@@ -13,9 +13,12 @@ vi.mock('@inertiajs/vue3', () => ({
 import { useUnsavedChanges, type UnsavedChangesGuard } from '@shared-cross/Composables/useUnsavedChanges';
 
 function beforeGuard(): (event: { preventDefault: () => void }) => void {
-    const call = onMock.mock.calls.find(([type]) => type === 'before');
+    const calls = onMock.mock.calls as unknown as Array<
+        [string, (event: { preventDefault: () => void }) => void]
+    >;
+    const call = calls.find(([type]) => type === 'before');
 
-    return call?.[1] as (event: { preventDefault: () => void }) => void;
+    return call?.[1] ?? (() => {});
 }
 
 describe('useUnsavedChanges', () => {

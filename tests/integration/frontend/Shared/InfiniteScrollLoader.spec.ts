@@ -16,7 +16,7 @@ describe('InfiniteScrollLoader', () => {
 
         const button = wrapper.get('[data-testid="infinite-scroll-loader-button"]');
 
-        expect(button.exists()).toBe(true);
+        expect(button).toBeDefined();
         expect(button.text()).toBe('Load More');
     });
 

@@ -6,7 +6,7 @@ import PublicPageLayout from '@shared-public/PublicPageLayout.vue';
 
 const NAV_ITEMS = [{ label: 'Blog', url: '/blog' }];
 
-function mountLayout(props: Record<string, unknown> = {}, slots: Record<string, unknown> = {}) {
+function mountLayout(props: Record<string, unknown> = {}, slots: Record<string, string> = {}) {
     return mount(PublicPageLayout, {
         props: { nav_items: [], logo_text: 'Alex', ...props },
         slots,

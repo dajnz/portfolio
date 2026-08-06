@@ -106,6 +106,26 @@
             "total_views": "Всего просмотров",
             "unread_feedback": "Непрочитанные отзывы"
         },
+        "editor": {
+            "blockquote": "Цитата",
+            "bold": "Полужирный",
+            "bullet_list": "Маркированный список",
+            "callout": "Примечание",
+            "callout_important": "Важно",
+            "callout_tip": "Совет",
+            "callout_tradeoff": "Компромисс",
+            "callout_warning": "Предупреждение",
+            "code": "Код",
+            "code_block": "Блок кода",
+            "code_language": "Язык кода",
+            "heading": "Заголовок",
+            "insert_image": "Вставить изображение",
+            "italic": "Курсив",
+            "link": "Ссылка",
+            "ordered_list": "Нумерованный список",
+            "placeholder": "Начните писать...",
+            "toolbar": "Панель редактора"
+        },
         "experience": {
             "achievements": "Достижения",
             "add": "Добавить запись",
@@ -141,6 +161,11 @@
             "status": "Статус",
             "title": "Отзывы",
             "unread": "Не прочитан"
+        },
+        "icon_picker": {
+            "no_icons_match": "Иконки не найдены",
+            "search_placeholder": "Поиск иконок...",
+            "select_placeholder": "Выберите иконку..."
         },
         "lists": {
             "actions": "Действия",
@@ -336,6 +361,7 @@
             "article_count": "Количество статей",
             "articles_use_count": "{count, plural, one {# статья использует этот тег} few {# статьи используют этот тег} many {# статей используют этот тег} other {# статей используют этот тег}}",
             "edit": "Изменить тег",
+            "search_placeholder": "Поиск тегов...",
             "slug_hint": "Генерируется автоматически из английского названия. Строчные буквы, цифры и дефисы.",
             "title": "Теги"
         },
@@ -346,6 +372,13 @@
             "mark_read_failed": "Не удалось отметить прочитанным",
             "settings_saved": "Настройки успешно сохранены.",
             "upload_failed": "Не удалось загрузить файл, попробуйте ещё раз."
+        },
+        "upload": {
+            "drag_drop_or_browse": "Перетащите файл или нажмите для выбора",
+            "file_too_large": "Файл слишком большой.",
+            "remove": "Удалить",
+            "replace": "Заменить",
+            "uploading": "Загрузка..."
         }
     },
     "auth": {

@@ -4,7 +4,11 @@
         "useDefineForClassFields": true,
         "module": "ESNext",
         "moduleResolution": "bundler",
-        "lib": ["ES2022", "DOM", "DOM.Iterable"],
+        "lib": [
+            "ES2022",
+            "DOM",
+            "DOM.Iterable"
+        ],
         "strict": true,
         "noUnusedLocals": true,
         "noUnusedParameters": true,
@@ -16,30 +20,82 @@
         "resolveJsonModule": true,
         "skipLibCheck": true,
         "jsx": "preserve",
-        "types": ["vite/client", "node"],
+        "types": [
+            "vite/client",
+            "node"
+        ],
         "paths": {
-            "@portfolio-public/*": ["./resources/js/Features/Portfolio/Public/*"],
-            "@portfolio-admin/*": ["./resources/js/Features/Portfolio/Admin/*"],
-            "@blog-public/*": ["./resources/js/Features/Blog/Public/*"],
-            "@blog-admin/*": ["./resources/js/Features/Blog/Admin/*"],
-            "@blog-shared/*": ["./resources/js/Features/Blog/Shared/*"],
-            "@projects-public/*": ["./resources/js/Features/Projects/Public/*"],
-            "@projects-admin/*": ["./resources/js/Features/Projects/Admin/*"],
-            "@experience-public/*": ["./resources/js/Features/Experience/Public/*"],
-            "@experience-admin/*": ["./resources/js/Features/Experience/Admin/*"],
-            "@experience-shared/*": ["./resources/js/Features/Experience/Shared/*"],
-            "@auth-admin/*": ["./resources/js/Features/Auth/Admin/*"],
-            "@analytics-admin/*": ["./resources/js/Features/Analytics/Admin/*"],
-            "@settings-admin/*": ["./resources/js/Features/Settings/Admin/*"],
-            "@backup-admin/*": ["./resources/js/Features/Backup/Admin/*"],
-            "@techskills-admin/*": ["./resources/js/Features/TechSkills/Admin/*"],
-            "@resume-admin/*": ["./resources/js/Features/Resume/Admin/*"],
-            "@shared-public/*": ["./resources/js/Features/Shared/Public/*"],
-            "@shared-admin/*": ["./resources/js/Features/Shared/Admin/*"],
-            "@shared-cross/*": ["./resources/js/Features/Shared/CrossSurface/*"],
-            "@/*": ["./resources/js/*"]
+            "@portfolio-public/*": [
+                "./resources/js/Features/Portfolio/Public/Components/*"
+            ],
+            "@portfolio-admin/*": [
+                "./resources/js/Features/Portfolio/Admin/Components/*"
+            ],
+            "@blog-public/*": [
+                "./resources/js/Features/Blog/Public/Components/*"
+            ],
+            "@blog-admin/*": [
+                "./resources/js/Features/Blog/Admin/Components/*"
+            ],
+            "@blog-shared/*": [
+                "./resources/js/Features/Blog/Shared/*"
+            ],
+            "@projects-public/*": [
+                "./resources/js/Features/Projects/Public/Components/*"
+            ],
+            "@projects-admin/*": [
+                "./resources/js/Features/Projects/Admin/Components/*"
+            ],
+            "@experience-public/*": [
+                "./resources/js/Features/Experience/Public/Components/*"
+            ],
+            "@experience-admin/*": [
+                "./resources/js/Features/Experience/Admin/Components/*"
+            ],
+            "@experience-shared/*": [
+                "./resources/js/Features/Experience/Shared/*"
+            ],
+            "@auth-admin/*": [
+                "./resources/js/Features/Auth/Admin/Components/*"
+            ],
+            "@analytics-admin/*": [
+                "./resources/js/Features/Analytics/Admin/Components/*"
+            ],
+            "@settings-admin/*": [
+                "./resources/js/Features/Settings/Admin/Components/*"
+            ],
+            "@backup-admin/*": [
+                "./resources/js/Features/Backup/Admin/Components/*"
+            ],
+            "@techskills-admin/*": [
+                "./resources/js/Features/TechSkills/Admin/Components/*"
+            ],
+            "@resume-admin/*": [
+                "./resources/js/Features/Resume/Admin/Components/*"
+            ],
+            "@shared-public/*": [
+                "./resources/js/Features/Shared/Public/Components/*"
+            ],
+            "@shared-admin/*": [
+                "./resources/js/Features/Shared/Admin/Components/*"
+            ],
+            "@shared-cross/*": [
+                "./resources/js/Features/Shared/CrossSurface/*"
+            ],
+            "@/*": [
+                "./resources/js/*"
+            ]
         }
     },
-    "include": ["resources/js/**/*.ts", "resources/js/**/*.d.ts", "resources/js/**/*.vue"],
-    "exclude": ["node_modules", "public"]
+    "include": [
+        "resources/js/**/*.ts",
+        "resources/js/**/*.d.ts",
+        "resources/js/**/*.vue",
+        "tests/**/*.ts",
+        "vite.config.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "public"
+    ]
 }

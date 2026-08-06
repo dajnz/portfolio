@@ -215,6 +215,42 @@ return [
         'article_count' => 'Article Count',
         'slug_hint' => 'Auto-generated from the EN name. Lowercase letters, numbers and dashes.',
         'articles_use_count' => '{count, plural, one {# article uses this tag} other {# articles use this tag}}',
+        'search_placeholder' => 'Search tags...',
+    ],
+
+    'icon_picker' => [
+        'select_placeholder' => 'Select an icon...',
+        'search_placeholder' => 'Search icons...',
+        'no_icons_match' => 'No icons match',
+    ],
+
+    'editor' => [
+        'placeholder' => 'Start writing...',
+        'toolbar' => 'Editor toolbar',
+        'bold' => 'Bold',
+        'italic' => 'Italic',
+        'code' => 'Code',
+        'code_block' => 'Code block',
+        'code_language' => 'Code language',
+        'heading' => 'Heading',
+        'blockquote' => 'Blockquote',
+        'bullet_list' => 'Bullet list',
+        'ordered_list' => 'Ordered list',
+        'link' => 'Link',
+        'insert_image' => 'Insert image',
+        'callout' => 'Callout',
+        'callout_warning' => 'Warning',
+        'callout_tip' => 'Tip',
+        'callout_important' => 'Important',
+        'callout_tradeoff' => 'Trade-off',
+    ],
+
+    'upload' => [
+        'drag_drop_or_browse' => 'Drag and drop or click to browse',
+        'replace' => 'Replace',
+        'remove' => 'Remove',
+        'file_too_large' => 'File is too large.',
+        'uploading' => 'Uploading...',
     ],
 
     'feedback' => [
