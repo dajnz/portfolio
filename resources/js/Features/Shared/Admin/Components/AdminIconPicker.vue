@@ -1,5 +1,6 @@
 // admin-section-components.md:251-283 — AdminIconPicker
 <script setup lang="ts">
+import type { IconifyJSON } from '@iconify/types';
 import { Icon, type IconifyIcon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId } from 'vue';
@@ -104,10 +105,14 @@ function loadSet(set: IconSet): void {
 
     modulePromise
         .then((module) => {
+            // The vendored icon-set JSONs are too large for TS structural
+            // inference — the dynamic import resolves to `{ default: {} }`.
+            // IconifyJSON is the canonical shape of these files.
+            const json = (module as { default: IconifyJSON }).default;
             const data: IconSetData = {
-                width: module.width,
-                height: module.height,
-                icons: module.icons,
+                width: json.width ?? 24,
+                height: json.height ?? 24,
+                icons: json.icons,
             };
 
             setCache.set(set, data);
