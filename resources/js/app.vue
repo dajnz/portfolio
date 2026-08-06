@@ -27,9 +27,9 @@ const hasError = ref(false);
 // instead of an empty (crashed) viewport. Returning false stops the
 // error from bubbling further.
 onErrorCaptured(() => {
-	hasError.value = true;
+    hasError.value = true;
 
-	return false;
+    return false;
 });
 
 // Global state hydration: the stores are re-hydrated from the shared
@@ -42,26 +42,26 @@ const authStore = useAuthStore();
 const toastStore = useToastStore();
 
 function hydrateFromPage(page: Page): void {
-	themeStore.hydrate(page.props.theme);
-	localeStore.hydrate(page.props.locale);
-	authStore.hydrate(page.props.auth);
+    themeStore.hydrate(page.props.theme);
+    localeStore.hydrate(page.props.locale);
+    authStore.hydrate(page.props.auth);
 }
 
 // Session `notification` flashes (error-handling.md:103-115) are picked
 // up once per page load; the toast queue is cleared on navigation start
 // (architecture.md:193).
 interface NotificationProps {
-	type?: ToastVariant;
-	message?: string;
+    type?: ToastVariant;
+    message?: string;
 }
 
 function showNotification(page: Page): void {
-	const notification = page.props.notification as NotificationProps | null | undefined;
-	if (notification?.message) {
-		toastStore.show(notification.message, {
-			variant: notification.type,
-		});
-	}
+    const notification = page.props.notification as NotificationProps | null | undefined;
+    if (notification?.message) {
+        toastStore.show(notification.message, {
+            variant: notification.type,
+        });
+    }
 }
 
 hydrateFromPage(props.page);
@@ -77,22 +77,22 @@ const analytics = useAnalytics();
 const focusManagement = useFocusManagement();
 
 if (typeof window !== 'undefined') {
-	showNotification(props.page);
+    showNotification(props.page);
 
-	router.on('start', () => toastStore.dismissAll());
-	router.on('success', (event) => {
-		hydrateFromPage(event.detail.page);
-		showNotification(event.detail.page);
-	});
+    router.on('start', () => toastStore.dismissAll());
+    router.on('success', (event) => {
+        hydrateFromPage(event.detail.page);
+        showNotification(event.detail.page);
+    });
 }
 
 onUnmounted(() => {
-	analytics.cleanup();
-	focusManagement.cleanup();
+    analytics.cleanup();
+    focusManagement.cleanup();
 });
 
 function reload(): void {
-	window.location.reload();
+    window.location.reload();
 }
 </script>
 

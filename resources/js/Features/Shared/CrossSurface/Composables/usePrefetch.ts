@@ -7,12 +7,12 @@ import { router } from '@inertiajs/vue3';
 export const HOVER_PREFETCH_DELAY_MS = 100;
 
 export interface UsePrefetchApi {
-	/** Visits `url` with `preserveState`; cancels any in-flight prefetch first. */
-	prefetch: (url: string) => AbortController;
-	/** Hover-based prefetch: fires after the pointer lingers, cancels on leave. */
-	onHover: (el: HTMLElement, url: string, delayMs?: number) => () => void;
-	/** Visibility-based prefetch: fires when `el` enters the viewport. */
-	whenVisible: (el: HTMLElement, url: string, options?: { once?: boolean }) => () => void;
+    /** Visits `url` with `preserveState`; cancels any in-flight prefetch first. */
+    prefetch: (url: string) => AbortController;
+    /** Hover-based prefetch: fires after the pointer lingers, cancels on leave. */
+    onHover: (el: HTMLElement, url: string, delayMs?: number) => () => void;
+    /** Visibility-based prefetch: fires when `el` enters the viewport. */
+    whenVisible: (el: HTMLElement, url: string, options?: { once?: boolean }) => () => void;
 }
 
 /**
@@ -21,101 +21,107 @@ export interface UsePrefetchApi {
  * fetch the Inertia page JSON, never `<link rel="prefetch">` HTML.
  */
 export function usePrefetch(): UsePrefetchApi {
-	let inFlight: AbortController | null = null;
+    let inFlight: AbortController | null = null;
 
-	function cancel(): void {
-		if (inFlight) {
-			inFlight.abort();
-			inFlight = null;
-		}
-	}
+    function cancel(): void {
+        if (inFlight) {
+            inFlight.abort();
+            inFlight = null;
+        }
+    }
 
-	function prefetch(url: string): AbortController {
-		cancel();
+    function prefetch(url: string): AbortController {
+        cancel();
 
-		const controller = new AbortController();
-		inFlight = controller;
+        const controller = new AbortController();
+        inFlight = controller;
 
-		// Inertia 3 cancels visits via the visit's cancel token
-		// (`onCancelToken`) rather than a `signal` option (architecture.md:1233
-		// pseudocode is Inertia-2-era); the AbortController bridges the two.
-		router.visit(url, {
-			preserveState: true,
-			onCancelToken: (cancelToken) => {
-				controller.signal.addEventListener('abort', () => cancelToken.cancel(), { once: true });
-			},
-		});
+        // Inertia 3 cancels visits via the visit's cancel token
+        // (`onCancelToken`) rather than a `signal` option (architecture.md:1233
+        // pseudocode is Inertia-2-era); the AbortController bridges the two.
+        router.visit(url, {
+            preserveState: true,
+            onCancelToken: (cancelToken) => {
+                controller.signal.addEventListener('abort', () => cancelToken.cancel(), {
+                    once: true,
+                });
+            },
+        });
 
-		return controller;
-	}
+        return controller;
+    }
 
-	function onHover(
-		el: HTMLElement,
-		url: string,
-		delayMs: number = HOVER_PREFETCH_DELAY_MS,
-	): () => void {
-		let timer: ReturnType<typeof setTimeout> | null = null;
-		let hovered = false;
+    function onHover(
+        el: HTMLElement,
+        url: string,
+        delayMs: number = HOVER_PREFETCH_DELAY_MS,
+    ): () => void {
+        let timer: ReturnType<typeof setTimeout> | null = null;
+        let hovered = false;
 
-		const enter = (): void => {
-			hovered = true;
-			if (timer !== null) {
-				clearTimeout(timer);
-			}
+        const enter = (): void => {
+            hovered = true;
+            if (timer !== null) {
+                clearTimeout(timer);
+            }
 
-			timer = setTimeout(() => {
-				if (hovered) {
-					prefetch(url);
-				}
-			}, delayMs);
-		};
+            timer = setTimeout(() => {
+                if (hovered) {
+                    prefetch(url);
+                }
+            }, delayMs);
+        };
 
-		const leave = (): void => {
-			hovered = false;
-			if (timer !== null) {
-				clearTimeout(timer);
-				timer = null;
-			}
+        const leave = (): void => {
+            hovered = false;
+            if (timer !== null) {
+                clearTimeout(timer);
+                timer = null;
+            }
 
-			// Cancel if the prefetch hasn't completed yet.
-			cancel();
-		};
+            // Cancel if the prefetch hasn't completed yet.
+            cancel();
+        };
 
-		el.addEventListener('mouseenter', enter);
-		el.addEventListener('mouseleave', leave);
+        el.addEventListener('mouseenter', enter);
+        el.addEventListener('mouseleave', leave);
 
-		return () => {
-			hovered = false;
-			if (timer !== null) {
-				clearTimeout(timer);
-			}
+        return () => {
+            hovered = false;
+            if (timer !== null) {
+                clearTimeout(timer);
+            }
 
-			el.removeEventListener('mouseenter', enter);
-			el.removeEventListener('mouseleave', leave);
-			cancel();
-		};
-	}
+            el.removeEventListener('mouseenter', enter);
+            el.removeEventListener('mouseleave', leave);
+            cancel();
+        };
+    }
 
-	function whenVisible(el: HTMLElement, url: string, options: { once?: boolean } = {}): () => void {
-		if (typeof IntersectionObserver === 'undefined') {
-			return () => undefined;
-		}
+    function whenVisible(
+        el: HTMLElement,
+        url: string,
+        options: { once?: boolean } = {},
+    ): () => void {
+        if (typeof IntersectionObserver === 'undefined') {
+            return () => undefined;
+        }
 
-		const observer = new IntersectionObserver((entries) => {
-			if (!entries.some((entry) => entry.isIntersecting)) {
-				return;
-			}
+        const observer = new IntersectionObserver((entries) => {
+            if (!entries.some((entry) => entry.isIntersecting)) {
+                return;
+            }
 
-			prefetch(url);
-			if (options.once !== false) {
-				observer.disconnect();
-			}
-		});
+            prefetch(url);
+            if (options.once !== false) {
+                observer.disconnect();
+            }
+        });
 
-		observer.observe(el);
+        observer.observe(el);
 
-		return () => observer.disconnect();
-	}
+        return () => observer.disconnect();
+    }
 
-	return { prefetch, onHover, whenVisible };
+    return { prefetch, onHover, whenVisible };
 }

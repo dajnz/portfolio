@@ -5,9 +5,9 @@ import { getCurrentScope, isRef, onScopeDispose, type Ref, ref, toRaw, watch } f
 import { useI18n } from './useI18n';
 
 export interface UnsavedChangesGuard {
-	isDirty: Ref<boolean>;
-	/** Removes both guards — called on successful form submission (spec §4). */
-	clear: () => void;
+    isDirty: Ref<boolean>;
+    /** Removes both guards — called on successful form submission (spec §4). */
+    clear: () => void;
 }
 
 /**
@@ -22,55 +22,55 @@ export interface UnsavedChangesGuard {
  * arrays without hand-rolled recursion.
  */
 export function useUnsavedChanges(
-	formRef: Ref<Record<string, unknown>> | Record<string, unknown>,
-	initialValues: Record<string, unknown>,
+    formRef: Ref<Record<string, unknown>> | Record<string, unknown>,
+    initialValues: Record<string, unknown>,
 ): UnsavedChangesGuard {
-	const form = isRef(formRef) ? formRef : ref(formRef);
-	const isDirty = ref(false);
-	const promptMessage = useI18n().t('common.unsaved_changes');
+    const form = isRef(formRef) ? formRef : ref(formRef);
+    const isDirty = ref(false);
+    const promptMessage = useI18n().t('common.unsaved_changes');
 
-	function sync(): void {
-		isDirty.value = !isEqual(toRaw(form.value), initialValues);
-	}
+    function sync(): void {
+        isDirty.value = !isEqual(toRaw(form.value), initialValues);
+    }
 
-	const onBeforeUnload = (event: BeforeUnloadEvent): void => {
-		if (!isDirty.value) {
-			return;
-		}
+    const onBeforeUnload = (event: BeforeUnloadEvent): void => {
+        if (!isDirty.value) {
+            return;
+        }
 
-		event.preventDefault();
-		event.returnValue = '';
-	};
+        event.preventDefault();
+        event.returnValue = '';
+    };
 
-	const onInertiaBefore = (event: { preventDefault: () => void }): void => {
-		if (!isDirty.value) {
-			return;
-		}
+    const onInertiaBefore = (event: { preventDefault: () => void }): void => {
+        if (!isDirty.value) {
+            return;
+        }
 
-		if (!window.confirm(promptMessage)) {
-			event.preventDefault();
-		}
-	};
+        if (!window.confirm(promptMessage)) {
+            event.preventDefault();
+        }
+    };
 
-	window.addEventListener('beforeunload', onBeforeUnload);
-	const unsubscribe = router.on('before', onInertiaBefore);
+    window.addEventListener('beforeunload', onBeforeUnload);
+    const unsubscribe = router.on('before', onInertiaBefore);
 
-	function removeGuards(): void {
-		window.removeEventListener('beforeunload', onBeforeUnload);
-		unsubscribe();
-	}
+    function removeGuards(): void {
+        window.removeEventListener('beforeunload', onBeforeUnload);
+        unsubscribe();
+    }
 
-	function clear(): void {
-		removeGuards();
-		isDirty.value = false;
-	}
+    function clear(): void {
+        removeGuards();
+        isDirty.value = false;
+    }
 
-	watch(form, sync, { deep: true });
-	sync();
+    watch(form, sync, { deep: true });
+    sync();
 
-	if (getCurrentScope()) {
-		onScopeDispose(removeGuards);
-	}
+    if (getCurrentScope()) {
+        onScopeDispose(removeGuards);
+    }
 
-	return { isDirty, clear };
+    return { isDirty, clear };
 }

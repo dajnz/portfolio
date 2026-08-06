@@ -8,17 +8,17 @@ import { router } from '@inertiajs/vue3';
  * navigation, so `onMounted` alone would miss subsequent visits.
  */
 export function useFocusManagement(): { cleanup: () => void } {
-	if (typeof window === 'undefined') {
-		return { cleanup: () => undefined };
-	}
+    if (typeof window === 'undefined') {
+        return { cleanup: () => undefined };
+    }
 
-	const unsubscribe = router.on('finish', () => {
-		const heading = document.querySelector('h1');
-		if (heading) {
-			heading.setAttribute('tabindex', '-1');
-			heading.focus({ preventScroll: true });
-		}
-	});
+    const unsubscribe = router.on('finish', () => {
+        const heading = document.querySelector('h1');
+        if (heading) {
+            heading.setAttribute('tabindex', '-1');
+            heading.focus({ preventScroll: true });
+        }
+    });
 
-	return { cleanup: unsubscribe };
+    return { cleanup: unsubscribe };
 }

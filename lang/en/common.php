@@ -54,7 +54,12 @@ return [
 
     'no_matches' => 'No matches found.',
     'no_data' => 'No data available',
+    'no_options' => 'No options',
     'search_unavailable' => 'Search unavailable. [Retry]',
+    'start_typing_to_search' => 'Start typing to search',
+    'no_tags_found' => 'No tags found.',
+    'could_not_load_tags' => 'Could not load tags. [Retry]',
+    'scroll_to_top' => 'Scroll to top',
     'load_more' => 'Load More',
     'clear_filters' => 'Clear filters',
     'clear_selection' => 'Clear selection',

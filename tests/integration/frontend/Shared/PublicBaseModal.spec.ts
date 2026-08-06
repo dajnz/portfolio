@@ -1,0 +1,144 @@
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it } from 'vitest';
+
+import PublicBaseModal from '@shared-public/PublicBaseModal.vue';
+
+function mountModal(props: Record<string, unknown> = {}, slots: Record<string, unknown> = {}) {
+    return mount(PublicBaseModal, {
+        props: { modelValue: false, title: 'Dialog', ...props },
+        slots: {
+            default:
+                '<button type="button" data-testid="inner-btn">Inner</button><input data-testid="inner-input" />',
+            ...slots,
+        },
+        attachTo: document.body,
+        // The real Teleport moves content to <body> (outside the wrapper);
+        // stubbing it keeps the content inside the wrapper for assertions.
+        global: { stubs: { Teleport: true } },
+    });
+}
+
+describe('PublicBaseModal', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia());
+    });
+
+    it('renders nothing while hidden', () => {
+        const wrapper = mountModal();
+
+        expect(wrapper.find('[data-testid="base-modal"]').exists()).toBe(false);
+    });
+
+    it('renders the dialog with aria attributes when open', async () => {
+        const wrapper = mountModal({ modelValue: true, title: 'Confirm' });
+
+        const panel = wrapper.get('[data-testid="base-modal-panel"]');
+
+        expect(panel.attributes('role')).toBe('dialog');
+        expect(panel.attributes('aria-modal')).toBe('true');
+        expect(panel.attributes('aria-labelledby')).toBe(
+            wrapper.get('.base-modal__title').attributes('id'),
+        );
+        expect(wrapper.text()).toContain('Confirm');
+    });
+
+    it('auto-focuses the first focusable element on open', async () => {
+        const wrapper = mountModal({ modelValue: false });
+        const trigger = document.createElement('button');
+        document.body.appendChild(trigger);
+        trigger.focus();
+
+        await wrapper.setProps({ modelValue: true });
+        await new Promise((resolve) => setTimeout(resolve));
+
+        // The close button is the first focusable element in the header.
+        expect(document.activeElement?.getAttribute('data-testid')).toBe('base-modal-close');
+        trigger.remove();
+    });
+
+    it('returns focus to the trigger element on close', async () => {
+        const wrapper = mountModal({ modelValue: false });
+        const trigger = document.createElement('button');
+        trigger.setAttribute('data-testid', 'modal-trigger');
+        document.body.appendChild(trigger);
+        trigger.focus();
+
+        await wrapper.setProps({ modelValue: true });
+        await wrapper.setProps({ modelValue: false });
+        await new Promise((resolve) => setTimeout(resolve));
+
+        expect(document.activeElement).toBe(trigger);
+        trigger.remove();
+    });
+
+    it('emits update:modelValue false from the close button', async () => {
+        const wrapper = mountModal({ modelValue: true });
+
+        await wrapper.get('[data-testid="base-modal-close"]').trigger('click');
+
+        expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
+    });
+
+    it('closes on scrim click but not on panel click', async () => {
+        const wrapper = mountModal({ modelValue: true });
+
+        await wrapper.get('[data-testid="base-modal-scrim"]').trigger('click');
+
+        expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
+
+        await wrapper.setProps({ modelValue: true });
+        await wrapper.get('[data-testid="base-modal-panel"]').trigger('click');
+
+        expect(wrapper.emitted('update:modelValue')).toHaveLength(1);
+    });
+
+    it('closes on Escape', async () => {
+        const wrapper = mountModal({ modelValue: true });
+
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+        expect(wrapper.emitted('update:modelValue')).toEqual([[false]]);
+    });
+
+    it('does not close on Escape when close_on_escape is false', async () => {
+        const wrapper = mountModal({ modelValue: true, close_on_escape: false });
+
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+        expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+    });
+
+    it('traps Tab focus: wraps from the last focusable back to the first', async () => {
+        const wrapper = mountModal({ modelValue: true });
+
+        const closeButton = wrapper.get('[data-testid="base-modal-close"]').element as HTMLElement;
+        const innerInput = wrapper.get('[data-testid="inner-input"]').element as HTMLElement;
+
+        innerInput.focus();
+        await wrapper.get('[data-testid="base-modal-panel"]').trigger('keydown', { key: 'Tab' });
+
+        expect(document.activeElement).toBe(closeButton);
+
+        closeButton.focus();
+        await wrapper.get('[data-testid="base-modal-panel"]').trigger('keydown', {
+            key: 'Tab',
+            shiftKey: true,
+        });
+
+        expect(document.activeElement).toBe(innerInput);
+    });
+
+    it('renders the footer and header slots', async () => {
+        const wrapper = mountModal(
+            { modelValue: true },
+            {
+                header: '<span data-testid="custom-header">Custom</span>',
+                footer: '<button data-testid="custom-footer">Ok</button>',
+            },
+        );
+
+        expect(wrapper.find('[data-testid="custom-header"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="custom-footer"]').exists()).toBe(true);
+    });
+});

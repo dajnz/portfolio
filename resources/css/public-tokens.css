@@ -1,0 +1,835 @@
+/* ==========================================================================
+   Public Section Design Tokens
+   CSS custom properties driving BEM + scoped-per-component styles (the same
+   names/blocks a Vue SFC would use with <style scoped>). Light + dark
+   themes. Slow ambient gradients, glassmorphism, reduced-motion support.
+
+   Direction: "Atelier" — a modern, editorial glassmorphism feel for a
+   builder's portfolio. Three accent hues that read well together without
+   drifting into a single trendy hue: Moss (primary, confident and calm),
+   Plum (secondary, adds depth to gradients/dark mode), and Gold (sparing
+   highlight, doubles as the warning color). Set on a soft mist-paper
+   ground in light mode and a deep forest-ink ground in dark mode. Gradients
+   and ambient glass "mesh" blobs drift very slowly (60-110s) so they read
+   as atmosphere, never as motion that competes with content.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Fonts
+   --------------------------------------------------------------------------
+   The mockup imports Inter/JetBrains Mono from Google Fonts. The app
+   bundles its own font (Instrument Sans) via the Vite bunny plugin
+   (vite.config.ts), so the remote import is dropped; the stacks below
+   remain the design-token font faces verbatim.
+   -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   2. Reset / Normalize
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: auto;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-normal);
+    line-height: var(--line-height-normal);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+img, svg, video, canvas, audio, iframe, embed, object {
+    display: block;
+    max-width: 100%;
+}
+
+button, input, select, textarea {
+    font: inherit;
+    color: inherit;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+/* Themed selection + marked text (was left to browser defaults — clashed
+   with both themes) */
+::selection {
+    background: var(--color-accent-muted);
+    color: var(--color-text-primary);
+}
+
+mark {
+    background: var(--color-accent-muted);
+    color: var(--color-text-primary);
+    border-radius: 0.2em;
+    padding: 0.05em 0.15em;
+}
+
+/* Inline code + code blocks — previously unstyled (browser defaults only),
+   which meant no theming and no dark-mode support. Used throughout prose,
+   blog articles, and this guide's own descriptions. */
+code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    padding: 0.15em 0.4em;
+    border-radius: var(--radius-sm);
+}
+
+pre {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-primary);
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    border: 1px solid var(--color-border);
+}
+
+pre code {
+    background: none;
+    padding: 0;
+    font-size: 1em;
+    border-radius: 0;
+}
+
+/* --------------------------------------------------------------------------
+   3. Custom Properties — Light Theme (:root)
+   -------------------------------------------------------------------------- */
+:root {
+    /* --- Typography --- */
+    /* Display voice: Inter. Used with restraint for the hero, h1/h2, and the wordmark. */
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    /* Body/UI voice: Inter — clean geometric sans, the workhorse. */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+    --font-size-xs:     0.75rem;
+    --font-size-sm:     0.875rem;
+    --font-size-base:   1rem;
+    --font-size-lg:     1.125rem;
+    --font-size-xl:     1.25rem;
+    --font-size-2xl:    1.5rem;
+    --font-size-3xl:    1.875rem;
+    --font-size-4xl:    2.25rem;
+    --font-size-5xl:    3rem;
+    --font-size-display: clamp(2.5rem, 5vw, 5rem);
+
+    --font-normal:    400;
+    --font-medium:    500;
+    --font-semibold:  600;
+    --font-bold:      700;
+    --font-extrabold: 800;
+
+    --line-height-tight:   1.2;
+    --line-height-normal:  1.6;
+    --line-height-relaxed: 1.75;
+    --line-height-loose:   2;
+
+    --letter-spacing-tight: -0.02em;
+    --letter-spacing-normal: 0;
+    --letter-spacing-wide:   0.05em;
+
+    /* --- Colors — Backgrounds ---
+       Soft mist-paper ground: cool, quiet, lets the Moss/Plum/Gold accents
+       lead without competing warmth. */
+    --color-bg-primary:    oklch(0.98 0.01 0.06);
+    --color-bg-secondary:  oklch(0.94 0.01 0.11);
+    --color-bg-tertiary:   oklch(0.91 0.01 16.08);
+    --color-surface:       oklch(1 0 0);
+
+    /* --- Colors — Text --- */
+    --color-text-primary:    oklch(0.24 0.02 89.88);
+    --color-text-secondary:  oklch(0.37 0.03 101.67);
+    --color-text-tertiary:   oklch(0.53 0.02 100);   /* meets 4.5:1 on --color-bg-primary — usable for body text/placeholders (accessibility.md) */
+    --color-text-inverse:    oklch(0.98 0.01 0);
+
+    /* --- Colors — Accent ---
+       "Moss" — confident, legible at both text and fill sizes, calm enough
+       for long-form reading. */
+    --color-accent:         oklch(0.52 0.21 262);
+    --color-accent-hover:   oklch(0.58 0.23 262.07);
+    --color-accent-muted:   oklch(0.93 0.02 273.96);
+
+    /* --- Colors — Secondary Accent ("Plum") — gradients, dark mode lift,
+       "important" callouts, info states. Never used for body text at small
+       sizes to keep contrast predictable. --- */
+    --color-accent-2:        oklch(0.69 0.12 139.36);
+    --color-accent-2-hover:  oklch(0.73 0.14 139.3);
+    --color-accent-2-muted:  oklch(0.9 0.02 138.64);
+
+    /* --- Colors — Tertiary Accent ("Gold") — sparing highlight, doubles as
+       warning. --- */
+    --color-accent-3:        oklch(0.61 0.16 44.23);
+    --color-accent-3-hover:  oklch(0.66 0.17 44.36);
+    --color-accent-3-muted:  oklch(0.85 0.02 45.37);
+
+    /* --- Colors — Borders --- */
+    --color-border:         oklch(0.86 0.02 17.5);
+    --color-border-light:   #E6EBE1;
+    --color-border-strong:  #B9C6B2;
+
+    /* --- Colors — Semantic --- */
+    --color-error:          #B84A3E;
+    --color-error-bg:       #FBEAE7;
+    --color-error-border:   #E7AFA5;
+
+    --color-success:        #2F9E6E;
+    --color-success-bg:     #E7F5EC;
+    --color-success-border: #97D4B4;
+
+    --color-warning:        oklch(0.78 0.18 85.3);
+    --color-warning-bg:     #FBF1DE;
+    --color-warning-border: #E8C578;
+
+    --color-info:           #6E52A0;
+    --color-info-bg:        #EFEAF8;
+    --color-info-border:    #C4AEDD;
+
+    /* --- Colors — Callouts (Markdown > [!TYPE]) --- */
+    --color-callout-warning-bg:       #FBF1DE;
+    --color-callout-warning-border:   #C8952E;
+    --color-callout-warning-text:     #6B4A11;
+
+    --color-callout-tip-bg:           #E7F5EC;
+    --color-callout-tip-border:       #2F9E6E;
+    --color-callout-tip-text:         #17573A;
+
+    --color-callout-important-bg:     #EFEAF8;
+    --color-callout-important-border: #6E52A0;
+    --color-callout-important-text:   #402C66;
+
+    --color-callout-tradeoff-bg:      #F6E9EE;
+    --color-callout-tradeoff-border:  #9C5670;
+    --color-callout-tradeoff-text:    #5C2A3B;
+
+    /* --- Glassmorphism — tuned to the mist-paper ground ---
+       Light-mode values: the glass tint uses the elevated-surface hue
+       (--color-bg-secondary) instead of the page background, so glass
+       bars/panels read as a distinct shade even over flat (non-hero)
+       content. The border is a dark-ink hairline — a white hairline is
+       invisible on the near-white page. Dark theme keeps its own values. */
+    --glass-bg:      color-mix(in oklab, var(--color-bg-secondary) 85%, transparent);
+    --glass-bg-hover: rgb(239 239 244 / 84%);
+    --glass-border:  rgba(22, 33, 27, 0.10);
+    --glass-blur:    16px;
+    --glass-shadow:  0 8px 32px rgba(22, 33, 27, 0.10);
+
+    /* --- Spacing (4px base) --- */
+    --space-xs:  0.25rem;
+    --space-sm:  0.5rem;
+    --space-md:  1rem;
+    --space-lg:  1.5rem;
+    --space-xl:  2rem;
+    --space-2xl: 3rem;
+    --space-3xl: 4rem;
+
+    /* --- Border Radius — soft, contemporary, glass-friendly --- */
+    --radius-sm:   0.3125rem;
+    --radius-md:   0.625rem;
+    --radius-lg:   1rem;
+    --radius-xl:   1.5rem;
+    --radius-full: 9999px;
+
+    /* --- Shadows — warm ink-tinted, not pure black --- */
+    --shadow-sm:  0 1px 2px rgba(22, 33, 27, 0.06);
+    --shadow-md:  0 4px 10px -2px rgba(22, 33, 27, 0.08), 0 2px 4px -2px rgba(22, 33, 27, 0.05);
+    --shadow-lg:  0 14px 24px -6px rgba(22, 33, 27, 0.10), 0 4px 8px -4px rgba(22, 33, 27, 0.06);
+    --shadow-xl:  0 26px 36px -10px rgba(22, 33, 27, 0.14), 0 10px 14px -6px rgba(22, 33, 27, 0.07);
+    /* Colored "glow" shadow for signature hover moments (cards, primary CTA) */
+    --shadow-glow: 0 10px 28px -6px rgb(119 45 45 / 35%);
+
+    /* --- Transitions --- */
+    --transition-fast:   150ms;
+    --transition-normal: 300ms;
+    --transition-slow:   500ms;
+
+    --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-in:      cubic-bezier(0.4, 0, 1, 1);
+    --ease-out:     cubic-bezier(0, 0, 0.2, 1);
+    --ease-in-out:  cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* --- Focus Ring --- */
+    --focus-ring-width:  3px;
+    --focus-ring-color:  oklch(0.63 0.19 268.45);
+    --focus-ring-offset: 2px;
+
+    /* --- Z-Index --- */
+    --z-dropdown: 100;
+    --z-sticky:   200;
+    --z-modal:    300;
+    --z-toast:    400;
+
+    /* --- Layout --- */
+    --content-max-width: 720px;
+    --wide-max-width:    1200px;
+    --sidebar-width:     280px;
+    --header-height:     64px;
+
+    /* Breakpoints + container widths (component-facing names used by the
+       PublicCenteredContainer layout tokens — see i18n-and-theming.md) */
+    --bp-sm: 640px;
+    --bp-md: 768px;
+    --bp-lg: 1024px;
+    --bp-xl: 1280px;
+    --container-sm: 640px;
+    --container-md: 768px;
+    --container-lg: 1024px;
+    --container-xl: 1200px;
+    --container-padding: 16px;
+    --container-padding-md: 24px;
+
+    /* --- Animated Gradients — Moss → Plum → Gold, a slow editorial drift.
+       Deliberately slow (110s) so it reads as ambient atmosphere, not motion
+       competing with content. Applies to .gradient-hero AND is reused by the
+       ambient mesh blobs below at their own (also slow) durations. --- */
+    --color-bg-hero: oklch(0.98 0.01 260.46);
+    --gradient-hero-color-1: color-mix(in oklab, oklab(0.85 -0.01 0.2) 40%, transparent);
+    --gradient-hero-color-2: color-mix(in oklab, lab(63.3038% -18.433 -51.0407) 27%, transparent);
+    --gradient-hero-color-3: color-mix(in oklab, lab(56.9303% 76.8162 -8.07021) 25%, transparent);
+    --animation-gradient-duration: 110s;
+
+    /* --- Ambient Glass Mesh — soft blurred color blobs drifting behind
+       glass surfaces (hero, feature sections). Three independent, very slow
+       loops so the motion never repeats in an obvious cycle. --- */
+    --mesh-color-1: var(--color-accent);
+    --mesh-color-2: var(--color-accent-2);
+    --mesh-color-3: var(--color-accent-3);
+    --animation-mesh-duration-1: 70s;
+    --animation-mesh-duration-2: 95s;
+    --animation-mesh-duration-3: 130s;
+
+    /* --- Skeleton Shimmer --- */
+    --skeleton-base:    oklch(0.88 0.01 46.58);
+    --skeleton-shimmer: oklch(0.93 0.01 0);
+    --skeleton-animation-duration: 1.5s;
+}
+
+/* --------------------------------------------------------------------------
+   4. Custom Properties — Dark Theme (:root.dark)
+   -------------------------------------------------------------------------- */
+:root.dark {
+    /* --- Colors — Backgrounds — deep forest-ink, not neutral navy/black --- */
+    --color-bg-primary:    oklch(0.18 0.01 17.05);
+    --color-bg-secondary:  oklch(0.23 0.01 0);
+    --color-bg-tertiary:   oklch(0.26 0.01 16.31);
+    --color-surface:       oklch(0.22 0.01 16.75);
+
+    /* --- Colors — Text --- */
+    --color-text-primary:    oklch(0.96 0.01 0);
+    --color-text-secondary:  oklch(0.76 0.01 50.93);
+    --color-text-tertiary:   oklch(0.68 0.02 100);    /* meets 4.5:1 on --color-bg-primary (dark) — accessibility.md */
+    --color-text-inverse:    oklch(0.75 0.04 68.76);
+
+    /* --- Colors — Accent --- */
+    --color-accent:         oklch(0.5 0.23 266.5);
+    --color-accent-hover:   oklch(0.54 0.25 266.52);
+    --color-accent-muted:   oklch(0.22 0.07 265.97);
+
+    --color-accent-2:        oklch(0.8 0.18 172.95);
+    --color-accent-2-hover:  #C7B2E9;
+    --color-accent-2-muted:  #241A38;
+
+    --color-accent-3:        #E8B54B;
+    --color-accent-3-hover:  #F0C871;
+    --color-accent-3-muted:  #332408;
+
+    /* --- Colors — Borders --- */
+    --color-border:         #263229;
+    --color-border-light:   #1B2419;
+    --color-border-strong:  #3B4A3B;
+
+    /* --- Colors — Semantic --- */
+    --color-error:          oklch(0.46 0.17 27.13);
+    --color-error-bg:       oklch(0.2 0.06 14.26);
+    --color-error-border:   #7A362A;
+
+    --color-success:        #4FCB9C;
+    --color-success-bg:     #123024;
+    --color-success-border: #21674A;
+
+    --color-warning:        #E8B54B;
+    --color-warning-bg:     #332408;
+    --color-warning-border: #7A5613;
+
+    --color-info:           #B79BE0;
+    --color-info-bg:        #241A38;
+    --color-info-border:    #55407D;
+
+    /* --- Colors — Callouts --- */
+    --color-callout-warning-bg:       #332408;
+    --color-callout-warning-border:   #E8B54B;
+    --color-callout-warning-text:     #F2C666;
+
+    --color-callout-tip-bg:           #123024;
+    --color-callout-tip-border:       #34B788;
+    --color-callout-tip-text:         #82DDB6;
+
+    --color-callout-important-bg:     #241A38;
+    --color-callout-important-border: #B79BE0;
+    --color-callout-important-text:   #D8C7EF;
+
+    --color-callout-tradeoff-bg:      #331F27;
+    --color-callout-tradeoff-border:  #C9829C;
+    --color-callout-tradeoff-text:    #E8B9CA;
+
+    /* --- Glassmorphism --- */
+    --glass-bg:       oklch(0.23 0.01 0 / 0.68);
+    --glass-bg-hover: rgb(146 133 133 / 14%);
+    --glass-border:   rgba(168, 181, 169, 0.14);
+    --glass-shadow:   0 8px 32px rgba(0, 0, 0, 0.35);
+
+    /* --- Shadows --- */
+    --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md:  0 4px 10px -2px rgba(0, 0, 0, 0.35), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+    --shadow-lg:  0 14px 24px -6px rgba(0, 0, 0, 0.4), 0 4px 8px -4px rgba(0, 0, 0, 0.2);
+    --shadow-xl:  0 26px 36px -10px rgba(0, 0, 0, 0.45), 0 10px 14px -6px rgba(0, 0, 0, 0.2);
+    --shadow-glow: 0 10px 30px -4px rgb(93 46 46 / 45%);
+
+    /* --- Focus Ring --- */
+    --focus-ring-color: oklch(0.55 0.27 270.12);
+
+    /* --- Animated Gradients --- */
+    --color-bg-hero: oklch(0.19 0.03 327 / 1);
+    --gradient-hero-color-1: color-mix(in oklab, oklab(0.85 -0.01 0.2) 20%, transparent);
+    --gradient-hero-color-2: color-mix(in oklab, lab(63.3038% -18.433 -51.0407) 20%, transparent);
+    --gradient-hero-color-3: color-mix(in oklab, lab(56.9303% 76.8162 -8.07021) 20%, transparent);
+
+    .gradient-hero::before {
+        opacity: 0.05;
+        filter: grayscale(1) blur(1.5px);
+    }
+
+
+    /* --- Skeleton --- */
+    --skeleton-base:    oklch(0.27 0.02 16.79);
+    --skeleton-shimmer: oklch(0.33 0.01 42.42);
+}
+
+/* --------------------------------------------------------------------------
+   5. Animated Gradients
+   -------------------------------------------------------------------------- */
+@keyframes gradient-shift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.gradient-hero {
+    background: var(--color-bg-hero);
+}
+
+.gradient-hero__yellow-blue,
+.gradient-hero__red {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+.gradient-hero__yellow-blue::before,
+.gradient-hero__yellow-blue::after,
+.gradient-hero__red::before {
+    inset: 0;
+    content: "";
+    position: absolute;
+}
+.gradient-hero__yellow-blue::before {
+    background:
+        radial-gradient(
+            30% 120% at 35% 100%,
+            var(--gradient-hero-color-1) 0,
+            transparent 100%
+        );
+}
+.gradient-hero__yellow-blue::after {
+    background:
+        radial-gradient(
+            30% 80% at 53% 100%,
+            var(--gradient-hero-color-2) 0,
+            transparent 100%
+        );
+}
+.gradient-hero__red::before {
+    background:
+        radial-gradient(
+            30% 100% at 65% 0%,
+            var(--gradient-hero-color-3) 0,
+            transparent 100%
+        );
+}
+
+.gradient-hero::before {
+    content: "";
+    background: url('/images/tech-stack-tiles.svg') left top / 700px 400px repeat;
+    opacity: 0.05;
+    filter: blur(2px);
+    position: absolute;
+    transform: scale(1.1);
+    z-index: 1;
+    inset: 0;
+}
+
+/* --------------------------------------------------------------------------
+   6. Ambient Glass Mesh
+   Three soft, blurred color blobs that drift slowly behind a glass surface.
+   Use inside any `position: relative` container with `overflow: hidden`,
+   placed BEFORE the glass content so the blur shows through it. Purely
+   decorative: aria-hidden="true", ignored by reduced-motion.
+   -------------------------------------------------------------------------- */
+.gradient-mesh {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.gradient-mesh__blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(60px);
+    opacity: 0.45;
+    will-change: transform;
+}
+
+.gradient-mesh__blob--1 {
+    width: 55%;
+    height: 55%;
+    top: -10%;
+    left: -8%;
+    opacity: 0.4;
+    background: var(--mesh-color-1);
+    animation: mesh-drift-1 var(--animation-mesh-duration-1) ease-in-out infinite;
+}
+
+.gradient-mesh__blob--2 {
+    width: 45%;
+    height: 45%;
+    bottom: -12%;
+    right: -6%;
+    opacity: 0.2;
+    background: var(--mesh-color-2);
+    animation: mesh-drift-2 var(--animation-mesh-duration-2) ease-in-out infinite;
+}
+
+.gradient-mesh__blob--3 {
+    width: 35%;
+    height: 35%;
+    top: 30%;
+    right: 20%;
+    background: var(--mesh-color-3);
+    animation: mesh-drift-3 var(--animation-mesh-duration-3) ease-in-out infinite;
+}
+
+@keyframes mesh-drift-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(6%, 8%) scale(1.08); }
+}
+
+@keyframes mesh-drift-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-7%, -5%) scale(1.1); }
+}
+
+@keyframes mesh-drift-3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-5%, 6%) scale(0.94); }
+}
+
+/* --------------------------------------------------------------------------
+   7. Skeleton Loaders
+   -------------------------------------------------------------------------- */
+@keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--skeleton-base) 0%,
+        var(--skeleton-shimmer) 50%,
+        var(--skeleton-base) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer var(--skeleton-animation-duration) ease-in-out infinite;
+    border-radius: var(--radius-md);
+    color: transparent !important;
+    user-select: none;
+    pointer-events: none;
+}
+
+.skeleton--text {
+    height: 1em;
+    margin-bottom: 0.5em;
+    border-radius: var(--radius-sm);
+}
+
+.skeleton--heading {
+    height: 1.5em;
+    margin-bottom: 0.75em;
+    border-radius: var(--radius-sm);
+    width: 60%;
+}
+
+.skeleton--image {
+    aspect-ratio: 16 / 9;
+    border-radius: var(--radius-md);
+}
+
+.skeleton--avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-full);
+}
+
+.skeleton--pill {
+    display: inline-block;
+    width: 64px;
+    height: 1.5em;
+    border-radius: var(--radius-full);
+    margin-right: var(--space-xs);
+}
+
+/* --------------------------------------------------------------------------
+   8. Focus Ring
+   -------------------------------------------------------------------------- */
+:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+    border-radius: var(--radius-sm);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
+}
+
+/* Reset outline for mouse users — focus-visible handles this */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* --------------------------------------------------------------------------
+   9. Icon System
+   Icons are sourced from a single inline <svg><symbol> sprite (see the
+   "Icons" section of the style guide) and rendered via <use>. All icons
+   share one geometry: 24x24 viewBox, 2px stroke, round caps/joins, no fill —
+   so any icon can drop into any component at any size without looking like
+   it came from a different set.
+   -------------------------------------------------------------------------- */
+.icon {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 1.25em;
+    height: 1.25em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vertical-align: -0.2em;
+}
+
+.icon--sm { width: 1em; height: 1em; }
+.icon--lg { width: 1.5em; height: 1.5em; }
+
+/* --------------------------------------------------------------------------
+   10. Base Interactive States
+   -------------------------------------------------------------------------- */
+/* Shared state classes referenced by components and style guide demos */
+
+/* Hover states — applied statically for demo */
+.is-hover { }
+
+/* Focus states — applied statically for demo  */
+.is-focus {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color) !important;
+    outline-offset: var(--focus-ring-offset) !important;
+}
+
+/* Active / pressed */
+.is-active { }
+
+/* Disabled */
+.is-disabled {
+    opacity: 0.45;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* Loading */
+.is-loading {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    cursor: wait;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.7; }
+}
+
+/* --------------------------------------------------------------------------
+   11. Reduced Motion
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .gradient-hero {
+        background-size: cover;
+        animation: none;
+    }
+
+    .gradient-mesh__blob {
+        animation: none;
+    }
+
+    .skeleton {
+        animation: none;
+        background: var(--skeleton-base);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   12. Shared Utility Classes
+   -------------------------------------------------------------------------- */
+
+/* Skip to content link */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: var(--space-md);
+    z-index: var(--z-toast);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-accent);
+    color: var(--color-text-inverse);
+    border-radius: var(--radius-md);
+    font-weight: var(--font-semibold);
+    transition: top var(--transition-fast) var(--ease-out);
+}
+
+.skip-link:focus {
+    top: var(--space-md);
+}
+
+/* Screen reader only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Visually hidden (honeypot fields) */
+.visually-hidden {
+    position: absolute;
+    opacity: 0;
+    height: 0;
+    width: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   13. Shared Component Tokens
+   -------------------------------------------------------------------------- */
+
+/* --- Buttons --- */
+:root {
+    --btn-padding-y: 0.625rem;
+    --btn-padding-x: 1.25rem;
+    --btn-font-size: var(--font-size-base);
+    --btn-font-weight: var(--font-semibold);
+    --btn-radius: var(--radius-md);
+    --btn-height: 2.75rem;
+    --btn-transition: all var(--transition-fast) var(--ease-default);
+}
+
+:root.dark {
+    /* button tokens are the same; colors come from semantic variables */
+}
+
+/* --- Inputs / Form Controls --- */
+:root {
+    --input-height: 2.75rem;
+    --input-padding-x: 0.75rem;
+    --input-padding-y: 0.5rem;
+    --input-radius: var(--radius-md);
+    --input-border-width: 1px;
+    --input-font-size: var(--font-size-base);
+    --input-transition: border-color var(--transition-fast) var(--ease-default),
+                        box-shadow var(--transition-fast) var(--ease-default);
+}
+
+/* --- Cards --- */
+:root {
+    --card-padding: var(--space-lg);
+    --card-radius: var(--radius-lg);
+    --card-shadow: var(--shadow-md);
+    --card-shadow-hover: var(--shadow-glow);
+    --card-transition: transform var(--transition-normal) var(--ease-out),
+                       box-shadow var(--transition-normal) var(--ease-out);
+}
+
+/* --- Modals --- */
+:root {
+    --modal-width: 560px;
+    --modal-padding: var(--space-lg);
+    --modal-radius: var(--radius-xl);
+    --modal-backdrop: rgba(22, 33, 27, 0.5);
+}
+
+:root.dark {
+    --modal-backdrop: rgba(0, 0, 0, 0.7);
+}
+
+/* --- Toasts --- */
+:root {
+    --toast-radius: var(--radius-md);
+    --toast-padding: var(--space-md) var(--space-md);
+    --toast-shadow: var(--shadow-lg);
+    --toast-gap: var(--space-lg);
+}

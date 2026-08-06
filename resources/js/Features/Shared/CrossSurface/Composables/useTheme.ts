@@ -18,38 +18,38 @@ const THEME_COOKIE_MAX_AGE = 31536000;
  * No Inertia reload — the cookie alone guarantees the next SSR render.
  */
 export function useTheme(): {
-	theme: Ref<Theme>;
-	toggle: () => Theme;
+    theme: Ref<Theme>;
+    toggle: () => Theme;
 } {
-	const themeStore = useThemeStore();
-	const analytics = useAnalytics();
-	const { theme } = storeToRefs(themeStore);
+    const themeStore = useThemeStore();
+    const analytics = useAnalytics();
+    const { theme } = storeToRefs(themeStore);
 
-	function applyToDocument(theme: Theme): void {
-		if (typeof document === 'undefined') {
-			return;
-		}
+    function applyToDocument(theme: Theme): void {
+        if (typeof document === 'undefined') {
+            return;
+        }
 
-		document.documentElement.classList.toggle('dark', theme === 'dark');
-	}
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+    }
 
-	function persistCookie(theme: Theme): void {
-		if (typeof document === 'undefined') {
-			return;
-		}
+    function persistCookie(theme: Theme): void {
+        if (typeof document === 'undefined') {
+            return;
+        }
 
-		// biome-ignore lint/suspicious/noDocumentCookie: spec-mandated `theme` cookie (i18n-and-theming.md:175-198)
-		document.cookie = `${THEME_COOKIE}=${theme};path=/;max-age=${THEME_COOKIE_MAX_AGE};SameSite=Lax`;
-	}
+        // biome-ignore lint/suspicious/noDocumentCookie: spec-mandated `theme` cookie (i18n-and-theming.md:175-198)
+        document.cookie = `${THEME_COOKIE}=${theme};path=/;max-age=${THEME_COOKIE_MAX_AGE};SameSite=Lax`;
+    }
 
-	function toggle(): Theme {
-		const next = themeStore.toggle();
-		applyToDocument(next);
-		persistCookie(next);
-		analytics.track('cta_click_theme');
+    function toggle(): Theme {
+        const next = themeStore.toggle();
+        applyToDocument(next);
+        persistCookie(next);
+        analytics.track('cta_click_theme');
 
-		return next;
-	}
+        return next;
+    }
 
-	return { theme, toggle };
+    return { theme, toggle };
 }
