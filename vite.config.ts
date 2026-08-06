@@ -74,6 +74,7 @@ export default defineConfig(({ isSsrBuild }) => ({
     },
     test: {
         environment: 'happy-dom',
+        setupFiles: ['tests/Support/Frontend/setup.ts'],
         include: [
             'tests/unit/frontend/**/*.spec.ts',
             'tests/integration/frontend/**/*.spec.ts',
