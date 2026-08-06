@@ -35,9 +35,9 @@ describe('MiddlewareWiring', function (): void {
     });
 
     it('sets the Content-Language header from the locale cookie', function (): void {
-        $this->withCookie('locale', 'ru')->get('/')->assertHeader('Content-Language', 'ru');
+        $this->withUnencryptedCookie('locale', 'ru')->get('/')->assertHeader('Content-Language', 'ru');
 
-        $this->withCookie('locale', 'de')->get('/')->assertHeader('Content-Language', 'en');
+        $this->withUnencryptedCookie('locale', 'de')->get('/')->assertHeader('Content-Language', 'en');
     });
 
     it('serves 503 for public routes in maintenance mode while /admin/* stays up', function (): void {
