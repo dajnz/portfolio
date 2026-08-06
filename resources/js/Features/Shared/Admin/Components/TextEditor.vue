@@ -1,12 +1,11 @@
 <!-- TextEditor (admin-section-components.md:217-249) — Tiptap Markdown WYSIWYG editor with callouts
-     (`> [!WARNING]` marker syntax), lowlight code blocks with language selector, and image upload
-     events. The `is_loading` prop drives the spec's `loading` skeleton state (gap-fill — the spec
-     documents the state without a triggering prop). -->
+     (`> [!WARNING]` marker syntax, extension in EditorExtensions/Callout.ts), lowlight code blocks
+     with language selector, and image upload events. The `is_loading` prop drives the spec's
+     `loading` skeleton state (gap-fill — the spec documents the state without a triggering prop). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
-import type { Editor as CoreEditor, MarkdownToken, MarkdownTokenizer } from '@tiptap/core';
-import { mergeAttributes, Node } from '@tiptap/core';
+import type { Editor as CoreEditor } from '@tiptap/core';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Image from '@tiptap/extension-image';
 import { Markdown } from '@tiptap/markdown';
@@ -15,24 +14,9 @@ import { Editor, EditorContent } from '@tiptap/vue-3';
 import { common, createLowlight } from 'lowlight';
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
+import { CALLOUT_TYPES, Callout, type CalloutType } from '../EditorExtensions/Callout';
 import AdminBaseDropdown from './AdminBaseDropdown.vue';
 import AdminBaseSkeleton from './AdminBaseSkeleton.vue';
-
-const CALLOUT_TYPES = ['warning', 'tip', 'important', 'tradeoff'] as const;
-type CalloutType = (typeof CALLOUT_TYPES)[number];
-
-const CALLOUT_MARKER = /^[ \t]*>[ \t]*\[!(WARNING|TIP|IMPORTANT|TRADEOFF)\][ \t]*$/i;
-const CALLOUT_INLINE_MARKER = /^\[!(WARNING|TIP|IMPORTANT|TRADEOFF)\][ \t]*$/i;
-
-const CALLOUT_CLASSES: Record<CalloutType, string> = {
-    warning:
-        'border-warning-500 bg-warning-50 dark:bg-warning-950 text-warning-700 dark:text-warning-400',
-    tip: 'border-success-500 bg-success-50 dark:bg-success-950 text-success-700 dark:text-success-400',
-    important:
-        'border-primary-500 bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300',
-    tradeoff:
-        'border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300',
-};
 
 const CODE_LANGUAGES: Array<{ value: string; label: string }> = [
     { value: '', label: 'none' },
@@ -98,120 +82,6 @@ const activeCalloutType = ref<CalloutType>('warning');
 const isEmpty = ref(true);
 
 const placeholderText = computed(() => props.placeholder ?? t('admin.editor.placeholder'));
-
-function calloutTokenizer(): MarkdownTokenizer {
-    return {
-        name: 'callout',
-        level: 'block',
-        start(src: string): number {
-            return CALLOUT_MARKER.test(src) ? 0 : -1;
-        },
-        tokenize(src: string, _tokens: MarkdownToken[], lexer) {
-            const lines = src.split('\n');
-            const contentLines: string[] = [];
-            let consumed = 0;
-            let index = 0;
-            const blockquoteLine = /^[ \t]*>[ \t]?(.*)$/;
-
-            while (index < lines.length) {
-                const match = blockquoteLine.exec(lines[index]);
-
-                if (match !== null) {
-                    contentLines.push(match[1]);
-                    consumed += lines[index].length + 1;
-                    index += 1;
-                    continue;
-                }
-
-                if (lines[index].trim() === '') {
-                    const next = index + 1;
-
-                    if (next < lines.length && blockquoteLine.test(lines[next])) {
-                        contentLines.push('');
-                        consumed += lines[index].length + 1;
-                        index += 1;
-                        continue;
-                    }
-                }
-
-                break;
-            }
-
-            if (index >= lines.length && !src.endsWith('\n')) {
-                consumed -= 1;
-            }
-
-            const marker = CALLOUT_INLINE_MARKER.exec(contentLines[0] ?? '');
-
-            if (marker === null) {
-                return undefined;
-            }
-
-            const type = marker[1].toLowerCase() as CalloutType;
-            contentLines.shift();
-
-            return {
-                type: 'callout',
-                calloutType: type,
-                raw: src.slice(0, Math.max(consumed, 0)),
-                tokens: lexer.blockTokens(contentLines.join('\n')),
-            };
-        },
-    };
-}
-
-const Callout = Node.create({
-    name: 'callout',
-    group: 'block',
-    content: 'block+',
-    defining: true,
-    addAttributes() {
-        return {
-            type: {
-                default: 'warning',
-            },
-        };
-    },
-    parseHTML() {
-        return [
-            {
-                tag: 'div[data-callout]',
-                getAttrs: (element) => ({
-                    type: (element as HTMLElement).getAttribute('data-callout') ?? 'warning',
-                }),
-            },
-        ];
-    },
-    renderHTML({ HTMLAttributes }) {
-        const type = (HTMLAttributes.type as CalloutType) ?? 'warning';
-
-        return [
-            'div',
-            mergeAttributes(HTMLAttributes, {
-                'data-callout': type,
-                class: `border-l-4 px-4 py-3 my-4 rounded-r-lg ${CALLOUT_CLASSES[type]}`,
-            }),
-            0,
-        ];
-    },
-    markdown: {
-        tokenName: 'callout',
-        tokenizer: calloutTokenizer(),
-        parseMarkdown: (token, helpers) =>
-            helpers.createNode(
-                'callout',
-                { type: token.calloutType ?? 'warning' },
-                helpers.parseChildren(token.tokens ?? []),
-            ),
-        renderMarkdown: (node, helpers) => {
-            const type = String((node.attrs?.type as CalloutType) ?? 'warning').toUpperCase();
-            const body = helpers.renderChildren(node.content ?? []);
-            const lines = body.split('\n').map((line) => (line.trim() === '' ? '>' : `> ${line}`));
-
-            return `> [!${type}]\n${lines.join('\n')}`;
-        },
-    },
-});
 
 function refreshState(editor: CoreEditor): void {
     activeMarks.value = {
