@@ -13,9 +13,10 @@
         "isolatedModules": true,
         "moduleDetection": "force",
         "noEmit": true,
+        "resolveJsonModule": true,
         "skipLibCheck": true,
         "jsx": "preserve",
-        "types": ["vite/client"],
+        "types": ["vite/client", "node"],
         "paths": {
             "@portfolio-public": ["./resources/js/Features/Portfolio/Public/*"],
             "@portfolio-admin": ["./resources/js/Features/Portfolio/Admin/*"],
