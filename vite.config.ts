@@ -45,6 +45,10 @@ export default defineConfig(({ isSsrBuild }) => ({
             '@shared-public': featureAlias('Shared/Public'),
             '@shared-admin': featureAlias('Shared/Admin'),
             '@shared-cross': featureAlias('Shared/CrossSurface'),
+            // Root alias for anything outside the Features tree (lang JSON,
+            // app entries). Listed last — the longer feature aliases above
+            // must win prefix resolution (e.g. `@shared-cross/...`).
+            '@': fileURLToPath(new URL('./resources/js', import.meta.url)),
         },
     },
     build: {
