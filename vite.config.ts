@@ -91,18 +91,21 @@ export default defineConfig(({ isSsrBuild }) => ({
         ],
         alias: {
             // The vendored icon-set JSONs are large (heroicons ~1500
-            // icons / 1.6 MB, simple-icons ~3700 icons / 5.4 MB).
-            // setup.ts statically registers heroicons for every test
-            // file, so the real module would be transformed once per
-            // file; simple-icons is loaded on demand by AdminIconPicker
-            // and costs ~700 ms per file even when mocked (the runner
-            // parses the real JSON before substituting). Both are
-            // aliased to tiny fixtures covering every icon name used in
-            // the frontend + tests — the picker specs verify behavior,
-            // not the vendored data. Test-only aliases: app builds keep
-            // the real sets.
+            // icons / 1.6 MB, simple-icons ~3700 icons / 5.4 MB,
+            // devicon ~1000 icons). setup.ts statically registers
+            // heroicons + devicon for every test file, so the real
+            // modules would be transformed once per file; simple-icons
+            // is loaded on demand by AdminIconPicker and costs ~700 ms
+            // per file even when mocked (the runner parses the real JSON
+            // before substituting). All are aliased to tiny fixtures
+            // covering every icon name used in the frontend + tests —
+            // the picker specs verify behavior, not the vendored data.
+            // Test-only aliases: app builds keep the real sets.
             '@iconify-json/heroicons/icons.json': fileURLToPath(
                 new URL('./tests/Support/Frontend/fixtures/heroicons.json', import.meta.url),
+            ),
+            '@iconify-json/devicon/icons.json': fileURLToPath(
+                new URL('./tests/Support/Frontend/fixtures/devicon.json', import.meta.url),
             ),
             '@iconify-json/simple-icons/icons.json': fileURLToPath(
                 new URL('./tests/Support/Frontend/fixtures/simple-icons.json', import.meta.url),

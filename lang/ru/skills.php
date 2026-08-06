@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 return [
     'search_placeholder' => 'Поиск навыков...',
+    'start_typing' => 'Начните вводить, чтобы найти навык',
+    'no_skills_found' => 'Навыки не найдены.',
+    'could_not_load_skills' => 'Не удалось загрузить навыки. [Повторить]',
     'proficiency' => [
         1 => 'Начинающий',
         2 => 'Продвинутый начинающий',

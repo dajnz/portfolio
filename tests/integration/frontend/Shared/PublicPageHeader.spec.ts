@@ -1,6 +1,10 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@shared-cross/Composables/useAnalytics', () => ({
+    useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn() }),
+}));
 
 import PublicPageHeader from '@shared-public/PublicPageHeader.vue';
 

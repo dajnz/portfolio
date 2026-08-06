@@ -53,6 +53,7 @@ return [
     'start_typing_to_search' => 'Начните вводить, чтобы искать',
     'no_tags_found' => 'Теги не найдены.',
     'could_not_load_tags' => 'Не удалось загрузить теги. [Повторить]',
+    'remove' => 'Убрать',
     'scroll_to_top' => 'Наверх',
     'load_more' => 'Загрузить ещё',
     'clear_filters' => 'Сбросить фильтры',

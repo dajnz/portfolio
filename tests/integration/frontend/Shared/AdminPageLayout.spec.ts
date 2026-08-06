@@ -10,6 +10,11 @@ vi.mock('@inertiajs/vue3', () => ({
         template: '<a :href="href"><slot /></a>',
     },
     router: { post: vi.fn(), visit: vi.fn() },
+    usePage: () => ({ props: undefined }),
+}));
+
+vi.mock('@shared-cross/Composables/useAnalytics', () => ({
+    useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn() }),
 }));
 
 const MENU_GROUPS = [

@@ -1,6 +1,8 @@
-<!-- AdminPageHeader (admin-section-components.md:291-309, admin-section-ui.md:55-60) — centred top bar: logo, controls slot, admin identity, logout. -->
+<!-- AdminPageHeader (admin-section-components.md:291-309, admin-section-ui.md:55-60) — centred top bar: logo, controls slot, admin identity, logout. The `controls` slot defaults to the shared ThemeSwitch + LanguageSelector (B80/B84 bridge) with the Tailwind classes from `theme_props`/`language_classes`. -->
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
+import LanguageSelector from '@shared-cross/Components/LanguageSelector.vue';
+import ThemeSwitch from '@shared-cross/Components/ThemeSwitch.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { computed } from 'vue';
 
@@ -80,11 +82,15 @@ function handleLogout(): void {
           </a>
         </div>
         <div class="flex items-center gap-4">
-          <div
-            v-if="$slots.controls"
-            class="flex items-center gap-3"
-          >
-            <slot name="controls" />
+          <div class="flex items-center gap-3">
+            <slot name="controls">
+              <ThemeSwitch :classes="props.theme_props" />
+              <LanguageSelector
+                :active_locale="props.locale_props.active_locale"
+                :supported_locales="props.locale_props.supported_locales"
+                :classes="props.language_classes"
+              />
+            </slot>
           </div>
           <div class="flex items-center gap-2 pl-3 border-l border-slate-200 dark:border-slate-700">
             <a

@@ -29,6 +29,8 @@ components:
                   type: array
                   items:
                     $ref: '#/components/schemas/ContactData'
+                seo:
+                  $ref: './shared.yaml#/components/schemas/SeoProps'
 
     DashboardPageProps:
       allOf:
