@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import type { Page } from '@inertiajs/core';
+import { router } from '@inertiajs/vue3';
+import { useAnalytics } from '@shared-cross/Composables/useAnalytics';
+import { useFocusManagement } from '@shared-cross/Composables/useFocusManagement';
+import { useAuthStore } from '@shared-cross/Stores/authStore';
+import { useLocaleStore } from '@shared-cross/Stores/localeStore';
+import { useThemeStore } from '@shared-cross/Stores/themeStore';
+import { type ToastVariant, useToastStore } from '@shared-cross/Stores/toastStore';
 import { onErrorCaptured, onUnmounted, ref } from 'vue';
-
-import { useAnalytics } from './Features/Shared/CrossSurface/Composables/useAnalytics';
-import en from './lang/en.json';
-import ru from './lang/ru.json';
+import en from '@/lang/en.json';
+import ru from '@/lang/ru.json';
 
 const catalogs = { en, ru };
 
@@ -27,11 +32,64 @@ onErrorCaptured(() => {
 	return false;
 });
 
+// Global state hydration: the stores are re-hydrated from the shared
+// props of every Inertia page (initial mount + each successful visit) —
+// architecture.md:187-193. The initial page is passed via the prop;
+// subsequent visits surface through the `success` event's page payload.
+const themeStore = useThemeStore();
+const localeStore = useLocaleStore();
+const authStore = useAuthStore();
+const toastStore = useToastStore();
+
+function hydrateFromPage(page: Page): void {
+	themeStore.hydrate(page.props.theme);
+	localeStore.hydrate(page.props.locale);
+	authStore.hydrate(page.props.auth);
+}
+
+// Session `notification` flashes (error-handling.md:103-115) are picked
+// up once per page load; the toast queue is cleared on navigation start
+// (architecture.md:193).
+interface NotificationProps {
+	type?: ToastVariant;
+	message?: string;
+}
+
+function showNotification(page: Page): void {
+	const notification = page.props.notification as NotificationProps | null | undefined;
+	if (notification?.message) {
+		toastStore.show(notification.message, {
+			variant: notification.type,
+		});
+	}
+}
+
+hydrateFromPage(props.page);
+
 // useAnalytics is registered exactly once at the app level
 // (analytics.md:45-48); its cleanup tears down the flush interval and
 // the event listeners when the root component unmounts.
 const analytics = useAnalytics();
-onUnmounted(analytics.cleanup);
+
+// useFocusManagement (accessibility.md:60-72) moves focus to the new
+// page's `<h1>` after every visit — layouts don't remount, so the
+// listener must live at the root.
+const focusManagement = useFocusManagement();
+
+if (typeof window !== 'undefined') {
+	showNotification(props.page);
+
+	router.on('start', () => toastStore.dismissAll());
+	router.on('success', (event) => {
+		hydrateFromPage(event.detail.page);
+		showNotification(event.detail.page);
+	});
+}
+
+onUnmounted(() => {
+	analytics.cleanup();
+	focusManagement.cleanup();
+});
 
 function reload(): void {
 	window.location.reload();
