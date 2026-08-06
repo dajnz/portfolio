@@ -15,6 +15,9 @@ declare(strict_types=1);
 
 return [
     'search_placeholder' => 'Search skills...',
+    'start_typing' => 'Start typing to search skills',
+    'no_skills_found' => 'No skills found.',
+    'could_not_load_skills' => 'Could not load skills. [Retry]',
     'proficiency' => [
         1 => 'Novice',
         2 => 'Advanced Beginner',

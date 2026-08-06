@@ -55,6 +55,7 @@ return [
     'no_matches' => 'No matches found.',
     'no_data' => 'No data available',
     'no_options' => 'No options',
+    'remove' => 'Remove',
     'search_unavailable' => 'Search unavailable. [Retry]',
     'start_typing_to_search' => 'Start typing to search',
     'no_tags_found' => 'No tags found.',

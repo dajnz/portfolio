@@ -450,6 +450,7 @@
         "off": "Off",
         "on": "On",
         "previous": "Previous",
+        "remove": "Remove",
         "retry": "Retry",
         "save": "Save",
         "saving": "Saving...",
@@ -586,6 +587,8 @@
         "title_projects_index": "Projects — :name"
     },
     "skills": {
+        "could_not_load_skills": "Could not load skills. [Retry]",
+        "no_skills_found": "No skills found.",
         "proficiency": {
             "1": "Novice",
             "2": "Advanced Beginner",
@@ -593,6 +596,7 @@
             "4": "Proficient",
             "5": "Expert"
         },
-        "search_placeholder": "Search skills..."
+        "search_placeholder": "Search skills...",
+        "start_typing": "Start typing to search skills"
     }
 }
