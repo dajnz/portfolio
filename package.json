@@ -21,6 +21,7 @@
         "@iconify/vue": "^5.0.1",
         "@inertiajs/vue3": "^3.6.1",
         "@tiptap/extension-code-block-lowlight": "^3.29.2",
+        "@tiptap/extension-image": "^3.29.2",
         "@tiptap/markdown": "^3.29.2",
         "@tiptap/starter-kit": "^3.29.2",
         "@tiptap/vue-3": "^3.29.2",
