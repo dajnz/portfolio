@@ -16,19 +16,19 @@ export type Locale = (typeof SUPPORTED_LOCALES)[number];
  * chrome translation locale lives here.
  */
 export const useLocaleStore = defineStore('locale', () => {
-	const locale = ref<Locale>('en');
+    const locale = ref<Locale>('en');
 
-	function hydrate(value: unknown): void {
-		if (SUPPORTED_LOCALES.includes(value as Locale)) {
-			locale.value = value as Locale;
-		}
-	}
+    function hydrate(value: unknown): void {
+        if (SUPPORTED_LOCALES.includes(value as Locale)) {
+            locale.value = value as Locale;
+        }
+    }
 
-	function setLocale(value: string): void {
-		if (SUPPORTED_LOCALES.includes(value as Locale)) {
-			locale.value = value as Locale;
-		}
-	}
+    function setLocale(value: string): void {
+        if (SUPPORTED_LOCALES.includes(value as Locale)) {
+            locale.value = value as Locale;
+        }
+    }
 
-	return { locale, hydrate, setLocale };
+    return { locale, hydrate, setLocale };
 });

@@ -10,9 +10,9 @@ import { useAnalytics } from './useAnalytics';
 export const ARTICLE_READ_THRESHOLD = 0.76;
 
 export interface ReadingProgress {
-	/** Current scroll depth, 0..1. */
-	progress: Ref<number>;
-	cleanup: () => void;
+    /** Current scroll depth, 0..1. */
+    progress: Ref<number>;
+    cleanup: () => void;
 }
 
 /**
@@ -27,55 +27,55 @@ export interface ReadingProgress {
  * frame, not per scroll event (which fires up to display frequency).
  */
 export function useReadingProgress(
-	articleId: number,
-	threshold: number = ARTICLE_READ_THRESHOLD,
+    articleId: number,
+    threshold: number = ARTICLE_READ_THRESHOLD,
 ): ReadingProgress {
-	const progress = ref(0);
-	const analytics = useAnalytics();
-	let fired = false;
-	let ticking = false;
+    const progress = ref(0);
+    const analytics = useAnalytics();
+    let fired = false;
+    let ticking = false;
 
-	if (typeof window === 'undefined') {
-		return { progress, cleanup: () => undefined };
-	}
+    if (typeof window === 'undefined') {
+        return { progress, cleanup: () => undefined };
+    }
 
-	function update(): void {
-		ticking = false;
+    function update(): void {
+        ticking = false;
 
-		const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-		const current = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 1;
-		progress.value = current;
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const current = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 1;
+        progress.value = current;
 
-		if (!fired && current >= threshold) {
-			fired = true;
-			analytics.track('article_read', {
-				article_id: articleId,
-				percentage_completed: Math.round(current * 100),
-			});
-		}
-	}
+        if (!fired && current >= threshold) {
+            fired = true;
+            analytics.track('article_read', {
+                article_id: articleId,
+                percentage_completed: Math.round(current * 100),
+            });
+        }
+    }
 
-	function onScroll(): void {
-		if (ticking) {
-			return;
-		}
+    function onScroll(): void {
+        if (ticking) {
+            return;
+        }
 
-		ticking = true;
-		requestAnimationFrame(update);
-	}
+        ticking = true;
+        requestAnimationFrame(update);
+    }
 
-	window.addEventListener('scroll', onScroll, { passive: true });
-	window.addEventListener('resize', onScroll);
-	update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
 
-	function cleanup(): void {
-		window.removeEventListener('scroll', onScroll);
-		window.removeEventListener('resize', onScroll);
-	}
+    function cleanup(): void {
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('resize', onScroll);
+    }
 
-	if (getCurrentScope()) {
-		onScopeDispose(cleanup);
-	}
+    if (getCurrentScope()) {
+        onScopeDispose(cleanup);
+    }
 
-	return { progress, cleanup };
+    return { progress, cleanup };
 }

@@ -10,23 +10,23 @@ export type Theme = 'light' | 'dark';
  * `<html>` class and the `theme` cookie are managed by `useTheme`.
  */
 export const useThemeStore = defineStore('theme', () => {
-	const theme = ref<Theme>('light');
+    const theme = ref<Theme>('light');
 
-	function hydrate(value: unknown): void {
-		if (value === 'light' || value === 'dark') {
-			theme.value = value;
-		}
-	}
+    function hydrate(value: unknown): void {
+        if (value === 'light' || value === 'dark') {
+            theme.value = value;
+        }
+    }
 
-	function setTheme(value: Theme): void {
-		theme.value = value;
-	}
+    function setTheme(value: Theme): void {
+        theme.value = value;
+    }
 
-	function toggle(): Theme {
-		theme.value = theme.value === 'dark' ? 'light' : 'dark';
+    function toggle(): Theme {
+        theme.value = theme.value === 'dark' ? 'light' : 'dark';
 
-		return theme.value;
-	}
+        return theme.value;
+    }
 
-	return { theme, hydrate, setTheme, toggle };
+    return { theme, hydrate, setTheme, toggle };
 });

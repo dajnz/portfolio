@@ -3,10 +3,10 @@ import { storeToRefs } from 'pinia';
 import type { Ref } from 'vue';
 
 export interface UseToastApi {
-	toasts: Ref<Toast[]>;
-	show: (message: string, options?: ShowToastOptions) => string;
-	dismiss: (id: string) => void;
-	dismissAll: () => void;
+    toasts: Ref<Toast[]>;
+    show: (message: string, options?: ShowToastOptions) => string;
+    dismiss: (id: string) => void;
+    dismissAll: () => void;
 }
 
 /**
@@ -16,13 +16,13 @@ export interface UseToastApi {
  * `notification` flashes are picked up at the app root.
  */
 export function useToast(): UseToastApi {
-	const store = useToastStore();
-	const { toasts } = storeToRefs(store);
+    const store = useToastStore();
+    const { toasts } = storeToRefs(store);
 
-	return {
-		toasts,
-		show: store.show,
-		dismiss: store.dismiss,
-		dismissAll: store.dismissAll,
-	};
+    return {
+        toasts,
+        show: store.show,
+        dismiss: store.dismiss,
+        dismissAll: store.dismissAll,
+    };
 }

@@ -6,13 +6,13 @@ import { computed, ref } from 'vue';
  * `{ id, name, email, login, github_linked, totp_enabled, is_oauth_primary }`.
  */
 export interface AdminUser {
-	id?: number;
-	name?: string;
-	login?: string;
-	email?: string;
-	github_linked?: boolean;
-	totp_enabled?: boolean;
-	is_oauth_primary?: boolean;
+    id?: number;
+    name?: string;
+    login?: string;
+    email?: string;
+    github_linked?: boolean;
+    totp_enabled?: boolean;
+    is_oauth_primary?: boolean;
 }
 
 /**
@@ -22,18 +22,18 @@ export interface AdminUser {
  * full page loads and always re-hydrate this store from the new props.
  */
 export const useAuthStore = defineStore('auth', () => {
-	const user = ref<AdminUser | null>(null);
+    const user = ref<AdminUser | null>(null);
 
-	const isAuthenticated = computed(() => user.value !== null);
+    const isAuthenticated = computed(() => user.value !== null);
 
-	function hydrate(authProps: unknown): void {
-		const candidate = (authProps as { user?: AdminUser | null } | null | undefined)?.user;
-		user.value = candidate ?? null;
-	}
+    function hydrate(authProps: unknown): void {
+        const candidate = (authProps as { user?: AdminUser | null } | null | undefined)?.user;
+        user.value = candidate ?? null;
+    }
 
-	function setUser(next: AdminUser | null): void {
-		user.value = next;
-	}
+    function setUser(next: AdminUser | null): void {
+        user.value = next;
+    }
 
-	return { user, isAuthenticated, hydrate, setUser };
+    return { user, isAuthenticated, hydrate, setUser };
 });
