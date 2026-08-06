@@ -936,6 +936,49 @@ export interface components {
             value?: string;
             url?: string | null;
         };
+        /**
+         * @description Per-page SEO props passed by every public page controller (seo.md:18-31).
+         *     Field names follow the Inertia snake_case convention (the seo.md
+         *     TypeScript interface is camelCase — this schema is the committed
+         *     contract). The Blade root layout renders these into `<title>`/`<meta>`
+         *     during SSR; `useSeoUpdater` syncs them on client-side navigations.
+         */
+        SeoProps: {
+            /** @description <title> — already localized server-side (`__("seo.title_*")`). */
+            title: string;
+            /** @description <meta name="description"> — already localized server-side. */
+            description: string;
+            /** @description Defaults to `title`. */
+            og_title?: string;
+            /** @description Defaults to `description`. */
+            og_description?: string;
+            /** @description Absolute URL; falls back to /images/og-default.png (1200x630) when absent. */
+            og_image?: string;
+            /** @description Defaults to 1200. */
+            og_image_width?: number;
+            /** @description Defaults to 630. */
+            og_image_height?: number;
+            /** @description Open Graph canonical URL. */
+            og_url?: string;
+            /**
+             * @description Defaults to `website`.
+             * @enum {string}
+             */
+            og_type?: "website" | "article";
+            /** @description <link rel="canonical"> — always the slashless URL. */
+            canonical_url?: string;
+            /** @description Reserved for future paginated content; 404s are Blade views with a hard-coded noindex. */
+            robots?: string;
+            /**
+             * @description JSON-LD structured data blocks (seo.md:82-188), localized
+             *     server-side. Rendered into `application/ld+json` script tags
+             *     carrying the CSP nonce by the Blade layout on SSR and replaced
+             *     by `useSeoUpdater` on client-side navigations.
+             */
+            json_ld?: {
+                [key: string]: unknown;
+            }[];
+        };
         LandingPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
             component?: "Portfolio/Public/Pages/LandingPage";
@@ -945,6 +988,7 @@ export interface components {
                 featured_projects?: components["schemas"]["FeaturedProjectData"][];
                 experience_items?: components["schemas"]["TimelineItemData"][];
                 contacts?: components["schemas"]["ContactData"][];
+                seo?: components["schemas"]["SeoProps"];
             };
         };
         DashboardPageProps: components["schemas"]["InertiaPage"] & {
@@ -1031,6 +1075,7 @@ export interface components {
                 years?: number[];
                 has_more?: boolean;
                 next_cursor?: string | null;
+                seo?: components["schemas"]["SeoProps"];
             };
         };
         ArticleDetailData: {
@@ -1060,6 +1105,7 @@ export interface components {
                     likes?: number;
                     dislikes?: number;
                 };
+                seo?: components["schemas"]["SeoProps"];
             };
         };
         ArticleTableRowData: {
@@ -1150,6 +1196,7 @@ export interface components {
                 skill_tags?: components["schemas"]["SkillTagData"][];
                 has_more?: boolean;
                 next_cursor?: string | null;
+                seo?: components["schemas"]["SeoProps"];
             };
         };
         ScreenshotData: {
@@ -1200,6 +1247,7 @@ export interface components {
             component?: "Projects/Public/Pages/ProjectDetailPage";
             props?: {
                 project?: components["schemas"]["ProjectDetailData"];
+                seo?: components["schemas"]["SeoProps"];
             };
         };
         ProjectTableRowData: {
@@ -1295,6 +1343,7 @@ export interface components {
                 items?: components["schemas"]["TimelineItemCardData"][];
                 has_more?: boolean;
                 next_cursor?: string | null;
+                seo?: components["schemas"]["SeoProps"];
             };
         };
         TimelineItemTableRowData: {

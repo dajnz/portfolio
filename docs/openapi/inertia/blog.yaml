@@ -28,6 +28,8 @@ components:
                 next_cursor:
                   type: string
                   nullable: true
+                seo:
+                  $ref: './shared.yaml#/components/schemas/SeoProps'
 
     BlogArticlePageProps:
       allOf:
@@ -52,6 +54,8 @@ components:
                       type: integer
                     dislikes:
                       type: integer
+                seo:
+                  $ref: './shared.yaml#/components/schemas/SeoProps'
 
     BlogListPageProps:
       allOf:

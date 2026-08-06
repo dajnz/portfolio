@@ -12,6 +12,20 @@ runtime support.
 
 ### Added
 
+- **`SeoProps` shared schema (v1.0.3, step 3.5):** new `SeoProps` schema in
+  `inertia/shared.yaml` (per `seo.md:18-31`, field names snake_case per the
+  Inertia convention) and a `seo` prop added to the six public page schemas:
+  `LandingPageProps`, `BlogIndexPageProps`, `BlogArticlePageProps`,
+  `ProjectsIndexPageProps`, `ProjectDetailPageProps`, `ExperienceTimelinePageProps`.
+  Required set: `title` + `description` (localized server-side). Optional:
+  `og_title`, `og_description`, `og_image` (falls back to
+  `/images/og-default.png`), `og_image_width` (1200) / `og_image_height` (630),
+  `og_url`, `og_type` (website|article), `canonical_url`, `robots`, and
+  `json_ld` (server-localized JSON-LD blocks rendered with the CSP nonce by the
+  Blade layout and replaced client-side by `useSeoUpdater`). `info.version`
+  bumped to `1.0.3` in `inertia.yaml` (openapi.yaml unaffected). Existing
+  documented props are unchanged.
+
 - **Inertia shared props (v1.0.2):** `InertiaSharedProps` documents the
   `request_id` UUID prop (per `error-handling.md:266-273`); `AdminUser`
   documents `name` and `is_oauth_primary` (per B3/B27/B35). Both additions
