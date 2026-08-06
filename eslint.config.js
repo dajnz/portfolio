@@ -28,6 +28,11 @@ export default [
             'vue/require-v-for-key': 'error',
             'vue/valid-v-for': 'error',
             'vue/no-mutating-props': 'error',
+            // Public component contracts use snake_case prop names verbatim
+            // (e.g. `icon_position`, `close_on_scrim` per
+            // public-section-components.md) — camelCase would drift from the
+            // committed spec consumed by steps 9.2-9.4.
+            'vue/prop-name-casing': 'off',
         },
     },
 ]
