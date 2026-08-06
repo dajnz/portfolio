@@ -10,6 +10,11 @@ const { postMock } = vi.hoisted(() => ({
 
 vi.mock('@inertiajs/vue3', () => ({
     router: { post: postMock },
+    usePage: () => ({ props: undefined }),
+}));
+
+vi.mock('@shared-cross/Composables/useAnalytics', () => ({
+    useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn() }),
 }));
 
 describe('AdminPageHeader', () => {

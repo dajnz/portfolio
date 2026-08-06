@@ -1,148 +1,154 @@
 {
-    "width": 24,
-    "height": 24,
-    "icons": {
-        "academic-cap": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "academic-cap-solid": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "archive-box": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "arrow-path": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "arrow-right": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "arrow-right-start-on-rectangle": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "arrow-up": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "arrow-up-tray": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "bars-3": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "bolt": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "chart-bar": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "chat-bubble-oval-left-ellipsis": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "check": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "check-badge": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "chevron-down": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "chevron-left": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "chevron-right": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "chevron-up": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "circle-stack": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "cloud": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "code-bracket": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "cog-6-tooth": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "cog-8-tooth": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "cpu-chip": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "document-text": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "exclamation-circle": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "exclamation-triangle": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "eye": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "folder-open": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "globe-alt": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "information-circle": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "key": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "list-bullet": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "lock-closed": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "magnifying-glass": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "numbered-list": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "photo": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "puzzle-piece": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "rocket-launch": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "server": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "shield-check": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "sparkles": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "squares-2x2": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "swatch": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "tag": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "wrench-screwdriver": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        },
-        "x-mark": {
-            "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
-        }
+  "width": 24,
+  "height": 24,
+  "icons": {
+    "academic-cap": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
     },
-    "prefix": "heroicons"
+    "academic-cap-solid": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "archive-box": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "arrow-path": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "arrow-right": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "arrow-right-start-on-rectangle": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "arrow-up": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "arrow-up-tray": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "bars-3": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "bolt": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "chart-bar": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "chat-bubble-oval-left-ellipsis": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "check": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "check-badge": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "chevron-down": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "chevron-left": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "chevron-right": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "chevron-up": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "circle-stack": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "cloud": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "code-bracket": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "cog-6-tooth": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "cog-8-tooth": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "cpu-chip": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "document-text": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "exclamation-circle": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "exclamation-triangle": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "eye": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "folder-open": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "globe-alt": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "information-circle": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "key": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "list-bullet": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "lock-closed": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "magnifying-glass": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "numbered-list": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "photo": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "puzzle-piece": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "rocket-launch": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "server": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "shield-check": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "sparkles": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "squares-2x2": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "swatch": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "tag": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "wrench-screwdriver": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "x-mark": {
+      "body": "<path d=\"M0 0h24v24H0z\" fill=\"currentColor\"/>"
+    },
+    "moon": {
+      "body": "<path fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\" d=\"M21.752 15.002A9.7 9.7 0 0 1 18 15.75A9.75 9.75 0 0 1 8.25 6c0-1.33.266-2.597.748-3.752A9.75 9.75 0 0 0 3 11.25A9.75 9.75 0 0 0 12.75 21a9.75 9.75 0 0 0 9.002-5.998\"/>"
+    },
+    "sun": {
+      "body": "<path fill=\"none\" stroke=\"currentColor\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\" d=\"M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0a3.75 3.75 0 0 1 7.5 0\"/>"
+    }
+  },
+  "prefix": "heroicons"
 }
