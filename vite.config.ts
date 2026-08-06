@@ -90,13 +90,20 @@ export default defineConfig(({ isSsrBuild }) => ({
             'tests/integration/frontend/**/*.spec.ts',
         ],
         alias: {
-            // The vendored simple-icons set (~3700 icons, 5.4 MB) is only
-            // used by AdminIconPicker's brands panel. Loading the real
-            // module in tests costs ~700 ms per file even when mocked —
-            // the runner still parses the JSON before substituting the
-            // mock. A tiny fixture (test-only alias, never in app
-            // builds) keeps picker specs fast; heroicons stays real
-            // (setup.ts already loads it into the module graph).
+            // The vendored icon-set JSONs are large (heroicons ~1500
+            // icons / 1.6 MB, simple-icons ~3700 icons / 5.4 MB).
+            // setup.ts statically registers heroicons for every test
+            // file, so the real module would be transformed once per
+            // file; simple-icons is loaded on demand by AdminIconPicker
+            // and costs ~700 ms per file even when mocked (the runner
+            // parses the real JSON before substituting). Both are
+            // aliased to tiny fixtures covering every icon name used in
+            // the frontend + tests — the picker specs verify behavior,
+            // not the vendored data. Test-only aliases: app builds keep
+            // the real sets.
+            '@iconify-json/heroicons/icons.json': fileURLToPath(
+                new URL('./tests/Support/Frontend/fixtures/heroicons.json', import.meta.url),
+            ),
             '@iconify-json/simple-icons/icons.json': fileURLToPath(
                 new URL('./tests/Support/Frontend/fixtures/simple-icons.json', import.meta.url),
             ),

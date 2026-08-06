@@ -5,28 +5,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AdminIconPicker from '@shared-admin/AdminIconPicker.vue';
 
 // The vendored icon-set JSONs are loaded dynamically on every panel open.
-// The heroicons set (~1500 icons) is mocked here — a `-solid` suffixed
-// heroicon exercises the Solid grouping — because the real module is
-// already transformed into the graph by setup.ts. The simple-icons set
-// (~3700 icons, 5.4 MB) is instead aliased to a tiny fixture in the
-// vitest config (test.alias) — even a mock costs ~700 ms per file, as
-// the runner parses the real JSON before substituting. These tests
-// verify picker behavior, not the vendored data.
-const ICON_BODY = '<path d="M0 0h24v24H0z" fill="currentColor"/>';
-
-vi.mock('@iconify-json/heroicons/icons.json', () => ({
-    default: {
-        width: 24,
-        height: 24,
-        icons: {
-            'academic-cap': { body: ICON_BODY },
-            'academic-cap-solid': { body: ICON_BODY },
-            bolt: { body: ICON_BODY },
-            server: { body: ICON_BODY },
-            sparkles: { body: ICON_BODY },
-        },
-    },
-}));
+// Both are aliased to tiny fixtures in the vitest config (test.alias)
+// covering every icon name used in the frontend + tests — heroicons
+// includes a `-solid` suffixed icon to exercise the Solid grouping.
+// These tests verify picker behavior, not the vendored data.
 
 function mountIconPicker(props = {}) {
     return mount(AdminIconPicker, {
