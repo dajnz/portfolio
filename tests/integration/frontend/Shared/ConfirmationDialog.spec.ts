@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-function mountDialog(props: Record<string, unknown> = {}, slots: Record<string, unknown> = {}) {
+function mountDialog(props: Record<string, unknown> = {}, slots: Record<string, string> = {}) {
     return mount(ConfirmationDialog, {
         props: {
             modelValue: true,
@@ -108,7 +108,7 @@ describe('ConfirmationDialog', () => {
     it('renders the body slot instead of the message', () => {
         const wrapper = mountDialog({}, { body: '<p data-testid="custom-body">Custom body</p>' });
 
-        expect(wrapper.get('[data-testid="custom-body"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="custom-body"]').exists()).toBe(true);
         expect(wrapper.text()).not.toContain('This cannot be undone.');
     });
 

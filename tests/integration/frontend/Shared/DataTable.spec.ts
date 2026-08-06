@@ -14,7 +14,7 @@ const ROWS = [
     { id: 2, name: 'Jane', role: 'Editor' },
 ];
 
-function mountTable(props: Record<string, unknown> = {}, slots: Record<string, unknown> = {}) {
+function mountTable(props: Record<string, unknown> = {}, slots: Record<string, string> = {}) {
     return mount(DataTable, {
         props: { columns: COLUMNS, rows: ROWS, selected_ids: [], ...props },
         slots,

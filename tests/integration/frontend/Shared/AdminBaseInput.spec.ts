@@ -14,7 +14,7 @@ describe('AdminBaseInput', () => {
         });
 
         const input = wrapper.get('[data-testid="base-input"]');
-        expect(input.element.value).toBe('hello');
+        expect((input.element as HTMLInputElement).value).toBe('hello');
         expect(wrapper.text()).toContain('Email');
     });
 

@@ -51,15 +51,15 @@ describe('PaginationControls', () => {
         const wrapper = mountPagination({ total: 100, per_page: 1, current_page: 5 });
 
         expect(pageNumbers(wrapper)).toEqual([1, 2, 3, 4, 5, 6, 98, 99, 100]);
-        expect(wrapper.get('[data-testid="pagination-ellipsis-3"]').exists()).toBe(true);
-        expect(wrapper.get('[data-testid="pagination-ellipsis-7"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="pagination-ellipsis-3"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="pagination-ellipsis-7"]').exists()).toBe(true);
     });
 
     it('shows the first pages, an ellipsis and the tail pages near the end', () => {
         const wrapper = mountPagination({ total: 100, per_page: 1, current_page: 98 });
 
         expect(pageNumbers(wrapper)).toEqual([1, 2, 3, 96, 97, 98, 99, 100]);
-        expect(wrapper.get('[data-testid="pagination-ellipsis-3"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="pagination-ellipsis-3"]').exists()).toBe(true);
     });
 
     it('disables the previous button on the first page', () => {

@@ -30,7 +30,7 @@ const MENU_GROUPS = [
     },
 ];
 
-function mountLayout(props: Record<string, unknown> = {}, slots: Record<string, unknown> = {}) {
+function mountLayout(props: Record<string, unknown> = {}, slots: Record<string, string> = {}) {
     return mount(AdminPageLayout, {
         props: { menu_groups: MENU_GROUPS, admin_name: 'John Doe', ...props },
         slots,
@@ -56,15 +56,15 @@ describe('AdminPageLayout', () => {
         const wrapper = mountLayout({}, { default: '<h1>Dashboard</h1>' });
 
         expect(wrapper.get('[data-testid="admin-header"]').text()).toContain('John Doe');
-        expect(wrapper.get('[data-testid="admin-sidebar"]').exists()).toBe(true);
-        expect(wrapper.get('[data-testid="admin-sidebar-group-content"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="admin-sidebar"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="admin-sidebar-group-content"]').exists()).toBe(true);
 
         const main = wrapper.get('#main-content');
 
         expect(main.element.tagName).toBe('MAIN');
         expect(main.text()).toContain('Dashboard');
-        expect(wrapper.get('[data-testid="admin-footer"]').exists()).toBe(true);
-        expect(wrapper.get('[data-testid="toast-container"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="admin-footer"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="toast-container"]').exists()).toBe(true);
     });
 
     it('forwards the controls slot to the header', () => {

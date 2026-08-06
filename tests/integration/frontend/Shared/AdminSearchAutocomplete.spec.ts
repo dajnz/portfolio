@@ -1,4 +1,3 @@
-import { router } from '@inertiajs/vue3';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -147,7 +146,7 @@ describe('AdminSearchAutocomplete', () => {
     it('closes the dropdown and blurs the input on Escape', async () => {
         const wrapper = mountSearchAutocomplete({}, {}, { attachTo: document.body });
         const input = wrapper.get('[data-testid="search-autocomplete-input"]');
-        input.element.focus();
+        (input.element as HTMLElement).focus();
 
         await wrapper.get('[data-testid="search-autocomplete-input"]').setValue('lar');
         expect(wrapper.find('[data-testid="search-autocomplete-dropdown"]').exists()).toBe(true);

@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { mount, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -14,7 +14,7 @@ function mountIconPicker(props = {}) {
     });
 }
 
-async function openPanel(wrapper) {
+async function openPanel(wrapper: VueWrapper): Promise<void> {
     await wrapper.get('[data-testid="icon-picker"]').trigger('click');
 }
 
@@ -59,11 +59,11 @@ describe('AdminIconPicker', () => {
 
         await vi.waitFor(
             () => {
-                expect(wrapper.get('[data-testid="icon-picker-icon-heroicons:server"]').exists()).toBe(true);
+                expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:server"]').exists()).toBe(true);
             },
             { timeout: 5000 },
         );
-        expect(wrapper.get('[data-testid="icon-picker-icon-heroicons:bolt"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:bolt"]').exists()).toBe(true);
         expect(wrapper.findAll('[data-testid^="icon-picker-icon-heroicons:"]')).toHaveLength(22);
     });
 
@@ -74,7 +74,7 @@ describe('AdminIconPicker', () => {
 
         await vi.waitFor(
             () => {
-                expect(wrapper.get('[data-testid="icon-picker-icon-heroicons:academic-cap"]').exists()).toBe(true);
+                expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:academic-cap"]').exists()).toBe(true);
             },
             { timeout: 5000 },
         );
@@ -89,7 +89,7 @@ describe('AdminIconPicker', () => {
 
         await vi.waitFor(
             () => {
-                expect(wrapper.get('[data-testid="icon-picker-icon-simple-icons:github"]').exists()).toBe(true);
+                expect(wrapper.find('[data-testid="icon-picker-icon-simple-icons:github"]').exists()).toBe(true);
             },
             { timeout: 5000 },
         );
@@ -101,14 +101,14 @@ describe('AdminIconPicker', () => {
         await openPanel(wrapper);
         await vi.waitFor(
             () => {
-                expect(wrapper.get('[data-testid="icon-picker-icon-heroicons:bolt"]').exists()).toBe(true);
+                expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:bolt"]').exists()).toBe(true);
             },
             { timeout: 5000 },
         );
 
         await wrapper.get('[data-testid="icon-picker-search"]').setValue('server');
 
-        expect(wrapper.get('[data-testid="icon-picker-icon-heroicons:server"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:server"]').exists()).toBe(true);
         expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:bolt"]').exists()).toBe(false);
     });
 
@@ -118,7 +118,7 @@ describe('AdminIconPicker', () => {
         await openPanel(wrapper);
         await vi.waitFor(
             () => {
-                expect(wrapper.get('[data-testid="icon-picker-icon-heroicons:server"]').exists()).toBe(true);
+                expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:server"]').exists()).toBe(true);
             },
             { timeout: 5000 },
         );
@@ -134,7 +134,7 @@ describe('AdminIconPicker', () => {
         await openPanel(wrapper);
         await vi.waitFor(
             () => {
-                expect(wrapper.get('[data-testid="icon-picker-icon-heroicons:bolt"]').exists()).toBe(true);
+                expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:bolt"]').exists()).toBe(true);
             },
             { timeout: 5000 },
         );
@@ -150,7 +150,7 @@ describe('AdminIconPicker', () => {
         await openPanel(wrapper);
         await vi.waitFor(
             () => {
-                expect(wrapper.get('[data-testid="icon-picker-icon-heroicons:sparkles"]').exists()).toBe(true);
+                expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:sparkles"]').exists()).toBe(true);
             },
             { timeout: 5000 },
         );
@@ -167,7 +167,7 @@ describe('AdminIconPicker', () => {
         await openPanel(wrapper);
         await vi.waitFor(
             () => {
-                expect(wrapper.get('[data-testid="icon-picker-icon-heroicons:bolt"]').exists()).toBe(true);
+                expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:bolt"]').exists()).toBe(true);
             },
             { timeout: 5000 },
         );
@@ -184,7 +184,7 @@ describe('AdminIconPicker', () => {
         await openPanel(wrapper);
         await vi.waitFor(
             () => {
-                expect(wrapper.get('[data-testid="icon-picker-icon-heroicons:server"]').exists()).toBe(true);
+                expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:server"]').exists()).toBe(true);
             },
             { timeout: 5000 },
         );

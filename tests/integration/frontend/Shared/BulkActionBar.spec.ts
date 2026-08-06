@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-const ACTIONS = [
+const ACTIONS: Array<{ label: string; key: string; variant?: 'primary' | 'secondary' | 'ghost' | 'icon-only' | 'outline' | 'danger' }> = [
     { label: 'Delete', key: 'delete', variant: 'danger' },
     { label: 'Publish', key: 'publish' },
 ];

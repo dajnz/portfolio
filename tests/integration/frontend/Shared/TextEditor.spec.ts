@@ -1,21 +1,35 @@
-import { mount } from '@vue/test-utils';
+import { mount, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import TextEditor from '@shared-admin/TextEditor.vue';
 
-function mountEditor(props = {}) {
-    return mount(TextEditor, {
+interface TextEditorProps {
+    modelValue?: string;
+    label?: string;
+    error?: string | null;
+    help?: string;
+    placeholder?: string;
+    disabled?: boolean;
+    is_loading?: boolean;
+}
+
+let wrapper: VueWrapper | undefined;
+
+function mountEditor(props: TextEditorProps = {}): VueWrapper {
+    wrapper = mount(TextEditor, {
         props: { modelValue: '', ...props },
     });
+
+    return wrapper;
 }
 
 // Tiptap v3's EditorContent moves the ProseMirror view DOM into the
 // container inside a watchEffect + nextTick, so the contenteditable
 // only exists after a few ticks past mount.
-async function waitForEditable(wrapper) {
+async function waitForEditable(activeWrapper: VueWrapper): Promise<void> {
     await vi.waitFor(() => {
-        expect(wrapper.get('[contenteditable="true"]').exists()).toBe(true);
+        expect(activeWrapper.find('[contenteditable="true"]').exists()).toBe(true);
     });
 }
 
@@ -25,6 +39,13 @@ describe('TextEditor', () => {
     });
 
     afterEach(() => {
+        // Unmounting destroys the Tiptap editor. prosemirror-view schedules
+        // a 20 ms focus-check timer on every focus event; without the
+        // destroy (which nulls `docView`, short-circuiting that timer) it
+        // can fire after vitest tears the happy-dom window down and crash
+        // with "document is not defined".
+        wrapper?.unmount();
+        wrapper = undefined;
         vi.unstubAllGlobals();
     });
 
@@ -83,11 +104,11 @@ describe('TextEditor', () => {
     it('renders the remaining toolbar controls', () => {
         const wrapper = mountEditor();
 
-        expect(wrapper.get('[data-testid="text-editor-heading"]').exists()).toBe(true);
-        expect(wrapper.get('[data-testid="text-editor-blockquote"]').exists()).toBe(true);
-        expect(wrapper.get('[data-testid="text-editor-bullet-list"]').exists()).toBe(true);
-        expect(wrapper.get('[data-testid="text-editor-ordered-list"]').exists()).toBe(true);
-        expect(wrapper.get('[data-testid="text-editor-callout"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="text-editor-heading"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="text-editor-blockquote"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="text-editor-bullet-list"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="text-editor-ordered-list"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="text-editor-callout"]').exists()).toBe(true);
         expect(wrapper.get('[data-testid="text-editor-image"]').attributes('aria-label')).toBe(
             'Insert image',
         );
@@ -122,7 +143,7 @@ describe('TextEditor', () => {
         expect(
             wrapper
                 .emitted('update:modelValue')
-                ?.some(([value]) => value.includes('- Hello world')),
+                ?.some(([value]) => String(value).includes('- Hello world')),
         ).toBe(true);
     });
 

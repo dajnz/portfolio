@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import AdminPageFooter from '@shared-admin/AdminPageFooter.vue';
 
-function mountFooter(props: Record<string, unknown> = {}, slots: Record<string, unknown> = {}) {
+function mountFooter(props: Record<string, unknown> = {}, slots: Record<string, string> = {}) {
     return mount(AdminPageFooter, { props, slots });
 }
 

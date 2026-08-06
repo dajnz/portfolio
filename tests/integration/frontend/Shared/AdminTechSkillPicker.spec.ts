@@ -46,7 +46,7 @@ describe('AdminTechSkillPicker', () => {
         expect(pill.text()).toContain('PHP');
         expect(pill.find('svg').exists()).toBe(true);
         expect(wrapper.get('[data-testid="tech-skill-picker-pill-1"]').text()).toContain('Laravel');
-        expect(wrapper.get('[data-testid="tech-skill-picker-pill-0-remove"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="tech-skill-picker-pill-0-remove"]').exists()).toBe(true);
     });
 
     it('removes a skill via the pill x button', async () => {
@@ -95,7 +95,7 @@ describe('AdminTechSkillPicker', () => {
         );
         const wrapper = mountSkillPicker({}, {}, { attachTo: document.body });
         const input = wrapper.get('[data-testid="tech-skill-picker-input"]');
-        input.element.focus();
+        (input.element as HTMLElement).focus();
 
         await input.setValue('php');
         await vi.advanceTimersByTimeAsync(300);

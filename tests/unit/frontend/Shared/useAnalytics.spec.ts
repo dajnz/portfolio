@@ -17,16 +17,22 @@ const FLUSH_INTERVAL_MS = 30_000;
 
 const fetchMock = vi.fn();
 
-function listener(type: string): () => void {
-    const call = onMock.mock.calls.find(([eventType]) => eventType === type);
-
-    return call?.[1] as () => void;
+interface TrackedEvent {
+    event_type: string;
+    metadata: Record<string, unknown>;
 }
 
-function lastFetch(): { url: string; init: RequestInit; body: unknown[] } {
-    const [url, init] = fetchMock.mock.calls.at(-1);
+function listener(type: string): () => void {
+    const calls = onMock.mock.calls as unknown as Array<[string, () => void]>;
+    const call = calls.find(([eventType]) => eventType === type);
 
-    return { url, init, body: JSON.parse(init.body as string) };
+    return call?.[1] as unknown as () => void;
+}
+
+function lastFetch(): { url: string; init: RequestInit; body: TrackedEvent[] } {
+    const [url, init] = fetchMock.mock.calls.at(-1) as unknown as [string, RequestInit];
+
+    return { url, init, body: JSON.parse(init.body as string) as TrackedEvent[] };
 }
 
 function fittingCount(events: Array<{ event_type: string; metadata: Record<string, unknown>; page_url: string; session_id: string }>): number {

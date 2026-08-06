@@ -112,7 +112,7 @@ describe('AdminPageSidebar', () => {
         const wrapper = mountSidebar({ active_route: '/admin/posts' });
 
         expect(
-            wrapper.get('[data-testid="admin-sidebar-group-content-item-/admin/posts"]').exists(),
+            wrapper.find('[data-testid="admin-sidebar-group-content-item-/admin/posts"]').exists(),
         ).toBe(true);
         expect(wrapper.get('[data-testid="admin-sidebar-group-content"]').attributes(
             'aria-expanded',

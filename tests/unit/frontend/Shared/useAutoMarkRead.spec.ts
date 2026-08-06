@@ -12,8 +12,21 @@ vi.mock('@inertiajs/vue3', () => ({
 import { useAutoMarkRead } from '@shared-cross/Composables/useAutoMarkRead';
 import { useToastStore } from '@shared-cross/Stores/toastStore';
 
-function lastPatchCall(): { url: string; data: Record<string, unknown>; options: Record<string, unknown> } {
-    const call = patchMock.mock.calls.at(-1);
+interface PatchOptions {
+    preserveState: boolean;
+    onError: (errors: Record<string, string>) => void;
+    onHttpException: (error: { status: number }) => void;
+}
+
+function lastPatchCall(): { url: string; data: Record<string, unknown>; options: PatchOptions } {
+    const calls = patchMock.mock.calls as unknown as Array<
+        [string, Record<string, unknown>, PatchOptions]
+    >;
+    const call = calls.at(-1);
+
+    if (call === undefined) {
+        throw new Error('mark-as-read PATCH was never called');
+    }
 
     return { url: call[0], data: call[1], options: call[2] };
 }
