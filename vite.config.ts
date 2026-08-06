@@ -9,10 +9,11 @@ import { defineConfig } from 'vitest/config';
 const featureAlias = (path: string) =>
     fileURLToPath(new URL(`./resources/js/Features/${path}`, import.meta.url));
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.js'],
+            input: ['resources/css/app.css', 'resources/js/app.ts'],
+            ssr: 'resources/js/ssr.ts',
             refresh: true,
             fonts: [
                 bunny('Instrument Sans', {
@@ -47,6 +48,10 @@ export default defineConfig({
         },
     },
     build: {
+        // The SSR build writes into `bootstrap/ssr` (laravel-vite-plugin
+        // `ssrOutputDirectory`), which contains the committed `.gitignore`;
+        // vite's default `emptyOutDir` would wipe it on every build.
+        emptyOutDir: !isSsrBuild,
         chunkSizeWarningLimit: 1000,
         rollupOptions: {
             output: {
@@ -76,4 +81,4 @@ export default defineConfig({
             },
         },
     },
-});
+}));

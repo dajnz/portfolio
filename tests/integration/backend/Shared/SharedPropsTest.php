@@ -34,8 +34,8 @@ describe('SharedProps', function (): void {
     });
 
     it('reflects the locale and theme cookies in the props and headers', function (): void {
-        $this->withCookie('locale', 'ru')
-            ->withCookie('theme', 'dark')
+        $this->withUnencryptedCookie('locale', 'ru')
+            ->withUnencryptedCookie('theme', 'dark')
             ->get('/admin/login')
             ->assertOk()
             ->assertHeader('Content-Language', 'ru')
