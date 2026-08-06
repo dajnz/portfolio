@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
+import LanguageSelector from '@shared-cross/Components/LanguageSelector.vue';
+import ThemeSwitch from '@shared-cross/Components/ThemeSwitch.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { computed } from 'vue';
 
@@ -26,6 +29,12 @@ const props = withDefaults(
 );
 
 const { t } = useI18n();
+
+// Self-contained theme/locale controls (public-section-components.md:389):
+// the header renders ThemeSwitch + LanguageSelector internally unless the
+// host overrides them via the `controls` slot (B80 bridge).
+const pageLocale = usePage<{ locale?: string }>().props?.locale;
+const activeLocale = computed(() => pageLocale ?? 'en');
 
 const visibleItems = computed(() => props.nav_items.filter((item) => item.condition !== false));
 
@@ -67,11 +76,14 @@ function isActive(item: NavItem): boolean {
           </a>
         </li>
       </ul>
-      <div
-        v-if="$slots.controls"
-        class="header__controls"
-      >
-        <slot name="controls" />
+      <div class="header__controls">
+        <slot name="controls">
+          <LanguageSelector
+            :active_locale="activeLocale"
+            track_locale_changes
+          />
+          <ThemeSwitch />
+        </slot>
       </div>
     </nav>
   </header>
