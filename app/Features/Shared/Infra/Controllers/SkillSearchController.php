@@ -16,13 +16,13 @@ use Illuminate\Support\Facades\App;
 final class SkillSearchController
 {
     public function __construct(
-        private readonly SearchSkillsUseCase $useCase,
+        private readonly SearchSkillsUseCase $searchSkillsCase,
     ) {
     }
 
     public function index(Request $request): JsonResponse
     {
-        $skills = $this->useCase->search($request->string('q', '')->toString(), (string) App::getLocale());
+        $skills = $this->searchSkillsCase->search($request->string('q', '')->toString(), (string) App::getLocale());
 
         return response()->json([
             'data' => array_map(

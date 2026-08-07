@@ -28,8 +28,8 @@ use Inertia\ResponseFactory;
 final class TotpController
 {
     public function __construct(
-        private readonly VerifyLoginTotpUseCase $verifyLoginTotp,
-        private readonly VerifyGithubLinkTotpUseCase $verifyGithubLinkTotp,
+        private readonly VerifyLoginTotpUseCase $verifyLoginTotpCase,
+        private readonly VerifyGithubLinkTotpUseCase $verifyGithubLinkTotpCase,
     ) {
     }
 
@@ -46,7 +46,7 @@ final class TotpController
     public function verify(VerifyTotpRequest $request): RedirectResponse
     {
         try {
-            $this->verifyLoginTotp->verify($request->input('code', ''));
+            $this->verifyLoginTotpCase->verify($request->input('code', ''));
         } catch (TotpPendingInvalidException) {
             return redirect()->route('login');
         } catch (InvalidTotpCodeException) {
@@ -61,7 +61,7 @@ final class TotpController
     public function verifyGithubLink(VerifyTotpRequest $request): RedirectResponse
     {
         try {
-            $this->verifyGithubLinkTotp->verify($request->input('code', ''));
+            $this->verifyGithubLinkTotpCase->verify($request->input('code', ''));
         } catch (GithubLinkPendingInvalidException) {
             return redirect()->route('profile');
         } catch (InvalidTotpCodeException) {

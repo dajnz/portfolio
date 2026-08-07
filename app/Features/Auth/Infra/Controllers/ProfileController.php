@@ -37,11 +37,11 @@ final class ProfileController
 {
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
-        private readonly UpdateProfileUseCase $updateProfile,
-        private readonly EnableTotpUseCase $enableTotp,
-        private readonly DisableTotpUseCase $disableTotp,
-        private readonly RegenerateRecoveryCodesUseCase $regenerateRecoveryCodes,
-        private readonly LinkGithubUseCase $linkGithub,
+        private readonly UpdateProfileUseCase $updateProfileCase,
+        private readonly EnableTotpUseCase $enableTotpCase,
+        private readonly DisableTotpUseCase $disableTotpCase,
+        private readonly RegenerateRecoveryCodesUseCase $regenerateRecoveryCodesCase,
+        private readonly LinkGithubUseCase $linkGithubCase,
         private readonly FeatureFlagRepositoryInterface $flags,
     ) {
     }
@@ -66,7 +66,7 @@ final class ProfileController
     public function update(UpdateProfileRequest $request): RedirectResponse
     {
         try {
-            $this->updateProfile->update(
+            $this->updateProfileCase->update(
                 $this->repository->findById((int) $request->user()->getAuthIdentifier()),
                 $request->input('name', ''),
                 $request->input('email', ''),
@@ -86,11 +86,11 @@ final class ProfileController
         $admin = $this->repository->findById((int) $request->user()->getAuthIdentifier());
 
         if ($request->input('code') === null) {
-            return response()->json(['data' => $this->enableTotp->start($admin)]);
+            return response()->json(['data' => $this->enableTotpCase->start($admin)]);
         }
 
         try {
-            $recoveryCodes = $this->enableTotp->verifyAndEnable($admin, (string) $request->input('code'));
+            $recoveryCodes = $this->enableTotpCase->verifyAndEnable($admin, (string) $request->input('code'));
         } catch (InvalidTotpCodeException) {
             throw ValidationException::withMessages(['code' => __('auth.invalid_totp_code')]);
         } catch (TotpEnrollmentExpiredException) {
@@ -103,7 +103,7 @@ final class ProfileController
     public function disableTotp(RequireCurrentPasswordRequest $request): RedirectResponse
     {
         try {
-            $this->disableTotp->disable(
+            $this->disableTotpCase->disable(
                 $this->repository->findById((int) $request->user()->getAuthIdentifier()),
                 $request->input('current_password', ''),
             );
@@ -117,7 +117,7 @@ final class ProfileController
     public function regenerateRecoveryCodes(RequireCurrentPasswordRequest $request): JsonResponse
     {
         try {
-            $recoveryCodes = $this->regenerateRecoveryCodes->regenerate(
+            $recoveryCodes = $this->regenerateRecoveryCodesCase->regenerate(
                 $this->repository->findById((int) $request->user()->getAuthIdentifier()),
                 $request->input('current_password', ''),
             );
@@ -130,7 +130,7 @@ final class ProfileController
 
     public function unlinkGithub(Request $request): RedirectResponse
     {
-        $this->linkGithub->unlink(
+        $this->linkGithubCase->unlink(
             $this->repository->findById((int) $request->user()->getAuthIdentifier()),
         );
 
