@@ -26,8 +26,8 @@ final class GithubController
 {
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
-        private readonly HandleGithubCallbackUseCase $githubCallback,
-        private readonly LinkGithubUseCase $linkGithub,
+        private readonly HandleGithubCallbackUseCase $githubCallbackCase,
+        private readonly LinkGithubUseCase $linkGithubCase,
     ) {
     }
 
@@ -64,7 +64,7 @@ final class GithubController
             abort(400, 'Authenticated user with login OAuth intent.');
         }
 
-        return match ($this->githubCallback->handle((string) $socialiteUser->getId())) {
+        return match ($this->githubCallbackCase->handle((string) $socialiteUser->getId())) {
             GithubLoginOutcome::NoAccount => redirect()->route('login')
                 ->with('notification', ['type' => 'error', 'message' => __('auth.github_no_account')]),
             GithubLoginOutcome::TotpRequired => redirect()->route('login.totp'),
@@ -85,7 +85,7 @@ final class GithubController
             return redirect()->route('login');
         }
 
-        return match ($this->linkGithub->linkOrPrepare($admin, (string) $socialiteUser->getId(), (string) $socialiteUser->token)) {
+        return match ($this->linkGithubCase->linkOrPrepare($admin, (string) $socialiteUser->getId(), (string) $socialiteUser->token)) {
             GithubLinkOutcome::AlreadyLinked => redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_already_linked')]),
             GithubLinkOutcome::Conflict => redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_conflict')]),
             GithubLinkOutcome::TotpRequired => redirect()->route('profile.github-link.totp'),

@@ -22,7 +22,7 @@ use Inertia\ResponseFactory;
 final class LoginController
 {
     public function __construct(
-        private readonly LoginUseCase $login,
+        private readonly LoginUseCase $loginCase,
         private readonly FeatureFlagRepositoryInterface $flags,
         private readonly AdminAuthService $auth,
     ) {
@@ -41,7 +41,7 @@ final class LoginController
 
     public function store(LoginRequest $request): RedirectResponse
     {
-        $admin = $this->login->attempt(
+        $admin = $this->loginCase->attempt(
             $request->input('login', ''),
             $request->input('password', ''),
         );
@@ -51,12 +51,12 @@ final class LoginController
         }
 
         if ($admin->toTimedOtp()->isEnabled()) {
-            $this->login->beginTotpVerification($admin);
+            $this->loginCase->beginTotpVerification($admin);
 
             return redirect()->route('login.totp');
         }
 
-        $this->login->completeLogin($admin, (bool) $request->boolean('remember'));
+        $this->loginCase->completeLogin($admin, (bool) $request->boolean('remember'));
 
         return redirect()->intended('/admin');
     }

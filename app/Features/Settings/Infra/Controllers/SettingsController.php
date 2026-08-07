@@ -17,22 +17,22 @@ use Inertia\ResponseFactory;
 final class SettingsController
 {
     public function __construct(
-        private readonly GetSettingsUseCase $getSettings,
-        private readonly UpdateSettingsUseCase $updateSettings,
-        private readonly UpdateFeatureFlagsUseCase $updateFeatureFlags,
+        private readonly GetSettingsUseCase $getSettingsCase,
+        private readonly UpdateSettingsUseCase $updateSettingsCase,
+        private readonly UpdateFeatureFlagsUseCase $updateFeatureFlagsCase,
     ) {
     }
 
     public function index(ResponseFactory $inertia): Response
     {
         return $inertia->render('Settings/Admin/Pages/SettingsPage', [
-            'settings' => $this->getSettings->all(),
+            'settings' => $this->getSettingsCase->all(),
         ]);
     }
 
     public function update(UpdateSettingsRequest $request): RedirectResponse
     {
-        $this->updateSettings->update($request->input('settings', []));
+        $this->updateSettingsCase->update($request->input('settings', []));
 
         return redirect()->back();
     }
@@ -41,7 +41,7 @@ final class SettingsController
     {
         $flags = $request->input('flags', []);
 
-        $this->updateFeatureFlags->update($flags);
+        $this->updateFeatureFlagsCase->update($flags);
 
         return response()->json(['data' => ['flags' => $flags]]);
     }

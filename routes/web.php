@@ -17,7 +17,3 @@ use Illuminate\Support\Facades\Route;
 foreach (glob(app_path('Features/*/Infra/routes.php')) as $file) {
     require $file;
 }
-
-Route::get('/', function () {
-    return view('welcome');
-});

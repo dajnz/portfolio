@@ -108,17 +108,38 @@ it('validates the deleteFile responses against the spec', function (): void {
     ]));
 });
 
+it('validates the submitFeedback responses against the spec', function (): void {
+    $this->assertConformsToSpec('submitFeedback', 0, $this->postJson('/api/feedback', [
+        'sender_name' => 'Jane Doe',
+        'sender_email' => 'jane@example.com',
+        'message' => 'This is a valid feedback message.',
+    ]));
+
+    $this->assertConformsToSpec('submitFeedback', 1, $this->postJson('/api/feedback', [
+        'sender_name' => '',
+    ]));
+
+    // The fingerprint limiter (3/h per IP+UA) rejects the 4th request —
+    // the two calls above already consumed 2 of the 3 attempts.
+    $this->postJson('/api/feedback', [
+        'sender_name' => 'Sender 3',
+        'sender_email' => 'jane@example.com',
+        'message' => 'This is a valid feedback message.',
+    ])->assertCreated();
+
+    $this->assertConformsToSpec('submitFeedback', 2, $this->postJson('/api/feedback', [
+        'sender_name' => 'Jane Doe',
+        'sender_email' => 'jane@example.com',
+        'message' => 'This is a valid feedback message.',
+    ]));
+});
+
 it('answers 404 with the error envelope for not-yet-implemented operations', function (): void {
     foreach (array_keys(array_filter(
         self::scenarios(),
         static fn (array $scenario): bool => ! $scenario['implemented'],
     )) as $operationId) {
         $response = match ($operationId) {
-            'submitFeedback' => $this->postJson('/api/feedback', [
-                'sender_name' => 'Jane Doe',
-                'sender_email' => 'jane@example.com',
-                'message' => 'This is a valid feedback message.',
-            ]),
             'toggleArticleReaction' => $this->postJson('/api/blog/1/reaction', ['reaction' => 'like']),
             'createTag' => $this->postJson('/api/tags', ['slug' => 'new-tag', 'name' => 'New tag']),
             'searchTags' => $this->getJson('/api/tags/search?q=php'),

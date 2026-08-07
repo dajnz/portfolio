@@ -49,4 +49,6 @@ return [
     'feedback_send_another' => 'Send another',
     'feedback_error' => 'Could not send your message. Please try again.',
     'feedback_invalid_email' => 'Please enter a valid email address.',
+
+    'console_greeting' => 'Hey there! Welcome to my portfolio.',
 ];
