@@ -12,6 +12,13 @@ runtime support.
 
 ### Added
 
+- **`recovery_codes_remaining` profile prop (v1.0.4, step 3.6):** added to
+  `ProfilePageProps.admin` — count of unused recovery codes (0 when TOTP is
+  disabled), rendered by the `TOTPSetup` component
+  (`admin-section-components.md:1477-1489`). Optional property; required-set
+  unchanged. `info.version` bumped to `1.0.4` in `inertia.yaml`
+  (openapi.yaml unaffected).
+
 - **`SeoProps` shared schema (v1.0.3, step 3.5):** new `SeoProps` schema in
   `inertia/shared.yaml` (per `seo.md:18-31`, field names snake_case per the
   Inertia convention) and a `seo` prop added to the six public page schemas:

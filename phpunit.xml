@@ -24,6 +24,11 @@
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
         <env name="DB_CONNECTION" value="pgsql"/>
+        <!-- Dedicated test database: WITHOUT this the suite's
+             migrate:fresh/RefreshDatabase would run against the dev
+             database (.env DB_DATABASE) and wipe it on every local
+             `php artisan test`. CI appends the same name. -->
+        <env name="DB_DATABASE" value="portfolio_test"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>

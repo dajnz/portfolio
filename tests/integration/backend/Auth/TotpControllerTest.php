@@ -130,7 +130,7 @@ describe('TotpController login flow', function (): void {
         $this->pendingTotpSession($admin)
             ->post('/admin/login/totp', ['code' => '000000'])
             ->assertRedirect(route('login'))
-            ->assertSessionHas('error', 'Too many attempts — try again in 15 minutes.');
+            ->assertSessionHas('notification', ['type' => 'error', 'message' => 'Too many attempts — try again in 15 minutes.']);
 
         $this->assertGuest();
         expect(session('totp.pending_admin_id'))->toBeNull();
@@ -161,7 +161,7 @@ describe('TotpController login flow', function (): void {
             'totp.pending_until' => now()->subMinute()->getTimestamp(),
         ])->get('/admin/login/totp')
             ->assertRedirect(route('login'))
-            ->assertSessionHas('error', 'TOTP verification expired.');
+            ->assertSessionHas('notification', ['type' => 'error', 'message' => 'TOTP verification expired.']);
 
         expect(session('totp.pending_admin_id'))->toBeNull();
     });
@@ -183,7 +183,7 @@ describe('TotpController login flow', function (): void {
         $this->pendingTotpSession($admin)
             ->get('/admin/login/totp')
             ->assertRedirect(route('login'))
-            ->assertSessionHas('error', 'Too many attempts — try again in 5 minutes.');
+            ->assertSessionHas('notification', ['type' => 'error', 'message' => 'Too many attempts — try again in 5 minutes.']);
     });
 
     it('bounces a permanently locked admin with the reset-password message', function (): void {
@@ -193,7 +193,7 @@ describe('TotpController login flow', function (): void {
         $this->pendingTotpSession($admin)
             ->get('/admin/login/totp')
             ->assertRedirect(route('login'))
-            ->assertSessionHas('error', 'Account locked — use `admin:reset-password` to regain access.');
+            ->assertSessionHas('notification', ['type' => 'error', 'message' => 'Account locked — use `admin:reset-password` to regain access.']);
     });
 
     it('requires a code in TOTP verification', function (): void {

@@ -65,7 +65,7 @@ describe('GithubController', function (): void {
         $this->withSession(['oauth_intent' => 'login'])
             ->get('/admin/login/github/callback')
             ->assertRedirect(route('login'))
-            ->assertSessionHas('error', 'No admin account linked to this GitHub account.');
+            ->assertSessionHas('notification', ['type' => 'error', 'message' => 'No admin account linked to this GitHub account.']);
 
         $this->assertGuest();
     });
@@ -95,7 +95,7 @@ describe('GithubController', function (): void {
             ->withSession(['oauth_intent' => 'link'])
             ->get('/admin/login/github/callback')
             ->assertRedirect(route('profile'))
-            ->assertSessionHas('success', 'GitHub account linked successfully.');
+            ->assertSessionHas('notification', ['type' => 'success', 'message' => 'GitHub account linked successfully.']);
 
         $fresh = $admin->fresh();
         expect($fresh->github_id)->toBe('12345')
@@ -112,7 +112,7 @@ describe('GithubController', function (): void {
             ->withSession(['oauth_intent' => 'link'])
             ->get('/admin/login/github/callback')
             ->assertRedirect(route('profile'))
-            ->assertSessionHas('error', 'GitHub account is already linked.');
+            ->assertSessionHas('notification', ['type' => 'error', 'message' => 'GitHub account is already linked.']);
 
         expect($admin->fresh()->session_version)->toBe(0)
             ->and($admin->fresh()->github_token)->not->toBeNull();
@@ -127,7 +127,7 @@ describe('GithubController', function (): void {
             ->withSession(['oauth_intent' => 'link'])
             ->get('/admin/login/github/callback')
             ->assertRedirect(route('profile'))
-            ->assertSessionHas('error', 'This GitHub account is already linked to a different admin account.');
+            ->assertSessionHas('notification', ['type' => 'error', 'message' => 'This GitHub account is already linked to a different admin account.']);
 
         expect($admin->fresh()->github_id)->toBeNull();
     });
@@ -152,7 +152,7 @@ describe('GithubController', function (): void {
 
         $this->get('/admin/login/github/callback')
             ->assertRedirect(route('login'))
-            ->assertSessionHas('error', 'Invalid OAuth intent.');
+            ->assertSessionHas('notification', ['type' => 'error', 'message' => 'Invalid OAuth intent.']);
     });
 
     it('unlinks the GitHub account and bumps the session version', function (): void {
@@ -161,7 +161,7 @@ describe('GithubController', function (): void {
         $this->loginAsAdmin($admin)
             ->post('/admin/profile/github-unlink')
             ->assertRedirect()
-            ->assertSessionHas('success', 'GitHub account unlinked.');
+            ->assertSessionHas('notification', ['type' => 'success', 'message' => 'GitHub account unlinked.']);
 
         $fresh = $admin->fresh();
         expect($fresh->github_id)->toBeNull()

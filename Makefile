@@ -112,8 +112,28 @@ test-backend: ## Run all backend tests (unit + integration)
 test-frontend: ## Run all frontend tests (unit + integration)
 	$(DE) npx vitest run
 
-test-e2e: ## Run e2e tests
-	$(DE) npx playwright test
+# The e2e suite runs against a DEDICATED database (`portfolio_e2e`) and an
+# isolated Redis DB (1), served by `php artisan serve` on 127.0.0.1:8001
+# inside the dev container (same pattern as CI, devops.md:1097) — the dev
+# database and the nginx stack are never touched. `E2ETestSeeder` still
+# truncates + reseeds on every run (via global-setup), but only the e2e DB.
+# `--no-reload` is REQUIRED: ServeCommand otherwise passes only a curated
+# env whitelist (APP_ENV/PATH/...) to the `php -S` child, silently dropping
+# the DB_DATABASE/REDIS_DB overrides (the server would hit the dev DB).
+test-e2e: ## Run e2e tests against the dedicated e2e database (dev DB untouched)
+	@set -e; \
+	DB_USER="$$(sed -n 's/^DB_USERNAME=//p' .env)"; \
+	EXISTS="$$($(DC) exec -T db psql -U "$$DB_USER" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='portfolio_e2e'" | tr -d '[:space:]')"; \
+	if [ "$$EXISTS" != "1" ]; then \
+		echo "Creating e2e database portfolio_e2e..."; \
+		$(DC) exec -T db createdb -U "$$DB_USER" portfolio_e2e; \
+	fi; \
+	$(DE) env DB_DATABASE=portfolio_e2e REDIS_DB=1 php artisan migrate --force; \
+	$(DE) sh -c 'pkill -f "[p]hp -S .*8001" 2>/dev/null; pkill -f "[p]hp artisan serve.*8001" 2>/dev/null; true'; \
+	$(DC) exec -d dev sh -c 'env DB_DATABASE=portfolio_e2e REDIS_DB=1 php artisan serve --no-reload --host=0.0.0.0 --port=8001 >/tmp/e2e-serve.log 2>&1'; \
+	trap '$(DE) sh -c "pkill -f \"[p]hp artisan serve.*8001\"; pkill -f \"[p]hp -S .*8001\"; true"' EXIT; \
+	$(DE) sh -c 'npx wait-on -t 30000 http://127.0.0.1:8001/up || (echo "e2e server failed:"; cat /tmp/e2e-serve.log; exit 1)'; \
+	$(DE) env DB_DATABASE=portfolio_e2e REDIS_DB=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:8001 npx playwright test
 
 coverage: ## Run all test suites with coverage (80% line coverage threshold, per testing spec)
 	$(DE) env XDEBUG_MODE=coverage php artisan test --coverage --min=80

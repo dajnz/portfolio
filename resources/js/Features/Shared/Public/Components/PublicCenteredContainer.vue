@@ -53,19 +53,19 @@ const containerClass = computed(() => ({
 }
 
 .centered-container--sm {
-    max-width: var(--container-sm);
+    max-width: var(--layout-sm);
 }
 
 .centered-container--md {
-    max-width: var(--container-md);
+    max-width: var(--layout-md);
 }
 
 .centered-container--lg {
-    max-width: var(--container-lg);
+    max-width: var(--layout-lg);
 }
 
 .centered-container--xl {
-    max-width: var(--container-xl);
+    max-width: var(--layout-xl);
 }
 
 .centered-container--no-padding {

@@ -54,7 +54,7 @@ final class RequireGithubLinkTotpPending
         if ($this->auth->adminIsTotpLocked($admin)) {
             $this->auth->clearPendingGithubLink();
 
-            return redirect()->route('profile')->with('error', $this->auth->totpLockoutFlash($admin));
+            return redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => $this->auth->totpLockoutFlash($admin)]);
         }
 
         return $next($request);

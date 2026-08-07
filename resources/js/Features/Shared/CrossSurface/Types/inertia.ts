@@ -1441,6 +1441,8 @@ export interface components {
                     email?: string;
                     github_linked?: boolean;
                     totp_enabled?: boolean;
+                    /** @description Count of unused recovery codes (0 when TOTP is disabled). Rendered by the TOTPSetup component (admin-section-components.md:1477-1489). */
+                    recovery_codes_remaining?: number;
                     session_version?: number;
                 };
                 github_oauth_enabled?: boolean;

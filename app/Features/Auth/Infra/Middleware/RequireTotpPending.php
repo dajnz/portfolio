@@ -33,7 +33,7 @@ final class RequireTotpPending
         if ($this->auth->pendingTotpLoginExpired()) {
             $this->auth->clearPendingTotpLogin();
 
-            return redirect()->route('login')->with('error', __('auth.totp_verification_expired'));
+            return redirect()->route('login')->with('notification', ['type' => 'error', 'message' => __('auth.totp_verification_expired')]);
         }
 
         $admin = $this->auth->pendingTotpLoginAdmin();
@@ -47,7 +47,7 @@ final class RequireTotpPending
         if ($this->auth->adminIsTotpLocked($admin)) {
             $this->auth->clearPendingTotpLogin();
 
-            return redirect()->route('login')->with('error', $this->auth->totpLockoutFlash($admin));
+            return redirect()->route('login')->with('notification', ['type' => 'error', 'message' => $this->auth->totpLockoutFlash($admin)]);
         }
 
         return $next($request);

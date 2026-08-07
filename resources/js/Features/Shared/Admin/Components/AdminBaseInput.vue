@@ -1,13 +1,15 @@
 // admin-section-components.md:27-29 — mirrors PublicBaseInput
 <script setup lang="ts">
-import { computed, useId } from 'vue';
+import { computed, ref, useId } from 'vue';
 
 type InputType = 'text' | 'email' | 'password' | 'search' | 'url' | 'number' | 'date';
+type InputMode = 'text' | 'numeric' | 'email' | 'tel';
 
 const props = withDefaults(
     defineProps<{
         modelValue: string;
         type?: InputType;
+        inputmode?: InputMode;
         name?: string;
         label?: string;
         placeholder?: string;
@@ -16,10 +18,12 @@ const props = withDefaults(
         required?: boolean;
         disabled?: boolean;
         autocomplete?: string;
+        maxlength?: number;
         test_id?: string;
     }>(),
     {
         type: 'text',
+        inputmode: undefined,
         name: undefined,
         label: undefined,
         placeholder: undefined,
@@ -28,6 +32,7 @@ const props = withDefaults(
         required: false,
         disabled: false,
         autocomplete: undefined,
+        maxlength: undefined,
         test_id: 'base-input',
     },
 );
@@ -40,6 +45,7 @@ const emit = defineEmits<{
 
 const inputId = useId();
 const errorId = `${inputId}-error`;
+const inputEl = ref<HTMLInputElement | null>(null);
 
 const describedBy = computed(() => {
     const ids: string[] = [];
@@ -54,6 +60,14 @@ const describedBy = computed(() => {
 function onInput(event: Event): void {
     emit('update:modelValue', (event.target as HTMLInputElement).value);
 }
+
+// Exposed so auth pages can auto-focus the single-field forms
+// (admin-section-components.md:1568).
+defineExpose({
+    focus: (): void => {
+        inputEl.value?.focus();
+    },
+});
 </script>
 
 <template>
@@ -71,13 +85,16 @@ function onInput(event: Event): void {
     </label>
     <input
       :id="inputId"
+      ref="inputEl"
       :name="props.name"
       :type="props.type"
+      :inputmode="props.inputmode"
       :value="props.modelValue"
       :placeholder="props.placeholder"
       :required="props.required || undefined"
       :disabled="props.disabled || undefined"
       :autocomplete="props.autocomplete"
+      :maxlength="props.maxlength"
       class="block w-full h-10 px-3 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-surface-dark-secondary text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 dark:focus:ring-primary-900 outline-none transition-all"
       :class="{
         'border-danger-300 dark:border-danger-700 focus:border-danger-500 focus:ring-danger-100 dark:focus:ring-danger-900': props.error !== null,

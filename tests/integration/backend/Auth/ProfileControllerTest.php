@@ -49,7 +49,7 @@ describe('ProfileController', function (): void {
                 'email' => 'new@example.com',
                 'login' => 'newlogin',
             ])->assertRedirect()
-            ->assertSessionHas('success', 'Profile updated successfully.');
+            ->assertSessionHas('notification', ['type' => 'success', 'message' => 'Profile updated successfully.']);
 
         $fresh = $admin->fresh();
         expect($fresh->name)->toBe('New Name')
@@ -112,6 +112,55 @@ describe('ProfileController', function (): void {
             ->assertSessionHasErrors('password');
     });
 
+    it('rejects a 12-char password without mixed case and digits', function (): void {
+        $admin = $this->createAdmin();
+
+        $this->loginAsAdmin($admin)
+            ->put('/admin/profile', [
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'login' => $admin->login,
+                'current_password' => self::ADMIN_PASSWORD,
+                'password' => '111111111111',
+                'password_confirmation' => '111111111111',
+            ])->assertRedirect()
+            ->assertSessionHasErrors('password');
+
+        expect(Hash::check(self::ADMIN_PASSWORD, $admin->fresh()->password))->toBeTrue();
+    });
+
+    it('rejects a password without a digit', function (): void {
+        $admin = $this->createAdmin();
+
+        $this->loginAsAdmin($admin)
+            ->put('/admin/profile', [
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'login' => $admin->login,
+                'current_password' => self::ADMIN_PASSWORD,
+                'password' => 'MixedCaseWithoutDigits',
+                'password_confirmation' => 'MixedCaseWithoutDigits',
+            ])->assertRedirect()
+            ->assertSessionHasErrors('password');
+    });
+
+    it('rejects an empty password-change intent instead of silently succeeding', function (): void {
+        $admin = $this->createAdmin();
+
+        $this->loginAsAdmin($admin)
+            ->put('/admin/profile', [
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'login' => $admin->login,
+                'current_password' => '',
+                'password' => '',
+                'password_confirmation' => '',
+            ])->assertRedirect()
+            ->assertSessionHasErrors(['current_password', 'password']);
+
+        expect(Hash::check(self::ADMIN_PASSWORD, $admin->fresh()->password))->toBeTrue();
+    });
+
     it('rejects a duplicate email or login', function (): void {
         $admin = $this->createAdmin();
         $this->createAdmin(['login' => 'other', 'email' => 'other@example.com']);
@@ -134,7 +183,7 @@ describe('ProfileController', function (): void {
 
         $this->get('/admin/profile')
             ->assertRedirect(route('login'))
-            ->assertSessionHas('error', 'Session expired — please log in again.');
+            ->assertSessionHas('notification', ['type' => 'error', 'message' => 'Session expired — please log in again.']);
 
         $this->assertGuest();
     });
@@ -205,7 +254,7 @@ describe('ProfileController', function (): void {
             $this->loginAsAdmin($admin)
                 ->post('/admin/profile/totp-disable', ['current_password' => self::ADMIN_PASSWORD])
                 ->assertRedirect()
-                ->assertSessionHas('success', 'TOTP disabled.');
+                ->assertSessionHas('notification', ['type' => 'success', 'message' => 'TOTP disabled.']);
 
             $fresh = $admin->fresh();
             expect($fresh->totp_enabled)->toBeFalse()

@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
+import { randomUuid } from '../Utils/randomUuid';
+
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
 
 export interface Toast {
@@ -39,7 +41,7 @@ export const useToastStore = defineStore('toast', () => {
     function show(message: string, options: ShowToastOptions = {}): string {
         const variant = options.variant ?? 'success';
         const toast: Toast = {
-            id: crypto.randomUUID(),
+            id: randomUuid(),
             variant,
             message,
             duration_ms:

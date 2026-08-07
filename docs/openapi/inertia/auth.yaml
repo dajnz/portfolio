@@ -56,6 +56,9 @@ components:
                       type: boolean
                     totp_enabled:
                       type: boolean
+                    recovery_codes_remaining:
+                      type: integer
+                      description: Count of unused recovery codes (0 when TOTP is disabled). Rendered by the TOTPSetup component (admin-section-components.md:1477-1489).
                     session_version:
                       type: integer
                 github_oauth_enabled:

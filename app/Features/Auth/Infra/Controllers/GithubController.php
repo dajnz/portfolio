@@ -53,7 +53,7 @@ final class GithubController
         return match ($intent) {
             'login' => $this->handleLoginIntent($socialiteUser),
             'link' => $this->handleLinkIntent($socialiteUser),
-            default => redirect()->route('login')->with('error', __('auth.github_invalid_intent')),
+            default => redirect()->route('login')->with('notification', ['type' => 'error', 'message' => __('auth.github_invalid_intent')]),
         };
     }
 
@@ -66,7 +66,7 @@ final class GithubController
 
         return match ($this->githubCallback->handle((string) $socialiteUser->getId())) {
             GithubLoginOutcome::NoAccount => redirect()->route('login')
-                ->with('error', __('auth.github_no_account')),
+                ->with('notification', ['type' => 'error', 'message' => __('auth.github_no_account')]),
             GithubLoginOutcome::TotpRequired => redirect()->route('login.totp'),
             GithubLoginOutcome::Authenticated => redirect()->intended('/admin'),
         };
@@ -86,10 +86,10 @@ final class GithubController
         }
 
         return match ($this->linkGithub->linkOrPrepare($admin, (string) $socialiteUser->getId(), (string) $socialiteUser->token)) {
-            GithubLinkOutcome::AlreadyLinked => redirect()->route('profile')->with('error', __('auth.github_already_linked')),
-            GithubLinkOutcome::Conflict => redirect()->route('profile')->with('error', __('auth.github_conflict')),
+            GithubLinkOutcome::AlreadyLinked => redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_already_linked')]),
+            GithubLinkOutcome::Conflict => redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_conflict')]),
             GithubLinkOutcome::TotpRequired => redirect()->route('profile.github-link.totp'),
-            GithubLinkOutcome::Linked => redirect()->route('profile')->with('success', __('auth.github_linked')),
+            GithubLinkOutcome::Linked => redirect()->route('profile')->with('notification', ['type' => 'success', 'message' => __('auth.github_linked')]),
         };
     }
 }

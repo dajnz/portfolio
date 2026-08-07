@@ -1,5 +1,10 @@
 @import 'tailwindcss';
-@import './public-tokens.css';
+/* The public tokens (BEM + design tokens, incl. a `*` reset) are imported
+   INTO the `base` layer: a plain import would emit them unlayered AFTER
+   the Tailwind layers, and unlayered rules beat layered ones regardless
+   of specificity — the tokens' `*{margin:0;padding:0}` reset would kill
+   every layered spacing utility (p-6/space-y-4/...) app-wide. */
+@import './public-tokens.css' layer(base);
 
 @config '../../tailwind.config.js';
 

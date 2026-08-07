@@ -295,10 +295,14 @@ pre code {
     --bp-md: 768px;
     --bp-lg: 1024px;
     --bp-xl: 1280px;
-    --container-sm: 640px;
-    --container-md: 768px;
-    --container-lg: 1024px;
-    --container-xl: 1200px;
+    /* The `--layout-*` names (not `--container-*`) are deliberate:
+       Tailwind v4's `max-w-*` utilities read the `--container-*` scale —
+       the mockup's `--container-sm: 640px` would silently turn `max-w-sm`
+       (the admin login card, 24rem per the mockup) into 640px. */
+    --layout-sm: 640px;
+    --layout-md: 768px;
+    --layout-lg: 1024px;
+    --layout-xl: 1200px;
     --container-padding: 16px;
     --container-padding-md: 24px;
 
