@@ -1,0 +1,45 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Features\Portfolio\App\UseCases;
+
+use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
+use App\Features\Settings\Domain\Enums\SettingName;
+use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\Infra\Persistence\CursorDecoder;
+use App\Features\Shared\Infra\Persistence\CursorPage;
+use App\Features\Shared\Infra\Services\AdminCursorPaginator;
+use Illuminate\Http\Request;
+
+/**
+ * The admin contacts list (admin-section-ui.md:304-308): cursor-paginated
+ * via the shared paginator (step 2.8). The reorderable list sorts by
+ * `sort_order` (asc) — the frontend requests it via the documented
+ * `?sort_column=`/`?sort_direction=` params; `id` stays the fallback.
+ */
+final class ListContactsUseCase
+{
+    private readonly AdminCursorPaginator $paginator;
+
+    public function __construct(
+        private readonly ContactRepositoryInterface $repository,
+        private readonly SettingRepositoryInterface $settings,
+        CursorDecoder $cursorDecoder = new CursorDecoder(),
+    ) {
+        $this->paginator = new AdminCursorPaginator(
+            cursorDecoder: $cursorDecoder,
+            allowedSortColumns: ['sort_order'],
+        );
+    }
+
+    public function list(Request $request): CursorPage
+    {
+        return $this->paginator->paginate(
+            $this->repository->listQuery(),
+            $request,
+            $this->settings->value(SettingName::ItemsPerPage, config('portfolio.items_per_page', 12)),
+            'contacts',
+        );
+    }
+}

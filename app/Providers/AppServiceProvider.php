@@ -9,11 +9,19 @@ use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterfa
 use App\Features\Auth\Infra\Listeners\LoginListener;
 use App\Features\Auth\Infra\Repositories\EloquentAdminRepository;
 use App\Features\Auth\Infra\Repositories\EloquentAdminTimedOtpRepository;
+use App\Features\Portfolio\Domain\RepositoryInterfaces\AboutInfoRepositoryInterface;
+use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
+use App\Features\Portfolio\Domain\RepositoryInterfaces\FeedbackRepositoryInterface;
+use App\Features\Portfolio\Infra\Repositories\EloquentAboutInfoRepository;
+use App\Features\Portfolio\Infra\Repositories\EloquentContactRepository;
+use App\Features\Portfolio\Infra\Repositories\EloquentFeedbackRepository;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Settings\Infra\Repositories\EloquentFeatureFlagRepository;
 use App\Features\Settings\Infra\Repositories\EloquentSettingRepository;
+use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
+use App\Features\Shared\Infra\Repositories\EloquentProjectReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
 use App\Features\Shared\Infra\Swagger\SwaggerUiService;
 use Illuminate\Auth\Events\Login;
@@ -53,6 +61,26 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AdminTimedOtpRepositoryInterface::class,
             EloquentAdminTimedOtpRepository::class,
+        );
+
+        $this->app->bind(
+            AboutInfoRepositoryInterface::class,
+            EloquentAboutInfoRepository::class,
+        );
+
+        $this->app->bind(
+            ContactRepositoryInterface::class,
+            EloquentContactRepository::class,
+        );
+
+        $this->app->bind(
+            FeedbackRepositoryInterface::class,
+            EloquentFeedbackRepository::class,
+        );
+
+        $this->app->bind(
+            ProjectReadRepositoryInterface::class,
+            EloquentProjectReadRepository::class,
         );
     }
 
