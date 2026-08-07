@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build install open-db migrate seed setup setup-localhost test test-unit test-int test-backend test-frontend test-e2e coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db migrate seed setup setup-localhost test test-unit test-int test-backend test-frontend test-e2e coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck health secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -38,6 +38,12 @@ restart: down up ## Restart all containers
 
 build: ## Build Docker images
 	$(DC) build
+
+build-frontend: ## Rebuild the production front-end assets into public/build (needed after Vue/TS changes when the Vite dev server is NOT running — without public/hot Laravel serves this bundle)
+	$(DE) npm run build
+
+dev-frontend: ## Start the Vite dev server (HMR — front-end changes apply automatically while it runs; keep the terminal open)
+	$(DE) npm run dev
 
 health: ## Show service health status (all services must be healthy before proceeding)
 	@echo "Service health status:"
