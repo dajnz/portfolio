@@ -8,10 +8,9 @@ namespace App\Features\Portfolio\Domain\ValueObjects;
  * The about-info availability status (database.md:75-87): one of
  * `available`, `limited`, `busy`, stored as a varchar + CHECK constraint.
  *
- * `toVariant()` maps the status to the public AboutBlock badge variant
- * (`success`/`warning`/`danger` per public-section-components.md:929-942);
- * the frontend receives the raw enum value and derives the label
- * client-side from the translation catalog.
+ * `toLabelKey()` returns the static-translation key of the status label
+ * (`landing.availability.*`) — how a status is displayed (badge colors
+ * etc.) is a UI concern and stays out of the domain layer.
  */
 enum AvailabilityStatus: string
 {
@@ -21,12 +20,8 @@ enum AvailabilityStatus: string
 
     case Busy = 'busy';
 
-    public function toVariant(): string
+    public function toLabelKey(): string
     {
-        return match ($this) {
-            self::Available => 'success',
-            self::Limited => 'warning',
-            self::Busy => 'danger',
-        };
+        return "landing.availability.{$this->value}";
     }
 }

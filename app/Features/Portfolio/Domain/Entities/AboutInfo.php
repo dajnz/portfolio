@@ -4,31 +4,33 @@ declare(strict_types=1);
 
 namespace App\Features\Portfolio\Domain\Entities;
 
+use App\Features\Portfolio\Domain\ValueObjects\AboutInfoTranslation;
 use App\Features\Portfolio\Domain\ValueObjects\AvailabilityStatus;
+use App\Features\Portfolio\Domain\ValueObjects\WorkType;
 use App\Features\Shared\Domain\BaseEntity;
+use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 
 /**
  * The single-row about block (`about_info`, id = 1 enforced at the
- * application level — database.md:71-88): the hero photo, per-locale
- * alt text, and the non-translatable presentation flags. Localized text
- * lives in {@see AboutInfoTranslation}; `resume_file` is the legacy
+ * application level — database.md:71-88): the hero photo (as a
+ * {@see StoredPicture} carrying the RustFS path + per-locale alts) and
+ * the non-translatable presentation flags. Localized text lives in
+ * {@see AboutInfoTranslation} value objects; `resume_file` is the legacy
  * column managed by the Resume feature and deliberately absent here.
  */
 final class AboutInfo extends BaseEntity
 {
     /**
-     * @param  array<string, string|null>  $photoAlt  Per-locale alt text (locale => text|null).
      * @param  AboutInfoTranslation[]  $translations
      */
     public function __construct(
         private readonly int $id,
-        private readonly ?string $photo,
-        private readonly array $photoAlt,
+        private readonly ?StoredPicture $photo,
         private readonly bool $showLocation,
         private readonly ?string $timezone,
         private readonly bool $relocationReadiness,
         private readonly ?AvailabilityStatus $availabilityStatus,
-        private readonly string $workType,
+        private readonly WorkType $workType,
         private readonly array $translations,
     ) {
     }
@@ -38,17 +40,9 @@ final class AboutInfo extends BaseEntity
         return $this->id;
     }
 
-    public function toPhoto(): ?string
+    public function toPhoto(): ?StoredPicture
     {
         return $this->photo;
-    }
-
-    /**
-     * @return array<string, string|null>
-     */
-    public function toPhotoAlt(): array
-    {
-        return $this->photoAlt;
     }
 
     public function toShowLocation(): bool
@@ -71,7 +65,7 @@ final class AboutInfo extends BaseEntity
         return $this->availabilityStatus;
     }
 
-    public function toWorkType(): string
+    public function toWorkType(): WorkType
     {
         return $this->workType;
     }
@@ -84,20 +78,29 @@ final class AboutInfo extends BaseEntity
         return $this->translations;
     }
 
+    /**
+     * Translations keyed by locale (`locale => AboutInfoTranslation`) —
+     * the map form used by controllers/use cases that need per-locale
+     * access (e.g. the admin form's per-locale fields).
+     *
+     * @return array<string, AboutInfoTranslation>
+     */
+    public function translationsByLocale(): array
+    {
+        $map = [];
+        foreach ($this->translations as $translation) {
+            $map[$translation->toLocale()] = $translation;
+        }
+
+        return $map;
+    }
+
     public function translationFor(string $locale): ?AboutInfoTranslation
     {
-        foreach ($this->translations as $translation) {
-            if ($translation->toLocale() === $locale) {
-                return $translation;
-            }
-        }
+        $translations = $this->translationsByLocale();
 
-        foreach ($this->translations as $translation) {
-            if ($translation->toLocale() === 'en') {
-                return $translation;
-            }
-        }
-
-        return null;
+        return $translations[$locale]
+            ?? $translations['en']
+            ?? null;
     }
 }

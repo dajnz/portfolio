@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Portfolio\Domain\Entities;
+namespace App\Features\Portfolio\Domain\ValueObjects;
 
 use InvalidArgumentException;
 
 /**
- * A single localized contact name (`contact_translations`, PK
- * `(contact_id, locale)` — content-management.md:105-110).
+ * Value object: a single localized contact name (`contact_translations`,
+ * PK `(contact_id, locale)` — content-management.md:105-110). Immutable;
+ * carries no identity of its own.
  */
 final readonly class ContactTranslation
 {

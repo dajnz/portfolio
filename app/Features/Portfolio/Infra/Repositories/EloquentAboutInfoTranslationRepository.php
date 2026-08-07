@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Portfolio\Infra\Repositories;
 
-use App\Features\Portfolio\Domain\Entities\AboutInfoTranslation;
+use App\Features\Portfolio\Domain\ValueObjects\AboutInfoTranslation;
 use App\Features\Portfolio\Infra\Mappers\AboutInfoTranslationMapper;
 use App\Features\Portfolio\Infra\Models\AboutInfoTranslationModel;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 /**
  * Persistence of `about_info_translations` rows (database.md:89-99) —
  * read/write side of the `(about_info_id, locale)` composite-PK table.
+ * Writes are batched: the sync removes absent locales and upserts the
+ * rest in ONE query (no per-locale N+1 loops).
  */
 final class EloquentAboutInfoTranslationRepository
 {
@@ -51,12 +53,18 @@ final class EloquentAboutInfoTranslationRepository
             ->whereNotIn('locale', array_keys($rows))
             ->delete();
 
-        foreach ($rows as $translation) {
-            AboutInfoTranslationModel::query()->updateOrInsert(
-                ['about_info_id' => $aboutInfoId, 'locale' => $translation->toLocale()],
-                $this->mapper->toRow($translation, $aboutInfoId),
-            );
+        if ($rows === []) {
+            return;
         }
+
+        AboutInfoTranslationModel::query()->upsert(
+            array_map(
+                fn (AboutInfoTranslation $translation): array => $this->mapper->toRow($translation, $aboutInfoId),
+                array_values($rows),
+            ),
+            ['about_info_id', 'locale'],
+            ['name', 'title', 'short_pitch', 'location'],
+        );
     }
 
     /**

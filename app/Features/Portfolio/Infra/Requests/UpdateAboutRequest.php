@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Portfolio\Infra\Requests;
 
 use App\Features\Portfolio\Domain\ValueObjects\AvailabilityStatus;
-use App\Features\Settings\Domain\Enums\SettingName;
-use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\Infra\Services\LocaleService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -19,6 +18,12 @@ use Illuminate\Validation\Rule;
  */
 final class UpdateAboutRequest extends FormRequest
 {
+    public function __construct(
+        private readonly LocaleService $locales,
+    ) {
+        parent::__construct();
+    }
+
     /** @return array<string, mixed> */
     public function rules(): array
     {
@@ -47,9 +52,6 @@ final class UpdateAboutRequest extends FormRequest
      */
     private function activeLocales(): array
     {
-        $locales = app(SettingRepositoryInterface::class)
-            ->value(SettingName::SupportedLocales, config('portfolio.supported_locales', ['en', 'ru']));
-
-        return array_values(array_unique(array_map('strval', (array) $locales)));
+        return $this->locales->activeLocales();
     }
 }

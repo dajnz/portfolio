@@ -12,9 +12,11 @@ use App\Features\Auth\Infra\Repositories\EloquentAdminTimedOtpRepository;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\AboutInfoRepositoryInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\FeedbackRepositoryInterface;
+use App\Features\Portfolio\Infra\Repositories\ContactListQueryRepositoryInterface;
 use App\Features\Portfolio\Infra\Repositories\EloquentAboutInfoRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentContactRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentFeedbackRepository;
+use App\Features\Portfolio\Infra\Repositories\FeedbackListQueryRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Settings\Infra\Repositories\EloquentFeatureFlagRepository;
@@ -75,6 +77,16 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(
             FeedbackRepositoryInterface::class,
+            EloquentFeedbackRepository::class,
+        );
+
+        $this->app->bind(
+            ContactListQueryRepositoryInterface::class,
+            EloquentContactRepository::class,
+        );
+
+        $this->app->bind(
+            FeedbackListQueryRepositoryInterface::class,
             EloquentFeedbackRepository::class,
         );
 

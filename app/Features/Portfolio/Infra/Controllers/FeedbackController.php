@@ -35,12 +35,12 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 final class FeedbackController
 {
     public function __construct(
-        private readonly SubmitFeedbackUseCase $submit,
-        private readonly ListFeedbackUseCase $list,
-        private readonly ShowFeedbackUseCase $show,
-        private readonly MarkFeedbackReadUseCase $markRead,
-        private readonly MarkFeedbackForwardedUseCase $markForwarded,
-        private readonly DestroyFeedbackUseCase $destroy,
+        private readonly SubmitFeedbackUseCase $submitCase,
+        private readonly ListFeedbackUseCase $listCase,
+        private readonly ShowFeedbackUseCase $showCase,
+        private readonly MarkFeedbackReadUseCase $markReadCase,
+        private readonly MarkFeedbackForwardedUseCase $markForwardedCase,
+        private readonly DestroyFeedbackUseCase $destroyCase,
     ) {
     }
 
@@ -50,7 +50,7 @@ final class FeedbackController
             return response('', 200);
         }
 
-        $this->submit->submit(
+        $this->submitCase->submit(
             senderName: $request->input('sender_name', ''),
             senderEmail: $request->input('sender_email', ''),
             message: $request->input('message', ''),
@@ -63,7 +63,7 @@ final class FeedbackController
 
     public function index(ResponseFactory $inertia, Request $request): Response
     {
-        $page = $this->list->list($request);
+        $page = $this->listCase->list($request);
 
         return $inertia->render('Portfolio/Admin/Pages/FeedbackListPage', [
             'feedback' => $this->items($page),
@@ -73,7 +73,7 @@ final class FeedbackController
 
     public function show(ResponseFactory $inertia, int $feedback): Response
     {
-        $item = $this->show->show($feedback);
+        $item = $this->showCase->show($feedback);
 
         if ($item === null) {
             abort(404);
@@ -86,21 +86,21 @@ final class FeedbackController
 
     public function markRead(Request $request, int $feedback): JsonResponse
     {
-        $this->markRead->markRead($feedback);
+        $this->markReadCase->markRead($feedback);
 
         return response()->json(['data' => ['id' => $feedback, 'is_read' => true]]);
     }
 
     public function markForwarded(Request $request, int $feedback): JsonResponse
     {
-        $this->markForwarded->markForwarded($feedback);
+        $this->markForwardedCase->markForwarded($feedback);
 
         return response()->json(['data' => ['id' => $feedback, 'is_forwarded' => true]]);
     }
 
     public function destroy(Request $request, int $feedback): RedirectResponse
     {
-        $this->destroy->destroy($feedback);
+        $this->destroyCase->destroy($feedback);
 
         return redirect()->back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.feedback_deleted')]);

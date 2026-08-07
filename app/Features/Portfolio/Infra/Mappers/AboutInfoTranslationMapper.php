@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Portfolio\Infra\Mappers;
 
-use App\Features\Portfolio\Domain\Entities\AboutInfoTranslation;
+use App\Features\Portfolio\Domain\ValueObjects\AboutInfoTranslation;
 use App\Features\Portfolio\Infra\Models\AboutInfoTranslationModel;
 
 /**

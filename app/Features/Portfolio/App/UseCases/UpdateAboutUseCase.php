@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Features\Portfolio\App\UseCases;
 
 use App\Features\Portfolio\Domain\Entities\AboutInfo;
-use App\Features\Portfolio\Domain\Entities\AboutInfoTranslation;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\AboutInfoRepositoryInterface;
+use App\Features\Portfolio\Domain\ValueObjects\AboutInfoTranslation;
 use App\Features\Portfolio\Domain\ValueObjects\AvailabilityStatus;
-use App\Features\Settings\Domain\Enums\SettingName;
-use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Portfolio\Domain\ValueObjects\WorkType;
+use App\Features\Shared\Domain\ValueObjects\StoredPicture;
+use App\Features\Shared\Infra\Services\LocaleService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -23,32 +24,25 @@ final class UpdateAboutUseCase
 {
     public function __construct(
         private readonly AboutInfoRepositoryInterface $repository,
-        private readonly SettingRepositoryInterface $settings,
+        private readonly LocaleService $locales,
     ) {
     }
 
     /**
-     * @param  array<string, string|null>  $photoAlt  Per-locale alt text.
      * @param  array<string, array{name: string, title: string, short_pitch: string, location: string|null}>  $translations
      */
     public function update(
         int $id,
-        ?string $photo,
-        array $photoAlt,
+        ?StoredPicture $photo,
         bool $showLocation,
         ?string $timezone,
         bool $relocationReadiness,
         ?AvailabilityStatus $availabilityStatus,
-        string $workType,
+        WorkType $workType,
         array $translations,
     ): void {
-        $activeLocales = $this->settings->value(
-            SettingName::SupportedLocales,
-            config('portfolio.supported_locales', ['en', 'ru']),
-        );
-
         $entities = [];
-        foreach ((array) $activeLocales as $locale) {
+        foreach ($this->locales->activeLocales() as $locale) {
             $values = $translations[$locale] ?? null;
 
             if ($values === null) {
@@ -67,7 +61,6 @@ final class UpdateAboutUseCase
         $aboutInfo = new AboutInfo(
             id: $id,
             photo: $photo,
-            photoAlt: $photoAlt,
             showLocation: $showLocation,
             timezone: $timezone,
             relocationReadiness: $relocationReadiness,

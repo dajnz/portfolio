@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Features\Portfolio\Infra\Mappers;
 
 use App\Features\Portfolio\Domain\Entities\AboutInfo;
-use App\Features\Portfolio\Domain\Entities\AboutInfoTranslation;
+use App\Features\Portfolio\Domain\ValueObjects\AboutInfoTranslation;
 use App\Features\Portfolio\Domain\ValueObjects\AvailabilityStatus;
+use App\Features\Portfolio\Domain\ValueObjects\WorkType;
 use App\Features\Portfolio\Infra\Models\AboutInfoModel;
+use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 
 /**
  * Converts between the single `about_info` row (with its translation
@@ -29,15 +31,14 @@ final class AboutInfoMapper
 
         return new AboutInfo(
             id: $model->id,
-            photo: $model->photo,
-            photoAlt: $model->photo_alt ?? [],
+            photo: $this->toStoredPicture($model->photo, $model->photo_alt ?? []),
             showLocation: $model->show_location,
             timezone: $model->timezone,
             relocationReadiness: $model->relocation_readiness,
             availabilityStatus: $model->availability_status === null
                 ? null
                 : AvailabilityStatus::from($model->availability_status),
-            workType: $model->work_type,
+            workType: WorkType::from($model->work_type),
             translations: $translations
                 ->map(fn (mixed $row): AboutInfoTranslation => $this->translationMapper->toEntity($row))
                 ->all(),
@@ -47,7 +48,7 @@ final class AboutInfoMapper
     /**
      * @return array{
      *     photo: string|null,
-     *     photo_alt: array<string, string|null>,
+     *     photo_alt: array<string, string>|null,
      *     show_location: bool,
      *     timezone: string|null,
      *     relocation_readiness: bool,
@@ -57,14 +58,38 @@ final class AboutInfoMapper
      */
     public function toRow(AboutInfo $aboutInfo): array
     {
+        $photo = $aboutInfo->toPhoto();
+
         return [
-            'photo' => $aboutInfo->toPhoto(),
-            'photo_alt' => $aboutInfo->toPhotoAlt(),
+            'photo' => $photo?->url,
+            'photo_alt' => $photo?->altLabelsMap(),
             'show_location' => $aboutInfo->toShowLocation(),
             'timezone' => $aboutInfo->toTimezone(),
             'relocation_readiness' => $aboutInfo->toRelocationReadiness(),
             'availability_status' => $aboutInfo->toAvailabilityStatus()?->value,
-            'work_type' => $aboutInfo->toWorkType(),
+            'work_type' => $aboutInfo->toWorkType()->value,
         ];
+    }
+
+    /**
+     * @param  array<string, string|null>|null  $photoAlt  Raw per-locale alt map from the jsonb column.
+     */
+    private function toStoredPicture(?string $photo, ?array $photoAlt): ?StoredPicture
+    {
+        if ($photo === null) {
+            return null;
+        }
+
+        $altLabels = [];
+        foreach ($photoAlt ?? [] as $locale => $alt) {
+            if (is_string($alt) && $alt !== '') {
+                $altLabels[$locale] = $alt;
+            }
+        }
+
+        return new StoredPicture(
+            url: $photo,
+            altLabels: $altLabels,
+        );
     }
 }

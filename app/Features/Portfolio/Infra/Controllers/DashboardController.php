@@ -15,14 +15,14 @@ use Inertia\ResponseFactory;
 final class DashboardController
 {
     public function __construct(
-        private readonly GetDashboardStatsUseCase $useCase,
+        private readonly GetDashboardStatsUseCase $dashboardStatsCase,
     ) {
     }
 
     public function index(ResponseFactory $inertia): Response
     {
         return $inertia->render('Portfolio/Admin/Pages/DashboardPage', [
-            'stats' => $this->useCase->get(),
+            'stats' => $this->dashboardStatsCase->get(),
         ]);
     }
 }

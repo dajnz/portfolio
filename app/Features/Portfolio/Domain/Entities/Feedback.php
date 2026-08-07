@@ -13,10 +13,15 @@ use InvalidArgumentException;
  * message, and the server-computed anonymized identifiers. The row is
  * immutable apart from the read/forwarded flags — `created_at` only, no
  * `updated_at`. The `ipAddress`/`fingerprint` values are the keyed
- * HMAC-SHA256 digests (B4), never the raw IP/User-Agent.
+ * HMAC-SHA256 digests (B4), never the raw IP/User-Agent. Invariants are
+ * enforced in the constructor via the dedicated validation methods.
  */
 final class Feedback extends BaseEntity
 {
+    public const MIN_NAME_LENGTH = 2;
+
+    public const MIN_MESSAGE_LENGTH = 10;
+
     public function __construct(
         private readonly int $id,
         private readonly string $senderName,
@@ -28,9 +33,9 @@ final class Feedback extends BaseEntity
         private readonly bool $isForwarded,
         private readonly DateTimeImmutable $createdAt,
     ) {
-        if ($senderName === '' || $senderEmail === '' || $message === '') {
-            throw new InvalidArgumentException('Feedback sender name, email and message must not be empty.');
-        }
+        $this->assertValidName($senderName);
+        $this->assertValidEmail($senderEmail);
+        $this->assertValidMessage($message);
     }
 
     public function toId(): int
@@ -106,5 +111,30 @@ final class Feedback extends BaseEntity
             isForwarded: $isForwarded,
             createdAt: $this->createdAt,
         );
+    }
+
+    private function assertValidName(string $name): void
+    {
+        if (mb_strlen(trim($name)) < self::MIN_NAME_LENGTH) {
+            throw new InvalidArgumentException(
+                sprintf('Feedback sender name must be at least %d characters.', self::MIN_NAME_LENGTH),
+            );
+        }
+    }
+
+    private function assertValidEmail(string $email): void
+    {
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            throw new InvalidArgumentException("Feedback sender email must be a valid email address, got \"{$email}\".");
+        }
+    }
+
+    private function assertValidMessage(string $message): void
+    {
+        if (mb_strlen(trim($message)) < self::MIN_MESSAGE_LENGTH) {
+            throw new InvalidArgumentException(
+                sprintf('Feedback message must be at least %d characters.', self::MIN_MESSAGE_LENGTH),
+            );
+        }
     }
 }

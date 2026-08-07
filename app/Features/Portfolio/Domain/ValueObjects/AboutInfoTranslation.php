@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Portfolio\Domain\Entities;
+namespace App\Features\Portfolio\Domain\ValueObjects;
 
 use InvalidArgumentException;
 
 /**
- * A single localized about block (`about_info_translations`, PK
- * `(about_info_id, locale)` — database.md:89-99).
+ * Value object: a single localized about block (`about_info_translations`,
+ * PK `(about_info_id, locale)` — database.md:89-99). Immutable; carries
+ * no identity of its own.
  */
 final readonly class AboutInfoTranslation
 {

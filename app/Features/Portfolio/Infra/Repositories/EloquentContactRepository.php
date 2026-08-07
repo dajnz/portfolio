@@ -16,9 +16,10 @@ use Illuminate\Support\Facades\DB;
 /**
  * Eloquent-backed contact repository. Writes go through a transaction
  * with the translation sync; `reorder()` applies the zero-indexed
- * positions atomically (A4, content-management.md:155-style).
+ * positions with a single batched update (A4, content-management.md:155
+ * style) — no per-row queries.
  */
-final class EloquentContactRepository implements ContactRepositoryInterface
+final class EloquentContactRepository implements ContactRepositoryInterface, ContactListQueryRepositoryInterface
 {
     public function __construct(
         private readonly ContactMapper $mapper,
@@ -64,10 +65,26 @@ final class EloquentContactRepository implements ContactRepositoryInterface
 
     public function reorder(array $ids): void
     {
+        if ($ids === []) {
+            return;
+        }
+
         DB::transaction(function () use ($ids): void {
-            foreach (array_values($ids) as $position => $id) {
-                ContactModel::query()->whereKey((int) $id)->update(['sort_order' => $position]);
+            $ids = array_values(array_map('intval', $ids));
+
+            // Single batched update — no per-row N+1 writes. The CASE
+            // operands are validated integers interpolated directly into
+            // the expression (DB::raw carries no bindings).
+            $cases = [];
+            foreach ($ids as $position => $id) {
+                $cases[] = sprintf('WHEN %d THEN %d', $id, $position);
             }
+
+            DB::table('contacts')
+                ->whereIn('id', $ids)
+                ->update([
+                    'sort_order' => DB::raw('CASE id '.implode(' ', $cases).' END'),
+                ]);
         });
     }
 

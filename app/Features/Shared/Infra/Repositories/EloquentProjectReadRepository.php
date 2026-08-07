@@ -7,6 +7,7 @@ namespace App\Features\Shared\Infra\Repositories;
 use App\Features\Shared\Domain\Entities\FeaturedProject;
 use App\Features\Shared\Domain\Entities\FeaturedProjectTechTag;
 use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
+use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -26,6 +27,7 @@ final class EloquentProjectReadRepository implements ProjectReadRepositoryInterf
                 'p.id',
                 'p.slug',
                 'p.preview_image',
+                'p.preview_image_alt',
                 DB::raw("coalesce(pl.title, pe.title, '') as title"),
                 DB::raw("coalesce(pl.brief_description, pe.brief_description, '') as brief_description"),
             ])
@@ -54,7 +56,7 @@ final class EloquentProjectReadRepository implements ProjectReadRepositoryInterf
                 title: $row->title,
                 slug: $row->slug,
                 briefDescription: $row->brief_description,
-                previewImage: $row->preview_image,
+                previewImage: $this->toStoredPicture($row->preview_image, $row->preview_image_alt),
                 techTags: $tagsByProjectId[(int) $row->id] ?? [],
             );
         }
@@ -68,6 +70,28 @@ final class EloquentProjectReadRepository implements ProjectReadRepositoryInterf
             ->where('is_published', true)
             ->whereNull('deleted_at')
             ->count();
+    }
+
+    /**
+     * @param  array<string, string|null>|null  $altMap  Raw per-locale alt map from the jsonb column.
+     */
+    private function toStoredPicture(?string $previewImage, mixed $altMap): ?StoredPicture
+    {
+        if ($previewImage === null) {
+            return null;
+        }
+
+        $altLabels = [];
+        foreach ((array) ($altMap ?? []) as $locale => $alt) {
+            if (is_string($alt) && $alt !== '') {
+                $altLabels[$locale] = $alt;
+            }
+        }
+
+        return new StoredPicture(
+            url: $previewImage,
+            altLabels: $altLabels,
+        );
     }
 
     /**

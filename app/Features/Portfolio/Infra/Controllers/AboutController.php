@@ -7,9 +7,11 @@ namespace App\Features\Portfolio\Infra\Controllers;
 use App\Features\Portfolio\App\UseCases\GetAboutForEditUseCase;
 use App\Features\Portfolio\App\UseCases\UpdateAboutUseCase;
 use App\Features\Portfolio\Domain\Entities\AboutInfo;
-use App\Features\Portfolio\Domain\Entities\AboutInfoTranslation;
+use App\Features\Portfolio\Domain\ValueObjects\AboutInfoTranslation;
 use App\Features\Portfolio\Domain\ValueObjects\AvailabilityStatus;
+use App\Features\Portfolio\Domain\ValueObjects\WorkType;
 use App\Features\Portfolio\Infra\Requests\UpdateAboutRequest;
+use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -24,14 +26,14 @@ use Inertia\ResponseFactory;
 final class AboutController
 {
     public function __construct(
-        private readonly GetAboutForEditUseCase $get,
-        private readonly UpdateAboutUseCase $update,
+        private readonly GetAboutForEditUseCase $getAboutCase,
+        private readonly UpdateAboutUseCase $updateAboutCase,
     ) {
     }
 
     public function edit(ResponseFactory $inertia): Response
     {
-        $about = $this->get->get();
+        $about = $this->getAboutCase->get();
 
         return $inertia->render('Portfolio/Admin/Pages/AboutEditPage', [
             'about' => $about === null ? null : $this->props($about),
@@ -40,15 +42,14 @@ final class AboutController
 
     public function update(UpdateAboutRequest $request): RedirectResponse
     {
-        $this->update->update(
+        $this->updateAboutCase->update(
             id: 1,
-            photo: $request->input('photo'),
-            photoAlt: $request->input('photo_alt', []),
+            photo: $this->photoFromRequest($request),
             showLocation: (bool) $request->boolean('show_location'),
             timezone: $request->input('timezone'),
             relocationReadiness: (bool) $request->boolean('relocation_readiness'),
             availabilityStatus: AvailabilityStatus::from((string) $request->input('availability_status')),
-            workType: (string) $request->input('work_type'),
+            workType: WorkType::from((string) $request->input('work_type')),
             translations: $this->translations($request),
         );
 
@@ -61,10 +62,7 @@ final class AboutController
      */
     private function props(AboutInfo $about): array
     {
-        $translations = [];
-        foreach ($about->toTranslations() as $translation) {
-            $translations[$translation->toLocale()] = $translation;
-        }
+        $translations = $about->translationsByLocale();
 
         $perLocale = fn (string $field, ?string $default = null): array => $this->perLocaleValues($translations, $field, $default);
 
@@ -73,12 +71,12 @@ final class AboutController
             'title' => $perLocale('title'),
             'short_pitch' => $perLocale('short_pitch'),
             'location' => $perLocale('location'),
-            'photo' => $about->toPhoto(),
-            'photo_alt' => $about->toPhotoAlt(),
+            'photo' => $about->toPhoto()?->url,
+            'photo_alt' => $about->toPhoto()?->altLabelsMap() ?? [],
             'show_location' => $about->toShowLocation(),
             'timezone' => $about->toTimezone(),
             'availability_status' => $about->toAvailabilityStatus()?->value,
-            'work_type' => $about->toWorkType(),
+            'work_type' => $about->toWorkType()->value,
             'relocation_readiness' => $about->toRelocationReadiness(),
         ];
     }
@@ -101,6 +99,24 @@ final class AboutController
         }
 
         return $values;
+    }
+
+    private function photoFromRequest(UpdateAboutRequest $request): ?StoredPicture
+    {
+        $url = $request->input('photo');
+
+        if (! is_string($url) || $url === '') {
+            return null;
+        }
+
+        $altLabels = [];
+        foreach ((array) $request->input('photo_alt', []) as $locale => $alt) {
+            if (is_string($alt) && $alt !== '') {
+                $altLabels[$locale] = $alt;
+            }
+        }
+
+        return new StoredPicture(url: $url, altLabels: $altLabels);
     }
 
     /**

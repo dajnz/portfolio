@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
  * `markForwarded`) touch only the flag column — the message content is
  * immutable (database.md:462-480).
  */
-final class EloquentFeedbackRepository implements FeedbackRepositoryInterface
+final class EloquentFeedbackRepository implements FeedbackRepositoryInterface, FeedbackListQueryRepositoryInterface
 {
     public function __construct(
         private readonly FeedbackMapper $mapper,

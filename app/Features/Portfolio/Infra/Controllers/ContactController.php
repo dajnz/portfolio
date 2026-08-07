@@ -27,17 +27,17 @@ use Inertia\ResponseFactory;
 final class ContactController
 {
     public function __construct(
-        private readonly ListContactsUseCase $list,
-        private readonly StoreContactUseCase $store,
-        private readonly UpdateContactUseCase $update,
-        private readonly DestroyContactUseCase $destroy,
-        private readonly ReorderContactsUseCase $reorder,
+        private readonly ListContactsUseCase $listCase,
+        private readonly StoreContactUseCase $storeCase,
+        private readonly UpdateContactUseCase $updateCase,
+        private readonly DestroyContactUseCase $destroyCase,
+        private readonly ReorderContactsUseCase $reorderCase,
     ) {
     }
 
     public function index(ResponseFactory $inertia, Request $request): Response
     {
-        $page = $this->list->list($request);
+        $page = $this->listCase->list($request);
 
         return $inertia->render('Portfolio/Admin/Pages/ContactsListPage', [
             'contacts' => $this->items($page),
@@ -47,7 +47,7 @@ final class ContactController
 
     public function store(StoreContactRequest $request): RedirectResponse
     {
-        $this->store->store(
+        $this->storeCase->store(
             value: $request->input('value', ''),
             icon: $request->input('icon'),
             includeInResume: $request->boolean('include_in_resume'),
@@ -62,7 +62,7 @@ final class ContactController
 
     public function update(StoreContactRequest $request, int $contact): RedirectResponse
     {
-        $this->update->update(
+        $this->updateCase->update(
             id: $contact,
             value: $request->input('value', ''),
             icon: $request->input('icon'),
@@ -78,7 +78,7 @@ final class ContactController
 
     public function destroy(Request $request, int $contact): RedirectResponse
     {
-        $this->destroy->destroy($contact);
+        $this->destroyCase->destroy($contact);
 
         return redirect()->back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
@@ -86,7 +86,7 @@ final class ContactController
 
     public function reorder(ReorderContactsRequest $request): RedirectResponse
     {
-        $this->reorder->reorder(array_map('intval', $request->input('ids', [])));
+        $this->reorderCase->reorder(array_map('intval', $request->input('ids', [])));
 
         return redirect()->back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);

@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Features\Portfolio\App\UseCases;
 
 use App\Features\Portfolio\Domain\Entities\Contact;
-use App\Features\Portfolio\Domain\Entities\ContactTranslation;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
-use App\Features\Settings\Domain\Enums\SettingName;
-use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
+use App\Features\Shared\Infra\Services\LocaleService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -20,7 +19,7 @@ final class StoreContactUseCase
 {
     public function __construct(
         private readonly ContactRepositoryInterface $repository,
-        private readonly SettingRepositoryInterface $settings,
+        private readonly LocaleService $locales,
     ) {
     }
 
@@ -56,13 +55,8 @@ final class StoreContactUseCase
      */
     private function translations(array $names): array
     {
-        $activeLocales = (array) $this->settings->value(
-            SettingName::SupportedLocales,
-            config('portfolio.supported_locales', ['en', 'ru']),
-        );
-
         $translations = [];
-        foreach ($activeLocales as $locale) {
+        foreach ($this->locales->activeLocales() as $locale) {
             $name = $names[$locale] ?? null;
 
             if ($name === null || $name === '') {

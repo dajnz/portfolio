@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Portfolio\App\UseCases;
 
-use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
+use App\Features\Portfolio\Infra\Repositories\ContactListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\Infra\Persistence\CursorDecoder;
@@ -23,7 +23,7 @@ final class ListContactsUseCase
     private readonly AdminCursorPaginator $paginator;
 
     public function __construct(
-        private readonly ContactRepositoryInterface $repository,
+        private readonly ContactListQueryRepositoryInterface $repository,
         private readonly SettingRepositoryInterface $settings,
         CursorDecoder $cursorDecoder = new CursorDecoder(),
     ) {

@@ -10,8 +10,7 @@ use App\Features\Portfolio\Domain\Entities\Contact;
 use App\Features\Portfolio\Infra\Requests\SubmitFeedbackRequest;
 use App\Features\Shared\Domain\Entities\FeaturedProject;
 use App\Features\Shared\Domain\Entities\TechSkillGroup;
-use App\Features\Settings\Domain\Enums\SettingName;
-use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\Infra\Services\LocaleService;
 use Illuminate\Http\Request;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -26,15 +25,15 @@ use Inertia\ResponseFactory;
 final class LandingController
 {
     public function __construct(
-        private readonly GetLandingPageDataUseCase $useCase,
-        private readonly SettingRepositoryInterface $settings,
+        private readonly GetLandingPageDataUseCase $landingPageCase,
+        private readonly LocaleService $locales,
     ) {
     }
 
     public function index(ResponseFactory $inertia, Request $request): Response
     {
         $locale = app()->getLocale();
-        $data = $this->useCase->get($locale);
+        $data = $this->landingPageCase->get($locale);
 
         /** @var AboutInfo|null $about */
         $about = $data['about'];
@@ -79,13 +78,13 @@ final class LandingController
             'name' => $translation?->toName() ?? '',
             'title' => $translation?->toTitle() ?? '',
             'short_pitch' => $translation?->toShortPitch() ?? '',
-            'photo' => $about->toPhoto(),
-            'photo_alt' => $about->toPhotoAlt(),
+            'photo' => $about->toPhoto()?->url,
+            'photo_alt' => $about->toPhoto()?->altLabelsMap() ?? [],
             'location' => $translation?->toLocation() ?? '',
             'show_location' => $about->toShowLocation(),
             'timezone' => $about->toTimezone(),
             'availability_status' => $about->toAvailabilityStatus()?->value,
-            'work_type' => $about->toWorkType(),
+            'work_type' => $about->toWorkType()->value,
             'relocation_readiness' => $about->toRelocationReadiness(),
         ];
     }
@@ -123,7 +122,7 @@ final class LandingController
             'title' => $project->toTitle(),
             'slug' => $project->toSlug(),
             'brief_description' => $project->toBriefDescription(),
-            'preview_image' => $project->toPreviewImage(),
+            'preview_image' => $project->toPreviewImage()?->url,
             'tech_tags' => array_map(
                 static fn ($tag): array => [
                     'id' => $tag->toId(),
@@ -177,7 +176,7 @@ final class LandingController
             return null;
         }
 
-        return url('/assets/'.$about->toPhoto());
+        return url('/assets/'.$about->toPhoto()->url);
     }
 
     /**
@@ -215,7 +214,7 @@ final class LandingController
                 'name' => $name,
                 'url' => url('/'),
                 'description' => $translation?->toShortPitch() ?? '',
-                'inLanguage' => $this->supportedLocales(),
+                'inLanguage' => $this->locales->activeLocales(),
                 'potentialAction' => [
                     '@type' => 'SearchAction',
                     'target' => [
@@ -226,18 +225,5 @@ final class LandingController
                 ],
             ],
         ];
-    }
-
-    /**
-     * @return string[]
-     */
-    private function supportedLocales(): array
-    {
-        $locales = $this->settings->value(
-            SettingName::SupportedLocales,
-            config('portfolio.supported_locales', ['en', 'ru']),
-        );
-
-        return array_values(array_unique(array_map('strval', (array) $locales)));
     }
 }
