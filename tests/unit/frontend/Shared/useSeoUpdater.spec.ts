@@ -41,9 +41,23 @@ function mountApp(): ReturnType<typeof mount> {
     });
 }
 
-function flushHead(): Promise<void> {
-    // The head manager's Renderer.update is debounced by 1ms.
-    return new Promise((resolve) => setTimeout(resolve, 20));
+/**
+ * Waits until the head pipeline has applied the requested condition. The
+ * chain (Vue watch flush → Head provider update → the head manager's
+ * 1ms-debounced `Renderer.update`) is timer-driven — a fixed sleep races
+ * it under load and flakes; polling the actual condition is deterministic
+ * (fails with a clear message when the head never settles).
+ */
+async function waitForHead(condition: () => boolean): Promise<void> {
+    const deadline = Date.now() + 1000;
+
+    while (!condition()) {
+        if (Date.now() >= deadline) {
+            throw new Error('Head update did not settle within 1000ms');
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 5));
+    }
 }
 
 function setSeo(seo: SeoProps | null): void {
@@ -76,7 +90,7 @@ describe('useSeoUpdater', () => {
             canonical_url: 'https://example.com/',
             robots: 'noindex',
         });
-        await flushHead();
+        await waitForHead(() => document.title === 'Portfolio — Alex');
 
         expect(document.title).toBe('Portfolio — Alex');
         expect(document.querySelector('meta[name="description"]')?.getAttribute('content')).toBe(
@@ -98,7 +112,11 @@ describe('useSeoUpdater', () => {
     it('applies the OG defaults: fallback image, 1200x630 and website type', async () => {
         const wrapper = mountApp();
         setSeo({ title: 'T', description: 'D' });
-        await flushHead();
+        await waitForHead(
+            () =>
+                document.querySelector('meta[property="og:image"]')?.getAttribute('content') ===
+                '/images/og-default.png',
+        );
 
         expect(document.querySelector('meta[property="og:image"]')?.getAttribute('content')).toBe(
             '/images/og-default.png',
@@ -119,7 +137,7 @@ describe('useSeoUpdater', () => {
     it('inserts the JSON-LD blocks with the CSP nonce and replaces them on page change', async () => {
         const wrapper = mountApp();
         setSeo({ title: 'T', description: 'D', json_ld: [{ '@type': 'Person', name: 'Alex' }] });
-        await flushHead();
+        await waitForHead(() => document.querySelectorAll('script[data-seo-jsonld]').length === 1);
 
         let scripts = document.querySelectorAll('script[data-seo-jsonld]');
         expect(scripts).toHaveLength(1);
@@ -131,7 +149,7 @@ describe('useSeoUpdater', () => {
 
         // Simulate a client-side navigation: the page props swap.
         setSeo({ title: 'T2', description: 'D2', json_ld: [{ '@type': 'WebSite', name: 'X' }] });
-        await flushHead();
+        await waitForHead(() => document.title === 'T2');
 
         scripts = document.querySelectorAll('script[data-seo-jsonld]');
         expect(scripts).toHaveLength(1);
@@ -147,7 +165,9 @@ describe('useSeoUpdater', () => {
     it('removes the JSON-LD scripts when no blocks are present', async () => {
         const wrapper = mountApp();
         setSeo({ title: 'T', description: 'D' });
-        await flushHead();
+        // The title landing proves the head pipeline ran (the JSON-LD sync
+        // runs in the same watch callback, before the head commit).
+        await waitForHead(() => document.title === 'T');
 
         expect(document.querySelectorAll('script[data-seo-jsonld]')).toHaveLength(0);
 
@@ -157,12 +177,16 @@ describe('useSeoUpdater', () => {
     it('cleans up the head elements on unmount', async () => {
         const wrapper = mountApp();
         setSeo({ title: 'T', description: 'D', json_ld: [{ '@type': 'Person' }] });
-        await flushHead();
+        await waitForHead(() => document.querySelectorAll('script[data-seo-jsonld]').length === 1);
 
         expect(document.querySelectorAll('script[data-seo-jsonld]')).toHaveLength(1);
 
         wrapper.unmount();
-        await flushHead();
+        await waitForHead(
+            () =>
+                document.querySelectorAll('script[data-seo-jsonld]').length === 0 &&
+                document.querySelectorAll('meta[property="og:title"]').length === 0,
+        );
 
         expect(document.querySelectorAll('script[data-seo-jsonld]')).toHaveLength(0);
         expect(document.querySelectorAll('meta[property="og:title"]')).toHaveLength(0);
