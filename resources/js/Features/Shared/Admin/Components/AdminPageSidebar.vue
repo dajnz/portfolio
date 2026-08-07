@@ -106,7 +106,7 @@ function toggleGroup(groupId: string): void {
 
 <template>
   <aside
-    class="flex h-full flex-col bg-sidebar text-sidebar-text lg:sticky lg:top-0 lg:max-h-screen lg:overflow-y-auto"
+    class="flex h-full flex-col bg-sidebar text-sidebar-text lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto"
     :class="widthClass"
     :aria-label="t('admin.nav.sidebar')"
     :data-testid="props.test_id"
