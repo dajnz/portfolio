@@ -1,6 +1,6 @@
-<!-- AdminPageHeader (admin-section-components.md:291-309, admin-section-ui.md:55-60) — full-width top bar (content spans the whole header, not the centred container — mockup profile.html): logo, controls slot, admin identity, logout. The `controls` slot defaults to the shared ThemeSwitch + LanguageSelector (B80/B84 bridge) with the Tailwind classes from `theme_props`/`language_classes`. -->
+<!-- AdminPageHeader (admin-section-components.md:291-309, admin-section-ui.md:55-60) — full-width top bar (content spans the whole header, not the centred container — mockup profile.html): logo, controls slot, admin identity, logout. The `controls` slot defaults to the shared ThemeSwitch + LanguageSelector (B80/B84 bridge) with the Tailwind classes from `theme_props`/`language_classes`. The admin name/avatar letter fall back to the shared `auth.user` prop so every admin page shows the identity without per-page props (4.2 rework, user request). -->
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import LanguageSelector from '@shared-cross/Components/LanguageSelector.vue';
 import ThemeSwitch from '@shared-cross/Components/ThemeSwitch.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -46,8 +46,13 @@ const props = withDefaults(
 const emit = defineEmits<{ 'toggle-sidebar': [] }>();
 
 const { t } = useI18n();
+const page = usePage<{ auth?: { user?: { name?: string } } }>();
 
-const avatarLetter = computed(() => (props.admin_name ?? '').charAt(0).toUpperCase());
+// `admins.name` mirrors the login (B56) and is shared on every page as
+// `auth.user` — the explicit prop only overrides it.
+const resolvedAdminName = computed(() => props.admin_name ?? page.props?.auth?.user?.name ?? '');
+
+const avatarLetter = computed(() => resolvedAdminName.value.charAt(0).toUpperCase());
 
 function handleLogout(): void {
     if (props.logout_url !== undefined) {
@@ -96,16 +101,16 @@ function handleLogout(): void {
           <a
             class="flex items-center gap-2"
             :href="props.profile_url"
-            :aria-label="props.admin_name ?? t('admin.nav.profile')"
+            :aria-label="resolvedAdminName || t('admin.nav.profile')"
           >
             <div class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-600 text-white text-sm font-bold">
               {{ avatarLetter }}
             </div>
             <span
-              v-if="props.admin_name"
+              v-if="resolvedAdminName"
               class="hidden sm:block text-sm font-semibold text-slate-700 dark:text-slate-200"
             >
-              {{ props.admin_name }}
+              {{ resolvedAdminName }}
             </span>
           </a>
           <AdminBaseButton

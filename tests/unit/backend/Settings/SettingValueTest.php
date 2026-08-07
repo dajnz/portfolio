@@ -35,6 +35,13 @@ describe('SettingValue', function (): void {
         expect($value->value())->toBe('');
     });
 
+    it('normalizes numeric strings to ints for integer values (Redis cache round-trip)', function (): void {
+        $value = new SettingValue(SettingType::Integer, '12');
+
+        expect($value->value())->toBe(12)
+            ->and($value->toRaw())->toBe('12');
+    });
+
     it('compares two instances by type and value', function (): void {
         $first = new SettingValue(SettingType::Integer, 12);
         $second = new SettingValue(SettingType::Integer, 12);

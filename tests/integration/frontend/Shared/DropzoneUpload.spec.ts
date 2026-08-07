@@ -131,4 +131,20 @@ describe('DropzoneUpload', () => {
 
         expect(clickSpy).not.toHaveBeenCalled();
     });
+
+    it('does not open the file picker when clicking the slot content (alt texts)', async () => {
+        const wrapper = mount(DropzoneUpload, {
+            props: { modelValue: UPLOADED },
+            slots: {
+                default: '<input data-testid="slot-input" type="text" />',
+            },
+        });
+        const clickSpy = vi
+            .spyOn(inputElement(wrapper), 'click')
+            .mockImplementation(() => undefined);
+
+        await wrapper.get('[data-testid="slot-input"]').trigger('click');
+
+        expect(clickSpy).not.toHaveBeenCalled();
+    });
 });

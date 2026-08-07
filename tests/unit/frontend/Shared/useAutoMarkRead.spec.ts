@@ -1,55 +1,40 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { patchMock } = vi.hoisted(() => ({
-    patchMock: vi.fn(),
-}));
-
-vi.mock('@inertiajs/vue3', () => ({
-    router: { patch: patchMock },
-}));
-
 import { useAutoMarkRead } from '@shared-cross/Composables/useAutoMarkRead';
 import { useToastStore } from '@shared-cross/Stores/toastStore';
-
-interface PatchOptions {
-    preserveState: boolean;
-    onError: (errors: Record<string, string>) => void;
-    onHttpException: (error: { status: number }) => void;
-}
-
-function lastPatchCall(): { url: string; data: Record<string, unknown>; options: PatchOptions } {
-    const calls = patchMock.mock.calls as unknown as Array<
-        [string, Record<string, unknown>, PatchOptions]
-    >;
-    const call = calls.at(-1);
-
-    if (call === undefined) {
-        throw new Error('mark-as-read PATCH was never called');
-    }
-
-    return { url: call[0], data: call[1], options: call[2] };
-}
 
 describe('useAutoMarkRead', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
-        patchMock.mockClear();
+        vi.stubGlobal('fetch', vi.fn());
+        document.cookie = 'XSRF-TOKEN=abc123%2Bdef';
     });
 
-    it('fires the mark-as-read PATCH automatically on page open', () => {
+    function okResponse(): Promise<Response> {
+        return Promise.resolve({ ok: true, json: async () => ({}) } as Response);
+    }
+
+    it('fires the mark-as-read JSON PATCH automatically on page open', () => {
+        const fetchMock = vi.fn().mockReturnValue(okResponse());
+        vi.mocked(fetch).mockImplementation(fetchMock);
+
         useAutoMarkRead(7);
 
-        const { url, data, options } = lastPatchCall();
-        expect(url).toBe('/admin/feedback/7/read');
-        expect(data).toEqual({});
-        expect(options.preserveState).toBe(true);
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/admin/feedback/7/read',
+            expect.objectContaining({
+                method: 'PATCH',
+                headers: expect.objectContaining({ 'X-XSRF-TOKEN': 'abc123+def' }),
+            }),
+        );
     });
 
-    it('shows an error toast when the PATCH fails with a validation error', () => {
-        useAutoMarkRead(7);
+    it('shows an error toast when the PATCH fails', async () => {
+        vi.mocked(fetch).mockResolvedValue({ ok: false, status: 500 } as Response);
 
-        lastPatchCall().options.onError({ message: 'nope' });
+        useAutoMarkRead(7);
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
         const toastStore = useToastStore();
         expect(toastStore.toasts).toHaveLength(1);
@@ -59,22 +44,25 @@ describe('useAutoMarkRead', () => {
         });
     });
 
-    it('shows an error toast when the PATCH hits an HTTP exception', () => {
-        useAutoMarkRead(7);
+    it('flips isRead on success', async () => {
+        vi.mocked(fetch).mockReturnValue(okResponse());
 
-        lastPatchCall().options.onHttpException({ status: 500 });
+        const { isRead } = useAutoMarkRead(7);
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
-        const toastStore = useToastStore();
-        expect(toastStore.toasts).toHaveLength(1);
-        expect(toastStore.toasts[0].message).toBe('Could not mark as read');
+        expect(isRead.value).toBe(true);
     });
 
-    it('returns a markRead handle for manual re-fires', () => {
+    it('returns a markRead handle for manual re-fires', async () => {
+        const fetchMock = vi.fn().mockReturnValue(okResponse());
+        vi.mocked(fetch).mockImplementation(fetchMock);
+
         const { markRead } = useAutoMarkRead(7);
+        fetchMock.mockClear();
 
-        patchMock.mockClear();
         markRead();
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
-        expect(patchMock).toHaveBeenCalledExactlyOnceWith('/admin/feedback/7/read', expect.anything(), expect.anything());
+        expect(fetchMock).toHaveBeenCalledWith('/admin/feedback/7/read', expect.anything());
     });
 });

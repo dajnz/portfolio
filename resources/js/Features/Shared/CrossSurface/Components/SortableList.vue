@@ -43,7 +43,33 @@ const items = ref<Array<Record<string, unknown>>>([...props.modelValue]);
 let draggingIndex: number | null = null;
 let draggedItem: Record<string, unknown> | null = null;
 
+// The browser fires `dragstart` at the drag SOURCE (the draggable item
+// element), not at the handle under the cursor — `event.target` is the
+// item, so the handle guard cannot inspect it at dragstart time. The
+// mousedown that started the gesture is armed here instead: a real drag
+// is only allowed when the press began on the handle.
+let dragArmedFromHandle = false;
+let dragArmedIndex: number | null = null;
+
 const isDragging = ref(false);
+
+function onItemMouseDown(event: MouseEvent, index: number): void {
+    if (props.disabled || props.handle === undefined) {
+        return;
+    }
+
+    const handleElement = (event.target as Element | null)?.closest?.(props.handle);
+
+    if (handleElement !== null && handleElement !== undefined) {
+        dragArmedFromHandle = true;
+        dragArmedIndex = index;
+    }
+}
+
+function onItemMouseUp(): void {
+    dragArmedFromHandle = false;
+    dragArmedIndex = null;
+}
 
 watch(
     () => props.modelValue,
@@ -75,17 +101,14 @@ function onDragStart(event: DragEvent, index: number): void {
         return;
     }
 
-    const target = event.target as Element | null;
-
-    // Handle-mode: only drags started on an element matching the handle
-    // selector are allowed — the handle must be part of the dragged item.
+    // Handle-mode: only drags whose mousedown began on the handle are
+    // allowed (the dragstart target is the item element, not the handle —
+    // see onItemMouseDown).
     if (props.handle !== undefined) {
-        const itemElement = target?.closest?.('[data-sortable-index]');
-        const handleElement = target?.closest?.(props.handle);
-        const startedOnHandle =
-            handleElement !== null &&
-            handleElement !== undefined &&
-            itemElement?.contains(handleElement) === true;
+        const startedOnHandle = dragArmedFromHandle && dragArmedIndex === index;
+
+        dragArmedFromHandle = false;
+        dragArmedIndex = null;
 
         if (!startedOnHandle) {
             event.preventDefault();
@@ -220,6 +243,8 @@ const containerAxisClass = computed(() =>
       :data-sortable-index="index"
       :draggable="!props.disabled"
       :data-testid="`${props.test_id}-item-${String(keyOf(item))}`"
+      @mousedown="onItemMouseDown($event, index)"
+      @mouseup="onItemMouseUp"
       @dragstart="onDragStart($event, index)"
     >
       <slot

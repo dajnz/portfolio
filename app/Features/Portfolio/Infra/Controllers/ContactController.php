@@ -101,13 +101,17 @@ final class ContactController
 
         return array_map(
             fn (ContactModel $model): array => [
-                'id' => $model->id,
-                'name' => $this->nameFor($model, $locale),
-                'value' => $model->value,
-                'icon' => $model->icon,
-                'url' => $model->url,
-                'include_in_resume' => $model->include_in_resume,
-                'sort_order' => $model->sort_order,
+            'id' => $model->id,
+            'name' => $this->nameFor($model, $locale),
+            // Per-locale names map — the inline include-in-resume toggle
+            // PUTs the full map back (StoreContactRequest requires every
+            // active locale's name, content-management.md:609).
+            'names' => $model->translations->pluck('name', 'locale')->all(),
+            'value' => $model->value,
+            'icon' => $model->icon,
+            'url' => $model->url,
+            'include_in_resume' => $model->include_in_resume,
+            'sort_order' => $model->sort_order,
             ],
             $page->items,
         );

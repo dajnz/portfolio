@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
 import { computed, nextTick, onBeforeUnmount, ref, useId } from 'vue';
 
 import AdminBaseBadge from './AdminBaseBadge.vue';
@@ -44,6 +45,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { get } = useJsonApi();
 
 const SKILLS_SEARCH_URL = '/api/skills/search';
 const SEARCH_DEBOUNCE_MS = 300;
@@ -135,16 +137,9 @@ async function fetchSuggestions(): Promise<void> {
 
     try {
         const url = `${SKILLS_SEARCH_URL}?q=${encodeURIComponent(query.value)}`;
-        const response = await fetch(url, {
+        const payload = await get<TechSkill[] | { data?: TechSkill[] }>(url, {
             signal: activeRequest.signal,
-            headers: { Accept: 'application/json' },
         });
-
-        if (!response.ok) {
-            throw new Error(`Skill search request failed: ${response.status}`);
-        }
-
-        const payload = (await response.json()) as TechSkill[] | { data?: TechSkill[] };
 
         suggestions.value = Array.isArray(payload) ? payload : (payload.data ?? []);
         isLoading.value = false;

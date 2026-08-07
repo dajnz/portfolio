@@ -4,13 +4,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import AdminPageHeader from '@shared-admin/AdminPageHeader.vue';
 
-const { postMock } = vi.hoisted(() => ({
+const { postMock, pageProps } = vi.hoisted(() => ({
     postMock: vi.fn(),
+    pageProps: {} as Record<string, unknown>,
 }));
 
 vi.mock('@inertiajs/vue3', () => ({
     router: { post: postMock },
-    usePage: () => ({ props: undefined }),
+    usePage: () => ({ props: pageProps }),
 }));
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
@@ -21,6 +22,7 @@ describe('AdminPageHeader', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
         postMock.mockClear();
+        pageProps.auth = undefined;
     });
 
     it('renders the logo link with the admin section title', () => {
@@ -44,6 +46,17 @@ describe('AdminPageHeader', () => {
         expect(link.attributes('aria-label')).toBe('John Doe');
         expect(link.text()).toContain('J');
         expect(link.text()).toContain('John Doe');
+    });
+
+    it('falls back to the shared auth user name for the avatar', () => {
+        pageProps.auth = { user: { name: 'Jane Admin' } };
+
+        const wrapper = mount(AdminPageHeader);
+
+        const link = wrapper.get('a[href="/admin/profile"]');
+        expect(link.attributes('aria-label')).toBe('Jane Admin');
+        expect(link.text()).toContain('J');
+        expect(link.text()).toContain('Jane Admin');
     });
 
     it('posts to the logout url when logout is clicked', async () => {

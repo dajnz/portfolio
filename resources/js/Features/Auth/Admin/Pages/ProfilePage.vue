@@ -4,7 +4,9 @@ import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
 import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
+import { useAdminMenu } from '@shared-cross/Composables/useAdminMenu';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
 import { useToast } from '@shared-cross/Composables/useToast';
 import { computed, ref, watch } from 'vue';
 
@@ -48,6 +50,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const toast = useToast();
+const { post } = useJsonApi();
 
 // The `admins.name` mirrors the login (B56); the page contract does not
 // carry it, so the Name field is prefilled from the shared `auth.user`.
@@ -158,44 +161,13 @@ function submitPasswordChange(payload: PasswordChangePayload): void {
     );
 }
 
-/**
- * JSON POST for the TOTP endpoints (they return `{ data }` JSON, not
- * Inertia responses — the XSRF-TOKEN cookie headers satisfy the CSRF
- * middleware, mirroring the scaffold's axios defaults).
- */
-async function jsonPost(
-    url: string,
-    payload: Record<string, unknown> = {},
-): Promise<Record<string, unknown>> {
-    const xsrfCookie = document.cookie
-        .split('; ')
-        .find((cookie) => cookie.startsWith('XSRF-TOKEN='));
-
-    const response = await fetch(url, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-            ...(xsrfCookie !== undefined
-                ? { 'X-XSRF-TOKEN': decodeURIComponent(xsrfCookie.slice('XSRF-TOKEN='.length)) }
-                : {}),
-        },
-        body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-    }
-
-    return (await response.json()) as Record<string, unknown>;
-}
-
 async function startTotpSetup(): Promise<void> {
     totpBusy.value = true;
 
     try {
-        const body = await jsonPost('/admin/profile/totp-enable');
+        // The TOTP endpoints return `{ data }` JSON, not Inertia
+        // responses — the shared JSON API client handles the CSRF header.
+        const body = await post<{ data: Record<string, unknown> }>('/admin/profile/totp-enable');
         const data = body.data as { qr_code_svg?: string; manual_key?: string };
 
         qrCodeSvg.value = data.qr_code_svg ?? null;
@@ -216,7 +188,9 @@ async function verifyTotpEnable(payload: { code: string }): Promise<void> {
     totpBusy.value = true;
 
     try {
-        const body = await jsonPost('/admin/profile/totp-enable', { code: payload.code });
+        const body = await post<{ data: Record<string, unknown> }>('/admin/profile/totp-enable', {
+            json: { code: payload.code },
+        });
         const data = body.data as { recovery_codes?: string[] };
 
         recoveryCodes.value = data.recovery_codes ?? [];
@@ -257,9 +231,12 @@ async function regenerateRecoveryCodes(payload: { password: string }): Promise<v
     totpBusy.value = true;
 
     try {
-        const body = await jsonPost('/admin/profile/totp-recovery-codes', {
-            current_password: payload.password,
-        });
+        const body = await post<{ data: Record<string, unknown> }>(
+            '/admin/profile/totp-recovery-codes',
+            {
+                json: { current_password: payload.password },
+            },
+        );
         const data = body.data as { recovery_codes?: string[] };
 
         recoveryCodes.value = data.recovery_codes ?? [];
@@ -290,47 +267,14 @@ function linkGithub(): void {
     // OAuth redirect — full page load (Socialite state lives server-side).
     window.location.href = '/admin/profile/github-link';
 }
+
+const { menuGroups } = useAdminMenu();
 </script>
 
 <template>
   <AdminPageLayout
     :dashboard="{ label: t('admin.nav.dashboard'), route: '/admin', icon: 'heroicons:chart-bar' }"
-    :menu_groups="[
-      {
-        id: 'content',
-        label: t('admin.nav.group_content'),
-        icon: 'heroicons:list-bullet',
-        items: [
-          { label: t('admin.nav.about'), route: '/admin/about', icon: 'heroicons:user' },
-          { label: t('admin.nav.resume'), route: '/admin/resume', icon: 'heroicons:document-text' },
-          { label: t('admin.nav.skills'), route: '/admin/skills', icon: 'heroicons:bolt' },
-          { label: t('admin.nav.projects'), route: '/admin/projects', icon: 'heroicons:cube' },
-          { label: t('admin.nav.experience'), route: '/admin/experience', icon: 'heroicons:briefcase' },
-          { label: t('admin.nav.blog'), route: '/admin/blog', icon: 'heroicons:book-open' },
-          { label: t('admin.nav.tags'), route: '/admin/tags', icon: 'heroicons:tag' },
-          { label: t('admin.nav.contacts'), route: '/admin/contacts', icon: 'heroicons:inbox' },
-        ],
-      },
-      {
-        id: 'insights',
-        label: t('admin.nav.group_insights'),
-        icon: 'heroicons:trending-up',
-        items: [
-          { label: t('admin.nav.analytics'), route: '/admin/analytics', icon: 'heroicons:trending-up' },
-          { label: t('admin.nav.feedback'), route: '/admin/feedback', icon: 'heroicons:chat-bubble-left-right' },
-        ],
-      },
-      {
-        id: 'system',
-        label: t('admin.nav.group_system'),
-        icon: 'heroicons:cog-6-tooth',
-        items: [
-          { label: t('admin.nav.settings'), route: '/admin/settings', icon: 'heroicons:cog-6-tooth' },
-          { label: t('admin.nav.backups'), route: '/admin/backups', icon: 'heroicons:archive-box' },
-          { label: t('admin.nav.horizon'), route: '/horizon', icon: 'heroicons:queue-list' },
-        ],
-      },
-    ]"
+    :menu_groups="menuGroups()"
     :active_route="'profile'"
     :admin_name="adminName"
     :logout_url="'/admin/logout'"

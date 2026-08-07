@@ -14,7 +14,10 @@ use InvalidArgumentException;
  * delegated to).
  *
  * A `null` input for a string value normalizes to `''` (an empty form
- * field); all other values must pass `SettingType::isValidValue()`.
+ * field); a numeric string for an integer value normalizes to the int
+ * (Laravel's Redis cache store round-trips numeric payloads as strings —
+ * `is_numeric` passthrough — so cached integer settings arrive here as
+ * strings; the canonical typed value is the VO's contract).
  */
 final readonly class SettingValue
 {
@@ -25,13 +28,30 @@ final readonly class SettingValue
     public function __construct(SettingType $type, mixed $value)
     {
         $this->type = $type;
-        $this->value = $type === SettingType::String && $value === null ? '' : $value;
+        $this->value = $this->normalize($type, $value);
 
         if (! $type->isValidValue($this->value)) {
             throw new InvalidArgumentException(
                 sprintf("Invalid value for setting type '%s': %s.", $type->value, var_export($this->value, true)),
             );
         }
+    }
+
+    private function normalize(SettingType $type, mixed $value): mixed
+    {
+        if ($type === SettingType::String && $value === null) {
+            return '';
+        }
+
+        if (
+            $type === SettingType::Integer
+            && is_string($value)
+            && preg_match('/^-?\d+$/', $value) === 1
+        ) {
+            return (int) $value;
+        }
+
+        return $value;
     }
 
     /**

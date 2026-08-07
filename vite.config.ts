@@ -48,6 +48,9 @@ export default defineConfig(({ isSsrBuild }) => ({
             // aux modules (editor extensions, etc.) in sibling dirs.
             '@portfolio-public': featureAlias('Portfolio/Public/Components'),
             '@portfolio-admin': featureAlias('Portfolio/Admin/Components'),
+            // Feature-root alias for page imports in specs (mirrors
+            // `@auth`; the Components-scoped alias cannot reach Pages).
+            '@portfolio': featureAlias('Portfolio'),
             '@blog-public': featureAlias('Blog/Public/Components'),
             '@blog-admin': featureAlias('Blog/Admin/Components'),
             '@blog-shared': featureAlias('Blog/Shared'),

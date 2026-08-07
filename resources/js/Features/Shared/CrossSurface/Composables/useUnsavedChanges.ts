@@ -8,6 +8,11 @@ export interface UnsavedChangesGuard {
     isDirty: Ref<boolean>;
     /** Removes both guards — called on successful form submission (spec §4). */
     clear: () => void;
+    /** Skips the prompt for the next Inertia visit — called right before
+     *  the form's own submit, which would otherwise trip the navigation
+     *  guard on a dirty form (4.2 deviation: admin-section-components
+     *  .md:551 only documents the guard, not the submit bypass). */
+    suppressNextVisit: () => void;
 }
 
 /**
@@ -28,6 +33,7 @@ export function useUnsavedChanges(
     const form = isRef(formRef) ? formRef : ref(formRef);
     const isDirty = ref(false);
     const promptMessage = useI18n().t('common.unsaved_changes');
+    let suppressVisit = false;
 
     function sync(): void {
         isDirty.value = !isEqual(toRaw(form.value), initialValues);
@@ -43,6 +49,11 @@ export function useUnsavedChanges(
     };
 
     const onInertiaBefore = (event: { preventDefault: () => void }): void => {
+        if (suppressVisit) {
+            suppressVisit = false;
+            return;
+        }
+
         if (!isDirty.value) {
             return;
         }
@@ -52,17 +63,29 @@ export function useUnsavedChanges(
         }
     };
 
+    const onVisitFinish = (): void => {
+        // Safety net: a suppressed visit that never navigated (e.g. a 422
+        // response) must not leave the flag armed for the next navigation.
+        suppressVisit = false;
+    };
+
     window.addEventListener('beforeunload', onBeforeUnload);
-    const unsubscribe = router.on('before', onInertiaBefore);
+    const unsubscribeBefore = router.on('before', onInertiaBefore);
+    const unsubscribeFinish = router.on('finish', onVisitFinish);
 
     function removeGuards(): void {
         window.removeEventListener('beforeunload', onBeforeUnload);
-        unsubscribe();
+        unsubscribeBefore();
+        unsubscribeFinish();
     }
 
     function clear(): void {
         removeGuards();
         isDirty.value = false;
+    }
+
+    function suppressNextVisit(): void {
+        suppressVisit = true;
     }
 
     watch(form, sync, { deep: true });
@@ -72,5 +95,5 @@ export function useUnsavedChanges(
         onScopeDispose(removeGuards);
     }
 
-    return { isDirty, clear };
+    return { isDirty, clear, suppressNextVisit };
 }

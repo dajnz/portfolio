@@ -53,4 +53,16 @@ describe('LocaleTabs', () => {
 
         expect(wrapper.find('[role="tab"]').exists()).toBe(false);
     });
+
+    it('marks warned locales with the warning marker', () => {
+        const wrapper = mount(LocaleTabs, {
+            props: { modelValue: 'en', locales: LOCALES, warned_locales: ['ru'] },
+        });
+
+        expect(wrapper.find('[data-testid="locale-tabs-warn-ru"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="locale-tabs-warn-en"]').exists()).toBe(false);
+        expect(wrapper.get('[data-testid="locale-tabs-tab-ru"]').classes()).toContain(
+            'border-warning-500',
+        );
+    });
 });

@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
 import { onBeforeUnmount, ref, useId } from 'vue';
 
 import AdminBaseSkeleton from './AdminBaseSkeleton.vue';
@@ -9,6 +10,8 @@ import AdminBaseSkeleton from './AdminBaseSkeleton.vue';
 interface SearchResultItem {
     [key: string]: unknown;
 }
+
+const { get } = useJsonApi();
 
 const props = withDefaults(
     defineProps<{
@@ -104,16 +107,9 @@ async function fetchResults(): Promise<void> {
 
     try {
         const url = `${props.fetch_url}?q=${encodeURIComponent(query.value)}&per_page=${props.result_limit}`;
-        const response = await fetch(url, {
+        const payload = await get<{ data?: SearchResultItem[] }>(url, {
             signal: activeRequest.signal,
-            headers: { Accept: 'application/json' },
         });
-
-        if (!response.ok) {
-            throw new Error(`Search request failed: ${response.status}`);
-        }
-
-        const payload = (await response.json()) as { data?: SearchResultItem[] };
 
         results.value = payload.data ?? [];
         highlighted.value = results.value.length > 0 ? 0 : -1;

@@ -31,6 +31,9 @@
             "@portfolio-admin/*": [
                 "./resources/js/Features/Portfolio/Admin/Components/*"
             ],
+            "@portfolio/*": [
+                "./resources/js/Features/Portfolio/*"
+            ],
             "@blog-public/*": [
                 "./resources/js/Features/Blog/Public/Components/*"
             ],

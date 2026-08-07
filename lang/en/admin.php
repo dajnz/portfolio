@@ -106,6 +106,7 @@ return [
 
     'about' => [
         'title' => 'About Me',
+        'title_label' => 'Title',
         'name' => 'Name',
         'short_pitch' => 'Short Pitch',
         'photo' => 'Photo',
@@ -126,9 +127,12 @@ return [
 
     'contacts' => [
         'title' => 'Contacts',
+        'name' => 'Name',
         'value' => 'Value',
+        'url' => 'URL',
         'icon' => 'Icon',
         'include_in_resume' => 'Include in resume',
+        'empty_state' => 'No contacts yet.',
         'add' => 'Add Contact',
     ],
 
@@ -274,9 +278,9 @@ return [
         'status' => 'Status',
         'read' => 'Read',
         'unread' => 'Unread',
-        'forwarded' => 'Forwarded',
+        'forwarded' => 'Answered',
         'mark_read' => 'Mark as read',
-        'forward' => 'Forward',
+        'respond' => 'Respond',
         'no_feedback' => 'No feedback messages yet.',
         'back_to_feedback' => 'Back to feedback',
     ],
@@ -397,7 +401,7 @@ return [
         'trashed' => 'Trashed',
         'read' => 'Read',
         'unread' => 'Unread',
-        'forwarded' => 'Forwarded',
+        'forwarded' => 'Answered',
         'active' => 'Active',
         'inactive' => 'Inactive',
         'pending' => 'Pending',
@@ -407,6 +411,11 @@ return [
         'featured' => 'Featured',
     ],
 
+    'locales' => [
+        'en' => 'English',
+        'ru' => 'Russian',
+    ],
+
     'toasts' => [
         'saved' => 'Saved successfully.',
         'deleted' => 'Deleted successfully.',
@@ -414,6 +423,8 @@ return [
         'feedback_deleted' => 'Feedback deleted.',
         'delete_failed' => 'Could not delete feedback.',
         'mark_read_failed' => 'Could not mark as read',
+        'translation_incomplete' => 'The {locale} translation is incomplete.',
+        'forward_failed' => 'Could not forward feedback.',
         'failed_to_save' => 'Failed to save. Please try again.',
         'upload_failed' => 'Upload failed, try again.',
     ],
