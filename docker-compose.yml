@@ -38,6 +38,10 @@ services:
       - default
       - traefik
     logging: *default-logging
+    volumes:
+      # Dev: serve the freshly built assets (public/build) without image
+      # rebuilds — the nginx image itself carries no project files.
+      - ./public:/var/www/html/public:ro
     depends_on:
       - app
       - rustfs

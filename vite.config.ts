@@ -30,6 +30,16 @@ export default defineConfig(({ isSsrBuild }) => ({
         vue(),
         tailwindcss(),
     ],
+    server: {
+        // The dev container resolves `localhost` to `::1` only — vite would
+        // otherwise advertise `http://[::1]:5173` in public/hot, which the
+        // host browser cannot reach. Bind all interfaces and advertise the
+        // host-reachable localhost URL (devops.md:1226 — `npm run dev`).
+        host: true,
+        hmr: {
+            host: 'localhost',
+        },
+    },
     resolve: {
         alias: {
             // Convention (user-approved 2026-08-06, step 3.4 rework):
