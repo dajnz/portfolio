@@ -12,6 +12,25 @@ runtime support.
 
 ### Added
 
+- **Landing props `console_greeting` + `has_more` + `feedback_honeypot_name` (v1.0.5, step 4.1):**
+  (1) new `console_greeting` object added to `LandingPageProps` (per
+  `public-section-components.md:578-590` + B80 — the data arrives with
+  the landing page): `greeting` (localized static text), `name` and
+  `position` (locale-resolved about values), `contacts` as
+  `{label, value}` pairs; the public layout renders `ConsoleGreeting`
+  only when the prop is passed and the `console_greeting` feature flag
+  is enabled. (2) new `has_more` boolean — whether more published
+  projects exist beyond the featured ones on the page, controlling the
+  "View all projects" link (`public-section-components.md:981-985`,
+  `content-management.md:116-120`). (3) new `feedback_honeypot_name`
+  (nullable string) — the session-derived randomized honeypot field
+  name embedded in the page HTML per `authentication.md:345-351`
+  (null when no session is active). `info.version` bumped to `1.0.5`
+  in `inertia.yaml` (openapi.yaml unaffected). Note: `experience_items`
+  (TimelineItemData[]) remains documented but is not provided by 4.1 —
+  the landing layout (public-section-ui.md:56-101) defines no experience
+  block; the prop is populated or removed by a later step.
+
 - **`recovery_codes_remaining` profile prop (v1.0.4, step 3.6):** added to
   `ProfilePageProps.admin` — count of unused recovery codes (0 when TOTP is
   disabled), rendered by the `TOTPSetup` component

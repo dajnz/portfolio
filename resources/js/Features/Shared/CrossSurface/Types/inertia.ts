@@ -986,8 +986,39 @@ export interface components {
                 about?: components["schemas"]["AboutData"];
                 skills?: components["schemas"]["SkillGroupData"][];
                 featured_projects?: components["schemas"]["FeaturedProjectData"][];
+                /**
+                 * @description Whether more published projects exist beyond the featured
+                 *     ones on the page — controls the "View all projects" link
+                 *     (public-section-components.md:981-985,
+                 *     content-management.md:116-120).
+                 */
+                has_more?: boolean;
                 experience_items?: components["schemas"]["TimelineItemData"][];
                 contacts?: components["schemas"]["ContactData"][];
+                /**
+                 * @description ConsoleGreeting data (public-section-components.md:578-590,
+                 *     B80): greeting text (localized), the developer name and
+                 *     position (locale-resolved about values) and the contacts
+                 *     as label/value pairs. Rendered by the public layout only
+                 *     when passed and the `console_greeting` flag is enabled.
+                 */
+                console_greeting?: {
+                    greeting?: string;
+                    name?: string;
+                    position?: string;
+                    contacts?: {
+                        label?: string;
+                        value?: string;
+                    }[];
+                };
+                /**
+                 * @description The randomized honeypot field name for the feedback form,
+                 *     derived from the session ID via keyed HMAC-SHA256
+                 *     (authentication.md:345-351) and embedded in the page HTML
+                 *     on render. Null when no session is active (the check is
+                 *     then skipped server-side).
+                 */
+                feedback_honeypot_name?: string | null;
                 seo?: components["schemas"]["SeoProps"];
             };
         };
