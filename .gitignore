@@ -17,6 +17,7 @@ docs/plans
 /.phpunit.cache
 /.vscode
 /.zed
+/.auth
 /auth.json
 /coverage
 /node_modules
