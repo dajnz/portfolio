@@ -47,6 +47,7 @@ export default defineConfig(({ isSsrBuild }) => ({
             '@experience-admin': featureAlias('Experience/Admin/Components'),
             '@experience-shared': featureAlias('Experience/Shared'),
             '@auth-admin': featureAlias('Auth/Admin/Components'),
+            '@auth': featureAlias('Auth'),
             '@analytics-admin': featureAlias('Analytics/Admin/Components'),
             '@settings-admin': featureAlias('Settings/Admin/Components'),
             '@backup-admin': featureAlias('Backup/Admin/Components'),

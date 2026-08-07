@@ -1,5 +1,7 @@
 import { router } from '@inertiajs/vue3';
 
+import { randomUuid } from '../Utils/randomUuid';
+
 export interface AnalyticsEvent {
     event_type: string;
     metadata: Record<string, unknown>;
@@ -131,7 +133,7 @@ export function useAnalytics(): AnalyticsTracker {
 function getSessionId(): string {
     let id = sessionStorage.getItem(SESSION_STORAGE_KEY);
     if (!id) {
-        id = crypto.randomUUID();
+        id = randomUuid();
         sessionStorage.setItem(SESSION_STORAGE_KEY, id);
     }
 

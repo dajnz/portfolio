@@ -58,6 +58,9 @@
             "@auth-admin/*": [
                 "./resources/js/Features/Auth/Admin/Components/*"
             ],
+            "@auth/*": [
+                "./resources/js/Features/Auth/*"
+            ],
             "@analytics-admin/*": [
                 "./resources/js/Features/Analytics/Admin/Components/*"
             ],
