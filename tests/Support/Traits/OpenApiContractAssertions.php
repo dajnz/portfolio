@@ -49,8 +49,8 @@ trait OpenApiContractAssertions
             'submitFeedback' => [
                 'path' => '/api/feedback',
                 'method' => 'post',
-                'implemented' => false,
-                'implemented_in' => 'Step 4.1',
+                'implemented' => true,
+                'cases' => [201, 422, 429],
             ],
             'toggleArticleReaction' => [
                 'path' => '/api/blog/{article}/reaction',
