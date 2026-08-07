@@ -21,6 +21,13 @@ interface AdminRepositoryInterface
     public function githubIdTakenByOther(string $githubId, int $excludeAdminId): bool;
 
     /**
+     * Whether any admin account is linked with GitHub (`github_id` set).
+     * The login page's GitHub button requires it (B127) — without a
+     * linked account the OAuth login flow can only fail.
+     */
+    public function hasGithubLinkedAdmin(): bool;
+
+    /**
      * Creates the admin with a plaintext password (bcrypt-hashed at the
      * persistence boundary via the model's `hashed` cast).
      */

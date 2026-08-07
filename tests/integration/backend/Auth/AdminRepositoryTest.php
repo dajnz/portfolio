@@ -104,6 +104,16 @@ describe('EloquentAdminRepository', function (): void {
         expect($repository->githubIdTakenByOther('12345', (int) $admin->id))->toBeTrue()
             ->and($repository->githubIdTakenByOther('12345', (int) $other->id))->toBeFalse();
     });
+
+    it('reports whether any admin is linked with github (B127)', function (): void {
+        $repository = app(AdminRepositoryInterface::class);
+
+        expect($repository->hasGithubLinkedAdmin())->toBeFalse();
+
+        $this->createAdmin(['github_id' => '12345']);
+
+        expect($repository->hasGithubLinkedAdmin())->toBeTrue();
+    });
 });
 
 describe('EloquentAdminTimedOtpRepository', function (): void {

@@ -10,6 +10,14 @@ runtime support.
 
 ## [Unreleased]
 
+### Changed
+
+- **`LoginPageProps.github_oauth_enabled` → `github_login_available` (v1.0.6, step 4.3, B127):**
+  the login page's GitHub button is now shown only when the `github_oauth`
+  feature flag is ON **and** at least one admin account is linked with GitHub
+  (`admins.github_id` set) — the OAuth login flow can only fail otherwise.
+  The renamed prop carries the combined condition; `info.version` bumped to
+  `1.0.6` in `inertia.yaml`.
 ### Added
 
 - **Landing props `console_greeting` + `has_more` + `feedback_honeypot_name` (v1.0.5, step 4.1):**

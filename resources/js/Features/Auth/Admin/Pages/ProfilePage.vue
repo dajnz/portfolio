@@ -348,16 +348,18 @@ const { menuGroups } = useAdminMenu();
         @submit="submitPasswordChange"
       />
 
-      <hr class="my-8 border-slate-200 dark:border-slate-700">
+      <template v-if="props.github_oauth_enabled">
+        <hr class="my-8 border-slate-200 dark:border-slate-700">
 
-      <SocialAccounts
-        :accounts="socialAccounts"
-        :is_busy="isUnlinking"
-        :can_link="props.github_oauth_enabled"
-        :test_id="`${props.test_id}-social`"
-        @link="linkGithub"
-        @unlink="unlinkGithub"
-      />
+        <SocialAccounts
+          :accounts="socialAccounts"
+          :is_busy="isUnlinking"
+          :can_link="props.github_oauth_enabled"
+          :test_id="`${props.test_id}-social`"
+          @link="linkGithub"
+          @unlink="unlinkGithub"
+        />
+      </template>
 
       <hr class="my-8 border-slate-200 dark:border-slate-700">
 

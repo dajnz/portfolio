@@ -50,6 +50,11 @@ final class EloquentAdminRepository implements AdminRepositoryInterface
             ->exists();
     }
 
+    public function hasGithubLinkedAdmin(): bool
+    {
+        return AdminModel::query()->whereNotNull('github_id')->exists();
+    }
+
     public function create(string $name, string $email, string $login, string $plainPassword): Admin
     {
         $model = AdminModel::query()->create([

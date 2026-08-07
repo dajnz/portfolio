@@ -1449,8 +1449,8 @@ export interface components {
             /** @constant */
             component?: "Auth/Admin/Pages/LoginPage";
             props?: {
-                /** @description Whether GitHub OAuth feature flag is enabled. */
-                github_oauth_enabled?: boolean;
+                /** @description Whether the "Continue with GitHub" button is shown — the github_oauth feature flag is ON and at least one admin account is linked with GitHub (B127). */
+                github_login_available?: boolean;
                 /** @constant */
                 loginPage?: true;
             };
