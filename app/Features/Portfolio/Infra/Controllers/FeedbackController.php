@@ -102,7 +102,10 @@ final class FeedbackController
     {
         $this->destroyCase->destroy($feedback);
 
-        return redirect()->back()
+        // The detail URL 404s after deletion — redirect to the list
+        // (mockup feedback-detail.html:232: "success → redirect to list
+        // + toast 'Feedback deleted.'").
+        return redirect('/admin/feedback')
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.feedback_deleted')]);
     }
 
