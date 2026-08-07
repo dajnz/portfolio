@@ -1,6 +1,7 @@
 // admin-section-components.md:623-645 — AdminBlogTagPicker
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
 import { computed, nextTick, onBeforeUnmount, ref, useId } from 'vue';
 
 import AdminBaseBadge from './AdminBaseBadge.vue';
@@ -45,6 +46,7 @@ const props = withDefaults(
 const emit = defineEmits<{ 'update:modelValue': [tags: BlogTag[]] }>();
 
 const { t } = useI18n();
+const { get } = useJsonApi();
 
 const TAGS_SEARCH_URL = '/api/blog-tags/search';
 const SEARCH_DEBOUNCE_MS = 300;
@@ -126,16 +128,9 @@ async function fetchSuggestions(): Promise<void> {
 
     try {
         const url = `${TAGS_SEARCH_URL}?q=${encodeURIComponent(query.value)}`;
-        const response = await fetch(url, {
+        const payload = await get<{ data?: BlogTag[] }>(url, {
             signal: activeRequest.signal,
-            headers: { Accept: 'application/json' },
         });
-
-        if (!response.ok) {
-            throw new Error(`Tag search request failed: ${response.status}`);
-        }
-
-        const payload = (await response.json()) as { data?: BlogTag[] };
 
         suggestions.value = payload.data ?? [];
         isLoading.value = false;

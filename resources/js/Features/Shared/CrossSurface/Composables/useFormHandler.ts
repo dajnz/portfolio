@@ -66,6 +66,11 @@ export function useFormHandler(
             options.transform ? options.transform(toRaw(form)) : toRaw(form)
         ) as RequestPayload;
 
+        // The form's own submit must not trip the unsaved-changes
+        // navigation guard (it fires on every Inertia visit, dirty form
+        // included) — suppress the prompt for this visit only.
+        unsavedChanges.suppressNextVisit();
+
         // Inertia 3 visit helpers are fire-and-forget (void) — the
         // callbacks below are the only response channel.
         submitVisit(submitUrl, data, {
