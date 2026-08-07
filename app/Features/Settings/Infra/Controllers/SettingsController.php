@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Features\Settings\Infra\Controllers;
 
 use App\Features\Settings\App\UseCases\GetSettingsUseCase;
+use App\Features\Settings\App\UseCases\TestMailUseCase;
 use App\Features\Settings\App\UseCases\UpdateFeatureFlagsUseCase;
 use App\Features\Settings\App\UseCases\UpdateSettingsUseCase;
+use App\Features\Settings\Infra\Requests\TestMailRequest;
 use App\Features\Settings\Infra\Requests\UpdateFeatureFlagsRequest;
 use App\Features\Settings\Infra\Requests\UpdateSettingsRequest;
 use Illuminate\Http\JsonResponse;
@@ -20,6 +22,7 @@ final class SettingsController
         private readonly GetSettingsUseCase $getSettingsCase,
         private readonly UpdateSettingsUseCase $updateSettingsCase,
         private readonly UpdateFeatureFlagsUseCase $updateFeatureFlagsCase,
+        private readonly TestMailUseCase $testMailCase,
     ) {
     }
 
@@ -44,5 +47,12 @@ final class SettingsController
         $this->updateFeatureFlagsCase->update($flags);
 
         return response()->json(['data' => ['flags' => $flags]]);
+    }
+
+    public function testMail(TestMailRequest $request): JsonResponse
+    {
+        $result = $this->testMailCase->test($request->input('settings', []));
+
+        return response()->json(['data' => $result]);
     }
 }

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Crypt;
  * Inserts every predefined settings key (database.md) with its default
  * value. The type of each key is fixed by `SettingName` — the seeder only
  * supplies values. Idempotent: re-running refreshes values.
- * `mail_password` is stored encrypted like any other write path.
+ * `mail_api_token` is stored encrypted like any other write path (B125).
  */
 class SettingsSeeder extends Seeder
 {
@@ -21,7 +21,7 @@ class SettingsSeeder extends Seeder
     {
         $repository = app(SettingRepositoryInterface::class);
 
-        $mailer = config('mail.mailers.smtp', []);
+        $apiMailer = config('mail.mailers.api', []);
 
         $defaults = [
             [SettingName::SiteMaintenanceMode, false],
@@ -34,12 +34,8 @@ class SettingsSeeder extends Seeder
             [SettingName::AnalyticsEmailEnabled, false],
             [SettingName::AnalyticsEmailRecipient, ''],
             [SettingName::EmailOnFeedback, true],
-            [SettingName::MailDriver, config('mail.default')],
-            [SettingName::MailHost, $mailer['host'] ?? ''],
-            [SettingName::MailPort, $mailer['port'] ?? 0],
-            [SettingName::MailEncryption, env('MAIL_ENCRYPTION') ?: ''],
-            [SettingName::MailUsername, $mailer['username'] ?? ''],
-            [SettingName::MailPassword, $this->encryptPassword($mailer['password'] ?? '')],
+            [SettingName::MailApiEndpoint, $apiMailer['endpoint'] ?? ''],
+            [SettingName::MailApiToken, $this->encryptSecret($apiMailer['token'] ?? '')],
             [SettingName::MailFromAddress, config('mail.from.address')],
             [SettingName::MailFromName, config('mail.from.name')],
             [SettingName::BackupMaxCount, config('backup.max_count')],
@@ -52,8 +48,8 @@ class SettingsSeeder extends Seeder
         }
     }
 
-    private function encryptPassword(string $password): string
+    private function encryptSecret(string $secret): string
     {
-        return $password === '' ? '' : Crypt::encryptString($password);
+        return $secret === '' ? '' : Crypt::encryptString($secret);
     }
 }

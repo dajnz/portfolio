@@ -13,10 +13,10 @@ use Illuminate\Support\Facades\DB;
  * Persists a batch of settings (`{ key: value, ... }`) atomically; the
  * repository invalidates the cache for every written key.
  *
- * `mail_password` is the only secret in the table — it is encrypted at
+ * `mail_api_token` is the only secret in the table — it is encrypted at
  * rest here (the admin form is the plaintext entry point) and decrypted
  * by `SettingsMailConfigProvider` when read. An empty submission keeps
- * the stored value (B49).
+ * the stored value (B49, moved to the token per B125).
  */
 final class UpdateSettingsUseCase
 {
@@ -34,7 +34,7 @@ final class UpdateSettingsUseCase
             foreach ($settings as $key => $value) {
                 $name = SettingName::from((string) $key);
 
-                if ($name === SettingName::MailPassword && ($value === null || $value === '')) {
+                if ($name === SettingName::MailApiToken && ($value === null || $value === '')) {
                     continue;
                 }
 
@@ -45,7 +45,7 @@ final class UpdateSettingsUseCase
 
     private function prepareValue(SettingName $name, mixed $value): mixed
     {
-        if ($name !== SettingName::MailPassword || $value === null || $value === '') {
+        if ($name !== SettingName::MailApiToken || $value === null || $value === '') {
             return $value;
         }
 

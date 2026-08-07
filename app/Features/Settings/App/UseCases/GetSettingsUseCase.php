@@ -10,7 +10,7 @@ use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface
 /**
  * Flat `key => typed value` map of every setting row, shared to the
  * Settings page (contract: `settings` prop of `SettingsPageProps`).
- * `mail_password` is masked (B49).
+ * `mail_api_token` is masked (B49, moved to the token per B125).
  */
 final class GetSettingsUseCase
 {
@@ -25,7 +25,7 @@ final class GetSettingsUseCase
         $settings = [];
 
         foreach ($this->repository->findAll() as $setting) {
-            $settings[$setting->toName()] = $setting->toName() === SettingName::MailPassword->value
+            $settings[$setting->toName()] = $setting->toName() === SettingName::MailApiToken->value
                 ? ''
                 : $setting->value();
         }

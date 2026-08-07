@@ -24,12 +24,8 @@ describe('SettingsSeeder', function (): void {
             'analytics_email_enabled',
             'analytics_email_recipient',
             'email_on_feedback',
-            'mail_driver',
-            'mail_host',
-            'mail_port',
-            'mail_encryption',
-            'mail_username',
-            'mail_password',
+            'mail_api_endpoint',
+            'mail_api_token',
             'mail_from_address',
             'mail_from_name',
             'backup_max_count',
@@ -74,10 +70,10 @@ describe('SettingsSeeder', function (): void {
         }
     });
 
-    it('seeds mail_password encrypted', function (): void {
+    it('seeds mail_api_token encrypted', function (): void {
         $this->seed(\Database\Seeders\SettingsSeeder::class);
 
-        $value = SettingModel::query()->find('mail_password')->value;
+        $value = SettingModel::query()->find('mail_api_token')->value;
 
         expect($value)->toBeString();
 
@@ -121,7 +117,7 @@ describe('DatabaseSeeder', function (): void {
     it('composes the settings and feature flag seeders without touching admins', function (): void {
         $this->seed();
 
-        expect(SettingModel::query()->count())->toBe(21)
+        expect(SettingModel::query()->count())->toBe(17)
             ->and(FeatureFlagModel::query()->count())->toBe(3);
     });
 });
