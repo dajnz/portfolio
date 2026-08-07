@@ -38,7 +38,7 @@ describe('Setting', function (): void {
     it('reports its value type via the type-check methods', function (): void {
         $boolean = new Setting(SettingName::SiteMaintenanceMode, new SettingValue(SettingType::Boolean, false));
         $integer = new Setting(SettingName::ItemsPerPage, new SettingValue(SettingType::Integer, 12));
-        $string = new Setting(SettingName::MailHost, new SettingValue(SettingType::String, 'smtp'));
+        $string = new Setting(SettingName::MailApiEndpoint, new SettingValue(SettingType::String, 'https://api.example.com'));
         $json = new Setting(SettingName::SupportedLocales, new SettingValue(SettingType::Json, ['en']));
 
         expect($boolean->isBoolean())->toBeTrue()
@@ -87,5 +87,14 @@ describe('Setting', function (): void {
                 new SettingValue(SettingType::String, $frequency),
             ))->not->toThrow(InvalidArgumentException::class);
         }
+    });
+
+    it('requires at least one supported locale', function (): void {
+        expect(fn () => new Setting(SettingName::SupportedLocales, new SettingValue(SettingType::Json, [])))
+            ->toThrow(InvalidArgumentException::class, "Setting 'supported_locales' must contain at least one locale.")
+            ->and(fn () => new Setting(SettingName::SupportedLocales, new SettingValue(SettingType::Json, '[]')))
+            ->toThrow(InvalidArgumentException::class, "Setting 'supported_locales' must contain at least one locale.")
+            ->and(fn () => new Setting(SettingName::SupportedLocales, new SettingValue(SettingType::Json, ['en'])))
+            ->not->toThrow(InvalidArgumentException::class);
     });
 });

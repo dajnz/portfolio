@@ -72,6 +72,23 @@ describe('useUnsavedChanges', () => {
         expect(guard.isDirty.value).toBe(false);
     });
 
+    it('rebase() re-baselines the comparison and clears the dirty state', async () => {
+        const form = reactive({ general: 'a', mail: 'b' });
+        const guard = track(form);
+
+        form.general = 'changed';
+        await nextTick();
+        expect(guard.isDirty.value).toBe(true);
+
+        guard.rebase({ general: 'changed', mail: 'b' });
+
+        expect(guard.isDirty.value).toBe(false);
+
+        form.mail = 'edited';
+        await nextTick();
+        expect(guard.isDirty.value).toBe(true);
+    });
+
     it('prompts through beforeunload only when dirty', async () => {
         const form = reactive({ title: 'Draft', meta: { tags: ['vue'] } });
         track(form);

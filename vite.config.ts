@@ -63,6 +63,7 @@ export default defineConfig(({ isSsrBuild }) => ({
             '@auth': featureAlias('Auth'),
             '@analytics-admin': featureAlias('Analytics/Admin/Components'),
             '@settings-admin': featureAlias('Settings/Admin/Components'),
+            '@settings': featureAlias('Settings'),
             '@backup-admin': featureAlias('Backup/Admin/Components'),
             '@techskills-admin': featureAlias('TechSkills/Admin/Components'),
             '@resume-admin': featureAlias('Resume/Admin/Components'),
