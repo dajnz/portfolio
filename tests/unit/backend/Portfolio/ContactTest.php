@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Features\Portfolio\Domain\Entities\Contact;
-use App\Features\Portfolio\Domain\Entities\ContactTranslation;
+use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
 
 function makeContact(array $overrides = []): Contact
 {

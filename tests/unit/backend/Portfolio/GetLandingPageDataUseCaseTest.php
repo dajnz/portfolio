@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use App\Features\Portfolio\App\UseCases\GetLandingPageDataUseCase;
 use App\Features\Portfolio\Domain\Entities\AboutInfo;
-use App\Features\Portfolio\Domain\Entities\AboutInfoTranslation;
+use App\Features\Portfolio\Domain\ValueObjects\AboutInfoTranslation;
 use App\Features\Portfolio\Domain\Entities\Contact;
-use App\Features\Portfolio\Domain\Entities\ContactTranslation;
+use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
 use App\Features\Portfolio\Domain\ValueObjects\AvailabilityStatus;
 use App\Features\Shared\Domain\Entities\FeaturedProject;
 use App\Features\Shared\Domain\Entities\FeaturedProjectTechTag;
@@ -36,12 +36,11 @@ describe('GetLandingPageDataUseCase', function (): void {
         $about = new AboutInfo(
             id: 1,
             photo: null,
-            photoAlt: [],
             showLocation: true,
             timezone: 'Europe/Berlin',
             relocationReadiness: false,
             availabilityStatus: AvailabilityStatus::Available,
-            workType: 'remote',
+            workType: \App\Features\Portfolio\Domain\ValueObjects\WorkType::Remote,
             translations: [
                 new AboutInfoTranslation(locale: 'en', name: 'Alex', title: 'Dev', shortPitch: 'P.', location: 'Berlin'),
             ],

@@ -3,20 +3,24 @@
 declare(strict_types=1);
 
 use App\Features\Portfolio\Domain\Entities\AboutInfo;
-use App\Features\Portfolio\Domain\Entities\AboutInfoTranslation;
+use App\Features\Portfolio\Domain\ValueObjects\AboutInfoTranslation;
 use App\Features\Portfolio\Domain\ValueObjects\AvailabilityStatus;
+use App\Features\Portfolio\Domain\ValueObjects\WorkType;
+use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 
 function makeAbout(array $overrides = []): AboutInfo
 {
     return new AboutInfo(
         id: $overrides['id'] ?? 1,
-        photo: $overrides['photo'] ?? 'about/photo.jpg',
-        photoAlt: $overrides['photo_alt'] ?? ['en' => 'Portrait', 'ru' => 'Портрет'],
+        photo: $overrides['photo'] ?? new StoredPicture(
+            url: 'about/photo.jpg',
+            altLabels: ['en' => 'Portrait', 'ru' => 'Портрет'],
+        ),
         showLocation: $overrides['show_location'] ?? true,
         timezone: $overrides['timezone'] ?? 'Europe/Berlin',
         relocationReadiness: $overrides['relocation_readiness'] ?? false,
         availabilityStatus: $overrides['availability_status'] ?? AvailabilityStatus::Available,
-        workType: $overrides['work_type'] ?? 'remote',
+        workType: $overrides['work_type'] ?? WorkType::Remote,
         translations: $overrides['translations'] ?? [
             new AboutInfoTranslation(
                 locale: 'en',
@@ -41,14 +45,16 @@ describe('AboutInfo', function (): void {
         $about = makeAbout();
 
         expect($about->toId())->toBe(1)
-            ->and($about->toPhoto())->toBe('about/photo.jpg')
-            ->and($about->toPhotoAlt())->toBe(['en' => 'Portrait', 'ru' => 'Портрет'])
+            ->and($about->toPhoto()->url)->toBe('about/photo.jpg')
+            ->and($about->toPhoto()->altLabelsMap())->toBe(['en' => 'Portrait', 'ru' => 'Портрет'])
+            ->and($about->toPhoto()->altLabel('ru'))->toBe('Портрет')
             ->and($about->toShowLocation())->toBeTrue()
             ->and($about->toTimezone())->toBe('Europe/Berlin')
             ->and($about->toRelocationReadiness())->toBeFalse()
             ->and($about->toAvailabilityStatus())->toBe(AvailabilityStatus::Available)
-            ->and($about->toWorkType())->toBe('remote')
-            ->and($about->toTranslations())->toHaveCount(2);
+            ->and($about->toWorkType())->toBe(WorkType::Remote)
+            ->and($about->toTranslations())->toHaveCount(2)
+            ->and($about->translationsByLocale())->toHaveKeys(['en', 'ru']);
     });
 
     it('resolves the translation per locale with an en fallback', function (): void {

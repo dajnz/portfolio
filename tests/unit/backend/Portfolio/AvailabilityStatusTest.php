@@ -12,10 +12,10 @@ describe('AvailabilityStatus', function (): void {
             ->and(AvailabilityStatus::Busy->value)->toBe('busy');
     });
 
-    it('maps to the AboutBlock badge variants', function (): void {
-        expect(AvailabilityStatus::Available->toVariant())->toBe('success')
-            ->and(AvailabilityStatus::Limited->toVariant())->toBe('warning')
-            ->and(AvailabilityStatus::Busy->toVariant())->toBe('danger');
+    it('exposes the static-translation label keys (no UI concerns)', function (): void {
+        expect(AvailabilityStatus::Available->toLabelKey())->toBe('landing.availability.available')
+            ->and(AvailabilityStatus::Limited->toLabelKey())->toBe('landing.availability.limited')
+            ->and(AvailabilityStatus::Busy->toLabelKey())->toBe('landing.availability.busy');
     });
 
     it('round-trips from the stored raw value', function (): void {
