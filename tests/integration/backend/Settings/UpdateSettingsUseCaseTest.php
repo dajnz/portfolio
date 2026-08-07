@@ -26,7 +26,7 @@ describe('UpdateSettingsUseCase', function (): void {
             'type' => 'boolean',
         ]);
         SettingModel::query()->create([
-            'key' => 'mail_password',
+            'key' => 'mail_api_token',
             'value' => '',
             'type' => 'string',
         ]);
@@ -76,22 +76,22 @@ describe('UpdateSettingsUseCase', function (): void {
         ]);
     })->throws(InvalidArgumentException::class);
 
-    it('stores mail_password encrypted', function (): void {
-        app(UpdateSettingsUseCase::class)->update(['mail_password' => 'super-secret']);
+    it('stores mail_api_token encrypted', function (): void {
+        app(UpdateSettingsUseCase::class)->update(['mail_api_token' => 'super-secret']);
 
-        $stored = SettingModel::query()->find('mail_password')->value;
+        $stored = SettingModel::query()->find('mail_api_token')->value;
 
         expect($stored)->not->toBe('super-secret')
             ->and(Crypt::decryptString($stored))->toBe('super-secret');
     });
 
-    it('keeps the existing mail_password when an empty one is submitted', function (): void {
-        app(UpdateSettingsUseCase::class)->update(['mail_password' => 'super-secret']);
-        $stored = SettingModel::query()->find('mail_password')->value;
+    it('keeps the existing mail_api_token when an empty one is submitted', function (): void {
+        app(UpdateSettingsUseCase::class)->update(['mail_api_token' => 'super-secret']);
+        $stored = SettingModel::query()->find('mail_api_token')->value;
 
-        app(UpdateSettingsUseCase::class)->update(['mail_password' => '']);
+        app(UpdateSettingsUseCase::class)->update(['mail_api_token' => '']);
 
-        expect(SettingModel::query()->find('mail_password')->value)->toBe($stored)
+        expect(SettingModel::query()->find('mail_api_token')->value)->toBe($stored)
             ->and(Crypt::decryptString($stored))->toBe('super-secret');
     });
 

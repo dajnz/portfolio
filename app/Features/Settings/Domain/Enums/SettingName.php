@@ -21,12 +21,8 @@ enum SettingName: string
     case AnalyticsEmailEnabled = 'analytics_email_enabled';
     case AnalyticsEmailRecipient = 'analytics_email_recipient';
     case EmailOnFeedback = 'email_on_feedback';
-    case MailDriver = 'mail_driver';
-    case MailHost = 'mail_host';
-    case MailPort = 'mail_port';
-    case MailEncryption = 'mail_encryption';
-    case MailUsername = 'mail_username';
-    case MailPassword = 'mail_password';
+    case MailApiEndpoint = 'mail_api_endpoint';
+    case MailApiToken = 'mail_api_token';
     case MailFromAddress = 'mail_from_address';
     case MailFromName = 'mail_from_name';
     case BackupMaxCount = 'backup_max_count';
@@ -44,17 +40,13 @@ enum SettingName: string
             self::ProjectsPerPage,
             self::ArticlesPerPage,
             self::ExperienceItemsPerPage,
-            self::MailPort,
             self::BackupMaxCount,
             self::BackupUploadMaxSize,
             self::TrashRetentionDays => SettingType::Integer,
             self::AnalyticsReportFrequency,
             self::AnalyticsEmailRecipient,
-            self::MailDriver,
-            self::MailHost,
-            self::MailEncryption,
-            self::MailUsername,
-            self::MailPassword,
+            self::MailApiEndpoint,
+            self::MailApiToken,
             self::MailFromAddress,
             self::MailFromName => SettingType::String,
         };

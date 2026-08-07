@@ -69,12 +69,12 @@ describe('AdminPageHeader', () => {
         expect(postMock).toHaveBeenCalledExactlyOnceWith('/admin/logout');
     });
 
-    it('does not post when no logout url is configured', async () => {
+    it('posts to the default /admin/logout when no url is configured', async () => {
         const wrapper = mount(AdminPageHeader);
 
         await wrapper.get('[data-testid="admin-header-logout"]').trigger('click');
 
-        expect(postMock).not.toHaveBeenCalled();
+        expect(postMock).toHaveBeenCalledExactlyOnceWith('/admin/logout');
     });
 
     it('emits toggle-sidebar from the hamburger button', async () => {

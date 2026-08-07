@@ -39,6 +39,26 @@ return [
 
     'mailers' => [
 
+        /*
+        |--------------------------------------------------------------------------
+        | Mail API Mailer (B125)
+        |--------------------------------------------------------------------------
+        |
+        | The portfolio's mail transport: a 3rd-party REST API with a single
+        | bearer token and a custom endpoint (Mailgun/Mailchimp-style).
+        | The transport is registered by `SettingsMailConfigProvider` via
+        | `Mail::extend('api', ...)` -> `Settings\Infra\Mail\ApiMailTransport`.
+        | The values are used as env defaults and overridable via the admin
+        | Settings UI (mail_api_endpoint / mail_api_token settings rows).
+        |
+        */
+
+        'api' => [
+            'transport' => 'api',
+            'endpoint' => env('MAIL_API_ENDPOINT', ''),
+            'token' => env('MAIL_API_TOKEN', ''),
+        ],
+
         'smtp' => [
             'transport' => 'smtp',
             'scheme' => env('MAIL_SCHEME'),

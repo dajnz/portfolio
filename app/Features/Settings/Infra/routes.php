@@ -14,4 +14,5 @@ Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function ():
     Route::get('/admin/settings', [SettingsController::class, 'index']);
     Route::put('/admin/settings', [SettingsController::class, 'update']);
     Route::patch('/admin/settings/feature-flags', [SettingsController::class, 'updateFeatureFlags']);
+    Route::post('/admin/settings/test-mail', [SettingsController::class, 'testMail']);
 });

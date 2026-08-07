@@ -12,15 +12,33 @@ use Tests\Support\Traits\InteractsWithAdmin;
 uses(InteractsWithAdmin::class);
 
 describe('LoginController', function (): void {
-    it('renders the login page with its props', function (): void {
+    it('renders the login page with the GitHub button when the flag is on and an admin is linked', function (): void {
         $this->enableGithubOauthFlag();
+        $this->createAdmin(['github_id' => '123']);
 
         $this->get('/admin/login')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Auth/Admin/Pages/LoginPage')
-                ->where('github_oauth_enabled', true)
+                ->where('github_login_available', true)
                 ->where('loginPage', true));
+    });
+
+    it('hides the GitHub button when no admin account is linked', function (): void {
+        $this->enableGithubOauthFlag();
+        $this->createAdmin();
+
+        $this->get('/admin/login')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('github_login_available', false));
+    });
+
+    it('hides the GitHub button when the flag is off even if an admin is linked', function (): void {
+        $this->createAdmin(['github_id' => '123']);
+
+        $this->get('/admin/login')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('github_login_available', false));
     });
 
     it('clears stale half-auth keys when the login page is opened', function (): void {

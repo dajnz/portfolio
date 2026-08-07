@@ -7,7 +7,9 @@ namespace Tests\Integration\Backend\Settings;
 use App\Features\Settings\Domain\Enums\FeatureFlagName;
 use App\Features\Settings\Infra\Models\FeatureFlagModel;
 use App\Features\Settings\Infra\Models\SettingModel;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Traits\InteractsWithAdmin;
 
@@ -30,27 +32,27 @@ describe('SettingsController', function (): void {
                 ->where('settings.email_on_feedback', true));
     });
 
-    it('masks the mail_password in the page props', function (): void {
+    it('masks the mail_api_token in the page props', function (): void {
         app(\App\Features\Settings\App\UseCases\UpdateSettingsUseCase::class)
-            ->update(['mail_password' => 'super-secret']);
+            ->update(['mail_api_token' => 'super-secret']);
 
         $this->get('/admin/settings')
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
-                ->where('settings.mail_password', ''));
+                ->where('settings.mail_api_token', ''));
     });
 
-    it('keeps the stored mail_password when the Mail tab is saved without a new one', function (): void {
+    it('keeps the stored mail_api_token when the Mail tab is saved without a new one', function (): void {
         app(\App\Features\Settings\App\UseCases\UpdateSettingsUseCase::class)
-            ->update(['mail_password' => 'super-secret']);
+            ->update(['mail_api_token' => 'super-secret']);
 
-        $stored = \App\Features\Settings\Infra\Models\SettingModel::query()->find('mail_password')->value;
+        $stored = \App\Features\Settings\Infra\Models\SettingModel::query()->find('mail_api_token')->value;
 
         $this->put('/admin/settings', [
-            'settings' => ['mail_password' => '', 'mail_host' => 'smtp.example.com'],
+            'settings' => ['mail_api_token' => '', 'mail_api_endpoint' => 'https://api.example.com/v1/mail'],
         ])->assertRedirect();
 
-        expect(\App\Features\Settings\Infra\Models\SettingModel::query()->find('mail_password')->value)->toBe($stored);
+        expect(\App\Features\Settings\Infra\Models\SettingModel::query()->find('mail_api_token')->value)->toBe($stored);
     });
 
     it('persists a valid tab payload and redirects back', function (): void {
@@ -81,6 +83,20 @@ describe('SettingsController', function (): void {
         ])->assertRedirect();
 
         expect(SettingModel::query()->find('supported_locales')->value)->toBe('["en"]');
+    });
+
+    it('rejects disabling every locale — at least one must stay enabled', function (): void {
+        $this->put('/admin/settings', [
+            'settings' => ['supported_locales' => []],
+        ])->assertRedirect()
+            ->assertSessionHasErrors([
+                'settings.supported_locales' => "Setting 'supported_locales' must contain at least one locale.",
+            ]);
+
+        $this->put('/admin/settings', [
+            'settings' => ['supported_locales' => '[]'],
+        ])->assertRedirect()
+            ->assertSessionHasErrors('settings.supported_locales');
     });
 
     it('rejects a type mismatch with the per-key message', function (): void {
@@ -232,5 +248,77 @@ describe('SettingsController', function (): void {
     it('rejects a missing flags payload', function (): void {
         $this->patch('/admin/settings/feature-flags', [])->assertRedirect()
             ->assertSessionHasErrors('flags');
+    });
+
+    it('probes the mail API with the submitted endpoint and token', function (): void {
+        Http::fake([
+            'https://api.example.com/v1/mail' => Http::response('', 200),
+        ]);
+
+        $this->postJson('/admin/settings/test-mail', [
+            'settings' => [
+                'mail_api_endpoint' => 'https://api.example.com/v1/mail',
+                'mail_api_token' => 'form-token',
+            ],
+        ])->assertOk()
+            ->assertJson(['data' => ['ok' => true, 'status' => 'ok']]);
+
+        Http::assertSent(fn ($request) => $request->url() === 'https://api.example.com/v1/mail'
+            && $request->hasHeader('Authorization', 'Bearer form-token'));
+    });
+
+    it('reports unauthorized when the mail API rejects the token', function (): void {
+        Http::fake([
+            'https://api.example.com/v1/mail' => Http::response('', 401),
+        ]);
+
+        $this->postJson('/admin/settings/test-mail', [
+            'settings' => ['mail_api_endpoint' => 'https://api.example.com/v1/mail'],
+        ])->assertOk()
+            ->assertJson(['data' => ['ok' => false, 'status' => 'unauthorized']]);
+    });
+
+    it('reports unreachable on a connection error', function (): void {
+        Http::fake(fn () => throw new ConnectionException('Connection refused'));
+
+        $this->postJson('/admin/settings/test-mail', [
+            'settings' => ['mail_api_endpoint' => 'https://api.example.com/v1/mail'],
+        ])->assertOk()
+            ->assertJson(['data' => ['ok' => false, 'status' => 'unreachable']]);
+    });
+
+    it('reports unreachable when no endpoint is configured', function (): void {
+        $this->postJson('/admin/settings/test-mail', [
+            'settings' => ['mail_api_endpoint' => '', 'mail_api_token' => ''],
+        ])->assertOk()
+            ->assertJson(['data' => ['ok' => false, 'status' => 'unreachable']]);
+    });
+
+    it('falls back to the stored token for the probe when the form token is empty', function (): void {
+        app(\App\Features\Settings\App\UseCases\UpdateSettingsUseCase::class)->update([
+            'mail_api_endpoint' => 'https://api.example.com/v1/mail',
+            'mail_api_token' => 'stored-token',
+        ]);
+
+        Http::fake();
+
+        $this->postJson('/admin/settings/test-mail', [
+            'settings' => ['mail_api_token' => ''],
+        ])->assertOk();
+
+        Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Bearer stored-token'));
+    });
+
+    it('rejects non-mail keys on the test-mail probe', function (): void {
+        $this->postJson('/admin/settings/test-mail', [
+            'settings' => ['items_per_page' => 24],
+        ])->assertUnprocessable()
+            ->assertJsonValidationErrors('settings.items_per_page');
+    });
+
+    it('requires the settings payload on the test-mail probe', function (): void {
+        $this->postJson('/admin/settings/test-mail', [])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('settings');
     });
 });

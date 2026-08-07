@@ -19,6 +19,9 @@ const props = withDefaults(
         disabled?: boolean;
         autocomplete?: string;
         maxlength?: number;
+        min?: string | number;
+        max?: string | number;
+        step?: string | number;
         test_id?: string;
     }>(),
     {
@@ -33,6 +36,9 @@ const props = withDefaults(
         disabled: false,
         autocomplete: undefined,
         maxlength: undefined,
+        min: undefined,
+        max: undefined,
+        step: undefined,
         test_id: 'base-input',
     },
 );
@@ -95,6 +101,9 @@ defineExpose({
       :disabled="props.disabled || undefined"
       :autocomplete="props.autocomplete"
       :maxlength="props.maxlength"
+      :min="props.min"
+      :max="props.max"
+      :step="props.step"
       class="block w-full h-10 px-3 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-surface-dark-secondary text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 dark:focus:ring-primary-900 outline-none transition-all"
       :class="{
         'border-danger-300 dark:border-danger-700 focus:border-danger-500 focus:ring-danger-100 dark:focus:ring-danger-900': props.error !== null,

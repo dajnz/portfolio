@@ -51,12 +51,19 @@ describe('ProfilePage', () => {
     });
 
     it('renders within the admin layout with the profile sections', () => {
-        const wrapper = mountPage();
+        const wrapper = mountPage({ github_oauth_enabled: true });
 
         expect(wrapper.find('[data-testid="profile-page-layout"]').exists()).toBe(true);
         expect(wrapper.find('[data-testid="profile-page-info-form"]').exists()).toBe(true);
         expect(wrapper.find('[data-testid="profile-page-password-form"]').exists()).toBe(true);
         expect(wrapper.find('[data-testid="profile-page-social"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="profile-page-totp"]').exists()).toBe(true);
+    });
+
+    it('hides the GitHub linking section when the feature flag is off', () => {
+        const wrapper = mountPage();
+
+        expect(wrapper.find('[data-testid="profile-page-social"]').exists()).toBe(false);
         expect(wrapper.find('[data-testid="profile-page-totp"]').exists()).toBe(true);
     });
 
@@ -149,6 +156,7 @@ describe('ProfilePage', () => {
 
     it('shows the unlink flow when the github account is linked', async () => {
         const wrapper = mountPage({
+            github_oauth_enabled: true,
             admin: { ...ADMIN_PROPS, github_linked: true },
         });
 

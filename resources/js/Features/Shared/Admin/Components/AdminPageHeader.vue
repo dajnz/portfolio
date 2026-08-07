@@ -34,7 +34,7 @@ const props = withDefaults(
         logo_url: '/admin',
         admin_name: undefined,
         profile_url: '/admin/profile',
-        logout_url: undefined,
+        logout_url: '/admin/logout',
         sidebar_collapsed: false,
         locale_props: () => ({ active_locale: 'en', supported_locales: [] }),
         theme_props: () => ({}),

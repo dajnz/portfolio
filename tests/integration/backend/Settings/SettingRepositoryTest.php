@@ -16,7 +16,7 @@ describe('EloquentSettingRepository', function (): void {
             ['key' => 'items_per_page', 'value' => '12', 'type' => 'integer'],
             ['key' => 'site_maintenance_mode', 'value' => '0', 'type' => 'boolean'],
             ['key' => 'supported_locales', 'value' => '["en","ru"]', 'type' => 'json'],
-            ['key' => 'mail_host', 'value' => 'smtp.example.com', 'type' => 'string'],
+            ['key' => 'mail_api_endpoint', 'value' => 'https://api.example.com/v1/mail', 'type' => 'string'],
         ]);
     });
 
@@ -26,7 +26,7 @@ describe('EloquentSettingRepository', function (): void {
         expect($repository->find(SettingName::ItemsPerPage)->value())->toBe(12)
             ->and($repository->find(SettingName::SiteMaintenanceMode)->value())->toBeFalse()
             ->and($repository->find(SettingName::SupportedLocales)->value())->toBe(['en', 'ru'])
-            ->and($repository->find(SettingName::MailHost)->value())->toBe('smtp.example.com');
+            ->and($repository->find(SettingName::MailApiEndpoint)->value())->toBe('https://api.example.com/v1/mail');
     });
 
     it('falls back to the caller-provided default when the row is missing', function (): void {
@@ -118,6 +118,6 @@ describe('EloquentSettingRepository', function (): void {
         expect(array_map(
             static fn ($setting): string => $setting->toName(),
             $settings,
-        ))->toBe(['items_per_page', 'mail_host', 'site_maintenance_mode', 'supported_locales']);
+        ))->toBe(['items_per_page', 'mail_api_endpoint', 'site_maintenance_mode', 'supported_locales']);
     });
 });

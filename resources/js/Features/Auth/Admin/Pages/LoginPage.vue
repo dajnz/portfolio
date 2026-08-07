@@ -14,7 +14,7 @@ import LoginCard from '../Components/LoginCard.vue';
 
 const props = withDefaults(
     defineProps<{
-        github_oauth_enabled: boolean;
+        github_login_available: boolean;
         loginPage: boolean;
         test_id?: string;
     }>(),
@@ -70,6 +70,14 @@ function submitForm(): void {
 }
 
 function startGithubLogin(): void {
+    if (isSubmitting.value) {
+        return;
+    }
+
+    // The whole card enters the loading state until the browser leaves
+    // for GitHub's OAuth page — prevents double-clicks from firing
+    // multiple redirects (user request 2026-08-07).
+    isSubmitting.value = true;
     window.location.href = '/admin/login/github';
 }
 </script>
@@ -77,7 +85,7 @@ function startGithubLogin(): void {
 <template>
   <LoginCard
     :is_loading="isSubmitting"
-    :is_github_enabled="props.github_oauth_enabled"
+    :is_github_enabled="props.github_login_available"
     :test_id="props.test_id"
     @github-login="startGithubLogin"
   >

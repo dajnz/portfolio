@@ -13,6 +13,11 @@ export interface UnsavedChangesGuard {
      *  guard on a dirty form (4.2 deviation: admin-section-components
      *  .md:551 only documents the guard, not the submit bypass). */
     suppressNextVisit: () => void;
+    /** Replaces the comparison baseline and re-syncs — for forms that
+     *  save in parts without a full re-render (SettingsPage per-tab
+     *  saves: only the saved tab's keys become the new baseline, the
+     *  other tabs' edits stay armed). */
+    rebase: (values: Record<string, unknown>) => void;
 }
 
 /**
@@ -34,9 +39,10 @@ export function useUnsavedChanges(
     const isDirty = ref(false);
     const promptMessage = useI18n().t('common.unsaved_changes');
     let suppressVisit = false;
+    let baseline = initialValues;
 
     function sync(): void {
-        isDirty.value = !isEqual(toRaw(form.value), initialValues);
+        isDirty.value = !isEqual(toRaw(form.value), baseline);
     }
 
     const onBeforeUnload = (event: BeforeUnloadEvent): void => {
@@ -88,6 +94,11 @@ export function useUnsavedChanges(
         suppressVisit = true;
     }
 
+    function rebase(values: Record<string, unknown>): void {
+        baseline = values;
+        sync();
+    }
+
     watch(form, sync, { deep: true });
     sync();
 
@@ -95,5 +106,5 @@ export function useUnsavedChanges(
         onScopeDispose(removeGuards);
     }
 
-    return { isDirty, clear, suppressNextVisit };
+    return { isDirty, clear, suppressNextVisit, rebase };
 }

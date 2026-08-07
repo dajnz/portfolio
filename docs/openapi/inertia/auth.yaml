@@ -11,9 +11,9 @@ components:
             props:
               type: object
               properties:
-                github_oauth_enabled:
+                github_login_available:
                   type: boolean
-                  description: Whether GitHub OAuth feature flag is enabled.
+                  description: Whether the "Continue with GitHub" button is shown — the github_oauth feature flag is ON and at least one admin account is linked with GitHub (B127).
                 loginPage:
                   type: boolean
                   const: true

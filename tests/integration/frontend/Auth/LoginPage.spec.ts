@@ -19,7 +19,7 @@ import LoginPage from '@auth/Admin/Pages/LoginPage.vue';
 
 function mountPage(props: Record<string, unknown> = {}) {
     return mount(LoginPage, {
-        props: { github_oauth_enabled: false, loginPage: true, ...props },
+        props: { github_login_available: false, loginPage: true, ...props },
     });
 }
 
@@ -70,14 +70,14 @@ describe('LoginPage', () => {
         );
     });
 
-    it('does not render the GitHub button when the feature flag is off', () => {
+    it('does not render the GitHub button when no linked admin makes it available', () => {
         const wrapper = mountPage();
 
         expect(wrapper.find('[data-testid="login-page-github"]').exists()).toBe(false);
     });
 
-    it('renders the GitHub button when the feature flag is on', () => {
-        const wrapper = mountPage({ github_oauth_enabled: true });
+    it('renders the GitHub button when the flag is on and an admin is linked', () => {
+        const wrapper = mountPage({ github_login_available: true });
 
         expect(wrapper.find('[data-testid="login-page-github"]').exists()).toBe(true);
     });
@@ -89,12 +89,29 @@ describe('LoginPage', () => {
             writable: true,
         });
 
-        const wrapper = mountPage({ github_oauth_enabled: true });
+        const wrapper = mountPage({ github_login_available: true });
         await wrapper.get('[data-testid="login-page-github"]').trigger('click');
         await new Promise((resolve) => setTimeout(resolve, 0));
 
         expect(window.location.href).toBe('/admin/login/github');
         locationMock();
+    });
+
+    it('keeps the GitHub button in the loading state while the OAuth redirect is in flight', async () => {
+        Object.defineProperty(window, 'location', {
+            value: { href: '' },
+            writable: true,
+        });
+
+        const wrapper = mountPage({ github_login_available: true });
+        const button = wrapper.get('[data-testid="login-page-github"]');
+
+        expect(button.attributes('disabled')).toBeUndefined();
+
+        await button.trigger('click');
+
+        expect(button.attributes('disabled')).toBeDefined();
+        expect(wrapper.get('[data-testid="login-page-submit-btn"]').attributes('disabled')).toBeDefined();
     });
 
     it('renders the theme and language controls in the footer', () => {
