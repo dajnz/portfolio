@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Features\Shared\Domain\ValueObjects\StoredPicture;
-use InvalidArgumentException;
 
 describe('StoredPicture', function (): void {
     it('exposes the url, per-locale labels and descriptions', function (): void {
