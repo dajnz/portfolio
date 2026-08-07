@@ -56,6 +56,7 @@ final class ProfileController
                 'email' => $admin->toEmail(),
                 'github_linked' => $admin->isGithubLinked(),
                 'totp_enabled' => $admin->toTimedOtp()->isEnabled(),
+                'recovery_codes_remaining' => $admin->toTimedOtp()->toRecoveryCodesRemaining(),
                 'session_version' => $admin->toSessionVersion(),
             ],
             'github_oauth_enabled' => $this->flags->isEnabled(FeatureFlagName::GithubOauth),
