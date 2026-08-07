@@ -78,7 +78,7 @@ final class ProfileController
             throw ValidationException::withMessages(['current_password' => __('auth.current_password_incorrect')]);
         }
 
-        return back()->with('success', __('auth.profile_updated'));
+        return back()->with('notification', ['type' => 'success', 'message' => __('auth.profile_updated')]);
     }
 
     public function enableTotp(TotpEnableRequest $request): JsonResponse
@@ -111,7 +111,7 @@ final class ProfileController
             throw ValidationException::withMessages(['current_password' => __('auth.current_password_incorrect')]);
         }
 
-        return back()->with('success', __('auth.totp_disabled'));
+        return back()->with('notification', ['type' => 'success', 'message' => __('auth.totp_disabled')]);
     }
 
     public function regenerateRecoveryCodes(RequireCurrentPasswordRequest $request): JsonResponse
@@ -134,6 +134,6 @@ final class ProfileController
             $this->repository->findById((int) $request->user()->getAuthIdentifier()),
         );
 
-        return back()->with('success', __('auth.github_unlinked'));
+        return back()->with('notification', ['type' => 'success', 'message' => __('auth.github_unlinked')]);
     }
 }

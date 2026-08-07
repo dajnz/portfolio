@@ -39,7 +39,7 @@ describe('TotpController github-link flow', function (): void {
             ])
             ->post('/admin/profile/github-link/totp', ['code' => $this->totpCode()])
             ->assertRedirect(route('profile'))
-            ->assertSessionHas('success', 'GitHub account linked successfully.');
+            ->assertSessionHas('notification', ['type' => 'success', 'message' => 'GitHub account linked successfully.']);
 
         $fresh = $admin->fresh();
         expect($fresh->github_id)->toBe('12345')
@@ -83,7 +83,7 @@ describe('TotpController github-link flow', function (): void {
             ])
             ->get('/admin/profile/github-link/totp')
             ->assertRedirect(route('profile'))
-            ->assertSessionHas('error', 'Too many attempts — try again in 5 minutes.');
+            ->assertSessionHas('notification', ['type' => 'error', 'message' => 'Too many attempts — try again in 5 minutes.']);
 
         expect(session('github_link.pending_admin_id'))->toBeNull();
     });

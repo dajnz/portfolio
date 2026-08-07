@@ -28,7 +28,7 @@ final class RequireSessionVersion
         if (! $this->auth->sessionVersionMatches()) {
             $this->auth->forceLogout();
 
-            return redirect()->route('login')->with('error', __('auth.session_expired'));
+            return redirect()->route('login')->with('notification', ['type' => 'error', 'message' => __('auth.session_expired')]);
         }
 
         return $next($request);

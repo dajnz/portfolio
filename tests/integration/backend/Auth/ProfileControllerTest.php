@@ -49,7 +49,7 @@ describe('ProfileController', function (): void {
                 'email' => 'new@example.com',
                 'login' => 'newlogin',
             ])->assertRedirect()
-            ->assertSessionHas('success', 'Profile updated successfully.');
+            ->assertSessionHas('notification', ['type' => 'success', 'message' => 'Profile updated successfully.']);
 
         $fresh = $admin->fresh();
         expect($fresh->name)->toBe('New Name')
@@ -183,7 +183,7 @@ describe('ProfileController', function (): void {
 
         $this->get('/admin/profile')
             ->assertRedirect(route('login'))
-            ->assertSessionHas('error', 'Session expired — please log in again.');
+            ->assertSessionHas('notification', ['type' => 'error', 'message' => 'Session expired — please log in again.']);
 
         $this->assertGuest();
     });
@@ -254,7 +254,7 @@ describe('ProfileController', function (): void {
             $this->loginAsAdmin($admin)
                 ->post('/admin/profile/totp-disable', ['current_password' => self::ADMIN_PASSWORD])
                 ->assertRedirect()
-                ->assertSessionHas('success', 'TOTP disabled.');
+                ->assertSessionHas('notification', ['type' => 'success', 'message' => 'TOTP disabled.']);
 
             $fresh = $admin->fresh();
             expect($fresh->totp_enabled)->toBeFalse()

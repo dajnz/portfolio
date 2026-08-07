@@ -52,7 +52,7 @@ final class TotpController
         } catch (InvalidTotpCodeException) {
             return back()->withErrors(['code' => __('auth.invalid_totp_code')]);
         } catch (TotpLockedException $exception) {
-            return redirect()->route('login')->with('error', $exception->getMessage());
+            return redirect()->route('login')->with('notification', ['type' => 'error', 'message' => $exception->getMessage()]);
         }
 
         return redirect()->intended('/admin');
@@ -67,14 +67,14 @@ final class TotpController
         } catch (InvalidTotpCodeException) {
             return back()->withErrors(['code' => __('auth.invalid_totp_code')]);
         } catch (TotpLockedException $exception) {
-            return redirect()->route('profile')->with('error', $exception->getMessage());
+            return redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => $exception->getMessage()]);
         } catch (GithubAlreadyLinkedException) {
-            return redirect()->route('profile')->with('error', __('auth.github_already_linked'));
+            return redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_already_linked')]);
         } catch (GithubConflictException) {
-            return redirect()->route('profile')->with('error', __('auth.github_conflict'));
+            return redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_conflict')]);
         }
 
-        return redirect()->route('profile')->with('success', __('auth.github_linked'));
+        return redirect()->route('profile')->with('notification', ['type' => 'success', 'message' => __('auth.github_linked')]);
     }
 
     /**
