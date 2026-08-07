@@ -48,6 +48,28 @@ final class UpdateAboutRequest extends FormRequest
     }
 
     /**
+     * Friendly attribute names for the per-locale fields — the raw
+     * `name.en` keys would otherwise leak into the validation messages
+     * ("The name.en field is required."); the label is localized and the
+     * locale suffix makes it clear which translation is at fault.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        $attributes = [];
+        foreach ($this->activeLocales() as $locale) {
+            $suffix = ' ['.strtoupper($locale).']';
+            $attributes["name.$locale"] = __('admin.about.name').$suffix;
+            $attributes["title.$locale"] = __('admin.about.title_label').$suffix;
+            $attributes["short_pitch.$locale"] = __('admin.about.short_pitch').$suffix;
+            $attributes["location.$locale"] = __('admin.about.location').$suffix;
+        }
+
+        return $attributes;
+    }
+
+    /**
      * @return string[]
      */
     private function activeLocales(): array

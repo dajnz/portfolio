@@ -39,6 +39,22 @@ final class StoreContactRequest extends FormRequest
     }
 
     /**
+     * Friendly attribute names for the per-locale name fields (the raw
+     * `name.en` keys would otherwise leak into validation messages).
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        $attributes = [];
+        foreach ($this->activeLocales() as $locale) {
+            $attributes["name.$locale"] = __('admin.contacts.name').' ['.strtoupper($locale).']';
+        }
+
+        return $attributes;
+    }
+
+    /**
      * @return string[]
      */
     private function activeLocales(): array
