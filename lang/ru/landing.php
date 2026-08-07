@@ -44,4 +44,6 @@ return [
     'feedback_send_another' => 'Отправить ещё',
     'feedback_error' => 'Не удалось отправить сообщение. Попробуйте ещё раз.',
     'feedback_invalid_email' => 'Введите корректный email-адрес.',
+
+    'console_greeting' => 'Привет! Добро пожаловать в моё портфолио.',
 ];

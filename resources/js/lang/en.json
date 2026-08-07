@@ -379,9 +379,11 @@
         },
         "toasts": {
             "delete_failed": "Could not delete feedback.",
+            "deleted": "Deleted successfully.",
             "failed_to_save": "Failed to save. Please try again.",
             "feedback_deleted": "Feedback deleted.",
             "mark_read_failed": "Could not mark as read",
+            "saved": "Saved successfully.",
             "settings_saved": "Settings saved successfully.",
             "upload_failed": "Upload failed, try again."
         },
@@ -519,6 +521,7 @@
             "busy": "Busy",
             "limited": "Limited"
         },
+        "console_greeting": "Hey there! Welcome to my portfolio.",
         "cookies_accept": "Accept",
         "cookies_notice": "This site uses cookies for language preferences, theme settings, and self-hosted analytics. No third-party trackers.",
         "download_cv": "Download CV",
@@ -545,6 +548,13 @@
             "office": "Office",
             "remote": "Remote"
         }
+    },
+    "mail": {
+        "feedback_footer": "You are receiving this because the \"Email on Feedback\" option is enabled.",
+        "feedback_intro": ":sender_name (:sender_email) sent you a message:",
+        "feedback_subject": "New feedback received",
+        "feedback_title": "New Feedback",
+        "feedback_view_all": "View feedback"
     },
     "nav": {
         "about_me": "About Me",
