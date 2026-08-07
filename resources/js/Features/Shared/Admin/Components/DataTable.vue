@@ -24,6 +24,10 @@ const props = withDefaults(
         row_key?: string;
         is_loading?: boolean;
         trashed_ids?: Array<RowId>;
+        /** Per-row extra classes (spec §Styling: the `unread` feedback row
+         *  state overrides the zebra background — admin-section-components
+         *  .md:476). Applied after the built-in state classes. */
+        row_class?: (row: Record<string, unknown>) => string | Array<string> | undefined;
         empty_mode?: EmptyStateMode;
         empty_message?: string;
         empty_action_label?: string | null;
@@ -38,6 +42,7 @@ const props = withDefaults(
         row_key: 'id',
         is_loading: false,
         trashed_ids: () => [],
+        row_class: undefined,
         empty_mode: 'empty',
         empty_message: undefined,
         empty_action_label: null,
@@ -137,6 +142,16 @@ function onRowClick(row: Record<string, unknown>): void {
     emit('row-click', row);
 }
 
+function extraRowClasses(row: Record<string, unknown>): Array<string> {
+    const extra = props.row_class !== undefined ? props.row_class(row) : undefined;
+
+    if (extra === undefined) {
+        return [];
+    }
+
+    return Array.isArray(extra) ? extra : [extra];
+}
+
 function rowClasses(row: Record<string, unknown>): Array<string> {
     const id = rowId(row);
     const isTrashed = props.trashed_ids.includes(id);
@@ -148,6 +163,7 @@ function rowClasses(row: Record<string, unknown>): Array<string> {
         isTrashed ? 'opacity-50 italic' : '',
         isSelected ? 'bg-primary-50/50 dark:bg-primary-950/30' : '',
         props.is_loading ? '' : 'cursor-pointer',
+        ...extraRowClasses(row),
     ];
 }
 

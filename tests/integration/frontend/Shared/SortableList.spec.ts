@@ -79,7 +79,7 @@ describe('SortableList', () => {
         expect(wrapper.emitted('update:modelValue')).toEqual([[ITEMS]]);
     });
 
-    it('only starts dragging from the handle element in handle mode', async () => {
+    it('only starts dragging after a mousedown on the handle in handle mode', async () => {
         const wrapper = mountList(
             { handle: '.drag-handle' },
             {
@@ -91,13 +91,37 @@ describe('SortableList', () => {
             },
         );
 
+        // The browser fires dragstart at the drag source (the item), so a
+        // dragstart without a preceding handle mousedown is rejected.
         await wrapper.get('[data-testid^="sortable-list-item-"]').trigger('dragstart');
 
         expect(wrapper.emitted('drag-start')).toBeUndefined();
 
-        await wrapper.get('.drag-handle').trigger('dragstart');
+        // A press on the handle arms the gesture — the subsequent
+        // dragstart (target = the item element) is allowed.
+        await wrapper.get('.drag-handle').trigger('mousedown');
+        await wrapper.get('[data-testid^="sortable-list-item-"]').trigger('dragstart');
 
         expect(wrapper.emitted('drag-start')).toHaveLength(1);
+    });
+
+    it('clears the armed handle gesture when the press is released without a drag', async () => {
+        const wrapper = mountList(
+            { handle: '.drag-handle' },
+            {
+                default: `
+                    <template #default="{ item }">
+                        <button type="button" class="drag-handle" data-testid="handle-${''}">{{ item.label }}</button>
+                    </template>
+                `,
+            },
+        );
+
+        await wrapper.get('.drag-handle').trigger('mousedown');
+        await wrapper.get('[data-testid^="sortable-list-item-"]').trigger('mouseup');
+        await wrapper.get('[data-testid^="sortable-list-item-"]').trigger('dragstart');
+
+        expect(wrapper.emitted('drag-start')).toBeUndefined();
     });
 
     it('does not reorder when disabled', async () => {

@@ -29,3 +29,33 @@
     --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
 }
 
+/* Thin scrollbars for the admin picker panels (user request 2026-08-07 —
+   the default wide white scrollbar clashes with the dark theme). Applied
+   to the icons area of AdminIconPicker. */
+@utility thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-slate-300) transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 9999px;
+        background-color: var(--color-slate-300);
+    }
+
+    &::-webkit-scrollbar-track {
+        background-color: transparent;
+    }
+
+    @variant dark {
+        scrollbar-color: var(--color-slate-600) transparent;
+
+        &::-webkit-scrollbar-thumb {
+            background-color: var(--color-slate-600);
+        }
+    }
+}
+

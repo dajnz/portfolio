@@ -402,7 +402,7 @@ onBeforeUnmount(() => {
         v-if="isOpen"
         :id="panelId"
         ref="panelEl"
-        class="w-72 max-h-96 bg-white dark:bg-surface-dark-secondary border border-slate-200 dark:border-slate-700 rounded-lg shadow-dropdown z-dropdown flex flex-col overflow-hidden"
+        class="fixed w-72 max-h-96 bg-white dark:bg-surface-dark-secondary border border-slate-200 dark:border-slate-700 rounded-lg shadow-dropdown z-dropdown flex flex-col overflow-hidden"
         :style="panelStyle"
         :data-testid="`${props.test_id}-panel`"
       >
@@ -410,7 +410,7 @@ onBeforeUnmount(() => {
           ref="searchEl"
           v-model="query"
           type="search"
-          class="h-9 px-3 text-sm bg-transparent border-b border-slate-200 dark:border-slate-700 outline-none"
+          class="h-11 shrink-0 appearance-none rounded-none px-3.5 text-sm bg-transparent border-b border-slate-200 dark:border-slate-700 outline-none placeholder-slate-400 dark:placeholder-slate-500"
           :placeholder="t('admin.icon_picker.search_placeholder')"
           :data-testid="`${props.test_id}-search`"
           @keydown="onSearchKeydown"
@@ -428,7 +428,7 @@ onBeforeUnmount(() => {
         </div>
         <div
           v-else
-          class="flex-1 min-h-0 overflow-y-auto"
+          class="thin-scrollbar flex-1 min-h-0 overflow-y-auto"
         >
           <template
             v-for="(group, groupIndex) in filteredGroups"

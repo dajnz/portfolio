@@ -176,7 +176,15 @@ function previewUrl(): string {
               {{ t('admin.upload.remove') }}
             </button>
           </div>
-          <slot />
+          <!-- The slot content (e.g. locale-tabbed alt texts) must not
+               trigger the file picker — the dropzone container opens it
+               on click. -->
+          <div
+            class="w-full"
+            @click.stop
+          >
+            <slot />
+          </div>
         </div>
       </template>
       <template v-else>
