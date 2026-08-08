@@ -79,7 +79,7 @@ describe('EloquentTechSkillReadRepository', function (): void {
         $skills = $repository->findAll('ru');
 
         expect(array_map(
-            static fn (TechSkill $skill): string => $skill->toGroupName(),
+            static fn (TechSkill $skill): string => $skill->toGroupName('ru'),
             $skills,
         ))->toBe(['Бэкенд', 'Frontend']);
     });
@@ -101,7 +101,7 @@ describe('EloquentTechSkillReadRepository', function (): void {
             ->and($entity->toProficiency())->toBe(5)
             ->and($entity->toSortOrder())->toBe(1)
             ->and($entity->toGroupId())->toBe($backend->id)
-            ->and($entity->toGroupName())->toBe('Backend');
+            ->and($entity->toGroupName('en'))->toBe('Backend');
     });
 
     it('provides the translation key for proficiency labels', function (): void {
@@ -163,13 +163,13 @@ describe('EloquentTechSkillReadRepository', function (): void {
 
         expect($grouped)->toHaveCount(2)
             ->and($grouped[0])->toBeInstanceOf(TechSkillGroup::class)
-            ->and($grouped[0]->toName())->toBe('Backend')
+            ->and($grouped[0]->nameFor('en'))->toBe('Backend')
             ->and($grouped[0]->toIcon())->toBe('heroicons:server')
             ->and(array_map(
                 static fn (TechSkill $skill): string => $skill->toName(),
                 $grouped[0]->toSkills(),
             ))->toBe(['PHP', 'Laravel'])
-            ->and($grouped[1]->toName())->toBe('Frontend')
+            ->and($grouped[1]->nameFor('en'))->toBe('Frontend')
             ->and(array_map(
                 static fn (TechSkill $skill): string => $skill->toName(),
                 $grouped[1]->toSkills(),

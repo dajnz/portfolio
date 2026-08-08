@@ -138,6 +138,7 @@ return [
 
     'skills' => [
         'title' => 'Skills',
+        'group_name' => 'Group Name',
         'add_group' => 'Create Group',
         'add_skill' => 'Add Skill',
         'search_placeholder' => 'Search skills...',

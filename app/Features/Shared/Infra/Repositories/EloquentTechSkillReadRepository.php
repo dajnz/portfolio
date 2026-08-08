@@ -7,6 +7,12 @@ namespace App\Features\Shared\Infra\Repositories;
 use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\Entities\TechSkillGroup;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
+use App\Features\Shared\Domain\ValueObjects\ProficiencyLevel;
+use App\Features\Shared\Domain\ValueObjects\SkillGroupIcon;
+use App\Features\Shared\Domain\ValueObjects\SkillGroupVo;
+use App\Features\Shared\Domain\ValueObjects\SkillIcon;
+use App\Features\Shared\Domain\ValueObjects\SortOrder;
+use App\Features\Shared\Domain\ValueObjects\TechSkillGroupName;
 use App\Features\Shared\Infra\Models\SkillModel;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Support\Facades\DB;
@@ -14,16 +20,17 @@ use Illuminate\Support\Facades\DB;
 /**
  * Eloquent-backed read model for tech skills.
  *
- * Uses two queries per method: one for
- * group translations and one for skills. Entities are hydrated with the
- * pre-loaded group data so that every {@see TechSkill} carries its group
- * identity and localised name.
+ * Two queries per method: one for group translations and one for
+ * skills. Entities are hydrated with the pre-loaded group data so that
+ * every {@see TechSkill} carries its group context
+ * ({@see SkillGroupVo}) and every {@see TechSkillGroup} carries its
+ * per-locale names. Value objects are created here from raw rows.
  */
 final class EloquentTechSkillReadRepository implements TechSkillReadRepositoryInterface
 {
     public function findAll(string $locale): array
     {
-        $groups = $this->loadGroupRows($locale);
+        $groups = $this->loadGroupRows();
 
         return $this->skillsBaseQuery()
             ->get()
@@ -43,7 +50,7 @@ final class EloquentTechSkillReadRepository implements TechSkillReadRepositoryIn
 
         $groupIds = $skillRows->pluck('skill_group_id')->unique()->all();
 
-        $groups = $this->loadGroupRows($locale, $groupIds);
+        $groups = $this->loadGroupRows($groupIds);
 
         return $skillRows
             ->map(fn (SkillModel $row): TechSkill => $this->hydrateSkill($row, $groups))
@@ -52,7 +59,7 @@ final class EloquentTechSkillReadRepository implements TechSkillReadRepositoryIn
 
     public function findAllGrouped(string $locale): array
     {
-        $groupRows = $this->loadGroupRows($locale);
+        $groupRows = $this->loadGroupRows();
 
         $skillsByGroupId = [];
         foreach ($this->skillsBaseQuery()->get() as $skillRow) {
@@ -61,13 +68,13 @@ final class EloquentTechSkillReadRepository implements TechSkillReadRepositoryIn
         }
 
         $result = [];
-        foreach ($groupRows as $groupId => $groupData) {
+        foreach ($groupRows as $groupRow) {
             $result[] = new TechSkillGroup(
-                id: $groupData['id'],
-                name: $groupData['name'],
-                icon: $groupData['icon'],
-                sortOrder: $groupData['sort_order'],
-                skills: $skillsByGroupId[$groupId] ?? [],
+                id: $groupRow['id'],
+                icon: $groupRow['icon'] === null ? null : new SkillGroupIcon($groupRow['icon']),
+                sortOrder: new SortOrder($groupRow['sort_order']),
+                groupNames: $groupRow['translations'],
+                skills: $skillsByGroupId[$groupRow['id']] ?? [],
             );
         }
 
@@ -76,40 +83,40 @@ final class EloquentTechSkillReadRepository implements TechSkillReadRepositoryIn
 
     /**
      * @param  int[]|null  $groupIds  When provided, only loads rows for these group IDs.
-     * @return array<int, array{id: int, name: string, icon: string|null, sort_order: int}>
+     * @return array<int, array{id: int, icon: string|null, sort_order: int, translations: TechSkillGroupName[]}>
      */
-    private function loadGroupRows(string $locale, ?array $groupIds = null): array
+    private function loadGroupRows(?array $groupIds = null): array
     {
-        $query = DB::table('skill_groups')
-            ->select([
-                'skill_groups.id',
-                'skill_groups.icon',
-                'skill_groups.sort_order',
-                DB::raw("coalesce(gl.name, ge.name, '') as name"),
-            ])
-            ->leftJoin('skill_group_translations as gl', function ($join) use ($locale): void {
-                $join->on('gl.skill_group_id', '=', 'skill_groups.id')
-                    ->where('gl.locale', '=', $locale);
-            })
-            ->leftJoin('skill_group_translations as ge', function ($join): void {
-                $join->on('ge.skill_group_id', '=', 'skill_groups.id')
-                    ->where('ge.locale', '=', 'en');
-            })
+        $groupQuery = DB::table('skill_groups')
+            ->select(['skill_groups.id', 'skill_groups.icon', 'skill_groups.sort_order'])
             ->orderBy('skill_groups.sort_order');
 
         if ($groupIds !== null) {
-            $query->whereIn('skill_groups.id', $groupIds);
+            $groupQuery->whereIn('skill_groups.id', $groupIds);
         }
 
-        $rows = $query->get();
+        $rows = $groupQuery->get();
+
+        $translationRows = DB::table('skill_group_translations')
+            ->whereIn('skill_group_id', $rows->pluck('id')->all())
+            ->orderBy('locale')
+            ->get();
+
+        $translationsByGroupId = [];
+        foreach ($translationRows as $row) {
+            $translationsByGroupId[(int) $row->skill_group_id][] = new TechSkillGroupName(
+                locale: $row->locale,
+                name: $row->name,
+            );
+        }
 
         $groups = [];
         foreach ($rows as $row) {
-            $groups[$row->id] = [
+            $groups[(int) $row->id] = [
                 'id' => (int) $row->id,
-                'name' => $row->name,
                 'icon' => $row->icon,
                 'sort_order' => (int) $row->sort_order,
+                'translations' => $translationsByGroupId[(int) $row->id] ?? [],
             ];
         }
 
@@ -132,20 +139,24 @@ final class EloquentTechSkillReadRepository implements TechSkillReadRepositoryIn
     }
 
     /**
-     * @param  array<int, array{id: int, name: string, icon: string|null, sort_order: int}>  $groups
+     * @param  array<int, array{id: int, icon: string|null, sort_order: int, translations: TechSkillGroupName[]}>  $groups
      */
     private function hydrateSkill(SkillModel $row, array $groups): TechSkill
     {
         $groupId = (int) $row->skill_group_id;
+        $groupData = $groups[$groupId] ?? null;
 
         return new TechSkill(
             id: (int) $row->id,
             name: $row->name,
-            icon: $row->icon,
-            proficiency: (int) $row->proficiency,
-            sortOrder: (int) $row->sort_order,
-            groupId: $groupId,
-            groupName: $groups[$groupId]['name'] ?? '',
+            icon: $row->icon === null ? null : new SkillIcon($row->icon),
+            proficiency: new ProficiencyLevel((int) $row->proficiency),
+            includeInResume: $row->include_in_resume,
+            sortOrder: new SortOrder((int) $row->sort_order),
+            group: new SkillGroupVo(
+                id: $groupId,
+                groupNames: $groupData['translations'] ?? [],
+            ),
         );
     }
 }
