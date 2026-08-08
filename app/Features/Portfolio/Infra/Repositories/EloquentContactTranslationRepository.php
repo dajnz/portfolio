@@ -6,7 +6,7 @@ namespace App\Features\Portfolio\Infra\Repositories;
 
 use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
 use App\Features\Portfolio\Infra\Mappers\ContactTranslationMapper;
-use App\Features\Shared\Infra\Services\LocaleService;
+use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\Portfolio\Infra\Models\ContactTranslationModel;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
@@ -20,7 +20,7 @@ final class EloquentContactTranslationRepository
 {
     public function __construct(
         private readonly ContactTranslationMapper $mapper,
-        private readonly LocaleService $locales,
+        private readonly ActiveLocaleService $locales,
     ) {
     }
 

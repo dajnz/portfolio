@@ -12,7 +12,7 @@ use App\Features\Shared\Infra\Models\SkillGroupModel;
 use App\Features\Shared\Infra\Models\SkillGroupTranslationModel;
 use App\Features\Shared\Infra\Models\SkillModel;
 use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepositoryInterface;
-use App\Features\Shared\Infra\Services\LocaleService;
+use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\TechSkills\Infra\Mappers\TechSkillGroupMapper;
 use App\Features\TechSkills\Infra\Mappers\TechSkillMapper;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
@@ -32,7 +32,7 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
     public function __construct(
         private readonly TechSkillMapper $skillMapper,
         private readonly TechSkillGroupMapper $groupMapper,
-        private readonly LocaleService $locales,
+        private readonly ActiveLocaleService $locales,
     ) {
     }
 

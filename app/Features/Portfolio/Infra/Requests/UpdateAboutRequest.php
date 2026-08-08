@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Portfolio\Infra\Requests;
 
 use App\Features\Portfolio\Domain\ValueObjects\AvailabilityStatus;
-use App\Features\Shared\Infra\Services\LocaleService;
+use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -19,7 +19,7 @@ use Illuminate\Validation\Rule;
 final class UpdateAboutRequest extends FormRequest
 {
     public function __construct(
-        private readonly LocaleService $locales,
+        private readonly ActiveLocaleService $locales,
     ) {
         parent::__construct();
     }

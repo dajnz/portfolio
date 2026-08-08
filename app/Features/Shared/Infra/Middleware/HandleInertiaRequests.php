@@ -11,7 +11,7 @@ use App\Features\Settings\Domain\Enums\FeatureFlagName;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
-use App\Features\Shared\Infra\Services\LocaleService;
+use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Throwable;
@@ -30,7 +30,7 @@ final class HandleInertiaRequests extends Middleware
         private readonly AdminMapper $adminMapper,
         private readonly SettingRepositoryInterface $settings,
         private readonly FeatureFlagRepositoryInterface $flags,
-        private readonly LocaleService $locales,
+        private readonly ActiveLocaleService $locales,
     ) {
     }
 

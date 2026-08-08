@@ -8,14 +8,16 @@ use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 
 /**
- * Locale helpers for the Infra/app layers: the active locales come from
- * the `supported_locales` setting (falling back to the committed
- * `config('portfolio.supported_locales')`), normalized to a deduplicated
- * list of strings. Shared by the per-locale form requests, the
- * translation-building use cases and the SEO helpers (content-management.
- * md:419).
+ * Active-locale helpers for the Infra/app layers: the locales enabled
+ * in the `supported_locales` setting (falling back to the committed
+ * `config('portfolio.supported_locales')`), normalized to a
+ * deduplicated list of strings. Shared by the per-locale form requests,
+ * the translation-building use cases and the SEO helpers
+ * (content-management.md:419). Per-locale *value* projection helpers
+ * (input normalization, entity value maps) live in the separate
+ * {@see PerLocaleValues} service.
  */
-final class LocaleService
+final class ActiveLocaleService
 {
     public function __construct(
         private readonly SettingRepositoryInterface $settings,

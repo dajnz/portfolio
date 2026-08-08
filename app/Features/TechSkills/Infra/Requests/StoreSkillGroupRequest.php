@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\TechSkills\Infra\Requests;
 
-use App\Features\Shared\Infra\Services\LocaleService;
+use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
@@ -16,7 +16,7 @@ use Illuminate\Foundation\Http\FormRequest;
 final class StoreSkillGroupRequest extends FormRequest
 {
     public function __construct(
-        private readonly LocaleService $locales,
+        private readonly ActiveLocaleService $locales,
     ) {
         parent::__construct();
     }

@@ -10,7 +10,7 @@ use App\Features\Portfolio\Domain\Entities\Contact;
 use App\Features\Portfolio\Infra\Requests\SubmitFeedbackRequest;
 use App\Features\Shared\Domain\Entities\FeaturedProject;
 use App\Features\Shared\Domain\Entities\TechSkillGroup;
-use App\Features\Shared\Infra\Services\LocaleService;
+use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Http\Request;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -26,7 +26,7 @@ final class LandingController
 {
     public function __construct(
         private readonly GetLandingPageDataUseCase $landingPageCase,
-        private readonly LocaleService $locales,
+        private readonly ActiveLocaleService $locales,
     ) {
     }
 
