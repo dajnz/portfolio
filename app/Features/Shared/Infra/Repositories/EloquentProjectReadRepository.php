@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Features\Shared\Infra\Repositories;
 
 use App\Features\Shared\Domain\Entities\FeaturedProject;
-use App\Features\Shared\Domain\Entities\FeaturedProjectTechTag;
+use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
+use App\Features\Shared\Domain\ValueObjects\SkillIcon;
 use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 use Illuminate\Support\Facades\DB;
 
@@ -96,7 +97,7 @@ final class EloquentProjectReadRepository implements ProjectReadRepositoryInterf
 
     /**
      * @param  int[]  $projectIds
-     * @return array<int, FeaturedProjectTechTag[]>
+     * @return array<int, TechSkillTag[]>
      */
     private function techTagsByProjectId(array $projectIds): array
     {
@@ -114,10 +115,10 @@ final class EloquentProjectReadRepository implements ProjectReadRepositoryInterf
         $tags = [];
         foreach ($rows as $row) {
             $projectId = (int) $row->project_id;
-            $tags[$projectId][] = new FeaturedProjectTechTag(
+            $tags[$projectId][] = new TechSkillTag(
                 id: (int) $row->id,
-                name: $row->name,
-                icon: $row->icon,
+                skillName: $row->name,
+                icon: $row->icon === null ? null : new SkillIcon($row->icon),
             );
         }
 

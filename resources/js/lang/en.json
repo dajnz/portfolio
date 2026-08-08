@@ -424,6 +424,7 @@
             "feedback_deleted": "Feedback deleted.",
             "forward_failed": "Could not forward feedback.",
             "mark_read_failed": "Could not mark as read",
+            "restored": "Restored successfully.",
             "saved": "Saved successfully.",
             "settings_saved": "Settings saved successfully.",
             "translation_incomplete": "The {locale} translation is incomplete.",
@@ -701,6 +702,11 @@
         "ends_with": "The :attribute must end with one of the following: :values.",
         "enum": "The selected :attribute is invalid.",
         "exists": "The selected :attribute is invalid.",
+        "experience": {
+            "achievement_description_required": "Each achievement needs a description in at least one language.",
+            "identity_fields_all_or_none": "The :attribute, company name and country must all be filled together or left empty.",
+            "short_description_plain_length": "The :attribute must not exceed :max characters when stripped of Markdown."
+        },
         "file": "The :attribute must be a file.",
         "filled": "The :attribute field must have a value.",
         "gt": {

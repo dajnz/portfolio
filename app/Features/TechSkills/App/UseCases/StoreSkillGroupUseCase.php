@@ -8,7 +8,7 @@ use App\Features\Shared\Domain\Entities\TechSkillGroup;
 use App\Features\Shared\Domain\ValueObjects\SkillGroupIcon;
 use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use App\Features\Shared\Domain\ValueObjects\TechSkillGroupName;
-use App\Features\Shared\Infra\Services\LocaleService;
+use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepositoryInterface;
 
 /**
@@ -19,7 +19,7 @@ final class StoreSkillGroupUseCase
 {
     public function __construct(
         private readonly TechSkillWriteRepositoryInterface $repository,
-        private readonly LocaleService $locales,
+        private readonly ActiveLocaleService $locales,
     ) {
     }
 

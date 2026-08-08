@@ -214,6 +214,8 @@ components:
           nullable: true
         is_published:
           type: boolean
+        include_in_resume:
+          type: boolean
         created_at:
           type: string
           format: date-time

@@ -7,7 +7,7 @@ namespace App\Features\Portfolio\App\UseCases;
 use App\Features\Portfolio\Domain\Entities\Contact;
 use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
-use App\Features\Shared\Infra\Services\LocaleService;
+use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -19,7 +19,7 @@ final class UpdateContactUseCase
 {
     public function __construct(
         private readonly ContactRepositoryInterface $repository,
-        private readonly LocaleService $locales,
+        private readonly ActiveLocaleService $locales,
     ) {
     }
 

@@ -10,7 +10,7 @@ use App\Features\Portfolio\Domain\ValueObjects\AboutInfoTranslation;
 use App\Features\Portfolio\Domain\ValueObjects\AvailabilityStatus;
 use App\Features\Portfolio\Domain\ValueObjects\WorkType;
 use App\Features\Shared\Domain\ValueObjects\StoredPicture;
-use App\Features\Shared\Infra\Services\LocaleService;
+use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -24,7 +24,7 @@ final class UpdateAboutUseCase
 {
     public function __construct(
         private readonly AboutInfoRepositoryInterface $repository,
-        private readonly LocaleService $locales,
+        private readonly ActiveLocaleService $locales,
     ) {
     }
 

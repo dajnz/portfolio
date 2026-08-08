@@ -12,6 +12,13 @@ runtime support.
 
 ### Added
 
+- **`TimelineItemTableRowData.include_in_resume` (v1.0.8, step 6.1):** the
+  admin experience list rows now carry `include_in_resume` (boolean) — the
+  DataTable's "Include in Resume" column per `admin-section-components.md`
+  (:1063) and the `experience.html` mockup was previously unrepresentable
+  in the committed contract. `info.version` bumped to `1.0.8` in
+  `inertia.yaml`.
+
 - **Shared prop `supported_locales` (v1.0.7, step 5.2 rework):** the admin
   header's language selector and every per-locale editing surface
   (LocaleTabs) now receive the ACTIVE locales from the `supported_locales`

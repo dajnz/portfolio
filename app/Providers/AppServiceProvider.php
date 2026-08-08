@@ -9,6 +9,9 @@ use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterfa
 use App\Features\Auth\Infra\Listeners\LoginListener;
 use App\Features\Auth\Infra\Repositories\EloquentAdminRepository;
 use App\Features\Auth\Infra\Repositories\EloquentAdminTimedOtpRepository;
+use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
+use App\Features\Experience\Infra\Repositories\EloquentTimelineItemRepository;
+use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\AboutInfoRepositoryInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\FeedbackRepositoryInterface;
@@ -100,6 +103,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             TechSkillWriteRepositoryInterface::class,
             EloquentTechSkillWriteRepository::class,
+        );
+
+        $this->app->bind(
+            TimelineItemRepositoryInterface::class,
+            EloquentTimelineItemRepository::class,
+        );
+
+        $this->app->bind(
+            TimelineItemListQueryRepositoryInterface::class,
+            EloquentTimelineItemRepository::class,
         );
     }
 

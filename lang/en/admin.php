@@ -451,6 +451,7 @@ return [
     'toasts' => [
         'saved' => 'Saved successfully.',
         'deleted' => 'Deleted successfully.',
+        'restored' => 'Restored successfully.',
         'settings_saved' => 'Settings saved successfully.',
         'feedback_deleted' => 'Feedback deleted.',
         'delete_failed' => 'Could not delete feedback.',

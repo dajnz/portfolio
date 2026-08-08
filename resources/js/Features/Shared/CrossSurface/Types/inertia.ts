@@ -1388,6 +1388,7 @@ export interface components {
             /** Format: date */
             ended_at?: string | null;
             is_published?: boolean;
+            include_in_resume?: boolean;
             /** Format: date-time */
             created_at?: string;
         };

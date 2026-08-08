@@ -12,6 +12,7 @@ use App\Features\Portfolio\Domain\ValueObjects\AvailabilityStatus;
 use App\Features\Portfolio\Domain\ValueObjects\WorkType;
 use App\Features\Portfolio\Infra\Requests\UpdateAboutRequest;
 use App\Features\Shared\Domain\ValueObjects\StoredPicture;
+use App\Features\Shared\Infra\Services\PerLocaleValues;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -28,6 +29,7 @@ final class AboutController
     public function __construct(
         private readonly GetAboutForEditUseCase $getAboutCase,
         private readonly UpdateAboutUseCase $updateAboutCase,
+        private readonly PerLocaleValues $localeValues,
     ) {
     }
 
@@ -63,14 +65,13 @@ final class AboutController
     private function props(AboutInfo $about): array
     {
         $translations = $about->translationsByLocale();
-
-        $perLocale = fn (string $field, ?string $default = null): array => $this->perLocaleValues($translations, $field, $default);
+        $map = fn (callable $extractor): array => $this->localeValues->mapPerLocale($translations, $extractor);
 
         return [
-            'name' => $perLocale('name'),
-            'title' => $perLocale('title'),
-            'short_pitch' => $perLocale('short_pitch'),
-            'location' => $perLocale('location'),
+            'name' => $map(fn (AboutInfoTranslation $translation): string => $translation->toName()),
+            'title' => $map(fn (AboutInfoTranslation $translation): string => $translation->toTitle()),
+            'short_pitch' => $map(fn (AboutInfoTranslation $translation): string => $translation->toShortPitch()),
+            'location' => $map(fn (AboutInfoTranslation $translation): ?string => $translation->toLocation()),
             'photo' => $about->toPhoto()?->url,
             'photo_alt' => $about->toPhoto()?->altLabelsMap() ?? [],
             'show_location' => $about->toShowLocation(),
@@ -79,26 +80,6 @@ final class AboutController
             'work_type' => $about->toWorkType()->value,
             'relocation_readiness' => $about->toRelocationReadiness(),
         ];
-    }
-
-    /**
-     * @param  array<string, AboutInfoTranslation>  $translations
-     * @return array<string, string|null>
-     */
-    private function perLocaleValues(array $translations, string $field, ?string $default = null): array
-    {
-        $values = [];
-        foreach ($translations as $locale => $translation) {
-            $values[$locale] = match ($field) {
-                'name' => $translation->toName(),
-                'title' => $translation->toTitle(),
-                'short_pitch' => $translation->toShortPitch(),
-                'location' => $translation->toLocation() ?? $default,
-                default => $default,
-            };
-        }
-
-        return $values;
     }
 
     private function photoFromRequest(UpdateAboutRequest $request): ?StoredPicture
