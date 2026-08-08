@@ -8,12 +8,20 @@ import { createApp, type DefineComponent, h } from 'vue';
 import AppRoot from '@/app.vue';
 import '@/iconRegistry';
 
+// Inertia page names resolve to `<name>.vue` or — for directory-based
+// complex pages (5.2 rework — SkillsListPage) — to `<dir>/<name>.vue`.
+// `resolvePageComponent` tries each candidate in order.
+function resolvePage(name: string) {
+    const lastName = name.split('/').pop() ?? name;
+
+    return resolvePageComponent(
+        [`./Features/${name}.vue`, `./Features/${name}/${lastName}.vue`],
+        import.meta.glob<DefineComponent>('./Features/**/*.vue'),
+    );
+}
+
 createInertiaApp({
-    resolve: (name) =>
-        resolvePageComponent(
-            `./Features/${name}.vue`,
-            import.meta.glob<DefineComponent>('./Features/**/*.vue'),
-        ),
+    resolve: (name) => resolvePage(name),
     setup({ el, App, props, plugin }) {
         createApp({
             render: () => h(AppRoot, { page: props.initialPage }, { default: () => h(App, props) }),
