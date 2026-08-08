@@ -138,5 +138,11 @@ return [
     'url' => 'Поле :attribute должно быть действительным URL.',
     'uuid' => 'Поле :attribute должно быть действительным UUID.',
 
+    'experience' => [
+        'short_description_plain_length' => 'Поле :attribute не должно превышать :max символов после удаления разметки Markdown.',
+        'achievement_description_required' => 'Каждое достижение должно иметь описание хотя бы на одном языке.',
+        'identity_fields_all_or_none' => 'Поля :attribute, название компании и страна должны быть заполнены все вместе или оставлены пустыми.',
+    ],
+
     'attributes' => [],
 ];

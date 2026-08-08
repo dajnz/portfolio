@@ -138,5 +138,11 @@ return [
     'url' => 'The :attribute must be a valid URL.',
     'uuid' => 'The :attribute must be a valid UUID.',
 
+    'experience' => [
+        'short_description_plain_length' => 'The :attribute must not exceed :max characters when stripped of Markdown.',
+        'achievement_description_required' => 'Each achievement needs a description in at least one language.',
+        'identity_fields_all_or_none' => 'The :attribute, company name and country must all be filled together or left empty.',
+    ],
+
     'attributes' => [],
 ];
