@@ -182,7 +182,10 @@ function onControlKeydown(event: KeyboardEvent): void {
             selectHighlighted();
             break;
         case 'Escape':
+            // Stop the bubble — the global Escape shortcut (cancel inline
+            // editing) must not fire while the panel is open.
             event.preventDefault();
+            event.stopPropagation();
             close();
             triggerEl.value?.focus();
             break;

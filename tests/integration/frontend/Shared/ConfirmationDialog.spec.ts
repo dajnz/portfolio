@@ -32,6 +32,17 @@ describe('ConfirmationDialog', () => {
         expect(wrapper.text()).toContain('This cannot be undone.');
     });
 
+    it('omits the whole body block when no message is set (5.2 rework)', () => {
+        const wrapper = mountDialog({ message: undefined });
+
+        // No message paragraph AND no body wrapper — the title-only
+        // dialog must not render a stray empty box.
+        expect(wrapper.find('p').exists()).toBe(false);
+        expect(
+            wrapper.get('[data-testid="confirmation-dialog-panel"]').find('.px-6.py-4.text-sm').exists(),
+        ).toBe(false);
+    });
+
     it('uses the i18n defaults for the confirm and abort labels', () => {
         const wrapper = mountDialog();
 

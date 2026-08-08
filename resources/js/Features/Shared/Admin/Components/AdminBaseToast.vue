@@ -14,7 +14,9 @@ const props = withDefaults(
         test_id?: string;
     }>(),
     {
-        position: 'top-right',
+        // Bottom-right (5.2 rework, user request): the top-right position
+        // overlapped the admin header's language/theme controls.
+        position: 'bottom-right',
         test_id: 'toast-container',
     },
 );

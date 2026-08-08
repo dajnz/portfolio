@@ -60,7 +60,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('shows the 22 curated icons of the engineering set', async () => {
-        const wrapper = mountIconPicker({ iconSet: 'engineering' });
+        const wrapper = mountIconPicker({ icon_set: 'engineering' });
 
         await openPanel(wrapper);
 
@@ -75,7 +75,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('groups the ui set into Outline, Solid and Mini', async () => {
-        const wrapper = mountIconPicker({ iconSet: 'ui' });
+        const wrapper = mountIconPicker({ icon_set: 'ui' });
 
         await openPanel(wrapper);
 
@@ -90,7 +90,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('shows simple-icons in the brands set', async () => {
-        const wrapper = mountIconPicker({ iconSet: 'brands' });
+        const wrapper = mountIconPicker({ icon_set: 'brands' });
 
         await openPanel(wrapper);
 
@@ -102,8 +102,23 @@ describe('AdminIconPicker', () => {
         );
     });
 
+    it('shows devicon icons in the devicon set (skills — B133)', async () => {
+        const wrapper = mountIconPicker({ icon_set: 'devicon' });
+
+        await openPanel(wrapper);
+
+        await vi.waitFor(
+            () => {
+                expect(wrapper.find('[data-testid="icon-picker-icon-devicon:laravel"]').exists()).toBe(true);
+            },
+            { timeout: 5000 },
+        );
+        expect(wrapper.find('[data-testid="icon-picker-icon-devicon:php"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid^="icon-picker-icon-heroicons:"]').exists()).toBe(false);
+    });
+
     it('filters the grid with the search query', async () => {
-        const wrapper = mountIconPicker({ iconSet: 'ui' });
+        const wrapper = mountIconPicker({ icon_set: 'ui' });
 
         await openPanel(wrapper);
         await vi.waitFor(
@@ -120,7 +135,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('shows the no-icons-match message for an empty search', async () => {
-        const wrapper = mountIconPicker({ iconSet: 'engineering' });
+        const wrapper = mountIconPicker({ icon_set: 'engineering' });
 
         await openPanel(wrapper);
         await vi.waitFor(
@@ -136,7 +151,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('highlights the selected icon in the grid', async () => {
-        const wrapper = mountIconPicker({ iconSet: 'engineering', modelValue: 'heroicons:bolt' });
+        const wrapper = mountIconPicker({ icon_set: 'engineering', modelValue: 'heroicons:bolt' });
 
         await openPanel(wrapper);
         await vi.waitFor(
@@ -152,7 +167,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('emits update:modelValue and closes the panel on selection', async () => {
-        const wrapper = mountIconPicker({ iconSet: 'engineering' });
+        const wrapper = mountIconPicker({ icon_set: 'engineering' });
 
         await openPanel(wrapper);
         await vi.waitFor(
@@ -169,7 +184,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('ignores a click on the already-selected icon', async () => {
-        const wrapper = mountIconPicker({ iconSet: 'engineering', modelValue: 'heroicons:bolt' });
+        const wrapper = mountIconPicker({ icon_set: 'engineering', modelValue: 'heroicons:bolt' });
 
         await openPanel(wrapper);
         await vi.waitFor(
@@ -186,7 +201,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('closes the panel on an outside click', async () => {
-        const wrapper = mountIconPicker({ iconSet: 'engineering' });
+        const wrapper = mountIconPicker({ icon_set: 'engineering' });
 
         await openPanel(wrapper);
         await vi.waitFor(
@@ -206,7 +221,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('closes the panel when the trigger is clicked again', async () => {
-        const wrapper = mountIconPicker({ iconSet: 'engineering' });
+        const wrapper = mountIconPicker({ icon_set: 'engineering' });
 
         await openPanel(wrapper);
         expect(wrapper.find('[data-testid="icon-picker-panel"]').exists()).toBe(true);

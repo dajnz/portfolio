@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
-import { nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { Comment, nextTick, onBeforeUnmount, ref, useSlots, watch } from 'vue';
 
 type ModalSize = 'sm' | 'md' | 'lg';
 
@@ -30,6 +30,15 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const $slots = useSlots();
+
+// The default slot may EXIST yet render nothing (a consumer's
+// `v-if`-guarded body — the ConfirmationDialog's message block). The
+// body wrapper must not render for an empty slot (5.2 rework — the
+// title-only delete dialogs showed a stray empty box).
+function hasDefaultSlotContent(): boolean {
+    return ($slots.default?.() ?? []).some((vnode) => vnode.type !== Comment);
+}
 
 const SIZE_CLASSES: Record<ModalSize, string> = {
     sm: 'max-w-sm',
@@ -206,7 +215,15 @@ onBeforeUnmount(() => {
                 />
               </button>
             </div>
-            <div class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+            <!-- The body block is omitted when the default slot is empty
+                 (5.2 rework — the title-only delete dialogs must not
+                 render an empty box). `hasDefaultSlotContent` inspects
+                 the rendered slot vnodes: a slot whose content is
+                 `v-if`-guarded away still exists, but renders nothing. -->
+            <div
+              v-if="hasDefaultSlotContent()"
+              class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400"
+            >
               <slot />
             </div>
             <div

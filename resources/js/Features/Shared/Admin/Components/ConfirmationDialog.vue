@@ -75,9 +75,15 @@ watch(
     :test_id="props.test_id"
     @update:model-value="emit('update:modelValue', $event)"
   >
-    <div class="space-y-4">
+    <!-- The whole body block is omitted when there is nothing to show —
+         the title-only delete dialogs must not render an empty box
+         (5.2 rework). -->
+    <div
+      v-if="props.message || $slots.body || props.require_password"
+      class="space-y-4"
+    >
       <p
-        v-if="!$slots.body"
+        v-if="!$slots.body && props.message"
         class="text-sm text-slate-600 dark:text-slate-400"
       >
         {{ props.message }}

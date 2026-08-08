@@ -5,7 +5,15 @@ import { computed } from 'vue';
 
 type ButtonTag = 'button' | 'a';
 type ButtonType = 'button' | 'submit' | 'reset';
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'icon-only' | 'outline' | 'danger';
+type ButtonVariant =
+    | 'primary'
+    | 'secondary'
+    | 'ghost'
+    | 'icon-only'
+    | 'outline'
+    | 'danger'
+    | 'icon-outline'
+    | 'icon-outline-danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
 type IconPosition = 'left' | 'right';
 
@@ -40,7 +48,11 @@ const props = withDefaults(
 
 const emit = defineEmits<{ click: [event: MouseEvent] }>();
 
-const isIconOnly = computed(() => props.variant === 'icon-only');
+// Icon-only sizing also applies to the outline-icon variants (5.2
+// rework — border + icon, no text).
+const isIconOnly = computed(() =>
+    ['icon-only', 'icon-outline', 'icon-outline-danger'].includes(props.variant),
+);
 const isDisabled = computed(() => props.disabled || props.loading);
 const isLink = computed(() => props.tag === 'a');
 
@@ -54,6 +66,10 @@ const variantClass = computed(() => {
         outline: 'border border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white',
         'icon-only':
             'w-10 h-10 items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800',
+        'icon-outline':
+            'w-10 h-10 items-center justify-center border border-slate-200 dark:border-slate-700 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950 hover:border-primary-300 dark:hover:border-primary-700',
+        'icon-outline-danger':
+            'w-10 h-10 items-center justify-center border border-slate-200 dark:border-slate-700 text-danger-600 hover:bg-danger-50 dark:hover:bg-danger-950 hover:border-danger-100 dark:hover:border-danger-900',
     };
 
     return map[props.variant];
@@ -118,7 +134,10 @@ function handleClick(event: MouseEvent): void {
           />
         </slot>
       </span>
-      <span>
+      <!-- The label span is omitted when the button has no text — an
+           icon-only danger/outline button must stay perfectly centred
+           (5.2 rework). -->
+      <span v-if="$slots.default">
         <slot />
       </span>
     </template>

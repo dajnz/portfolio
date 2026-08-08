@@ -42,6 +42,46 @@ describe('AdminBaseModal', () => {
         expect(wrapper.text()).toContain('Confirm');
     });
 
+    it('omits the body block when the default slot is empty (5.2 rework)', async () => {
+        const wrapper = mount(AdminBaseModal, {
+            props: { modelValue: true, title: 'Confirm' },
+            attachTo: document.body,
+            global: { stubs: { Teleport: true } },
+        });
+
+        const panel = wrapper.get('[data-testid="base-modal-panel"]');
+        expect(panel.attributes('role')).toBe('dialog');
+        // The empty default slot must not render the body wrapper.
+        expect(panel.find('.px-6.py-4.text-sm').exists()).toBe(false);
+    });
+
+    it('omits the body block when the default slot exists but renders nothing (5.2 rework)', async () => {
+        // A consumer (ConfirmationDialog) can pass a `v-if`-guarded body —
+        // the slot EXISTS but produces no content when the condition is
+        // false. The wrapper must not render an empty box.
+        const wrapper = mount(AdminBaseModal, {
+            props: { modelValue: true, title: 'Confirm' },
+            slots: { default: '<div v-if="false">guarded away</div>' },
+            attachTo: document.body,
+            global: { stubs: { Teleport: true } },
+        });
+
+        const panel = wrapper.get('[data-testid="base-modal-panel"]');
+        expect(panel.find('.px-6.py-4.text-sm').exists()).toBe(false);
+
+        // With the guard true, the body block renders.
+        await wrapper.setProps({ modelValue: false });
+        const withContent = mount(AdminBaseModal, {
+            props: { modelValue: true, title: 'Confirm' },
+            slots: { default: '<p class="text-sm">shown</p>' },
+            attachTo: document.body,
+            global: { stubs: { Teleport: true } },
+        });
+        expect(
+            withContent.get('[data-testid="base-modal-panel"]').find('.px-6.py-4.text-sm').exists(),
+        ).toBe(true);
+    });
+
     it('applies the size class to the panel', async () => {
         const wrapper = mountModal({ modelValue: true, size: 'lg' });
 
