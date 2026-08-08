@@ -1,0 +1,288 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Features\Experience\Infra\Controllers;
+
+use App\Features\Experience\App\UseCases\DestroyTimelineItemUseCase;
+use App\Features\Experience\App\UseCases\ForceDestroyTimelineItemUseCase;
+use App\Features\Experience\App\UseCases\GetTimelineItemForEditUseCase;
+use App\Features\Experience\App\UseCases\ListTimelineItemsUseCase;
+use App\Features\Experience\App\UseCases\RestoreTimelineItemUseCase;
+use App\Features\Experience\App\UseCases\StoreTimelineItemUseCase;
+use App\Features\Experience\App\UseCases\UpdateTimelineItemUseCase;
+use App\Features\Experience\Domain\Entities\TimelineItem;
+use App\Features\Experience\Infra\Requests\StoreExperienceRequest;
+use App\Features\Shared\Domain\Entities\TechSkill;
+use App\Features\Shared\Domain\Entities\TechSkillTag;
+use App\Features\Shared\Infra\Persistence\CursorPage;
+use App\Features\Shared\Infra\Services\PerLocaleValues;
+use DateTimeImmutable;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Inertia\Response;
+use Inertia\ResponseFactory;
+
+/**
+ * Experience admin surface (routes.md:102-109): the cursor-paginated
+ * list with date sort / content search / trashed view, the create/edit
+ * forms (per-locale maps for the translatable fields — the
+ * LocaleTabs convention, mockup `data-dynamic` keys), and the CRUD +
+ * soft-delete lifecycle. One action → one use case; the props are
+ * mapped from the hydrated entities here (the per-locale maps come
+ * straight from the entity's locale projections).
+ */
+final class AdminExperienceController
+{
+    public function __construct(
+        private readonly ListTimelineItemsUseCase $listCase,
+        private readonly GetTimelineItemForEditUseCase $editCase,
+        private readonly StoreTimelineItemUseCase $storeCase,
+        private readonly UpdateTimelineItemUseCase $updateCase,
+        private readonly DestroyTimelineItemUseCase $destroyCase,
+        private readonly RestoreTimelineItemUseCase $restoreCase,
+        private readonly ForceDestroyTimelineItemUseCase $forceDestroyCase,
+        private readonly PerLocaleValues $localeValues,
+    ) {
+    }
+
+    public function index(ResponseFactory $inertia, Request $request): Response
+    {
+        $page = $this->listCase->list($request);
+
+        return $inertia->render('Experience/Admin/Pages/ExperienceListPage', [
+            'items' => $this->tableRows($page->items),
+            'meta' => $this->meta($page),
+        ]);
+    }
+
+    public function create(ResponseFactory $inertia): Response
+    {
+        return $this->formPage($inertia, null);
+    }
+
+    public function store(StoreExperienceRequest $request): RedirectResponse
+    {
+        $this->storeCase->store(...$this->payload($request));
+
+        return redirect()->back()
+            ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
+    }
+
+    public function edit(ResponseFactory $inertia, int $item): Response
+    {
+        return $this->formPage($inertia, $item);
+    }
+
+    public function update(StoreExperienceRequest $request, int $item): RedirectResponse
+    {
+        $this->updateCase->update($item, ...$this->payload($request));
+
+        return redirect()->back()
+            ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
+    }
+
+    public function destroy(Request $request, int $item): RedirectResponse
+    {
+        $this->destroyCase->destroy($item);
+
+        return redirect()->back()
+            ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
+    }
+
+    public function restore(Request $request, int $item): RedirectResponse
+    {
+        $this->restoreCase->restore($item);
+
+        return redirect()->back()
+            ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.restored')]);
+    }
+
+    public function forceDestroy(Request $request, int $item): RedirectResponse
+    {
+        $this->forceDestroyCase->forceDestroy($item);
+
+        return redirect()->back()
+            ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
+    }
+
+    /**
+     * @return Response
+     */
+    private function formPage(ResponseFactory $inertia, ?int $itemId): Response
+    {
+        $locale = app()->getLocale();
+        $data = $this->editCase->get($itemId, $locale);
+
+        /** @var TimelineItem|null $item */
+        $item = $data['item'];
+
+        return $inertia->render('Experience/Admin/Pages/ExperienceFormPage', [
+            'item' => $item === null ? null : $this->editProps($item),
+            'skills' => $this->skillProps($data['skills']),
+            'projects' => $data['projects'],
+        ]);
+    }
+
+    /**
+     * Spread-ready payload for the store/update use cases — extracted
+     * so both actions share one input mapping.
+     *
+     * @return array<string, mixed>
+     */
+    private function payload(StoreExperienceRequest $request): array
+    {
+        $endedAt = $request->input('ended_at');
+
+        return [
+            'position' => $this->localeValues->inputMap((array) $request->input('position', [])),
+            'companyName' => $this->localeValues->inputMap((array) $request->input('company_name', [])),
+            'companyCountry' => $this->localeValues->inputMap((array) $request->input('company_country', [])),
+            'shortDescription' => $this->localeValues->inputMap((array) $request->input('short_description', [])),
+            'achievements' => (array) $request->input('achievements', []),
+            'techTagIds' => array_map('intval', (array) $request->input('tech_tags', [])),
+            'startedAt' => new DateTimeImmutable((string) $request->input('started_at')),
+            'endedAt' => is_string($endedAt) && $endedAt !== ''
+                ? new DateTimeImmutable($endedAt)
+                : null,
+            'isCurrent' => $request->boolean('is_current'),
+            'isPublished' => $request->boolean('is_published'),
+            'sortOrder' => (int) $request->input('sort_order', 0),
+            'projectId' => $request->input('project_id') !== null
+                ? (int) $request->input('project_id')
+                : null,
+            'includeInResume' => $request->boolean('include_in_resume'),
+            'externalProjectName' => $request->input('external_project_name'),
+        ];
+    }
+
+    /**
+     * @param  array<int, mixed>  $models  Raw rows from the paginator page.
+     * @return array<int, array<string, mixed>>
+     */
+    private function tableRows(array $models): array
+    {
+        $locale = app()->getLocale();
+
+        return array_map(function (mixed $model) use ($locale): array {
+            $rows = $model->translations->keyBy('locale');
+            $row = $rows->get($locale) ?? $rows->get('en');
+
+            return [
+                'id' => $model->id,
+                'position' => $row?->position ?? '',
+                'company_name' => $row?->company_name ?? '',
+                'started_at' => $model->started_at->format('Y-m-d'),
+                'ended_at' => $model->ended_at?->format('Y-m-d'),
+                'is_published' => (bool) $model->is_published,
+                'include_in_resume' => (bool) $model->include_in_resume,
+                'created_at' => $model->created_at->toIso8601String(),
+            ];
+        }, $models);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function meta(CursorPage $page): array
+    {
+        return [
+            'total' => $page->total,
+            'per_page' => $page->perPage,
+            'current_page' => $page->currentPage,
+            'sort_column' => $page->sorting->sortColumn,
+            'sort_direction' => $page->sorting->sortDirection,
+            'cursors' => $page->cursors->toArray(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function editProps(TimelineItem $item): array
+    {
+        $period = $item->toPeriod();
+
+        return [
+            'id' => $item->toId(),
+            'position' => $item->positionsByLocale(),
+            'company_name' => $item->companyNamesByLocale(),
+            'company_country' => $item->companyCountriesByLocale(),
+            'short_description' => $item->shortDescriptionsByLocale(),
+            'project_id' => $item->toRelatedProject()?->toOwnProjectId(),
+            'external_project_name' => $item->toRelatedProject()?->toExternalProjectName(),
+            'started_at' => $period->toStartedAt()->format('Y-m-d'),
+            'ended_at' => $period->toEndedAt()?->format('Y-m-d'),
+            'is_published' => $item->toIsPublished(),
+            'sort_order' => $item->toSortOrder()->toValue(),
+            'include_in_resume' => $item->toIncludeInResume(),
+            'achievements' => $this->achievementsProps($item),
+            'tech_tags' => $this->techTagProps($item->toTechTags()),
+        ];
+    }
+
+    /**
+     * The achievements of all locales merged by index into the unified
+     * form list — each entry carries the per-locale description map so
+     * the LocaleTabs-bound editor can round-trip every translation
+     * (an achievement may describe itself in one language only). The
+     * per-locale maps come from the entity's own projections; only the
+     * index merge happens here.
+     *
+     * @return array<int, array{description: array<string, string|null>, project_link: string|null}>
+     */
+    private function achievementsProps(TimelineItem $item): array
+    {
+        $descriptions = $item->achievementDescriptionsByLocale();
+        $projectLinks = $item->achievementProjectLinksByLocale();
+        $locales = array_keys($descriptions);
+        $maxCount = $descriptions === [] ? 0 : max(array_map('count', $descriptions));
+
+        $merged = [];
+        for ($index = 0; $index < $maxCount; $index++) {
+            $descriptionMap = [];
+            $projectLink = null;
+
+            foreach ($locales as $locale) {
+                $descriptionMap[$locale] = $descriptions[$locale][$index] ?? null;
+
+                if ($projectLink === null) {
+                    $projectLink = $projectLinks[$locale][$index] ?? null;
+                }
+            }
+
+            $merged[] = [
+                'description' => $descriptionMap,
+                'project_link' => $projectLink,
+            ];
+        }
+
+        return $merged;
+    }
+
+    /**
+     * @param  TechSkill[]  $skills  The picker options.
+     * @return array<int, array<string, mixed>>
+     */
+    private function skillProps(array $skills): array
+    {
+        return array_map(static fn (TechSkill $skill): array => [
+            'id' => $skill->toId(),
+            'name' => $skill->toName(),
+            'icon' => $skill->toIcon(),
+        ], $skills);
+    }
+
+    /**
+     * @param  TechSkillTag[]  $tags  The item's attached tech tags.
+     * @return array<int, array<string, mixed>>
+     */
+    private function techTagProps(array $tags): array
+    {
+        return array_map(static fn (TechSkillTag $tag): array => [
+            'id' => $tag->toId(),
+            'name' => $tag->toSkillName(),
+            'icon' => $tag->toIcon(),
+        ], $tags);
+    }
+}
