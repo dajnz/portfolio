@@ -97,7 +97,7 @@ describe('EloquentProjectReadRepository', function (): void {
         $project = $this->repository->findFeatured('en')[0];
 
         expect($project->toTechTags())->toHaveCount(2)
-            ->and($project->toTechTags()[0]->toName())->toBe('Laravel')
+            ->and($project->toTechTags()[0]->toSkillName())->toBe('Laravel')
             ->and($project->toTechTags()[0]->toIcon())->toBe('devicon:laravel');
     });
 

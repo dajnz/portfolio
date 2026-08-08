@@ -9,9 +9,9 @@ use App\Features\Portfolio\Domain\Entities\Contact;
 use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
 use App\Features\Portfolio\Domain\ValueObjects\AvailabilityStatus;
 use App\Features\Shared\Domain\Entities\FeaturedProject;
-use App\Features\Shared\Domain\Entities\FeaturedProjectTechTag;
 use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\Entities\TechSkillGroup;
+use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\ProficiencyLevel;
 use App\Features\Shared\Domain\ValueObjects\SkillGroupIcon;
 use App\Features\Shared\Domain\ValueObjects\SkillGroupVo;
@@ -32,7 +32,7 @@ function landingProject(int $id): FeaturedProject
         briefDescription: 'Description '.$id,
         previewImage: null,
         techTags: [
-            new FeaturedProjectTechTag(id: 1, name: 'Laravel', icon: 'devicon:laravel'),
+            new TechSkillTag(id: 1, skillName: 'Laravel', icon: new SkillIcon('devicon:laravel')),
         ],
     );
 }

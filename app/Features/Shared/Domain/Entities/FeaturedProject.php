@@ -19,7 +19,7 @@ final class FeaturedProject extends BaseEntity
     public const SLUG_PATTERN = '/^[a-z0-9]+(?:-[a-z0-9]+)*$/';
 
     /**
-     * @param  FeaturedProjectTechTag[]  $techTags
+     * @param  TechSkillTag[]  $techTags
      */
     public function __construct(
         private readonly int $id,
@@ -62,7 +62,7 @@ final class FeaturedProject extends BaseEntity
     }
 
     /**
-     * @return FeaturedProjectTechTag[]
+     * @return TechSkillTag[]
      */
     public function toTechTags(): array
     {
