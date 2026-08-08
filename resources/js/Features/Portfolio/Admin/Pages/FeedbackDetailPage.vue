@@ -10,6 +10,7 @@ import { useAutoMarkRead } from '@shared-cross/Composables/useAutoMarkRead';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
 import { useToast } from '@shared-cross/Composables/useToast';
+import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
 import { computed, ref } from 'vue';
 
 interface FeedbackItem {
@@ -36,7 +37,7 @@ const props = withDefaults(
 const { t } = useI18n();
 const { menuGroups } = useAdminMenu();
 const toast = useToast();
-const page = usePage<{ locale?: string }>();
+const page = usePage<{ locale?: string; supported_locales?: string[] }>();
 const { patch } = useJsonApi();
 
 const item = props.item;
@@ -119,7 +120,10 @@ function confirmDelete(): void {
   <AdminPageLayout
     :menu_groups="menuGroups()"
     :active_route="'feedback'"
-    :locale_props="{ active_locale: page.props?.locale ?? 'en', supported_locales: [] }"
+    :locale_props="{
+      active_locale: page.props?.locale ?? 'en',
+      supported_locales: localeOptionsFromCodes(page.props?.supported_locales),
+    }"
     :data-testid="`${props.test_id}-layout`"
   >
     <article

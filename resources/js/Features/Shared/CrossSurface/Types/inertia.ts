@@ -787,6 +787,8 @@ export interface components {
              * @enum {string}
              */
             locale: "en" | "ru";
+            /** @description Active locales from the `supported_locales` setting — the language selector and the per-locale editing tabs only offer these (disabled locales are neither editable nor deleted, 5.2 rework). */
+            supported_locales?: ("en" | "ru")[];
             /**
              * @description Current theme from ThemeMiddleware.
              * @enum {string}

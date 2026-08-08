@@ -12,6 +12,7 @@ import {
     type CursorNavigationPayload,
     cursorNavigationParams,
 } from '@shared-cross/Utils/cursorNavigationParams';
+import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
 import { computed } from 'vue';
 
 interface FeedbackItem {
@@ -50,7 +51,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const { menuGroups } = useAdminMenu();
-const page = usePage<{ locale?: string }>();
+const page = usePage<{ locale?: string; supported_locales?: string[] }>();
 
 const rows = computed<Array<Record<string, unknown>>>(() =>
     props.feedback.map((item) => ({ ...item })),
@@ -89,7 +90,10 @@ function navigate(payload: CursorNavigationPayload): void {
   <AdminPageLayout
     :menu_groups="menuGroups()"
     :active_route="'feedback'"
-    :locale_props="{ active_locale: page.props?.locale ?? 'en', supported_locales: [] }"
+    :locale_props="{
+      active_locale: page.props?.locale ?? 'en',
+      supported_locales: localeOptionsFromCodes(page.props?.supported_locales),
+    }"
     :data-testid="`${props.test_id}-layout`"
   >
     <section

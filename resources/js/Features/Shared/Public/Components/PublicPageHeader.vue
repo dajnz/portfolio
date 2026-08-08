@@ -3,6 +3,7 @@ import { usePage } from '@inertiajs/vue3';
 import LanguageSelector from '@shared-cross/Components/LanguageSelector.vue';
 import ThemeSwitch from '@shared-cross/Components/ThemeSwitch.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
 import { computed } from 'vue';
 
 interface NavItem {
@@ -33,8 +34,12 @@ const { t } = useI18n();
 // Self-contained theme/locale controls (public-section-components.md:389):
 // the header renders ThemeSwitch + LanguageSelector internally unless the
 // host overrides them via the `controls` slot (B80 bridge).
-const pageLocale = usePage<{ locale?: string }>().props?.locale;
-const activeLocale = computed(() => pageLocale ?? 'en');
+const pageProps = usePage<{ locale?: string; supported_locales?: string[] }>().props ?? {};
+const activeLocale = computed(() => pageProps.locale ?? 'en');
+
+// The public selector also respects the `supported_locales` setting
+// (disabled locales are not offered, 5.2 rework).
+const supportedLocales = computed(() => localeOptionsFromCodes(pageProps.supported_locales));
 
 const visibleItems = computed(() => props.nav_items.filter((item) => item.condition !== false));
 
@@ -80,6 +85,7 @@ function isActive(item: NavItem): boolean {
         <slot name="controls">
           <LanguageSelector
             :active_locale="activeLocale"
+            :supported_locales="supportedLocales"
             track_locale_changes
           />
           <ThemeSwitch />

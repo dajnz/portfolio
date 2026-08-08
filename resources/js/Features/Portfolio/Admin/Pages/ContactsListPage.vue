@@ -23,17 +23,8 @@ import {
     cursorNavigationParams,
 } from '@shared-cross/Utils/cursorNavigationParams';
 import { localesWithErrors } from '@shared-cross/Utils/localeErrors';
+import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
 import { computed, reactive, ref, watch } from 'vue';
-
-interface LocaleOption {
-    code: string;
-    native_name: string;
-}
-
-const DEFAULT_SUPPORTED_LOCALES: LocaleOption[] = [
-    { code: 'en', native_name: 'English' },
-    { code: 'ru', native_name: 'Русский' },
-];
 
 export interface ContactRow extends Record<string, unknown> {
     id: number;
@@ -81,7 +72,7 @@ const props = withDefaults(
 const { t } = useI18n();
 const { menuGroups } = useAdminMenu();
 const toast = useToast();
-const page = usePage<{ locale?: string }>();
+const page = usePage<{ locale?: string; supported_locales?: string[] }>();
 
 const rows = ref<Array<Record<string, unknown>>>([...props.contacts]);
 const editingId = ref<number | 'new' | null>(null);
@@ -154,7 +145,10 @@ if (
     );
 }
 
-const locales = computed<LocaleOption[]>(() => DEFAULT_SUPPORTED_LOCALES);
+// The per-locale editing tabs only offer the ACTIVE locales (the
+// shared `supported_locales` prop — disabled locales are not editable,
+// 5.2 rework).
+const locales = computed(() => localeOptionsFromCodes(page.props?.supported_locales));
 
 const hasRows = computed(() => rows.value.length > 0);
 
@@ -347,7 +341,10 @@ function isEditing(rowId: number): boolean {
   <AdminPageLayout
     :menu_groups="menuGroups()"
     :active_route="'contacts'"
-    :locale_props="{ active_locale: page.props?.locale ?? 'en', supported_locales: [] }"
+    :locale_props="{
+      active_locale: page.props?.locale ?? 'en',
+      supported_locales: localeOptionsFromCodes(page.props?.supported_locales),
+    }"
     :data-testid="`${props.test_id}-layout`"
   >
     <section

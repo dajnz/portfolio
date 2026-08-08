@@ -16,18 +16,8 @@ import { useToast } from '@shared-cross/Composables/useToast';
 import { useUnsavedChanges } from '@shared-cross/Composables/useUnsavedChanges';
 import { SUPPORTED_LOCALES } from '@shared-cross/Stores/localeStore';
 import { localesWithErrors } from '@shared-cross/Utils/localeErrors';
+import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
-
-interface LocaleOption {
-    code: string;
-    native_name: string;
-}
-
-/** Fallback when the `supported_locales` setting is not (yet) shared. */
-const DEFAULT_SUPPORTED_LOCALES: LocaleOption[] = [
-    { code: 'en', native_name: 'English' },
-    { code: 'ru', native_name: 'Русский' },
-];
 
 interface AboutEditProps {
     name?: Record<string, string>;
@@ -70,7 +60,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const toast = useToast();
-const page = usePage<{ locale?: string }>();
+const page = usePage<{ locale?: string; supported_locales?: string[] }>();
 const { menuGroups } = useAdminMenu();
 const { post } = useJsonApi();
 
@@ -110,7 +100,10 @@ onBeforeUnmount(() => {
     window.removeEventListener('scroll', onBarScroll);
 });
 
-const locales = computed<LocaleOption[]>(() => DEFAULT_SUPPORTED_LOCALES);
+// The per-locale editing tabs only offer the ACTIVE locales (the
+// shared `supported_locales` prop — disabled locales are not editable,
+// 5.2 rework).
+const locales = computed(() => localeOptionsFromCodes(page.props?.supported_locales));
 
 function buildForm(about: AboutEditProps | null | undefined): AboutFormValues {
     const empty = (): Record<string, string> =>
@@ -280,7 +273,10 @@ function cancel(): void {
   <AdminPageLayout
     :menu_groups="menuGroups()"
     :active_route="'about'"
-    :locale_props="{ active_locale: page.props?.locale ?? 'en', supported_locales: [] }"
+    :locale_props="{
+      active_locale: page.props?.locale ?? 'en',
+      supported_locales: localeOptionsFromCodes(page.props?.supported_locales),
+    }"
     :data-testid="`${props.test_id}-layout`"
   >
     <section
