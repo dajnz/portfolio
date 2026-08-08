@@ -6,6 +6,7 @@ namespace App\Features\Portfolio\Infra\Repositories;
 
 use App\Features\Portfolio\Domain\ValueObjects\AboutInfoTranslation;
 use App\Features\Portfolio\Infra\Mappers\AboutInfoTranslationMapper;
+use App\Features\Shared\Infra\Services\LocaleService;
 use App\Features\Portfolio\Infra\Models\AboutInfoTranslationModel;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
@@ -19,6 +20,7 @@ final class EloquentAboutInfoTranslationRepository
 {
     public function __construct(
         private readonly AboutInfoTranslationMapper $mapper,
+        private readonly LocaleService $locales,
     ) {
     }
 
@@ -48,8 +50,11 @@ final class EloquentAboutInfoTranslationRepository
             $rows[$translation->toLocale()] = $translation;
         }
 
+        // Only ACTIVE locales are reconciled — translations of locales
+        // disabled in the settings are preserved untouched (5.2 rework).
         AboutInfoTranslationModel::query()
             ->where('about_info_id', $aboutInfoId)
+            ->whereIn('locale', $this->locales->activeLocales())
             ->whereNotIn('locale', array_keys($rows))
             ->delete();
 

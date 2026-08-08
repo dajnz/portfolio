@@ -12,6 +12,7 @@ use App\Features\Shared\Infra\Models\SkillGroupModel;
 use App\Features\Shared\Infra\Models\SkillGroupTranslationModel;
 use App\Features\Shared\Infra\Models\SkillModel;
 use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepositoryInterface;
+use App\Features\Shared\Infra\Services\LocaleService;
 use App\Features\TechSkills\Infra\Mappers\TechSkillGroupMapper;
 use App\Features\TechSkills\Infra\Mappers\TechSkillMapper;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
@@ -31,6 +32,7 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
     public function __construct(
         private readonly TechSkillMapper $skillMapper,
         private readonly TechSkillGroupMapper $groupMapper,
+        private readonly LocaleService $locales,
     ) {
     }
 
@@ -189,8 +191,11 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
             $localeNames[$groupName->toLocale()] = $groupName->toName();
         }
 
+        // Only ACTIVE locales are reconciled — translations of locales
+        // disabled in the settings are preserved untouched (5.2 rework).
         SkillGroupTranslationModel::query()
             ->where('skill_group_id', $groupId)
+            ->whereIn('locale', $this->locales->activeLocales())
             ->whereNotIn('locale', array_keys($localeNames))
             ->delete();
 

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\TechSkills;
 
+use App\Features\Settings\Domain\Enums\SettingName;
+use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\Infra\Models\SkillGroupModel;
 use App\Features\Shared\Infra\Models\SkillGroupTranslationModel;
 use App\Features\Shared\Infra\Models\SkillModel;
@@ -59,6 +61,30 @@ describe('TechSkillGroupController', function (): void {
         expect($row->icon)->toBeNull()
             ->and(SkillGroupTranslationModel::query()->where('skill_group_id', $group->id)->pluck('name')->all())
             ->toBe(['New', 'Новый']);
+    });
+
+    it('preserves translations of locales disabled in the settings (5.2 rework)', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        // Only English is active — the RU translation must survive updates
+        // (it is hidden from the UI, not editable, but never deleted).
+        app(SettingRepositoryInterface::class)
+            ->saveValue(SettingName::SupportedLocales, ['en']);
+
+        $group = SkillGroupModel::factory()->create();
+        SkillGroupTranslationModel::factory()->create(['skill_group_id' => $group->id, 'locale' => 'en', 'name' => 'Old']);
+        SkillGroupTranslationModel::factory()->create(['skill_group_id' => $group->id, 'locale' => 'ru', 'name' => 'Старое']);
+
+        $this->put("/admin/skill-groups/{$group->id}", [
+            'name' => ['en' => 'New'],
+            'icon' => null,
+        ])->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        expect(SkillGroupTranslationModel::query()
+            ->where('skill_group_id', $group->id)
+            ->where('locale', 'ru')
+            ->value('name'))->toBe('Старое');
     });
 
     it('deletes a group with its translations and skills', function (): void {
