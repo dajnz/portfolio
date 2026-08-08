@@ -79,6 +79,9 @@
             "@techskills-admin/*": [
                 "./resources/js/Features/TechSkills/Admin/Components/*"
             ],
+            "@techskills/*": [
+                "./resources/js/Features/TechSkills/*"
+            ],
             "@resume-admin/*": [
                 "./resources/js/Features/Resume/Admin/Components/*"
             ],

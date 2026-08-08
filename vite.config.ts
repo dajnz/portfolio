@@ -66,6 +66,9 @@ export default defineConfig(({ isSsrBuild }) => ({
             '@settings': featureAlias('Settings'),
             '@backup-admin': featureAlias('Backup/Admin/Components'),
             '@techskills-admin': featureAlias('TechSkills/Admin/Components'),
+            // Feature-root alias for page imports in specs (mirrors
+            // `@portfolio`; the Components-scoped alias cannot reach Pages).
+            '@techskills': featureAlias('TechSkills'),
             '@resume-admin': featureAlias('Resume/Admin/Components'),
             '@shared-public': featureAlias('Shared/Public/Components'),
             '@shared-admin': featureAlias('Shared/Admin/Components'),

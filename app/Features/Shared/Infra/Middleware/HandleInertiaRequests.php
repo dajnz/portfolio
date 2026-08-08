@@ -11,6 +11,7 @@ use App\Features\Settings\Domain\Enums\FeatureFlagName;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\Infra\Services\LocaleService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Throwable;
@@ -29,6 +30,7 @@ final class HandleInertiaRequests extends Middleware
         private readonly AdminMapper $adminMapper,
         private readonly SettingRepositoryInterface $settings,
         private readonly FeatureFlagRepositoryInterface $flags,
+        private readonly LocaleService $locales,
     ) {
     }
 
@@ -36,6 +38,11 @@ final class HandleInertiaRequests extends Middleware
     {
         return array_merge(parent::share($request), [
             'locale' => app()->getLocale(),
+            // The active locales (the `supported_locales` setting) — the
+            // language selector and the per-locale editing tabs only show
+            // these; disabled locales are not editable nor deleted
+            // (5.2 rework).
+            'supported_locales' => $this->locales->activeLocales(),
             'theme' => $request->attributes->get('theme', 'light'),
             'auth' => [
                 'user' => $this->adminUser(),

@@ -18,6 +18,12 @@ components:
           type: string
           enum: [en, ru]
           description: Current locale from SetLocaleMiddleware.
+        supported_locales:
+          type: array
+          items:
+            type: string
+            enum: [en, ru]
+          description: Active locales from the `supported_locales` setting — the language selector and the per-locale editing tabs only offer these (disabled locales are neither editable nor deleted, 5.2 rework).
         theme:
           type: string
           enum: [light, dark]

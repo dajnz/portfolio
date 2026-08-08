@@ -5,6 +5,7 @@ import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
 import { useAdminMenu } from '@shared-cross/Composables/useAdminMenu';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import type { components } from '@shared-cross/Types/inertia';
+import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
 import { computed } from 'vue';
 import QuickLinks, { type QuickLinkData } from '../Components/QuickLinks.vue';
 import StatsCards, { type StatCardData } from '../Components/StatsCards.vue';
@@ -24,7 +25,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const { menuGroups } = useAdminMenu();
-const page = usePage<{ locale?: string }>();
+const page = usePage<{ locale?: string; supported_locales?: string[] }>();
 
 const stats = computed<Array<StatCardData>>(() => [
     {
@@ -81,7 +82,10 @@ const links = computed<Array<QuickLinkData>>(() => [
   <AdminPageLayout
     :menu_groups="menuGroups()"
     :active_route="'dashboard'"
-    :locale_props="{ active_locale: page.props?.locale ?? 'en', supported_locales: [] }"
+    :locale_props="{
+      active_locale: page.props?.locale ?? 'en',
+      supported_locales: localeOptionsFromCodes(page.props?.supported_locales),
+    }"
     :data-testid="`${props.test_id}-layout`"
   >
     <section

@@ -7,7 +7,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId } from 'vue'
 
 import AdminBaseSkeleton from './AdminBaseSkeleton.vue';
 
-type IconSet = 'brands' | 'engineering' | 'ui';
+type IconSet = 'brands' | 'engineering' | 'ui' | 'devicon';
 type UiCategory = 'Outline' | 'Solid' | 'Mini';
 
 interface IconSetData {
@@ -56,13 +56,13 @@ const props = withDefaults(
     defineProps<{
         modelValue: string | null;
         label?: string;
-        iconSet?: IconSet;
+        icon_set?: IconSet;
         placeholder?: string;
         test_id?: string;
     }>(),
     {
         label: undefined,
-        iconSet: 'ui',
+        icon_set: 'ui',
         placeholder: undefined,
         test_id: 'icon-picker',
     },
@@ -101,7 +101,9 @@ function loadSet(set: IconSet): void {
     const modulePromise =
         set === 'brands'
             ? import('@iconify-json/simple-icons/icons.json')
-            : import('@iconify-json/heroicons/icons.json');
+            : set === 'devicon'
+              ? import('@iconify-json/devicon/icons.json')
+              : import('@iconify-json/heroicons/icons.json');
 
     modulePromise
         .then((module) => {
@@ -148,7 +150,7 @@ function buildGroups(): IconGroup[] {
         return [];
     }
 
-    if (props.iconSet === 'brands') {
+    if (props.icon_set === 'brands') {
         return [
             {
                 label: null,
@@ -161,7 +163,25 @@ function buildGroups(): IconGroup[] {
         ];
     }
 
-    if (props.iconSet === 'engineering') {
+    // Skills carry `devicon:*` icons (B48 — the domain enforces the
+    // format), so the skill editor picker offers the devicon set
+    // (admin-section-components.md:879 says "ui", but ui icons are
+    // heroicons and would be rejected by the SkillIcon VO — spec
+    // internal conflict resolved in favor of the domain, see B133).
+    if (props.icon_set === 'devicon') {
+        return [
+            {
+                label: null,
+                options: Object.keys(data.icons).map((name) => ({
+                    value: `devicon:${name}`,
+                    name,
+                    label: name,
+                })),
+            },
+        ];
+    }
+
+    if (props.icon_set === 'engineering') {
         return [
             {
                 label: null,
@@ -208,7 +228,7 @@ const filteredGroups = computed(() => {
         .map((group) => ({
             ...group,
             options: group.options.filter((option) => {
-                const searchable = props.iconSet === 'engineering' ? option.name : option.label;
+                const searchable = props.icon_set === 'engineering' ? option.name : option.label;
 
                 return searchable.toLowerCase().includes(needle);
             }),
@@ -273,7 +293,7 @@ function openPanel(): void {
     isOpen.value = true;
     query.value = '';
     positionPanel();
-    loadSet(props.iconSet);
+    loadSet(props.icon_set);
 
     nextTick(() => searchEl.value?.focus());
 }
@@ -302,6 +322,14 @@ function selectIcon(option: IconOption): void {
 
 function onTriggerKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
+        // Stop the bubble while the panel is open — the global Escape
+        // shortcut (cancel inline editing) must not fire on the first
+        // press. With the panel closed the Escape falls through to the
+        // global cancel.
+        if (isOpen.value) {
+            event.stopPropagation();
+        }
+
         closePanel();
     }
 }
@@ -309,6 +337,9 @@ function onTriggerKeydown(event: KeyboardEvent): void {
 function onSearchKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
         event.preventDefault();
+        // Stop the bubble — the global Escape shortcut (cancel inline
+        // editing) must not fire while the panel is open.
+        event.stopPropagation();
         closePanel();
         searchEl.value?.blur();
     }
@@ -338,8 +369,12 @@ onMounted(() => {
     document.addEventListener('click', onDocumentClick);
     window.addEventListener('scroll', onWindowScroll);
 
-    if (props.modelValue !== null && !props.modelValue.startsWith('heroicons:')) {
-        loadSet('brands');
+    if (props.modelValue !== null) {
+        if (props.modelValue.startsWith('devicon:')) {
+            loadSet('devicon');
+        } else if (!props.modelValue.startsWith('heroicons:')) {
+            loadSet('brands');
+        }
     }
 });
 

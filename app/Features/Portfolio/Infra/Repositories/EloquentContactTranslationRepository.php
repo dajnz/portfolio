@@ -6,6 +6,7 @@ namespace App\Features\Portfolio\Infra\Repositories;
 
 use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
 use App\Features\Portfolio\Infra\Mappers\ContactTranslationMapper;
+use App\Features\Shared\Infra\Services\LocaleService;
 use App\Features\Portfolio\Infra\Models\ContactTranslationModel;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
@@ -19,6 +20,7 @@ final class EloquentContactTranslationRepository
 {
     public function __construct(
         private readonly ContactTranslationMapper $mapper,
+        private readonly LocaleService $locales,
     ) {
     }
 
@@ -47,8 +49,11 @@ final class EloquentContactTranslationRepository
             $localeNames[$translation->toLocale()] = $translation->toName();
         }
 
+        // Only ACTIVE locales are reconciled — translations of locales
+        // disabled in the settings are preserved untouched (5.2 rework).
         ContactTranslationModel::query()
             ->where('contact_id', $contactId)
+            ->whereIn('locale', $this->locales->activeLocales())
             ->whereNotIn('locale', array_keys($localeNames))
             ->delete();
 

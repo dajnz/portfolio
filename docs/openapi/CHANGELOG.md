@@ -10,6 +10,16 @@ runtime support.
 
 ## [Unreleased]
 
+### Added
+
+- **Shared prop `supported_locales` (v1.0.7, step 5.2 rework):** the admin
+  header's language selector and every per-locale editing surface
+  (LocaleTabs) now receive the ACTIVE locales from the `supported_locales`
+  setting via the new shared prop — locales disabled on the Settings page
+  are no longer offered for translation anywhere in the admin, and their
+  existing translations are preserved (the backend syncs stop reconciling
+  inactive locales). `info.version` bumped to `1.0.7` in `inertia.yaml`.
+
 ### Changed
 
 - **`LoginPageProps.github_oauth_enabled` → `github_login_available` (v1.0.6, step 4.3, B127):**
