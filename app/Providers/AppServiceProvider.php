@@ -26,6 +26,8 @@ use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInter
 use App\Features\Shared\Infra\Repositories\EloquentProjectReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
 use App\Features\Shared\Infra\Swagger\SwaggerUiService;
+use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepositoryInterface;
+use App\Features\TechSkills\Infra\Repositories\EloquentTechSkillWriteRepository;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -93,6 +95,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ProjectReadRepositoryInterface::class,
             EloquentProjectReadRepository::class,
+        );
+
+        $this->app->bind(
+            TechSkillWriteRepositoryInterface::class,
+            EloquentTechSkillWriteRepository::class,
         );
     }
 

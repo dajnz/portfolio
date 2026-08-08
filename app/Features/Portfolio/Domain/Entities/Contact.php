@@ -6,6 +6,8 @@ namespace App\Features\Portfolio\Domain\Entities;
 
 use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
 use App\Features\Shared\Domain\BaseEntity;
+use App\Features\Shared\Domain\ValueObjects\ContactIcon;
+use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use InvalidArgumentException;
 
 /**
@@ -13,27 +15,32 @@ use InvalidArgumentException;
  * (database.md:167-189, content-management.md:105-110): localized display
  * names ({@see ContactTranslation} value objects) plus the
  * non-translatable value/icon/url and its position in the reorderable
- * list (`sort_order`, zero-indexed per A4). Invariants are enforced in
- * the constructor via the dedicated validation methods.
+ * list (`sort_order`, zero-indexed per A4). Invariants are enforced by
+ * the shared value objects ({@see ContactIcon}, {@see SortOrder}).
  */
 final class Contact extends BaseEntity
 {
+    private readonly ?ContactIcon $icon;
+
+    private readonly SortOrder $sortOrder;
+
     /**
      * @param  ContactTranslation[]  $translations
      */
     public function __construct(
         private readonly int $id,
         private readonly string $value,
-        private readonly ?string $icon,
+        ?string $icon,
         private readonly bool $includeInResume,
         private readonly ?string $url,
-        private readonly int $sortOrder,
+        int $sortOrder,
         private readonly array $translations,
     ) {
         $this->assertValidValue($value);
-        $this->assertValidIcon($icon);
         $this->assertValidUrl($url);
-        $this->assertValidSortOrder($sortOrder);
+
+        $this->icon = $icon === null ? null : new ContactIcon($icon);
+        $this->sortOrder = new SortOrder($sortOrder);
     }
 
     public function toId(): int
@@ -48,7 +55,7 @@ final class Contact extends BaseEntity
 
     public function toIcon(): ?string
     {
-        return $this->icon;
+        return $this->icon?->toValue();
     }
 
     public function toIncludeInResume(): bool
@@ -63,7 +70,7 @@ final class Contact extends BaseEntity
 
     public function toSortOrder(): int
     {
-        return $this->sortOrder;
+        return $this->sortOrder->toValue();
     }
 
     /**
@@ -108,19 +115,6 @@ final class Contact extends BaseEntity
         }
     }
 
-    private function assertValidIcon(?string $icon): void
-    {
-        if ($icon === null) {
-            return;
-        }
-
-        if (preg_match('/^[a-z0-9-]+:[a-zA-Z0-9-]+$/', $icon) !== 1) {
-            throw new InvalidArgumentException(
-                "Contact icon must be an Iconify identifier (\"set:name\"), got \"{$icon}\".",
-            );
-        }
-    }
-
     private function assertValidUrl(?string $url): void
     {
         if ($url === null) {
@@ -129,13 +123,6 @@ final class Contact extends BaseEntity
 
         if (filter_var($url, FILTER_VALIDATE_URL) === false) {
             throw new InvalidArgumentException("Contact url must be a valid URL, got \"{$url}\".");
-        }
-    }
-
-    private function assertValidSortOrder(int $sortOrder): void
-    {
-        if ($sortOrder < 0) {
-            throw new InvalidArgumentException('Contact sort order must not be negative.');
         }
     }
 }

@@ -133,6 +133,7 @@ return [
 
     'skills' => [
         'title' => 'Навыки',
+        'group_name' => 'Название группы',
         'add_group' => 'Создать группу',
         'add_skill' => 'Добавить навык',
         'search_placeholder' => 'Поиск навыков...',

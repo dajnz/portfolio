@@ -372,6 +372,7 @@
             "add_group": "Create Group",
             "add_skill": "Add Skill",
             "could_not_load": "Could not load skills. [Retry]",
+            "group_name": "Group Name",
             "no_skills": "No skills found.",
             "proficiency": "Proficiency",
             "search_placeholder": "Search skills...",

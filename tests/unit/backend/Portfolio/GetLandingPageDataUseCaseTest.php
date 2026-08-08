@@ -12,6 +12,12 @@ use App\Features\Shared\Domain\Entities\FeaturedProject;
 use App\Features\Shared\Domain\Entities\FeaturedProjectTechTag;
 use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\Entities\TechSkillGroup;
+use App\Features\Shared\Domain\ValueObjects\ProficiencyLevel;
+use App\Features\Shared\Domain\ValueObjects\SkillGroupIcon;
+use App\Features\Shared\Domain\ValueObjects\SkillGroupVo;
+use App\Features\Shared\Domain\ValueObjects\SkillIcon;
+use App\Features\Shared\Domain\ValueObjects\SortOrder;
+use App\Features\Shared\Domain\ValueObjects\TechSkillGroupName;
 use Tests\Fakes\InMemoryAboutInfoRepository;
 use Tests\Fakes\InMemoryContactRepository;
 use Tests\Fakes\InMemoryProjectReadRepository;
@@ -46,8 +52,12 @@ describe('GetLandingPageDataUseCase', function (): void {
             ],
         );
         $skills = [
-            new TechSkillGroup(id: 1, name: 'Backend', icon: 'heroicons:server', sortOrder: 0, skills: [
-                new TechSkill(id: 1, name: 'Laravel', icon: 'devicon:laravel', proficiency: 5, sortOrder: 0, groupId: 1, groupName: 'Backend'),
+            new TechSkillGroup(id: 1, icon: new SkillGroupIcon('heroicons:server'), sortOrder: new SortOrder(0), groupNames: [
+                new TechSkillGroupName(locale: 'en', name: 'Backend'),
+            ], skills: [
+                new TechSkill(id: 1, name: 'Laravel', icon: new SkillIcon('devicon:laravel'), proficiency: new ProficiencyLevel(5), includeInResume: true, sortOrder: new SortOrder(0), group: new SkillGroupVo(id: 1, groupNames: [
+                    new TechSkillGroupName(locale: 'en', name: 'Backend'),
+                ])),
             ]),
         ];
         $contacts = [

@@ -46,7 +46,7 @@ final class LandingController
 
         return $inertia->render('Portfolio/Public/Pages/LandingPage', [
             'about' => $about === null ? null : $this->aboutProps($about, $locale),
-            'skills' => $this->skillsProps($skills),
+            'skills' => $this->skillsProps($skills, $locale),
             'featured_projects' => $this->featuredProjectsProps($featuredProjects),
             'has_more' => $data['has_more_projects'],
             'contacts' => $this->contactsProps($contacts),
@@ -93,11 +93,11 @@ final class LandingController
      * @param  TechSkillGroup[]  $groups
      * @return array<int, array<string, mixed>>
      */
-    private function skillsProps(array $groups): array
+    private function skillsProps(array $groups, string $locale): array
     {
         return array_map(static fn (TechSkillGroup $group): array => [
             'id' => $group->toId(),
-            'name' => $group->toName(),
+            'name' => $group->nameFor($locale),
             'icon' => $group->toIcon(),
             'skills' => array_map(
                 static fn ($skill): array => [

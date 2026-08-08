@@ -6,6 +6,11 @@ namespace Tests\Unit\Backend\Shared;
 
 use App\Features\Shared\App\UseCases\SearchSkillsUseCase;
 use App\Features\Shared\Domain\Entities\TechSkill;
+use App\Features\Shared\Domain\ValueObjects\ProficiencyLevel;
+use App\Features\Shared\Domain\ValueObjects\SkillGroupVo;
+use App\Features\Shared\Domain\ValueObjects\SkillIcon;
+use App\Features\Shared\Domain\ValueObjects\SortOrder;
+use App\Features\Shared\Domain\ValueObjects\TechSkillGroupName;
 use Tests\Fakes\InMemoryTechSkillReadRepository;
 
 /**
@@ -19,11 +24,13 @@ function buildSkills(array $names): array
         $skills[] = new TechSkill(
             id: $id,
             name: $name,
-            icon: 'devicon:test',
-            proficiency: 3,
-            sortOrder: 0,
-            groupId: 1,
-            groupName: 'Backend',
+            icon: new SkillIcon('devicon:test'),
+            proficiency: new ProficiencyLevel(3),
+            includeInResume: true,
+            sortOrder: new SortOrder(0),
+            group: new SkillGroupVo(id: 1, groupNames: [
+                new TechSkillGroupName(locale: 'en', name: 'Backend'),
+            ]),
         );
     }
 

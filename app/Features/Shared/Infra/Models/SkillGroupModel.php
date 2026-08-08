@@ -8,6 +8,7 @@ use Database\Factories\SkillGroupModelFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Eloquent model for the `skill_groups` table (cross-feature read access).
@@ -29,6 +30,14 @@ final class SkillGroupModel extends Model
         'sort_order',
         'icon',
     ];
+
+    /**
+     * @return HasMany<SkillGroupTranslationModel, $this>
+     */
+    public function translations(): HasMany
+    {
+        return $this->hasMany(SkillGroupTranslationModel::class, 'skill_group_id');
+    }
 
     protected static function newFactory(): Factory
     {
