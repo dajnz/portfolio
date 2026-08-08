@@ -1,0 +1,477 @@
+<!-- SkillsListPage (admin-section-ui.md:293-302, admin-section-components.md:827-884, skills.html) — the consolidated skills management page: group CRUD with locale-tabbed names, skill CRUD with inline editing, drag-and-drop reorder within and between groups (SortableList cross-scope, A4 payload), move up/down keyboard alternatives (accessibility.md:35-44), live include-in-resume updates (proficiency is edited via the inline dropdown — the viewing dots are display-only), ConfirmationDialog deletes. A DIRECTORY-BASED complex component (5.2 rework): the .vue file orchestrates — the group CRUD, skill CRUD, reorder persistence, delete flow and editor-exit model live in the sibling `use*` composables (per the complex-component convention in architecture.md). -->
+<script setup lang="ts">
+import { addCollection } from '@iconify/vue';
+import deviconJson from '@iconify-json/devicon/icons.json';
+import { usePage } from '@inertiajs/vue3';
+import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
+import AdminBaseCheckbox from '@shared-admin/AdminBaseCheckbox.vue';
+import AdminBaseDropdown from '@shared-admin/AdminBaseDropdown.vue';
+import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
+import AdminEmptyState from '@shared-admin/AdminEmptyState.vue';
+import AdminIconPicker from '@shared-admin/AdminIconPicker.vue';
+import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
+import ConfirmationDialog from '@shared-admin/ConfirmationDialog.vue';
+import LocaleTabs from '@shared-admin/LocaleTabs.vue';
+import SortableList from '@shared-cross/Components/SortableList.vue';
+import { useAdminMenu } from '@shared-cross/Composables/useAdminMenu';
+import { useI18n } from '@shared-cross/Composables/useI18n';
+import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
+import type { SkillGroupData } from '@techskills-admin/SkillGroupCard.vue';
+import SkillGroupCard from '@techskills-admin/SkillGroupCard.vue';
+import SkillItem, { type SkillRow } from '@techskills-admin/SkillItem.vue';
+import { computed, ref, watch } from 'vue';
+
+import { useEditorExits } from './useEditorExits';
+import { useSkillDelete } from './useSkillDelete';
+import { useSkillGroups } from './useSkillGroups';
+import { useSkillItems } from './useSkillItems';
+import { useSkillReorder } from './useSkillReorder';
+
+const props = withDefaults(
+    defineProps<{
+        skillGroups?: SkillGroupData[];
+        test_id?: string;
+    }>(),
+    {
+        skillGroups: () => [],
+        test_id: 'skills-list-page',
+    },
+);
+
+const { t } = useI18n();
+const { menuGroups } = useAdminMenu();
+const page = usePage<{ locale?: string; supported_locales?: string[] }>();
+
+// The skill rows render `devicon:*` icons — the collection is registered
+// offline and SYNCHRONOUSLY at module scope (static import, race-free —
+// the rows can never render before it lands, so no runtime calls to the
+// Iconify API, B78). The devicon JSON stays out of the app bundle: the
+// static edge loads the shared icons chunk with this page only.
+addCollection(deviconJson);
+
+// The page's shared working copy of the groups (deep-copied skill rows —
+// the live checkbox PUTs must not leak into the props) — the CRUD and
+// reorder composables mutate it and the page reconciles it with the
+// server re-renders.
+const groups = ref<SkillGroupData[]>(
+    props.skillGroups.map((group) => ({ ...group, skills: [...group.skills] })),
+);
+
+const { setGroupSkills, onSkillsDragEnd, persistSkillOrder, persistGroupOrder } = useSkillReorder(
+    groups,
+    () => props.skillGroups,
+);
+
+const {
+    editingGroupId,
+    editingGroupLocale,
+    groupDraft,
+    groupErrors,
+    savingGroup,
+    warnedGroupLocales,
+    groupNameError,
+    startCreateGroup,
+    startEditGroupById,
+    cancelGroupEdit,
+    updateGroupDraft,
+    saveNewGroup,
+    saveGroup,
+    moveGroup,
+} = useSkillGroups(groups, persistGroupOrder);
+
+const {
+    editingSkill,
+    skillDraft,
+    newSkillDraft,
+    skillErrors,
+    savingSkill,
+    proficiencyOptions,
+    startAddSkill,
+    startEditSkill,
+    cancelSkillEdit,
+    isEditingSkill,
+    isNewSkillEditorOpen,
+    saveNewSkill,
+    saveSkill,
+    updateSkillField,
+    moveSkill,
+} = useSkillItems(groups, persistSkillOrder);
+
+const { deleteTarget, isDeleting, requestDelete, dismissDelete, confirmDelete } = useSkillDelete();
+
+useEditorExits({
+    editingGroupId,
+    editingSkill,
+    groupErrors,
+    skillErrors,
+    cancelGroupEdit,
+    cancelSkillEdit,
+    testId: props.test_id,
+});
+
+// The per-locale editing tabs only offer the ACTIVE locales (the
+// shared `supported_locales` prop — disabled locales are not editable,
+// 5.2 rework).
+const locales = computed(() => localeOptionsFromCodes(page.props?.supported_locales));
+
+watch(
+    () => props.skillGroups,
+    (next) => {
+        groups.value = next.map((group) => ({ ...group, skills: [...group.skills] }));
+
+        // A server re-render (create/save success) closes the transient
+        // editors; edits of existing rows are closed by their guarded
+        // onSuccess handlers.
+        if (editingGroupId.value === 'new') {
+            editingGroupId.value = null;
+        }
+
+        if (editingSkill.value?.skillId === 'new') {
+            editingSkill.value = null;
+        }
+    },
+);
+</script>
+
+<template>
+  <AdminPageLayout
+    :menu_groups="menuGroups()"
+    :active_route="'skills'"
+    :locale_props="{
+      active_locale: page.props?.locale ?? 'en',
+      supported_locales: localeOptionsFromCodes(page.props?.supported_locales),
+    }"
+    :data-testid="`${props.test_id}-layout`"
+  >
+    <section
+      class="mx-auto max-w-4xl"
+      :data-testid="props.test_id"
+    >
+      <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+          {{ t('admin.skills.title') }}
+        </h1>
+        <AdminBaseButton
+          variant="primary"
+          icon="heroicons:plus"
+          icon_position="left"
+          :test_id="`${props.test_id}-add-group`"
+          @click="startCreateGroup"
+        >
+          {{ t('admin.skills.add_group') }}
+        </AdminBaseButton>
+      </div>
+
+      <!-- Inline new-group editor at the top of the list (skills.html:
+           190-192 — opened by "Create Group"; POST /admin/skill-groups).
+           Same 3×3 grid as the group edit header: icon selector / name
+           with the translation tabs below / Save+Cancel. -->
+      <div
+        v-if="editingGroupId === 'new'"
+        class="mb-3 rounded-lg border border-slate-200 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"
+        :data-testid="`${props.test_id}-new-group`"
+      >
+        <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="h-5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+              {{ t('admin.skills.icon') }}
+            </label>
+            <AdminIconPicker
+              v-model="groupDraft.icon"
+              icon_set="ui"
+              :placeholder="t('admin.icon_picker.select_placeholder')"
+              :test_id="`${props.test_id}-new-group-icon`"
+            />
+            <div class="h-9" />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="h-5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+              {{ t('admin.skills.group_name') }}
+            </label>
+            <AdminBaseInput
+              :model-value="groupDraft.names[editingGroupLocale] ?? ''"
+              :error="groupNameError()"
+              :disabled="savingGroup"
+              :maxlength="100"
+              :test_id="`${props.test_id}-new-group-name-${editingGroupLocale}`"
+              @update:model-value="
+                (value) => (groupDraft.names[editingGroupLocale] = value)
+              "
+              @keydown.enter="saveNewGroup"
+              @keydown.escape="cancelGroupEdit"
+            />
+            <LocaleTabs
+              v-model="editingGroupLocale"
+              :locales="locales"
+              :warned_locales="warnedGroupLocales"
+              :test_id="`${props.test_id}-new-group-tabs`"
+            />
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <div class="h-5" />
+            <div class="flex items-center gap-2">
+              <AdminBaseButton
+                type="button"
+                variant="icon-only"
+                icon="heroicons:check"
+                :aria-label="t('common.save')"
+                :disabled="savingGroup"
+                :test_id="`${props.test_id}-new-group-save`"
+                @click="saveNewGroup"
+              />
+              <AdminBaseButton
+                type="button"
+                variant="icon-only"
+                icon="heroicons:x-mark"
+                :aria-label="t('common.cancel')"
+                :disabled="savingGroup"
+                :test_id="`${props.test_id}-new-group-cancel`"
+                @click="cancelGroupEdit"
+              />
+            </div>
+            <div class="h-9" />
+          </div>
+        </div>
+      </div>
+
+      <template v-if="groups.length > 0 || editingGroupId === 'new'">
+        <SortableList
+          v-model="groups"
+          item_key="id"
+          handle=".group-card-handle"
+          :classes="{ container: 'space-y-4' }"
+          :test_id="`${props.test_id}-groups-sortable`"
+          @drag-end="persistGroupOrder"
+        >
+          <template #default="{ item, index }">
+            <SkillGroupCard
+              :group="item as SkillGroupData"
+              :index="index"
+              :editing="editingGroupId === (item as SkillGroupData).id"
+              :draft_names="
+                editingGroupId === (item as SkillGroupData).id ? groupDraft.names : null
+              "
+              :draft_icon="
+                editingGroupId === (item as SkillGroupData).id ? groupDraft.icon : null
+              "
+              :error_names="groupErrors"
+              :is_saving="savingGroup"
+              :can_move_up="index > 0"
+              :can_move_down="index < groups.length - 1"
+              :test_id="props.test_id"
+              @update-group="
+                (payload) =>
+                  updateGroupDraft(payload.field, payload.value)
+              "
+              @edit-group="(id) => startEditGroupById(Number(id))"
+              @save-group="saveGroup"
+              @cancel-group="cancelGroupEdit"
+              @delete-group="(id) => requestDelete('group', id)"
+              @move-up="(id) => moveGroup(id, -1)"
+              @move-down="(id) => moveGroup(id, 1)"
+              @add-skill="startAddSkill"
+            >
+              <!-- Skills within the group — same cross_scope so skills
+                   can be dragged between groups (5.2; the A4 payload
+                   carries each skill's new group). The whole row is the
+                   drag surface (5.2 rework — the handle-mode guard was
+                   dropped for skills, `interactive_selector` keeps the
+                   row's controls out of drags); the container carries no
+                   padding (the SortableList's scoped `padding: 0` would
+                   override Tailwind's px-4) — the rows own their px-4.
+                   The min-height keeps an empty group's list a visible
+                   cross-group drop target. -->
+              <SortableList
+                :model-value="(item as SkillGroupData).skills"
+                item_key="id"
+                interactive_selector=".skill-row-interactive"
+                :list_id="`skills-${(item as SkillGroupData).id}`"
+                cross_scope="skills"
+                :classes="{
+                  container:
+                    'min-h-12 divide-y divide-slate-100 dark:divide-slate-700',
+                }"
+                :test_id="`${props.test_id}-skills-${(item as SkillGroupData).id}`"
+                @update:model-value="
+                  (skills) => setGroupSkills((item as SkillGroupData).id, skills)
+                "
+                @drag-end="
+                  (skills, cross) =>
+                    onSkillsDragEnd((item as SkillGroupData).id, skills, cross)
+                "
+              >
+                <template #default="{ item: skill, index: skillIndex }">
+                  <SkillItem
+                    :skill="skill as SkillRow"
+                    :index="skillIndex"
+                    :editing="
+                      isEditingSkill((item as SkillGroupData).id, Number(skill.id))
+                    "
+                    :can_move_up="skillIndex > 0"
+                    :can_move_down="
+                      skillIndex < (item as SkillGroupData).skills.length - 1
+                    "
+                    :draft_name="
+                      isEditingSkill((item as SkillGroupData).id, Number(skill.id))
+                        ? skillDraft.name
+                        : null
+                    "
+                    :draft_icon="
+                      isEditingSkill((item as SkillGroupData).id, Number(skill.id))
+                        ? skillDraft.icon
+                        : null
+                    "
+                    :draft_proficiency="
+                      isEditingSkill((item as SkillGroupData).id, Number(skill.id))
+                        ? skillDraft.proficiency
+                        : null
+                    "
+                    :error_name="skillErrors.name ?? null"
+                    :is_saving="savingSkill"
+                    :test_id="props.test_id"
+                    @update="
+                      (payload) =>
+                        updateSkillField(
+                          (item as SkillGroupData).id,
+                          payload.id,
+                          payload.field,
+                          payload.value,
+                        )
+                    "
+                    @edit="(id) => startEditSkill((item as SkillGroupData).id, id)"
+                    @save="(id) => saveSkill((item as SkillGroupData).id, id)"
+                    @cancel="
+                      (id) => cancelSkillEdit((item as SkillGroupData).id, id)
+                    "
+                    @delete="(id) => requestDelete('skill', id)"
+                    @move-up="(id) => moveSkill((item as SkillGroupData).id, id, -1)"
+                    @move-down="(id) => moveSkill((item as SkillGroupData).id, id, 1)"
+                  />
+                </template>
+
+                <!-- Empty-group hint INSIDE the drop target (5.2 rework) —
+                     it is part of the <ul>, so cross-group drops land on
+                     it, and no dead gap appears above it. -->
+                <template #empty>
+                  <p
+                    v-if="!isNewSkillEditorOpen((item as SkillGroupData).id)"
+                    class="px-4 py-3 text-center text-sm text-slate-400 dark:text-slate-500"
+                    :data-testid="`${props.test_id}-group-${(item as SkillGroupData).id}-empty`"
+                  >
+                    {{ t('admin.skills.empty_group') }}
+                  </p>
+                </template>
+              </SortableList>
+
+              <!-- Inline new-skill editor row at the BOTTOM of the group
+                   (5.2 rework — the saved skill lands at the same place it
+                   was created, no jump). ONE editor per group, rendered
+                   AFTER the list — placing it inside the per-item slot
+                   duplicated it per skill row and never showed it for
+                   empty groups. Mirrors the skill row's edit layout: icon
+                   picker, name, localized proficiency dropdown, Resume
+                   checkbox + icon-only buttons. -->
+              <div
+                v-if="isNewSkillEditorOpen((item as SkillGroupData).id)"
+                class="flex items-center gap-2.5 border-t border-slate-100 bg-slate-50/60 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/30"
+                :data-testid="`${props.test_id}-new-skill-${(item as SkillGroupData).id}`"
+              >
+                <span
+                  class="flex w-14 shrink-0 cursor-grab select-none justify-center text-sm text-slate-300 dark:text-slate-600"
+                  aria-hidden="true"
+                >⠿</span>
+                <span class="w-28 shrink-0">
+                  <AdminIconPicker
+                    :model-value="newSkillDraft.icon"
+                    icon_set="devicon"
+                    :placeholder="t('admin.icon_picker.select_placeholder')"
+                    :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-icon`"
+                    @update:model-value="(value) => (newSkillDraft.icon = value)"
+                  />
+                </span>
+                <AdminBaseInput
+                  :model-value="newSkillDraft.name"
+                  :error="skillErrors.name ?? null"
+                  :disabled="savingSkill"
+                  :maxlength="100"
+                  class="min-w-64 flex-1"
+                  :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-name`"
+                  @update:model-value="(value) => (newSkillDraft.name = value)"
+                  @keydown.enter="saveNewSkill((item as SkillGroupData).id)"
+                  @keydown.escape="cancelSkillEdit((item as SkillGroupData).id, 'new')"
+                />
+                <span class="w-28 shrink-0">
+                  <AdminBaseDropdown
+                    :model-value="String(newSkillDraft.proficiency)"
+                    :options="proficiencyOptions"
+                    :aria-label="t('admin.skills.proficiency')"
+                    :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-proficiency`"
+                    @update:model-value="(value) => (newSkillDraft.proficiency = Number(value))"
+                  />
+                </span>
+                <span class="mx-6 flex shrink-0 items-center">
+                  <AdminBaseCheckbox
+                    :model-value="newSkillDraft.includeInResume"
+                    :label="t('admin.skills.resume')"
+                    :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-resume`"
+                    @update:model-value="(value) => (newSkillDraft.includeInResume = Boolean(value))"
+                  />
+                </span>
+                <span class="mx-6 flex shrink-0 items-center gap-2.5">
+                  <AdminBaseButton
+                    type="button"
+                    variant="icon-only"
+                    icon="heroicons:check"
+                    :aria-label="t('common.save')"
+                    :disabled="savingSkill"
+                    :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-save`"
+                    @click="saveNewSkill((item as SkillGroupData).id)"
+                  />
+                  <AdminBaseButton
+                    type="button"
+                    variant="icon-only"
+                    icon="heroicons:x-mark"
+                    :aria-label="t('common.cancel')"
+                    :disabled="savingSkill"
+                    :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-cancel`"
+                    @click="cancelSkillEdit((item as SkillGroupData).id, 'new')"
+                  />
+                </span>
+              </div>
+            </SkillGroupCard>
+          </template>
+        </SortableList>
+      </template>
+
+      <AdminEmptyState
+        v-else
+        mode="empty"
+        :message="t('admin.skills.empty_state')"
+        :action_label="t('admin.skills.create_first_group')"
+        :test_id="`${props.test_id}-empty`"
+        @action="startCreateGroup"
+      />
+
+      <ConfirmationDialog
+        :model-value="deleteTarget !== null"
+        :title="
+          deleteTarget?.type === 'group'
+            ? t('admin.skills.delete_group_confirm')
+            : t('admin.skills.delete_skill_confirm')
+        "
+        :message="
+          deleteTarget?.type === 'group'
+            ? t('admin.skills.delete_group_message')
+            : undefined
+        "
+        :confirm_label="t('common.delete')"
+        :is_loading="isDeleting"
+        :test_id="`${props.test_id}-delete-dialog`"
+        @update:model-value="(open) => {
+          if (!open) dismissDelete();
+        }"
+        @confirm="confirmDelete"
+      />
+    </section>
+  </AdminPageLayout>
+</template>
