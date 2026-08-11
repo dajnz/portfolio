@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Experience\Domain\RepositoryInterfaces;
 
 use App\Features\Experience\Domain\Entities\TimelineItem;
+use DateTimeImmutable;
 
 /**
  * Write-side repository for the Experience feature (architecture.md:
@@ -17,6 +18,28 @@ use App\Features\Experience\Domain\Entities\TimelineItem;
 interface TimelineItemRepositoryInterface
 {
     public function findById(int $id): ?TimelineItem;
+
+    /**
+     * The chronologically preceding item (greatest `started_at` strictly
+     * below `$startedAt`, non-trashed) — the continuity anchor of B174.
+     * `$ignoreId` excludes the item being stored/updated itself.
+     */
+    public function predecessorFor(DateTimeImmutable $startedAt, ?int $ignoreId = null): ?TimelineItem;
+
+    /**
+     * The chronologically following item (smallest `started_at` strictly
+     * above `$startedAt`, non-trashed) — the continuity anchor of B174.
+     * `$ignoreId` excludes the item being stored/updated itself.
+     */
+    public function successorFor(DateTimeImmutable $startedAt, ?int $ignoreId = null): ?TimelineItem;
+
+    /**
+     * Closes an ongoing item's period (B174: adding a newer item
+     * auto-fills its predecessor's `ended_at` with the new item's
+     * `started_at`). An instance update so the model's `saved` event
+     * (sitemap invalidation, B64) fires for published items.
+     */
+    public function setEndedAt(int $id, DateTimeImmutable $endedAt): void;
 
     /**
      * Soft-deletes the item (its translations and pivot rows stay).

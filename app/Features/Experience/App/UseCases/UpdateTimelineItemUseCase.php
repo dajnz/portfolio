@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Experience\App\UseCases;
 
+use App\Features\Experience\App\Services\TimelineContinuityService;
 use App\Features\Experience\Domain\Entities\TimelineItem;
 use App\Features\Experience\Domain\Entities\TimelineItemTranslation;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
@@ -14,16 +15,18 @@ use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInter
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;
 use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
+use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Updates a timeline item — same shape as {@see StoreTimelineItemUseCase}
+ * (incl. the B174 continuity rules via {@see TimelineContinuityService},
+ * the item's own row excluded from the predecessor/successor lookups)
  * with the item's identity. Translations are upserted for the active
  * locales only; rows of locales disabled in the settings are preserved
- * untouched (content-management.md:419), the tech-tag pivot is
- * re-synced from the submitted IDs (A2-style reconciliation by the
- * sync itself).
+ * untouched (content-management.md:419), the tech-tag pivot is re-synced
+ * from the submitted IDs (A2-style reconciliation by the sync itself).
  */
 final class UpdateTimelineItemUseCase
 {
@@ -31,6 +34,7 @@ final class UpdateTimelineItemUseCase
         private readonly TimelineItemRepositoryInterface $repository,
         private readonly TechSkillReadRepositoryInterface $skills,
         private readonly ActiveLocaleService $locales,
+        private readonly TimelineContinuityService $continuity,
     ) {
     }
 
@@ -52,7 +56,6 @@ final class UpdateTimelineItemUseCase
         array $techTagIds,
         DateTimeImmutable $startedAt,
         ?DateTimeImmutable $endedAt,
-        bool $isCurrent,
         bool $isPublished,
         int $sortOrder,
         ?int $projectId,
@@ -69,16 +72,17 @@ final class UpdateTimelineItemUseCase
             $techTagIds,
             $startedAt,
             $endedAt,
-            $isCurrent,
             $isPublished,
             $sortOrder,
             $projectId,
             $includeInResume,
             $externalProjectName,
         ): void {
+            $this->continuity->assertContinuity($startedAt, $endedAt, $id);
+
             $this->repository->save(new TimelineItem(
                 id: $id,
-                period: new WorkPeriod($startedAt, $isCurrent ? null : $endedAt),
+                period: new WorkPeriod($startedAt, $endedAt),
                 isPublished: $isPublished,
                 sortOrder: new SortOrder($sortOrder),
                 relatedProject: $this->relatedProject($projectId, $externalProjectName),
@@ -93,6 +97,8 @@ final class UpdateTimelineItemUseCase
                 techTags: $this->techTags($techTagIds),
             ));
         });
+
+        AdminCursorPaginator::invalidateCountCache('experience');
     }
 
     private function relatedProject(?int $projectId, ?string $externalProjectName): ?RelatedProject

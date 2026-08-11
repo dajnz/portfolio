@@ -12,6 +12,7 @@ use App\Features\Experience\App\UseCases\RestoreTimelineItemUseCase;
 use App\Features\Experience\App\UseCases\StoreTimelineItemUseCase;
 use App\Features\Experience\App\UseCases\UpdateTimelineItemUseCase;
 use App\Features\Experience\Domain\Entities\TimelineItem;
+use App\Features\Experience\Domain\Exceptions\TimelinePeriodConflictException;
 use App\Features\Experience\Infra\Requests\StoreExperienceRequest;
 use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
@@ -20,6 +21,7 @@ use App\Features\Shared\Infra\Services\PerLocaleValues;
 use DateTimeImmutable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
@@ -63,7 +65,11 @@ final class AdminExperienceController
 
     public function store(StoreExperienceRequest $request): RedirectResponse
     {
-        $this->storeCase->store(...$this->payload($request));
+        try {
+            $this->storeCase->store(...$this->payload($request));
+        } catch (TimelinePeriodConflictException $e) {
+            throw ValidationException::withMessages([$e->toField() => $e->getMessage()]);
+        }
 
         return redirect()->back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
@@ -76,7 +82,11 @@ final class AdminExperienceController
 
     public function update(StoreExperienceRequest $request, int $item): RedirectResponse
     {
-        $this->updateCase->update($item, ...$this->payload($request));
+        try {
+            $this->updateCase->update($item, ...$this->payload($request));
+        } catch (TimelinePeriodConflictException $e) {
+            throw ValidationException::withMessages([$e->toField() => $e->getMessage()]);
+        }
 
         return redirect()->back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
@@ -126,7 +136,9 @@ final class AdminExperienceController
 
     /**
      * Spread-ready payload for the store/update use cases — extracted
-     * so both actions share one input mapping.
+     * so both actions share one input mapping. There is no `is_current`
+     * flag (B174): an empty `ended_at` is the ongoing marker, the
+     * continuity rules live in the use cases.
      *
      * @return array<string, mixed>
      */
@@ -145,7 +157,6 @@ final class AdminExperienceController
             'endedAt' => is_string($endedAt) && $endedAt !== ''
                 ? new DateTimeImmutable($endedAt)
                 : null,
-            'isCurrent' => $request->boolean('is_current'),
             'isPublished' => $request->boolean('is_published'),
             'sortOrder' => (int) $request->input('sort_order', 0),
             'projectId' => $request->input('project_id') !== null

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Experience\App\UseCases;
 
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
+use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 
 /**
  * Restores a soft-deleted timeline item (content-management.md:883) —
@@ -21,5 +22,7 @@ final class RestoreTimelineItemUseCase
     public function restore(int $id): void
     {
         $this->repository->restore($id);
+        AdminCursorPaginator::invalidateCountCache('experience');
+
     }
 }

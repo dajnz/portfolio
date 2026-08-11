@@ -10,17 +10,20 @@ use Illuminate\Validation\Rule;
 
 /**
  * `POST /admin/experience` / `PUT /admin/experience/{item}`
- * (content-management.md:650-668): the non-translatable fields plus the
- * per-locale translatable ones. `short_description` is required per
- * active locale and length-checked against its plain text after
- * stripping Markdown (not the raw input); the identity trio
- * (position/company name/country) is optional but all-or-none per
- * locale.
+ * (content-management.md:650-668, B174): the non-translatable fields
+ * plus the per-locale translatable ones. `short_description` and
+ * `position` are required per active locale; the company pair (name +
+ * country) is optional but all-or-none per locale. `short_description`
+ * is length-checked against its plain text after stripping Markdown
+ * (not the raw input).
  *
- * Cross-field rules: `ended_at` must not precede `started_at`, is
- * `prohibited_if:is_current,true` (the use case nulls it anyway —
- * database.md:303), and `project_id` / `external_project_name` are
- * mutually exclusive. `achievements` entries carry per-locale
+ * Cross-field rules: `ended_at` must be strictly AFTER `started_at`
+ * (a same-day end is invalid, B174), and `project_id` /
+ * `external_project_name` are mutually exclusive. There is no
+ * `is_current` flag anymore — an empty `ended_at` IS the ongoing
+ * marker, and the timeline-continuity rules (overlap protection, only
+ * the last item ongoing, the predecessor auto-fill) are enforced by the
+ * store/update use cases. `achievements` entries carry per-locale
  * descriptions; only the locales with a description are persisted for
  * that locale's jsonb column.
  */
@@ -40,10 +43,8 @@ final class StoreExperienceRequest extends FormRequest
             'ended_at' => [
                 'nullable',
                 'date',
-                'after_or_equal:started_at',
-                'prohibited_if:is_current,true',
+                'after:started_at',
             ],
-            'is_current' => ['boolean'],
             'project_id' => [
                 'nullable',
                 'integer',
@@ -83,11 +84,11 @@ final class StoreExperienceRequest extends FormRequest
         ];
 
         foreach ($this->activeLocales() as $locale) {
-            $identityRule = $this->identityGroupRule($locale);
+            $companyRule = $this->companyPairRule($locale);
 
-            $rules["position.$locale"] = ['nullable', 'string', 'max:200', $identityRule];
-            $rules["company_name.$locale"] = ['nullable', 'string', 'max:200', $identityRule];
-            $rules["company_country.$locale"] = ['nullable', 'string', 'max:100', $identityRule];
+            $rules["position.$locale"] = ['required', 'string', 'max:200'];
+            $rules["company_name.$locale"] = ['nullable', 'string', 'max:200', $companyRule];
+            $rules["company_country.$locale"] = ['nullable', 'string', 'max:100', $companyRule];
             $rules["short_description.$locale"] = [
                 'required',
                 'string',
@@ -113,25 +114,26 @@ final class StoreExperienceRequest extends FormRequest
     }
 
     /**
-     * The identity trio (position / company name / country) is
-     * all-or-none per locale (content-management.md:654-656): when any
-     * of the three is set, all three must be set.
+     * The company pair (company name + country) is all-or-none per
+     * locale (B174 — position is mandatory on its own; the pair is
+     * optional, but a lone company name or a lone country is
+     * meaningless).
      *
      * @return callable(string, mixed, callable): void
      */
-    private function identityGroupRule(string $locale): callable
+    private function companyPairRule(string $locale): callable
     {
         return function (string $attribute, mixed $value, callable $fail) use ($locale): void {
             $set = 0;
-            foreach (['position', 'company_name', 'company_country'] as $field) {
+            foreach (['company_name', 'company_country'] as $field) {
                 $fieldValue = $this->input("{$field}.{$locale}");
                 if (is_string($fieldValue) && $fieldValue !== '') {
                     $set++;
                 }
             }
 
-            if ($set !== 0 && $set !== 3) {
-                $fail(__('validation.experience.identity_fields_all_or_none', [
+            if ($set === 1) {
+                $fail(__('validation.experience.company_fields_all_or_none', [
                     'attribute' => $this->attributes()[$attribute] ?? $attribute,
                 ]));
             }
