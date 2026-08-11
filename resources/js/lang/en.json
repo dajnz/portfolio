@@ -110,6 +110,9 @@
             "total_views": "Total Views",
             "unread_feedback": "Unread Feedback"
         },
+        "date_picker": {
+            "placeholder": "dd.mm.yyyy"
+        },
         "editor": {
             "blockquote": "Blockquote",
             "bold": "Bold",
@@ -134,22 +137,36 @@
             "achievements": "Achievements",
             "add": "Add Experience",
             "add_achievement": "Add Achievement",
+            "back_to_list": "Back to experience list",
             "company": "Company",
             "company_name": "Company Name",
             "country": "Country",
             "current": "Current",
             "dates": "Dates",
+            "delete_confirm": "Delete this experience item?",
+            "delete_failed": "Could not delete the experience item.",
             "description": "Description",
             "edit": "Edit Experience",
             "ended_at": "Ended At",
+            "force_delete_confirm": "Delete this experience item permanently?",
             "include_in_resume": "In resume",
+            "no_items": "No experience items yet.",
+            "no_projects_match": "No projects match",
+            "no_results": "No experience items match your filters.",
+            "not_in_resume": "Not in resume",
+            "portfolio_project": "Portfolio project",
             "position": "Position",
             "project": "Project",
             "project_link": "Project Link",
+            "project_placeholder": "Search projects or type a custom name...",
+            "published": "Published",
+            "search_placeholder": "Search experience...",
             "short_description": "Short Description",
             "started_at": "Started At",
             "tech_tags": "Tech Tags",
-            "title": "Experience"
+            "title": "Experience",
+            "trashed": "Trashed",
+            "unpublished": "Draft"
         },
         "feedback": {
             "back_to_feedback": "Back to feedback",
@@ -525,6 +542,7 @@
         "unknown": "Unknown",
         "unsaved_changes": "You have unsaved changes. Leave site?",
         "view": "View",
+        "year_picker": "Pick year",
         "yes": "Yes"
     },
     "errors": {
@@ -704,7 +722,10 @@
         "exists": "The selected :attribute is invalid.",
         "experience": {
             "achievement_description_required": "Each achievement needs a description in at least one language.",
-            "identity_fields_all_or_none": "The :attribute, company name and country must all be filled together or left empty.",
+            "company_fields_all_or_none": "The company name and country must both be filled together or left empty.",
+            "only_last_current": "Only the most recent item can be ongoing — an end date is required for this period.",
+            "overlap_with_next": "The end date must not be later than the start date of the next item.",
+            "overlap_with_previous": "The start date must not be earlier than the end date of the previous item.",
             "short_description_plain_length": "The :attribute must not exceed :max characters when stripped of Markdown."
         },
         "file": "The :attribute must be a file.",

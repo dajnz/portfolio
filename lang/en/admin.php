@@ -48,6 +48,10 @@ return [
         'unread_feedback' => 'Unread Feedback',
     ],
 
+    'date_picker' => [
+        'placeholder' => 'dd.mm.yyyy',
+    ],
+
     'login' => [
         'title' => 'Login',
         'password' => 'Password',
@@ -179,8 +183,22 @@ return [
         'description' => 'Description',
         'achievements' => 'Achievements',
         'add_achievement' => 'Add Achievement',
+        'back_to_list' => 'Back to experience list',
         'tech_tags' => 'Tech Tags',
         'include_in_resume' => 'In resume',
+        'search_placeholder' => 'Search experience...',
+        'no_items' => 'No experience items yet.',
+        'no_results' => 'No experience items match your filters.',
+        'published' => 'Published',
+        'unpublished' => 'Draft',
+        'trashed' => 'Trashed',
+        'delete_confirm' => 'Delete this experience item?',
+        'force_delete_confirm' => 'Delete this experience item permanently?',
+        'delete_failed' => 'Could not delete the experience item.',
+        'project_placeholder' => 'Search projects or type a custom name...',
+        'no_projects_match' => 'No projects match',
+        'portfolio_project' => 'Portfolio project',
+        'not_in_resume' => 'Not in resume',
     ],
 
     'projects' => [

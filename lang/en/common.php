@@ -28,6 +28,7 @@ return [
     'back' => 'Back',
     'next' => 'Next',
     'previous' => 'Previous',
+    'year_picker' => 'Pick year',
     'close' => 'Close',
     'retry' => 'Retry',
     'all' => 'All',
