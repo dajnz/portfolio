@@ -13,8 +13,11 @@ use App\Features\Shared\Infra\Persistence\SortSpec;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 /**
  * Server-side keyset (cursor) pagination for the seven admin list pages
@@ -33,11 +36,15 @@ use Illuminate\Support\Facades\Cache;
  *
  * The `SELECT COUNT(*)` per filter combination is cached in Redis for
  * 30 s (admin-section-ui.md:149); the count is only used for the
- * page-number widget. An incoming cursor whose shape mismatches the
- * active sort falls back to a page-1 request with a warning log
- * (admin-section-ui.md:196). SQL translation (ORDER BY, seek predicate,
- * positioning select) is delegated to SortSpec; cursor parsing and
- * validation to CursorDecoder; input extraction to PaginationRequest.
+ * page-number widget. The cache is versioned per entity — a write
+ * (`AdminCursorPaginator::invalidateCountCache($entity)`) bumps the
+ * version so the next list request re-counts immediately (B175: adding
+ * or deleting items must update the paginator without a reload).
+ * An incoming cursor whose shape mismatches the active sort falls back
+ * to a page-1 request with a warning log (admin-section-ui.md:196).
+ * SQL translation (ORDER BY, seek predicate, positioning select) is
+ * delegated to SortSpec; cursor parsing and validation to
+ * CursorDecoder; input extraction to PaginationRequest.
  */
 final class AdminCursorPaginator
 {
@@ -45,16 +52,33 @@ final class AdminCursorPaginator
 
     private const COUNT_CACHE_KEY_PREFIX = 'admin_cursor_count:';
 
+    private const COUNT_CACHE_VERSION_PREFIX = 'admin_cursor_count_version:';
+
     /**
      * @param  string[]  $allowedSortColumns  Columns the `sort_column` request param may select
      *                                        beyond the id column (which is always allowed).
      * @param  string  $idColumn  Primary-key column, qualified (`projects.id`) when the query joins.
+     * @param  string|null  $defaultSortColumn  Sort column used when the request carries no
+     *                                          `sort_column` (default: the id column, B72).
      */
     public function __construct(
         private readonly CursorDecoder $cursorDecoder = new CursorDecoder(),
         private readonly array $allowedSortColumns = [],
         private readonly string $idColumn = 'id',
+        private readonly ?string $defaultSortColumn = null,
     ) {
+    }
+
+    /**
+     * Bumps the per-entity count-cache version — every write to a
+     * paginated entity (store/update/destroy/restore/force) must call
+     * this so the cached total reflects the change immediately
+     * (B175: without it the paginator stayed stale for up to 30 s and
+     * new pages / shrunk page counts appeared only after a reload).
+     */
+    public static function invalidateCountCache(string $entity): void
+    {
+        Cache::increment(self::COUNT_CACHE_VERSION_PREFIX.$entity);
     }
 
     /**
@@ -68,7 +92,12 @@ final class AdminCursorPaginator
         ?string $countCacheKey = null,
     ): CursorPage {
         $perPage = max(1, $perPage);
-        $pagination = PaginationRequest::fromRequest($request, $this->allowedSortColumns, $this->idColumn);
+        $pagination = PaginationRequest::fromRequest(
+            $request,
+            $this->allowedSortColumns,
+            $this->idColumn,
+            $this->defaultSortColumn,
+        );
         $total = $this->countTotal(clone $query, $countCacheKey);
 
         if ($pagination->hasCursorParams()) {
@@ -76,8 +105,7 @@ final class AdminCursorPaginator
 
             if ($cursor !== null) {
                 $pageNumber = $this->pageContainingCursor($query, $cursor, $pagination->sorting, $perPage);
-
-                return $this->fetchAndWrap(
+                $page = $this->fetchAndWrap(
                     $query,
                     $cursor,
                     $pagination->before,
@@ -86,6 +114,20 @@ final class AdminCursorPaginator
                     $total,
                     max(1, $pageNumber + ($pagination->before ? -1 : 1)),
                 );
+
+                if ($page->items === [] && $page->total > 0) {
+                    // The cursor now points past the last remaining item
+                    // (its page was emptied by deletes, B175). Redirect
+                    // to the page that still has content — the page
+                    // containing the cursor (the one preceding the
+                    // empty page; page 1 for an empty previous-page
+                    // request) — instead of rendering an empty page the
+                    // user cannot navigate away from.
+                    $targetPage = max(1, $pageNumber + ($pagination->before ? -1 : 0));
+                    $this->redirectToPage($request, $targetPage);
+                }
+
+                return $page;
             }
 
             // Mismatched cursor — the decoder logged the warning; page 1.
@@ -99,15 +141,63 @@ final class AdminCursorPaginator
         $cursor = $this->positionCursorForPage($query, $pagination->page, $perPage, $pagination->sorting);
 
         if ($cursor === null) {
+            // The requested page lies beyond the last one (B175: e.g.
+            // the only item of the last page was deleted). Redirect to
+            // the last valid page — filters preserved — instead of
+            // rendering an empty page the user cannot navigate away
+            // from. Page 1 and empty datasets keep rendering (the
+            // empty state).
+            $lastPage = (int) ceil($total / $perPage);
+
+            if ($total > 0 && $pagination->page > $lastPage) {
+                $this->redirectToPage($request, $lastPage);
+            }
+
             return CursorPage::empty($total, $perPage, $pagination->page, $pagination->sorting);
         }
 
-        return $this->fetchAndWrap($query, $cursor, false, $pagination->sorting, $perPage, $total, $pagination->page);
+        $page = $this->fetchAndWrap($query, $cursor, false, $pagination->sorting, $perPage, $total, $pagination->page);
+
+        if ($page->items === [] && $page->total > 0) {
+            // The requested page was emptied by deletes — the
+            // positioning cursor (the previous page's last item) still
+            // exists, so the beyond-range check above cannot fire
+            // (B175: deleting the last item of the last page must not
+            // strand the user on an empty page). Redirect to the
+            // previous page.
+            $this->redirectToPage($request, max(1, $pagination->page - 1));
+        }
+
+        return $page;
+    }
+
+    /**
+     * Throws the 302 redirect to a valid list page (filters preserved).
+     */
+    private function redirectToPage(Request $request, int $page): never
+    {
+        throw new HttpResponseException(
+            new RedirectResponse($this->lastValidPageUrl($request, $page), SymfonyResponse::HTTP_FOUND),
+        );
+    }
+
+    /**
+     * The last-valid-page URL: the request's own query minus the
+     * page/cursor params, with `page` set to the target.
+     */
+    private function lastValidPageUrl(Request $request, int $page): string
+    {
+        $query = $request->query();
+        unset($query['page'], $query['cursor']);
+        $query['page'] = $page;
+
+        return $request->url().'?'.http_build_query($query);
     }
 
     /**
      * Total matching rows; the count is cached per filter combination
-     * (30 s TTL) when a cache key is provided.
+     * (30 s TTL) when a cache key is provided, versioned per entity
+     * (B175 — {@see self::invalidateCountCache()}).
      *
      * @param  EloquentBuilder<Model>|QueryBuilder  $query
      */
@@ -119,8 +209,11 @@ final class AdminCursorPaginator
             return (int) $countQuery->count();
         }
 
+        $entity = explode(':', $countCacheKey)[0];
+        $version = (int) Cache::get(self::COUNT_CACHE_VERSION_PREFIX.$entity, 0);
+
         return (int) Cache::remember(
-            self::COUNT_CACHE_KEY_PREFIX.$countCacheKey,
+            self::COUNT_CACHE_KEY_PREFIX.$countCacheKey.':v'.$version,
             self::COUNT_CACHE_TTL_SECONDS,
             static fn (): int => (int) $countQuery->count(),
         );

@@ -8,6 +8,7 @@ use App\Features\Portfolio\Domain\Entities\Contact;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
 use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
+use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -47,6 +48,8 @@ final class StoreContactUseCase
                 translations: $translations,
             ));
         });
+
+        AdminCursorPaginator::invalidateCountCache('contacts');
     }
 
     /**
