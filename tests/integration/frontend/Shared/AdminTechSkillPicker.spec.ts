@@ -1,6 +1,7 @@
-import { mount } from '@vue/test-utils';
+import { mount, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { defineComponent, nextTick, ref } from 'vue';
 
 import AdminTechSkillPicker from '@shared-admin/AdminTechSkillPicker.vue';
 
@@ -16,6 +17,39 @@ function mountSkillPicker(props = {}, slots = {}, options = {}) {
         slots,
         ...options,
     });
+}
+
+// The picker must be driven through a v-model parent for the click
+// handler to update the prop and re-filter the suggestions — the
+// real-browser interleaving the mid-dispatch tests exercise.
+const PickerHarness = defineComponent({
+    components: { AdminTechSkillPicker },
+    setup() {
+        const skills = ref<Array<(typeof SKILLS)[number]>>([]);
+
+        return { skills };
+    },
+    template: '<AdminTechSkillPicker v-model="skills" test_id="tech-skill-picker" />',
+});
+
+function mountPickerWithParent() {
+    return mount(PickerHarness, { attachTo: document.body });
+}
+
+async function openSuggestions(wrapper: VueWrapper) {
+    vi.mocked(fetch).mockResolvedValue(
+        new Response(JSON.stringify([SKILLS[0], SKILLS[1]]), { status: 200 }),
+    );
+    const input = wrapper.get('[data-testid="tech-skill-picker-input"]');
+    (input.element as HTMLElement).focus();
+
+    await input.setValue('php');
+    await vi.advanceTimersByTimeAsync(300);
+    await vi.waitFor(() => {
+        expect(wrapper.findAll('[data-testid^="tech-skill-picker-suggestion-"]')).toHaveLength(2);
+    });
+
+    return input;
 }
 
 describe('AdminTechSkillPicker', () => {
@@ -89,6 +123,30 @@ describe('AdminTechSkillPicker', () => {
         expect(wrapper.get('[data-testid="tech-skill-picker-suggestion-0"]').text()).toContain('Laravel');
     });
 
+    it('closes the dropdown and clears the query on an outside click (B174)', async () => {
+        vi.mocked(fetch).mockResolvedValue(
+            new Response(JSON.stringify([SKILLS[0]]), { status: 200 }),
+        );
+        const wrapper = mountSkillPicker({ modelValue: [SKILLS[1]] }, {}, { attachTo: document.body });
+
+        const input = wrapper.get('[data-testid="tech-skill-picker-input"]');
+        await input.setValue('php');
+        await vi.advanceTimersByTimeAsync(300);
+
+        await vi.waitFor(() => {
+            expect(wrapper.find('[data-testid="tech-skill-picker-dropdown"]').exists()).toBe(true);
+        });
+
+        // A click outside the picker root closes the panel and clears
+        // the typed query — the selected pills stay.
+        document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await nextTick();
+
+        expect(wrapper.find('[data-testid="tech-skill-picker-dropdown"]').exists()).toBe(false);
+        expect((input.element as HTMLInputElement).value).toBe('');
+        expect(wrapper.get('[data-testid="tech-skill-picker-pill-0"]')).toBeDefined();
+    });
+
     it('adds a skill on suggestion click, clears the input and keeps focus', async () => {
         vi.mocked(fetch).mockResolvedValue(
             new Response(JSON.stringify([SKILLS[0], SKILLS[1]]), { status: 200 }),
@@ -108,6 +166,34 @@ describe('AdminTechSkillPicker', () => {
         expect(wrapper.emitted('update:modelValue')).toEqual([[ [SKILLS[1]] ]]);
         expect((input.element as HTMLInputElement).value).toBe('');
         expect(document.activeElement).toBe(input.element);
+        wrapper.unmount();
+    });
+
+    it('adds the clicked skill through a v-model parent (prop round-trip)', async () => {
+        const wrapper = mountPickerWithParent();
+        const input = await openSuggestions(wrapper);
+
+        await wrapper.get('[data-testid="tech-skill-picker-suggestion-1"]').trigger('click');
+
+        expect(wrapper.get('[data-testid="tech-skill-picker-pill-0"]').text()).toContain('Laravel');
+        expect(wrapper.find('[data-testid="tech-skill-picker-pill-1"]').exists()).toBe(false);
+        expect((input.element as HTMLInputElement).value).toBe('');
+        wrapper.unmount();
+    });
+
+    it('keeps the dropdown open when adding a skill detaches the suggestion row mid-dispatch (B175)', async () => {
+        const wrapper = mountPickerWithParent();
+        await openSuggestions(wrapper);
+
+        const suggestion = wrapper.get('[data-testid="tech-skill-picker-suggestion-1"]');
+        suggestion.element.addEventListener('click', () => suggestion.element.remove(), {
+            once: true,
+        });
+        suggestion.element.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await nextTick();
+
+        expect(wrapper.get('[data-testid="tech-skill-picker-pill-0"]').text()).toContain('Laravel');
+        expect(wrapper.find('[data-testid="tech-skill-picker-dropdown"]').exists()).toBe(true);
         wrapper.unmount();
     });
 

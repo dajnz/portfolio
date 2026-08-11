@@ -17,11 +17,19 @@ uses(InteractsWithAdmin::class);
 
 beforeEach(function (): void {
     $this->seed(SettingsSeeder::class);
+
+    // The B174 continuity rules make the timeline state matter — items
+    // left behind by a previous test in this file (LazilyRefreshDatabase
+    // refreshes once per file) would act as predecessors/successors and
+    // reject otherwise-valid dates. Each test starts with an empty
+    // timeline (translations + the tech-tag pivot cascade).
+    TimelineItemModel::query()->forceDelete();
 });
 
 /**
  * `position`/`company_name` are required per active locale; the shared
- * payload used by the store/update tests.
+ * payload used by the store/update tests. There is no `is_current` flag
+ * (B174) — a null `ended_at` marks the ongoing position.
  *
  * @return array<string, mixed>
  */
@@ -40,7 +48,6 @@ function experiencePayload(array $overrides = []): array
         ],
         'started_at' => '2020-01-15',
         'ended_at' => '2023-06-30',
-        'is_current' => false,
         'is_published' => true,
         'include_in_resume' => true,
         'sort_order' => 0,
@@ -119,7 +126,7 @@ describe('AdminExperienceController', function (): void {
                 ->where('meta.total', 2)
                 ->where('meta.per_page', 12)
                 ->where('meta.current_page', 1)
-                ->where('meta.sort_column', 'id')
+                ->where('meta.sort_column', 'started_at')
                 ->where('meta.cursors.first.id', $newer->id)
                 ->where('meta.cursors.last.id', $older->id));
     });
@@ -244,12 +251,11 @@ describe('AdminExperienceController', function (): void {
             ->pluck('skill_id')->all())->toBe([$php->id]);
     });
 
-    it('treats is_current=true as an ongoing position (ended_at null)', function (): void {
+    it('treats a null ended_at as the ongoing position (no is_current flag)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $this->post('/admin/experience', experiencePayload([
             'ended_at' => null,
-            'is_current' => true,
         ]))->assertRedirect()
             ->assertSessionHasNoErrors();
 
@@ -288,20 +294,25 @@ describe('AdminExperienceController', function (): void {
             ->assertSessionHasErrors(['short_description.en', 'short_description.ru', 'ended_at']);
     });
 
-    it('rejects a partial identity trio per locale (all-or-none)', function (): void {
+    it('requires position per locale and the company pair all-or-none', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
-        // Position set, company name + country missing.
+        // Position missing → required per active locale.
         $this->post('/admin/experience', experiencePayload([
-            'position' => ['en' => 'Engineer', 'ru' => 'Инженер'],
-            'company_name' => ['en' => '', 'ru' => null],
-            'company_country' => ['en' => null, 'ru' => null],
+            'position' => ['en' => '', 'ru' => null],
         ]))->assertRedirect()
             ->assertSessionHasErrors(['position.en', 'position.ru']);
 
-        // An entirely empty trio passes.
+        // Company name set without a country → the pair rule fails.
         $this->post('/admin/experience', experiencePayload([
-            'position' => ['en' => '', 'ru' => null],
+            'company_name' => ['en' => 'Acme Corp', 'ru' => 'ООО «Акме»'],
+            'company_country' => ['en' => null, 'ru' => null],
+        ]))->assertRedirect()
+            ->assertSessionHasErrors(['company_name.en', 'company_name.ru']);
+
+        // Position alone (company pair empty) passes — the company is
+        // optional since B174.
+        $this->post('/admin/experience', experiencePayload([
             'company_name' => ['en' => '', 'ru' => null],
             'company_country' => ['en' => null, 'ru' => null],
         ]))->assertRedirect()
@@ -310,14 +321,137 @@ describe('AdminExperienceController', function (): void {
         expect(TimelineItemModel::query()->first()->translations()->where('locale', 'en')->first()->company_name)->toBe('');
     });
 
-    it('rejects ended_at when is_current is true', function (): void {
+    it('rejects ended_at equal to started_at', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $this->post('/admin/experience', experiencePayload([
+            'started_at' => '2023-06-30',
             'ended_at' => '2023-06-30',
-            'is_current' => true,
         ]))->assertRedirect()
             ->assertSessionHasErrors('ended_at');
+    });
+
+    it('auto-fills the previous item end date when appending after an ongoing item', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $ongoing = translatedItem(['started_at' => '2020-01-01', 'ended_at' => null]);
+
+        $this->post('/admin/experience', experiencePayload([
+            'started_at' => '2021-01-01',
+            'ended_at' => '2022-01-01',
+        ]))->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        expect($ongoing->fresh()->ended_at?->format('Y-m-d'))->toBe('2021-01-01');
+    });
+
+    it('rejects a period overlapping the previous item', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        translatedItem(['started_at' => '2020-01-01', 'ended_at' => '2020-06-30']);
+
+        $this->post('/admin/experience', experiencePayload([
+            'started_at' => '2020-03-01',
+            'ended_at' => '2020-12-31',
+        ]))->assertRedirect()
+            ->assertSessionHasErrors('started_at');
+    });
+
+    it('rejects an item starting on the same day as an ongoing item (B175)', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        // The reported bug: an ongoing "2026-03-01 — Present" item let a
+        // second "2026-03-01 — 2026-03-22" item through — the same-start
+        // predecessor was skipped (strict < comparison) and its end date
+        // was never auto-filled. Same-start items chain by id: the new
+        // item follows the ongoing one, which cannot be closed on its own
+        // start day (ended > started) — an overlap.
+        translatedItem(['started_at' => '2026-03-01', 'ended_at' => null]);
+
+        $this->post('/admin/experience', experiencePayload([
+            'started_at' => '2026-03-01',
+            'ended_at' => '2026-03-22',
+        ]))->assertRedirect()
+            ->assertSessionHasErrors('started_at');
+
+        // The ongoing predecessor stays untouched.
+        expect(TimelineItemModel::query()->first()->ended_at)->toBeNull();
+    });
+
+    it('rejects a period overlapping the next item', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        translatedItem(['started_at' => '2021-01-01', 'ended_at' => '2022-06-30']);
+
+        $this->post('/admin/experience', experiencePayload([
+            'started_at' => '2020-01-01',
+            'ended_at' => '2021-06-01',
+        ]))->assertRedirect()
+            ->assertSessionHasErrors('ended_at');
+    });
+
+    it('rejects an ongoing item that is not the chronologically last one', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        translatedItem(['started_at' => '2021-01-01', 'ended_at' => '2022-01-01']);
+
+        $this->post('/admin/experience', experiencePayload([
+            'started_at' => '2020-06-01',
+            'ended_at' => null,
+        ]))->assertRedirect()
+            ->assertSessionHasErrors('ended_at');
+    });
+
+    it('allows an ongoing item as the last one and closes it when a newer item is added', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        translatedItem(['started_at' => '2020-01-01', 'ended_at' => '2020-12-31']);
+
+        $this->post('/admin/experience', experiencePayload([
+            'started_at' => '2021-01-01',
+            'ended_at' => null,
+        ]))->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $ongoing = TimelineItemModel::query()->orderByDesc('started_at')->first();
+        expect($ongoing->ended_at)->toBeNull();
+
+        // Appending after the ongoing item auto-fills its end date.
+        $this->post('/admin/experience', experiencePayload([
+            'started_at' => '2023-01-01',
+            'ended_at' => null,
+        ]))->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        expect($ongoing->fresh()->ended_at?->format('Y-m-d'))->toBe('2023-01-01');
+    });
+
+    it('rejects an update that moves an item onto its predecessor', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        translatedItem(['started_at' => '2020-01-01', 'ended_at' => '2020-12-31']);
+        $item = translatedItem(['started_at' => '2021-01-01', 'ended_at' => '2022-01-01']);
+
+        $this->put("/admin/experience/{$item->id}", experiencePayload([
+            'started_at' => '2020-06-01',
+            'ended_at' => '2022-01-01',
+        ]))->assertRedirect()
+            ->assertSessionHasErrors('started_at');
+    });
+
+    it('auto-fills the previous item when an update moves an item after the ongoing one', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $ongoing = translatedItem(['started_at' => '2020-01-01', 'ended_at' => null]);
+        $item = translatedItem(['started_at' => '2019-01-01', 'ended_at' => '2019-12-31']);
+
+        $this->put("/admin/experience/{$item->id}", experiencePayload([
+            'started_at' => '2021-01-01',
+            'ended_at' => '2022-01-01',
+        ]))->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        expect($ongoing->fresh()->ended_at?->format('Y-m-d'))->toBe('2021-01-01');
     });
 
     it('rejects the project_id / external_project_name exclusivity violation', function (): void {
@@ -403,7 +537,7 @@ describe('AdminExperienceController', function (): void {
         $php = SkillModel::factory()->create(['skill_group_id' => $group->id, 'name' => 'PHP']);
         $go = SkillModel::factory()->create(['skill_group_id' => $group->id, 'name' => 'Go']);
 
-        $item = translatedItem();
+        $item = translatedItem(['started_at' => '2020-01-01', 'ended_at' => '2020-12-31']);
         $item->techTags()->attach([$php->id]);
 
         $this->put("/admin/experience/{$item->id}", experiencePayload([
@@ -411,7 +545,6 @@ describe('AdminExperienceController', function (): void {
             'company_name' => ['en' => 'Acme Corp', 'ru' => 'ООО «Акме»'],
             'started_at' => '2024-01-01',
             'ended_at' => null,
-            'is_current' => true,
             'tech_tags' => [$go->id],
         ]))->assertRedirect()
             ->assertSessionHasNoErrors();
@@ -457,15 +590,18 @@ describe('AdminExperienceController', function (): void {
             Cache::put('sitemap:xml', '<primed/>', 3600);
         };
 
-        // Saving a published item invalidates.
+        // Saving a published item invalidates. Explicit, non-overlapping
+        // periods — the B174 continuity rules reject same-period items.
         $prime();
-        $item = translatedItem(['is_published' => true]);
+        $item = translatedItem(['is_published' => true, 'started_at' => '2020-01-01', 'ended_at' => '2021-06-30']);
         expect($cache())->toBeFalse();
 
         // Unpublishing a published item must drop its sitemap entry too.
         $prime();
         $this->put("/admin/experience/{$item->id}", experiencePayload([
             'is_published' => false,
+            'started_at' => '2020-01-15',
+            'ended_at' => '2021-06-30',
         ]))->assertRedirect();
         expect($cache())->toBeFalse();
 
@@ -473,11 +609,13 @@ describe('AdminExperienceController', function (): void {
         $prime();
         $this->put("/admin/experience/{$item->id}", experiencePayload([
             'is_published' => false,
+            'started_at' => '2020-01-15',
+            'ended_at' => '2021-06-30',
         ]))->assertRedirect();
         expect($cache())->toBeTrue();
 
         // Soft-deleting a published item invalidates.
-        $second = translatedItem(['is_published' => true]);
+        $second = translatedItem(['is_published' => true, 'started_at' => '2022-01-01', 'ended_at' => '2023-01-01']);
         $prime();
         $this->delete("/admin/experience/{$second->id}")->assertRedirect();
         expect($cache())->toBeFalse();

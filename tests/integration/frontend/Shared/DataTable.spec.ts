@@ -65,7 +65,7 @@ describe('DataTable', () => {
         expect(wrapper.text()).toContain('Actions');
     });
 
-    it('cycles a sortable column through unsorted, asc, desc and cleared', async () => {
+    it('cycles a sortable column through asc and desc only (B175)', async () => {
         const wrapper = mountTable();
         const header = wrapper.get('th button');
 
@@ -78,10 +78,11 @@ describe('DataTable', () => {
         expect(wrapper.emitted('update:sort_direction')).toEqual([['asc'], ['desc']]);
         expect(wrapper.emitted('update:sort_column')).toHaveLength(1);
 
+        // desc → asc — there is no unsorted state anymore.
         await wrapper.setProps({ sort_column: 'name', sort_direction: 'desc' });
         await header.trigger('click');
-        expect(wrapper.emitted('update:sort_column')).toEqual([['name'], [null]]);
-        expect(wrapper.emitted('update:sort_direction')).toEqual([['asc'], ['desc'], [null]]);
+        expect(wrapper.emitted('update:sort_column')).toEqual([['name']]);
+        expect(wrapper.emitted('update:sort_direction')).toEqual([['asc'], ['desc'], ['asc']]);
     });
 
     it('sets aria-sort on sortable headers only', async () => {
