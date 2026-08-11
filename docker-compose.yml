@@ -85,6 +85,11 @@ services:
     build:
       context: .
       dockerfile: devops/docker/php/Dockerfile
+    # Run as uid 1000 (the `portfolio` user / host user / php-fpm pool user,
+    # B42) — the queue worker logs info events to the shared bind-mounted
+    # storage/logs; running as root created root-owned daily log files that
+    # php-fpm (uid 1000) could not append to (500s on login — B171).
+    user: "1000:1000"
     command: php artisan queue:work --tries=3
     volumes:
       - .:/var/www/html
@@ -104,6 +109,9 @@ services:
     build:
       context: .
       dockerfile: devops/docker/php/Dockerfile
+    # Same uid rationale as the queue service (B171): scheduled commands
+    # (backup:create etc.) log info events to the shared storage/logs.
+    user: "1000:1000"
     command: php artisan schedule:work
     volumes:
       - .:/var/www/html

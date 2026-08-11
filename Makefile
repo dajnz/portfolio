@@ -123,6 +123,12 @@ test-frontend: ## Run all frontend tests (unit + integration)
 # inside the dev container (same pattern as CI, devops.md:1097) — the dev
 # database and the nginx stack are never touched. `E2ETestSeeder` still
 # truncates + reseeds on every run (via global-setup), but only the e2e DB.
+# The serve process runs as uid 1000 (B171): e2e logins log info events to
+# the SHARED storage/logs — a root-owned daily file 500s every php-fpm
+# (uid 1000) request that logs, including dev logins on localhost:8888.
+# The e2e serve log is removed first — a root-owned leftover from
+# pre-B171 runs makes the uid-1000 redirect fail with permission denied
+# and the server silently never starts.
 # `--no-reload` is REQUIRED: ServeCommand otherwise passes only a curated
 # env whitelist (APP_ENV/PATH/...) to the `php -S` child, silently dropping
 # the DB_DATABASE/REDIS_DB overrides (the server would hit the dev DB).
@@ -136,7 +142,8 @@ test-e2e: ## Run e2e tests against the dedicated e2e database (dev DB untouched)
 	fi; \
 	$(DE) env DB_DATABASE=portfolio_e2e REDIS_DB=1 php artisan migrate --force; \
 	$(DE) sh -c 'pkill -f "[p]hp -S .*8001" 2>/dev/null; pkill -f "[p]hp artisan serve.*8001" 2>/dev/null; true'; \
-	$(DC) exec -d dev sh -c 'env DB_DATABASE=portfolio_e2e REDIS_DB=1 php artisan serve --no-reload --host=0.0.0.0 --port=8001 >/tmp/e2e-serve.log 2>&1'; \
+	$(DE) sh -c 'rm -f /tmp/e2e-serve.log'; \
+	$(DC) exec -u 1000 -d dev sh -c 'env DB_DATABASE=portfolio_e2e REDIS_DB=1 php artisan serve --no-reload --host=0.0.0.0 --port=8001 >/tmp/e2e-serve.log 2>&1'; \
 	trap '$(DE) sh -c "pkill -f \"[p]hp artisan serve.*8001\"; pkill -f \"[p]hp -S .*8001\"; true"' EXIT; \
 	$(DE) sh -c 'npx wait-on -t 30000 http://127.0.0.1:8001/up || (echo "e2e server failed:"; cat /tmp/e2e-serve.log; exit 1)'; \
 	$(DE) env DB_DATABASE=portfolio_e2e REDIS_DB=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:8001 npx playwright test
