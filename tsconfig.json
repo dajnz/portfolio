@@ -58,6 +58,9 @@
             "@experience-shared/*": [
                 "./resources/js/Features/Experience/Shared/*"
             ],
+            "@experience/*": [
+                "./resources/js/Features/Experience/*"
+            ],
             "@auth-admin/*": [
                 "./resources/js/Features/Auth/Admin/Components/*"
             ],

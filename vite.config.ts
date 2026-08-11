@@ -59,6 +59,9 @@ export default defineConfig(({ isSsrBuild }) => ({
             '@experience-public': featureAlias('Experience/Public/Components'),
             '@experience-admin': featureAlias('Experience/Admin/Components'),
             '@experience-shared': featureAlias('Experience/Shared'),
+            // Feature-root alias for page imports in specs (mirrors
+            // `@portfolio`; the Components-scoped alias cannot reach Pages).
+            '@experience': featureAlias('Experience'),
             '@auth-admin': featureAlias('Auth/Admin/Components'),
             '@auth': featureAlias('Auth'),
             '@analytics-admin': featureAlias('Analytics/Admin/Components'),
