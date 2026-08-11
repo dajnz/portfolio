@@ -69,6 +69,31 @@ describe('ContactController', function (): void {
             ->and(ContactTranslationModel::query()->where('locale', 'ru')->first()->name)->toBe('Гитхаб');
     });
 
+    it('reflects a stored contact in the paginated total immediately (B175)', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        // Warm the 30 s count cache with a list request over a full page
+        // of contacts — a stale total would keep the paginator hidden.
+        ContactModel::factory()->count(12)->create();
+        $this->get('/admin/contacts')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('meta.total', 12));
+
+        $this->post('/admin/contacts', [
+            'name' => ['en' => 'GitHub', 'ru' => 'Гитхаб'],
+            'value' => 'octocat',
+            'icon' => null,
+            'url' => null,
+            'include_in_resume' => true,
+            'sort_order' => 0,
+        ])->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->get('/admin/contacts')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('meta.total', 13));
+    });
+
     it('updates a contact and reconciles its translations', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 

@@ -33,13 +33,15 @@ final readonly class PaginationRequest
     /**
      * @param  string[]  $allowedSortColumns  Columns the `sort_column` request param may select
      *                                        beyond the id column (which is always allowed).
+     * @param  string|null  $defaultSortColumn  Sort column used when the request carries no
+     *                                          `sort_column` (default: the id column, B72).
      */
-    public static function fromRequest(Request $request, array $allowedSortColumns, string $idColumn): self
+    public static function fromRequest(Request $request, array $allowedSortColumns, string $idColumn, ?string $defaultSortColumn = null): self
     {
         $sortColumn = trim((string) $request->query('sort_column', ''));
 
         if ($sortColumn === '') {
-            $sortColumn = $idColumn;
+            $sortColumn = $defaultSortColumn ?? $idColumn;
         } elseif ($sortColumn !== $idColumn && ! in_array($sortColumn, $allowedSortColumns, true)) {
             Log::warning('Admin list sort_column rejected: column is not whitelisted; falling back to id sort.', [
                 'sort_column' => $sortColumn,

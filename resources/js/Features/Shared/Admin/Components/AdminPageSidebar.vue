@@ -54,7 +54,7 @@ const widthClass = computed(() => (props.collapsed ? 'w-16' : 'w-64'));
 
 const activeGroupIds = computed(() =>
     props.menu_groups
-        .filter((group) => group.items.some((item) => item.route === props.active_route))
+        .filter((group) => group.items.some((item) => isActive(item.route)))
         .map((group) => group.id),
 );
 
@@ -70,8 +70,21 @@ function isGroupExpanded(groupId: string): boolean {
     return effectiveExpanded.value.includes(groupId);
 }
 
+// The pages pass the FULL route path (`active_route="/admin/experience"`,
+// B174) — a prefix match also highlights the section on sub-routes
+// (`/admin/experience/create`, `/admin/experience/{id}/edit`).
+// The pages pass the FULL route path (`active_route="/admin/experience"`,
+// B174) — a prefix match also highlights the section on sub-routes
+// (`/admin/experience/create`, `/admin/experience/{id}/edit`). The
+// dashboard link (`/admin`) is EXACT-match only — its prefix would
+// match every admin page (B175: the dashboard was highlighted on the
+// profile page).
 function isActive(route: string): boolean {
-    return route === props.active_route;
+    if (route === '/admin') {
+        return props.active_route === '/admin';
+    }
+
+    return route === props.active_route || props.active_route?.startsWith(`${route}/`) === true;
 }
 
 function groupHeaderClass(): string {

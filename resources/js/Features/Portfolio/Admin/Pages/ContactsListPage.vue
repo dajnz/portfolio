@@ -9,6 +9,7 @@ import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
 import AdminEmptyState from '@shared-admin/AdminEmptyState.vue';
 import AdminIconPicker from '@shared-admin/AdminIconPicker.vue';
 import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
+import AdminStickyActionBar from '@shared-admin/AdminStickyActionBar.vue';
 import ConfirmationDialog from '@shared-admin/ConfirmationDialog.vue';
 import LocaleTabs from '@shared-admin/LocaleTabs.vue';
 import PaginationControls from '@shared-admin/PaginationControls.vue';
@@ -340,7 +341,7 @@ function isEditing(rowId: number): boolean {
 <template>
   <AdminPageLayout
     :menu_groups="menuGroups()"
-    :active_route="'contacts'"
+    :active_route="'/admin/contacts'"
     :locale_props="{
       active_locale: page.props?.locale ?? 'en',
       supported_locales: localeOptionsFromCodes(page.props?.supported_locales),
@@ -351,10 +352,13 @@ function isEditing(rowId: number): boolean {
       class="mx-auto max-w-3xl"
       :data-testid="props.test_id"
     >
-      <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
-          {{ t('admin.contacts.title') }}
-        </h1>
+      <h1 class="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
+        {{ t('admin.contacts.title') }}
+      </h1>
+
+      <!-- Sticky header controls (B174): the Add Contact button stays
+           visible while scrolling. -->
+      <AdminStickyActionBar :test_id="`${props.test_id}-sticky-bar`">
         <AdminBaseButton
           variant="primary"
           icon="heroicons:plus"
@@ -364,7 +368,7 @@ function isEditing(rowId: number): boolean {
         >
           {{ t('admin.contacts.add') }}
         </AdminBaseButton>
-      </div>
+      </AdminStickyActionBar>
 
       <template v-if="hasRows || editingId === 'new'">
         <!-- New-contact editor row at the top of the list (mockup

@@ -12,6 +12,7 @@ use App\Features\Experience\Infra\Models\TimelineItemTranslationModel;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
+use DateTimeImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Facades\DB;
@@ -50,6 +51,66 @@ final class EloquentTimelineItemRepository implements
         return $model === null
             ? null
             : $this->hydrate($model, $this->techTagsFor([$id])[$id] ?? []);
+    }
+
+    public function predecessorFor(DateTimeImmutable $startedAt, ?int $ignoreId = null): ?TimelineItem
+    {
+        $model = TimelineItemModel::query()
+            ->with('translations')
+            ->whereNull('deleted_at')
+            ->when($ignoreId !== null, fn (Builder $query): Builder => $query->where('id', '!=', $ignoreId))
+            ->where(function (Builder $query) use ($startedAt, $ignoreId): void {
+                // (started_at, id) tuple ordering (B175): items sharing
+                // the start date chain by id — a NEW item (ignoreId
+                // null) follows every same-start item (it will hold the
+                // max id); an update excludes itself.
+                $query->where('started_at', '<', $startedAt->format('Y-m-d'));
+
+                $query->orWhere(function (Builder $same) use ($startedAt, $ignoreId): void {
+                    $same->where('started_at', '=', $startedAt->format('Y-m-d'));
+
+                    if ($ignoreId !== null) {
+                        $same->where('id', '<', $ignoreId);
+                    }
+                });
+            })
+            ->orderByDesc('started_at')
+            ->orderByDesc('id')
+            ->first();
+
+        return $model === null ? null : $this->hydrate($model, []);
+    }
+
+    public function successorFor(DateTimeImmutable $startedAt, ?int $ignoreId = null): ?TimelineItem
+    {
+        $model = TimelineItemModel::query()
+            ->with('translations')
+            ->whereNull('deleted_at')
+            ->when($ignoreId !== null, fn (Builder $query): Builder => $query->where('id', '!=', $ignoreId))
+            ->where(function (Builder $query) use ($startedAt, $ignoreId): void {
+                $query->where('started_at', '>', $startedAt->format('Y-m-d'));
+
+                if ($ignoreId !== null) {
+                    $query->orWhere(function (Builder $same) use ($startedAt, $ignoreId): void {
+                        $same->where('started_at', '=', $startedAt->format('Y-m-d'))
+                            ->where('id', '>', $ignoreId);
+                    });
+                }
+            })
+            ->orderBy('started_at')
+            ->orderBy('id')
+            ->first();
+
+        return $model === null ? null : $this->hydrate($model, []);
+    }
+
+    public function setEndedAt(int $id, DateTimeImmutable $endedAt): void
+    {
+        TimelineItemModel::query()
+            ->whereKey($id)
+            ->whereNull('deleted_at')
+            ->first()
+            ?->update(['ended_at' => $endedAt->format('Y-m-d')]);
     }
 
     public function delete(int $id): void

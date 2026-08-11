@@ -10,6 +10,7 @@ import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
 import AdminEmptyState from '@shared-admin/AdminEmptyState.vue';
 import AdminIconPicker from '@shared-admin/AdminIconPicker.vue';
 import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
+import AdminStickyActionBar from '@shared-admin/AdminStickyActionBar.vue';
 import ConfirmationDialog from '@shared-admin/ConfirmationDialog.vue';
 import LocaleTabs from '@shared-admin/LocaleTabs.vue';
 import SortableList from '@shared-cross/Components/SortableList.vue';
@@ -136,7 +137,7 @@ watch(
 <template>
   <AdminPageLayout
     :menu_groups="menuGroups()"
-    :active_route="'skills'"
+    :active_route="'/admin/skills'"
     :locale_props="{
       active_locale: page.props?.locale ?? 'en',
       supported_locales: localeOptionsFromCodes(page.props?.supported_locales),
@@ -147,10 +148,13 @@ watch(
       class="mx-auto max-w-4xl"
       :data-testid="props.test_id"
     >
-      <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
-          {{ t('admin.skills.title') }}
-        </h1>
+      <h1 class="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
+        {{ t('admin.skills.title') }}
+      </h1>
+
+      <!-- Sticky header controls (B174): the Create Group button stays
+           visible while scrolling. -->
+      <AdminStickyActionBar :test_id="`${props.test_id}-sticky-bar`">
         <AdminBaseButton
           variant="primary"
           icon="heroicons:plus"
@@ -160,7 +164,7 @@ watch(
         >
           {{ t('admin.skills.add_group') }}
         </AdminBaseButton>
-      </div>
+      </AdminStickyActionBar>
 
       <!-- Inline new-group editor at the top of the list (skills.html:
            190-192 — opened by "Create Group"; POST /admin/skill-groups).

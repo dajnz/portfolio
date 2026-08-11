@@ -43,6 +43,10 @@ return [
         'unread_feedback' => 'Непрочитанные отзывы',
     ],
 
+    'date_picker' => [
+        'placeholder' => 'дд.мм.гггг',
+    ],
+
     'login' => [
         'title' => 'Вход',
         'password' => 'Пароль',
@@ -174,8 +178,22 @@ return [
         'description' => 'Описание',
         'achievements' => 'Достижения',
         'add_achievement' => 'Добавить достижение',
+        'back_to_list' => 'Назад к списку опыта',
         'tech_tags' => 'Технологии',
         'include_in_resume' => 'В резюме',
+        'search_placeholder' => 'Поиск по опыту...',
+        'no_items' => 'Записей об опыте пока нет.',
+        'no_results' => 'Ни одна запись об опыте не соответствует фильтрам.',
+        'published' => 'Опубликовано',
+        'unpublished' => 'Черновик',
+        'trashed' => 'В корзине',
+        'delete_confirm' => 'Удалить эту запись об опыте?',
+        'force_delete_confirm' => 'Удалить эту запись об опыте безвозвратно?',
+        'delete_failed' => 'Не удалось удалить запись об опыте.',
+        'project_placeholder' => 'Поиск проектов или ввод названия вручную...',
+        'no_projects_match' => 'Проекты не найдены',
+        'portfolio_project' => 'Проект портфолио',
+        'not_in_resume' => 'Не в резюме',
     ],
 
     'projects' => [

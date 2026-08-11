@@ -100,6 +100,13 @@ export function useAdminMenu(): AdminMenuApi {
                         icon: 'heroicons:archive-box',
                     },
                     {
+                        // B175: the profile page belongs in the main
+                        // navigation (was header-only).
+                        label: t('admin.nav.profile'),
+                        route: '/admin/profile',
+                        icon: 'heroicons:user-circle',
+                    },
+                    {
                         label: t('admin.nav.horizon'),
                         route: '/horizon',
                         icon: 'heroicons:queue-list',

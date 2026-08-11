@@ -9,17 +9,18 @@ use InvalidArgumentException;
 /**
  * A single localized row of `experience_timeline_item_translations`
  * (PK `(item_id, locale)` — database.md:307-318): the identity fields
- * (position / company name / country) and the required Markdown
- * `short_description` plus the achievements list (jsonb array of
- * `{description, project_link?}`). Immutable; carries no identity of
+ * (mandatory position; optional company name + country) and the required
+ * Markdown `short_description` plus the achievements list (jsonb array
+ * of `{description, project_link?}`). Immutable; carries no identity of
  * its own.
  *
  * Invariants:
  * - `short_description` is mandatory — it is the only required column
  *   (content-management.md:659, the DB column is NOT NULL);
- * - the identity trio is all-or-none: when any of position/company
- *   name/company country is set, all three must be set (an empty
- *   country string is normalized to null);
+ * - `position` is mandatory too (B174 — the DB column is NOT NULL);
+ * - the company pair is all-or-none: when any of company name / company
+ *   country is set, both must be set (an empty country string is
+ *   normalized to null);
  * - achievements are optional — their structure is validated only when
  *   the list is non-empty (the plain-text-length rule for
  *   `short_description` lives in the form request, which also enforces
@@ -49,7 +50,11 @@ final readonly class TimelineItemTranslation
             throw new InvalidArgumentException('Timeline item translation short description must not be empty.');
         }
 
-        $this->assertIdentityGroup($position, $companyName, $companyCountry);
+        if ($position === '') {
+            throw new InvalidArgumentException('Timeline item translation position must not be empty.');
+        }
+
+        $this->assertCompanyPair($companyName, $companyCountry);
 
         $this->companyCountry = $companyCountry === '' ? null : $companyCountry;
         $this->achievements = $this->validateAchievements($achievements);
@@ -88,18 +93,18 @@ final readonly class TimelineItemTranslation
         return $this->achievements;
     }
 
-    private function assertIdentityGroup(string $position, string $companyName, ?string $companyCountry): void
+    private function assertCompanyPair(string $companyName, ?string $companyCountry): void
     {
         $set = 0;
-        foreach ([$position, $companyName, $companyCountry] as $value) {
+        foreach ([$companyName, $companyCountry] as $value) {
             if ($value !== null && $value !== '') {
                 $set++;
             }
         }
 
-        if ($set !== 0 && $set !== 3) {
+        if ($set === 1) {
             throw new InvalidArgumentException(
-                'Timeline item translation identity fields (position, company name, country) must be set together or left all empty.'
+                'Timeline item translation company name and country must be set together or left both empty.'
             );
         }
     }

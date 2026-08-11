@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Experience\App\UseCases;
 
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
+use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 
 /**
  * Permanently deletes a trashed timeline item (content-management.md:
@@ -21,5 +22,7 @@ final class ForceDestroyTimelineItemUseCase
     public function forceDestroy(int $id): void
     {
         $this->repository->forceDelete($id);
+        AdminCursorPaginator::invalidateCountCache('experience');
+
     }
 }

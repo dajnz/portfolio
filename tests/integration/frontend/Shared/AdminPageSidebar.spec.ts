@@ -58,6 +58,18 @@ describe('AdminPageSidebar', () => {
         expect(dashboard.attributes('href')).toBe('/admin');
     });
 
+    it('highlights the dashboard item only on the exact /admin route (B175)', () => {
+        const active = mountSidebar({ dashboard: DASHBOARD, active_route: '/admin' });
+        expect(active.get('[data-testid="admin-sidebar-dashboard"]').classes()).toContain(
+            'bg-sidebar-active',
+        );
+
+        const elsewhere = mountSidebar({ dashboard: DASHBOARD, active_route: '/admin/profile' });
+        expect(elsewhere.get('[data-testid="admin-sidebar-dashboard"]').classes()).not.toContain(
+            'bg-sidebar-active',
+        );
+    });
+
     it('renders group headers with their labels', () => {
         const wrapper = mountSidebar();
 
@@ -106,6 +118,13 @@ describe('AdminPageSidebar', () => {
 
         const horizon = wrapper.get('[data-testid="admin-sidebar-group-content-item-/horizon"]');
         expect(horizon.classes()).not.toContain('bg-sidebar-active');
+    });
+
+    it('highlights the section on sub-routes (create/edit forms)', () => {
+        const wrapper = mountSidebar({ active_route: '/admin/posts/5/edit' });
+
+        const posts = wrapper.get('[data-testid="admin-sidebar-group-content-item-/admin/posts"]');
+        expect(posts.classes()).toContain('bg-sidebar-active');
     });
 
     it('auto-expands the group containing the active route', () => {

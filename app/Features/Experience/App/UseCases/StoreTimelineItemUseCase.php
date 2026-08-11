@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Experience\App\UseCases;
 
+use App\Features\Experience\App\Services\TimelineContinuityService;
 use App\Features\Experience\Domain\Entities\TimelineItem;
 use App\Features\Experience\Domain\Entities\TimelineItemTranslation;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
@@ -14,17 +15,22 @@ use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInter
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;
 use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
+use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Creates a timeline item: the {@see WorkPeriod} (nulled by
- * `is_current` — the form sends the flag and the controller derives the
- * stored date, database.md:303), the {@see RelatedProject} (null when
- * no project reference), the {@see SortOrder}, the tech tags resolved
- * from their IDs, and the per-locale translations — every ACTIVE locale
- * gets a row, since `short_description` is required per locale; the
- * identity trio (position/company/country) is optional but all-or-none.
+ * Creates a timeline item (B174): the {@see WorkPeriod} (a null
+ * `ended_at` = ongoing — the form no longer sends an `is_current`
+ * flag), the {@see RelatedProject} (null when no project reference),
+ * the {@see SortOrder}, the tech tags resolved from their IDs, and the
+ * per-locale translations — every ACTIVE locale gets a row, since
+ * `short_description` and `position` are required per locale; the
+ * company pair (name + country) is optional but all-or-none.
+ *
+ * Timeline continuity (the "continuous career" model) is asserted by
+ * {@see TimelineContinuityService} inside the same transaction as the
+ * save so the auto-filled predecessor and the new row land atomically.
  */
 final class StoreTimelineItemUseCase
 {
@@ -32,6 +38,7 @@ final class StoreTimelineItemUseCase
         private readonly TimelineItemRepositoryInterface $repository,
         private readonly TechSkillReadRepositoryInterface $skills,
         private readonly ActiveLocaleService $locales,
+        private readonly TimelineContinuityService $continuity,
     ) {
     }
 
@@ -52,7 +59,6 @@ final class StoreTimelineItemUseCase
         array $techTagIds,
         DateTimeImmutable $startedAt,
         ?DateTimeImmutable $endedAt,
-        bool $isCurrent,
         bool $isPublished,
         int $sortOrder,
         ?int $projectId,
@@ -68,16 +74,17 @@ final class StoreTimelineItemUseCase
             $techTagIds,
             $startedAt,
             $endedAt,
-            $isCurrent,
             $isPublished,
             $sortOrder,
             $projectId,
             $includeInResume,
             $externalProjectName,
         ): void {
+            $this->continuity->assertContinuity($startedAt, $endedAt, null);
+
             $this->repository->save(new TimelineItem(
                 id: 0,
-                period: new WorkPeriod($startedAt, $isCurrent ? null : $endedAt),
+                period: new WorkPeriod($startedAt, $endedAt),
                 isPublished: $isPublished,
                 sortOrder: new SortOrder($sortOrder),
                 relatedProject: $this->relatedProject($projectId, $externalProjectName),
@@ -92,6 +99,8 @@ final class StoreTimelineItemUseCase
                 techTags: $this->techTags($techTagIds),
             ));
         });
+
+        AdminCursorPaginator::invalidateCountCache('experience');
     }
 
     private function relatedProject(?int $projectId, ?string $externalProjectName): ?RelatedProject

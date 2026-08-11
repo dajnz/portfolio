@@ -1402,14 +1402,26 @@ export interface components {
         };
         TimelineItemEditData: {
             id?: number;
-            position?: string;
-            company_name?: string;
-            company_country?: string;
+            /** @description Per-locale position values keyed by locale code (e.g. `en`, `ru`). */
+            position?: {
+                [key: string]: string;
+            };
+            /** @description Per-locale company name values keyed by locale code. */
+            company_name?: {
+                [key: string]: string;
+            };
+            /** @description Per-locale company country values keyed by locale code. */
+            company_country?: {
+                [key: string]: string;
+            };
             /** @description Set when referencing a portfolio project. Mutually exclusive with external_project_name. */
             project_id?: number | null;
             /** @description Set when referencing an external/non-portfolio project. Mutually exclusive with project_id. */
             external_project_name?: string | null;
-            short_description?: string;
+            /** @description Per-locale short description values keyed by locale code. */
+            short_description?: {
+                [key: string]: string;
+            };
             /** Format: date */
             started_at?: string;
             /** Format: date */
@@ -1418,7 +1430,10 @@ export interface components {
             sort_order?: number;
             include_in_resume?: boolean;
             achievements?: {
-                description?: string;
+                /** @description Per-locale achievement description values keyed by locale code — only the locales with a description are present. */
+                description?: {
+                    [key: string]: string | null;
+                };
                 project_link?: string | null;
             }[];
             tech_tags?: {

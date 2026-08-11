@@ -37,6 +37,7 @@ describe('useAdminMenu', () => {
             '/admin/feedback',
             '/admin/settings',
             '/admin/backups',
+            '/admin/profile',
             '/horizon',
         ]);
     });

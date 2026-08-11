@@ -2,6 +2,36 @@ export default {
     extends: ['@commitlint/config-conventional'],
     rules: {
         'type-enum': [2, 'always', ['feat', 'fix', 'chore', 'docs', 'style', 'refactor', 'perf', 'test']],
-        'scope-enum': [2, 'always', ['auth', 'blog', 'projects', 'analytics', 'admin', 'api', 'deps', 'docker', 'ci']],
+        // The feature namespaces (one per IMPLEMENTATION-PLAN step) plus
+        // the shared cross-feature scope and the tooling concerns used
+        // across the repository history.
+        'scope-enum': [
+            2,
+            'always',
+            [
+                'admin',
+                'analytics',
+                'api',
+                'auth',
+                'backup',
+                'blog',
+                'ci',
+                'deps',
+                'devops',
+                'docker',
+                'experience',
+                'experience-admin',
+                'i18n',
+                'makefile',
+                'openapi',
+                'portfolio',
+                'projects',
+                'resume',
+                'settings',
+                'shared',
+                'techskills',
+                'tools',
+            ],
+        ],
     },
 };

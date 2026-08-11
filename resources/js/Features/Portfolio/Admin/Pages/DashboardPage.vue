@@ -81,7 +81,7 @@ const links = computed<Array<QuickLinkData>>(() => [
 <template>
   <AdminPageLayout
     :menu_groups="menuGroups()"
-    :active_route="'dashboard'"
+    :active_route="'/admin'"
     :locale_props="{
       active_locale: page.props?.locale ?? 'en',
       supported_locales: localeOptionsFromCodes(page.props?.supported_locales),

@@ -141,7 +141,10 @@ return [
     'experience' => [
         'short_description_plain_length' => 'The :attribute must not exceed :max characters when stripped of Markdown.',
         'achievement_description_required' => 'Each achievement needs a description in at least one language.',
-        'identity_fields_all_or_none' => 'The :attribute, company name and country must all be filled together or left empty.',
+        'company_fields_all_or_none' => 'The company name and country must both be filled together or left empty.',
+        'overlap_with_previous' => 'The start date must not be earlier than the end date of the previous item.',
+        'overlap_with_next' => 'The end date must not be later than the start date of the next item.',
+        'only_last_current' => 'Only the most recent item can be ongoing — an end date is required for this period.',
     ],
 
     'attributes' => [],

@@ -34,6 +34,9 @@ final class ListTimelineItemsUseCase
         $this->paginator = new AdminCursorPaginator(
             cursorDecoder: $cursorDecoder,
             allowedSortColumns: ['started_at'],
+            // B175: the admin list defaults to date desc (no unsorted
+            // state — the dates header cycles only asc/desc).
+            defaultSortColumn: 'started_at',
         );
     }
 

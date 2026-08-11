@@ -11,6 +11,7 @@ use App\Features\Shared\Infra\Persistence\CursorPage;
 use App\Features\Shared\Infra\Persistence\PaginationRequest;
 use App\Features\Shared\Infra\Persistence\SortSpec;
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -327,19 +328,116 @@ describe('AdminCursorPaginator', function (): void {
             ->and($page->currentPage)->toBe(3);
     });
 
-    it('returns an empty page with null cursors when the page lies beyond the last page', function (): void {
+    it('redirects to the last valid page when the requested page lies beyond it (B175)', function (): void {
         $group = createCursorTestGroup();
         foreach (['Laravel', 'PHP', 'Vue.js', 'TypeScript', 'Go'] as $name) {
             createCursorTestSkill($group, $name, 5);
         }
 
-        $page = $this->paginator->paginate(SkillModel::query(), cursorRequest(['page' => 3]), 4);
+        // 5 items @ 4 per page → 2 pages; ?page=3 is beyond → redirect
+        // to ?page=2 with the other filters preserved (no empty page the
+        // user cannot navigate away from).
+        try {
+            $this->paginator->paginate(SkillModel::query(), cursorRequest(['page' => 3, 'q' => 'x']), 4);
+            $this->fail('Expected a redirect for a beyond-range page.');
+        } catch (HttpResponseException $e) {
+            $response = $e->getResponse();
 
-        expect($page->items)->toBe([])
-            ->and($page->total)->toBe(5)
-            ->and($page->currentPage)->toBe(3)
-            ->and($page->cursors->first)->toBeNull()
-            ->and($page->cursors->last)->toBeNull();
+            expect($response->getStatusCode())->toBe(302)
+                ->and($response->headers->get('Location'))->toContain('page=2')
+                ->and($response->headers->get('Location'))->toContain('q=x');
+        }
+    });
+
+    it('redirects to the page containing the cursor when the cursor page was emptied by deletes (B175)', function (): void {
+        $group = createCursorTestGroup();
+        $ids = [];
+        foreach (['Laravel', 'PHP', 'Vue.js', 'TypeScript', 'Go'] as $name) {
+            $ids[] = createCursorTestSkill($group, $name, 5)->id;
+        }
+
+        // 5 items @ 4 per page (id desc) → page 1 = [5,4,3,2], page 2 =
+        // [1]. Walk to page 2 via the next cursor (the last item of page
+        // 1), delete the page-2 item — the cursor now points past the
+        // last remaining item, so the request would render an empty page
+        // with no paginator. It must redirect to the page containing the
+        // cursor (?page=1), filters preserved.
+        $first = $this->paginator->paginate(SkillModel::query(), cursorRequest([]), 4);
+        SkillModel::findOrFail($ids[0])->delete();
+
+        try {
+            $this->paginator->paginate(
+                SkillModel::query(),
+                cursorRequest([
+                    'cursor' => ['id' => $first->cursors->last->id, 'sort_value' => null],
+                    'q' => 'x',
+                ]),
+                4,
+            );
+            $this->fail('Expected a redirect for an emptied cursor page.');
+        } catch (HttpResponseException $e) {
+            $response = $e->getResponse();
+
+            expect($response->getStatusCode())->toBe(302)
+                ->and($response->headers->get('Location'))->toContain('page=1')
+                ->and($response->headers->get('Location'))->toContain('q=x')
+                ->and($response->headers->get('Location'))->not->toContain('cursor');
+        }
+    });
+
+    it('redirects to page 1 when a previous-page cursor request has nothing before it (B175)', function (): void {
+        $group = createCursorTestGroup();
+        $ids = [];
+        foreach (['Laravel', 'PHP', 'Vue.js', 'TypeScript', 'Go'] as $name) {
+            $ids[] = createCursorTestSkill($group, $name, 5)->id;
+        }
+
+        // Page 2 = [1] (id desc @ 4/page). Delete the whole first page —
+        // the previous-page cursor (the first item of page 2, now the
+        // first item overall) has nothing before it → redirect to page 1
+        // so the remaining item stays reachable.
+        foreach (array_slice($ids, 1) as $id) {
+            SkillModel::findOrFail($id)->delete();
+        }
+
+        try {
+            $this->paginator->paginate(
+                SkillModel::query(),
+                cursorRequest([
+                    'cursor' => ['id' => $ids[0], 'sort_value' => null, 'before' => 1],
+                ]),
+                4,
+            );
+            $this->fail('Expected a redirect for an empty previous-page request.');
+        } catch (HttpResponseException $e) {
+            $response = $e->getResponse();
+
+            expect($response->getStatusCode())->toBe(302)
+                ->and($response->headers->get('Location'))->toContain('page=1');
+        }
+    });
+
+    it('redirects to the previous page when the last page is emptied while the positioning cursor still exists (B175)', function (): void {
+        $group = createCursorTestGroup();
+        foreach (['Laravel', 'PHP', 'Vue.js', 'TypeScript'] as $name) {
+            createCursorTestSkill($group, $name, 5);
+        }
+
+        // 4 items @ 4 per page → page 2 exists as a page number only.
+        // Requesting it directly (page jump) positions on the last item
+        // of page 1 — the fetch after it is empty. With total > 0 the
+        // request must redirect to the previous page instead of
+        // rendering an empty page the user cannot navigate away from.
+        try {
+            $this->paginator->paginate(SkillModel::query(), cursorRequest(['page' => 2, 'q' => 'x']), 4);
+            $this->fail('Expected a redirect for an emptied page-number request.');
+        } catch (HttpResponseException $e) {
+            $response = $e->getResponse();
+
+            expect($response->getStatusCode())->toBe(302)
+                ->and($response->headers->get('Location'))->toContain('page=1')
+                ->and($response->headers->get('Location'))->toContain('q=x');
+        }
     });
 
     it('applies the base query filters to both the page and the total', function (): void {
@@ -558,24 +656,38 @@ describe('AdminCursorPaginator', function (): void {
             ->and(PaginationRequest::fromRequest(cursorRequest(['cursor' => ['id' => 5]]), [], 'id')->hasCursorParams())->toBeTrue();
     });
 
-    it('caches the total count per filter combination for 30 seconds', function (): void {
+    it('caches the total count per filter combination for 30 seconds, versioned per entity (B175)', function (): void {
         $group = createCursorTestGroup();
         createCursorTestSkill($group, 'Laravel', 5);
         createCursorTestSkill($group, 'PHP', 5);
 
         $first = $this->paginator->paginate(SkillModel::query(), cursorRequest([]), 10, 'skills:test-count');
         expect($first->total)->toBe(2)
-            ->and(Cache::has('admin_cursor_count:skills:test-count'))->toBeTrue();
+            ->and(Cache::has('admin_cursor_count:skills:test-count:v0'))->toBeTrue();
 
         createCursorTestSkill($group, 'Vue.js', 5);
 
         $cached = $this->paginator->paginate(SkillModel::query(), cursorRequest([]), 10, 'skills:test-count');
         expect($cached->total)->toBe(2);
 
-        Cache::forget('admin_cursor_count:skills:test-count');
+        Cache::forget('admin_cursor_count:skills:test-count:v0');
 
         $fresh = $this->paginator->paginate(SkillModel::query(), cursorRequest([]), 10, 'skills:test-count');
         expect($fresh->total)->toBe(3);
+    });
+
+    it('bumps the per-entity version so writes invalidate the cached total immediately (B175)', function (): void {
+        $group = createCursorTestGroup();
+        createCursorTestSkill($group, 'Laravel', 5);
+        createCursorTestSkill($group, 'PHP', 5);
+
+        $this->paginator->paginate(SkillModel::query(), cursorRequest([]), 10, 'skills:test-invalidate');
+        expect($this->paginator->paginate(SkillModel::query(), cursorRequest([]), 10, 'skills:test-invalidate')->total)->toBe(2);
+
+        createCursorTestSkill($group, 'Vue.js', 5);
+        AdminCursorPaginator::invalidateCountCache('skills');
+
+        expect($this->paginator->paginate(SkillModel::query(), cursorRequest([]), 10, 'skills:test-invalidate')->total)->toBe(3);
     });
 
     it('refreshes the cached total after the 30-second TTL expires', function (): void {

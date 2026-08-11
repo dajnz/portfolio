@@ -272,7 +272,7 @@ function cancel(): void {
 <template>
   <AdminPageLayout
     :menu_groups="menuGroups()"
-    :active_route="'about'"
+    :active_route="'/admin/about'"
     :locale_props="{
       active_locale: page.props?.locale ?? 'en',
       supported_locales: localeOptionsFromCodes(page.props?.supported_locales),
