@@ -145,11 +145,20 @@ components:
         id:
           type: integer
         position:
-          type: string
+          type: object
+          description: Per-locale position values keyed by locale code (e.g. `en`, `ru`).
+          additionalProperties:
+            type: string
         company_name:
-          type: string
+          type: object
+          description: Per-locale company name values keyed by locale code.
+          additionalProperties:
+            type: string
         company_country:
-          type: string
+          type: object
+          description: Per-locale company country values keyed by locale code.
+          additionalProperties:
+            type: string
         project_id:
           type: integer
           nullable: true
@@ -159,7 +168,10 @@ components:
           nullable: true
           description: Set when referencing an external/non-portfolio project. Mutually exclusive with project_id.
         short_description:
-          type: string
+          type: object
+          description: Per-locale short description values keyed by locale code.
+          additionalProperties:
+            type: string
         started_at:
           type: string
           format: date
@@ -179,7 +191,11 @@ components:
             type: object
             properties:
               description:
-                type: string
+                type: object
+                description: Per-locale achievement description values keyed by locale code — only the locales with a description are present.
+                additionalProperties:
+                  type: string
+                  nullable: true
               project_link:
                 type: string
                 nullable: true

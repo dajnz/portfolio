@@ -12,6 +12,17 @@ runtime support.
 
 ### Added
 
+- **`TimelineItemEditData` per-locale maps (v1.0.9, step 6.2):** the
+  translatable form fields (`position`, `company_name`, `company_country`,
+  `short_description`) are now documented as per-locale maps keyed by
+  locale code — the admin form edits them under LocaleTabs and the 6.1
+  controller already served them as locale maps (`data-dynamic` keys
+  `item.position.en` etc. in the `experience-form.html` mockup). The
+  `achievements[].description` field follows the same shape: a per-locale
+  map containing only the locales that have a description (the backend
+  persists only non-empty locale values to the jsonb column). `info.version`
+  bumped to `1.0.9` in `inertia.yaml`.
+
 - **`TimelineItemTableRowData.include_in_resume` (v1.0.8, step 6.1):** the
   admin experience list rows now carry `include_in_resume` (boolean) — the
   DataTable's "Include in Resume" column per `admin-section-components.md`
