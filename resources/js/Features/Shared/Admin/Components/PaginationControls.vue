@@ -91,7 +91,7 @@ function goToPage(page: number): void {
 <template>
   <nav
     v-if="totalPages > 1"
-    class="flex items-center justify-center gap-1 flex-wrap"
+    class="mt-6 flex items-center justify-center gap-3 flex-wrap"
     :data-testid="props.test_id"
   >
     <button
@@ -108,34 +108,36 @@ function goToPage(page: number): void {
         aria-hidden="true"
       />
     </button>
-    <template
-      v-for="(item, index) in pageItems"
-      :key="item.key"
-    >
-      <span
-        v-if="item.type === 'ellipsis'"
-        class="w-9 h-9 inline-flex items-center justify-center leading-none text-sm text-slate-400 dark:text-slate-600"
-        :data-testid="`${props.test_id}-ellipsis-${index}`"
+    <div class="flex items-center gap-1">
+      <template
+        v-for="(item, index) in pageItems"
+        :key="item.key"
       >
-        …
-      </span>
-      <span
-        v-else-if="item.page === props.current_page"
-        class="w-9 h-9 inline-flex items-center justify-center leading-none text-sm font-bold rounded-lg bg-primary-600 text-white"
-        :data-testid="`${props.test_id}-page-${item.page}`"
-      >
-        {{ item.page }}
-      </span>
-      <button
-        v-else
-        type="button"
-        class="select-none w-9 h-9 inline-flex items-center justify-center leading-none text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-        :data-testid="`${props.test_id}-page-${item.page}`"
-        @click="goToPage(item.page)"
-      >
-        {{ item.page }}
-      </button>
-    </template>
+        <span
+          v-if="item.type === 'ellipsis'"
+          class="w-9 h-9 inline-flex items-center justify-center leading-none text-sm text-slate-400 dark:text-slate-600"
+          :data-testid="`${props.test_id}-ellipsis-${index}`"
+        >
+          …
+        </span>
+        <span
+          v-else-if="item.page === props.current_page"
+          class="w-9 h-9 inline-flex items-center justify-center leading-none text-sm font-bold rounded-lg bg-primary-600 text-white"
+          :data-testid="`${props.test_id}-page-${item.page}`"
+        >
+          {{ item.page }}
+        </span>
+        <button
+          v-else
+          type="button"
+          class="select-none w-9 h-9 inline-flex items-center justify-center leading-none text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          :data-testid="`${props.test_id}-page-${item.page}`"
+          @click="goToPage(item.page)"
+        >
+          {{ item.page }}
+        </button>
+      </template>
+    </div>
     <button
       type="button"
       class="select-none w-9 h-9 inline-flex items-center justify-center leading-none text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

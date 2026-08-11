@@ -59,3 +59,23 @@
     }
 }
 
+/* Shared autocomplete panel styles (B175) — the default look of the
+   project combobox and tech-tags picker dropdowns: white surface +
+   border + a medium shadow in light mode, dark surface + a softer
+   elevation in dark mode (toned down from the earlier strong black
+   shadow per user request). The dark fill is the `surface-dark-secondary`
+   theme hex inlined — Tailwind never emits CSS variables for the
+   `@config` JS-theme colors (utilities compile to literals), so a
+   `var(--color-surface-dark-secondary)` reference stays undefined and
+   the panel renders transparent in dark mode. */
+@utility admin-autocomplete-panel {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-slate-200);
+    box-shadow: 0 10px 28px rgba(12, 21, 56, 0.14), 0 2px 8px rgba(12, 21, 56, 0.07);
+
+    @variant dark {
+        background-color: #16213d;
+        border-color: var(--color-slate-700);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+}

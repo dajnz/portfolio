@@ -89,7 +89,7 @@ function navigate(payload: CursorNavigationPayload): void {
 <template>
   <AdminPageLayout
     :menu_groups="menuGroups()"
-    :active_route="'feedback'"
+    :active_route="'/admin/feedback'"
     :locale_props="{
       active_locale: page.props?.locale ?? 'en',
       supported_locales: localeOptionsFromCodes(page.props?.supported_locales),
@@ -165,19 +165,17 @@ function navigate(payload: CursorNavigationPayload): void {
         </template>
       </DataTable>
 
-      <div class="mt-6">
-        <PaginationControls
-          v-if="props.meta !== undefined"
-          :total="props.meta.total"
-          :per_page="props.meta.per_page"
-          :current_page="props.meta.current_page"
-          :cursors="props.meta.cursors"
-          :sort_column="props.meta.sort_column"
-          :sort_direction="props.meta.sort_direction"
-          :test_id="`${props.test_id}-pagination`"
-          @navigate="navigate"
-        />
-      </div>
+      <PaginationControls
+        v-if="props.meta !== undefined"
+        :total="props.meta.total"
+        :per_page="props.meta.per_page"
+        :current_page="props.meta.current_page"
+        :cursors="props.meta.cursors"
+        :sort_column="props.meta.sort_column"
+        :sort_direction="props.meta.sort_direction"
+        :test_id="`${props.test_id}-pagination`"
+        @navigate="navigate"
+      />
     </section>
   </AdminPageLayout>
 </template>

@@ -3,7 +3,7 @@
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
-import { computed, nextTick, onBeforeUnmount, ref, useId } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId } from 'vue';
 
 import AdminBaseBadge from './AdminBaseBadge.vue';
 import AdminBaseSkeleton from './AdminBaseSkeleton.vue';
@@ -210,13 +210,39 @@ function cleanup(): void {
     }
 
     activeRequest?.abort();
+    document.removeEventListener('click', onDocumentClick, true);
 }
+
+// A click outside the picker closes the dropdown AND clears the typed
+// query (B174) — the picked tags stay, only the search text is reset.
+// The listener runs in the CAPTURE phase — before any element's own
+// click handler — so the check always sees the click target still
+// attached: adding a skill re-filters the suggestions and removes the
+// clicked row before the click finishes bubbling, and a bubble-phase
+// check would see the detached row as an outside click, closing the
+// dropdown after every added tag (B175).
+function onDocumentClick(event: MouseEvent): void {
+    if (rootEl.value !== null && rootEl.value.contains(event.target as Node) === false) {
+        isOpen.value = false;
+        highlighted.value = -1;
+        query.value = '';
+    }
+}
+
+const rootEl = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+    document.addEventListener('click', onDocumentClick, true);
+});
 
 onBeforeUnmount(cleanup);
 </script>
 
 <template>
-  <div>
+  <div
+    ref="rootEl"
+    :data-testid="`${props.test_id}-root`"
+  >
     <label
       v-if="props.label"
       class="block text-sm font-semibold mb-1.5 text-slate-700 dark:text-slate-200"
@@ -277,7 +303,7 @@ onBeforeUnmount(cleanup);
       <div
         v-if="isOpen"
         :id="listboxId"
-        class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-surface-dark-secondary border border-slate-200 dark:border-slate-700 rounded-lg shadow-dropdown z-dropdown overflow-hidden"
+        class="admin-autocomplete-panel absolute top-full left-0 right-0 mt-1 rounded-lg z-dropdown overflow-hidden"
         role="listbox"
         :data-testid="`${props.test_id}-dropdown`"
       >

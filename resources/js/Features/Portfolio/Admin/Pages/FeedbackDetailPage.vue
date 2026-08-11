@@ -119,7 +119,7 @@ function confirmDelete(): void {
 <template>
   <AdminPageLayout
     :menu_groups="menuGroups()"
-    :active_route="'feedback'"
+    :active_route="'/admin/feedback'"
     :locale_props="{
       active_locale: page.props?.locale ?? 'en',
       supported_locales: localeOptionsFromCodes(page.props?.supported_locales),

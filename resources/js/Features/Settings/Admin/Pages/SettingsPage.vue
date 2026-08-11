@@ -378,7 +378,7 @@ async function testMail(): Promise<void> {
 <template>
   <AdminPageLayout
     :menu_groups="menuGroups()"
-    :active_route="'settings'"
+    :active_route="'/admin/settings'"
     :locale_props="{ active_locale: page.props?.locale ?? 'en', supported_locales: headerLocales }"
     :data-testid="`${props.test_id}-layout`"
   >

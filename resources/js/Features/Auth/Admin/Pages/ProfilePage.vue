@@ -273,9 +273,8 @@ const { menuGroups } = useAdminMenu();
 
 <template>
   <AdminPageLayout
-    :dashboard="{ label: t('admin.nav.dashboard'), route: '/admin', icon: 'heroicons:chart-bar' }"
     :menu_groups="menuGroups()"
-    :active_route="'profile'"
+    :active_route="'/admin/profile'"
     :admin_name="adminName"
     :logout_url="'/admin/logout'"
     :locale_props="{ active_locale: page.props?.locale ?? 'en', supported_locales: [] }"

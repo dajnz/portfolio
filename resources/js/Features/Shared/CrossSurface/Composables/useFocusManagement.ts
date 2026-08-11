@@ -6,6 +6,11 @@ import { router } from '@inertiajs/vue3';
  * programmatically focusable via `tabindex="-1"`), without scrolling.
  * Registered once at the app root — layouts do not remount on client-side
  * navigation, so `onMounted` alone would miss subsequent visits.
+ *
+ * B174: when the user is typing in a filter/search input (the active
+ * element is still the input at `finish` time — state-preserving
+ * navigations keep the field mounted), the h1 must NOT steal the focus —
+ * a debounced search would otherwise jump to the heading mid-typing.
  */
 export function useFocusManagement(): { cleanup: () => void } {
     if (typeof window === 'undefined') {
@@ -13,6 +18,16 @@ export function useFocusManagement(): { cleanup: () => void } {
     }
 
     const unsubscribe = router.on('finish', () => {
+        const active = document.activeElement;
+
+        if (
+            active instanceof HTMLInputElement ||
+            active instanceof HTMLTextAreaElement ||
+            active instanceof HTMLSelectElement
+        ) {
+            return;
+        }
+
         const heading = document.querySelector('h1');
         if (heading) {
             heading.setAttribute('tabindex', '-1');

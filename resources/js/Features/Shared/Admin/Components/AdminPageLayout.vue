@@ -101,6 +101,15 @@ function readCollapsed(): boolean {
 
 const collapsed = ref(readCollapsed());
 
+// Every admin page shows the Dashboard link at the top of the sidebar —
+// the pages don't pass a `dashboard` prop; the layout supplies the
+// default (B175: it was previously passed only by the profile page).
+const dashboardItem = computed<DashboardItem>(() => ({
+    label: t('admin.nav.dashboard'),
+    route: '/admin',
+    icon: 'heroicons:chart-bar',
+}));
+
 watch(collapsed, (value) => {
     if (typeof window === 'undefined') {
         return;
@@ -164,7 +173,7 @@ useAdminShortcuts();
         :menu_groups="props.menu_groups"
         :active_route="props.active_route"
         :collapsed="collapsed"
-        :dashboard="props.dashboard"
+        :dashboard="props.dashboard ?? dashboardItem"
       />
       <AdminCenteredContainer
         id="main-content"
