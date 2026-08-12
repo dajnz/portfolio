@@ -57,6 +57,17 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
         return $row ?? null;
     }
 
+    public function findFeaturedRows(): array
+    {
+        return $this->adminRowsQuery()
+            ->whereNull('p.deleted_at')
+            ->where('p.is_featured', true)
+            ->orderBy('p.featured_sort_order')
+            ->orderBy('p.id')
+            ->get()
+            ->all();
+    }
+
     public function findPublicPageRows(
         string $locale,
         int $perPage,

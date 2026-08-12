@@ -58,6 +58,15 @@ components:
                   type: array
                   items:
                     $ref: '#/components/schemas/ProjectTableRowData'
+                featured_projects:
+                  type: array
+                  description: |
+                    The featured projects of the live view, ordered by
+                    `featured_sort_order` — the admin reorders them via
+                    the list page's SortableList section
+                    (admin-section-ui.md:338). Empty in the trashed view.
+                  items:
+                    $ref: '#/components/schemas/ProjectTableRowData'
                 meta:
                   $ref: '../components/schemas.yaml#/components/schemas/PaginationMeta'
 
@@ -80,6 +89,16 @@ components:
                   type: array
                   items:
                     $ref: '#/components/schemas/SkillTagData'
+                articles:
+                  type: array
+                  description: |
+                    The published blog articles the "Tech Writeup Article"
+                    select offers (admin-section-ui.md:356) — only
+                    published articles can be linked
+                    (content-management.md:159). Empty when no article
+                    is published yet.
+                  items:
+                    $ref: '#/components/schemas/PublishedArticleData'
                 preview_url:
                   type: string
                   nullable: true
@@ -303,6 +322,13 @@ components:
           type: string
         slug:
           type: string
+        preview_image:
+          type: string
+          nullable: true
+          description: |
+            The stored preview image path (A7 — public URL is
+            `{APP_URL}/assets/{path}`); null when the project has no
+            preview image (the Preview column shows a placeholder).
         is_published:
           type: boolean
         is_featured:
@@ -312,12 +338,30 @@ components:
           nullable: true
         tech_tags_count:
           type: integer
+        tech_tags:
+          type: array
+          description: |
+            The project's tech tags (icon + name) — the Tags column
+            renders them as removable chips and the "+" button adds
+            more (admin-section-ui.md:343).
+          items:
+            $ref: '#/components/schemas/SkillTagData'
         created_at:
           type: string
           format: date-time
         updated_at:
           type: string
           format: date-time
+
+    PublishedArticleData:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        title:
+          type: string
 
     SkillTagData:
       type: object

@@ -24,6 +24,11 @@ const props = withDefaults(
         error?: string | null;
         required?: boolean;
         disabled?: boolean;
+        /** Fixed trigger width (CSS length) — the trigger keeps the
+         *  width regardless of the selected option's label (the
+         *  projects status filter uses 150px; user request
+         *  2026-08-12). */
+        width?: string;
         test_id?: string;
     }>(),
     {
@@ -36,6 +41,7 @@ const props = withDefaults(
         error: null,
         required: false,
         disabled: false,
+        width: undefined,
         test_id: 'base-dropdown',
     },
 );
@@ -252,6 +258,7 @@ onBeforeUnmount(() => {
       ref="controlEl"
       class="relative"
       :class="{ 'opacity-45 pointer-events-none': props.disabled }"
+      :style="props.width !== undefined ? { width: props.width } : undefined"
       @keydown="onControlKeydown"
     >
       <button

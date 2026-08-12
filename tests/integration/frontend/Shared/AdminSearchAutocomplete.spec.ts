@@ -75,7 +75,7 @@ describe('AdminSearchAutocomplete', () => {
         });
     });
 
-    it('renders the result label with the published_at meta text', async () => {
+    it('renders the result label with the formatted published_at meta text', async () => {
         vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(RESULTS), { status: 200 }));
         const wrapper = mountSearchAutocomplete();
 
@@ -86,7 +86,28 @@ describe('AdminSearchAutocomplete', () => {
             expect(wrapper.findAll('[data-testid^="search-autocomplete-result-"]')).toHaveLength(2);
         });
         expect(wrapper.get('[data-testid="search-autocomplete-result-0"]').text()).toContain('Laravel Tips');
-        expect(wrapper.get('[data-testid="search-autocomplete-result-0"]').text()).toContain('2026-06-15T00:00:00Z');
+        expect(wrapper.get('[data-testid="search-autocomplete-result-0"]').text()).toContain('15.06.2026');
+        expect(wrapper.get('[data-testid="search-autocomplete-result-0"]').text()).not.toContain('2026-06-15');
+    });
+
+    it('omits the meta suffix for rows without the meta value', async () => {
+        const drafts = {
+            data: [
+                { id: 1, title: 'Laravel Tips', published_at: null },
+                { id: 2, title: 'Vue Patterns', published_at: null },
+            ],
+        };
+        vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(drafts), { status: 200 }));
+        const wrapper = mountSearchAutocomplete();
+
+        await wrapper.get('[data-testid="search-autocomplete-input"]').setValue('lar');
+        await vi.advanceTimersByTimeAsync(300);
+
+        await vi.waitFor(() => {
+            expect(wrapper.findAll('[data-testid^="search-autocomplete-result-"]')).toHaveLength(2);
+        });
+        expect(wrapper.get('[data-testid="search-autocomplete-result-0"]').text()).toContain('Laravel Tips');
+        expect(wrapper.get('[data-testid="search-autocomplete-result-0"]').text()).not.toContain('.');
     });
 
     it('navigates to the edit URL when Enter hits a highlighted result', async () => {

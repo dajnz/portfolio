@@ -67,7 +67,21 @@ function resultMeta(item: SearchResultItem): string | null {
 
     const value = item[props.result_suffix_meta_key];
 
-    return typeof value === 'string' ? value : null;
+    return typeof value === 'string' ? formatMetaValue(value) : null;
+}
+
+// ISO timestamp meta values (published_at) render as `dd.mm.yyyy` — the
+// admin's date convention (B175, same formatter as the experience
+// list) — instead of the raw timestamp. Non-date strings pass through.
+function formatMetaValue(value: string): string {
+    const [datePart] = value.split('T');
+    const [year, month, day] = datePart.split('-');
+
+    if (year === undefined || month === undefined || day === undefined) {
+        return value;
+    }
+
+    return `${day}.${month}.${year}`;
 }
 
 function resultEditUrl(item: SearchResultItem): string {

@@ -12,6 +12,28 @@ runtime support.
 
 ### Added
 
+- **`ProjectTableRowData.preview_image` + `ProjectTableRowData.tech_tags`
+  (v1.0.11, step 7.2):** the admin list row now carries the preview
+  image path (the Preview column, admin-section-ui.md:332) and the
+  resolved tech tags — the Tags column renders them as removable chips
+  and the inline "+" picker attaches more (admin-section-ui.md:343);
+  the committed contract previously exposed only `tech_tags_count`.
+  `info.version` bumped to `1.0.11` in `inertia.yaml`.
+
+- **`ProjectsListPageProps.featured_projects` (v1.0.11, step 7.2):** the
+  list page now receives the featured projects of the live view ordered
+  by `featured_sort_order` — the separate SortableList section reorders
+  them via `POST /admin/projects/reorder-featured` (admin-section-ui.md:
+  338). Empty in the trashed view. `info.version` bumped to `1.0.11` in
+  `inertia.yaml`.
+
+- **`ProjectFormPageProps.articles` (v1.0.11, step 7.2):** the form page
+  now receives the published blog articles (`{id, slug, title}`) — the
+  "Tech Writeup Article" select of the Relations section
+  (admin-section-ui.md:356) needs option labels; only published articles
+  can be linked (content-management.md:159). Empty when none are
+  published. `info.version` bumped to `1.0.11` in `inertia.yaml`.
+
 - **`ProjectDetailData.problem` + `ProjectDetailData.solution` (v1.0.10,
   step 7.1):** the public project detail page renders the Problem and
   Solution sections (public-section-ui.md:194-195) — the committed

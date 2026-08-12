@@ -636,8 +636,14 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
         }
 
         if ($dbIds !== []) {
+            // `where($col, $array)` does NOT expand to whereIn in Laravel
+            // 13 — it binds the array as a single value
+            // (`detail_item_id = ?`) and matches nothing, so the replace
+            // silently kept the old rows and the insert below hit the
+            // (detail_item_id, locale) PK (regression test:
+            // "reconciles reordered engineering details on update").
             DB::table('project_detail_item_translations')
-                ->where('detail_item_id', $dbIds)
+                ->whereIn('detail_item_id', $dbIds)
                 ->delete();
         }
 

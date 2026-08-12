@@ -2,7 +2,11 @@ import { mount, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import TextEditor from '@shared-admin/TextEditor.vue';
+import TextEditor, {
+    BLOG_EDITOR_BUTTONS,
+    PROJECT_EDITOR_BUTTONS,
+    type TextEditorButton,
+} from '@shared-admin/TextEditor.vue';
 
 interface TextEditorProps {
     modelValue?: string;
@@ -12,6 +16,7 @@ interface TextEditorProps {
     placeholder?: string;
     disabled?: boolean;
     is_loading?: boolean;
+    buttons?: TextEditorButton[];
 }
 
 let wrapper: VueWrapper | undefined;
@@ -98,7 +103,7 @@ describe('TextEditor', () => {
         expect(wrapper.get('[data-testid="text-editor-italic"]').attributes('aria-label')).toBe('Italic');
         expect(wrapper.get('[data-testid="text-editor-italic"]').text()).toBe('I');
         expect(wrapper.get('[data-testid="text-editor-code"]').attributes('aria-label')).toBe('Code');
-        expect(wrapper.get('[data-testid="text-editor-code"]').text()).toContain('</>');
+        expect(wrapper.get('[data-testid="text-editor-code"]').find('svg').exists()).toBe(true);
     });
 
     it('renders the remaining toolbar controls', () => {
@@ -108,6 +113,7 @@ describe('TextEditor', () => {
         expect(wrapper.find('[data-testid="text-editor-blockquote"]').exists()).toBe(true);
         expect(wrapper.find('[data-testid="text-editor-bullet-list"]').exists()).toBe(true);
         expect(wrapper.find('[data-testid="text-editor-ordered-list"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="text-editor-code-block"]').exists()).toBe(true);
         expect(wrapper.find('[data-testid="text-editor-callout"]').exists()).toBe(true);
         expect(wrapper.get('[data-testid="text-editor-image"]').attributes('aria-label')).toBe(
             'Insert image',
@@ -128,6 +134,96 @@ describe('TextEditor', () => {
         expect(wrapper.emitted('image-upload')).toEqual([[file]]);
     });
 
+    it('exposes the per-surface button configs', () => {
+        // The projects config keeps the block formatting and drops the
+        // blog-only image upload and callout controls.
+        expect(PROJECT_EDITOR_BUTTONS).toEqual([
+            'bold',
+            'italic',
+            'code',
+            'heading',
+            'blockquote',
+            'bullet-list',
+            'ordered-list',
+            'code-block',
+        ]);
+        expect(BLOG_EDITOR_BUTTONS).toEqual([...PROJECT_EDITOR_BUTTONS, 'image', 'callout']);
+    });
+
+    it('renders only the buttons from the buttons prop', () => {
+        const wrapper = mountEditor({ buttons: ['bold', 'image'] });
+
+        expect(wrapper.find('[data-testid="text-editor-bold"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="text-editor-image"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="text-editor-italic"]').exists()).toBe(false);
+        expect(wrapper.find('[data-testid="text-editor-heading"]').exists()).toBe(false);
+        expect(wrapper.find('[data-testid="text-editor-callout"]').exists()).toBe(false);
+        expect(wrapper.find('[data-testid="text-editor-image-input"]').exists()).toBe(true);
+    });
+
+    it('renders the projects config without image upload or callouts', () => {
+        const wrapper = mountEditor({ buttons: PROJECT_EDITOR_BUTTONS });
+
+        expect(wrapper.find('[data-testid="text-editor-image"]').exists()).toBe(false);
+        expect(wrapper.find('[data-testid="text-editor-image-input"]').exists()).toBe(false);
+        expect(wrapper.find('[data-testid="text-editor-callout"]').exists()).toBe(false);
+        expect(wrapper.find('[data-testid="text-editor-heading"]').exists()).toBe(true);
+    });
+
+    it('sets translated titles on the toolbar buttons', () => {
+        const wrapper = mountEditor();
+
+        expect(wrapper.get('[data-testid="text-editor-bold"]').attributes('title')).toBe('Bold');
+        expect(wrapper.get('[data-testid="text-editor-italic"]').attributes('title')).toBe('Italic');
+        expect(wrapper.get('[data-testid="text-editor-code"]').attributes('title')).toBe('Code');
+        expect(wrapper.get('[data-testid="text-editor-heading"]').attributes('title')).toBe(
+            'Heading',
+        );
+        expect(wrapper.get('[data-testid="text-editor-blockquote"]').attributes('title')).toBe(
+            'Blockquote',
+        );
+        expect(wrapper.get('[data-testid="text-editor-bullet-list"]').attributes('title')).toBe(
+            'Bullet list',
+        );
+        expect(wrapper.get('[data-testid="text-editor-ordered-list"]').attributes('title')).toBe(
+            'Ordered list',
+        );
+        expect(wrapper.get('[data-testid="text-editor-image"]').attributes('title')).toBe(
+            'Insert image',
+        );
+        expect(wrapper.get('[data-testid="text-editor-callout"]').attributes('title')).toBe(
+            'Callout',
+        );
+    });
+
+    it('switches to raw markdown and back, round-tripping the content', async () => {
+        const wrapper = mountEditor({ modelValue: '# Title\n\nSome **bold** text' });
+        await waitForEditable(wrapper);
+
+        await wrapper.get('[data-testid="text-editor-mode-toggle"]').trigger('click');
+
+        const raw = wrapper.get('[data-testid="text-editor-raw"]');
+        expect(raw.element.tagName).toBe('TEXTAREA');
+        expect((raw.element as HTMLTextAreaElement).value).toContain('Some **bold** text');
+        // The WYSIWYG surface is gone in raw mode.
+        expect(wrapper.find('[contenteditable="true"]').exists()).toBe(false);
+
+        // Editing the raw text emits markdown back to the parent.
+        (raw.element as HTMLTextAreaElement).value = '# Title\n\n- one\n- two';
+        await raw.trigger('input');
+        expect(
+            wrapper
+                .emitted('update:modelValue')
+                ?.some(([value]) => String(value).includes('- one')),
+        ).toBe(true);
+
+        // Switching back re-parses the raw markdown into the editor.
+        await wrapper.get('[data-testid="text-editor-mode-toggle"]').trigger('click');
+        await waitForEditable(wrapper);
+        expect(wrapper.find('[data-testid="text-editor-raw"]').exists()).toBe(false);
+        expect(wrapper.find('[contenteditable="true"]').element.innerHTML).toContain('<ul>');
+    });
+
     it('emits update:modelValue with markdown on editor changes', async () => {
         // Direct DOM text input relies on ProseMirror's MutationObserver +
         // composition pipeline, which happy-dom delivers asynchronously and
@@ -144,6 +240,20 @@ describe('TextEditor', () => {
             wrapper
                 .emitted('update:modelValue')
                 ?.some(([value]) => String(value).includes('- Hello world')),
+        ).toBe(true);
+    });
+
+    it('emits fenced code block markdown when the code-block button is used', async () => {
+        const wrapper = mountEditor({ modelValue: 'Hello world' });
+        await waitForEditable(wrapper);
+
+        await wrapper.get('[data-testid="text-editor-code-block"]').trigger('click');
+        await new Promise((resolve) => setTimeout(resolve, 20));
+
+        expect(
+            wrapper
+                .emitted('update:modelValue')
+                ?.some(([value]) => String(value).includes('```')),
         ).toBe(true);
     });
 

@@ -13,6 +13,7 @@ export interface JsonApi {
     get: <T>(url: string, options?: JsonRequestOptions) => Promise<T>;
     post: <T>(url: string, payload?: JsonRequestPayload) => Promise<T>;
     patch: <T>(url: string, payload?: JsonRequestPayload) => Promise<T>;
+    del: <T>(url: string, payload?: JsonRequestPayload) => Promise<T>;
 }
 
 /**
@@ -27,7 +28,7 @@ export interface JsonApi {
  */
 export function useJsonApi(): JsonApi {
     async function request<T>(
-        method: 'GET' | 'POST' | 'PATCH',
+        method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
         url: string,
         payload?: JsonRequestPayload,
         options?: JsonRequestOptions,
@@ -72,5 +73,6 @@ export function useJsonApi(): JsonApi {
             request<T>('GET', url, undefined, options),
         post: <T>(url: string, payload?: JsonRequestPayload) => request<T>('POST', url, payload),
         patch: <T>(url: string, payload?: JsonRequestPayload) => request<T>('PATCH', url, payload),
+        del: <T>(url: string, payload?: JsonRequestPayload) => request<T>('DELETE', url, payload),
     };
 }

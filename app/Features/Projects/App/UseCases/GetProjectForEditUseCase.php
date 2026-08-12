@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Projects\App\UseCases;
 
+use App\Features\Projects\App\Contracts\PublishedArticleReaderInterface;
 use App\Features\Projects\App\DTOs\ProjectDataDto;
 use App\Features\Projects\App\DTOs\ProjectEditorDataDto;
 use App\Features\Projects\App\DTOs\SkillOptionDto;
@@ -16,10 +17,11 @@ use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInter
  * The project editor data (the create/edit form, projects.yaml#
  * ProjectFormPageProps): the stored project data (null when creating —
  * hydrated with every aggregate part for the tabbed editor and mapped
- * to the data DTOs here), the tech-skill picker options and the signed
- * 1-hour preview URL (routes.md:151 — the preview button opens it in a
- * new tab; null on the create form). Trashed projects reach the form
- * too (restore happens from the form's own view, B29).
+ * to the data DTOs here), the tech-skill picker options, the published
+ * articles of the tech-writeup select (admin-section-ui.md:356) and
+ * the signed 1-hour preview URL (routes.md:151 — the preview button
+ * opens it in a new tab; null on the create form). Trashed projects
+ * reach the form too (restore happens from the form's own view, B29).
  */
 final class GetProjectForEditUseCase
 {
@@ -27,6 +29,7 @@ final class GetProjectForEditUseCase
         private readonly ProjectRepositoryInterface $repository,
         private readonly TechSkillReadRepositoryInterface $skills,
         private readonly PreviewUrlGeneratorInterface $previewUrls,
+        private readonly PublishedArticleReaderInterface $articles,
     ) {
     }
 
@@ -51,6 +54,7 @@ final class GetProjectForEditUseCase
             previewUrl: $id === null
                 ? null
                 : $this->previewUrls->temporarySigned('projects.preview', 3600, ['project' => $id]),
+            articles: $this->articles->findAll($locale),
         );
     }
 }

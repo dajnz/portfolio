@@ -49,6 +49,9 @@
             "@projects-admin/*": [
                 "./resources/js/Features/Projects/Admin/Components/*"
             ],
+            "@projects/*": [
+                "./resources/js/Features/Projects/*"
+            ],
             "@experience-public/*": [
                 "./resources/js/Features/Experience/Public/Components/*"
             ],

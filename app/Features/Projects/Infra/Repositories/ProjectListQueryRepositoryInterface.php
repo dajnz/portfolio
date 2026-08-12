@@ -53,6 +53,16 @@ interface ProjectListQueryRepositoryInterface
     public function findAdminRow(int $id): ?object;
 
     /**
+     * The featured projects of the admin list's reorder section
+     * (admin-section-ui.md:338) — `is_featured` rows of the live view,
+     * ordered by `featured_sort_order` then id (the same locale-
+     * resolved projection as the list rows).
+     *
+     * @return object[]
+     */
+    public function findFeaturedRows(): array;
+
+    /**
      * The public projects page (content-management.md:125-129,
      * public-section-ui.md:346-391): published (or all, in preview
      * mode) projects ordered by the given sort strategy — `date`
