@@ -28,6 +28,10 @@ const props = withDefaults(
          *  state overrides the zebra background — admin-section-components
          *  .md:476). Applied after the built-in state classes. */
         row_class?: (row: Record<string, unknown>) => string | Array<string> | undefined;
+        /** Centers the actions column header + row action buttons
+         *  (projects list — the single-delete actions read better
+         *  centered; other lists keep the right alignment). */
+        center_actions?: boolean;
         empty_mode?: EmptyStateMode;
         empty_message?: string;
         empty_action_label?: string | null;
@@ -43,6 +47,7 @@ const props = withDefaults(
         is_loading: false,
         trashed_ids: () => [],
         row_class: undefined,
+        center_actions: false,
         empty_mode: 'empty',
         empty_message: undefined,
         empty_action_label: null,
@@ -235,7 +240,8 @@ function formatCellValue(value: unknown): string {
           </th>
           <th
             v-if="hasRowActions"
-            class="px-4 py-3 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            :class="props.center_actions ? 'text-center' : 'text-right'"
           >
             {{ t('admin.lists.actions') }}
           </th>
@@ -264,7 +270,8 @@ function formatCellValue(value: unknown): string {
             </td>
             <td
               v-if="hasRowActions"
-              class="px-4 py-3 text-right"
+              class="px-4 py-3"
+              :class="props.center_actions ? 'text-center' : 'text-right'"
             >
               <AdminBaseSkeleton
                 shape="text"
@@ -323,9 +330,13 @@ function formatCellValue(value: unknown): string {
             </td>
             <td
               v-if="hasRowActions"
-              class="px-4 py-3 text-right"
+              class="px-4 py-3"
+              :class="props.center_actions ? 'text-center' : 'text-right'"
             >
-              <div class="flex items-center justify-end gap-1">
+              <div
+                class="flex items-center gap-1"
+                :class="props.center_actions ? 'justify-center' : 'justify-end'"
+              >
                 <slot
                   name="row-actions"
                   :row="row"

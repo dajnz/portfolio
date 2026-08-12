@@ -58,12 +58,16 @@ const props = withDefaults(
         label?: string;
         icon_set?: IconSet;
         placeholder?: string;
+        error?: string | null;
+        required?: boolean;
         test_id?: string;
     }>(),
     {
         label: undefined,
         icon_set: 'ui',
         placeholder: undefined,
+        error: null,
+        required: false,
         test_id: 'icon-picker',
     },
 );
@@ -391,6 +395,13 @@ onBeforeUnmount(() => {
       class="block text-sm font-semibold mb-1.5 text-slate-700 dark:text-slate-200"
     >
       {{ props.label }}
+      <span
+        v-if="props.required"
+        class="text-danger-500"
+        aria-hidden="true"
+      >
+        *
+      </span>
     </label>
     <div ref="triggerWrapEl">
       <button
@@ -402,6 +413,7 @@ onBeforeUnmount(() => {
         }"
         :aria-haspopup="'listbox'"
         :aria-expanded="isOpen"
+        :aria-required="props.required || undefined"
         :aria-controls="isOpen ? panelId : undefined"
         :data-testid="props.test_id"
         @click="togglePanel"
@@ -510,5 +522,13 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </Teleport>
+    <p
+      v-if="props.error !== null && props.error !== undefined"
+      class="mt-1.5 text-xs text-danger-600 dark:text-danger-400"
+      role="alert"
+      :data-testid="`${props.test_id}-error`"
+    >
+      {{ props.error }}
+    </p>
   </div>
 </template>

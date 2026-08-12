@@ -24,6 +24,12 @@ const props = withDefaults(
         placeholder?: string;
         singleSelect?: boolean;
         disabled?: boolean;
+        /** Fixed container width (CSS length) — the controls row stops
+         *  reflowing when pills are added (the projects filter uses
+         *  500px; user request 2026-08-12). Capped at the available
+         *  width (`max-width: 100%`) so narrow screens shrink it
+         *  instead of overflowing. */
+        width?: string;
         test_id?: string;
     }>(),
     {
@@ -34,6 +40,7 @@ const props = withDefaults(
         placeholder: undefined,
         singleSelect: false,
         disabled: false,
+        width: undefined,
         test_id: 'tech-skill-picker',
     },
 );
@@ -241,6 +248,7 @@ onBeforeUnmount(cleanup);
 <template>
   <div
     ref="rootEl"
+    class="max-w-full"
     :data-testid="`${props.test_id}-root`"
   >
     <label
@@ -258,11 +266,16 @@ onBeforeUnmount(cleanup);
     </label>
     <div class="relative">
       <div
-        class="flex w-full flex-wrap items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface-dark-secondary px-2 py-1.5 focus-within:border-primary-500"
+        class="flex min-h-10 w-full flex-wrap items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface-dark-secondary px-2 py-1.5 focus-within:border-primary-500"
         :class="{
           'border-danger-300 dark:border-danger-700': props.error !== null,
           'opacity-45 pointer-events-none': props.disabled,
         }"
+        :style="
+          props.width !== undefined
+            ? { width: props.width, maxWidth: '100%' }
+            : undefined
+        "
         :data-testid="props.test_id"
       >
         <AdminBaseBadge
