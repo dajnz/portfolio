@@ -85,6 +85,42 @@ function projectSkillId(string $name = 'PHP'): int
     return SkillModel::factory()->create(['skill_group_id' => $group->id, 'name' => $name])->id;
 }
 
+/**
+ * Creates a project with two fully translated engineering detail items
+ * (one per the drag-reorder regression tests).
+ *
+ * @return array{0: ProjectModel, 1: ProjectDetailItemModel, 2: ProjectDetailItemModel}
+ */
+function projectWithDetailItemPair(): array
+{
+    $project = projectItem();
+    $first = ProjectDetailItemModel::factory()->create([
+        'project_id' => $project->id,
+        'icon' => 'heroicons:shield-check',
+        'sort_order' => 0,
+    ]);
+    $second = ProjectDetailItemModel::factory()->create([
+        'project_id' => $project->id,
+        'icon' => 'heroicons:bolt',
+        'sort_order' => 1,
+    ]);
+
+    foreach ([$first, $second] as $index => $item) {
+        ProjectDetailItemTranslationModel::factory()->forLocale('en')->create([
+            'detail_item_id' => $item->id,
+            'title' => "Item {$index}",
+            'description' => "Item {$index} description",
+        ]);
+        ProjectDetailItemTranslationModel::factory()->forLocale('ru')->create([
+            'detail_item_id' => $item->id,
+            'title' => "Пункт {$index}",
+            'description' => "Описание {$index}",
+        ]);
+    }
+
+    return [$project, $first, $second];
+}
+
 describe('AdminProjectController', function (): void {
     it('requires authentication for the list and mutations', function (): void {
         $this->get('/admin/projects')->assertRedirect('/admin/login');
@@ -120,9 +156,12 @@ describe('AdminProjectController', function (): void {
             'is_featured' => true,
             'featured_sort_order' => 0,
             'tech_tags_count' => 3,
+            'preview_image' => 'projects/preview.png',
         ], [
             'en' => ['title' => 'Auth Service'],
         ]);
+        $php = projectSkillId('PHP');
+        $this->post("/admin/projects/{$newer->id}/tags", ['skill_id' => $php])->assertOk();
 
         $this->get('/admin/projects')
             ->assertOk()
@@ -132,12 +171,18 @@ describe('AdminProjectController', function (): void {
                 ->where('projects.0.id', $newer->id)
                 ->where('projects.0.title', 'Auth Service')
                 ->where('projects.0.slug', $newer->slug)
+                ->where('projects.0.preview_image', 'projects/preview.png')
                 ->where('projects.0.is_published', true)
                 ->where('projects.0.is_featured', true)
                 ->where('projects.0.featured_sort_order', 0)
-                ->where('projects.0.tech_tags_count', 3)
+                ->where('projects.0.tech_tags_count', 4)
+                ->where('projects.0.tech_tags.0.id', $php)
+                ->where('projects.0.tech_tags.0.name', 'PHP')
                 ->where('projects.1.id', $older->id)
                 ->where('projects.1.title', 'Payments Gateway')
+                ->where('projects.1.preview_image', null)
+                ->where('featured_projects.0.id', $newer->id)
+                ->where('featured_projects.0.title', 'Auth Service')
                 ->where('meta.total', 2)
                 ->where('meta.per_page', 12)
                 ->where('meta.current_page', 1)
@@ -275,6 +320,42 @@ describe('AdminProjectController', function (): void {
                 ->where('skills.0.name', 'PHP'));
     });
 
+    it('serves the tech-writeup select with the published articles only', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $published = DB::table('blog_articles')->insertGetId([
+            'slug' => 'cursor-pagination',
+            'is_published' => true,
+            'published_at' => now()->subDay(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('blog_article_translations')->insert([
+            'article_id' => $published,
+            'locale' => 'en',
+            'title' => 'Cursor-Based Pagination',
+            'short_description' => 'How cursor pagination works.',
+            'content' => 'Body',
+            'reading_time_minutes' => 2,
+        ]);
+        $unpublished = DB::table('blog_articles')->insertGetId([
+            'slug' => 'draft-article',
+            'is_published' => false,
+            'published_at' => null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->get('/admin/projects/create')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Projects/Admin/Pages/ProjectFormPage')
+                ->has('articles', 1)
+                ->where('articles.0.id', $published)
+                ->where('articles.0.slug', 'cursor-pagination')
+                ->where('articles.0.title', 'Cursor-Based Pagination'));
+    });
+
     it('stores a project with the shared fields and the per-locale translations', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
@@ -296,6 +377,37 @@ describe('AdminProjectController', function (): void {
             ->and($translations->get('ru')->title)->toBe('Платёжный шлюз')
             ->and($translations->get('en')->problem)->toBe('Slow payouts.')
             ->and($translations->get('en')->solution)->toBe('Queued processing.');
+    });
+
+    it('rejects a Markdown field filled in one language but not another', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        // full_description filled only in EN — the field must be
+        // all-empty or all-filled ACROSS locales (user request
+        // 2026-08-12).
+        $this->post('/admin/projects', projectPayload([
+            'full_description' => ['en' => '**Full** markdown.', 'ru' => ''],
+            'problem' => ['en' => '', 'ru' => ''],
+            'solution' => ['en' => '', 'ru' => ''],
+        ]))
+            ->assertSessionHasErrors('full_description.ru');
+
+        // The filled side (EN) is NOT an error — only the empty side.
+        $this->post('/admin/projects', projectPayload([
+            'full_description' => ['en' => '**Full** markdown.', 'ru' => ''],
+        ]))
+            ->assertSessionHasErrors('full_description.ru')
+            ->assertSessionDoesntHaveErrors('full_description.en');
+
+        // All three fields empty everywhere is fine; so is everything
+        // filled in both locales.
+        $this->post('/admin/projects', projectPayload([
+            'full_description' => ['en' => '', 'ru' => ''],
+            'problem' => ['en' => '', 'ru' => ''],
+            'solution' => ['en' => '', 'ru' => ''],
+        ]))
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
     });
 
     it('stores the tech tags with the persisted count', function (): void {
@@ -529,6 +641,70 @@ describe('AdminProjectController', function (): void {
                 ->where('project.detail_items.0.icon', $detailItem->icon)
                 ->where('project.detail_items.0.title.en', 'Testing')
                 ->where('project.detail_items.0.description.en', 'Full suite.'));
+    });
+
+    it('applies the reordered engineering detail sort_order on update (A2 — regression)', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        [$project, $first, $second] = projectWithDetailItemPair();
+
+        // The drag reorder submits the items in the REVERSED order.
+        $this->put("/admin/projects/{$project->id}", projectPayload([
+            'slug' => $project->slug,
+            'detail_items' => [
+                [
+                    'id' => $second->id,
+                    'icon' => 'heroicons:bolt',
+                    'title' => ['en' => 'Item 1', 'ru' => 'Пункт 1'],
+                    'description' => ['en' => 'Item 1 description', 'ru' => 'Описание 1'],
+                ],
+                [
+                    'id' => $first->id,
+                    'icon' => 'heroicons:shield-check',
+                    'title' => ['en' => 'Item 0', 'ru' => 'Пункт 0'],
+                    'description' => ['en' => 'Item 0 description', 'ru' => 'Описание 0'],
+                ],
+            ],
+        ]))
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $order = ProjectDetailItemModel::query()
+            ->where('project_id', $project->id)
+            ->orderBy('sort_order')
+            ->pluck('id')
+            ->all();
+        expect($order)->toBe([$second->id, $first->id]);
+    });
+
+    it('replaces rather than duplicates the engineering detail translations on reorder (A2 — regression)', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        [$project, $first, $second] = projectWithDetailItemPair();
+
+        $this->put("/admin/projects/{$project->id}", projectPayload([
+            'slug' => $project->slug,
+            'detail_items' => [
+                [
+                    'id' => $second->id,
+                    'icon' => 'heroicons:bolt',
+                    'title' => ['en' => 'Item 1', 'ru' => 'Пункт 1'],
+                    'description' => ['en' => 'Item 1 description', 'ru' => 'Описание 1'],
+                ],
+                [
+                    'id' => $first->id,
+                    'icon' => 'heroicons:shield-check',
+                    'title' => ['en' => 'Item 0', 'ru' => 'Пункт 0'],
+                    'description' => ['en' => 'Item 0 description', 'ru' => 'Описание 0'],
+                ],
+            ],
+        ]))
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        // Two items × two locales — the reorder must update in place,
+        // never insert duplicate rows.
+        expect(DB::table('project_detail_item_translations')->count())->toBe(4);
     });
 
     it('updates the shared fields and keeps published_at immutable (A2)', function (): void {
