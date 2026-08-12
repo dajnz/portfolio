@@ -20,10 +20,12 @@ use App\Features\Portfolio\Infra\Repositories\EloquentAboutInfoRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentContactRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentFeedbackRepository;
 use App\Features\Portfolio\Infra\Repositories\FeedbackListQueryRepositoryInterface;
+use App\Features\Projects\App\Contracts\PublishedArticleReaderInterface;
 use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface;
 use App\Features\Projects\Infra\Repositories\EloquentProjectListQueryRepository;
 use App\Features\Projects\Infra\Repositories\EloquentProjectRepository;
 use App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface;
+use App\Features\Projects\Infra\Services\PublishedArticleReader;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Settings\Infra\Repositories\EloquentFeatureFlagRepository;
@@ -139,6 +141,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ProjectListQueryRepositoryInterface::class,
             EloquentProjectListQueryRepository::class,
+        );
+
+        $this->app->bind(
+            PublishedArticleReaderInterface::class,
+            PublishedArticleReader::class,
         );
 
         $this->app->bind(

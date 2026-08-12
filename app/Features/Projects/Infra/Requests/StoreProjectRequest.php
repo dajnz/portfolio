@@ -6,9 +6,10 @@ namespace App\Features\Projects\Infra\Requests;
 
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 /**
  * `POST /admin/projects` / `PUT /admin/projects/{project}`
@@ -113,6 +114,53 @@ final class StoreProjectRequest extends FormRequest
         }
 
         return $rules;
+    }
+
+    /**
+     * The Markdown trio (full description / problem / solution) is
+     * all-empty or all-filled ACROSS locales, per field (user request
+     * 2026-08-12): a field filled in one language must be filled in
+     * every language — filling one translation and not another is
+     * rejected. Runs as `after()` callbacks: a closure rule on the
+     * nullable field would be skipped whenever the value is null (the
+     * framework's nullable skip), and the empty-string values arrive
+     * as null after ConvertEmptyStringsToNull.
+     *
+     * @return array<int, \Closure>
+     */
+    public function after(): array
+    {
+        $callbacks = [];
+
+        foreach (['full_description', 'problem', 'solution'] as $field) {
+            foreach ($this->activeLocales() as $locale) {
+                $callbacks[] = function (Validator $validator) use ($field, $locale): void {
+                    $filledElsewhere = collect($this->activeLocales())
+                        ->contains(fn (string $other): bool => $this->fieldHasContent("$field.$other"));
+
+                    if ($filledElsewhere && ! $this->fieldHasContent("$field.$locale")) {
+                        $validator->errors()->add(
+                            "$field.$locale",
+                            __('validation.projects.markdown_field_incomplete'),
+                        );
+                    }
+                };
+            }
+        }
+
+        return $callbacks;
+    }
+
+    /**
+     * The raw request value of a dotted key is a non-empty string —
+     * the null normalization (ConvertEmptyStringsToNull) is treated as
+     * "not filled".
+     */
+    private function fieldHasContent(string $key): bool
+    {
+        $value = $this->input($key);
+
+        return is_string($value) && trim($value) !== '';
     }
 
     /**

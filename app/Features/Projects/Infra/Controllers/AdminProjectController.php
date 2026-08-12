@@ -13,6 +13,7 @@ use App\Features\Projects\App\DTOs\ProjectLinksDto;
 use App\Features\Projects\App\DTOs\ProjectListItemDto;
 use App\Features\Projects\App\DTOs\ProjectScreenshotDto;
 use App\Features\Projects\App\DTOs\ProjectTranslationsDto;
+use App\Features\Projects\App\DTOs\SkillOptionDto;
 use App\Features\Projects\App\UseCases\AdminProjectSearchUseCase;
 use App\Features\Projects\App\UseCases\AttachProjectTagUseCase;
 use App\Features\Projects\App\UseCases\DestroyProjectUseCase;
@@ -92,6 +93,10 @@ final class AdminProjectController
             'projects' => array_map(
                 static fn (ProjectListItemDto $item): array => self::listItemProps($item),
                 $page->rows,
+            ),
+            'featured_projects' => array_map(
+                static fn (ProjectListItemDto $item): array => self::listItemProps($item),
+                $page->featuredProjects,
             ),
             'meta' => $this->cursorMeta($page->pagination),
         ]);
@@ -283,6 +288,14 @@ final class AdminProjectController
         return $inertia->render('Projects/Admin/Pages/ProjectFormPage', [
             'project' => $data->project === null ? null : self::editProps($data->project),
             'skills' => $data->skills,
+            'articles' => array_map(
+                static fn ($article): array => [
+                    'id' => $article->id,
+                    'slug' => $article->slug,
+                    'title' => $article->title,
+                ],
+                $data->articles,
+            ),
             'preview_url' => $data->previewUrl,
         ]);
     }
@@ -493,10 +506,19 @@ final class AdminProjectController
             'id' => $item->id,
             'title' => $item->title,
             'slug' => $item->slug,
+            'preview_image' => $item->preview?->url,
             'is_published' => $item->isPublished,
             'is_featured' => $item->isFeatured,
             'featured_sort_order' => $item->featuredSortOrder,
             'tech_tags_count' => $item->techTagsCount,
+            'tech_tags' => array_map(
+                static fn (SkillOptionDto $tag): array => [
+                    'id' => $tag->id,
+                    'name' => $tag->name,
+                    'icon' => $tag->icon,
+                ],
+                $item->techTags,
+            ),
             'created_at' => $item->createdAt->format('c'),
             'updated_at' => $item->updatedAt->format('c'),
         ];

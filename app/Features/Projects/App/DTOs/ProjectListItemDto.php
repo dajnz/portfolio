@@ -15,6 +15,9 @@ use DateTimeImmutable;
  */
 final readonly class ProjectListItemDto
 {
+    /**
+     * @param  SkillOptionDto[]  $techTags
+     */
     public function __construct(
         public int $id,
         public string $slug,
@@ -29,13 +32,15 @@ final readonly class ProjectListItemDto
         public int $techTagsCount,
         public DateTimeImmutable $createdAt,
         public DateTimeImmutable $updatedAt,
+        public array $techTags = [],
     ) {
     }
 
     /**
      * @param  object  $row  The locale-resolved list projection row.
+     * @param  SkillOptionDto[]  $techTags
      */
-    public static function fromRow(object $row): self
+    public static function fromRow(object $row, array $techTags = []): self
     {
         return new self(
             id: (int) $row->id,
@@ -49,7 +54,7 @@ final readonly class ProjectListItemDto
                 ? null
                 : new ProjectImageDto(
                     url: $row->preview_image,
-                    altLabels: self::decodeJsonMap($row->preview_image_alt ?? null),
+                    altLabels: self::decodeJsonMap($row->preview_image_alt ?? null) ?? [],
                 ),
             links: new ProjectLinksDto(
                 sourceCodeUrl: $row->github_url ?? null,
@@ -63,6 +68,7 @@ final readonly class ProjectListItemDto
             techTagsCount: (int) ($row->tech_tags_count ?? 0),
             createdAt: new DateTimeImmutable($row->created_at),
             updatedAt: new DateTimeImmutable($row->updated_at),
+            techTags: $techTags,
         );
     }
 
