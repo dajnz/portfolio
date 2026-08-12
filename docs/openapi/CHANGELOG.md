@@ -12,6 +12,40 @@ runtime support.
 
 ### Added
 
+- **`ProjectDetailData.problem` + `ProjectDetailData.solution` (v1.0.10,
+  step 7.1):** the public project detail page renders the Problem and
+  Solution sections (public-section-ui.md:194-195) — the committed
+  contract did not carry them. Both are nullable Markdown strings,
+  rendered via the shared content pipeline (content-management.md:131,
+  B23). `info.version` bumped to `1.0.10` in `inertia.yaml`.
+
+- **`ProjectFormPageProps.preview_url` (v1.0.10, step 7.1):** the form
+  page now receives the signed 1-hour temporary preview URL (routes.md:
+  151 — `URL::temporarySignedRoute` on the `projects.preview` route);
+  null on the create form. The preview button of the admin UI opens it
+  in a new tab (content-management.md:151). `info.version` bumped to
+  `1.0.10` in `inertia.yaml`.
+
+- **`ProjectDetailData.tech_writeup` (v1.0.10, step 7.1):** the public
+  project detail page now receives the linked tech-writeup article
+  (`{id, slug, title}`) resolved against its CURRENT publication state —
+  present only while the article is published, null when no link is set
+  or the article is unpublished/trashed (content-management.md:133, the
+  link visibility rule was previously unrepresentable in the contract).
+  `info.version` bumped to `1.0.10` in `inertia.yaml`.
+
+- **`ProjectEditData` restructured to per-locale maps (v1.0.10, step 7.1):**
+  the translatable form fields (`title`, `brief_description`,
+  `full_description`, `problem`, `solution`, `preview_image_alt`) are now
+  documented as per-locale maps keyed by locale code — the admin form
+  edits them under LocaleTabs and the 7.1 controller serves them as
+  locale maps (`data-dynamic` keys `project.title.en` etc. in the
+  `project-form.html` mockup). `ProjectEditData` no longer reuses
+  `ProjectDetailData` (the public shape keeps locale-resolved strings).
+  `detail_items` now reference the new `ProjectDetailItemEditData` schema
+  with per-locale title/description maps + the reconcile-by-id `id` field
+  (A2). `info.version` bumped to `1.0.10` in `inertia.yaml`.
+
 - **`TimelineItemEditData` per-locale maps (v1.0.9, step 6.2):** the
   translatable form fields (`position`, `company_name`, `company_country`,
   `short_description`) are now documented as per-locale maps keyed by

@@ -7,6 +7,9 @@ namespace Tests\Integration\Backend\OpenApi;
 use App\Features\Shared\Infra\Models\SkillGroupModel;
 use App\Features\Shared\Infra\Models\SkillGroupTranslationModel;
 use App\Features\Shared\Infra\Models\SkillModel;
+use App\Features\Projects\Infra\Models\ProjectModel;
+use App\Features\Projects\Infra\Models\ProjectTranslationModel;
+use Database\Seeders\SettingsSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use LogicException;
@@ -134,6 +137,21 @@ it('validates the submitFeedback responses against the spec', function (): void 
     ]));
 });
 
+it('validates the listProjectsJson responses against the spec', function (): void {
+    $this->seed(SettingsSeeder::class);
+
+    $project = ProjectModel::factory()->published()->create();
+    ProjectTranslationModel::factory()->forLocale('en')->create([
+        'project_id' => $project->id,
+        'title' => 'Payments Gateway',
+        'brief_description' => 'A payment processing gateway.',
+    ]);
+
+    $this->assertConformsToSpec('listProjectsJson', 0, $this->getJson('/projects'));
+
+    $this->assertConformsToSpec('listProjectsJson', 0, $this->getJson('/projects?q=gateway'));
+});
+
 it('answers 404 with the error envelope for not-yet-implemented operations', function (): void {
     foreach (array_keys(array_filter(
         self::scenarios(),
@@ -149,7 +167,6 @@ it('answers 404 with the error envelope for not-yet-implemented operations', fun
             ]]),
             'regenerateResume' => $this->postJson('/api/resume/regenerate'),
             'listBlogArticlesJson' => $this->getJson('/blog'),
-            'listProjectsJson' => $this->getJson('/projects'),
             default => throw new LogicException("No pending-request builder for [{$operationId}]."),
         };
 

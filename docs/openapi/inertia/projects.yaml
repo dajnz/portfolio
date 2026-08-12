@@ -80,6 +80,14 @@ components:
                   type: array
                   items:
                     $ref: '#/components/schemas/SkillTagData'
+                preview_url:
+                  type: string
+                  nullable: true
+                  description: |
+                    Signed 1-hour temporary preview URL
+                    (`/admin/preview/projects/{project}`, routes.md:151) —
+                    the preview button opens it in a new tab; null on the
+                    create form (no project exists yet).
 
     ProjectCardData:
       type: object
@@ -145,6 +153,15 @@ components:
           type: string
         full_description:
           type: string
+          nullable: true
+        problem:
+          type: string
+          nullable: true
+          description: Markdown — rendered via the shared content pipeline (content-management.md:131).
+        solution:
+          type: string
+          nullable: true
+          description: Markdown — rendered via the shared content pipeline (content-management.md:131).
         brief_description:
           type: string
         published_at:
@@ -181,18 +198,101 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/DetailItemData'
+        tech_writeup:
+          type: object
+          nullable: true
+          description: |
+            The linked tech-writeup article, resolved against the current
+            publication state — present only while the article is
+            published (content-management.md:133); null when no link is
+            set or the article is unpublished/trashed. The stored
+            `tech_writeup_article_id` is preserved in the DB either way.
+          properties:
+            id:
+              type: integer
+            slug:
+              type: string
+            title:
+              type: string
 
     ProjectEditData:
-      allOf:
-        - $ref: '#/components/schemas/ProjectDetailData'
-        - type: object
-          properties:
-            is_published:
-              type: boolean
-            tech_writeup_article_id:
-              type: integer
-              nullable: true
-              description: Linked blog article id (tech writeup). Null removes the link.
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        title:
+          type: object
+          description: Per-locale title values keyed by locale code.
+          additionalProperties:
+            type: string
+        brief_description:
+          type: object
+          description: Per-locale brief description values keyed by locale code.
+          additionalProperties:
+            type: string
+        full_description:
+          type: object
+          description: Per-locale Markdown values keyed by locale code (nullable values).
+          additionalProperties:
+            type: string
+            nullable: true
+        problem:
+          type: object
+          description: Per-locale Markdown values keyed by locale code (nullable values).
+          additionalProperties:
+            type: string
+            nullable: true
+        solution:
+          type: object
+          description: Per-locale Markdown values keyed by locale code (nullable values).
+          additionalProperties:
+            type: string
+            nullable: true
+        preview_image:
+          type: string
+          nullable: true
+        preview_image_alt:
+          type: object
+          description: Per-locale alt text values keyed by locale code (nullable values).
+          additionalProperties:
+            type: string
+            nullable: true
+        github_url:
+          type: string
+          nullable: true
+        live_demo_url:
+          type: string
+          nullable: true
+        is_featured:
+          type: boolean
+        featured_sort_order:
+          type: integer
+          nullable: true
+        is_published:
+          type: boolean
+        tech_writeup_article_id:
+          type: integer
+          nullable: true
+          description: Linked blog article id (tech writeup). Null removes the link.
+        tech_tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillTagData'
+        screenshots:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScreenshotData'
+        detail_items:
+          type: array
+          description: |
+            Engineering detail items with per-locale title/description
+            maps (the admin form edits them under LocaleTabs —
+            `item.title.en` etc. in the mockup). Rows carry their id for
+            the reconcile-by-id convention (A2).
+          items:
+            $ref: '#/components/schemas/ProjectDetailItemEditData'
 
     ProjectTableRowData:
       type: object
@@ -302,6 +402,29 @@ components:
           type: string
         description:
           type: string
+
+    ProjectDetailItemEditData:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Existing row id on edit (reconcile-by-id, A2); absent on new rows.
+        icon:
+          type: string
+          nullable: true
+          description: Iconify identifier from the curated engineering set, e.g. `heroicons:shield-check`.
+        title:
+          type: object
+          description: Per-locale title values keyed by locale code (nullable values).
+          additionalProperties:
+            type: string
+            nullable: true
+        description:
+          type: object
+          description: Per-locale description values keyed by locale code (nullable values).
+          additionalProperties:
+            type: string
+            nullable: true
 
 paths:
   /projects:

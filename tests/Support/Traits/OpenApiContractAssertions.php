@@ -97,8 +97,8 @@ trait OpenApiContractAssertions
             'listProjectsJson' => [
                 'path' => '/projects',
                 'method' => 'get',
-                'implemented' => false,
-                'implemented_in' => 'Step 9.x',
+                'implemented' => true,
+                'cases' => [200],
             ],
         ];
     }
