@@ -20,14 +20,30 @@ use App\Features\Portfolio\Infra\Repositories\EloquentAboutInfoRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentContactRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentFeedbackRepository;
 use App\Features\Portfolio\Infra\Repositories\FeedbackListQueryRepositoryInterface;
+use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface;
+use App\Features\Projects\Infra\Repositories\EloquentProjectListQueryRepository;
+use App\Features\Projects\Infra\Repositories\EloquentProjectRepository;
+use App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Settings\Infra\Repositories\EloquentFeatureFlagRepository;
 use App\Features\Settings\Infra\Repositories\EloquentSettingRepository;
+use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
+use App\Features\Shared\App\Contracts\AssetCleanerInterface;
+use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
+use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
+use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
+use App\Features\Shared\Domain\RepositoryInterfaces\PublishedArticleReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
+use App\Features\Shared\Infra\Repositories\EloquentAboutInfoReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentProjectReadRepository;
+use App\Features\Shared\Infra\Repositories\EloquentPublishedArticleReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
+use App\Features\Shared\Infra\Services\AdminListCountCacheInvalidator;
+use App\Features\Shared\Infra\Services\AdminListPaginator;
+use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
+use App\Features\Shared\Infra\Services\RustFsAssetCleaner;
 use App\Features\Shared\Infra\Swagger\SwaggerUiService;
 use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepositoryInterface;
 use App\Features\TechSkills\Infra\Repositories\EloquentTechSkillWriteRepository;
@@ -113,6 +129,51 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             TimelineItemListQueryRepositoryInterface::class,
             EloquentTimelineItemRepository::class,
+        );
+
+        $this->app->bind(
+            ProjectRepositoryInterface::class,
+            EloquentProjectRepository::class,
+        );
+
+        $this->app->bind(
+            ProjectListQueryRepositoryInterface::class,
+            EloquentProjectListQueryRepository::class,
+        );
+
+        $this->app->bind(
+            PreviewUrlGeneratorInterface::class,
+            LaravelPreviewUrlGenerator::class,
+        );
+
+        $this->app->bind(
+            CountCacheInvalidatorInterface::class,
+            AdminListCountCacheInvalidator::class,
+        );
+
+        $this->app->bind(
+            AboutInfoReadRepositoryInterface::class,
+            EloquentAboutInfoReadRepository::class,
+        );
+
+        $this->app->bind(
+            PublishedArticleReadRepositoryInterface::class,
+            EloquentPublishedArticleReadRepository::class,
+        );
+
+        $this->app->bind(
+            AdminListPaginatorInterface::class,
+            fn (): AdminListPaginator => new AdminListPaginator(
+                // The mockup's DataTable (projects.html) has no
+                // sortable columns — the list stays on the paginator's
+                // default `id` order.
+                allowedSortColumns: [],
+            ),
+        );
+
+        $this->app->bind(
+            AssetCleanerInterface::class,
+            RustFsAssetCleaner::class,
         );
     }
 
