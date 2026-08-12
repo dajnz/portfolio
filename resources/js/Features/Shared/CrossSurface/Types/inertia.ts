@@ -1303,10 +1303,22 @@ export interface components {
             id?: number;
             title?: string;
             slug?: string;
+            /**
+             * @description The stored preview image path (A7 — public URL is
+             *     `{APP_URL}/assets/{path}`); null when the project has no
+             *     preview image (the Preview column shows a placeholder).
+             */
+            preview_image?: string | null;
             is_published?: boolean;
             is_featured?: boolean;
             featured_sort_order?: number | null;
             tech_tags_count?: number;
+            /**
+             * @description The project's tech tags (icon + name) — the Tags column
+             *     renders them as removable chips and the "+" button adds
+             *     more (admin-section-ui.md:343).
+             */
+            tech_tags?: components["schemas"]["SkillTagData"][];
             /** Format: date-time */
             created_at?: string;
             /** Format: date-time */
@@ -1317,6 +1329,13 @@ export interface components {
             component?: "Projects/Admin/Pages/ProjectsListPage";
             props?: {
                 projects?: components["schemas"]["ProjectTableRowData"][];
+                /**
+                 * @description The featured projects of the live view, ordered by
+                 *     `featured_sort_order` — the admin reorders them via
+                 *     the list page's SortableList section
+                 *     (admin-section-ui.md:338). Empty in the trashed view.
+                 */
+                featured_projects?: components["schemas"]["ProjectTableRowData"][];
                 meta?: components["schemas"]["PaginationMeta"];
             };
         };
@@ -1379,6 +1398,11 @@ export interface components {
              */
             detail_items?: components["schemas"]["ProjectDetailItemEditData"][];
         };
+        PublishedArticleData: {
+            id?: number;
+            slug?: string;
+            title?: string;
+        };
         ProjectFormPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
             component?: "Projects/Admin/Pages/ProjectFormPage";
@@ -1386,6 +1410,14 @@ export interface components {
                 /** @description Existing project on edit; null when creating. */
                 project?: components["schemas"]["ProjectEditData"];
                 skills?: components["schemas"]["SkillTagData"][];
+                /**
+                 * @description The published blog articles the "Tech Writeup Article"
+                 *     select offers (admin-section-ui.md:356) — only
+                 *     published articles can be linked
+                 *     (content-management.md:159). Empty when no article
+                 *     is published yet.
+                 */
+                articles?: components["schemas"]["PublishedArticleData"][];
                 /**
                  * @description Signed 1-hour temporary preview URL
                  *     (`/admin/preview/projects/{project}`, routes.md:151) —
