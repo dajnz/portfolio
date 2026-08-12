@@ -1259,7 +1259,11 @@ export interface components {
             id?: number;
             title?: string;
             slug?: string;
-            full_description?: string;
+            full_description?: string | null;
+            /** @description Markdown — rendered via the shared content pipeline (content-management.md:131). */
+            problem?: string | null;
+            /** @description Markdown — rendered via the shared content pipeline (content-management.md:131). */
+            solution?: string | null;
             brief_description?: string;
             /** Format: date-time */
             published_at?: string | null;
@@ -1274,6 +1278,18 @@ export interface components {
             tech_tags?: components["schemas"]["SkillTagData"][];
             screenshots?: components["schemas"]["ScreenshotData"][];
             detail_items?: components["schemas"]["DetailItemData"][];
+            /**
+             * @description The linked tech-writeup article, resolved against the current
+             *     publication state — present only while the article is
+             *     published (content-management.md:133); null when no link is
+             *     set or the article is unpublished/trashed. The stored
+             *     `tech_writeup_article_id` is preserved in the DB either way.
+             */
+            tech_writeup?: {
+                id?: number;
+                slug?: string;
+                title?: string;
+            } | null;
         };
         ProjectDetailPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
@@ -1304,10 +1320,64 @@ export interface components {
                 meta?: components["schemas"]["PaginationMeta"];
             };
         };
-        ProjectEditData: components["schemas"]["ProjectDetailData"] & {
+        ProjectDetailItemEditData: {
+            /** @description Existing row id on edit (reconcile-by-id, A2); absent on new rows. */
+            id?: number;
+            /** @description Iconify identifier from the curated engineering set, e.g. `heroicons:shield-check`. */
+            icon?: string | null;
+            /** @description Per-locale title values keyed by locale code (nullable values). */
+            title?: {
+                [key: string]: string | null;
+            };
+            /** @description Per-locale description values keyed by locale code (nullable values). */
+            description?: {
+                [key: string]: string | null;
+            };
+        };
+        ProjectEditData: {
+            id?: number;
+            slug?: string;
+            /** @description Per-locale title values keyed by locale code. */
+            title?: {
+                [key: string]: string;
+            };
+            /** @description Per-locale brief description values keyed by locale code. */
+            brief_description?: {
+                [key: string]: string;
+            };
+            /** @description Per-locale Markdown values keyed by locale code (nullable values). */
+            full_description?: {
+                [key: string]: string | null;
+            };
+            /** @description Per-locale Markdown values keyed by locale code (nullable values). */
+            problem?: {
+                [key: string]: string | null;
+            };
+            /** @description Per-locale Markdown values keyed by locale code (nullable values). */
+            solution?: {
+                [key: string]: string | null;
+            };
+            preview_image?: string | null;
+            /** @description Per-locale alt text values keyed by locale code (nullable values). */
+            preview_image_alt?: {
+                [key: string]: string | null;
+            };
+            github_url?: string | null;
+            live_demo_url?: string | null;
+            is_featured?: boolean;
+            featured_sort_order?: number | null;
             is_published?: boolean;
             /** @description Linked blog article id (tech writeup). Null removes the link. */
             tech_writeup_article_id?: number | null;
+            tech_tags?: components["schemas"]["SkillTagData"][];
+            screenshots?: components["schemas"]["ScreenshotData"][];
+            /**
+             * @description Engineering detail items with per-locale title/description
+             *     maps (the admin form edits them under LocaleTabs —
+             *     `item.title.en` etc. in the mockup). Rows carry their id for
+             *     the reconcile-by-id convention (A2).
+             */
+            detail_items?: components["schemas"]["ProjectDetailItemEditData"][];
         };
         ProjectFormPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
@@ -1316,6 +1386,13 @@ export interface components {
                 /** @description Existing project on edit; null when creating. */
                 project?: components["schemas"]["ProjectEditData"];
                 skills?: components["schemas"]["SkillTagData"][];
+                /**
+                 * @description Signed 1-hour temporary preview URL
+                 *     (`/admin/preview/projects/{project}`, routes.md:151) —
+                 *     the preview button opens it in a new tab; null on the
+                 *     create form (no project exists yet).
+                 */
+                preview_url?: string | null;
             };
         };
         SkillGroupEditData: {
