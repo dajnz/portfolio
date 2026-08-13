@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Projects\Domain\ValueObjects;
+namespace App\Features\Shared\Domain\ValueObjects;
 
 use DateTimeImmutable;
 
 /**
- * Value object: the project's publication state — the `is_published`
- * flag and the immutable `published_at` (auto-set on the FIRST publish
- * only, database.md:210). `publish()` keeps an already-set timestamp
+ * Value object: a content entity's publication state (projects,
+ * blog articles — database.md:210, content-management.md:251) — the
+ * `is_published` flag and the immutable `published_at` (auto-set on
+ * the FIRST publish only). `publish()` keeps an already-set timestamp
  * (the first-publish rule), `unpublish()` preserves it for a possible
- * re-publish. Immutable.
+ * re-publish. Shared by the Projects and Blog features. Immutable.
  */
 final readonly class PublishedState
 {

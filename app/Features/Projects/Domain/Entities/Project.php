@@ -9,7 +9,7 @@ use App\Features\Projects\Domain\ValueObjects\ProjectId;
 use App\Features\Projects\Domain\ValueObjects\ProjectLinks;
 use App\Features\Projects\Domain\ValueObjects\ProjectPictures;
 use App\Features\Projects\Domain\ValueObjects\ProjectSlugs;
-use App\Features\Projects\Domain\ValueObjects\PublishedState;
+use App\Features\Shared\Domain\ValueObjects\PublishedState;
 use App\Features\Shared\Domain\BaseEntity;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\BlogArticleId;

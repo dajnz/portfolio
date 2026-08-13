@@ -94,6 +94,27 @@ components:
                   $ref: '#/components/schemas/ArticleEditData'
                   nullable: true
                   description: Existing article on edit; null when creating.
+                tags:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/TagData'
+                  description: All article tags — the tag picker options.
+                articles:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      slug:
+                        type: string
+                      title:
+                        type: string
+                  description: Published articles — the Related Articles multi-select options (B188 pattern).
+                preview_url:
+                  type: string
+                  nullable: true
+                  description: Signed 1-hour preview URL; null on the create form.
 
     TagListPageProps:
       allOf:
@@ -109,7 +130,9 @@ components:
                 tags:
                   type: array
                   items:
-                    $ref: '#/components/schemas/TagData'
+                    $ref: '#/components/schemas/TagTableRowData'
+                meta:
+                  $ref: '../components/schemas.yaml#/components/schemas/PaginationMeta'
 
     TagFormPageProps:
       allOf:
@@ -123,9 +146,29 @@ components:
               type: object
               properties:
                 tag:
-                  $ref: '#/components/schemas/TagData'
+                  $ref: '#/components/schemas/TagEditData'
                   nullable: true
                   description: Existing tag on edit; null when creating.
+
+    TagEditData:
+      allOf:
+        - $ref: '#/components/schemas/TagData'
+        - type: object
+          properties:
+            names:
+              type: object
+              additionalProperties:
+                type: string
+              description: The per-locale names map (the LocaleTabs of the tag form).
+
+    TagTableRowData:
+      allOf:
+        - $ref: '#/components/schemas/TagData'
+        - type: object
+          properties:
+            articles_use_count:
+              type: integer
+              description: The number of articles using the tag (`article_tag_pivot` count).
 
     ArticleCardData:
       type: object
@@ -197,10 +240,35 @@ components:
           properties:
             is_published:
               type: boolean
+            is_featured:
+              type: boolean
             related_article_ids:
               type: array
               items:
                 type: integer
+            skill_tags:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  icon:
+                    type: string
+                    nullable: true
+              description: The tech skills attached via `article_skill_pivot` (the unified picker's pills).
+            related:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+              description: Light related-article rows of the edit form (the public detail page serves the full card data).
 
     ArticleTableRowData:
       type: object
@@ -227,6 +295,29 @@ components:
         updated_at:
           type: string
           format: date-time
+        tags:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              type:
+                type: string
+                enum: [tag, skill]
+          description: The unified tag chips of the Tags column (`article_tag_pivot` + `article_skill_pivot`).
+        related:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              title:
+                type: string
+          description: The Related column chips (the bidirectional `related_articles` rows).
 
     TagData:
       type: object

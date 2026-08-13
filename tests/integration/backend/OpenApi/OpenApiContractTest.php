@@ -152,6 +152,25 @@ it('validates the listProjectsJson responses against the spec', function (): voi
     $this->assertConformsToSpec('listProjectsJson', 0, $this->getJson('/projects?q=gateway'));
 });
 
+it('validates the createTag responses against the spec', function (): void {
+    $this->assertConformsToSpec('createTag', 0, $this->postJson('/api/tags', [
+        'slug' => 'new-tag',
+        'name' => ['en' => 'New tag'],
+    ]));
+
+    $this->loginAsAdmin($this->createAdmin());
+
+    $this->assertConformsToSpec('createTag', 1, $this->postJson('/api/tags', [
+        'slug' => 'another-tag',
+        'name' => ['en' => 'Another tag'],
+    ]));
+
+    $this->assertConformsToSpec('createTag', 2, $this->postJson('/api/tags', [
+        'slug' => 'another-tag',
+        'name' => [],
+    ]));
+});
+
 it('answers 404 with the error envelope for not-yet-implemented operations', function (): void {
     foreach (array_keys(array_filter(
         self::scenarios(),
@@ -159,7 +178,6 @@ it('answers 404 with the error envelope for not-yet-implemented operations', fun
     )) as $operationId) {
         $response = match ($operationId) {
             'toggleArticleReaction' => $this->postJson('/api/blog/1/reaction', ['reaction' => 'like']),
-            'createTag' => $this->postJson('/api/tags', ['slug' => 'new-tag', 'name' => 'New tag']),
             'searchTags' => $this->getJson('/api/tags/search?q=php'),
             'searchUnifiedBlogTags' => $this->getJson('/api/blog-tags/search?q=php'),
             'trackEvents' => $this->postJson('/api/analytics/track', ['events' => [
