@@ -55,8 +55,9 @@ trait OpenApiContractAssertions
             'toggleArticleReaction' => [
                 'path' => '/api/blog/{article}/reaction',
                 'method' => 'post',
-                'implemented' => false,
-                'implemented_in' => 'Step 8.x',
+                'implemented' => true,
+                'implemented_in' => 'Step 8.2',
+                'cases' => [200, 422],
             ],
             'createTag' => [
                 'path' => '/api/tags',
@@ -67,14 +68,16 @@ trait OpenApiContractAssertions
             'searchTags' => [
                 'path' => '/api/tags/search',
                 'method' => 'get',
-                'implemented' => false,
-                'implemented_in' => 'Step 8.x',
+                'implemented' => true,
+                'implemented_in' => 'Step 8.2',
+                'cases' => [200],
             ],
             'searchUnifiedBlogTags' => [
                 'path' => '/api/blog-tags/search',
                 'method' => 'get',
-                'implemented' => false,
-                'implemented_in' => 'Step 8.x',
+                'implemented' => true,
+                'implemented_in' => 'Step 8.2',
+                'cases' => [200],
             ],
             'trackEvents' => [
                 'path' => '/api/analytics/track',
@@ -91,8 +94,9 @@ trait OpenApiContractAssertions
             'listBlogArticlesJson' => [
                 'path' => '/blog',
                 'method' => 'get',
-                'implemented' => false,
-                'implemented_in' => 'Step 9.x',
+                'implemented' => true,
+                'implemented_in' => 'Step 8.2',
+                'cases' => [200],
             ],
             'listProjectsJson' => [
                 'path' => '/projects',

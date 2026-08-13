@@ -4,13 +4,21 @@ declare(strict_types=1);
 
 namespace App\Features\Blog\Infra\Repositories;
 
+use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
+use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;
+use App\Features\Shared\Infra\Search\FtsQueryBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 
 /**
- * Eloquent implementation of {@see ArticleListQueryRepositoryInterface}.
+ * Eloquent implementation of {@see ArticleListQueryRepositoryInterface}
+ * (the admin list-query contract — B109) and
+ * {@see PublicArticleReadRepositoryInterface} (the public read model —
+ * step 8.2).
  *
  * The admin list projection is a single locale-resolved query
  * (`coalesce(pl.*, pe.*)` with the `en` fallback — content-management.md:
@@ -26,7 +34,7 @@ use Illuminate\Support\Facades\DB;
  * The tag list rows use the same locale-resolved projection over
  * `article_tags` with the `article_tag_pivot` usage count.
  */
-final class EloquentArticleListQueryRepository implements ArticleListQueryRepositoryInterface
+final class EloquentArticleListQueryRepository implements ArticleListQueryRepositoryInterface, PublicArticleReadRepositoryInterface
 {
     public function adminListQuery(
         string $search,
@@ -63,7 +71,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
             return [];
         }
 
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
 
         $tagsByArticle = [];
         foreach (DB::table('article_tag_pivot as atp')
@@ -121,7 +129,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
             return [];
         }
 
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
 
         $relatedByArticle = [];
         foreach (DB::table('related_articles as ra')
@@ -203,6 +211,250 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
             ->when($search !== '', fn (QueryBuilder $q): QueryBuilder => $this->applyTagNameSearch($q, $search));
     }
 
+    public function findPublicPageRows(
+        string $locale,
+        int $perPage,
+        ?PublicPageCursor $cursor,
+        array $articleTagIds,
+        array $skillTagIds,
+        ?int $year,
+        ?string $search,
+    ): array {
+        $query = $this->publicRowsQuery($locale)
+            ->where('a.is_published', true)
+            ->when($articleTagIds !== [], fn (QueryBuilder $q): QueryBuilder => $this->applyArticleTagIntersect($q, $articleTagIds))
+            ->when($skillTagIds !== [], fn (QueryBuilder $q): QueryBuilder => $this->applySkillTagIntersect($q, $skillTagIds))
+            ->when($year !== null, fn (QueryBuilder $q): QueryBuilder => $q->whereRaw('extract(year from a.published_at) = ?', [$year]));
+
+        $fts = is_string($search) && $search !== '' ? $this->applyFtsSearch($query, $locale, $search) : null;
+
+        if ($cursor !== null) {
+            $this->applyCursor($query, $cursor, $fts);
+        }
+
+        return $query
+            ->orderBy($fts === null ? 'a.published_at' : 'fts_rank', 'desc')
+            ->orderByDesc('a.id')
+            ->limit($perPage)
+            ->get()
+            ->all();
+    }
+
+    public function findPublicJsonPage(
+        string $locale,
+        int $page,
+        int $perPage,
+        array $articleTagIds,
+        array $skillTagIds,
+        ?int $year,
+        ?string $search,
+    ): array {
+        $query = $this->publicRowsQuery($locale)
+            ->where('a.is_published', true)
+            ->when($articleTagIds !== [], fn (QueryBuilder $q): QueryBuilder => $this->applyArticleTagIntersect($q, $articleTagIds))
+            ->when($skillTagIds !== [], fn (QueryBuilder $q): QueryBuilder => $this->applySkillTagIntersect($q, $skillTagIds))
+            ->when($year !== null, fn (QueryBuilder $q): QueryBuilder => $q->whereRaw('extract(year from a.published_at) = ?', [$year]));
+
+        $fts = null;
+        if (is_string($search) && $search !== '') {
+            $fts = new FtsQueryBuilder($this->dictionaryFor($locale), $search);
+            $fts->selectRank($query, $this->vectorExpression());
+            $query->whereRaw($fts->prefixMatches($this->vectorExpression()), $fts->prefixBindings());
+        }
+
+        $total = $query->count();
+
+        $rows = (clone $query)
+            ->orderBy($fts === null ? 'a.published_at' : 'fts_rank', 'desc')
+            ->orderByDesc('a.id')
+            ->offset(($page - 1) * $perPage)
+            ->limit($perPage)
+            ->get()
+            ->all();
+
+        return ['rows' => $rows, 'total' => $total];
+    }
+
+    public function yearsOfPublishedArticles(): array
+    {
+        return DB::table('blog_articles')
+            ->where('is_published', true)
+            ->whereNull('deleted_at')
+            ->selectRaw('distinct extract(year from published_at) as year')
+            ->orderByDesc('year')
+            ->get()
+            ->map(static fn (object $row): int => (int) $row->year)
+            ->all();
+    }
+
+    public function viewsOf(int $articleId): int
+    {
+        return (int) (DB::table('article_views')
+            ->where('article_id', $articleId)
+            ->value('views') ?? 0);
+    }
+
+    public function findRelatedCards(int $articleId, string $locale): array
+    {
+        return DB::table('related_articles as ra')
+            ->join('blog_articles as a', 'a.id', '=', 'ra.related_article_id')
+            ->leftJoin('blog_article_translations as pl', function ($join) use ($locale): void {
+                $join->on('pl.article_id', '=', 'a.id')
+                    ->where('pl.locale', '=', $locale);
+            })
+            ->leftJoin('blog_article_translations as pe', function ($join): void {
+                $join->on('pe.article_id', '=', 'a.id')
+                    ->where('pe.locale', '=', 'en');
+            })
+            ->where('ra.article_id', $articleId)
+            ->where('a.is_published', true)
+            ->whereNull('a.deleted_at')
+            ->orderByDesc('a.published_at')
+            ->orderByDesc('a.id')
+            ->select([
+                'a.id',
+                'a.slug',
+                DB::raw('coalesce(pl.title, pe.title, \'\') as title'),
+                DB::raw('coalesce(pl.short_description, pe.short_description, \'\') as short_description'),
+                'a.published_at',
+                DB::raw('coalesce(pl.reading_time_minutes, pe.reading_time_minutes, 0) as reading_time_minutes'),
+                'a.lead_image',
+            ])
+            ->get()
+            ->all();
+    }
+
+    public function findRssRows(string $locale, int $limit): array
+    {
+        return $this->publicRowsQuery($locale)
+            ->where('a.is_published', true)
+            ->orderByDesc('a.published_at')
+            ->orderByDesc('a.id')
+            ->limit($limit)
+            ->get()
+            ->all();
+    }
+
+    /**
+     * The public list projection — the locale-resolved card fields
+     * (the `en` fallback per content-management.md:415) over the
+     * non-trashed articles.
+     */
+    private function publicRowsQuery(string $locale): QueryBuilder
+    {
+        return DB::table('blog_articles as a')
+            ->leftJoin('blog_article_translations as pl', function ($join) use ($locale): void {
+                $join->on('pl.article_id', '=', 'a.id')
+                    ->where('pl.locale', '=', $locale);
+            })
+            ->leftJoin('blog_article_translations as pe', function ($join): void {
+                $join->on('pe.article_id', '=', 'a.id')
+                    ->where('pe.locale', '=', 'en');
+            })
+            ->whereNull('a.deleted_at')
+            ->select([
+                'a.id',
+                'a.slug',
+                DB::raw('coalesce(pl.title, pe.title, \'\') as title'),
+                DB::raw('coalesce(pl.short_description, pe.short_description, \'\') as short_description'),
+                'a.published_at',
+                DB::raw('coalesce(pl.reading_time_minutes, pe.reading_time_minutes, 0) as reading_time_minutes'),
+                'a.lead_image',
+            ]);
+    }
+
+    /**
+     * The locale-resolved `search_vector` expression of the public
+     * query (the `en` fallback vector when the locale row is missing).
+     */
+    private function vectorExpression(): string
+    {
+        return 'coalesce(pl.search_vector, pe.search_vector)';
+    }
+
+    /**
+     * The locale-resolved `content` expression — the `ts_headline`
+     * snippet source (database.md:676-683).
+     */
+    private function contentExpression(): string
+    {
+        return 'coalesce(pl.content, pe.content)';
+    }
+
+    /**
+     * Applies the FTS search (database.md:651-660): the `@@`
+     * plainto_tsquery filter over the locale-resolved vector, the
+     * ts_rank column (the ORDER BY + keyset seek reference it) and
+     * the `ts_headline` snippet column (the `<mark>`-wrapped excerpt
+     * of the Inertia HTML results — B16).
+     */
+    private function applyFtsSearch(QueryBuilder $query, string $locale, string $search): FtsQueryBuilder
+    {
+        $fts = new FtsQueryBuilder($this->dictionaryFor($locale), $search);
+
+        $fts->selectRank($query, $this->vectorExpression())
+            ->selectHeadline($query, $this->contentExpression());
+        $query->whereRaw($fts->matches($this->vectorExpression()), $fts->bindings());
+
+        return $fts;
+    }
+
+    /**
+     * The keyset seek predicates of the infinite-scroll cursor: the
+     * strict `<` boundary OR the equal-value tie broken by the lower
+     * id (the same seek shape as the projects/experience public
+     * lists — `(sort_value, id)` tuples).
+     */
+    private function applyCursor(QueryBuilder $query, PublicPageCursor $cursor, ?FtsQueryBuilder $fts): QueryBuilder
+    {
+        return $query->where(function (QueryBuilder $keyset) use ($cursor, $fts): void {
+            $keyset->where(function (QueryBuilder $boundary) use ($cursor, $fts): void {
+                $this->applyStrictSeek($boundary, $cursor, $fts);
+            });
+
+            $keyset->orWhere(function (QueryBuilder $tie) use ($cursor, $fts): void {
+                $this->applyTieSeek($tie, $cursor, $fts);
+            });
+        });
+    }
+
+    private function applyStrictSeek(QueryBuilder $query, PublicPageCursor $cursor, ?FtsQueryBuilder $fts): void
+    {
+        if ($fts !== null) {
+            $query->whereRaw($fts->rankExpression($this->vectorExpression()).' < ?', [
+                ...$fts->bindings(),
+                $cursor->toSortValue(),
+            ]);
+
+            return;
+        }
+
+        $query->where('a.published_at', '<', $cursor->toSortValue());
+    }
+
+    private function applyTieSeek(QueryBuilder $query, PublicPageCursor $cursor, ?FtsQueryBuilder $fts): void
+    {
+        if ($fts !== null) {
+            $query->whereRaw($fts->rankExpression($this->vectorExpression()).' = ?', [
+                ...$fts->bindings(),
+                $cursor->toSortValue(),
+            ]);
+        } else {
+            $query->where('a.published_at', '=', $cursor->toSortValue());
+        }
+
+        $query->where('a.id', '<', $cursor->toId());
+    }
+
+    private function dictionaryFor(string $locale): string
+    {
+        $locales = Config::get('portfolio.fts.locales', []);
+
+        return is_array($locales) && isset($locales[$locale])
+            ? (string) $locales[$locale]
+            : 'english';
+    }
+
     /**
      * The admin list projection — the locale-resolved title, the
      * reading time and the `article_views` count plus every row field
@@ -210,7 +462,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
      */
     private function adminRowsQuery(): QueryBuilder
     {
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
 
         return DB::table('blog_articles as a')
             ->leftJoin('blog_article_translations as pl', function ($join) use ($locale): void {

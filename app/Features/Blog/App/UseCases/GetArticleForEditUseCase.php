@@ -13,6 +13,7 @@ use App\Features\Blog\Domain\Entities\Article;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
+use Illuminate\Support\Facades\App;
 
 /**
  * The article editor data (the create/edit form, blog.yaml#
@@ -116,6 +117,6 @@ final class GetArticleForEditUseCase
 
     private function locale(): string
     {
-        return app()->getLocale();
+        return App::getLocale();
     }
 }

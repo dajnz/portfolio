@@ -10,6 +10,21 @@ runtime support.
 
 ## [Unreleased]
 
+### Changed
+
+- **`ArticleDetailData.content` → `ArticleDetailData.content_html` +
+  `views_count` + nullable `reactions` (v1.0.13, step 8.2):** the
+  public article page serves the body rendered server-side by the
+  shared content pipeline (safe-mode CommonMark + callouts + syntax
+  highlighting with the `data-code-block`/`data-callout-type` markers,
+  content-management.md:466-481, B23) — the raw Markdown is no longer
+  exposed. The page additionally carries the pre-increment
+  `article_views` counter (content-management.md:217) and the reaction
+  state (`{user_reaction, likes, dislikes}`) is now nullable: `null`
+  when the `social_reactions` feature flag is disabled (no widget
+  rendered, public-section-components.md:1273) or on the signed
+  preview (B211). `info.version` bumped to `1.0.13` in `inertia.yaml`.
+
 ### Added
 
 - **`ArticleTableRowData.tags` + `ArticleTableRowData.related` (v1.0.12,

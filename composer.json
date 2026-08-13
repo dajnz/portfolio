@@ -17,6 +17,7 @@
         "league/commonmark": "^2",
         "league/flysystem-aws-s3-v3": "^3",
         "pragmarx/google2fa-laravel": "^3.0",
+        "scrivo/highlight.php": "^9.18",
         "tightenco/ziggy": "^2"
     },
     "require-dev": {

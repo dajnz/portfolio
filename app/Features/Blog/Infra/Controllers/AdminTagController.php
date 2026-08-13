@@ -11,8 +11,12 @@ use App\Features\Blog\App\DTOs\TagListItemDto;
 use App\Features\Blog\App\UseCases\DestroyTagUseCase;
 use App\Features\Blog\App\UseCases\GetTagForEditUseCase;
 use App\Features\Blog\App\UseCases\ListTagsUseCase;
+use App\Features\Blog\App\UseCases\SearchArticleTagsUseCase;
+use App\Features\Blog\App\UseCases\SearchUnifiedBlogTagsUseCase;
 use App\Features\Blog\App\UseCases\StoreTagUseCase;
 use App\Features\Blog\App\UseCases\UpdateTagUseCase;
+use App\Features\Blog\App\DTOs\TagOptionDto;
+use App\Features\Blog\App\DTOs\UnifiedTagOptionDto;
 use App\Features\Blog\Domain\Exceptions\ArticleTagNotFoundException;
 use App\Features\Blog\Domain\Exceptions\DuplicateArticleTagNameException;
 use App\Features\Blog\Infra\Requests\StoreTagApiRequest;
@@ -26,6 +30,11 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 use Inertia\ResponseFactory;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response as ResponseFacade;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Article-tag admin surface (routes.md:149-154) plus the inline API
@@ -47,13 +56,15 @@ final class AdminTagController
         private readonly StoreTagUseCase $storeCase,
         private readonly UpdateTagUseCase $updateCase,
         private readonly DestroyTagUseCase $destroyCase,
+        private readonly SearchArticleTagsUseCase $searchTagsCase,
+        private readonly SearchUnifiedBlogTagsUseCase $searchUnifiedCase,
         private readonly PerLocaleValues $localeValues,
     ) {
     }
 
     public function index(ResponseFactory $inertia, Request $request): Response
     {
-        $page = $this->listCase->list($this->buildListQuery($request), app()->getLocale());
+        $page = $this->listCase->list($this->buildListQuery($request), App::getLocale());
 
         return $inertia->render('Blog/Admin/Pages/TagListPage', [
             'tags' => array_map(
@@ -79,16 +90,16 @@ final class AdminTagController
             throw ValidationException::withMessages(['name' => __('validation.unique')]);
         }
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
     public function edit(ResponseFactory $inertia, int $tag): Response
     {
         try {
-            $data = $this->editCase->get($tag, app()->getLocale());
+            $data = $this->editCase->get($tag, App::getLocale());
         } catch (ArticleTagNotFoundException) {
-            abort(404);
+            throw new NotFoundHttpException();
         }
 
         return $inertia->render('Blog/Admin/Pages/TagFormPage', [
@@ -101,12 +112,12 @@ final class AdminTagController
         try {
             $this->updateCase->update($tag, $this->buildDraft($request));
         } catch (ArticleTagNotFoundException) {
-            abort(404);
+            throw new NotFoundHttpException();
         } catch (DuplicateArticleTagNameException) {
             throw ValidationException::withMessages(['name' => __('validation.unique')]);
         }
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -114,7 +125,7 @@ final class AdminTagController
     {
         $this->destroyCase->destroy($tag);
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
@@ -132,13 +143,63 @@ final class AdminTagController
             throw ValidationException::withMessages(['name' => __('validation.unique')]);
         }
 
-        return response()->json([
+        return ResponseFacade::json([
             'data' => [
                 'id' => $tag->toId(),
                 'slug' => $tag->toSlug(),
                 'name' => $this->nullableNames($tag->namesByLocale()),
             ],
         ], 201);
+    }
+
+    /**
+     * `GET /api/tags/search` (routes.md:196, features/blog.yaml#
+     * searchTags): the article-tags autocomplete — `{id, name, slug}`
+     * rows, name ascending, capped at 20 (A11).
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $tags = $this->searchTagsCase->search(
+            trim((string) $request->query('q', '')),
+            App::getLocale(),
+        );
+
+        return ResponseFacade::json([
+            'data' => array_map(
+                static fn (TagOptionDto $tag): array => [
+                    'id' => $tag->id,
+                    'name' => $tag->name,
+                    'slug' => $tag->slug,
+                ],
+                $tags,
+            ),
+        ]);
+    }
+
+    /**
+     * `GET /api/blog-tags/search` (routes.md:197, features/blog.yaml#
+     * searchUnifiedBlogTags): the unified autocomplete of the blog
+     * filter — article tags and tech skills with the `type`
+     * discriminator (`tag` | `skill`), name ascending, capped at 20
+     * (A11, content-management.md:198-200).
+     */
+    public function searchUnified(Request $request): JsonResponse
+    {
+        $options = $this->searchUnifiedCase->search(
+            trim((string) $request->query('q', '')),
+            App::getLocale(),
+        );
+
+        return ResponseFacade::json([
+            'data' => array_map(
+                static fn (UnifiedTagOptionDto $option): array => [
+                    'id' => $option->id,
+                    'name' => $option->name,
+                    'type' => $option->type,
+                ],
+                $options,
+            ),
+        ]);
     }
 
     private function buildListQuery(Request $request): AdminTagListQueryDto
@@ -229,7 +290,7 @@ final class AdminTagController
     private function nullableNames(array $names): array
     {
         $map = [];
-        foreach (config('portfolio.supported_locales', ['en', 'ru']) as $locale) {
+        foreach (Config::get('portfolio.supported_locales', ['en', 'ru']) as $locale) {
             $map[$locale] = $names[$locale] ?? null;
         }
 

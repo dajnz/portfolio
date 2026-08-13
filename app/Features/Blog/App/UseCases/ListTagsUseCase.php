@@ -12,6 +12,7 @@ use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\DTOs\PaginationQuery;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The admin tags list (admin-section-ui.md:315-320): cursor-paginated
@@ -41,7 +42,7 @@ final class ListTagsUseCase
             ),
             perPage: (int) $this->settings->value(
                 SettingName::ItemsPerPage,
-                config('portfolio.items_per_page', 12),
+                Config::get('portfolio.items_per_page', 12),
             ),
             countCacheKey: 'tags:q='.md5($query->search),
             requestUrl: $query->url,
