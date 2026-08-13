@@ -42,8 +42,11 @@ describe('BlogPreviewController', function (): void {
                 ->component('Blog/Public/Pages/BlogArticlePage')
                 ->where('article.id', $article->id)
                 ->where('article.title', 'Payments Gateway')
-                ->where('article.content', fn (string $content): bool => str_contains($content, 'article body'))
-                ->where('reactions.likes', 0)
+                // B211: the preview serves the shared pipeline HTML —
+                // the raw Markdown is rendered (headings with ids).
+                ->where('article.content_html', fn (string $html) => str_contains($html, '<h2 id="the-problem">')
+                    && str_contains($html, 'article body'))
+                ->where('reactions', null)
                 ->where('seo.robots', 'noindex, nofollow'));
     });
 
