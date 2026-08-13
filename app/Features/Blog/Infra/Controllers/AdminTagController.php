@@ -11,8 +11,12 @@ use App\Features\Blog\App\DTOs\TagListItemDto;
 use App\Features\Blog\App\UseCases\DestroyTagUseCase;
 use App\Features\Blog\App\UseCases\GetTagForEditUseCase;
 use App\Features\Blog\App\UseCases\ListTagsUseCase;
+use App\Features\Blog\App\UseCases\SearchArticleTagsUseCase;
+use App\Features\Blog\App\UseCases\SearchUnifiedBlogTagsUseCase;
 use App\Features\Blog\App\UseCases\StoreTagUseCase;
 use App\Features\Blog\App\UseCases\UpdateTagUseCase;
+use App\Features\Blog\App\DTOs\TagOptionDto;
+use App\Features\Blog\App\DTOs\UnifiedTagOptionDto;
 use App\Features\Blog\Domain\Exceptions\ArticleTagNotFoundException;
 use App\Features\Blog\Domain\Exceptions\DuplicateArticleTagNameException;
 use App\Features\Blog\Infra\Requests\StoreTagApiRequest;
@@ -47,6 +51,8 @@ final class AdminTagController
         private readonly StoreTagUseCase $storeCase,
         private readonly UpdateTagUseCase $updateCase,
         private readonly DestroyTagUseCase $destroyCase,
+        private readonly SearchArticleTagsUseCase $searchTagsCase,
+        private readonly SearchUnifiedBlogTagsUseCase $searchUnifiedCase,
         private readonly PerLocaleValues $localeValues,
     ) {
     }
@@ -139,6 +145,56 @@ final class AdminTagController
                 'name' => $this->nullableNames($tag->namesByLocale()),
             ],
         ], 201);
+    }
+
+    /**
+     * `GET /api/tags/search` (routes.md:196, features/blog.yaml#
+     * searchTags): the article-tags autocomplete — `{id, name, slug}`
+     * rows, name ascending, capped at 20 (A11).
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $tags = $this->searchTagsCase->search(
+            trim((string) $request->query('q', '')),
+            app()->getLocale(),
+        );
+
+        return response()->json([
+            'data' => array_map(
+                static fn (TagOptionDto $tag): array => [
+                    'id' => $tag->id,
+                    'name' => $tag->name,
+                    'slug' => $tag->slug,
+                ],
+                $tags,
+            ),
+        ]);
+    }
+
+    /**
+     * `GET /api/blog-tags/search` (routes.md:197, features/blog.yaml#
+     * searchUnifiedBlogTags): the unified autocomplete of the blog
+     * filter — article tags and tech skills with the `type`
+     * discriminator (`tag` | `skill`), name ascending, capped at 20
+     * (A11, content-management.md:198-200).
+     */
+    public function searchUnified(Request $request): JsonResponse
+    {
+        $options = $this->searchUnifiedCase->search(
+            trim((string) $request->query('q', '')),
+            app()->getLocale(),
+        );
+
+        return response()->json([
+            'data' => array_map(
+                static fn (UnifiedTagOptionDto $option): array => [
+                    'id' => $option->id,
+                    'name' => $option->name,
+                    'type' => $option->type,
+                ],
+                $options,
+            ),
+        ]);
     }
 
     private function buildListQuery(Request $request): AdminTagListQueryDto

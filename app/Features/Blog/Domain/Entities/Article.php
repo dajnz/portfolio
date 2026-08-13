@@ -61,6 +61,7 @@ final class Article extends BaseEntity
         private array $articleTagIds = [],
         private array $skillTagIds = [],
         private array $relatedArticleIds = [],
+        private ?DateTimeImmutable $updatedAt = null,
     ) {
         if ($translations === []) {
             throw new InvalidArgumentException('Article must have at least one translation.');
@@ -112,6 +113,18 @@ final class Article extends BaseEntity
     public function toPublishedState(): PublishedState
     {
         return $this->published;
+    }
+
+    /**
+     * The last save stamp of the base row — the `updated_at` column.
+     * Read-only metadata: the app layer uses it for the cached-content
+     * key (`article:html:{id}:{locale}:{updated_at}`,
+     * content-management.md:479) and the SEO `dateModified`; the
+     * domain never mutates it.
+     */
+    public function toUpdatedAt(): ?DateTimeImmutable
+    {
+        return $this->updatedAt;
     }
 
     /**

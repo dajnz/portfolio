@@ -59,6 +59,9 @@ final class ArticleMapper
             articleTagIds: $articleTagIds,
             skillTagIds: $skillTagIds,
             relatedArticleIds: $relatedArticleIds,
+            updatedAt: $model->updated_at === null
+                ? null
+                : $this->toImmutable($model->updated_at),
         );
     }
 

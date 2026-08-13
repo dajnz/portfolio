@@ -4,17 +4,32 @@ declare(strict_types=1);
 
 use App\Features\Blog\Infra\Controllers\AdminBlogController;
 use App\Features\Blog\Infra\Controllers\AdminTagController;
+use App\Features\Blog\Infra\Controllers\FeedController;
 use App\Features\Blog\Infra\Controllers\PreviewController;
+use App\Features\Blog\Infra\Controllers\PublicBlogController;
 use Illuminate\Support\Facades\Route;
 
 /*
- * Blog admin routes (routes.md:110-128,149-155). The admin section is
- * gated by the Auth middleware chain (`auth` + `auth.session_version`
- * + `admin`); the `{article}`/`{tag}` parameters carry RAW ids (no
- * implicit model binding — the controllers resolve them through the
- * use cases); the preview route is excluded from auth and relies on
- * the signed URL (routes.md:155).
+ * Blog routes (routes.md:27-28,55-56,110-128,149-155,218): the public
+ * index/detail (with their locale-prefixed variants — the `{locale}`
+ * parameter is constrained to the supported locales so
+ * `SetLocaleFromPathMiddleware` never sees an invalid value; the
+ * `{article}` detail parameter carries the RAW slug — B5: the
+ * old-slug 301 lookup happens in the controller, implicit model
+ * binding cannot do the fallback), the RSS feed, the admin section
+ * (gated by the Auth middleware chain — `auth` + `auth.session_version`
+ * + `admin`; the `{article}`/`{tag}` parameters carry RAW ids) and
+ * the signed preview route (excluded from auth, routes.md:155).
  */
+
+Route::get('/blog', [PublicBlogController::class, 'index']);
+Route::get('/blog/{article}', [PublicBlogController::class, 'show']);
+Route::get('/{locale}/blog', [PublicBlogController::class, 'index'])
+    ->whereIn('locale', config('portfolio.supported_locales', ['en', 'ru']));
+Route::get('/{locale}/blog/{article}', [PublicBlogController::class, 'show'])
+    ->whereIn('locale', config('portfolio.supported_locales', ['en', 'ru']));
+
+Route::get('/rss', [FeedController::class, 'rss']);
 
 Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function (): void {
     Route::get('/admin/blog', [AdminBlogController::class, 'index']);
