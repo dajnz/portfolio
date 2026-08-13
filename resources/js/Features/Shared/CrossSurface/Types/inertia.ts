@@ -1154,6 +1154,18 @@ export interface components {
             created_at?: string;
             /** Format: date-time */
             updated_at?: string;
+            /** @description The unified tag chips of the Tags column (`article_tag_pivot` + `article_skill_pivot`). */
+            tags?: {
+                id?: number;
+                name?: string;
+                /** @enum {string} */
+                type?: "tag" | "skill";
+            }[];
+            /** @description The Related column chips (the bidirectional `related_articles` rows). */
+            related?: {
+                id?: number;
+                title?: string;
+            }[];
         };
         BlogListPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
@@ -1166,7 +1178,19 @@ export interface components {
         };
         ArticleEditData: components["schemas"]["ArticleDetailData"] & {
             is_published?: boolean;
+            is_featured?: boolean;
             related_article_ids?: number[];
+            /** @description The tech skills attached via `article_skill_pivot` (the unified picker's pills). */
+            skill_tags?: {
+                id?: number;
+                name?: string;
+                icon?: string | null;
+            }[];
+            /** @description Light related-article rows of the edit form (the public detail page serves the full card data). */
+            related?: {
+                id?: number;
+                title?: string;
+            }[];
         };
         BlogFormPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
@@ -1174,13 +1198,34 @@ export interface components {
             props?: {
                 /** @description Existing article on edit; null when creating. */
                 article?: components["schemas"]["ArticleEditData"];
+                /** @description All article tags — the tag picker options. */
+                tags?: components["schemas"]["TagData"][];
+                /** @description Published articles — the Related Articles multi-select options (B188 pattern). */
+                articles?: {
+                    id?: number;
+                    slug?: string;
+                    title?: string;
+                }[];
+                /** @description Signed 1-hour preview URL; null on the create form. */
+                preview_url?: string | null;
             };
+        };
+        TagTableRowData: components["schemas"]["TagData"] & {
+            /** @description The number of articles using the tag (`article_tag_pivot` count). */
+            articles_use_count?: number;
         };
         TagListPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
             component?: "Blog/Admin/Pages/TagListPage";
             props?: {
-                tags?: components["schemas"]["TagData"][];
+                tags?: components["schemas"]["TagTableRowData"][];
+                meta?: components["schemas"]["PaginationMeta"];
+            };
+        };
+        TagEditData: components["schemas"]["TagData"] & {
+            /** @description The per-locale names map (the LocaleTabs of the tag form). */
+            names?: {
+                [key: string]: string;
             };
         };
         TagFormPageProps: components["schemas"]["InertiaPage"] & {
@@ -1188,7 +1233,7 @@ export interface components {
             component?: "Blog/Admin/Pages/TagFormPage";
             props?: {
                 /** @description Existing tag on edit; null when creating. */
-                tag?: components["schemas"]["TagData"];
+                tag?: components["schemas"]["TagEditData"];
             };
         };
         SkillTagData: {

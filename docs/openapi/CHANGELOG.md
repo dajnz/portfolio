@@ -12,6 +12,42 @@ runtime support.
 
 ### Added
 
+- **`ArticleTableRowData.tags` + `ArticleTableRowData.related` (v1.0.12,
+  step 8.1):** the admin blog list row now carries the unified tag
+  chips (`{id, name, type: "tag"|"skill"}` — the Tags column renders
+  them as non-removable badges, admin-section-components.md:1187-1188)
+  and the related-article rows (`{id, title}` — the Related column
+  chips plus the inline picker source, admin-section-components.md:
+  1189-1194). `info.version` bumped to `1.0.12` in `inertia.yaml`.
+
+- **`BlogFormPageProps.tags` + `BlogFormPageProps.articles` +
+  `BlogFormPageProps.preview_url` (v1.0.12, step 8.1):** the form page
+  now receives the tag picker options (all article tags), the
+  published articles (`{id, slug, title}`) of the Related Articles
+  multi-select (B188 pattern — only published articles can be linked,
+  content-management.md:243) and the signed 1-hour preview URL
+  (routes.md:155 — `URL::temporarySignedRoute` on the `blog.preview`
+  route; null on the create form). `info.version` bumped to `1.0.12`
+  in `inertia.yaml`.
+
+- **`ArticleEditData.is_featured` + `ArticleEditData.skill_tags`
+  (v1.0.12, step 8.1):** the edit form needs the featured flag (the
+  Featured checkbox) and the attached tech skills (the unified tag
+  picker's pills — the committed contract carried only the article
+  tags). `info.version` bumped to `1.0.12` in `inertia.yaml`.
+
+- **`TagListPageProps.meta` + `TagTableRowData` (v1.0.12, step 8.1):**
+  the tag list is server-side paginated (admin-section-ui.md:317) —
+  the page props now carry the cursor pagination `meta`; the rows are
+  `TagTableRowData` (TagData + `articles_use_count` — the Article
+  Count column and the delete-warning count, admin-section-ui.md:316).
+  `info.version` bumped to `1.0.12` in `inertia.yaml`.
+
+- **`TagFormPageProps.tag` → `TagEditData` (v1.0.12, step 8.1):** the
+  tag form's LocaleTabs need the per-locale names map (`names`) in
+  addition to the resolved display name. `info.version` bumped to
+  `1.0.12` in `inertia.yaml`.
+
 - **`ProjectTableRowData.preview_image` + `ProjectTableRowData.tech_tags`
   (v1.0.11, step 7.2):** the admin list row now carries the preview
   image path (the Preview column, admin-section-ui.md:332) and the
