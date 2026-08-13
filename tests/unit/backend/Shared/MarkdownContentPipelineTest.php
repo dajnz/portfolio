@@ -77,6 +77,29 @@ describe('MarkdownContentPipeline', function (): void {
             ->not->toContain('style="color:');
     });
 
+    it('XSS-regression: highlighted code never carries raw HTML', function (): void {
+        // Script tags, quote-based attribute breakout and a FAKE
+        // span that mimics the highlighter's own output — the code
+        // content is escaped by the engine and the post-processor
+        // only rewrites literal `<span class="hljs-...">` openings
+        // (escaped content can never produce one).
+        $code = '<script>alert(1)</script>'
+            .PHP_EOL.'<span class="hljs-keyword" onmouseover="alert(2)">fake</span>'
+            .PHP_EOL.'echo "onmouseover=\'x\'";';
+
+        $html = pipeline()->render('```php'.PHP_EOL.$code.PHP_EOL.'```');
+
+        expect($html)->not->toContain('<script>')
+            // The fake span is escaped text — no literal tag opening.
+            ->and($html)->not->toContain('<span class="hljs-keyword"')
+            ->and($html)->toContain('&lt;script&gt;')
+            // The data-raw attribute is quote-escaped (ENT_QUOTES).
+            ->and($html)->toContain('&quot;')
+            // The only literal span openings carry the theme style.
+            ->and(preg_match_all('/<span /', $html))->toBeGreaterThan(0)
+            ->and(preg_match_all('/<span (?!style="color:)/', $html))->toBe(0);
+    });
+
     it('assigns deduplicated heading ids for the table of contents', function (): void {
         $html = pipeline()->render('## Solution'.PHP_EOL.PHP_EOL.'## Solution'.PHP_EOL.PHP_EOL.'### Решение проблемы');
 

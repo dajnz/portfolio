@@ -83,4 +83,38 @@ describe('FtsQueryBuilder', function (): void {
             ->toBe('ts_headline(?, pl.content, plainto_tsquery(?, ?), ?)')
             ->and($fts->headlineBindings()[3])->toBe('MaxWords=50, MinWords=20, StartSel=<mark>, StopSel=</mark>');
     });
+
+    it('never interpolates user input into SQL — everything is bound', function (): void {
+        $malicious = "x'); DROP TABLE blog_articles; --";
+        $fts = new FtsQueryBuilder('english', $malicious);
+
+        $sql = $fts->matches('pl.search_vector').' '.$fts->rankExpression('pl.search_vector')
+            .' '.$fts->headlineExpression('pl.content').' '.$fts->prefixMatches('pl.search_vector');
+
+        // The raw payload must not appear in the SQL text at all —
+        // only inside the bound parameters.
+        expect($sql)->not->toContain($malicious)
+            ->and($sql)->not->toContain('DROP TABLE')
+            ->and($sql)->not->toContain('--')
+            ->and($fts->bindings())->toContain($malicious)
+            ->and($fts->prefixBindings())->toContain($malicious);
+    });
+
+    it('rejects column expressions outside the identifier whitelist', function (): void {
+        $fts = new FtsQueryBuilder('english', 'x');
+
+        expect(fn () => $fts->matches("pl.search_vector'); DROP TABLE x; --"))
+            ->toThrow(\InvalidArgumentException::class)
+            ->and(fn () => $fts->rankExpression('pl.search_vector OR 1=1'))
+            ->toThrow(\InvalidArgumentException::class)
+            ->and(fn () => $fts->headlineExpression('(select pg_sleep(10))'))
+            ->toThrow(\InvalidArgumentException::class)
+            ->and(fn () => $fts->rankExpression('coalesce(pl.search_vector, (select 1))'))
+            ->toThrow(\InvalidArgumentException::class)
+            // Legitimate plain paths and coalesce calls stay allowed.
+            ->and($fts->matches('coalesce(pl.search_vector, pe.search_vector)'))
+            ->toBe('coalesce(pl.search_vector, pe.search_vector) @@ plainto_tsquery(?, ?)')
+            ->and($fts->matches('pl.search_vector'))
+            ->toBe('pl.search_vector @@ plainto_tsquery(?, ?)');
+    });
 });
