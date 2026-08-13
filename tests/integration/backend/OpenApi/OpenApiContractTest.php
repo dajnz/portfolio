@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\OpenApi;
 
+use App\Features\Blog\Infra\Models\ArticleModel;
+use App\Features\Blog\Infra\Models\ArticleTranslationModel;
+use App\Features\Settings\Infra\Models\FeatureFlagModel;
 use App\Features\Shared\Infra\Models\SkillGroupModel;
 use App\Features\Shared\Infra\Models\SkillGroupTranslationModel;
 use App\Features\Shared\Infra\Models\SkillModel;
@@ -177,17 +180,52 @@ it('answers 404 with the error envelope for not-yet-implemented operations', fun
         static fn (array $scenario): bool => ! $scenario['implemented'],
     )) as $operationId) {
         $response = match ($operationId) {
-            'toggleArticleReaction' => $this->postJson('/api/blog/1/reaction', ['reaction' => 'like']),
-            'searchTags' => $this->getJson('/api/tags/search?q=php'),
-            'searchUnifiedBlogTags' => $this->getJson('/api/blog-tags/search?q=php'),
             'trackEvents' => $this->postJson('/api/analytics/track', ['events' => [
                 ['event_type' => 'page_view', 'session_id' => 'contract-test-session'],
             ]]),
             'regenerateResume' => $this->postJson('/api/resume/regenerate'),
-            'listBlogArticlesJson' => $this->getJson('/blog'),
             default => throw new LogicException("No pending-request builder for [{$operationId}]."),
         };
 
         $this->assertPendingOperation($response);
     }
+});
+
+it('validates the toggleArticleReaction responses against the spec', function (): void {
+    $this->seed(SettingsSeeder::class);
+    FeatureFlagModel::query()->updateOrCreate(
+        ['key' => 'social_reactions'],
+        ['enabled' => true, 'description' => ''],
+    );
+
+    $article = ArticleModel::factory()->published()->create();
+    ArticleTranslationModel::factory()->forLocale('en')->create([
+        'article_id' => $article->id,
+        'title' => 'Payments Gateway',
+        'short_description' => 'A payment gateway article.',
+        'content' => 'The article body with enough words.',
+    ]);
+
+    $this->assertConformsToSpec('toggleArticleReaction', 0, $this->postJson(
+        "/api/blog/{$article->id}/reaction",
+        ['reaction' => 'like'],
+    ));
+
+    $this->assertConformsToSpec('toggleArticleReaction', 1, $this->postJson(
+        "/api/blog/{$article->id}/reaction",
+        ['reaction' => 'meh'],
+    ));
+});
+
+it('validates the searchTags and searchUnifiedBlogTags responses against the spec', function (): void {
+    $this->seed(SettingsSeeder::class);
+
+    $this->assertConformsToSpec('searchTags', 0, $this->getJson('/api/tags/search?q=php'));
+    $this->assertConformsToSpec('searchUnifiedBlogTags', 0, $this->getJson('/api/blog-tags/search?q=php'));
+});
+
+it('validates the listBlogArticlesJson responses against the spec', function (): void {
+    $this->seed(SettingsSeeder::class);
+
+    $this->assertConformsToSpec('listBlogArticlesJson', 0, $this->getJson('/blog'));
 });
