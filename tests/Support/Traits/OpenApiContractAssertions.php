@@ -61,8 +61,8 @@ trait OpenApiContractAssertions
             'createTag' => [
                 'path' => '/api/tags',
                 'method' => 'post',
-                'implemented' => false,
-                'implemented_in' => 'Step 8.x',
+                'implemented' => true,
+                'cases' => [401, 201, 422],
             ],
             'searchTags' => [
                 'path' => '/api/tags/search',
