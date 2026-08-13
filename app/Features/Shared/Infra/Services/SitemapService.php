@@ -6,6 +6,7 @@ namespace App\Features\Shared\Infra\Services;
 
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use stdClass;
@@ -13,10 +14,11 @@ use stdClass;
 /**
  * Builds and caches `/sitemap.xml` (seo.md:206-231). The XML string is
  * cached in Redis under `sitemap:xml` with a 24-hour TTL; the cache is
- * invalidated whenever a published entity is saved/deleted (wired via
- * Eloquent events on the feature models — `BlogArticleModel`, `ProjectModel`,
- * `TimelineItemModel` — in steps 6.1/7.1/8.1; `invalidate()` is public and
- * exercised by tests). Only published, non-trashed entities are included.
+ * invalidated by the feature WRITE USE CASES via the shared
+ * {@see SitemapInvalidatorInterface} (the invalidation decisions live
+ * in the app layer — neither the Eloquent models nor the repositories
+ * orchestrate them). Only published, non-trashed entities are
+ * included.
  *
  * lastmod: `base.updated_at`. seo.md:229 asks for
  * `GREATEST(base.updated_at, MAX(translation.updated_at))`, but the
@@ -27,7 +29,7 @@ use stdClass;
  * enabled locale plus the `x-default` canonical URL. Disabled locales are
  * omitted (i18n-and-theming.md:21).
  */
-final class SitemapService
+final class SitemapService implements SitemapInvalidatorInterface
 {
     private const CACHE_KEY = 'sitemap:xml';
 

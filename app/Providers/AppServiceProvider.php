@@ -9,6 +9,14 @@ use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterfa
 use App\Features\Auth\Infra\Listeners\LoginListener;
 use App\Features\Auth\Infra\Repositories\EloquentAdminRepository;
 use App\Features\Auth\Infra\Repositories\EloquentAdminTimedOtpRepository;
+use App\Features\Blog\Domain\RepositoryInterfaces\ArticleReactionRepositoryInterface;
+use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
+use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
+use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\Infra\Repositories\EloquentArticleListQueryRepository;
+use App\Features\Blog\Infra\Repositories\EloquentArticleReactionRepository;
+use App\Features\Blog\Infra\Repositories\EloquentArticleRepository;
+use App\Features\Blog\Infra\Repositories\EloquentArticleTagRepository;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
 use App\Features\Experience\Infra\Repositories\EloquentTimelineItemRepository;
 use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
@@ -34,6 +42,7 @@ use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
+use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\PublishedArticleReadRepositoryInterface;
@@ -46,6 +55,7 @@ use App\Features\Shared\Infra\Services\AdminListCountCacheInvalidator;
 use App\Features\Shared\Infra\Services\AdminListPaginator;
 use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
 use App\Features\Shared\Infra\Services\RustFsAssetCleaner;
+use App\Features\Shared\Infra\Services\SitemapService;
 use App\Features\Shared\Infra\Swagger\SwaggerUiService;
 use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepositoryInterface;
 use App\Features\TechSkills\Infra\Repositories\EloquentTechSkillWriteRepository;
@@ -139,6 +149,26 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
+            ArticleRepositoryInterface::class,
+            EloquentArticleRepository::class,
+        );
+
+        $this->app->bind(
+            ArticleTagRepositoryInterface::class,
+            EloquentArticleTagRepository::class,
+        );
+
+        $this->app->bind(
+            ArticleReactionRepositoryInterface::class,
+            EloquentArticleReactionRepository::class,
+        );
+
+        $this->app->bind(
+            ArticleListQueryRepositoryInterface::class,
+            EloquentArticleListQueryRepository::class,
+        );
+
+        $this->app->bind(
             ProjectListQueryRepositoryInterface::class,
             EloquentProjectListQueryRepository::class,
         );
@@ -181,6 +211,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AssetCleanerInterface::class,
             RustFsAssetCleaner::class,
+        );
+
+        $this->app->bind(
+            SitemapInvalidatorInterface::class,
+            SitemapService::class,
         );
     }
 
