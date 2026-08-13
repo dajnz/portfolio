@@ -86,6 +86,7 @@
             "related_articles": "Related Articles",
             "related_hint": "Links are bidirectional — adding A→B also adds B→A. Only published articles can be linked.",
             "short_description": "Short Description",
+            "slug": "Slug",
             "slug_hint": "Auto-generated from the EN title.",
             "start_writing": "Start writing your article...",
             "tags": "Tags",
@@ -458,7 +459,9 @@
             "article_count": "Article Count",
             "articles_use_count": "{count, plural, one {# article uses this tag} other {# articles use this tag}}",
             "edit": "Edit Tag",
+            "name": "Name",
             "search_placeholder": "Search tags...",
+            "slug": "Slug",
             "slug_hint": "Auto-generated from the EN name. Lowercase letters, numbers and dashes.",
             "title": "Tags"
         },
