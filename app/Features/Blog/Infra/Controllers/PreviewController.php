@@ -12,6 +12,9 @@ use App\Features\Blog\Domain\Exceptions\ArticleNotFoundException;
 use Illuminate\Http\Request;
 use Inertia\Response;
 use Inertia\ResponseFactory;
+use Illuminate\Support\Facades\App;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
  * The signed preview route `GET /admin/preview/blog/{article}`
@@ -33,13 +36,13 @@ final class PreviewController
     public function article(ResponseFactory $inertia, Request $request, int $article): Response
     {
         if (! $request->hasValidSignature()) {
-            abort(403);
+            throw new AccessDeniedHttpException();
         }
 
         try {
-            $detail = $this->previewCase->getById($article, app()->getLocale());
+            $detail = $this->previewCase->getById($article, App::getLocale());
         } catch (ArticleNotFoundException) {
-            abort(404);
+            throw new NotFoundHttpException();
         }
 
         return $inertia->render('Blog/Public/Pages/BlogArticlePage', [

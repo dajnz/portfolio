@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Blog\App\DTOs;
 
 use DateTimeImmutable;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The blog pages' SEO data (seo.md:18-31,39-41): the localized
@@ -146,7 +147,7 @@ final readonly class BlogSeoDto
 
     private static function baseUrl(): string
     {
-        return rtrim((string) config('app.url'), '/');
+        return rtrim((string) Config::get('app.url'), '/');
     }
 
     private static function assetUrl(string $path): string

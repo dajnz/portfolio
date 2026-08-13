@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace App\Features\Blog\Infra\Repositories;
 
+use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;
 use App\Features\Shared\Infra\Search\FtsQueryBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 
 /**
- * Eloquent implementation of {@see ArticleListQueryRepositoryInterface}.
+ * Eloquent implementation of {@see ArticleListQueryRepositoryInterface}
+ * (the admin list-query contract — B109) and
+ * {@see PublicArticleReadRepositoryInterface} (the public read model —
+ * step 8.2).
  *
  * The admin list projection is a single locale-resolved query
  * (`coalesce(pl.*, pe.*)` with the `en` fallback — content-management.md:
@@ -28,7 +34,7 @@ use Illuminate\Support\Facades\DB;
  * The tag list rows use the same locale-resolved projection over
  * `article_tags` with the `article_tag_pivot` usage count.
  */
-final class EloquentArticleListQueryRepository implements ArticleListQueryRepositoryInterface
+final class EloquentArticleListQueryRepository implements ArticleListQueryRepositoryInterface, PublicArticleReadRepositoryInterface
 {
     public function adminListQuery(
         string $search,
@@ -65,7 +71,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
             return [];
         }
 
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
 
         $tagsByArticle = [];
         foreach (DB::table('article_tag_pivot as atp')
@@ -123,7 +129,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
             return [];
         }
 
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
 
         $relatedByArticle = [];
         foreach (DB::table('related_articles as ra')
@@ -442,7 +448,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
 
     private function dictionaryFor(string $locale): string
     {
-        $locales = config('portfolio.fts.locales', []);
+        $locales = Config::get('portfolio.fts.locales', []);
 
         return is_array($locales) && isset($locales[$locale])
             ? (string) $locales[$locale]
@@ -456,7 +462,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
      */
     private function adminRowsQuery(): QueryBuilder
     {
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
 
         return DB::table('blog_articles as a')
             ->leftJoin('blog_article_translations as pl', function ($join) use ($locale): void {

@@ -16,6 +16,8 @@ use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\DTOs\PaginationQuery;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The admin articles list (admin-section-ui.md:387-403): cursor-
@@ -58,7 +60,7 @@ final class ListArticlesUseCase
             ),
             perPage: (int) $this->settings->value(
                 SettingName::ItemsPerPage,
-                config('portfolio.items_per_page', 12),
+                Config::get('portfolio.items_per_page', 12),
             ),
             countCacheKey: $this->countCacheKey($query),
             requestUrl: $query->url,
@@ -143,7 +145,7 @@ final class ListArticlesUseCase
                 slug: $tag->slug,
                 name: $tag->name,
             ),
-            $this->repository->findAllTags(app()->getLocale()),
+            $this->repository->findAllTags(App::getLocale()),
         );
     }
 

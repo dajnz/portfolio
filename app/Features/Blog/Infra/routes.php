@@ -8,6 +8,7 @@ use App\Features\Blog\Infra\Controllers\FeedController;
 use App\Features\Blog\Infra\Controllers\PreviewController;
 use App\Features\Blog\Infra\Controllers\PublicBlogController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Config;
 
 /*
  * Blog routes (routes.md:27-28,55-56,110-128,149-155,218): the public
@@ -25,9 +26,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/blog', [PublicBlogController::class, 'index']);
 Route::get('/blog/{article}', [PublicBlogController::class, 'show']);
 Route::get('/{locale}/blog', [PublicBlogController::class, 'index'])
-    ->whereIn('locale', config('portfolio.supported_locales', ['en', 'ru']));
+    ->whereIn('locale', Config::get('portfolio.supported_locales', ['en', 'ru']));
 Route::get('/{locale}/blog/{article}', [PublicBlogController::class, 'show'])
-    ->whereIn('locale', config('portfolio.supported_locales', ['en', 'ru']));
+    ->whereIn('locale', Config::get('portfolio.supported_locales', ['en', 'ru']));
 
 Route::get('/rss', [FeedController::class, 'rss']);
 

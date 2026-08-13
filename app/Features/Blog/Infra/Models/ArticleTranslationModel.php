@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Eloquent model for `blog_article_translations` (database.md:351-364).
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\DB;
  * the domain {@see ReadingTime}); the `saved` event rebuilds the
  * locale's `search_vector` from
  * `title || ' ' || short_description || ' ' || content` via the
- * locale's Snowball dictionary (`config('portfolio.fts.locales')`,
+ * locale's Snowball dictionary (`Config::get('portfolio.fts.locales')`,
  * fallback `english` — database.md:627-645). The `sitemap:xml`
  * invalidation is NOT a model concern — the write use cases
  * orchestrate it via the shared `SitemapInvalidatorInterface`
@@ -65,7 +66,7 @@ final class ArticleTranslationModel extends Model
         });
 
         static::saved(function (self $model): void {
-            $locales = config('portfolio.fts.locales', []);
+            $locales = Config::get('portfolio.fts.locales', []);
             $dictionary = is_array($locales) && isset($locales[$model->locale])
                 ? (string) $locales[$model->locale]
                 : 'english';

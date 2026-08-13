@@ -30,6 +30,11 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 use Inertia\ResponseFactory;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response as ResponseFacade;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Article-tag admin surface (routes.md:149-154) plus the inline API
@@ -59,7 +64,7 @@ final class AdminTagController
 
     public function index(ResponseFactory $inertia, Request $request): Response
     {
-        $page = $this->listCase->list($this->buildListQuery($request), app()->getLocale());
+        $page = $this->listCase->list($this->buildListQuery($request), App::getLocale());
 
         return $inertia->render('Blog/Admin/Pages/TagListPage', [
             'tags' => array_map(
@@ -85,16 +90,16 @@ final class AdminTagController
             throw ValidationException::withMessages(['name' => __('validation.unique')]);
         }
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
     public function edit(ResponseFactory $inertia, int $tag): Response
     {
         try {
-            $data = $this->editCase->get($tag, app()->getLocale());
+            $data = $this->editCase->get($tag, App::getLocale());
         } catch (ArticleTagNotFoundException) {
-            abort(404);
+            throw new NotFoundHttpException();
         }
 
         return $inertia->render('Blog/Admin/Pages/TagFormPage', [
@@ -107,12 +112,12 @@ final class AdminTagController
         try {
             $this->updateCase->update($tag, $this->buildDraft($request));
         } catch (ArticleTagNotFoundException) {
-            abort(404);
+            throw new NotFoundHttpException();
         } catch (DuplicateArticleTagNameException) {
             throw ValidationException::withMessages(['name' => __('validation.unique')]);
         }
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -120,7 +125,7 @@ final class AdminTagController
     {
         $this->destroyCase->destroy($tag);
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
@@ -138,7 +143,7 @@ final class AdminTagController
             throw ValidationException::withMessages(['name' => __('validation.unique')]);
         }
 
-        return response()->json([
+        return ResponseFacade::json([
             'data' => [
                 'id' => $tag->toId(),
                 'slug' => $tag->toSlug(),
@@ -156,10 +161,10 @@ final class AdminTagController
     {
         $tags = $this->searchTagsCase->search(
             trim((string) $request->query('q', '')),
-            app()->getLocale(),
+            App::getLocale(),
         );
 
-        return response()->json([
+        return ResponseFacade::json([
             'data' => array_map(
                 static fn (TagOptionDto $tag): array => [
                     'id' => $tag->id,
@@ -182,10 +187,10 @@ final class AdminTagController
     {
         $options = $this->searchUnifiedCase->search(
             trim((string) $request->query('q', '')),
-            app()->getLocale(),
+            App::getLocale(),
         );
 
-        return response()->json([
+        return ResponseFacade::json([
             'data' => array_map(
                 static fn (UnifiedTagOptionDto $option): array => [
                     'id' => $option->id,
@@ -285,7 +290,7 @@ final class AdminTagController
     private function nullableNames(array $names): array
     {
         $map = [];
-        foreach (config('portfolio.supported_locales', ['en', 'ru']) as $locale) {
+        foreach (Config::get('portfolio.supported_locales', ['en', 'ru']) as $locale) {
             $map[$locale] = $names[$locale] ?? null;
         }
 

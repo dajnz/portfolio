@@ -6,6 +6,7 @@ namespace App\Features\Blog\Infra\Jobs;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The queued per-view counter increment (content-management.md:214-218):
@@ -34,7 +35,7 @@ final class IncrementArticleViewJob implements ShouldQueue
 
         if ($userAgent === null
             || $userAgent === ''
-            || preg_match((string) config('analytics.not_bot_user_agent_pattern'), $userAgent)
+            || preg_match((string) Config::get('analytics.not_bot_user_agent_pattern'), $userAgent)
         ) {
             return;
         }

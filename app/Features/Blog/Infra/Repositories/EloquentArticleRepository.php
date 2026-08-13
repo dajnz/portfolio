@@ -15,6 +15,8 @@ use App\Features\Blog\Infra\Models\ArticleModel;
 use App\Features\Blog\Infra\Models\ArticleTranslationModel;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Carbon;
 
 /**
  * Eloquent-backed repository for the Blog feature: entity-based CRUD
@@ -412,7 +414,7 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
         $row = $this->mapper->toRow($article);
 
         if ($article->toIsPublished() && $article->toPublishedAt() === null) {
-            $row['published_at'] = now()->format('Y-m-d H:i:s');
+            $row['published_at'] = Carbon::now()->format('Y-m-d H:i:s');
         }
 
         return $row;
@@ -465,7 +467,7 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
      */
     private function rebuildSearchVectors(int $articleId): void
     {
-        $dictionaries = config('portfolio.fts.locales', []);
+        $dictionaries = Config::get('portfolio.fts.locales', []);
 
         $sql = 'UPDATE blog_article_translations SET search_vector = to_tsvector((CASE locale';
         $bindings = [];

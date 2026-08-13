@@ -47,6 +47,10 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 use Inertia\ResponseFactory;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response as ResponseFacade;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Blog admin surface (routes.md:110-128): the cursor-paginated list
@@ -110,7 +114,7 @@ final class AdminBlogController
     {
         $this->storeCase->store($this->buildDraft($request));
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -124,10 +128,10 @@ final class AdminBlogController
         try {
             $this->updateCase->update($article, $this->buildDraft($request));
         } catch (ArticleNotFoundException) {
-            abort(404);
+            throw new NotFoundHttpException();
         }
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -135,7 +139,7 @@ final class AdminBlogController
     {
         $this->destroyCase->destroy($article);
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
@@ -147,7 +151,7 @@ final class AdminBlogController
             throw ValidationException::withMessages(['slug' => $e->getMessage()]);
         }
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.restored')]);
     }
 
@@ -155,7 +159,7 @@ final class AdminBlogController
     {
         $this->forceDestroyCase->forceDestroy($article);
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
@@ -174,17 +178,17 @@ final class AdminBlogController
         try {
             $this->attachRelatedCase->attach($article, $relatedArticle);
         } catch (RelatedArticleAlreadyLinkedException $e) {
-            return response()->json(['message' => $e->getMessage()], 409);
+            return ResponseFacade::json(['message' => $e->getMessage()], 409);
         }
 
-        return response()->json(['data' => self::listItemProps($this->fetchItem($article))]);
+        return ResponseFacade::json(['data' => self::listItemProps($this->fetchItem($article))]);
     }
 
     public function detachRelated(Request $request, int $article, int $relatedArticle): JsonResponse
     {
         $this->detachRelatedCase->detach($article, $relatedArticle);
 
-        return response()->json(['data' => self::listItemProps($this->fetchItem($article))]);
+        return ResponseFacade::json(['data' => self::listItemProps($this->fetchItem($article))]);
     }
 
     public function attachSkill(AttachArticleSkillRequest $request, int $article, int $skill): JsonResponse
@@ -192,17 +196,17 @@ final class AdminBlogController
         try {
             $this->attachSkillCase->attach($article, $skill);
         } catch (ArticleSkillAlreadyAttachedException $e) {
-            return response()->json(['message' => $e->getMessage()], 409);
+            return ResponseFacade::json(['message' => $e->getMessage()], 409);
         }
 
-        return response()->json(['data' => self::listItemProps($this->fetchItem($article))]);
+        return ResponseFacade::json(['data' => self::listItemProps($this->fetchItem($article))]);
     }
 
     public function detachSkill(Request $request, int $article, int $skill): JsonResponse
     {
         $this->detachSkillCase->detach($article, $skill);
 
-        return response()->json(['data' => self::listItemProps($this->fetchItem($article))]);
+        return ResponseFacade::json(['data' => self::listItemProps($this->fetchItem($article))]);
     }
 
     public function bulkPublish(BulkActionRequest $request): JsonResponse
@@ -219,7 +223,7 @@ final class AdminBlogController
     {
         $this->destroyCase->destroyMany($this->ids($request));
 
-        return response()->json();
+        return ResponseFacade::json();
     }
 
     public function bulkRestore(BulkActionRequest $request): JsonResponse
@@ -230,14 +234,14 @@ final class AdminBlogController
             throw ValidationException::withMessages(['slug' => $e->getMessage()]);
         }
 
-        return response()->json();
+        return ResponseFacade::json();
     }
 
     public function bulkForceDestroy(BulkActionRequest $request): JsonResponse
     {
         $this->forceDestroyCase->forceDestroyMany($this->ids($request));
 
-        return response()->json();
+        return ResponseFacade::json();
     }
 
     /**
@@ -253,7 +257,7 @@ final class AdminBlogController
 
         $result = $this->searchCase->search($search, $page, $perPage);
 
-        return response()->json([
+        return ResponseFacade::json([
             'data' => array_map(
                 static fn (ArticleListItemDto $item): array => [
                     'id' => $item->id,
@@ -271,7 +275,7 @@ final class AdminBlogController
 
     private function formPage(ResponseFactory $inertia, ?int $articleId): Response
     {
-        $data = $this->editCase->get($articleId, app()->getLocale());
+        $data = $this->editCase->get($articleId, App::getLocale());
 
         return $inertia->render('Blog/Admin/Pages/BlogFormPage', [
             'article' => $data->article === null ? null : self::editProps($data->article),
@@ -389,7 +393,7 @@ final class AdminBlogController
     {
         $this->publicationCase->set($articleId, $published);
 
-        return response()->json(['data' => self::listItemProps($this->fetchItem($articleId))]);
+        return ResponseFacade::json(['data' => self::listItemProps($this->fetchItem($articleId))]);
     }
 
     private function fetchItem(int $articleId): ArticleListItemDto
@@ -397,7 +401,7 @@ final class AdminBlogController
         try {
             return $this->itemCase->get($articleId);
         } catch (ArticleNotFoundException) {
-            abort(404);
+            throw new NotFoundHttpException();
         }
     }
 
@@ -413,7 +417,7 @@ final class AdminBlogController
     {
         $this->publicationCase->setMany($this->ids($request), $published);
 
-        return response()->json();
+        return ResponseFacade::json();
     }
 
     /**

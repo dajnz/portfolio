@@ -24,6 +24,13 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Response;
 use Inertia\ResponseFactory;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response as ResponseFacade;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\URL;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * `GET /blog` and `GET /{locale}/blog` (routes.md:27,55) — the public
@@ -97,7 +104,7 @@ final class PublicBlogController
         $detail = $this->detailCase->get(
             $slug,
             includeUnpublished: false,
-            locale: app()->getLocale(),
+            locale: App::getLocale(),
             fingerprint: $this->fingerprint($request),
         );
 
@@ -105,13 +112,13 @@ final class PublicBlogController
             $currentSlug = $this->detailCase->currentSlugFor($slug);
 
             if ($currentSlug !== null) {
-                return redirect()->to($this->articlePath($currentSlug, $request), 301);
+                return Redirect::to($this->articlePath($currentSlug, $request), 301);
             }
 
-            abort(404);
+            throw new NotFoundHttpException();
         }
 
-        dispatch(new IncrementArticleViewJob(
+        Bus::dispatch(new IncrementArticleViewJob(
             articleId: $detail->id,
             ip: (string) $request->ip(),
             userAgent: $request->userAgent(),
@@ -133,10 +140,10 @@ final class PublicBlogController
                 fingerprint: $this->fingerprint($request),
             );
         } catch (ArticleNotFoundException) {
-            abort(404);
+            throw new NotFoundHttpException();
         }
 
-        return response()->json([
+        return ResponseFacade::json([
             'data' => [
                 'reaction' => $outcome->reaction?->value,
                 'likes' => $outcome->likes,
@@ -157,7 +164,7 @@ final class PublicBlogController
 
         $result = $this->listCase->jsonPage($this->buildListQuery($request, $page, $perPage));
 
-        return response()->json([
+        return ResponseFacade::json([
             'data' => array_map(
                 fn (ArticleCardDto $card): array => self::cardProps($card, useSnippet: false),
                 $result->articles,
@@ -176,7 +183,7 @@ final class PublicBlogController
     private function buildListQuery(Request $request, ?int $page = null, ?int $perPage = null): PublicBlogListQuery
     {
         return new PublicBlogListQuery(
-            locale: app()->getLocale(),
+            locale: App::getLocale(),
             articleTagIds: $this->idListFromRequest($request, 'article_tags'),
             skillTagIds: $this->idListFromRequest($request, 'skill_tags'),
             year: $this->yearFromRequest($request),
@@ -278,7 +285,7 @@ final class PublicBlogController
      */
     private function fingerprint(Request $request): string
     {
-        $key = config('analytics.ip_hash_key') ?: config('app.key');
+        $key = Config::get('analytics.ip_hash_key') ?: Config::get('app.key');
 
         return hash_hmac('sha256', (string) $request->ip().'|'.$request->userAgent(), (string) $key);
     }
@@ -292,8 +299,8 @@ final class PublicBlogController
         $locale = $request->route('locale');
 
         return is_string($locale) && $locale !== ''
-            ? url('/'.$locale.'/blog/'.$slug)
-            : url('/blog/'.$slug);
+            ? URL::to('/'.$locale.'/blog/'.$slug)
+            : URL::to('/blog/'.$slug);
     }
 
     /**
