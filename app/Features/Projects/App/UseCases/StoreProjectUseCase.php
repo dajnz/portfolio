@@ -9,7 +9,7 @@ use App\Features\Projects\App\Services\ProjectEntityFactory;
 use App\Features\Projects\App\Services\ProjectSlugService;
 use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface;
 use App\Features\Projects\Domain\ValueObjects\ProjectId;
-use App\Features\Projects\Domain\ValueObjects\PublishedState;
+use App\Features\Shared\Domain\ValueObjects\PublishedState;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use DateTimeImmutable;
 
