@@ -36,6 +36,20 @@ final class FtsQueryBuilder
 
     private const HEADLINE_OPTIONS = 'MaxWords=50, MinWords=20, StartSel=<mark>, StopSel=</mark>';
 
+    /**
+     * The whitelist of the interpolated column expressions: a plain
+     * column path (`pl.search_vector`) or a `coalesce()` call over
+     * such paths — nothing else. No operators, quotes, semicolons,
+     * comments, string literals or NESTED parens (a subquery like
+     * `(select ...)` is structurally impossible). The user query and
+     * the dictionary ALWAYS travel as bound parameters; this guard
+     * makes it impossible to smuggle input through the expression
+     * arguments of the fragments.
+     */
+    private const EXPRESSION_PATTERN = '/^(?:[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?'
+        .'|coalesce\([a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?'
+        .'(,[ ]?[a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)?)*\))$/';
+
     private readonly string $query;
 
     public function __construct(
@@ -80,7 +94,7 @@ final class FtsQueryBuilder
      */
     public function matches(string $vectorExpression): string
     {
-        return $vectorExpression.' @@ '.$this->plainExpression();
+        return $this->expression($vectorExpression).' @@ '.$this->plainExpression();
     }
 
     /**
@@ -89,7 +103,7 @@ final class FtsQueryBuilder
      */
     public function rankExpression(string $vectorExpression): string
     {
-        return 'ts_rank('.$vectorExpression.', '.$this->plainExpression().', 32)';
+        return 'ts_rank('.$this->expression($vectorExpression).', '.$this->plainExpression().', 32)';
     }
 
     /**
@@ -111,7 +125,7 @@ final class FtsQueryBuilder
      */
     public function headlineExpression(string $contentExpression): string
     {
-        return 'ts_headline(?, '.$contentExpression.', '.$this->plainExpression().', ?)';
+        return 'ts_headline(?, '.$this->expression($contentExpression).', '.$this->plainExpression().', ?)';
     }
 
     /**
@@ -148,7 +162,7 @@ final class FtsQueryBuilder
     {
         $plain = $this->plainExpression();
 
-        return $vectorExpression.' @@ to_tsquery(?, '
+        return $this->expression($vectorExpression).' @@ to_tsquery(?, '
             .'CASE WHEN '.$plain.'::text = \'\' '
             .'THEN '.$plain.'::text '
             .'ELSE concat('.$plain.'::text, \':*\') END)';
@@ -171,5 +185,20 @@ final class FtsQueryBuilder
             $this->dictionary,
             $this->query,
         ];
+    }
+
+    /**
+     * Validates + returns the interpolated column expression — the
+     * only interpolated SQL of the whole builder; everything else is
+     * a bound parameter. An invalid expression is a programming
+     * error (whitelist rejection, never a silent pass-through).
+     */
+    private function expression(string $expression): string
+    {
+        if (preg_match(self::EXPRESSION_PATTERN, $expression) !== 1) {
+            throw new \InvalidArgumentException('FtsQueryBuilder received an invalid column expression.');
+        }
+
+        return $expression;
     }
 }

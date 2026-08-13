@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Blog\App\UseCases;
 
 use App\Features\Blog\App\DTOs\UnifiedTagOptionDto;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 
@@ -23,7 +23,7 @@ final class SearchUnifiedBlogTagsUseCase
     private const MAX_RESULTS = 20;
 
     public function __construct(
-        private readonly ArticleListQueryRepositoryInterface $articleTags,
+        private readonly PublicArticleReadRepositoryInterface $articleTags,
         private readonly TechSkillReadRepositoryInterface $skills,
     ) {
     }

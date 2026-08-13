@@ -12,11 +12,11 @@ use App\Features\Blog\Domain\Entities\Article;
 use App\Features\Blog\Domain\Exceptions\ArticleNotFoundException;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleReactionRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Settings\Domain\Enums\FeatureFlagName;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
+use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
-use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
 
 /**
  * The public blog article detail (public-section-ui.md:240-297,
@@ -35,11 +35,11 @@ final class GetPublicArticleUseCase
 {
     public function __construct(
         private readonly ArticleRepositoryInterface $repository,
-        private readonly ArticleListQueryRepositoryInterface $listQuery,
+        private readonly PublicArticleReadRepositoryInterface $listQuery,
         private readonly ArticleReactionRepositoryInterface $reactions,
         private readonly FeatureFlagRepositoryInterface $flags,
         private readonly AboutInfoReadRepositoryInterface $about,
-        private readonly MarkdownContentPipeline $pipeline,
+        private readonly MarkdownContentPipelineInterface $pipeline,
     ) {
     }
 

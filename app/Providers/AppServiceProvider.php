@@ -12,6 +12,7 @@ use App\Features\Auth\Infra\Repositories\EloquentAdminTimedOtpRepository;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleReactionRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
+use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
 use App\Features\Blog\Infra\Repositories\EloquentArticleListQueryRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleReactionRepository;
@@ -41,6 +42,7 @@ use App\Features\Settings\Infra\Repositories\EloquentSettingRepository;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
+use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
@@ -221,8 +223,21 @@ class AppServiceProvider extends ServiceProvider
 
         // The content pipeline (B23) is a singleton: the underlying
         // highlighter registers all 185 languages on construction, so
-        // the graph is built once per process, not per request.
-        $this->app->singleton(MarkdownContentPipeline::class);
+        // the graph is built once per process, not per request. The
+        // app layer consumes it via the app-layer contract.
+        $this->app->singleton(
+            MarkdownContentPipelineInterface::class,
+            MarkdownContentPipeline::class,
+        );
+
+        // The public blog read model (step 8.2): the DOMAIN contract
+        // is implemented by the same Eloquent repository that serves
+        // the admin list-query contract — the app layer depends on
+        // the domain interface only.
+        $this->app->bind(
+            PublicArticleReadRepositoryInterface::class,
+            EloquentArticleListQueryRepository::class,
+        );
     }
 
     /**

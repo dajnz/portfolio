@@ -10,12 +10,13 @@ use App\Features\Blog\App\DTOs\PaginatedPublicBlogListDto;
 use App\Features\Blog\App\DTOs\PublicBlogListDto;
 use App\Features\Blog\App\DTOs\PublicBlogListQuery;
 use App\Features\Blog\App\DTOs\TagOptionDto;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Services\PaginationBuilder;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The public blog index (public-section-ui.md:209-238,
@@ -39,7 +40,7 @@ use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 final class GetPublicBlogIndexUseCase
 {
     public function __construct(
-        private readonly ArticleListQueryRepositoryInterface $repository,
+        private readonly PublicArticleReadRepositoryInterface $repository,
         private readonly SettingRepositoryInterface $settings,
         private readonly AboutInfoReadRepositoryInterface $about,
         private readonly PaginationBuilder $pagination,
@@ -260,7 +261,7 @@ final class GetPublicBlogIndexUseCase
     {
         return (int) $this->settings->value(
             SettingName::ArticlesPerPage,
-            config('portfolio.articles_per_page', 10),
+            Config::get('portfolio.articles_per_page', 10),
         );
     }
 

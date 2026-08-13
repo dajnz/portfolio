@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Blog\App\DTOs;
+namespace App\Features\Shared\App\DTOs;
 
 /**
  * The RSS channel data (seo.md:233-238): the localized channel

@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Features\Blog\App\UseCases;
 
-use App\Features\Blog\App\DTOs\RssFeedDto;
-use App\Features\Blog\App\DTOs\RssItemDto;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
+use App\Features\Shared\App\DTOs\RssFeedDto;
+use App\Features\Shared\App\DTOs\RssItemDto;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
+use Illuminate\Support\Facades\URL;
 
 /**
  * The RSS feed data (seo.md:233-238): the 20 most recent published
@@ -15,14 +16,15 @@ use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInter
  * links, the site name as the author, the category names (article
  * tags + attached skills — each as a separate `<category>`) and the
  * lead-image enclosure. The channel title/link come from the SEO
- * index keys and the app URL.
+ * index keys and the app URL; the XML itself is built by the shared
+ * {@see \App\Features\Shared\App\Services\RssXmlBuilder}.
  */
 final class GetRssFeedUseCase
 {
     private const FEED_LIMIT = 20;
 
     public function __construct(
-        private readonly ArticleListQueryRepositoryInterface $repository,
+        private readonly PublicArticleReadRepositoryInterface $repository,
         private readonly AboutInfoReadRepositoryInterface $about,
     ) {
     }
@@ -39,11 +41,11 @@ final class GetRssFeedUseCase
         return new RssFeedDto(
             title: __('seo.title_blog_index', ['name' => $siteName]),
             description: __('seo.description_blog_index', ['name' => $siteName]),
-            link: url('/'),
+            link: URL::to('/'),
             items: array_map(
                 fn (object $row): RssItemDto => new RssItemDto(
                     title: $row->title,
-                    link: url('/blog/'.$row->slug),
+                    link: URL::to('/blog/'.$row->slug),
                     description: $row->short_description,
                     publishedAt: new \DateTimeImmutable($row->published_at),
                     author: $siteName,
@@ -53,7 +55,7 @@ final class GetRssFeedUseCase
                     ],
                     enclosureUrl: $row->lead_image === null
                         ? null
-                        : url('/assets/'.$row->lead_image),
+                        : URL::to('/assets/'.$row->lead_image),
                 ),
                 $rows,
             ),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Shared\Infra\Services;
 
+use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\Infra\Markdown\CalloutBlock;
 use App\Features\Shared\Infra\Markdown\CalloutBlockRenderer;
 use App\Features\Shared\Infra\Markdown\CalloutBlockStartParser;
@@ -36,8 +37,11 @@ use League\CommonMark\Util\HtmlFilter;
  * 479) — the `updated_at` stamp makes the entry self-invalidating on
  * every content save. Reused by any feature rendering Markdown
  * content (Blog detail, Projects detail, ...).
+ *
+ * Implements the app-layer {@see MarkdownContentPipelineInterface} —
+ * the app layer never imports this concrete.
  */
-final class MarkdownContentPipeline
+final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
 {
     private const CACHE_TTL_SECONDS = 604800;
 

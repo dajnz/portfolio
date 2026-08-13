@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Blog\App\UseCases;
 
 use App\Features\Blog\App\DTOs\TagOptionDto;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 
 /**
  * The article-tags autocomplete (`GET /api/tags/search`, routes.md:
@@ -18,7 +18,7 @@ final class SearchArticleTagsUseCase
     private const MAX_RESULTS = 20;
 
     public function __construct(
-        private readonly ArticleListQueryRepositoryInterface $repository,
+        private readonly PublicArticleReadRepositoryInterface $repository,
     ) {
     }
 
