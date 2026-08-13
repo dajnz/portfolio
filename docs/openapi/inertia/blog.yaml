@@ -46,6 +46,12 @@ components:
                   $ref: '#/components/schemas/ArticleDetailData'
                 reactions:
                   type: object
+                  nullable: true
+                  description: |
+                    The visitor's reaction state — null when the
+                    `social_reactions` feature flag is disabled (no
+                    widget rendered, public-section-components.md:1273)
+                    or on the signed preview (B211).
                   properties:
                     user_reaction:
                       type: string
@@ -204,8 +210,13 @@ components:
           type: string
         slug:
           type: string
-        content:
+        content_html:
           type: string
+          description: |
+            The article body rendered server-side by the shared content
+            pipeline (safe-mode CommonMark + callouts + syntax
+            highlighting — content-management.md:466-481, B23). The
+            public page renders it via v-html.
         short_description:
           type: string
         published_at:
@@ -232,6 +243,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ArticleCardData'
+        views_count:
+          type: integer
+          description: |
+            The pre-increment `article_views` counter
+            (content-management.md:217 — the page renders before the
+            queued increment job completes, a difference of 1 is
+            acceptable).
 
     ArticleEditData:
       allOf:

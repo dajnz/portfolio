@@ -1115,7 +1115,13 @@ export interface components {
             id?: number;
             title?: string;
             slug?: string;
-            content?: string;
+            /**
+             * @description The article body rendered server-side by the shared content
+             *     pipeline (safe-mode CommonMark + callouts + syntax
+             *     highlighting — content-management.md:466-481, B23). The
+             *     public page renders it via v-html.
+             */
+            content_html?: string;
             short_description?: string;
             /** Format: date-time */
             published_at?: string | null;
@@ -1127,17 +1133,30 @@ export interface components {
             };
             tags?: components["schemas"]["TagData"][];
             related?: components["schemas"]["ArticleCardData"][];
+            /**
+             * @description The pre-increment `article_views` counter
+             *     (content-management.md:217 — the page renders before the
+             *     queued increment job completes, a difference of 1 is
+             *     acceptable).
+             */
+            views_count?: number;
         };
         BlogArticlePageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
             component?: "Blog/Public/Pages/BlogArticlePage";
             props?: {
                 article?: components["schemas"]["ArticleDetailData"];
+                /**
+                 * @description The visitor's reaction state — null when the
+                 *     `social_reactions` feature flag is disabled (no
+                 *     widget rendered, public-section-components.md:1273)
+                 *     or on the signed preview (B211).
+                 */
                 reactions?: {
                     user_reaction?: string | null;
                     likes?: number;
                     dislikes?: number;
-                };
+                } | null;
                 seo?: components["schemas"]["SeoProps"];
             };
         };
