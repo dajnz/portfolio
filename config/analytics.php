@@ -43,7 +43,7 @@ return [
     'not_bot_user_agent_pattern' => env(
         'NOT_BOT_USER_AGENT_PATTERN',
         '/(Googlebot|Bingbot|GPTBot|Claude-Web|ClaudeBot|Baiduspider|YandexBot|DuckDuckBot|Slurp|Sogou|Exabot|facebot|ia_archiver|AhrefsBot|SemrushBot|MJ12bot|Dotbot|PetalBot|Bytespider|Applebot|Twitterbot|LinkedInBot|facebookexternalhit)/i'
-    ),
+    ) ?: '/(Googlebot|Bingbot|GPTBot|Claude-Web|ClaudeBot|Baiduspider|YandexBot|DuckDuckBot|Slurp|Sogou|Exabot|facebot|ia_archiver|AhrefsBot|SemrushBot|MJ12bot|Dotbot|PetalBot|Bytespider|Applebot|Twitterbot|LinkedInBot|facebookexternalhit)/i',
 
     /*
     |--------------------------------------------------------------------------

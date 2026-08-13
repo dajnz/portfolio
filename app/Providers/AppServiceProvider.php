@@ -54,6 +54,7 @@ use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
 use App\Features\Shared\Infra\Services\AdminListCountCacheInvalidator;
 use App\Features\Shared\Infra\Services\AdminListPaginator;
 use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
+use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
 use App\Features\Shared\Infra\Services\RustFsAssetCleaner;
 use App\Features\Shared\Infra\Services\SitemapService;
 use App\Features\Shared\Infra\Swagger\SwaggerUiService;
@@ -217,6 +218,11 @@ class AppServiceProvider extends ServiceProvider
             SitemapInvalidatorInterface::class,
             SitemapService::class,
         );
+
+        // The content pipeline (B23) is a singleton: the underlying
+        // highlighter registers all 185 languages on construction, so
+        // the graph is built once per process, not per request.
+        $this->app->singleton(MarkdownContentPipeline::class);
     }
 
     /**
