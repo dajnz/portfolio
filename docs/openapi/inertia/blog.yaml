@@ -84,6 +84,14 @@ components:
                   type: array
                   items:
                     $ref: '#/components/schemas/TagData'
+                years:
+                  type: array
+                  items:
+                    type: integer
+                  description: |
+                    Distinct publication years of the published, non-trashed
+                    articles, newest first — the year filter options
+                    (admin-section-ui.md:390).
 
     BlogFormPageProps:
       allOf:
@@ -307,6 +315,21 @@ components:
           type: integer
         views:
           type: integer
+        lead_image:
+          type: string
+          nullable: true
+          description: |
+            The RustFS path of the article's lead image — the small
+            preview rendered before the title in the Title cell (no
+            image → the placeholder block).
+        related_count:
+          type: integer
+          description: |
+            The number of related articles (the bidirectional
+            `related_articles` rows of the article) — the static
+            Related column of the admin table; per-row related
+            management lives on the form page only (user request
+            2026-08-13).
         created_at:
           type: string
           format: date-time
@@ -326,16 +349,6 @@ components:
                 type: string
                 enum: [tag, skill]
           description: The unified tag chips of the Tags column (`article_tag_pivot` + `article_skill_pivot`).
-        related:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: integer
-              title:
-                type: string
-          description: The Related column chips (the bidirectional `related_articles` rows).
 
     TagData:
       type: object
