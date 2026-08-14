@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
-import { computed, nextTick, onBeforeUnmount, ref, useId } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId } from 'vue';
 
 import AdminBaseBadge from './AdminBaseBadge.vue';
 import AdminBaseSkeleton from './AdminBaseSkeleton.vue';
@@ -30,6 +30,12 @@ const props = withDefaults(
         help?: string;
         placeholder?: string;
         disabled?: boolean;
+        /** Fixed container width (CSS length) — the filters row stops
+         *  reflowing when pills are added (the blog list filter uses
+         *  500px, the projects picker convention). Capped at the
+         *  available width (`max-width: 100%`) so narrow screens
+         *  shrink it instead of overflowing. */
+        width?: string;
         test_id?: string;
     }>(),
     {
@@ -39,6 +45,7 @@ const props = withDefaults(
         help: undefined,
         placeholder: undefined,
         disabled: false,
+        width: undefined,
         test_id: 'blog-tag-picker',
     },
 );
@@ -201,13 +208,39 @@ function cleanup(): void {
     }
 
     activeRequest?.abort();
+    document.removeEventListener('click', onDocumentClick, true);
 }
+
+// A click outside the picker closes the dropdown AND clears the typed
+// query (the B174 convention of the tech-skills picker) — the picked
+// pills stay, only the search text is reset. The listener runs in the
+// CAPTURE phase — before any element's own click handler — so the
+// check always sees the click target still attached: adding a tag
+// re-filters the suggestions and removes the clicked row before the
+// click finishes bubbling (B175).
+function onDocumentClick(event: MouseEvent): void {
+    if (rootEl.value !== null && rootEl.value.contains(event.target as Node) === false) {
+        isOpen.value = false;
+        highlighted.value = -1;
+        query.value = '';
+    }
+}
+
+const rootEl = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+    document.addEventListener('click', onDocumentClick, true);
+});
 
 onBeforeUnmount(cleanup);
 </script>
 
 <template>
-  <div>
+  <div
+    ref="rootEl"
+    class="max-w-full"
+    :data-testid="`${props.test_id}-root`"
+  >
     <label
       v-if="props.label"
       class="block text-sm font-semibold mb-1.5 text-slate-700 dark:text-slate-200"
@@ -223,11 +256,16 @@ onBeforeUnmount(cleanup);
     </label>
     <div class="relative">
       <div
-        class="flex w-full flex-wrap items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface-dark-secondary px-2 py-1.5 focus-within:border-primary-500"
+        class="flex min-h-10 w-full flex-wrap items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface-dark-secondary px-2 py-1.5 focus-within:border-primary-500"
         :class="{
           'border-danger-300 dark:border-danger-700': props.error !== null,
           'opacity-45 pointer-events-none': props.disabled,
         }"
+        :style="
+          props.width !== undefined
+            ? { width: props.width, maxWidth: '100%' }
+            : undefined
+        "
         :data-testid="props.test_id"
       >
         <AdminBaseBadge

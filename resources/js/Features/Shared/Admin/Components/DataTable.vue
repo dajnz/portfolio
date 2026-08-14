@@ -8,7 +8,17 @@ import AdminBaseCheckbox from './AdminBaseCheckbox.vue';
 import AdminBaseSkeleton from './AdminBaseSkeleton.vue';
 import AdminEmptyState from './AdminEmptyState.vue';
 
-type ColumnDefinition = { key: string; label: string; sortable?: boolean; width?: string };
+type ColumnDefinition = {
+    key: string;
+    label: string;
+    sortable?: boolean;
+    width?: string;
+    /** Horizontal alignment of the column header + cells — `left` by
+     *  default; the blog list centers its Published/Views columns and
+     *  the tags list centers its Article Count column (user request
+     *  2026-08-13). */
+    align?: 'left' | 'center' | 'right';
+};
 type SortDirection = 'asc' | 'desc';
 type EmptyStateMode = 'empty' | 'no-results' | 'error';
 type RowId = number | string;
@@ -127,6 +137,18 @@ function ariaSortFor(column: ColumnDefinition): 'none' | 'ascending' | 'descendi
           : 'none';
 }
 
+function columnAlignClass(column: ColumnDefinition): string {
+    if (column.align === 'center') {
+        return 'text-center';
+    }
+
+    if (column.align === 'right') {
+        return 'text-right';
+    }
+
+    return 'text-left';
+}
+
 function onSelectAllChange(checked: boolean): void {
     emit('update:selected_ids', checked ? visibleRowIds.value : []);
 }
@@ -211,13 +233,14 @@ function formatCellValue(value: unknown): string {
           <th
             v-for="column in props.columns"
             :key="column.key"
-            class="px-4 py-3 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            class="px-4 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+            :class="columnAlignClass(column)"
             :style="column.width ? { width: column.width } : undefined"
             :aria-sort="ariaSortFor(column)"
           >
             <button
               v-if="column.sortable"
-              class="flex items-center gap-1 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+              class="inline-flex items-center gap-1 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
               @click="onSortClick(column)"
             >
               {{ column.label }}
@@ -319,6 +342,7 @@ function formatCellValue(value: unknown): string {
               v-for="column in props.columns"
               :key="column.key"
               class="px-4 py-3 text-slate-600 dark:text-slate-300"
+              :class="columnAlignClass(column)"
             >
               <slot
                 :name="`cell-${column.key}`"
