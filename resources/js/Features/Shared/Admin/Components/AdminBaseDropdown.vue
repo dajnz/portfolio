@@ -29,6 +29,12 @@ const props = withDefaults(
          *  projects status filter uses 150px; user request
          *  2026-08-12). */
         width?: string;
+        /** Native tooltip of the trigger button — the multi-select
+         *  blog form's Related Articles field shows the full
+         *  alphabetical list of the linked article names when the
+         *  truncated trigger label cannot (user request 2026-08-13;
+         *  newlines render as line breaks in native tooltips). */
+        title?: string;
         test_id?: string;
     }>(),
     {
@@ -42,6 +48,7 @@ const props = withDefaults(
         required: false,
         disabled: false,
         width: undefined,
+        title: undefined,
         test_id: 'base-dropdown',
     },
 );
@@ -267,6 +274,7 @@ onBeforeUnmount(() => {
         class="flex w-full items-center justify-between gap-2 h-10 px-3 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-surface-dark-secondary text-slate-900 dark:text-slate-100 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 dark:focus:ring-primary-900 outline-none transition-all text-left"
         :class="triggerClass"
         :disabled="props.disabled"
+        :title="props.title"
         :aria-haspopup="'listbox'"
         :aria-expanded="isOpen"
         :aria-required="props.required || undefined"

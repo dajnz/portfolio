@@ -4,15 +4,30 @@
  * blockquote marker (the format the public content pipeline renders per
  * B23). Parsing uses a custom marked tokenizer so the marker syntax
  * survives markdown parse → editor → serialize without loss.
+ *
+ * The markdown contract lives in TOP-LEVEL extension fields
+ * (`markdownTokenName`, `markdownTokenizer`, `parseMarkdown`,
+ * `renderMarkdown` — declared natively on Tiptap's `NodeConfig`):
+ * @tiptap/markdown's `registerExtension` reads them via
+ * `getExtensionField` (MarkdownManager.registerExtension), while the
+ * nested `markdown: { ... }` object is a type-only artifact of a local
+ * augmentation that never reached the runtime serializer — a
+ * nested-only config silently drops the node from BOTH serialize and
+ * parse (2026-08-14 review find; the augmentation was removed).
  */
 
 import type { MarkdownToken, MarkdownTokenizer } from '@tiptap/core';
 import { mergeAttributes, Node } from '@tiptap/core';
+import { VueNodeViewRenderer } from '@tiptap/vue-3';
+
+import CalloutNodeView from './CalloutNodeView.vue';
 
 export const CALLOUT_TYPES = ['warning', 'tip', 'important', 'tradeoff'] as const;
 
 export type CalloutType = (typeof CALLOUT_TYPES)[number];
 
+/** The per-type color set — shared by the NodeView (in-editor) and
+ *  `renderHTML` (copy/paste + non-view contexts). */
 export const CALLOUT_CLASSES: Record<CalloutType, string> = {
     warning:
         'border-warning-500 bg-warning-50 dark:bg-warning-950 text-warning-700 dark:text-warning-400',
@@ -22,6 +37,12 @@ export const CALLOUT_CLASSES: Record<CalloutType, string> = {
     tradeoff:
         'border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300',
 };
+
+/** The style-guide callout frame (style-guide.html #callouts): full
+ *  `--radius-md` border radius (0.625rem), 4px left border, `--space-md
+ *  var(--space-lg)` padding (1rem 1.5rem) and `--space-lg` block margin
+ *  — shared by the NodeView and `renderHTML`. */
+export const CALLOUT_FRAME_CLASSES = 'my-6 rounded-[0.625rem] border-l-4 px-6 py-4';
 
 const CALLOUT_MARKER = /^[ \t]*>[ \t]*\[!(WARNING|TIP|IMPORTANT|TRADEOFF)\][ \t]*$/i;
 const CALLOUT_INLINE_MARKER = /^\[!(WARNING|TIP|IMPORTANT|TRADEOFF)\][ \t]*$/i;
@@ -109,6 +130,9 @@ export const Callout = Node.create({
             },
         ];
     },
+    addNodeView() {
+        return VueNodeViewRenderer(CalloutNodeView);
+    },
     renderHTML({ HTMLAttributes }) {
         const type = (HTMLAttributes.type as CalloutType) ?? 'warning';
 
@@ -116,26 +140,27 @@ export const Callout = Node.create({
             'div',
             mergeAttributes(HTMLAttributes, {
                 'data-callout': type,
-                class: `border-l-4 px-4 py-3 my-4 rounded-r-lg ${CALLOUT_CLASSES[type]}`,
+                class: `${CALLOUT_FRAME_CLASSES} ${CALLOUT_CLASSES[type]}`,
             }),
             0,
         ];
     },
-    markdown: {
-        tokenName: 'callout',
-        tokenizer: calloutTokenizer(),
-        parseMarkdown: (token, helpers) =>
-            helpers.createNode(
-                'callout',
-                { type: token.calloutType ?? 'warning' },
-                helpers.parseChildren(token.tokens ?? []),
-            ),
-        renderMarkdown: (node, helpers) => {
-            const type = String((node.attrs?.type as CalloutType) ?? 'warning').toUpperCase();
-            const body = helpers.renderChildren(node.content ?? []);
-            const lines = body.split('\n').map((line) => (line.trim() === '' ? '>' : `> ${line}`));
+    markdownTokenName: 'callout',
+    markdownTokenizer: calloutTokenizer(),
+    parseMarkdown: (token, helpers) =>
+        helpers.createNode(
+            'callout',
+            { type: token.calloutType ?? 'warning' },
+            helpers.parseChildren(token.tokens ?? []),
+        ),
+    renderMarkdown: (node, helpers) => {
+        const type = String((node.attrs?.type as CalloutType) ?? 'warning').toUpperCase();
+        // The "\n\n" separator mirrors the doc node's own join — without
+        // it multi-block callouts (para + para, heading + para) collapse
+        // into one line and the blank `>` rows vanish on the round trip.
+        const body = helpers.renderChildren(node.content ?? [], '\n\n');
+        const lines = body.split('\n').map((line) => (line.trim() === '' ? '>' : `> ${line}`));
 
-            return `> [!${type}]\n${lines.join('\n')}`;
-        },
+        return `> [!${type}]\n${lines.join('\n')}`;
     },
 });

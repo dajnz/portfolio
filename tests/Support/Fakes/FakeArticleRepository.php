@@ -18,11 +18,13 @@ final class FakeArticleRepository implements ArticleRepositoryInterface
      * @param  array<int, string>  $trashedSlugs  Article id => slug (soft-deleted).
      * @param  string[]  $activeSlugs  Slugs occupied by non-trashed articles.
      * @param  int[]  $publishedIds  Article ids that are published (soft-deleted included).
+     * @param  array<int, int[]>  $relatedIds  Article id => already-linked article ids.
      */
     public function __construct(
         public array $trashedSlugs = [],
         public array $activeSlugs = [],
         public array $publishedIds = [],
+        public array $relatedIds = [],
     ) {
     }
 
@@ -68,6 +70,11 @@ final class FakeArticleRepository implements ArticleRepositoryInterface
     public function publishedIdsOf(array $ids): array
     {
         return array_values(array_intersect($ids, $this->publishedIds));
+    }
+
+    public function relatedIdsOf(int $articleId): array
+    {
+        return $this->relatedIds[$articleId] ?? [];
     }
 
     public function currentSlugForOld(string $oldSlug): ?string

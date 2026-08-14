@@ -29,6 +29,38 @@ describe('MarkdownContentPipeline', function (): void {
             ->not->toContain('<img src=x');
     });
 
+    it('renders the B231 editor marks: strikethrough, underline, sub and sup', function (): void {
+        $html = pipeline()->render(
+            '~~struck~~ ++underlined++ <sub>down</sub> <sup>up</sup>'.PHP_EOL
+        );
+
+        expect($html)->toContain('<del>struck</del>')
+            ->toContain('<u>underlined</u>')
+            ->toContain('<sub>down</sub>')
+            ->toContain('<sup>up</sup>')
+            ->not->toContain('&lt;sub&gt;')
+            ->not->toContain('&lt;sup&gt;');
+    });
+
+    it('escapes unterminated or malformed sub/sup tags like any other raw HTML', function (): void {
+        $html = pipeline()->render('<sub onmouseover="alert(1)">x</sub> <sup>');
+
+        expect($html)->not->toContain('<sub onmouseover')
+            ->and($html)->not->toContain('<sup>');
+    });
+
+    it('renders GFM pipe tables with the header row', function (): void {
+        $html = pipeline()->render(
+            '| Name | Role |'.PHP_EOL
+            .'| --- | --- |'.PHP_EOL
+            .'| Ada | Dev |'.PHP_EOL
+        );
+
+        expect($html)->toContain('<table>')
+            ->toContain('<th>Name</th>')
+            ->toContain('<td>Dev</td>');
+    });
+
     it('blocks unsafe links', function (): void {
         $html = pipeline()->render('[click](javascript:alert(1))');
 

@@ -54,6 +54,9 @@ export default defineConfig(({ isSsrBuild }) => ({
             '@blog-public': featureAlias('Blog/Public/Components'),
             '@blog-admin': featureAlias('Blog/Admin/Components'),
             '@blog-shared': featureAlias('Blog/Shared'),
+            // Feature-root alias for page imports in specs (mirrors
+            // `@portfolio`; the Components-scoped alias cannot reach Pages).
+            '@blog': featureAlias('Blog'),
             '@projects-public': featureAlias('Projects/Public/Components'),
             '@projects-admin': featureAlias('Projects/Admin/Components'),
             // Feature-root alias for page imports in specs (mirrors
@@ -133,6 +136,12 @@ export default defineConfig(({ isSsrBuild }) => ({
             ),
             '@iconify-json/simple-icons/icons.json': fileURLToPath(
                 new URL('./tests/Support/Frontend/fixtures/simple-icons.json', import.meta.url),
+            ),
+            // lucide is only used for the TextEditor's subscript/
+            // superscript subset (B231 — iconRegistry registers the same
+            // two icons in the app) — a two-icon fixture.
+            '@iconify-json/lucide/icons.json': fileURLToPath(
+                new URL('./tests/Support/Frontend/fixtures/lucide.json', import.meta.url),
             ),
         },
         coverage: {

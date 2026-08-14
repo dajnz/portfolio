@@ -76,7 +76,7 @@ final class GetArticleForEditUseCase
                     id: (int) $related->id,
                     title: $related->title,
                 ),
-                $this->listQuery->relatedFor([$articleId])[$articleId] ?? [],
+                $this->listQuery->relatedRowsFor([$articleId])[$articleId] ?? [],
             ),
         );
     }

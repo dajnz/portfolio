@@ -9,15 +9,14 @@ use DateTimeImmutable;
 /**
  * An article as a list item — the admin table rows and the admin
  * autocomplete items. The aggregate parts travel as data DTOs (the
- * unified tag chips and the related rows — each carrying the ids);
- * built by the use cases from the raw list rows; the dates are
- * converted at the boundary. Immutable.
+ * unified tag chips); the Related column is the static link count
+ * (user request 2026-08-13 — no per-row related management in the
+ * table); the dates are converted at the boundary. Immutable.
  */
 final readonly class ArticleListItemDto
 {
     /**
      * @param  ArticleTagOptionDto[]  $tags  The unified tag/skill chips.
-     * @param  RelatedArticleDto[]  $related  The Related column chips.
      */
     public function __construct(
         public int $id,
@@ -27,19 +26,19 @@ final readonly class ArticleListItemDto
         public ?DateTimeImmutable $publishedAt,
         public int $readingTimeMinutes,
         public int $views,
+        public ?string $leadImage,
+        public int $relatedCount,
         public DateTimeImmutable $createdAt,
         public DateTimeImmutable $updatedAt,
         public array $tags = [],
-        public array $related = [],
     ) {
     }
 
     /**
      * @param  object  $row  The locale-resolved list projection row.
      * @param  ArticleTagOptionDto[]  $tags
-     * @param  RelatedArticleDto[]  $related
      */
-    public static function fromRow(object $row, array $tags = [], array $related = []): self
+    public static function fromRow(object $row, array $tags = [], int $relatedCount = 0): self
     {
         return new self(
             id: (int) $row->id,
@@ -51,10 +50,13 @@ final readonly class ArticleListItemDto
                 : new DateTimeImmutable($row->published_at),
             readingTimeMinutes: (int) ($row->reading_time_minutes ?? 0),
             views: (int) ($row->views ?? 0),
+            leadImage: ($row->lead_image ?? null) === null || $row->lead_image === ''
+                ? null
+                : (string) $row->lead_image,
+            relatedCount: $relatedCount,
             createdAt: new DateTimeImmutable($row->created_at),
             updatedAt: new DateTimeImmutable($row->updated_at),
             tags: $tags,
-            related: $related,
         );
     }
 }

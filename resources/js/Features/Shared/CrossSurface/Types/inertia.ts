@@ -1169,6 +1169,20 @@ export interface components {
             published_at?: string | null;
             reading_time_minutes?: number;
             views?: number;
+            /**
+             * @description The RustFS path of the article's lead image — the small
+             *     preview rendered before the title in the Title cell (no
+             *     image → the placeholder block).
+             */
+            lead_image?: string | null;
+            /**
+             * @description The number of related articles (the bidirectional
+             *     `related_articles` rows of the article) — the static
+             *     Related column of the admin table; per-row related
+             *     management lives on the form page only (user request
+             *     2026-08-13).
+             */
+            related_count?: number;
             /** Format: date-time */
             created_at?: string;
             /** Format: date-time */
@@ -1180,11 +1194,6 @@ export interface components {
                 /** @enum {string} */
                 type?: "tag" | "skill";
             }[];
-            /** @description The Related column chips (the bidirectional `related_articles` rows). */
-            related?: {
-                id?: number;
-                title?: string;
-            }[];
         };
         BlogListPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
@@ -1193,6 +1202,12 @@ export interface components {
                 articles?: components["schemas"]["ArticleTableRowData"][];
                 meta?: components["schemas"]["PaginationMeta"];
                 tags?: components["schemas"]["TagData"][];
+                /**
+                 * @description Distinct publication years of the published, non-trashed
+                 *     articles, newest first — the year filter options
+                 *     (admin-section-ui.md:390).
+                 */
+                years?: number[];
             };
         };
         ArticleEditData: components["schemas"]["ArticleDetailData"] & {

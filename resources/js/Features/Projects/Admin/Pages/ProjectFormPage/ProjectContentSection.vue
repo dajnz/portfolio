@@ -6,7 +6,7 @@
 import AdminBaseCard from '@shared-admin/AdminBaseCard.vue';
 import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
 import AdminBaseTextarea from '@shared-admin/AdminBaseTextarea.vue';
-import TextEditor, { PROJECT_EDITOR_BUTTONS } from '@shared-admin/TextEditor.vue';
+import TextEditor, { PROJECT_EDITOR_BUTTONS } from '@shared-admin/TextEditor/TextEditor.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 
 const props = withDefaults(

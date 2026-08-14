@@ -159,12 +159,13 @@ describe('AdminBlogController', function (): void {
                 ->where('articles.0.views', 42)
                 ->where('articles.0.is_published', true)
                 ->where('articles.0.tags', [])
-                ->where('articles.0.related', [])
+                ->where('articles.0.related_count', 0)
                 ->where('meta.total', 2)
-                ->has('tags'));
+                ->has('tags')
+                ->where('years', [(int) now()->format('Y')]));
     });
 
-    it('lists the unified tag chips and related rows per article', function (): void {
+    it('lists the unified tag chips and the related count per article', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $related = blogItem(['slug' => 'second-post']);
@@ -187,9 +188,7 @@ describe('AdminBlogController', function (): void {
                     ['id' => $tag->id, 'name' => 'PHP', 'type' => 'tag'],
                     ['id' => $skillId, 'name' => 'PHP', 'type' => 'skill'],
                 ])
-                ->where('articles.0.related', [
-                    ['id' => $related->id, 'title' => 'Payments Gateway'],
-                ]));
+                ->where('articles.0.related_count', 1));
     });
 
     it('filters the list by article tags, skill tags, year, status and trash', function (): void {
@@ -329,7 +328,7 @@ describe('AdminBlogController', function (): void {
 
         $this->post('/admin/blog', blogPayload([
             'related_articles' => [$draft->id, $published->id],
-        ]))->assertSessionHasErrors(['related_articles.0']);
+        ]))->assertSessionHasErrors(['related_articles']);
 
         $this->post('/admin/blog', blogPayload([
             'slug' => 'self-link',
@@ -342,6 +341,40 @@ describe('AdminBlogController', function (): void {
             'slug' => 'self-link',
             'related_articles' => [$created->id],
         ]))->assertSessionHasErrors(['related_articles.0']);
+    });
+
+    it('preserves an existing link to an unpublished article on update but rejects NEW unpublished targets (B230)', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $article = blogItem(['slug' => 'linked-article', 'is_published' => true, 'published_at' => now()]);
+        $wasPublished = blogItem(['slug' => 'was-published', 'is_published' => true, 'published_at' => now()]);
+        $draft = blogItem(['slug' => 'draft-post']);
+
+        // The pair was created while the target was published; the
+        // target got unpublished afterwards.
+        DB::table('related_articles')->insert([
+            ['article_id' => $article->id, 'related_article_id' => $wasPublished->id],
+            ['article_id' => $wasPublished->id, 'related_article_id' => $article->id],
+        ]);
+        DB::table('blog_articles')->where('id', $wasPublished->id)->update(['is_published' => false]);
+
+        // Re-saving with the preserved (now-unpublished) link succeeds.
+        $this->put("/admin/blog/{$article->id}", blogPayload([
+            'slug' => 'linked-article',
+            'title' => ['en' => 'Linked Article', 'ru' => 'Связанная статья'],
+            'is_published' => true,
+            'related_articles' => [$wasPublished->id],
+        ]))->assertSessionHasNoErrors();
+
+        expect(DB::table('related_articles')->where('article_id', $article->id)->where('related_article_id', $wasPublished->id)->exists())->toBeTrue();
+
+        // A NEW unpublished target is still rejected on update.
+        $this->put("/admin/blog/{$article->id}", blogPayload([
+            'slug' => 'linked-article',
+            'title' => ['en' => 'Linked Article', 'ru' => 'Связанная статья'],
+            'is_published' => true,
+            'related_articles' => [$wasPublished->id, $draft->id],
+        ]))->assertSessionHasErrors(['related_articles']);
     });
 
     it('updates an article, records the old slug and keeps published_at on the first re-save', function (): void {
@@ -413,7 +446,7 @@ describe('AdminBlogController', function (): void {
 
         $this->post("/admin/blog/{$article->id}/related/{$related->id}")
             ->assertOk()
-            ->assertJsonPath('data.related.0.id', $related->id);
+            ->assertJsonPath('data.related_count', 1);
 
         expect(DB::table('related_articles')->where('article_id', $article->id)->where('related_article_id', $related->id)->exists())->toBeTrue()
             ->and(DB::table('related_articles')->where('article_id', $related->id)->where('related_article_id', $article->id)->exists())->toBeTrue();
@@ -424,7 +457,7 @@ describe('AdminBlogController', function (): void {
 
         $this->delete("/admin/blog/{$article->id}/related/{$related->id}")
             ->assertOk()
-            ->assertJsonPath('data.related', []);
+            ->assertJsonPath('data.related_count', 0);
 
         expect(DB::table('related_articles')->count())->toBe(0);
     });

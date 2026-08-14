@@ -32,6 +32,7 @@ use App\Features\Blog\Domain\Exceptions\ArticleNotFoundException;
 use App\Features\Blog\Domain\Exceptions\ArticleSkillAlreadyAttachedException;
 use App\Features\Blog\Domain\Exceptions\ArticleSlugOccupiedException;
 use App\Features\Blog\Domain\Exceptions\RelatedArticleAlreadyLinkedException;
+use App\Features\Blog\Domain\Exceptions\RelatedArticleNotLinkableException;
 use App\Features\Blog\Infra\Requests\AttachArticleSkillRequest;
 use App\Features\Blog\Infra\Requests\AttachRelatedArticleRequest;
 use App\Features\Blog\Infra\Requests\StoreArticleRequest;
@@ -102,6 +103,7 @@ final class AdminBlogController
             ),
             'meta' => $this->cursorMeta($page->pagination),
             'tags' => $this->tagProps($page->tags),
+            'years' => $page->years,
         ]);
     }
 
@@ -112,7 +114,13 @@ final class AdminBlogController
 
     public function store(StoreArticleRequest $request): RedirectResponse
     {
-        $this->storeCase->store($this->buildDraft($request));
+        try {
+            $this->storeCase->store($this->buildDraft($request));
+        } catch (ArticleSlugOccupiedException $e) {
+            throw ValidationException::withMessages(['slug' => $e->getMessage()]);
+        } catch (RelatedArticleNotLinkableException $e) {
+            throw ValidationException::withMessages(['related_articles' => $e->getMessage()]);
+        }
 
         return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
@@ -129,6 +137,10 @@ final class AdminBlogController
             $this->updateCase->update($article, $this->buildDraft($request));
         } catch (ArticleNotFoundException) {
             throw new NotFoundHttpException();
+        } catch (ArticleSlugOccupiedException $e) {
+            throw ValidationException::withMessages(['slug' => $e->getMessage()]);
+        } catch (RelatedArticleNotLinkableException $e) {
+            throw ValidationException::withMessages(['related_articles' => $e->getMessage()]);
         }
 
         return Redirect::back()
@@ -435,6 +447,8 @@ final class AdminBlogController
             'published_at' => $item->publishedAt?->format('c'),
             'reading_time_minutes' => $item->readingTimeMinutes,
             'views' => $item->views,
+            'lead_image' => $item->leadImage,
+            'related_count' => $item->relatedCount,
             'created_at' => $item->createdAt->format('c'),
             'updated_at' => $item->updatedAt->format('c'),
             'tags' => array_map(
@@ -444,10 +458,6 @@ final class AdminBlogController
                     'type' => $tag->type,
                 ],
                 $item->tags,
-            ),
-            'related' => array_map(
-                static fn (RelatedArticleDto $related): array => self::relatedProps($related),
-                $item->related,
             ),
         ];
     }

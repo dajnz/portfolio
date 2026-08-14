@@ -10,6 +10,30 @@ runtime support.
 
 ## [Unreleased]
 
+### Added
+
+- **`BlogListPageProps.years` (v1.0.14, step 8.3):** the admin blog
+  list now carries the distinct publication years of the published,
+  non-trashed articles, newest first — the year filter's dropdown
+  options (admin-section-ui.md:390 lists the year filter; the
+  committed page schema had no options source, a gap-fill). The
+  `years` prop comes from the list query repository's
+  `yearsOfPublishedArticles()` (the public index's existing source,
+  reused — no new query shape). `info.version` bumped to `1.0.14` in
+  `inertia.yaml`.
+
+- **`ArticleTableRowData.lead_image` + `related_count` (v1.0.15, step
+  8.3):** the admin blog list row gains the RustFS `lead_image` path
+  (the small preview rendered before the title in the Title cell —
+  user request 2026-08-13) and the Related column is now the static
+  `related_count` integer (the bidirectional `related_articles` row
+  count; per-row related management lives on the form page only). The
+  former `related` array of `{id, title}` rows is removed from the
+  row shape — the edit form keeps its `ArticleEditData.related`. The
+  backend now hydrates the count via the list query repository's
+  `relatedCountFor()`. `info.version` bumped to `1.0.15` in
+  `inertia.yaml`.
+
 ### Changed
 
 - **`ArticleDetailData.content` → `ArticleDetailData.content_html` +

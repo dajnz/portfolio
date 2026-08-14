@@ -154,7 +154,11 @@ function previewUrl(): string {
               icon="heroicons:document-text"
             />
           </span>
-          <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">
+          <p
+            class="max-w-full truncate px-2 text-sm text-slate-500 dark:text-slate-400 font-medium"
+            :title="props.modelValue.file_name"
+            :data-testid="`${props.test_id}-file-name`"
+          >
             {{ props.modelValue.file_name }}
           </p>
           <div class="flex items-center justify-center gap-2">

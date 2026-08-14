@@ -6,7 +6,6 @@ namespace App\Features\Blog\App\UseCases;
 
 use App\Features\Blog\App\DTOs\ArticleListItemDto;
 use App\Features\Blog\App\DTOs\ArticleTagOptionDto;
-use App\Features\Blog\App\DTOs\RelatedArticleDto;
 use App\Features\Blog\App\DTOs\TagOptionDto;
 use App\Features\Blog\Domain\Exceptions\ArticleNotFoundException;
 use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
@@ -46,13 +45,7 @@ final class GetArticleListItemUseCase
         return ArticleListItemDto::fromRow(
             $row,
             tags: $tags,
-            related: array_map(
-                static fn (object $related): RelatedArticleDto => new RelatedArticleDto(
-                    id: (int) $related->id,
-                    title: $related->title,
-                ),
-                $this->repository->relatedFor([$id])[$id] ?? [],
-            ),
+            relatedCount: $this->repository->relatedCountFor([$id])[$id] ?? 0,
         );
     }
 }

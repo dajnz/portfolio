@@ -8,7 +8,6 @@ use App\Features\Blog\App\DTOs\AdminArticleListDto;
 use App\Features\Blog\App\DTOs\AdminArticleListQueryDto;
 use App\Features\Blog\App\DTOs\ArticleListItemDto;
 use App\Features\Blog\App\DTOs\ArticleTagOptionDto;
-use App\Features\Blog\App\DTOs\RelatedArticleDto;
 use App\Features\Blog\App\DTOs\TagOptionDto;
 use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
@@ -70,13 +69,15 @@ final class ListArticlesUseCase
             rows: $this->rowsWithTagsAndRelated($result->rows),
             pagination: $result->pagination,
             tags: $this->tagOptions(),
+            years: $this->repository->yearsOfPublishedArticles(),
         );
     }
 
     /**
-     * The list rows hydrated with their unified tag chips and related
-     * rows (the Tags and Related columns of the admin table,
-     * admin-section-ui.md:389).
+     * The list rows hydrated with their unified tag chips and the
+     * related-article counts (the Tags and Related columns of the
+     * admin table, admin-section-ui.md:389 — the Related column is a
+     * static count, user request 2026-08-13).
      *
      * @param  object[]  $rows
      * @return ArticleListItemDto[]
@@ -90,19 +91,13 @@ final class ListArticlesUseCase
         $ids = array_map(static fn (object $row): int => (int) $row->id, $rows);
         $tags = $this->repository->articleTagsFor($ids);
         $skills = $this->repository->skillTagsFor($ids);
-        $related = $this->repository->relatedFor($ids);
+        $relatedCounts = $this->repository->relatedCountFor($ids);
 
         return array_map(
             static fn (object $row): ArticleListItemDto => ArticleListItemDto::fromRow(
                 $row,
                 tags: self::tagChips($tags[(int) $row->id] ?? [], $skills[(int) $row->id] ?? []),
-                related: array_map(
-                    static fn (object $relatedRow): RelatedArticleDto => new RelatedArticleDto(
-                        id: (int) $relatedRow->id,
-                        title: $relatedRow->title,
-                    ),
-                    $related[(int) $row->id] ?? [],
-                ),
+                relatedCount: $relatedCounts[(int) $row->id] ?? 0,
             ),
             $rows,
         );

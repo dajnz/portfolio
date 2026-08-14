@@ -43,6 +43,9 @@
             "@blog-shared/*": [
                 "./resources/js/Features/Blog/Shared/*"
             ],
+            "@blog/*": [
+                "./resources/js/Features/Blog/*"
+            ],
             "@projects-public/*": [
                 "./resources/js/Features/Projects/Public/Components/*"
             ],

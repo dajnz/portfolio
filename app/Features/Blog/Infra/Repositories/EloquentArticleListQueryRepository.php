@@ -123,7 +123,25 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
         return $tagsByArticle;
     }
 
-    public function relatedFor(array $articleIds): array
+    public function relatedCountFor(array $articleIds): array
+    {
+        if ($articleIds === []) {
+            return [];
+        }
+
+        $counts = [];
+        foreach (DB::table('related_articles as ra')
+            ->whereIn('ra.article_id', $articleIds)
+            ->groupBy('ra.article_id')
+            ->select(['ra.article_id', DB::raw('count(*) as related_count')])
+            ->get() as $row) {
+            $counts[(int) $row->article_id] = (int) $row->related_count;
+        }
+
+        return $counts;
+    }
+
+    public function relatedRowsFor(array $articleIds): array
     {
         if ($articleIds === []) {
             return [];
@@ -482,6 +500,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
                 'a.published_at',
                 DB::raw('coalesce(pl.reading_time_minutes, pe.reading_time_minutes, 0) as reading_time_minutes'),
                 DB::raw('coalesce(av.views, 0) as views'),
+                'a.lead_image',
                 'a.created_at',
                 'a.updated_at',
             ]);

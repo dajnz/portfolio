@@ -47,7 +47,7 @@ vi.mock('@shared-cross/Composables/useJsonApi', () => ({
 }));
 
 import ProjectFormPage from '@projects/Admin/Pages/ProjectFormPage/ProjectFormPage.vue';
-import { PROJECT_EDITOR_BUTTONS } from '@shared-admin/TextEditor.vue';
+import { PROJECT_EDITOR_BUTTONS } from '@shared-admin/TextEditor/TextEditor.vue';
 
 const SKILLS = [
     { id: 1, name: 'PHP', icon: 'devicon:php' },
