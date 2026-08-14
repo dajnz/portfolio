@@ -97,6 +97,16 @@ interface ArticleRepositoryInterface
     public function publishedIdsOf(array $ids): array;
 
     /**
+     * The `related_articles` ids of the article — both directions of
+     * the pairs, deduplicated (database.md:453-463). The input of the
+     * linkability re-check on save: an id ALREADY linked is preserved
+     * even when its target got unpublished (B230).
+     *
+     * @return int[]
+     */
+    public function relatedIdsOf(int $articleId): array;
+
+    /**
      * The current slug mapped from an `old_slugs` record
      * (content-management.md:459-463) — null when the slug is not
      * recorded (a trashed article's history resolves to nothing).

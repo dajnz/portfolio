@@ -11,16 +11,30 @@ use App\Features\Shared\Infra\Markdown\CalloutBlockStartParser;
 use App\Features\Shared\Infra\Markdown\HeadingIdListener;
 use App\Features\Shared\Infra\Markdown\HeadingIdRenderer;
 use App\Features\Shared\Infra\Markdown\HighlightedCodeRenderer;
-use DateTimeImmutable;
-use Illuminate\Support\Facades\Cache;
+use App\Features\Shared\Infra\Markdown\Subscript;
+use App\Features\Shared\Infra\Markdown\SubscriptInlineParser;
+use App\Features\Shared\Infra\Markdown\SubscriptRenderer;
+use App\Features\Shared\Infra\Markdown\Superscript;
+use App\Features\Shared\Infra\Markdown\SuperscriptInlineParser;
+use App\Features\Shared\Infra\Markdown\SuperscriptRenderer;
+use App\Features\Shared\Infra\Markdown\Underline;
+use App\Features\Shared\Infra\Markdown\UnderlineDelimiterProcessor;
+use App\Features\Shared\Infra\Markdown\UnderlineRenderer;
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Event\DocumentParsedEvent;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 use League\CommonMark\Extension\CommonMark\Node\Block\FencedCode;
 use League\CommonMark\Extension\CommonMark\Node\Block\Heading;
 use League\CommonMark\Extension\CommonMark\Node\Block\IndentedCode;
+use League\CommonMark\Extension\Strikethrough\Strikethrough;
+use League\CommonMark\Extension\Strikethrough\StrikethroughDelimiterProcessor;
+use League\CommonMark\Extension\Strikethrough\StrikethroughRenderer;
+use League\CommonMark\Extension\Table\Table;
+use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\MarkdownConverter;
 use League\CommonMark\Util\HtmlFilter;
+use Illuminate\Support\Facades\Cache;
+use DateTimeImmutable;
 
 /**
  * The shared content pipeline (B23, content-management.md:466-481):
@@ -56,6 +70,29 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
             'max_nesting_level' => 100,
         ]);
         $environment->addExtension(new CommonMarkCoreExtension());
+        // The editor's markdown surface extensions (B231 — the admin
+        // editor buttons serialize to these syntaxes; without the
+        // matching parsers they would render literally or escape to
+        // visible tags):
+        // - GFM pipe tables (the editor's table button).
+        // - `~~strikethrough~~` (the editor's strikethrough button).
+        // - `++underline++` (the editor's underline button).
+        // - `<sub>…</sub>` / `<sup>…</sup>` (the editor's subscript /
+        //   superscript buttons — claimed as structured nodes BEFORE
+        //   the core HtmlInline parser, which html_input: ESCAPE would
+        //   escape to literal text).
+        $environment->addExtension(new TableExtension());
+        $environment->addDelimiterProcessor(new StrikethroughDelimiterProcessor());
+        $environment->addRenderer(Strikethrough::class, new StrikethroughRenderer());
+        $environment->addDelimiterProcessor(new UnderlineDelimiterProcessor());
+        $environment->addRenderer(Underline::class, new UnderlineRenderer());
+        // Registered above the core HtmlInlineParser (priority 40) so
+        // the tag pairs become structured nodes instead of escaped
+        // HtmlInline output.
+        $environment->addInlineParser(new SubscriptInlineParser(), 80);
+        $environment->addRenderer(Subscript::class, new SubscriptRenderer());
+        $environment->addInlineParser(new SuperscriptInlineParser(), 80);
+        $environment->addRenderer(Superscript::class, new SuperscriptRenderer());
         // Above the core BlockQuoteStartParser (priority 70) so the
         // `> [!TYPE]` lines are claimed before the plain quote.
         $environment->addBlockStartParser(new CalloutBlockStartParser(), 80);

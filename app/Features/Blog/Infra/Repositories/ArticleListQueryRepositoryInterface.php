@@ -79,14 +79,24 @@ interface ArticleListQueryRepositoryInterface
     public function skillTagsFor(array $articleIds): array;
 
     /**
-     * The related articles of the given articles (both directions of
-     * the `related_articles` pairs, deduplicated), locale-resolved
-     * titles with the `en` fallback, ordered by id.
+     * The related-article counts of the given articles (both directions
+     * of the `related_articles` pairs, deduplicated) — the static
+     * Related column of the admin table (user request 2026-08-13).
+     *
+     * @param  int[]  $articleIds
+     * @return array<int, int>  Keyed by article id.
+     */
+    public function relatedCountFor(array $articleIds): array;
+
+    /**
+     * The related articles of the given article as the edit form's
+     * multi-select rows, locale-resolved titles with the `en` fallback,
+     * ordered by id.
      *
      * @param  int[]  $articleIds
      * @return array<int, array<int, object>>  Rows `{id, title}` keyed by article id.
      */
-    public function relatedFor(array $articleIds): array;
+    public function relatedRowsFor(array $articleIds): array;
 
     /**
      * The admin autocomplete JSON variant of `GET /admin/blog`

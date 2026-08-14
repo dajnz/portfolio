@@ -8,19 +8,22 @@ use App\Features\Shared\App\DTOs\CursorPaginationDto;
 
 /**
  * The admin article list page result: the item rows plus the cursor
- * pagination facts and the tag picker options of the list page
- * (blog.yaml#BlogListPageProps.tags). Immutable.
+ * pagination facts, the tag picker options and the publication years
+ * of the list page (blog.yaml#BlogListPageProps — the `tags` and
+ * `years` props). Immutable.
  */
 final readonly class AdminArticleListDto
 {
     /**
      * @param  ArticleListItemDto[]  $rows
-     * @param  TagOptionDto[]  $tags  All article tags (the tag picker options).
+     * @param  TagOptionDto[]  $tags   All article tags (the tag picker options).
+     * @param  int[]  $years  Distinct publication years, newest first (the year filter options).
      */
     public function __construct(
         public array $rows,
         public CursorPaginationDto $pagination,
         public array $tags,
+        public array $years,
     ) {
     }
 }

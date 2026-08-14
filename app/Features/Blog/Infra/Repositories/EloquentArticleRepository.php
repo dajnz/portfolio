@@ -358,7 +358,7 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
      *
      * @return int[]
      */
-    private function relatedIdsOf(int $articleId): array
+    public function relatedIdsOf(int $articleId): array
     {
         return array_map(
             'intval',

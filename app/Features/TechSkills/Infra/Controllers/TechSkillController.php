@@ -60,7 +60,7 @@ final class TechSkillController
                 sortOrder: (int) $request->input('sort_order', 0),
             );
         } catch (DuplicateSkillNameException) {
-            throw ValidationException::withMessages(['name' => __('validation.unique')]);
+            throw ValidationException::withMessages(['name' => __('validation.unique', ['attribute' => __('common.name')])]);
         }
 
         return redirect()->back()
@@ -80,7 +80,7 @@ final class TechSkillController
                 sortOrder: (int) $request->input('sort_order', 0),
             );
         } catch (DuplicateSkillNameException) {
-            throw ValidationException::withMessages(['name' => __('validation.unique')]);
+            throw ValidationException::withMessages(['name' => __('validation.unique', ['attribute' => __('common.name')])]);
         }
 
         return redirect()->back()

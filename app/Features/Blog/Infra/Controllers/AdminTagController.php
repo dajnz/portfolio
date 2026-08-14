@@ -87,7 +87,7 @@ final class AdminTagController
         try {
             $this->storeCase->store($this->buildDraft($request));
         } catch (DuplicateArticleTagNameException) {
-            throw ValidationException::withMessages(['name' => __('validation.unique')]);
+            throw ValidationException::withMessages(['name' => __('validation.unique', ['attribute' => __('admin.tags.name')])]);
         }
 
         return Redirect::back()
@@ -114,7 +114,7 @@ final class AdminTagController
         } catch (ArticleTagNotFoundException) {
             throw new NotFoundHttpException();
         } catch (DuplicateArticleTagNameException) {
-            throw ValidationException::withMessages(['name' => __('validation.unique')]);
+            throw ValidationException::withMessages(['name' => __('validation.unique', ['attribute' => __('admin.tags.name')])]);
         }
 
         return Redirect::back()
@@ -140,7 +140,7 @@ final class AdminTagController
         try {
             $tag = $this->storeCase->store($this->buildApiDraft($request));
         } catch (DuplicateArticleTagNameException) {
-            throw ValidationException::withMessages(['name' => __('validation.unique')]);
+            throw ValidationException::withMessages(['name' => __('validation.unique', ['attribute' => __('admin.tags.name')])]);
         }
 
         return ResponseFacade::json([
