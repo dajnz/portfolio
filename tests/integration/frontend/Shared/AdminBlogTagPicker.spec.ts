@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 
 import AdminBlogTagPicker from '@shared-admin/AdminBlogTagPicker.vue';
 
@@ -134,6 +135,24 @@ describe('AdminBlogTagPicker', () => {
         });
 
         expect(wrapper.emitted('update:modelValue')).toEqual([[ [TAGS[0]] ]]);
+    });
+
+    it('closes the dropdown and clears the typed query on an outside click', async () => {
+        const wrapper = mountTagPicker(
+            {},
+            {},
+            { attachTo: document.body },
+        );
+
+        await wrapper.get('[data-testid="blog-tag-picker-input"]').trigger('focus');
+        await wrapper.get('[data-testid="blog-tag-picker-input"]').setValue('lar');
+        expect(wrapper.find('[data-testid="blog-tag-picker-dropdown"]').exists()).toBe(true);
+
+        document.body.click();
+        await nextTick();
+
+        expect(wrapper.find('[data-testid="blog-tag-picker-dropdown"]').exists()).toBe(false);
+        expect((wrapper.get('[data-testid="blog-tag-picker-input"]').element as HTMLInputElement).value).toBe('');
     });
 
     it('shows the no-tags message when the response is empty', async () => {
