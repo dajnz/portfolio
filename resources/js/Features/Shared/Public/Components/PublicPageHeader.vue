@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { Icon } from '@iconify/vue';
 import { usePage } from '@inertiajs/vue3';
 import LanguageSelector from '@shared-cross/Components/LanguageSelector.vue';
 import ThemeSwitch from '@shared-cross/Components/ThemeSwitch.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useThemeStore } from '@shared-cross/Stores/themeStore';
 import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 interface NavItem {
     label: string;
@@ -31,17 +33,39 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
+// The prepared theme-variant logo (Makefile `images` pipeline) — the
+// store is hydrated from the shared `theme` prop on every visit (SSR
+// included), and the ThemeSwitch keeps it reactive client-side.
+const themeStore = useThemeStore();
+const logoImage = computed(() => `/images/logo-full-${themeStore.theme}.svg`);
+
 // Self-contained theme/locale controls (public-section-components.md:389):
 // the header renders ThemeSwitch + LanguageSelector internally unless the
-// host overrides them via the `controls` slot (B80 bridge).
-const pageProps = usePage<{ locale?: string; supported_locales?: string[] }>().props ?? {};
-const activeLocale = computed(() => pageProps.locale ?? 'en');
+// host overrides them via the `controls` slot (B80 bridge). The page must
+// be read REACTIVELY: `usePage().props` is the props object of the
+// current visit — capturing it once at setup keeps the stale visit's
+// locale forever (the component tree survives Inertia visits), which
+// breaks the language switch after the first change.
+const page = usePage<{ locale?: string; supported_locales?: string[] }>();
+const activeLocale = computed(() => page.props?.locale ?? 'en');
 
 // The public selector also respects the `supported_locales` setting
 // (disabled locales are not offered, 5.2 rework).
-const supportedLocales = computed(() => localeOptionsFromCodes(pageProps.supported_locales));
+const supportedLocales = computed(() => localeOptionsFromCodes(page.props?.supported_locales));
 
 const visibleItems = computed(() => props.nav_items.filter((item) => item.condition !== false));
+
+// Mobile: the nav collapses into a hamburger-toggled panel below the
+// header (user request 2026-08-15); a link click closes it.
+const menuOpen = ref(false);
+
+function toggleMenu(): void {
+    menuOpen.value = !menuOpen.value;
+}
+
+function closeMenu(): void {
+    menuOpen.value = false;
+}
 
 function isActive(item: NavItem): boolean {
     return props.active_route !== undefined && item.url === props.active_route;
@@ -62,9 +86,17 @@ function isActive(item: NavItem): boolean {
         :href="props.logo_url"
         data-testid="public-header-logo"
       >
-        {{ props.logo_text }}
+        <img
+          class="header__logo-image"
+          :src="logoImage"
+          :alt="props.logo_text ?? ''"
+          data-testid="public-header-logo-image"
+        >
       </a>
-      <ul class="header__menu">
+      <ul
+        class="header__menu"
+        :class="{ 'is-open': menuOpen }"
+      >
         <li
           v-for="item in visibleItems"
           :key="item.url"
@@ -76,6 +108,7 @@ function isActive(item: NavItem): boolean {
             :href="item.url"
             :aria-current="isActive(item) ? 'page' : undefined"
             :data-testid="`public-header-nav-${item.url}`"
+            @click="closeMenu"
           >
             {{ item.label }}
           </a>
@@ -91,8 +124,52 @@ function isActive(item: NavItem): boolean {
           <ThemeSwitch />
         </slot>
       </div>
+      <button
+        type="button"
+        class="header__hamburger"
+        :aria-label="t('nav.toggle_menu')"
+        :aria-expanded="menuOpen"
+        :data-testid="`${props.test_id}-hamburger`"
+        @click="toggleMenu"
+      >
+        <Icon
+          class="header__hamburger-icon"
+          :icon="menuOpen ? 'heroicons:x-mark' : 'heroicons:bars-3'"
+          aria-hidden="true"
+        />
+      </button>
     </nav>
   </header>
+  <!-- The mobile menu panel is TELEPORTED to <body>: inside the sticky
+       header its backdrop-filter would sit within the header's backdrop
+       root and could not blur the content below it (only its own
+       translucent bg would show). -->
+  <Teleport to="body">
+    <div
+      v-if="menuOpen"
+      class="header__mobile-menu"
+      :data-testid="`${props.test_id}-mobile-menu`"
+    >
+      <ul class="header__mobile-menu-list">
+        <li
+          v-for="item in visibleItems"
+          :key="item.url"
+          class="header__mobile-menu-item"
+        >
+          <a
+            class="link--nav"
+            :class="{ 'is-active': isActive(item) }"
+            :href="item.url"
+            :aria-current="isActive(item) ? 'page' : undefined"
+            :data-testid="`public-header-nav-${item.url}`"
+            @click="closeMenu"
+          >
+            {{ item.label }}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -115,7 +192,10 @@ function isActive(item: NavItem): boolean {
     justify-content: space-between;
     gap: var(--space-lg);
     width: 100%;
-    max-width: var(--wide-max-width);
+
+    /* The header content follows the landing content width token
+       (user request 2026-08-15). */
+    max-width: var(--layout-content);
     margin: 0 auto;
 }
 
@@ -127,6 +207,12 @@ function isActive(item: NavItem): boolean {
     letter-spacing: var(--letter-spacing-tight);
     text-decoration: none;
     white-space: nowrap;
+}
+
+.header__logo-image {
+    display: block;
+    height: 32px;
+    width: auto;
 }
 
 .header__menu {
@@ -145,6 +231,81 @@ function isActive(item: NavItem): boolean {
     display: flex;
     align-items: center;
     gap: var(--space-md);
+}
+
+/* The hamburger only exists on mobile — desktop keeps the inline menu. */
+.header__hamburger {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.header__hamburger:hover {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+}
+
+.header__hamburger-icon {
+    width: 1.25em;
+    height: 1.25em;
+}
+
+/* Mobile: only logo + controls + hamburger in the bar; the inline menu
+   hides and the teleported glass panel (below) takes over. */
+@media (width <= 768px) {
+    .header__hamburger {
+        display: inline-flex;
+    }
+
+    .header__menu {
+        display: none;
+    }
+}
+
+/* The teleported panel — fixed below the sticky header (its top edge
+   aligns with the header's bottom edge). Teleported to <body> so the
+   backdrop-filter blurs the page content: inside the header it would sit
+   in the header's backdrop root and blur nothing below it. */
+.header__mobile-menu {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    z-index: var(--z-sticky);
+    padding: var(--space-sm) var(--space-xl) var(--space-lg);
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
+}
+
+.header__mobile-menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.header__mobile-menu-item {
+    border-bottom: 1px solid var(--color-border);
+}
+
+.header__mobile-menu-item:last-child {
+    border-bottom: none;
+}
+
+.header__mobile-menu-item .link--nav {
+    display: block;
+    padding: var(--space-md) 0;
+    font-size: var(--font-size-lg);
 }
 
 .link--nav {

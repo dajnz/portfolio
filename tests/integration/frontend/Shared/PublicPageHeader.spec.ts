@@ -20,14 +20,17 @@ describe('PublicPageHeader', () => {
         setActivePinia(createPinia());
     });
 
-    it('renders the logo with the fallback url and logo text', () => {
+    it('renders the logo image with the fallback url and alt text', () => {
         const wrapper = mount(PublicPageHeader, {
             props: { logo_text: 'Alex Kovalev', nav_items: [] },
         });
 
         const logo = wrapper.get('[data-testid="public-header-logo"]');
-        expect(logo.text()).toBe('Alex Kovalev');
         expect(logo.attributes('href')).toBe('/');
+        const image = wrapper.get('[data-testid="public-header-logo-image"]');
+        // themeStore defaults to light without hydration.
+        expect(image.attributes('src')).toBe('/images/logo-full-light.svg');
+        expect(image.attributes('alt')).toBe('Alex Kovalev');
     });
 
     it('renders only nav items whose condition is not false', () => {
@@ -58,6 +61,33 @@ describe('PublicPageHeader', () => {
         });
 
         expect(wrapper.get('nav').attributes('aria-label')).toBe('Main navigation');
+    });
+
+    it('toggles the teleported mobile menu via the hamburger and closes it on a nav link click', async () => {
+        const wrapper = mount(PublicPageHeader, {
+            props: { nav_items: NAV_ITEMS },
+        });
+
+        const hamburger = wrapper.get('[data-testid="public-header-hamburger"]');
+        expect(hamburger.attributes('aria-expanded')).toBe('false');
+        expect(document.querySelector('[data-testid="public-header-mobile-menu"]')).toBeNull();
+
+        await hamburger.trigger('click');
+        expect(hamburger.attributes('aria-expanded')).toBe('true');
+
+        // The panel is teleported to <body> so its backdrop-filter blurs
+        // the page content (inside the header it would blur nothing).
+        const panel = document.querySelector('[data-testid="public-header-mobile-menu"]');
+        expect(panel).not.toBeNull();
+        expect(panel?.parentElement?.tagName).toBe('BODY');
+        const links = panel?.querySelectorAll('a');
+        expect(links?.length).toBe(3);
+
+        (panel?.querySelector('[data-testid="public-header-nav-/blog"]') as HTMLElement | null)?.click();
+        await wrapper.vm.$nextTick();
+
+        expect(hamburger.attributes('aria-expanded')).toBe('false');
+        expect(document.querySelector('[data-testid="public-header-mobile-menu"]')).toBeNull();
     });
 
     it('renders the controls slot inside the header controls', () => {
