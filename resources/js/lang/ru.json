@@ -648,6 +648,7 @@
         "console_greeting": "Привет! Добро пожаловать в моё портфолио.",
         "cookies_accept": "Принять",
         "cookies_notice": "Этот сайт использует cookie для языковых предпочтений, настроек темы и собственной аналитики. Сторонних трекеров нет.",
+        "copy_contact": "Скопировать контакт",
         "download_cv": "Скачать резюме",
         "featured_projects": "Избранные проекты",
         "feedback_email": "Email",
@@ -663,6 +664,7 @@
         "footer_copyright": "© :year :name. Все права защищены.",
         "get_in_touch": "Связаться со мной",
         "loading": "Загрузка...",
+        "my_skills": "Мои навыки",
         "open_to_relocation": "Готов к переезду",
         "send_feedback": "Отправить отзыв",
         "view_all_projects": "Все проекты",
@@ -690,7 +692,8 @@
         "skip_to_content": "Перейти к содержимому",
         "switch_language": "Сменить язык",
         "switch_to_dark_mode": "Включить тёмную тему",
-        "switch_to_light_mode": "Включить светлую тему"
+        "switch_to_light_mode": "Включить светлую тему",
+        "toggle_menu": "Переключить меню"
     },
     "projects": {
         "back_to_projects": "Назад к проектам",

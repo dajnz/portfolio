@@ -648,6 +648,7 @@
         "console_greeting": "Hey there! Welcome to my portfolio.",
         "cookies_accept": "Accept",
         "cookies_notice": "This site uses cookies for language preferences, theme settings, and self-hosted analytics. No third-party trackers.",
+        "copy_contact": "Copy contact",
         "download_cv": "Download CV",
         "featured_projects": "Featured Projects",
         "feedback_email": "Email",
@@ -663,6 +664,7 @@
         "footer_copyright": "© :year :name. All rights reserved.",
         "get_in_touch": "Get in Touch",
         "loading": "Loading...",
+        "my_skills": "My Skills",
         "open_to_relocation": "Open to relocation",
         "send_feedback": "Send Feedback",
         "view_all_projects": "View all projects",
@@ -690,7 +692,8 @@
         "skip_to_content": "Skip to main content",
         "switch_language": "Switch language",
         "switch_to_dark_mode": "Switch to dark mode",
-        "switch_to_light_mode": "Switch to light mode"
+        "switch_to_light_mode": "Switch to light mode",
+        "toggle_menu": "Toggle menu"
     },
     "projects": {
         "back_to_projects": "Back to projects",

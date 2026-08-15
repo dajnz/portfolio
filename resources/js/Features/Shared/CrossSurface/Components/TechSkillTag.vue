@@ -22,12 +22,14 @@ const props = withDefaults(
         skill: TechSkill;
         showProficiency?: boolean;
         linked?: boolean;
+        href?: string;
         classes?: TechSkillTagClasses | null;
         test_id?: string;
     }>(),
     {
         showProficiency: false,
         linked: false,
+        href: undefined,
         classes: null,
         test_id: 'tech-skill-tag',
     },
@@ -36,6 +38,16 @@ const props = withDefaults(
 function blogFilterUrl(skill: TechSkill): string {
     return `/blog?skill_tags=${skill.id}`;
 }
+
+function resolvedHref(): string | undefined {
+    if (!props.linked) {
+        return undefined;
+    }
+
+    // Feature callers may override the default blog-filter destination
+    // (e.g. the landing's featured cards link to /projects?tags=).
+    return props.href ?? blogFilterUrl(props.skill);
+}
 </script>
 
 <template>
@@ -43,7 +55,7 @@ function blogFilterUrl(skill: TechSkill): string {
     :is="props.linked ? 'a' : 'span'"
     class="tech-skill-tag"
     :class="props.classes?.container"
-    :href="props.linked ? blogFilterUrl(props.skill) : undefined"
+    :href="resolvedHref()"
     :data-testid="props.test_id"
   >
     <Icon

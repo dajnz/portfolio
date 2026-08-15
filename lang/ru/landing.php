@@ -46,4 +46,8 @@ return [
     'feedback_invalid_email' => 'Введите корректный email-адрес.',
 
     'console_greeting' => 'Привет! Добро пожаловать в моё портфолио.',
+
+    'copy_contact' => 'Скопировать контакт',
+
+    'my_skills' => 'Мои навыки',
 ];
