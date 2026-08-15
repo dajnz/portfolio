@@ -12,6 +12,15 @@ runtime support.
 
 ### Added
 
+- **`ExperienceTimelinePageProps.has_projects` (v1.0.16, step 9.2):**
+  the public experience timeline page now carries whether at least one
+  published, non-trashed project exists — the header nav's Projects-link
+  condition (A10; the committed page schema carried no published-project
+  signal, a gap-fill per user decision 2026-08-15). The value comes from
+  a query-builder read in `PublicExperienceController` (the B11
+  cross-feature pattern). `info.version` bumped to `1.0.16` in
+  `inertia.yaml`.
+
 - **`BlogListPageProps.years` (v1.0.14, step 8.3):** the admin blog
   list now carries the distinct publication years of the published,
   non-trashed articles, newest first — the year filter's dropdown

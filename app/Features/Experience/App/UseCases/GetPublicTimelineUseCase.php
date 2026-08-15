@@ -31,11 +31,17 @@ use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface
  * tech tags) come from query-builder reads inside the Experience Infra
  * (B11); the per-card tag union is assembled by the controller from the
  * item's own {@see TimelineItem::toTechTags()} and the project's tags.
+ * The page-level flags ride along: `has_projects` (the A10 nav
+ * condition) and the about-info name for the SEO title (seo.md:43) —
+ * both query-builder reads inside the same Infra repository, so the
+ * controller stays query-free.
  *
  * @return array{
  *     items: TimelineItem[],
  *     project_refs: array<int, array{name: string, slug: string, tech_tags: array<int, \App\Features\Shared\Domain\Entities\TechSkillTag>}>,
  *     next_cursor: array{id: int, started_at: string}|null,
+ *     has_projects: bool,
+ *     about_name: string|null,
  * }
  */
 final class GetPublicTimelineUseCase
@@ -63,6 +69,8 @@ final class GetPublicTimelineUseCase
                 $reconstructed['items'],
                 $reconstructed['last_batch_full'],
             ),
+            'has_projects' => $this->repository->hasPublishedProjects(),
+            'about_name' => $this->repository->aboutNameFor($locale),
         ];
     }
 

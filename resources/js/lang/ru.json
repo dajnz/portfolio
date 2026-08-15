@@ -631,10 +631,14 @@
     },
     "experience": {
         "achievements": "Достижения",
+        "all_tags": "Все теги",
+        "could_not_load": "Не удалось загрузить записи об опыте.",
+        "details": "Подробнее",
         "no_experience": "Записей об опыте пока нет.",
         "present": "по настоящее время",
         "project": "Проект",
         "read_the_writeup": "читать статью",
+        "show_all_tags": "Показать все теги",
         "tech_stack": "Технологии",
         "work_experience": "Опыт работы"
     },

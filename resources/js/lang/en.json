@@ -631,10 +631,14 @@
     },
     "experience": {
         "achievements": "Achievements",
+        "all_tags": "All tags",
+        "could_not_load": "Could not load experience.",
+        "details": "Details",
         "no_experience": "No experience entries yet.",
         "present": "Present",
         "project": "Project",
         "read_the_writeup": "read the writeup",
+        "show_all_tags": "Show all tags",
         "tech_stack": "Tech Stack",
         "work_experience": "Work Experience"
     },

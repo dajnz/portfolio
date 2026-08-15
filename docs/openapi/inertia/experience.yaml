@@ -20,6 +20,9 @@ components:
                 next_cursor:
                   type: string
                   nullable: true
+                has_projects:
+                  type: boolean
+                  description: Whether at least one published, non-trashed project exists — the header nav's Projects-link condition (A10).
                 seo:
                   $ref: './shared.yaml#/components/schemas/SeoProps'
 

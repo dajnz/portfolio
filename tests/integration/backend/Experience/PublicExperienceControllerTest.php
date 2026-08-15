@@ -111,6 +111,7 @@ describe('PublicExperienceController', function (): void {
                 // a next cursor is offered even though the list is done.
                 ->where('has_more', true)
                 ->where('next_cursor', fn (mixed $cursor) => is_string($cursor) && $cursor !== '')
+                ->where('has_projects', false)
                 ->where('seo.title', 'Experience — ')
                 ->where('seo.description', 'Professional experience and career timeline.')
                 ->where('seo.canonical_url', url('/experience'))
@@ -126,6 +127,40 @@ describe('PublicExperienceController', function (): void {
             ->assertInertia(fn (Assert $page) => $page
                 ->has('items', 1)
                 ->where('items.0.started_at', '2020-01-01'));
+    });
+
+    it('reports has_projects only for a published, non-trashed project', function (): void {
+        // No projects at all.
+        $this->get('/experience')
+            ->assertInertia(fn (Assert $page) => $page->where('has_projects', false));
+
+        // A published project flips the flag.
+        seededProject('payments', 'Payments Gateway');
+        $this->get('/experience')
+            ->assertInertia(fn (Assert $page) => $page->where('has_projects', true));
+
+        // Unpublished or trashed projects do not.
+        DB::table('projects')->update(['is_published' => false]);
+        $this->get('/experience')
+            ->assertInertia(fn (Assert $page) => $page->where('has_projects', false));
+
+        DB::table('projects')->update(['is_published' => true, 'deleted_at' => now()]);
+        $this->get('/experience')
+            ->assertInertia(fn (Assert $page) => $page->where('has_projects', false));
+    });
+
+    it('interpolates the locale-resolved about name into the seo title', function (): void {
+        DB::table('about_info')->insert(['id' => 1, 'created_at' => now(), 'updated_at' => now()]);
+        DB::table('about_info_translations')->insert([
+            ['about_info_id' => 1, 'locale' => 'en', 'name' => 'Alex Kovalev', 'title' => 'Dev', 'short_pitch' => 'Pitch'],
+            ['about_info_id' => 1, 'locale' => 'ru', 'name' => 'Алекс Ковалёв', 'title' => 'Разработчик', 'short_pitch' => 'Питч'],
+        ]);
+
+        $this->get('/experience')
+            ->assertInertia(fn (Assert $page) => $page->where('seo.title', 'Experience — Alex Kovalev'));
+
+        $this->get('/ru/experience')
+            ->assertInertia(fn (Assert $page) => $page->where('seo.title', 'Опыт работы — Алекс Ковалёв'));
     });
 
     it('resolves the linked project name and slug per locale', function (): void {
