@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db migrate seed setup setup-localhost test test-unit test-int test-backend test-frontend test-e2e coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db migrate seed setup setup-localhost test test-unit test-int test-backend test-frontend test-e2e coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images redis cache-clear health secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -189,6 +189,15 @@ format: ## Auto-format code
 
 typecheck: ## TypeScript type check (includes API + Inertia type generation)
 	$(DE) npm run typecheck
+
+images: ## Prepare image assets: optimize/minify resources/images -> public/images + section favicons
+	$(DE) node devops/images/prepare-images.mjs
+
+redis: ## Open an interactive redis-cli against the dev Redis (sessions/cache/rate limits)
+	$(DC) exec redis redis-cli
+
+cache-clear: ## Clear the Redis cache (resets the feedback rate-limit counters for testing; sessions/queues survive)
+	$(DE) php artisan cache:clear
 
 secrets-init: ## Generate production secrets and encrypt .env.prod.local (see secrets-management.md)
 	$(DE) ./devops/secrets/init.sh
