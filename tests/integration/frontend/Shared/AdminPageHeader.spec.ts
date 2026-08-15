@@ -25,15 +25,18 @@ describe('AdminPageHeader', () => {
         pageProps.auth = undefined;
     });
 
-    it('renders the logo link with the admin section title', () => {
+    it('renders the logo link with the theme-variant logo image', () => {
         const wrapper = mount(AdminPageHeader, {
             props: { logo_url: '/admin/dashboard' },
         });
 
         const logo = wrapper.get('[data-testid="admin-header-logo"]');
 
-        expect(logo.text()).toBe('Admin Section');
         expect(logo.attributes('href')).toBe('/admin/dashboard');
+        const image = wrapper.get('[data-testid="admin-header-logo-image"]');
+        // themeStore defaults to light without hydration.
+        expect(image.attributes('src')).toBe('/images/logo-full-light.svg');
+        expect(image.attributes('alt')).toBe('Admin Section');
     });
 
     it('renders the admin identity link with the avatar initial', () => {

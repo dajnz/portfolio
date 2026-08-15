@@ -29,6 +29,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title inertia>{{ $seoTitle !== '' ? $seoTitle : config('app.name', 'Portfolio') }}</title>
+    @php
+        // Section favicons (Makefile `images` pipeline): the admin area
+        // gets its own set, the public surface its own. (`$request` is
+        // not in scope in the Inertia SSR render — use the helper.)
+        $faviconBase = str_starts_with((string) request()->path(), 'admin') ? 'favicon-admin' : 'favicon-public';
+    @endphp
+    <link rel="icon" href="/images/{{ $faviconBase }}.svg" type="image/svg+xml">
+    <link rel="icon" href="/images/{{ $faviconBase }}-32.png" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="/images/{{ $faviconBase }}-180.png">
     <script nonce="{{ app(CspNonce::class)->getValue() }}">
         (function () {
             var c = document.cookie.match(/(?:^|;\s*)theme=(light|dark)/);

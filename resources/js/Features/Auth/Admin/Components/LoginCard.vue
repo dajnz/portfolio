@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useThemeStore } from '@shared-cross/Stores/themeStore';
 import { computed } from 'vue';
 
 const props = withDefaults(
@@ -28,8 +29,14 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-// Without a configured logo the mockup's "A" mark is shown (login.html).
-const hasLogo = computed(() => props.logo_url !== undefined && props.logo_url !== '');
+// The prepared theme-variant iconic logo (Makefile `images` pipeline) —
+// the themeStore is hydrated from the shared `theme` prop and follows
+// the ThemeSwitch toggle reactively.
+const themeStore = useThemeStore();
+const resolvedLogoUrl = computed(
+    () => props.logo_url ?? `/images/logo-iconic-${themeStore.theme}.svg`,
+);
+const hasLogo = computed(() => resolvedLogoUrl.value !== '');
 const logoLetter = computed(() =>
     (props.title ?? t('admin.section_title')).charAt(0).toUpperCase(),
 );
@@ -47,8 +54,8 @@ const logoLetter = computed(() =>
       <div class="mb-6 text-center">
         <img
           v-if="hasLogo"
-          class="mx-auto mb-3 h-12 w-12 rounded-xl"
-          :src="props.logo_url"
+          class="mx-auto mb-3 h-16 w-16 rounded-xl"
+          :src="resolvedLogoUrl"
           alt=""
           :data-testid="`${props.test_id}-logo`"
         >

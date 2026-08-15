@@ -13,7 +13,7 @@ describe('LoginCard', () => {
         setActivePinia(createPinia());
     });
 
-    it('renders the title, logo mark and the form slot', () => {
+    it('renders the title, the theme-variant logo and the form slot', () => {
         const wrapper = mount(LoginCard, {
             props: { title: 'Two-Factor Authentication' },
             slots: { default: '<input data-testid="inner-input" />' },
@@ -22,7 +22,10 @@ describe('LoginCard', () => {
         expect(wrapper.get('[data-testid="login-card-title"]').text()).toBe(
             'Two-Factor Authentication',
         );
-        expect(wrapper.get('[data-testid="login-card-logo"]').text()).toBe('T');
+        const logo = wrapper.get('[data-testid="login-card-logo"]');
+        expect(logo.element.tagName).toBe('IMG');
+        // themeStore defaults to light without hydration.
+        expect(logo.attributes('src')).toBe('/images/logo-iconic-light.svg');
         expect(wrapper.find('[data-testid="inner-input"]').exists()).toBe(true);
     });
 
@@ -32,6 +35,23 @@ describe('LoginCard', () => {
         });
 
         expect(wrapper.get('[data-testid="login-card-logo"]').attributes('src')).toBe('/logo.svg');
+    });
+
+    it('switches the logo variant with the theme store', async () => {
+        const { useThemeStore } = await import('@shared-cross/Stores/themeStore');
+        const themeStore = useThemeStore();
+
+        const wrapper = mount(LoginCard, { props: { title: 'Login' } });
+        expect(wrapper.get('[data-testid="login-card-logo"]').attributes('src')).toBe(
+            '/images/logo-iconic-light.svg',
+        );
+
+        themeStore.setTheme('dark');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.get('[data-testid="login-card-logo"]').attributes('src')).toBe(
+            '/images/logo-iconic-dark.svg',
+        );
     });
 
     it('renders the footer slot content', () => {
