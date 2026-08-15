@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\Portfolio;
 
+use App\Features\Shared\Infra\Models\SkillModel;
+use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Traits\InteractsWithAdmin;
 use Tests\Support\Traits\SeedsPortfolioData;
@@ -75,6 +77,37 @@ describe('LandingController', function (): void {
                 ->where('about.location', 'Берлин')
                 ->where('contacts.0.name', 'Гитхаб')
                 ->where('seo.title', 'Алекс Ковалев — Fullstack-разработчик'));
+    });
+
+    it('maps the featured projects tech tags onto the landing props (regression: TechSkillTag::toSkillName)', function (): void {
+        $this->seedLandingDataset();
+
+        // A fresh project keeps the test order-independent — Postgres id
+        // sequences are not rolled back with the per-test transaction, so
+        // ids from earlier tests in this file are gone by now.
+        $projectId = $this->createProject('tagged-featured', [
+            'is_featured' => true,
+            'featured_sort_order' => 0,
+        ]);
+        $this->translateProject($projectId, 'en', 'Tagged Featured');
+        $skill = SkillModel::factory()->create([
+            'name' => 'Vue 3',
+            'icon' => 'devicon:vuejs',
+            'proficiency' => 4,
+            'sort_order' => 0,
+        ]);
+        DB::table('project_tech_tags')->insert([
+            'project_id' => $projectId,
+            'skill_id' => $skill->id,
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('featured_projects.0.slug', 'tagged-featured')
+                ->where('featured_projects.0.tech_tags.0.id', $skill->id)
+                ->where('featured_projects.0.tech_tags.0.name', 'Vue 3')
+                ->where('featured_projects.0.tech_tags.0.icon', 'devicon:vuejs'));
     });
 
     it('embeds the session-derived honeypot field name in the landing props', function (): void {

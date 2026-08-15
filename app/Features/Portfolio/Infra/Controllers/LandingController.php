@@ -10,6 +10,7 @@ use App\Features\Portfolio\Domain\Entities\Contact;
 use App\Features\Portfolio\Infra\Requests\SubmitFeedbackRequest;
 use App\Features\Shared\Domain\Entities\FeaturedProject;
 use App\Features\Shared\Domain\Entities\TechSkillGroup;
+use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Http\Request;
 use Inertia\Response;
@@ -124,9 +125,9 @@ final class LandingController
             'brief_description' => $project->toBriefDescription(),
             'preview_image' => $project->toPreviewImage()?->url,
             'tech_tags' => array_map(
-                static fn ($tag): array => [
+                static fn (TechSkillTag $tag): array => [
                     'id' => $tag->toId(),
-                    'name' => $tag->toName(),
+                    'name' => $tag->toSkillName(),
                     'icon' => $tag->toIcon(),
                 ],
                 $project->toTechTags(),
