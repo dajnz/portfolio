@@ -15,5 +15,9 @@ return [
     'project' => 'Project',
     'read_the_writeup' => 'read the writeup',
     'present' => 'Present',
+    'details' => 'Details',
+    'show_all_tags' => 'Show all tags',
+    'all_tags' => 'All tags',
     'no_experience' => 'No experience entries yet.',
+    'could_not_load' => 'Could not load experience.',
 ];
