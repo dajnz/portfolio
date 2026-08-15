@@ -32,7 +32,7 @@ function copyrightText(): string {
     :data-testid="props.test_id"
   >
     <PublicCenteredContainer
-      size="xl"
+      size="content"
       class="footer__inner"
     >
       <p class="footer__copyright">

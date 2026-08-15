@@ -302,6 +302,10 @@ pre code {
     --layout-sm: 640px;
     --layout-md: 768px;
     --layout-lg: 1024px;
+    /* Uniform landing content width (user request 2026-08-14, 1000px per
+       follow-up): all four landing blocks share this size via
+       `centered-container--content`. */
+    --layout-content: 1000px;
     --layout-xl: 1200px;
     --container-padding: 16px;
     --container-padding-md: 24px;

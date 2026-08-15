@@ -4,6 +4,7 @@ import { router, usePage } from '@inertiajs/vue3';
 import LanguageSelector from '@shared-cross/Components/LanguageSelector.vue';
 import ThemeSwitch from '@shared-cross/Components/ThemeSwitch.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useThemeStore } from '@shared-cross/Stores/themeStore';
 import { computed } from 'vue';
 
 import AdminBaseButton from './AdminBaseButton.vue';
@@ -48,6 +49,12 @@ const emit = defineEmits<{ 'toggle-sidebar': [] }>();
 const { t } = useI18n();
 const page = usePage<{ auth?: { user?: { name?: string } } }>();
 
+// The prepared theme-variant logo (Makefile `images` pipeline); the
+// themeStore is hydrated from the shared `theme` prop on every visit and
+// follows the ThemeSwitch toggle reactively.
+const themeStore = useThemeStore();
+const logoImage = computed(() => `/images/logo-full-${themeStore.theme}.svg`);
+
 // `admins.name` mirrors the login (B56) and is shared on every page as
 // `auth.user` — the explicit prop only overrides it.
 const resolvedAdminName = computed(() => props.admin_name ?? page.props?.auth?.user?.name ?? '');
@@ -79,11 +86,16 @@ function handleLogout(): void {
           @click="emit('toggle-sidebar')"
         />
         <a
-          class="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white"
+          class="flex items-center"
           :href="props.logo_url"
           :data-testid="`${props.test_id}-logo`"
         >
-          {{ t('admin.section_title') }}
+          <img
+            class="h-8 w-auto"
+            :src="logoImage"
+            :alt="t('admin.section_title')"
+            :data-testid="`${props.test_id}-logo-image`"
+          >
         </a>
       </div>
       <div class="flex items-center gap-4">

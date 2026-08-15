@@ -15,6 +15,7 @@ const props = withDefaults(
         required?: boolean;
         disabled?: boolean;
         autocomplete?: string;
+        tabindex?: number;
         test_id?: string;
     }>(),
     {
@@ -27,6 +28,7 @@ const props = withDefaults(
         required: false,
         disabled: false,
         autocomplete: undefined,
+        tabindex: undefined,
         test_id: 'base-input',
     },
 );
@@ -74,6 +76,7 @@ function onInput(event: Event): void {
       :required="props.required || undefined"
       :disabled="props.disabled || undefined"
       :autocomplete="props.autocomplete"
+      :tabindex="props.tabindex"
       class="form-group__input"
       :class="{
         'is-error': props.error !== null,

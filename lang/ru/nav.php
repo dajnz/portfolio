@@ -17,6 +17,7 @@ return [
 
     'skip_to_content' => 'Перейти к содержимому',
     'main_navigation' => 'Основная навигация',
+    'toggle_menu' => 'Переключить меню',
     'switch_language' => 'Сменить язык',
     'switch_to_dark_mode' => 'Включить тёмную тему',
     'switch_to_light_mode' => 'Включить светлую тему',

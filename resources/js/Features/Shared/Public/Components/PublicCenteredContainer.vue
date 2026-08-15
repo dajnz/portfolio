@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-type ContainerSize = 'sm' | 'md' | 'lg' | 'xl';
+type ContainerSize = 'sm' | 'md' | 'lg' | 'xl' | 'content';
 
 const props = withDefaults(
     defineProps<{
@@ -44,8 +44,25 @@ const containerClass = computed(() => ({
     margin: 0 auto;
     padding-left: var(--container-padding);
     padding-right: var(--container-padding);
+
+    /* Container-queries host: feature grids (e.g. the landing's featured
+       cards) size their columns against the CONTENT width, not the
+       viewport — so changing --layout-content keeps the breakpoints. */
+    container-type: inline-size;
 }
 
+/* 768px mirrors the --bp-md token (var() in media queries is unsupported
+   by the production CSS minifier). */
+@media (width >= 768px) {
+    .centered-container {
+        padding-left: var(--container-padding-md);
+        padding-right: var(--container-padding-md);
+    }
+}
+
+/* The full/no-padding resets must come AFTER the media query — same
+   specificity, later source order wins, so the desktop padding would
+   otherwise leak into full-width containers (the landing's `main`). */
 .centered-container--full {
     max-width: none;
     padding-left: 0;
@@ -64,6 +81,10 @@ const containerClass = computed(() => ({
     max-width: var(--layout-lg);
 }
 
+.centered-container--content {
+    max-width: var(--layout-content);
+}
+
 .centered-container--xl {
     max-width: var(--layout-xl);
 }
@@ -71,14 +92,5 @@ const containerClass = computed(() => ({
 .centered-container--no-padding {
     padding-left: 0;
     padding-right: 0;
-}
-
-/* 768px mirrors the --bp-md token (var() in media queries is unsupported
-   by the production CSS minifier). */
-@media (width >= 768px) {
-    .centered-container {
-        padding-left: var(--container-padding-md);
-        padding-right: var(--container-padding-md);
-    }
 }
 </style>

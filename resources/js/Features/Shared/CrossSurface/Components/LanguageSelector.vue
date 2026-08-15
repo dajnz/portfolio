@@ -44,9 +44,14 @@ const { t, setLocale } = useI18n();
 const analytics = useAnalytics();
 
 // The public header renders this component without props — the active
-// locale then resolves from the page's shared `locale` prop.
-const pageLocale = usePage<{ locale?: string }>().props?.locale;
-const resolvedLocale = computed(() => props.active_locale ?? pageLocale ?? 'en');
+// locale then resolves from the page's shared `locale` prop. Must stay
+// REACTIVE: the component tree survives Inertia visits, so a value
+// captured once at setup would keep the previous visit's locale and
+// break every switch after the first one (the trigger would show the old
+// locale and selecting the "new" locale early-returns as unchanged).
+const page = usePage<{ locale?: string }>();
+const pageLocale = computed(() => page.props?.locale);
+const resolvedLocale = computed(() => props.active_locale ?? pageLocale.value ?? 'en');
 const resolvedOptions = computed(() =>
     props.supported_locales && props.supported_locales.length > 0
         ? props.supported_locales

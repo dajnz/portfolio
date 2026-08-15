@@ -21,6 +21,7 @@ return [
 
     'skip_to_content' => 'Skip to main content',
     'main_navigation' => 'Main navigation',
+    'toggle_menu' => 'Toggle menu',
     'switch_language' => 'Switch language',
     'switch_to_dark_mode' => 'Switch to dark mode',
     'switch_to_light_mode' => 'Switch to light mode',

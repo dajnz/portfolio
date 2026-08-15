@@ -51,4 +51,8 @@ return [
     'feedback_invalid_email' => 'Please enter a valid email address.',
 
     'console_greeting' => 'Hey there! Welcome to my portfolio.',
+
+    'copy_contact' => 'Copy contact',
+
+    'my_skills' => 'My Skills',
 ];
