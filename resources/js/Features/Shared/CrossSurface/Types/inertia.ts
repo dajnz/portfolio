@@ -1564,6 +1564,8 @@ export interface components {
                 items?: components["schemas"]["TimelineItemCardData"][];
                 has_more?: boolean;
                 next_cursor?: string | null;
+                /** @description Whether at least one published, non-trashed project exists — the header nav's Projects-link condition (A10). */
+                has_projects?: boolean;
                 seo?: components["schemas"]["SeoProps"];
             };
         };
