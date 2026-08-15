@@ -10,7 +10,6 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Infra\Persistence\Cursor;
 use App\Features\Shared\Infra\Persistence\PublicCursorCodec;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
@@ -63,7 +62,8 @@ final class PublicExperienceController
                     id: $nextCursor['id'],
                     sortValue: $nextCursor['started_at'],
                 )),
-            'seo' => $this->seoProps($locale),
+            'has_projects' => $data['has_projects'],
+            'seo' => $this->seoProps((string) ($data['about_name'] ?? '')),
         ]);
     }
 
@@ -151,20 +151,10 @@ final class PublicExperienceController
     /**
      * @return array<string, mixed>
      */
-    private function seoProps(string $locale): array
+    private function seoProps(string $aboutName): array
     {
-        $name = (string) DB::table('about_info as a')
-            ->leftJoin('about_info_translations as at', function ($join) use ($locale): void {
-                $join->on('at.about_info_id', '=', 'a.id')->where('at.locale', '=', $locale);
-            })
-            ->leftJoin('about_info_translations as en', function ($join): void {
-                $join->on('en.about_info_id', '=', 'a.id')->where('en.locale', '=', 'en');
-            })
-            ->where('a.id', 1)
-            ->value(DB::raw('coalesce(at.name, en.name)'));
-
         return [
-            'title' => __('seo.title_experience', ['name' => $name]),
+            'title' => __('seo.title_experience', ['name' => $aboutName]),
             'description' => __('seo.description_experience'),
             'canonical_url' => url('/experience'),
             'og_type' => 'website',

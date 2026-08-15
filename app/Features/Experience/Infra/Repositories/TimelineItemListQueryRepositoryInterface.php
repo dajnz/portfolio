@@ -47,6 +47,21 @@ interface TimelineItemListQueryRepositoryInterface
     public function projectReadModels(array $projectIds, string $locale): array;
 
     /**
+     * Whether at least one published, non-trashed project exists — the
+     * header nav's Projects-link condition (A10; the experience wire
+     * shape carries no other published-project signal).
+     */
+    public function hasPublishedProjects(): bool;
+
+    /**
+     * The single about-info row's name, resolved for the requested
+     * locale with the `en` fallback — the SEO title interpolation
+     * (`seo.title_experience`, seo.md:43). `null` when no about row
+     * exists.
+     */
+    public function aboutNameFor(string $locale): ?string;
+
+    /**
      * Non-trashed portfolio projects for the form's searchable
      * combobox, locale-resolved titles (`en` fallback), ordered by
      * title.

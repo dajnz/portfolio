@@ -254,6 +254,29 @@ final class EloquentTimelineItemRepository implements
             ->all();
     }
 
+    public function hasPublishedProjects(): bool
+    {
+        return DB::table('projects')
+            ->where('is_published', true)
+            ->whereNull('deleted_at')
+            ->exists();
+    }
+
+    public function aboutNameFor(string $locale): ?string
+    {
+        $name = DB::table('about_info as a')
+            ->leftJoin('about_info_translations as at', function ($join) use ($locale): void {
+                $join->on('at.about_info_id', '=', 'a.id')->where('at.locale', '=', $locale);
+            })
+            ->leftJoin('about_info_translations as en', function ($join): void {
+                $join->on('en.about_info_id', '=', 'a.id')->where('en.locale', '=', 'en');
+            })
+            ->where('a.id', 1)
+            ->value(DB::raw('coalesce(at.name, en.name)'));
+
+        return is_string($name) ? $name : null;
+    }
+
     /**
      * Reconciles the item's translation rows from its locale
      * projections: the rows of the entity's locales are upserted,
