@@ -20,6 +20,7 @@ const props = withDefaults(
         loading?: boolean;
         placeholder?: string;
         label?: string;
+        label_visually_hidden?: boolean;
         error?: string | null;
         required?: boolean;
         disabled?: boolean;
@@ -32,6 +33,7 @@ const props = withDefaults(
         loading: false,
         placeholder: undefined,
         label: undefined,
+        label_visually_hidden: false,
         error: null,
         required: false,
         disabled: false,
@@ -230,7 +232,10 @@ onBeforeUnmount(() => {
     <label
       v-if="props.label"
       class="dropdown__label"
-      :class="{ 'dropdown__label--required': props.required }"
+      :class="{
+        'dropdown__label--required': props.required,
+        'dropdown__label--visually-hidden': props.label_visually_hidden,
+      }"
     >
       {{ props.label }}
     </label>
@@ -356,6 +361,22 @@ onBeforeUnmount(() => {
 .dropdown__label--required::after {
     content: ' *';
     color: var(--color-error);
+}
+
+/* The label stays in the accessibility tree but takes no visual space
+   (the projects toolbar's sort dropdown — the tag filter and search
+   box carry their labels as placeholders, so a visible "Sort by"
+   label pushed the trigger below them; user rework 2026-08-16). */
+.dropdown__label--visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
 }
 
 .dropdown__control {

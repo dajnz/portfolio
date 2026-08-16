@@ -441,8 +441,10 @@ export interface components {
         year: number;
         /** @description Comma-separated tech skill IDs from project_tech_tags (e.g. `1,5`). AND/intersection — projects must have ALL specified tech tags. */
         projectTags: string;
-        /** @description Sort order for projects index. */
-        projectSort: "date" | "complexity";
+        /** @description Sort column for projects index (date only — the complexity strategy was removed per the 2026-08-16 user decision). */
+        projectSort: "date";
+        /** @description Sort direction for projects index (newest-first `desc`, the default, or newest-last `asc`). */
+        projectSortDirection: "asc" | "desc";
         /** @description Content locale. */
         locale: "en" | "ru";
     };
@@ -928,8 +930,10 @@ export interface operations {
                 q?: components["parameters"]["searchQuery"];
                 /** @description Comma-separated tech skill IDs from project_tech_tags (e.g. `1,5`). AND/intersection — projects must have ALL specified tech tags. */
                 tags?: components["parameters"]["projectTags"];
-                /** @description Sort order for projects index. */
+                /** @description Sort column for projects index (date only — the complexity strategy was removed per the 2026-08-16 user decision). */
                 sort?: components["parameters"]["projectSort"];
+                /** @description Sort direction for projects index (newest-first `desc`, the default, or newest-last `asc`). */
+                direction?: components["parameters"]["projectSortDirection"];
             };
             header?: {
                 /** @description Set to application/json for dual-response endpoints to return JSON instead of HTML. */

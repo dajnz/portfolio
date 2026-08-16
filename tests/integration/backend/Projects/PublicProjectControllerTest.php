@@ -171,28 +171,36 @@ describe('PublicProjectController', function (): void {
                 ->where('next_cursor', null));
     });
 
-    it('sorts by complexity via the persisted tech_tags_count', function (): void {
-        $simple = publicProject(['tech_tags_count' => 1]);
-        $complex = publicProject(['tech_tags_count' => 5]);
-        $medium = publicProject(['tech_tags_count' => 3]);
+    it('sorts newest-last via ?direction=asc with the reversed keyset cursor', function (): void {
+        $oldest = publicProject(['published_at' => now()->subDays(5)]);
+        $middle = publicProject(['published_at' => now()->subDays(4)]);
+        $newest = publicProject(['published_at' => now()->subDays(3)]);
 
-        $first = $this->get('/projects?sort=complexity');
+        $first = $this->get('/projects?direction=asc');
         $first->assertInertia(fn (Assert $page) => $page
             ->has('projects', 2)
-            ->where('projects.0.id', $complex->id)
-            ->where('projects.1.id', $medium->id));
+            // Ascending: the oldest items first (the `desc` default is
+            // covered by the date-sort pagination test above).
+            ->where('projects.0.id', $oldest->id)
+            ->where('projects.1.id', $middle->id)
+            ->where('next_cursor', fn (mixed $cursor) => is_string($cursor) && $cursor !== ''));
 
         $cursor = app(\App\Features\Shared\Infra\Persistence\PublicCursorCodec::class)
             ->encode(new \App\Features\Shared\Infra\Persistence\Cursor(
-                id: $medium->id,
-                sortValue: (string) $medium->tech_tags_count,
+                id: $middle->id,
+                sortValue: $middle->published_at->format('Y-m-d H:i:s'),
             ));
 
-        $this->get('/projects?sort=complexity&cursor='.$cursor)
+        $this->get('/projects?direction=asc&cursor='.$cursor)
             ->assertInertia(fn (Assert $page) => $page
                 ->has('projects', 3)
-                ->where('projects.2.id', $simple->id)
+                ->where('projects.2.id', $newest->id)
                 ->where('next_cursor', null));
+
+        // An invalid direction falls back to the desc default.
+        $this->get('/projects?direction=sideways')
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('projects.0.id', $newest->id));
     });
 
     it('filters by the tech-tag AND/intersection', function (): void {
@@ -278,11 +286,31 @@ describe('PublicProjectController', function (): void {
                 ->component('Projects/Public/Pages/ProjectDetailPage')
                 ->where('project.id', $project->id)
                 ->where('project.title', 'Payments Gateway')
-                ->where('project.full_description', '**Full** markdown.')
-                ->where('project.problem', 'Slow payouts.')
-                ->where('project.solution', 'Queued processing.')
+                ->where('project.full_description', "<p><strong>Full</strong> markdown.</p>\n")
+                ->where('project.problem', "<p>Slow payouts.</p>\n")
+                ->where('project.solution', "<p>Queued processing.</p>\n")
                 ->where('project.github_url', 'https://github.com/example/gateway')
                 ->where('project.tech_writeup', null));
+    });
+
+    it('renders the detail bodies through the safe content pipeline', function (): void {
+        $project = publicProject([], [
+            'en' => [
+                'full_description' => '**Bold** <script>alert(1)</script>',
+                'problem' => '# Heading',
+                'solution' => '`code`',
+            ],
+        ]);
+
+        $this->get('/projects/'.$project->slug)
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Projects/Public/Pages/ProjectDetailPage')
+                ->where('project.full_description', fn (string $html) => str_contains($html, '<strong>Bold</strong>')
+                    && str_contains($html, '&lt;script&gt;')
+                    && ! str_contains($html, '<script>'))
+                ->where('project.problem', fn (string $html) => str_contains($html, '<h1 id="heading">Heading</h1>'))
+                ->where('project.solution', fn (string $html) => str_contains($html, '<code>code</code>')));
     });
 
     it('serves the detail with the tech tags and the nested editors', function (): void {

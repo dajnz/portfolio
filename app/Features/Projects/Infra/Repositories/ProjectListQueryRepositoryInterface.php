@@ -65,13 +65,14 @@ interface ProjectListQueryRepositoryInterface
     /**
      * The public projects page (content-management.md:125-129,
      * public-section-ui.md:346-391): published (or all, in preview
-     * mode) projects ordered by the given sort strategy — `date`
-     * (`published_at DESC, id DESC`, the default) or `complexity`
-     * (`tech_tags_count DESC, id DESC`) — with the optional tech-tag
-     * AND-intersect (`?tags=`), the optional FTS `?q=` search
-     * (plainto_tsquery + ts_rank, which takes over the ordering per
-     * database.md:651-660), and the opaque composite keyset cursor
-     * `(sort_value, id)` as the domain {@see PublicPageCursor} VO.
+     * mode) projects ordered by the date strategy with the
+     * `?direction=asc|desc` variant (`published_at {dir}, id {dir}` —
+     * `desc` default; the complexity strategy was removed 2026-08-16),
+     * with the optional tech-tag AND-intersect (`?tags=`), the optional
+     * FTS `?q=` search (plainto_tsquery + ts_rank, which takes over the
+     * ordering per database.md:651-660), and the opaque composite
+     * keyset cursor `(sort_value, id)` as the domain
+     * {@see PublicPageCursor} VO.
      *
      * The locale-resolved rows come from a single query with the
      * `en`-fallback join; the per-project tech tags and screenshot
@@ -86,6 +87,7 @@ interface ProjectListQueryRepositoryInterface
         int $perPage,
         ?PublicPageCursor $cursor,
         string $sort,
+        string $sortDirection,
         array $tagIds,
         ?string $search,
         bool $includeUnpublished,
@@ -114,8 +116,9 @@ interface ProjectListQueryRepositoryInterface
      * The JSON dual-response variant of `GET /projects` (routes.md:
      * 199-212) — the autocomplete/search: length-aware
      * (page/per_page with a total count) over the same locale-resolved
-     * projection, tag intersect and FTS search, ordered by the given
-     * sort (`date`/`complexity`, or the FTS rank while searching).
+     * projection, tag intersect and FTS search, ordered by the date
+     * strategy with the direction variant (`desc` default), or the FTS
+     * rank while searching.
      *
      * @return array{rows: array<int, object>, total: int}
      */
@@ -124,6 +127,7 @@ interface ProjectListQueryRepositoryInterface
         int $page,
         int $perPage,
         string $sort,
+        string $sortDirection,
         array $tagIds,
         ?string $search,
     ): array;

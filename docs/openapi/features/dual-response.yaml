@@ -57,6 +57,7 @@ paths:
         - $ref: '../components/parameters.yaml#/components/parameters/searchQuery'
         - $ref: '../components/parameters.yaml#/components/parameters/projectTags'
         - $ref: '../components/parameters.yaml#/components/parameters/projectSort'
+        - $ref: '../components/parameters.yaml#/components/parameters/projectSortDirection'
       responses:
         '200':
           description: Paginated list of published projects.

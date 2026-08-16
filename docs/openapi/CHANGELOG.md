@@ -12,6 +12,8 @@ runtime support.
 
 ### Added
 
+- **`projectSortDirection` query parameter + `projectSort` enum narrowed (v1.0.2, step 9.3 rework):** the projects list sort lost the `complexity` strategy (the "most complex" dropdown option was removed per the 2026-08-16 user decision) — `?sort=` now accepts `date` only — and gained the `?direction=asc|desc` parameter (default `desc`; `asc` = "newest last") on the `GET /projects` JSON variant (`listProjectsJson`). The backend's keyset cursor mirrors the direction (the strict seek and the `id` tiebreaker invert for `asc`). `info.version` bumped to `1.0.2` in `openapi.yaml`.
+
 - **`ExperienceTimelinePageProps.has_projects` (v1.0.16, step 9.2):**
   the public experience timeline page now carries whether at least one
   published, non-trashed project exists — the header nav's Projects-link
