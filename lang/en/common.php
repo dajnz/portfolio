@@ -31,6 +31,7 @@ return [
     'year_picker' => 'Pick year',
     'close' => 'Close',
     'retry' => 'Retry',
+    'published' => 'published:',
     'all' => 'All',
     'none' => 'None',
     'yes' => 'Yes',
