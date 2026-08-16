@@ -1,12 +1,13 @@
-<!-- FeaturedProjectsSection (public-section-components.md:981-992) — the compact featured-project cards grid and the conditional "View all projects" link. The section hides entirely when no published projects exist. NOTE: the ProjectCard hover-prefetch (usePrefetch) is NOT wired here yet — the Projects public pages ship in 9.3, and prefetching their URLs now makes the resolver log "Page not found" for every hover (B247); 9.3 re-adds the prefetch with the real pages. -->
+<!-- FeaturedProjectsSection (public-section-components.md:981-992) — the compact featured-project cards grid and the conditional "View all projects" link. The section hides entirely when no published projects exist. The cards are the PORTFOLIO-owned `FeaturedProjectCard` (static preview image / placeholder — user decision 2026-08-15: the shared Projects `ProjectCard` is for the projects list/detail surfaces, not the landing). NOTE: no hover prefetch here — `usePrefetch().onHover` calls `router.visit`, which NAVIGATES on a 100 ms hover linger (B262), so the wiring stays out until a real prefetch mechanism exists. Tech-tag chips link to `/projects?tags={id}` only while more published projects exist than featured (9.1 decision — otherwise they'd lead to a stale, tag-filtered list). -->
 <script setup lang="ts">
-import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+
 import PublicBaseButton from '@shared-public/PublicBaseButton.vue';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
 import PublicCenteredContainer from '@shared-public/PublicCenteredContainer.vue';
+
 import type { FeaturedProjectView } from '../Composables/useLandingPage';
-import { usePublicIconsReady } from '../iconRegistration';
+import FeaturedProjectCard from './FeaturedProjectCard.vue';
 
 const props = withDefaults(
     defineProps<{
@@ -24,7 +25,6 @@ const props = withDefaults(
 );
 
 const { t } = useI18n();
-const iconsReady = usePublicIconsReady();
 
 const skeletonCards = [0, 1, 2];
 </script>
@@ -70,48 +70,13 @@ const skeletonCards = [0, 1, 2];
         v-else
         class="featured-projects__grid"
       >
-        <a
+        <FeaturedProjectCard
           v-for="project in props.projects"
           :key="project.id"
-          class="card card--hoverable project-card"
-          :href="`/projects/${project.slug}`"
-          :data-testid="`${props.test_id}-card-${project.id}`"
-        >
-          <img
-            v-if="project.preview_image"
-            class="card__image project-card__image"
-            :src="project.preview_image"
-            :alt="project.title"
-            width="800"
-            height="450"
-            loading="lazy"
-          >
-          <div
-            v-else
-            class="card__image project-card__image project-card__image--placeholder"
-            aria-hidden="true"
-          />
-          <div class="card__content project-card__content">
-            <h3 class="card__title project-card__title">
-              {{ project.title }}
-            </h3>
-            <p class="card__description project-card__description">
-              {{ project.brief_description }}
-            </p>
-            <div
-              v-if="iconsReady && project.tech_tags.length > 0"
-              class="card__tags project-card__tags"
-            >
-              <TechSkillTag
-                v-for="tag in project.tech_tags"
-                :key="tag.id"
-                :skill="tag"
-                :linked="props.has_more"
-                :href="props.has_more ? `/projects?tags=${tag.id}` : undefined"
-              />
-            </div>
-          </div>
-        </a>
+          :project="project"
+          :tags_linked="props.has_more"
+          :test_id="`${props.test_id}-card-${project.id}`"
+        />
       </div>
 
       <div
@@ -176,69 +141,8 @@ const skeletonCards = [0, 1, 2];
     text-align: center;
 }
 
-.card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--card-radius);
-    padding: var(--card-padding);
-    box-shadow: var(--card-shadow);
-    transition: var(--card-transition);
-    border-top: 4px solid var(--color-accent-3);
-}
-
-.card--hoverable:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--card-shadow-hover);
-}
-
-.project-card {
-    display: block;
-    color: inherit;
-    text-decoration: none;
-}
-
-.card__image {
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    background: var(--color-bg-tertiary);
-    border-radius: var(--radius-md);
-    margin-bottom: var(--space-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-tertiary);
-    font-size: var(--font-size-sm);
-}
-
-.project-card__image {
-    object-fit: cover;
-}
-
-.project-card__image--placeholder {
-    background: var(--color-bg-tertiary);
-}
-
-.card__title {
-    font-size: var(--font-size-lg);
-    font-weight: var(--font-bold);
-    color: var(--color-text-primary);
-    margin: 0 0 var(--space-xs);
-}
-
-.card__description {
-    font-size: var(--font-size-base);
-    color: var(--color-text-secondary);
-    line-height: var(--line-height-normal);
-    margin: 0;
-}
-
-.card__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
-    margin-top: var(--space-md);
-}
-
+/* The 9.1 skeleton: a card-shaped image slot + text/pill lines with
+   the shared shimmer. */
 .project-card--skeleton {
     display: flex;
     flex-direction: column;
