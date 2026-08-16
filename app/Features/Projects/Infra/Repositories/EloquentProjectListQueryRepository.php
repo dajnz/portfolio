@@ -73,6 +73,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
         int $perPage,
         ?PublicPageCursor $cursor,
         string $sort,
+        string $sortDirection,
         array $tagIds,
         ?string $search,
         bool $includeUnpublished,
@@ -87,12 +88,12 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
         }
 
         if ($cursor !== null) {
-            $query = $this->applyCursor($query, $cursor, $sort, $searching, $search);
+            $query = $this->applyCursor($query, $cursor, $sort, $sortDirection, $searching, $search);
         }
 
         return $query
-            ->orderBy($this->orderColumn($sort, $searching), 'desc')
-            ->orderByDesc('p.id')
+            ->orderBy($this->orderColumn($sort, $searching), $sortDirection)
+            ->orderBy('p.id', $sortDirection)
             ->limit($perPage)
             ->get()
             ->all();
@@ -149,6 +150,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
         int $page,
         int $perPage,
         string $sort,
+        string $sortDirection,
         array $tagIds,
         ?string $search,
     ): array {
@@ -164,8 +166,8 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
         $total = $query->count();
 
         $rows = (clone $query)
-            ->orderBy($this->orderColumn($sort, $searching), 'desc')
-            ->orderByDesc('p.id')
+            ->orderBy($this->orderColumn($sort, $searching), $sortDirection)
+            ->orderBy('p.id', $sortDirection)
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
             ->get()
@@ -315,44 +317,51 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
     }
 
     /**
-     * The keyset predicate of the active sort strategy: `date`
-     * (`(published_at, id)`), `complexity` (`(tech_tags_count, id)`) or
-     * the FTS rank (`(fts_rank, id)` when searching) — each with the
-     * mandatory `id` tiebreaker and the strict `<` seek
-     * (public-section-ui.md:346-391). Split into the boundary and tie
-     * disjuncts for readability.
+     * The keyset predicate of the active order: the `date` strategy
+     * (`(published_at, id)`) or the FTS rank (`(fts_rank, id)` when
+     * searching) — each with the mandatory `id` tiebreaker and the
+     * strict seek (public-section-ui.md:346-391). The seek operators
+     * mirror the sort direction: `<`/`id <` in `desc` order, `>`/
+     * `id >` in `asc` order. Split into the boundary and tie disjuncts
+     * for readability.
      */
     private function applyCursor(
         QueryBuilder $query,
         PublicPageCursor $cursor,
         string $sort,
+        string $sortDirection,
         bool $searching,
         ?string $search,
     ): QueryBuilder {
-        return $query->where(function (QueryBuilder $keyset) use ($cursor, $sort, $searching, $search): void {
-            $keyset->where(function (QueryBuilder $boundary) use ($cursor, $sort, $searching, $search): void {
-                $this->applyStrictSeek($boundary, $cursor, $sort, $searching, $search);
+        $ascending = $sortDirection === 'asc';
+
+        return $query->where(function (QueryBuilder $keyset) use ($cursor, $sort, $ascending, $searching, $search): void {
+            $keyset->where(function (QueryBuilder $boundary) use ($cursor, $sort, $ascending, $searching, $search): void {
+                $this->applyStrictSeek($boundary, $cursor, $sort, $ascending, $searching, $search);
             });
 
-            $keyset->orWhere(function (QueryBuilder $tie) use ($cursor, $sort, $searching, $search): void {
-                $this->applyTieSeek($tie, $cursor, $sort, $searching, $search);
+            $keyset->orWhere(function (QueryBuilder $tie) use ($cursor, $sort, $ascending, $searching, $search): void {
+                $this->applyTieSeek($tie, $cursor, $sort, $ascending, $searching, $search);
             });
         });
     }
 
     /**
-     * The strict `<` boundary: rows sorting strictly after the cursor
-     * position.
+     * The strict boundary: rows sorting strictly after the cursor
+     * position — `<` on the sort value in `desc` order, `>` in `asc`.
      */
     private function applyStrictSeek(
         QueryBuilder $query,
         PublicPageCursor $cursor,
         string $sort,
+        bool $ascending,
         bool $searching,
         ?string $search,
     ): void {
+        $operator = $ascending ? '>' : '<';
+
         if ($searching) {
-            $query->whereRaw($this->rankExpression($search).' < ?', [
+            $query->whereRaw($this->rankExpression($search).' '.$operator.' ?', [
                 ...$this->rankBindings($search),
                 $cursor->toSortValue(),
             ]);
@@ -360,17 +369,19 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
             return;
         }
 
-        $query->where($this->seekColumn($sort, $searching), '<', $this->seekValue($cursor, $sort));
+        $query->where($this->seekColumn($sort, $searching), $operator, $this->seekValue($cursor, $sort));
     }
 
     /**
-     * The tie disjunct: an equal sort value with a lower id — the
+     * The tie disjunct: an equal sort value with an id sorting after
+     * the cursor's — `id <` in `desc` order, `id >` in `asc` — the
      * deterministic tiebreaker.
      */
     private function applyTieSeek(
         QueryBuilder $query,
         PublicPageCursor $cursor,
         string $sort,
+        bool $ascending,
         bool $searching,
         ?string $search,
     ): void {
@@ -383,7 +394,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
             $query->where($this->seekColumn($sort, $searching), '=', $this->seekValue($cursor, $sort));
         }
 
-        $query->where('p.id', '<', $cursor->toId());
+        $query->where('p.id', $ascending ? '>' : '<', $cursor->toId());
     }
 
     /**
@@ -407,7 +418,8 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
 
     /**
      * The sort column of the plain strategies — `date` sorts by the
-     * published timestamp, `complexity` by the persisted tag count.
+     * published timestamp (the only remaining strategy; `complexity`
+     * was removed 2026-08-16).
      */
     private function seekColumn(string $sort, bool $searching): string
     {
@@ -415,18 +427,15 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
             return 'fts_rank';
         }
 
-        return $sort === 'complexity' ? 'p.tech_tags_count' : 'p.published_at';
+        return 'p.published_at';
     }
 
     /**
-     * The cursor's sort value cast for the active strategy — the
-     * complexity count is numeric.
+     * The cursor's sort value cast for the active strategy.
      */
     private function seekValue(PublicPageCursor $cursor, string $sort): string|int
     {
-        return $sort === 'complexity'
-            ? (int) $cursor->toSortValue()
-            : $cursor->toSortValue();
+        return $cursor->toSortValue();
     }
 
     private function orderColumn(string $sort, bool $searching): string
@@ -435,7 +444,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
             return 'fts_rank';
         }
 
-        return $sort === 'complexity' ? 'p.tech_tags_count' : 'p.published_at';
+        return 'p.published_at';
     }
 
     private function dictionaryFor(string $locale): string

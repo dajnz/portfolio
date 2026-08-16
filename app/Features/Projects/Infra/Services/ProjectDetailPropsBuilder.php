@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Projects\Infra\Services;
 
 use App\Features\Projects\App\DTOs\ProjectDataDto;
+use App\Features\Projects\App\DTOs\ProjectDetailBodiesDto;
 use App\Features\Projects\App\DTOs\ProjectSeoDto;
 use App\Features\Projects\App\DTOs\TechWriteupLinkDto;
 
@@ -12,14 +13,16 @@ use App\Features\Projects\App\DTOs\TechWriteupLinkDto;
  * Prepares the wire props of the public project detail page
  * (`ProjectDetailData` + `SeoProps` — projects.yaml, shared.yaml) from
  * the app-layer data DTOs: the per-locale maps are resolved for the
- * request locale (with the `en` fallback) and the nested media rows
- * are mapped into the documented shapes. Shared by the public detail
- * and the signed preview controllers.
+ * request locale (with the `en` fallback), the pipeline-rendered
+ * bodies (B23) are passed through as-is and the nested media rows are
+ * mapped into the documented shapes. Shared by the public detail and
+ * the signed preview controllers.
  */
 final class ProjectDetailPropsBuilder
 {
     public function detail(
         ProjectDataDto $project,
+        ProjectDetailBodiesDto $bodies,
         ?TechWriteupLinkDto $techWriteup,
         string $locale,
     ): array {
@@ -29,9 +32,9 @@ final class ProjectDetailPropsBuilder
             'id' => $project->id,
             'title' => self::localeText($translations->titles, $locale),
             'slug' => $project->slug,
-            'full_description' => self::localeNullableText($translations->fullDescriptions, $locale),
-            'problem' => self::localeNullableText($translations->problems, $locale),
-            'solution' => self::localeNullableText($translations->solutions, $locale),
+            'full_description' => $bodies->fullDescription,
+            'problem' => $bodies->problem,
+            'solution' => $bodies->solution,
             'brief_description' => self::localeText($translations->briefDescriptions, $locale),
             'published_at' => $project->publishedAt?->format('c'),
             'preview_image' => $project->preview?->url,
@@ -93,15 +96,5 @@ final class ProjectDetailPropsBuilder
         $value = $map[$locale] ?? $map['en'] ?? null;
 
         return is_string($value) ? $value : '';
-    }
-
-    /**
-     * @param  array<string, string|null>  $map
-     */
-    private static function localeNullableText(array $map, string $locale): ?string
-    {
-        $value = $map[$locale] ?? $map['en'] ?? null;
-
-        return is_string($value) && $value !== '' ? $value : null;
     }
 }

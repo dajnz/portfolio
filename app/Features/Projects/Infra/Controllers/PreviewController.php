@@ -40,7 +40,7 @@ final class PreviewController
         }
 
         return $inertia->render('Projects/Public/Pages/ProjectDetailPage', [
-            'project' => $this->props->detail($detail->project, $detail->techWriteup, app()->getLocale()),
+            'project' => $this->props->detail($detail->project, $detail->bodies, $detail->techWriteup, app()->getLocale()),
             'seo' => $this->props->seo($detail->seo),
         ]);
     }

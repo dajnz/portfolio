@@ -21,14 +21,15 @@ use Inertia\ResponseFactory;
 /**
  * `GET /projects` and `GET /{locale}/projects` (routes.md:25-26,53-54)
  * — the public projects index (public-section-ui.md:142-175):
- * published projects ordered by date/complexity with infinite scroll
- * via the opaque composite cursor (the shared {@see PublicCursorCodec}),
- * the `?tags=` AND/intersect and the FTS `?q=` search (which takes
- * over the ordering). `next_cursor` is null when the final batch is
- * incomplete — the exhaustion signal. The JSON dual-response variant
- * (`Accept: application/json` — the autocomplete) returns the
- * length-aware `ProjectsIndexResponse` with raw values, no highlights
- * (B16).
+ * published projects ordered by date with the `?direction=asc|desc`
+ * variant (the complexity sort was removed per the 2026-08-16 user
+ * decision) and infinite scroll via the opaque composite cursor (the
+ * shared {@see PublicCursorCodec}), the `?tags=` AND/intersect and the
+ * FTS `?q=` search (which takes over the ordering). `next_cursor` is
+ * null when the final batch is incomplete — the exhaustion signal. The
+ * JSON dual-response variant (`Accept: application/json` — the
+ * autocomplete) returns the length-aware `ProjectsIndexResponse` with
+ * raw values, no highlights (B16).
  *
  * `GET /projects/{project:slug}` — the detail page (routes.md:26,54)
  * with SEO props + JSON-LD (seo.md:150-188: SoftwareSourceCode +
@@ -60,6 +61,7 @@ final class PublicProjectController
         $result = $this->listCase->get(new ProjectListQuery(
             locale: app()->getLocale(),
             sort: $this->sortFromRequest($request),
+            sortDirection: $this->sortDirectionFromRequest($request),
             tagIds: $this->tagIdsFromRequest($request),
             search: $this->searchFromRequest($request),
             cursor: $this->decodeCursor((string) $request->query('cursor', '')),
@@ -97,7 +99,7 @@ final class PublicProjectController
         }
 
         return $inertia->render('Projects/Public/Pages/ProjectDetailPage', [
-            'project' => $this->props->detail($detail->project, $detail->techWriteup, app()->getLocale()),
+            'project' => $this->props->detail($detail->project, $detail->bodies, $detail->techWriteup, app()->getLocale()),
             'seo' => $this->props->seo($detail->seo),
         ]);
     }
@@ -105,7 +107,8 @@ final class PublicProjectController
     /**
      * The JSON dual-response variant (routes.md:199-212) — length-aware
      * pagination (page/per_page), FTS search, tag intersect and the
-     * date/complexity sort; raw field values without highlights (B16).
+     * date sort with the direction variant; raw field values without
+     * highlights (B16).
      */
     private function autocompleteJson(Request $request): JsonResponse
     {
@@ -115,6 +118,7 @@ final class PublicProjectController
         $result = $this->listCase->jsonPage(new ProjectListQuery(
             locale: app()->getLocale(),
             sort: $this->sortFromRequest($request),
+            sortDirection: $this->sortDirectionFromRequest($request),
             tagIds: $this->tagIdsFromRequest($request),
             search: $this->searchFromRequest($request),
             page: $page,
@@ -203,9 +207,17 @@ final class PublicProjectController
 
     private function sortFromRequest(Request $request): string
     {
-        return in_array($request->query('sort'), ['date', 'complexity'], true)
-            ? (string) $request->query('sort')
-            : 'date';
+        // The date column is the only remaining sort strategy (the
+        // complexity strategy was removed 2026-08-16); the `?sort=`
+        // parameter is kept for contract stability.
+        return 'date';
+    }
+
+    private function sortDirectionFromRequest(Request $request): string
+    {
+        return in_array($request->query('direction'), ['asc', 'desc'], true)
+            ? (string) $request->query('direction')
+            : 'desc';
     }
 
     /**

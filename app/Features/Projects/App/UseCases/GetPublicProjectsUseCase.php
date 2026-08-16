@@ -26,8 +26,9 @@ use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
  * infinite scroll via the opaque composite cursor, the `?tags=`
  * AND/intersect, the FTS `?q=` search (plainto_tsquery + ts_rank — the
  * search takes over the ordering per database.md:651-660) and the
- * `?sort=date|complexity` strategies (`published_at DESC, id DESC` /
- * `tech_tags_count DESC, id DESC`).
+ * `?sort=date` strategy with the `?direction=asc|desc` variant
+ * (`published_at {dir}, id {dir}` — the complexity strategy was removed
+ * per the 2026-08-16 user decision).
  *
  * Every request returns a superset of earlier positions (seo.md:305):
  * the initial batch unconditionally, then all batches up to and
@@ -37,10 +38,10 @@ use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
  * exhaustion signal, public-section-ui.md:314).
  *
  * The rows carry the sort value of the batch's last item (the
- * published_at timestamp / tech_tags_count / fts_rank) so the
- * next cursor is encoded from the {@see PublicPageCursor}; the raw
- * list rows and the domain tech tags are converted to the app-layer
- * DTOs here — the controller only prepares its output shapes.
+ * published_at timestamp / fts_rank) so the next cursor is encoded from
+ * the {@see PublicPageCursor}; the raw list rows and the domain tech
+ * tags are converted to the app-layer DTOs here — the controller only
+ * prepares its output shapes.
  */
 final class GetPublicProjectsUseCase
 {
@@ -68,7 +69,7 @@ final class GetPublicProjectsUseCase
             rows: array_map(static fn (object $row): ProjectListItemDto => ProjectListItemDto::fromRow($row), $rows),
             techTags: $this->skillTagDtos($this->repository->techTagsFor($projectIds)),
             screenshots: $this->repository->screenshotsFor($projectIds),
-            nextCursor: $this->nextCursorFor($rows, $reconstructed['last_batch_full'], $query->sort, $searching),
+            nextCursor: $this->nextCursorFor($rows, $reconstructed['last_batch_full'], $query, $searching),
             skillTags: array_map(
                 static fn (TechSkill $skill): SkillOptionDto => new SkillOptionDto(
                     id: $skill->toId(),
@@ -83,8 +84,8 @@ final class GetPublicProjectsUseCase
 
     /**
      * The JSON dual-response variant (routes.md:199-212) — length-aware
-     * pagination, FTS search, tag intersect and the date/complexity
-     * sort; raw field values without highlights (B16).
+     * pagination, FTS search, tag intersect and the date sort with the
+     * direction variant; raw field values without highlights (B16).
      */
     public function jsonPage(ProjectListQuery $query): PaginatedProjectListDto
     {
@@ -93,6 +94,7 @@ final class GetPublicProjectsUseCase
             page: $query->page,
             perPage: $query->perPage,
             sort: $query->sort,
+            sortDirection: $query->sortDirection,
             tagIds: $query->tagIds,
             search: $query->search,
         );
@@ -164,12 +166,12 @@ final class GetPublicProjectsUseCase
         $lastBatchFull = count($rows) >= $perPage;
         $last = $rows[count($rows) - 1] ?? null;
 
-        while ($last !== null && $this->positionBefore($last, $cursor, $query->sort, $searching)) {
+        while ($last !== null && $this->positionBefore($last, $cursor, $query, $searching)) {
             $batch = $this->fetchPage(
                 $query,
                 new PublicPageCursor(
                     id: (int) $last->id,
-                    sortValue: $this->sortValueOf($last, $query->sort, $searching),
+                    sortValue: $this->sortValueOf($last, $query, $searching),
                 ),
                 $perPage,
             );
@@ -226,6 +228,7 @@ final class GetPublicProjectsUseCase
             perPage: $perPage,
             cursor: $cursor,
             sort: $query->sort,
+            sortDirection: $query->sortDirection,
             tagIds: $query->tagIds,
             search: $query->search,
             includeUnpublished: $query->includeUnpublished,
@@ -242,36 +245,38 @@ final class GetPublicProjectsUseCase
 
     /**
      * The batch's last item sort value — the cursor payload for the
-     * next request (public-section-ui.md:316-327).
+     * next request (public-section-ui.md:316-327). The FTS rank while
+     * searching, the published timestamp otherwise (the only remaining
+     * sort column — the complexity strategy was removed 2026-08-16).
      */
-    private function sortValueOf(object $row, string $sort, bool $searching): string
+    private function sortValueOf(object $row, ProjectListQuery $query, bool $searching): string
     {
         if ($searching) {
             return (string) $row->fts_rank;
         }
 
-        return $sort === 'complexity'
-            ? (string) $row->tech_tags_count
-            : (string) $row->published_at;
+        return (string) $row->published_at;
     }
 
     /**
      * Whether the row sorts strictly before the cursor position in the
-     * active order (a greater sort value, or an equal one with a higher
-     * id — the deterministic tiebreaker).
+     * active order — a greater sort value (or an equal one with a
+     * higher id, the deterministic tiebreaker) in `desc` order, the
+     * exact mirror in `asc` order.
      */
-    private function positionBefore(object $row, PublicPageCursor $cursor, string $sort, bool $searching): bool
+    private function positionBefore(object $row, PublicPageCursor $cursor, ProjectListQuery $query, bool $searching): bool
     {
-        $value = $this->sortValueOf($row, $sort, $searching);
-
-        return $value > $cursor->toSortValue()
+        $value = $this->sortValueOf($row, $query, $searching);
+        $after = $value > $cursor->toSortValue()
             || ($value === $cursor->toSortValue() && (int) $row->id > $cursor->toId());
+
+        return $query->sortDirection === 'asc' ? ! $after : $after;
     }
 
     /**
      * @param  object[]  $rows
      */
-    private function nextCursorFor(array $rows, bool $lastBatchFull, string $sort, bool $searching): ?PublicPageCursor
+    private function nextCursorFor(array $rows, bool $lastBatchFull, ProjectListQuery $query, bool $searching): ?PublicPageCursor
     {
         $last = $rows[count($rows) - 1] ?? null;
 
@@ -281,7 +286,7 @@ final class GetPublicProjectsUseCase
 
         return new PublicPageCursor(
             id: (int) $last->id,
-            sortValue: $this->sortValueOf($last, $sort, $searching),
+            sortValue: $this->sortValueOf($last, $query, $searching),
         );
     }
 

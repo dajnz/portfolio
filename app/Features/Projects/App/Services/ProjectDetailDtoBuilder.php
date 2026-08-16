@@ -5,27 +5,32 @@ declare(strict_types=1);
 namespace App\Features\Projects\App\Services;
 
 use App\Features\Projects\App\DTOs\ProjectDataDto;
+use App\Features\Projects\App\DTOs\ProjectDetailBodiesDto;
 use App\Features\Projects\App\DTOs\ProjectDetailDto;
 use App\Features\Projects\App\DTOs\ProjectSeoDto;
 use App\Features\Projects\App\DTOs\TechWriteupLinkDto;
 use App\Features\Projects\Domain\Entities\Project;
+use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\PublishedArticleReadRepositoryInterface;
 
 /**
  * Builds the {@see ProjectDetailDto} of an aggregate — the project's
- * data DTO, the tech-writeup reference resolved against the CURRENT
- * publication state (content-management.md:133; the stored reference
- * is preserved so the link reappears on re-publish) and the SEO data
- * (the public variant with the site name, the preview variant with the
- * `noindex` directive). Shared by the public detail and the signed
- * preview use cases.
+ * data DTO, the pipeline-rendered markdown bodies for the request
+ * locale (content-management.md:131, B23), the tech-writeup reference
+ * resolved against the CURRENT publication state
+ * (content-management.md:133; the stored reference is preserved so the
+ * link reappears on re-publish) and the SEO data (the public variant
+ * with the site name, the preview variant with the `noindex`
+ * directive). Shared by the public detail and the signed preview use
+ * cases.
  */
 final class ProjectDetailDtoBuilder
 {
     public function __construct(
         private readonly PublishedArticleReadRepositoryInterface $articles,
         private readonly AboutInfoReadRepositoryInterface $about,
+        private readonly MarkdownContentPipelineInterface $pipeline,
     ) {
     }
 
@@ -35,6 +40,7 @@ final class ProjectDetailDtoBuilder
 
         return new ProjectDetailDto(
             project: $data,
+            bodies: $this->bodiesOf($project, $locale),
             techWriteup: $this->techWriteupOf($project),
             seo: ProjectSeoDto::forDetail($data, $locale, $this->about->findSiteName($locale)),
         );
@@ -46,9 +52,28 @@ final class ProjectDetailDtoBuilder
 
         return new ProjectDetailDto(
             project: $data,
+            bodies: $this->bodiesOf($project, $locale),
             techWriteup: $this->techWriteupOf($project),
             seo: ProjectSeoDto::forPreview($data, $locale),
         );
+    }
+
+    private function bodiesOf(Project $project, string $locale): ProjectDetailBodiesDto
+    {
+        return new ProjectDetailBodiesDto(
+            fullDescription: $this->render($project->fullDescriptionFor($locale)),
+            problem: $this->render($project->problemFor($locale)),
+            solution: $this->render($project->solutionFor($locale)),
+        );
+    }
+
+    private function render(?string $markdown): ?string
+    {
+        if ($markdown === null || $markdown === '') {
+            return null;
+        }
+
+        return $this->pipeline->render($markdown);
     }
 
     private function techWriteupOf(Project $project): ?TechWriteupLinkDto
