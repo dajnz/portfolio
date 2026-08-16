@@ -55,6 +55,25 @@ function resultLabel(item: SearchResultItem): string {
     return typeof value === 'string' ? value : '';
 }
 
+// The publication meta of a result row: the localized "published:"
+// label (`common.published`) plus the numeric "dd.mm.yyyy" date — the
+// numeric form carries no month names, only the label needs the
+// catalog (user rework 2026-08-16). An empty string hides the meta
+// when the raw value is missing or unparseable.
+function publishedMeta(item: SearchResultItem): string {
+    const value = item.published_at;
+    const date = typeof value === 'string' ? new Date(value) : null;
+
+    if (date === null || Number.isNaN(date.getTime())) {
+        return '';
+    }
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+
+    return `${t('common.published')} ${day}.${month}.${date.getFullYear()}`;
+}
+
 function resultUrl(item: SearchResultItem): string {
     const value = item[props.result_url_key];
 
@@ -267,7 +286,7 @@ onBeforeUnmount(cleanup);
                 v-if="typeof item.published_at === 'string'"
                 class="search-autocomplete__result-meta"
               >
-                {{ item.published_at }}
+                {{ publishedMeta(item) }}
               </span>
             </a>
           </slot>
@@ -343,8 +362,14 @@ onBeforeUnmount(cleanup);
     padding: var(--space-md);
 }
 
+/* The result row is a flex line: the title takes the available width
+   (ellipsized) and the publication meta sits flush right (user rework
+   2026-08-16 — the raw date used to wrap under the title). */
 .search-autocomplete__result {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
     padding: var(--space-sm) var(--space-md);
     font-size: var(--font-size-sm);
     color: var(--color-text-primary);
@@ -359,13 +384,18 @@ onBeforeUnmount(cleanup);
 }
 
 .search-autocomplete__result-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-weight: var(--font-semibold);
 }
 
 .search-autocomplete__result-meta {
+    flex-shrink: 0;
     font-size: var(--font-size-xs);
     color: var(--color-text-tertiary);
-    margin-top: 2px;
+    white-space: nowrap;
 }
 
 .search-autocomplete__empty {

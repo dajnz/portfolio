@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
-import { computed, nextTick, onBeforeUnmount, ref, useId } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId } from 'vue';
 
 import PublicBaseBadge from './PublicBaseBadge.vue';
 import PublicBaseSkeleton from './PublicBaseSkeleton.vue';
@@ -47,6 +47,7 @@ const highlighted = ref(-1);
 const suggestions = ref<TagSuggestion[]>([]);
 
 const inputEl = ref<HTMLInputElement | null>(null);
+const rootEl = ref<HTMLElement | null>(null);
 const listboxId = useId();
 const debounceTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 let activeRequest: AbortController | null = null;
@@ -135,8 +136,8 @@ async function fetchSuggestions(): Promise<void> {
             throw new Error(`Tag search request failed: ${response.status}`);
         }
 
-        const payload = (await response.json()) as TagSuggestion[];
-        const fetched = Array.isArray(payload) ? payload : [];
+        const payload = (await response.json()) as TagSuggestion[] | { data?: TagSuggestion[] };
+        const fetched = Array.isArray(payload) ? payload : (payload.data ?? []);
 
         // Blog-tags responses are { id, name, type } objects; skills
         // responses carry no type. Normalize the shape.
@@ -207,15 +208,43 @@ function cleanup(): void {
     activeRequest?.abort();
 }
 
-onBeforeUnmount(cleanup);
+// A click anywhere outside the control closes the suggestion popup (the
+// dropdown stayed open forever before — user rework 2026-08-16). Clicks
+// on suggestions use `@mousedown.prevent`, so selecting one never races
+// the document listener (the same pattern as PublicBaseDropdown).
+function onDocumentClick(event: MouseEvent): void {
+    if (isOpen.value && rootEl.value !== null && !rootEl.value.contains(event.target as Node)) {
+        isOpen.value = false;
+        highlighted.value = -1;
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('click', onDocumentClick);
+});
+
+onBeforeUnmount(() => {
+    cleanup();
+    document.removeEventListener('click', onDocumentClick);
+});
 </script>
 
 <template>
   <div
+    ref="rootEl"
     class="tag-filter"
     :data-testid="props.test_id"
   >
     <div class="tag-filter__pills">
+      <!-- The icon is the row's FIRST child — it stays at the left
+           edge even when pills are selected (user rework 2026-08-16;
+           it used to live inside the input-wrap and slid after the
+           pills). -->
+      <Icon
+        class="tag-filter__input-icon"
+        icon="heroicons:tag"
+        aria-hidden="true"
+      />
       <PublicBaseBadge
         v-for="(tag, index) in props.modelValue"
         :key="`${tag.type ?? 'tag'}-${tag.id}`"
@@ -227,11 +256,6 @@ onBeforeUnmount(cleanup);
         {{ tag.name }}
       </PublicBaseBadge>
       <div class="tag-filter__input-wrap">
-        <Icon
-          class="tag-filter__input-icon"
-          icon="heroicons:tag"
-          aria-hidden="true"
-        />
         <input
           ref="inputEl"
           type="text"
@@ -330,16 +354,28 @@ onBeforeUnmount(cleanup);
     max-width: 400px;
 }
 
+/* The pill row keeps the exact height of a single input
+   (`--input-height` — the same height as the search box and the sort
+   dropdown; user rework 2026-08-16): the pills stay on one line and
+   overflow horizontally (hidden scrollbar) instead of wrapping the
+   control taller. */
 .tag-filter__pills {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
     gap: var(--space-xs);
-    padding: var(--space-xs) var(--space-md);
+    height: var(--input-height);
+    padding: 0 var(--space-md);
+    overflow-x: auto;
+    scrollbar-width: none;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--input-radius);
     transition: var(--input-transition);
+}
+
+.tag-filter__pills::-webkit-scrollbar {
+    display: none;
 }
 
 .tag-filter__pills:focus-within {
@@ -355,11 +391,13 @@ onBeforeUnmount(cleanup);
     min-width: 160px;
 }
 
+/* The icon sits at the row's start as a static flex item (no absolute
+   positioning — it stays before the pills, user rework 2026-08-16). */
 .tag-filter__input-icon {
-    position: absolute;
-    left: var(--space-xs);
+    flex-shrink: 0;
     width: 1.1em;
     height: 1.1em;
+    margin-right: var(--space-xs);
     color: var(--color-text-tertiary);
     pointer-events: none;
 }
@@ -367,7 +405,7 @@ onBeforeUnmount(cleanup);
 .tag-filter__input {
     width: 100%;
     height: var(--input-height);
-    padding: 0 0 0 calc(1.1em + var(--space-md));
+    padding: 0;
     border: none;
     background: transparent;
     font-size: var(--input-font-size);

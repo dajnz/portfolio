@@ -13,6 +13,8 @@ const props = withDefaults(
         auto_advance_ms?: number | null;
         gap?: string;
         slides_per_view?: number;
+        arrows_on_hover?: boolean;
+        compact_dots?: boolean;
         test_id?: string;
     }>(),
     {
@@ -22,6 +24,8 @@ const props = withDefaults(
         auto_advance_ms: null,
         gap: '16px',
         slides_per_view: 1,
+        arrows_on_hover: false,
+        compact_dots: false,
         test_id: 'carousel',
     },
 );
@@ -36,6 +40,7 @@ const FLICK_THRESHOLD_PX = 8;
 const FLICK_MAX_DURATION_MS = 300;
 
 const trackEl = ref<HTMLElement | null>(null);
+const rootEl = ref<HTMLElement | null>(null);
 const activeIndex = ref(0);
 const paused = ref(false);
 
@@ -49,6 +54,10 @@ const totalSlides = computed(() => props.items.length);
 const viewportStyle = computed(() => ({
     '--carousel-gap': props.gap,
     '--carousel-slides': props.slides_per_view,
+}));
+const rootClass = computed(() => ({
+    'carousel--hover-arrows': props.arrows_on_hover,
+    'carousel--compact-dots': props.compact_dots,
 }));
 
 function gapPixels(): number {
@@ -201,6 +210,49 @@ function stopAutoAdvance(): void {
     }
 }
 
+/**
+ * Native guard for the arrow/dot buttons: the Vue `@click.stop`
+ * handlers are unreliable in the built app — clicking "next"/"prev"
+ * on a project card navigated to the project detail page instead of
+ * changing the slide (the event reached the card's Inertia Link;
+ * reproduced on the served build). The guard is a bubble-phase native
+ * listener on the carousel root: it fires ONLY when the click was not
+ * already stopped at the button (so the slide change runs exactly
+ * once — the Vue handler wins when it works), and it stops the event
+ * before it reaches any link ancestor. Clicks on the slide content
+ * (the card navigation itself) are untouched.
+ */
+function onRootClick(event: MouseEvent): void {
+    if (rootEl.value === null) {
+        return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof Element)) {
+        return;
+    }
+
+    const arrow = target.closest('.carousel__arrow');
+    const dot = target.closest('.carousel__dot');
+
+    if (arrow === null && dot === null) {
+        return;
+    }
+
+    event.stopPropagation();
+
+    if (arrow !== null) {
+        if (arrow.classList.contains('carousel__arrow--prev')) {
+            prev();
+        } else {
+            next();
+        }
+    } else if (dot !== null) {
+        const dots = Array.from(rootEl.value.querySelectorAll('.carousel__dot'));
+        goTo(dots.indexOf(dot));
+    }
+}
+
 function onResize(): void {
     if (trackEl.value !== null) {
         updateActiveFromScroll();
@@ -226,12 +278,14 @@ onMounted(() => {
         trackEl.value.addEventListener('scroll', onScroll, { passive: true });
     }
 
+    rootEl.value?.addEventListener('click', onRootClick);
     window.addEventListener('resize', onResize);
     startAutoAdvance();
 });
 
 onBeforeUnmount(() => {
     trackEl.value?.removeEventListener('scroll', onScroll);
+    rootEl.value?.removeEventListener('click', onRootClick);
 
     if (scrollFrame !== null) {
         cancelAnimationFrame(scrollFrame);
@@ -244,7 +298,9 @@ onBeforeUnmount(() => {
 
 <template>
   <div
+    ref="rootEl"
     class="carousel"
+    :class="rootClass"
     :data-testid="props.test_id"
   >
     <div
@@ -289,7 +345,9 @@ onBeforeUnmount(() => {
         :disabled="activeIndex === 0"
         :aria-label="t('common.previous')"
         :data-testid="`${props.test_id}-prev`"
-        @click="prev"
+        @click.stop="prev"
+        @mousedown.stop
+        @pointerdown.stop
       >
         <Icon
           class="carousel__arrow-icon"
@@ -304,7 +362,9 @@ onBeforeUnmount(() => {
         :disabled="activeIndex === totalSlides - 1"
         :aria-label="t('common.next')"
         :data-testid="`${props.test_id}-next`"
-        @click="next"
+        @click.stop="next"
+        @mousedown.stop
+        @pointerdown.stop
       >
         <Icon
           class="carousel__arrow-icon"
@@ -326,7 +386,9 @@ onBeforeUnmount(() => {
         :aria-label="t('common.go_to_slide', { number: index + 1 })"
         :aria-current="index === activeIndex ? 'true' : undefined"
         :data-testid="`${props.test_id}-dot-${index}`"
-        @click="goTo(index)"
+        @click.stop="goTo(index)"
+        @mousedown.stop
+        @pointerdown.stop
       />
     </div>
   </div>
@@ -387,6 +449,18 @@ onBeforeUnmount(() => {
     cursor: default;
 }
 
+/* Arrows appear on hover/focus only (the project card carousel —
+   public-section-components.md:696: "Arrows appear only on card hover
+   (opacity transition)"). */
+.carousel--hover-arrows .carousel__arrow {
+    opacity: 0;
+}
+
+.carousel--hover-arrows:hover .carousel__arrow,
+.carousel--hover-arrows:focus-within .carousel__arrow {
+    opacity: 1;
+}
+
 .carousel__arrow--prev {
     left: var(--space-sm);
 }
@@ -400,16 +474,19 @@ onBeforeUnmount(() => {
     height: 1.25em;
 }
 
+/* The dots are 1.5× the original size (12px, was 8px) with a clear
+   gap above the carousel (user rework 2026-08-16 — they used to sit
+   4px from the viewport edge). */
 .carousel__dots {
     display: flex;
     justify-content: center;
-    gap: 6px;
-    padding: var(--space-xs) 0;
+    gap: 8px;
+    padding: var(--space-md) 0 var(--space-xs);
 }
 
 .carousel__dot {
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
     border: none;
     border-radius: var(--radius-full);
     background: var(--color-border-strong);
@@ -421,6 +498,20 @@ onBeforeUnmount(() => {
 .carousel__dot.is-active,
 .carousel__dot[aria-current='true'] {
     background: var(--color-accent);
+}
+
+/* Compact dots for the project cards (user rework 2026-08-16): 9px
+   circles with an equal 8px gap above and below — the card previews
+   are small, so the detail-gallery sizing (12px, 16px top gap) reads
+   heavy there. */
+.carousel--compact-dots .carousel__dots {
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.carousel--compact-dots .carousel__dot {
+    width: 9px;
+    height: 9px;
 }
 
 @media (prefers-reduced-motion: no-preference) {
