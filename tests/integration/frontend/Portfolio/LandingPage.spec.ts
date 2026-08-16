@@ -297,6 +297,26 @@ describe('LandingPage', () => {
         expect(card.text()).toContain('Invoice automation.');
     });
 
+    it('renders the projects-index no-image placeholder (large faint icon, no text) without a preview', async () => {
+        const wrapper = mountPage({
+            featured_projects: [
+                { ...LANDING_PROPS.featured_projects[0], preview_image: null },
+            ],
+        });
+        await flush();
+
+        const placeholder = wrapper.get(
+            '[data-testid="landing-featured-section-card-1-placeholder"]',
+        );
+        expect(placeholder.attributes('aria-hidden')).toBe('true');
+        expect(placeholder.find('.project-card__placeholder-icon').exists()).toBe(true);
+        expect(placeholder.text()).toBe('');
+        // No preview image renders.
+        expect(wrapper.find('[data-testid="landing-featured-section-card-1"] img').exists()).toBe(
+            false,
+        );
+    });
+
     it('links the featured card tech tags to the projects filter only when more projects exist', async () => {
         const withMore = mountPage();
         await flush();

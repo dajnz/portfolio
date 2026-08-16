@@ -108,6 +108,25 @@ describe('PublicSearchAutocomplete', () => {
         expect(wrapper.emitted('submit')).toEqual([['vue']]);
     });
 
+    it('renders the publication meta as "published: dd.mm.yyyy"', async () => {
+        vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(RESULTS), { status: 200 }));
+        const wrapper = mount(PublicSearchAutocomplete, {
+            props: { fetch_url: '/api/search' },
+        });
+
+        await wrapper.get('[data-testid="search-autocomplete-input"]').setValue('lar');
+        await vi.advanceTimersByTimeAsync(300);
+        await vi.waitFor(() => {
+            expect(wrapper.findAll('[data-testid^="search-autocomplete-result-"]')).toHaveLength(2);
+        });
+
+        // The fixed lowercase label + numeric date carry no month names
+        // and no translation keys (user rework 2026-08-16).
+        expect(wrapper.get('.search-autocomplete__result-meta').text()).toBe(
+            'published: 15.06.2026',
+        );
+    });
+
     it('moves the highlight with the arrow keys', async () => {
         vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(RESULTS), { status: 200 }));
         const wrapper = mount(PublicSearchAutocomplete, {
