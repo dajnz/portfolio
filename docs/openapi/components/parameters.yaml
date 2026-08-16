@@ -58,9 +58,18 @@ components:
       in: query
       schema:
         type: string
-        enum: [date, complexity]
+        enum: [date]
         default: date
-      description: Sort order for projects index.
+      description: Sort column for projects index (date only — the complexity strategy was removed per the 2026-08-16 user decision).
+
+    projectSortDirection:
+      name: direction
+      in: query
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+      description: Sort direction for projects index (newest-first `desc`, the default, or newest-last `asc`).
 
     acceptJson:
       name: Accept
