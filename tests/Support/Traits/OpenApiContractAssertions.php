@@ -88,8 +88,9 @@ trait OpenApiContractAssertions
             'regenerateResume' => [
                 'path' => '/api/resume/regenerate',
                 'method' => 'post',
-                'implemented' => false,
-                'implemented_in' => 'Step 10.x',
+                'implemented' => true,
+                'implemented_in' => 'Step 10.1',
+                'cases' => [200],
             ],
             'listBlogArticlesJson' => [
                 'path' => '/blog',

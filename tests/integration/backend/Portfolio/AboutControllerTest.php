@@ -40,7 +40,33 @@ describe('AboutController', function (): void {
                 ->where('about.location.en', 'Berlin')
                 ->where('about.location.ru', null)
                 ->where('about.show_location', true)
-                ->where('about.work_type', 'remote'));
+                ->where('about.work_type', 'remote')
+                ->where('resume_mode', 'manual'));
+    });
+
+    it('exposes the resume_config mode for the resume summary line', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        \Illuminate\Support\Facades\DB::table('resume_config')->insert([
+            'id' => 1,
+            'mode' => 'auto',
+            'layout' => json_encode([
+                'template' => 'modern',
+                'sections' => [
+                    'header' => ['visible' => true, 'order' => 0],
+                    'about_me' => ['visible' => true, 'order' => 1],
+                    'skills' => ['visible' => true, 'order' => 2],
+                    'experience' => ['visible' => true, 'order' => 3],
+                    'contacts' => ['visible' => true, 'order' => 4],
+                ],
+            ]),
+        ]);
+
+        $this->get('/admin/about')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Portfolio/Admin/Pages/AboutEditPage')
+                ->where('resume_mode', 'auto'));
     });
 
     it('updates the about row and its translations', function (): void {

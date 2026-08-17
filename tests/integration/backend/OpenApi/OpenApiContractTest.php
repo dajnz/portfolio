@@ -183,12 +183,18 @@ it('answers 404 with the error envelope for not-yet-implemented operations', fun
             'trackEvents' => $this->postJson('/api/analytics/track', ['events' => [
                 ['event_type' => 'page_view', 'session_id' => 'contract-test-session'],
             ]]),
-            'regenerateResume' => $this->postJson('/api/resume/regenerate'),
             default => throw new LogicException("No pending-request builder for [{$operationId}]."),
         };
 
         $this->assertPendingOperation($response);
     }
+});
+
+it('validates the regenerateResume responses against the spec', function (): void {
+    $this->seed(SettingsSeeder::class);
+    $this->loginAsAdmin($this->createAdmin());
+
+    $this->assertConformsToSpec('regenerateResume', 0, $this->postJson('/api/resume/regenerate'));
 });
 
 it('validates the toggleArticleReaction responses against the spec', function (): void {

@@ -158,6 +158,18 @@ describe('AboutEditPage', () => {
         );
     });
 
+    it('renders the resume mode label from the resume_config mode', () => {
+        const wrapper = mountPage({ resume_mode: 'auto' });
+
+        expect(wrapper.get('[data-testid="about-edit-page-resume-mode"]').text()).toBe('Auto-generated');
+    });
+
+    it('defaults the resume mode label to manual when the prop is absent', () => {
+        const wrapper = mountPage();
+
+        expect(wrapper.get('[data-testid="about-edit-page-resume-mode"]').text()).toBe('Custom upload');
+    });
+
     it('navigates to the dashboard on cancel', async () => {
         const wrapper = mountPage();
 
