@@ -143,3 +143,59 @@
     padding-top: var(--space-md);
     border-top: 1px solid var(--color-border);
 }
+
+/* The callout blocks of the content pipeline (pages.css mirror — the
+   B262 shared-look precedent): used by the blog CalloutBlock mount
+   AND the raw pipeline asides of the projects detail bodies. The
+   per-type colors come from the public tokens' `--color-callout-*`. */
+.callout {
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-md);
+    border-left: 4px solid;
+    margin: var(--space-lg) 0;
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+}
+
+.callout__title {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-xs);
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.callout__content {
+    color: inherit;
+}
+
+.callout__content > * + * {
+    margin-top: var(--space-xs);
+}
+
+.callout--warning {
+    background: var(--color-callout-warning-bg);
+    border-color: var(--color-callout-warning-border);
+    color: var(--color-callout-warning-text);
+}
+
+.callout--tip {
+    background: var(--color-callout-tip-bg);
+    border-color: var(--color-callout-tip-border);
+    color: var(--color-callout-tip-text);
+}
+
+.callout--important {
+    background: var(--color-callout-important-bg);
+    border-color: var(--color-callout-important-border);
+    color: var(--color-callout-important-text);
+}
+
+.callout--tradeoff {
+    background: var(--color-callout-tradeoff-bg);
+    border-color: var(--color-callout-tradeoff-border);
+    color: var(--color-callout-tradeoff-text);
+}

@@ -123,6 +123,14 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
         return $tagsByArticle;
     }
 
+    public function hasPublishedProjects(): bool
+    {
+        return DB::table('projects')
+            ->where('is_published', true)
+            ->whereNull('deleted_at')
+            ->exists();
+    }
+
     public function relatedCountFor(array $articleIds): array
     {
         if ($articleIds === []) {
@@ -337,6 +345,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
                 'a.published_at',
                 DB::raw('coalesce(pl.reading_time_minutes, pe.reading_time_minutes, 0) as reading_time_minutes'),
                 'a.lead_image',
+                'a.lead_image_alt',
             ])
             ->get()
             ->all();
@@ -378,6 +387,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
                 'a.published_at',
                 DB::raw('coalesce(pl.reading_time_minutes, pe.reading_time_minutes, 0) as reading_time_minutes'),
                 'a.lead_image',
+                'a.lead_image_alt',
             ]);
     }
 

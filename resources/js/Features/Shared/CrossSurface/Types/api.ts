@@ -366,6 +366,14 @@ export interface components {
             readonly published_at?: string | null;
             reading_time_minutes?: number;
             lead_image?: string | null;
+            /**
+             * @description The per-locale alt labels of the lead image — null when
+             *     `lead_image` is null.
+             */
+            lead_image_alt?: {
+                en?: string;
+                ru?: string;
+            } | null;
             tags?: {
                 id?: number;
                 slug?: string;

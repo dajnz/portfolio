@@ -269,6 +269,19 @@ function isActive(item: NavItem): boolean {
     .header__menu {
         display: none;
     }
+
+    /* User rework 2026-08-16: on mobile the language+theme group sits
+       flush against the hamburger — right-aligned (the nav's
+       space-between would otherwise center it) with the SAME gap
+       between the hamburger and the group as inside the group
+       (space-md), so the three buttons read as one unit. */
+    .header__nav {
+        gap: var(--space-md);
+    }
+
+    .header__controls {
+        margin-left: auto;
+    }
 }
 
 /* The teleported panel — fixed below the sticky header (its top edge

@@ -9,6 +9,7 @@ use App\Features\Blog\App\DTOs\PublicArticleDto;
 use App\Features\Blog\App\DTOs\TagOptionDto;
 use App\Features\Blog\App\UseCases\GetPublicArticleUseCase;
 use App\Features\Blog\Domain\Exceptions\ArticleNotFoundException;
+use App\Features\Shared\Domain\Entities\TechSkillTag;
 use Illuminate\Http\Request;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -76,6 +77,14 @@ final class PreviewController
                     'name' => $tag->name,
                 ],
                 $detail->tags,
+            ),
+            'skill_tags' => array_map(
+                static fn (TechSkillTag $tag): array => [
+                    'id' => $tag->toId(),
+                    'name' => $tag->toSkillName(),
+                    'icon' => $tag->toIcon() ?? '',
+                ],
+                $detail->skillTags,
             ),
             'related' => array_map(
                 static fn (ArticleCardDto $card): array => [

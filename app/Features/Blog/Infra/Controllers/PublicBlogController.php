@@ -16,6 +16,7 @@ use App\Features\Blog\Domain\Exceptions\ArticleNotFoundException;
 use App\Features\Blog\Domain\ValueObjects\ReactionType;
 use App\Features\Blog\Infra\Jobs\IncrementArticleViewJob;
 use App\Features\Blog\Infra\Requests\StoreReactionRequest;
+use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 use App\Features\Shared\Infra\Persistence\Cursor;
 use App\Features\Shared\Infra\Persistence\PublicCursorCodec;
@@ -93,6 +94,7 @@ final class PublicBlogController
             'next_cursor' => $result->nextCursor === null
                 ? null
                 : $this->encodeCursor($result->nextCursor),
+            'has_projects' => $result->hasProjects,
             'seo' => self::seoProps($result->seo),
         ]);
     }
@@ -127,6 +129,7 @@ final class PublicBlogController
         return $inertia->render('Blog/Public/Pages/BlogArticlePage', [
             'article' => self::detailProps($detail),
             'reactions' => $detail->reactions,
+            'has_projects' => $detail->hasProjects,
             'seo' => self::seoProps($detail->seo),
         ]);
     }
@@ -197,7 +200,9 @@ final class PublicBlogController
     /**
      * The `ArticleCardData` wire shape of a card — the snippet
      * substitutes the `short_description` in the HTML variant's search
-     * results (B16); the JSON variant returns the raw value.
+     * results (B16); the JSON variant returns the raw value. The
+     * `skill_tags` and `lead_image_alt` fields (B268) feed the card's
+     * linked TechSkillTag chips and the `<img>` alt.
      *
      * @return array<string, mixed>
      */
@@ -213,9 +218,14 @@ final class PublicBlogController
             'published_at' => $card->publishedAt?->format('c'),
             'reading_time_minutes' => $card->readingTimeMinutes,
             'lead_image' => $card->leadImage,
+            'lead_image_alt' => $card->leadImageAlt,
             'tags' => array_map(
                 static fn (TagOptionDto $tag): array => self::tagProps($tag),
                 $card->tags,
+            ),
+            'skill_tags' => array_map(
+                static fn (TechSkillTag $tag): array => self::skillTagProps($tag),
+                $card->skillTags,
             ),
         ];
     }
@@ -241,11 +251,29 @@ final class PublicBlogController
                 static fn (TagOptionDto $tag): array => self::tagProps($tag),
                 $detail->tags,
             ),
+            'skill_tags' => array_map(
+                static fn (TechSkillTag $tag): array => self::skillTagProps($tag),
+                $detail->skillTags,
+            ),
             'related' => array_map(
                 static fn (ArticleCardDto $card): array => self::cardProps($card, useSnippet: false),
                 $detail->related,
             ),
             'views_count' => $detail->views,
+        ];
+    }
+
+    /**
+     * The wire `SkillTagData` shape — `{id, name, icon}`.
+     *
+     * @return array<string, mixed>
+     */
+    private static function skillTagProps(TechSkillTag $tag): array
+    {
+        return [
+            'id' => $tag->toId(),
+            'name' => $tag->toSkillName(),
+            'icon' => $tag->toIcon() ?? '',
         ];
     }
 

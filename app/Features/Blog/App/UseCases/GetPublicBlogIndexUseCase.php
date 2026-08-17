@@ -62,6 +62,7 @@ final class GetPublicBlogIndexUseCase
             tags: $this->tagOptions($this->repository->findAllTags($query->locale)),
             years: $this->repository->yearsOfPublishedArticles(),
             seo: BlogSeoDto::forIndex($query->locale, $this->about->findSiteName($query->locale)),
+            hasProjects: $this->repository->hasPublishedProjects(),
         );
     }
 
@@ -105,8 +106,9 @@ final class GetPublicBlogIndexUseCase
 
         $articleIds = array_map(static fn (object $row): int => (int) $row->id, $rows);
         $tagsByArticle = $this->repository->articleTagsFor($articleIds);
+        $skillsByArticle = $this->repository->skillTagsFor($articleIds);
 
-        return array_map(function (object $row) use ($tagsByArticle): ArticleCardDto {
+        return array_map(function (object $row) use ($tagsByArticle, $skillsByArticle): ArticleCardDto {
             $card = ArticleCardDto::fromRow($row);
 
             return new ArticleCardDto(
@@ -119,6 +121,8 @@ final class GetPublicBlogIndexUseCase
                 leadImage: $card->leadImage,
                 snippet: $card->snippet,
                 tags: $this->tagOptions($tagsByArticle[$card->id] ?? []),
+                skillTags: $skillsByArticle[$card->id] ?? [],
+                leadImageAlt: $card->leadImageAlt,
             );
         }, $rows);
     }

@@ -129,4 +129,13 @@ interface PublicArticleReadRepositoryInterface
      * @return array<int, object>  Rows `{id, slug, name}`.
      */
     public function findAllTags(string $locale): array;
+
+    /**
+     * Whether at least one published, non-trashed project exists —
+     * the public pages' header nav Projects-link condition (A10;
+     * the v1.0.16 experience `has_projects` precedent). A
+     * query-builder read in the Infra layer (the B11 cross-feature
+     * pattern — the projects table is not part of the Blog feature).
+     */
+    public function hasPublishedProjects(): bool;
 }

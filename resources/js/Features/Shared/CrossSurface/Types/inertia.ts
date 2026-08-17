@@ -1088,16 +1088,43 @@ export interface components {
             slug?: string;
             name?: string;
         };
+        SkillTagData: {
+            id?: number;
+            name?: string;
+            /** @description Iconify identifier, e.g. `devicon:vuejs`. */
+            icon?: string;
+        };
         ArticleCardData: {
             id?: number;
             title?: string;
             slug?: string;
+            /**
+             * @description The locale-resolved brief description — or the FTS search
+             *     excerpt (the `ts_headline()` `<mark>`-wrapped HTML, B16)
+             *     on the Inertia HTML variant when `?q=` is present. The
+             *     JSON variant always returns the raw value.
+             */
             short_description?: string;
             /** Format: date-time */
             published_at?: string | null;
             reading_time_minutes?: number;
             lead_image?: string | null;
+            /**
+             * @description The per-locale alt labels of the lead image — null when
+             *     `lead_image` is null. The card's `<img>` alt resolves the
+             *     active locale with the en fallback.
+             */
+            lead_image_alt?: {
+                en?: string;
+                ru?: string;
+            } | null;
             tags?: components["schemas"]["TagData"][];
+            /**
+             * @description The attached tech skills via `article_skill_pivot` —
+             *     rendered as linked TechSkillTag chips
+             *     (`/blog?skill_tags={id}`, public-section-components.md:812).
+             */
+            skill_tags?: components["schemas"]["SkillTagData"][];
         };
         BlogIndexPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
@@ -1108,6 +1135,13 @@ export interface components {
                 years?: number[];
                 has_more?: boolean;
                 next_cursor?: string | null;
+                /**
+                 * @description Whether at least one published, non-trashed project
+                 *     exists — the header nav's Projects-link condition
+                 *     (A10; the same signal the experience timeline page
+                 *     carries, v1.0.16).
+                 */
+                has_projects?: boolean;
                 seo?: components["schemas"]["SeoProps"];
             };
         };
@@ -1132,6 +1166,13 @@ export interface components {
                 ru?: string;
             };
             tags?: components["schemas"]["TagData"][];
+            /**
+             * @description The attached tech skills via `article_skill_pivot` —
+             *     rendered as linked TechSkillTag chips
+             *     (`/blog?skill_tags={id}`, public-section-components.md:
+             *     1278); the SEO keywords also cover them (seo.md:145-147).
+             */
+            skill_tags?: components["schemas"]["SkillTagData"][];
             related?: components["schemas"]["ArticleCardData"][];
             /**
              * @description The pre-increment `article_views` counter
@@ -1157,6 +1198,12 @@ export interface components {
                     likes?: number;
                     dislikes?: number;
                 } | null;
+                /**
+                 * @description Whether at least one published, non-trashed project
+                 *     exists — the header nav's Projects-link condition
+                 *     (A10).
+                 */
+                has_projects?: boolean;
                 seo?: components["schemas"]["SeoProps"];
             };
         };
@@ -1270,7 +1317,7 @@ export interface components {
                 tag?: components["schemas"]["TagEditData"];
             };
         };
-        SkillTagData: {
+        "schemas-SkillTagData": {
             id?: number;
             name?: string;
             /** @description Iconify identifier, e.g. `heroicons:code-bracket`. */
@@ -1291,7 +1338,7 @@ export interface components {
             github_url?: string | null;
             live_demo_url?: string | null;
             is_featured?: boolean;
-            tech_tags?: components["schemas"]["SkillTagData"][];
+            tech_tags?: components["schemas"]["schemas-SkillTagData"][];
             screenshots?: {
                 image_path?: string;
                 alt_text?: {
@@ -1305,7 +1352,7 @@ export interface components {
             component?: "Projects/Public/Pages/ProjectsIndexPage";
             props?: {
                 projects?: components["schemas"]["ProjectCardData"][];
-                skill_tags?: components["schemas"]["SkillTagData"][];
+                skill_tags?: components["schemas"]["schemas-SkillTagData"][];
                 has_more?: boolean;
                 next_cursor?: string | null;
                 seo?: components["schemas"]["SeoProps"];
@@ -1354,7 +1401,7 @@ export interface components {
             github_url?: string | null;
             live_demo_url?: string | null;
             is_featured?: boolean;
-            tech_tags?: components["schemas"]["SkillTagData"][];
+            tech_tags?: components["schemas"]["schemas-SkillTagData"][];
             screenshots?: components["schemas"]["ScreenshotData"][];
             detail_items?: components["schemas"]["DetailItemData"][];
             /**
@@ -1397,7 +1444,7 @@ export interface components {
              *     renders them as removable chips and the "+" button adds
              *     more (admin-section-ui.md:343).
              */
-            tech_tags?: components["schemas"]["SkillTagData"][];
+            tech_tags?: components["schemas"]["schemas-SkillTagData"][];
             /** Format: date-time */
             created_at?: string;
             /** Format: date-time */
@@ -1467,7 +1514,7 @@ export interface components {
             is_published?: boolean;
             /** @description Linked blog article id (tech writeup). Null removes the link. */
             tech_writeup_article_id?: number | null;
-            tech_tags?: components["schemas"]["SkillTagData"][];
+            tech_tags?: components["schemas"]["schemas-SkillTagData"][];
             screenshots?: components["schemas"]["ScreenshotData"][];
             /**
              * @description Engineering detail items with per-locale title/description
@@ -1488,7 +1535,7 @@ export interface components {
             props?: {
                 /** @description Existing project on edit; null when creating. */
                 project?: components["schemas"]["ProjectEditData"];
-                skills?: components["schemas"]["SkillTagData"][];
+                skills?: components["schemas"]["schemas-SkillTagData"][];
                 /**
                  * @description The published blog articles the "Tech Writeup Article"
                  *     select offers (admin-section-ui.md:356) — only

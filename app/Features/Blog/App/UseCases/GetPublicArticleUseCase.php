@@ -100,7 +100,6 @@ final class GetPublicArticleUseCase
             contentHtml: $this->pipeline->articleHtml(
                 $articleId,
                 $locale,
-                $article->toUpdatedAt(),
                 $article->contentFor($locale),
             ),
             publishedAt: $article->toPublishedAt(),
@@ -132,6 +131,7 @@ final class GetPublicArticleUseCase
                 publishedAt: $article->toPublishedAt(),
                 updatedAt: $article->toUpdatedAt(),
             ),
+            hasProjects: $this->listQuery->hasPublishedProjects(),
         );
     }
 
@@ -170,11 +170,11 @@ final class GetPublicArticleUseCase
             return [];
         }
 
-        $tagsByArticle = $this->listQuery->articleTagsFor(
-            array_map(static fn (object $row): int => (int) $row->id, $rows),
-        );
+        $relatedIds = array_map(static fn (object $row): int => (int) $row->id, $rows);
+        $tagsByArticle = $this->listQuery->articleTagsFor($relatedIds);
+        $skillsByArticle = $this->listQuery->skillTagsFor($relatedIds);
 
-        return array_map(function (object $row) use ($tagsByArticle): ArticleCardDto {
+        return array_map(function (object $row) use ($tagsByArticle, $skillsByArticle): ArticleCardDto {
             $card = ArticleCardDto::fromRow($row);
 
             return new ArticleCardDto(
@@ -194,6 +194,8 @@ final class GetPublicArticleUseCase
                     ),
                     $tagsByArticle[$card->id] ?? [],
                 ),
+                skillTags: $skillsByArticle[$card->id] ?? [],
+                leadImageAlt: $card->leadImageAlt,
             );
         }, $rows);
     }
