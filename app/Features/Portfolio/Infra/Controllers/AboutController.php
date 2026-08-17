@@ -35,10 +35,11 @@ final class AboutController
 
     public function edit(ResponseFactory $inertia): Response
     {
-        $about = $this->getAboutCase->get();
+        $data = $this->getAboutCase->get();
 
         return $inertia->render('Portfolio/Admin/Pages/AboutEditPage', [
-            'about' => $about === null ? null : $this->props($about),
+            'about' => $data['about'] === null ? null : $this->props($data['about']),
+            'resume_mode' => $data['resume_mode'],
         ]);
     }
 
