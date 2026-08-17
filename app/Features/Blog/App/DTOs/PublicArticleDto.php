@@ -39,6 +39,7 @@ final readonly class PublicArticleDto
         public int $views,
         public ?array $reactions,
         public BlogSeoDto $seo,
+        public bool $hasProjects = false,
     ) {
     }
 }

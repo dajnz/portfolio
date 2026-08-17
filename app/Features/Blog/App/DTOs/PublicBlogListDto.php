@@ -10,7 +10,8 @@ use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
  * The public blog index page data (blog.yaml#BlogIndexPageProps): the
  * card rows, the encoded cursor position for "Load More" (null when
  * the final batch is incomplete — the exhaustion signal), the tag
- * filter options, the distinct publication years and the SEO data.
+ * filter options, the distinct publication years, the published-
+ * projects signal (the A10 nav condition — B268) and the SEO data.
  * Immutable.
  */
 final readonly class PublicBlogListDto
@@ -26,6 +27,7 @@ final readonly class PublicBlogListDto
         public array $tags,
         public array $years,
         public BlogSeoDto $seo,
+        public bool $hasProjects = false,
     ) {
     }
 }

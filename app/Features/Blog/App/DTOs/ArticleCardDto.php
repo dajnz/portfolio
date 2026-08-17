@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Blog\App\DTOs;
 
+use App\Features\Shared\Domain\Entities\TechSkillTag;
 use DateTimeImmutable;
 
 /**
@@ -12,12 +13,17 @@ use DateTimeImmutable;
  * `ts_headline()` search excerpt (the `<mark>`-wrapped HTML — B16)
  * when the request searched; the controller substitutes it for the
  * `short_description` in the HTML variant (the JSON variant returns
- * raw values). Immutable.
+ * raw values). The `skillTags`/`leadImageAlt` fields (B268) feed the
+ * card's linked TechSkillTag chips and the `<img>` alt; the hydrating
+ * use cases batch-fill them via the read repository's `skillTagsFor()`
+ * and the row's `lead_image_alt` column. Immutable.
  */
 final readonly class ArticleCardDto
 {
     /**
      * @param  TagOptionDto[]  $tags
+     * @param  TechSkillTag[]  $skillTags
+     * @param  array{en: string, ru: string}|null  $leadImageAlt  The raw per-locale alt labels.
      */
     public function __construct(
         public int $id,
@@ -29,6 +35,8 @@ final readonly class ArticleCardDto
         public ?string $leadImage,
         public ?string $snippet,
         public array $tags = [],
+        public array $skillTags = [],
+        public ?array $leadImageAlt = null,
     ) {
     }
 
@@ -49,7 +57,30 @@ final readonly class ArticleCardDto
                     ? (string) $row->fts_snippet
                     : null,
             ),
+            leadImageAlt: self::leadImageAltFromRow($row),
         );
+    }
+
+    /**
+     * The row's `lead_image_alt` jsonb value → the per-locale map
+     * (the wire's `{en, ru}` shape) or null when the image or the
+     * labels are absent. The raw query row carries the JSON text.
+     *
+     * @return array{en: string, ru: string}|null
+     */
+    private static function leadImageAltFromRow(object $row): ?array
+    {
+        $raw = property_exists($row, 'lead_image_alt') && is_string($row->lead_image_alt)
+            ? trim($row->lead_image_alt)
+            : '';
+
+        if ($raw === '') {
+            return null;
+        }
+
+        $decoded = json_decode($raw, true);
+
+        return is_array($decoded) ? $decoded : null;
     }
 
     /**
