@@ -1041,6 +1041,11 @@ export interface components {
             component?: "Portfolio/Admin/Pages/AboutEditPage";
             props?: {
                 about?: components["schemas"]["AboutData"];
+                /**
+                 * @description Current resume generation mode (Resume feature) — the resume summary line's mode label (admin-section-components.md:793-794).
+                 * @enum {string}
+                 */
+                resume_mode?: "auto" | "manual";
             };
         };
         ContactsListPageProps: components["schemas"]["InertiaPage"] & {

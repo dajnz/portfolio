@@ -108,6 +108,10 @@ components:
               properties:
                 about:
                   $ref: '#/components/schemas/AboutData'
+                resume_mode:
+                  type: string
+                  enum: [auto, manual]
+                  description: Current resume generation mode (Resume feature) — the resume summary line's mode label (admin-section-components.md:793-794).
 
     ContactsListPageProps:
       allOf:

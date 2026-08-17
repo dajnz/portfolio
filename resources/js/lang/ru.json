@@ -13,6 +13,8 @@
             "relocation": "Переезд",
             "replace": "Заменить",
             "resume_managed_on_settings": "— настраивается на странице «Резюме»",
+            "resume_mode_auto": "Автогенерация",
+            "resume_mode_manual": "Свой файл",
             "short_pitch": "Краткое описание",
             "show_location": "Показывать локацию",
             "timezone": "Часовой пояс",

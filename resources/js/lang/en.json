@@ -13,6 +13,8 @@
             "relocation": "Relocation",
             "replace": "Replace",
             "resume_managed_on_settings": "— managed on the Resume settings page",
+            "resume_mode_auto": "Auto-generated",
+            "resume_mode_manual": "Custom upload",
             "short_pitch": "Short Pitch",
             "show_location": "Show Location",
             "timezone": "Timezone",

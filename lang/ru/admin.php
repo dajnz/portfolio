@@ -121,6 +121,8 @@ return [
         'work_type' => 'Формат работы',
         'configure_resume' => 'Настроить резюме',
         'resume_managed_on_settings' => '— настраивается на странице «Резюме»',
+        'resume_mode_auto' => 'Автогенерация',
+        'resume_mode_manual' => 'Свой файл',
         'replace' => 'Заменить',
     ],
 
