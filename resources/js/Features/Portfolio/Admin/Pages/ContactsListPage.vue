@@ -109,7 +109,7 @@ async function ensureSimpleIcons(): Promise<void> {
     }
 
     try {
-        const module = await import('@iconify-json/simple-icons/icons.json');
+        const module = await import('@/iconSubsets/simple-icons.json');
         const json = (module as { default: IconifyJSON }).default;
 
         addCollection(json);
@@ -384,7 +384,7 @@ function isEditing(rowId: number): boolean {
           >⠿</span>
           <AdminIconPicker
             v-model="draft.icon"
-            icon_set="brands"
+            icon_set="technical"
             :placeholder="t('admin.icon_picker.select_placeholder')"
             :test_id="`${props.test_id}-icon-picker-new`"
           />
@@ -475,7 +475,7 @@ function isEditing(rowId: number): boolean {
               <template v-if="isEditing(Number(item.id))">
                 <AdminIconPicker
                   v-model="draft.icon"
-                  icon_set="brands"
+                  icon_set="technical"
                   :placeholder="t('admin.icon_picker.select_placeholder')"
                   :test_id="`${props.test_id}-icon-picker-${Number(item.id)}`"
                 />
