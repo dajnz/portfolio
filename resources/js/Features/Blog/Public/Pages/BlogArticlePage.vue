@@ -1,0 +1,108 @@
+<!-- BlogArticlePage (public-section-ui.md:240-297, public-section-components.md:1244-1341, mockup blog-article.html) — the public article detail: the two-column layout (ArticleContent reading panel | sticky TableOfContents sidebar), the RelatedPosts section spanning the full width. The article's SEO props + JSON-LD (BlogPosting + BreadcrumbList — incl. the skill names in `keywords`) arrive from the backend and are synced via useSeoUpdater (seo.md:119-188). TOC navigation smooth-scrolls to the heading's `scroll-margin-top` offset (respecting the sticky header); the TOC's IntersectionObserver watches the body's headings via the `target_selector`. The mobile variant collapses the sidebar into the floating TOC button. -->
+<script setup lang="ts">
+import { useSeoUpdater } from '@shared-cross/Composables/useSeoUpdater';
+import type { components } from '@shared-cross/Types/inertia';
+import PublicPageLayout from '@shared-public/PublicPageLayout.vue';
+import ArticleContent from '../Components/ArticleContent.vue';
+import RelatedPosts from '../Components/RelatedPosts.vue';
+import TableOfContents from '../Components/TableOfContents.vue';
+import { useBlogArticlePage } from '../Composables/useBlogArticlePage';
+import { ensureBlogIcons } from '../iconRegistration';
+
+type ArticleProps = NonNullable<components['schemas']['BlogArticlePageProps']['props']>;
+
+const props = withDefaults(
+    defineProps<{
+        article?: ArticleProps['article'];
+        reactions?: ArticleProps['reactions'];
+        has_projects?: ArticleProps['has_projects'];
+        seo?: ArticleProps['seo'];
+        test_id?: string;
+    }>(),
+    {
+        article: undefined,
+        reactions: null,
+        has_projects: false,
+        seo: undefined,
+        test_id: 'blog-article-page',
+    },
+);
+
+ensureBlogIcons();
+useSeoUpdater();
+
+const { navItems, activeRoute, article, headings } = useBlogArticlePage(props);
+
+// The body container id the TOC's IntersectionObserver watches (the
+// headings carry `scroll-margin-top` — the pipeline's HeadingIdRenderer
+// emits them with ids).
+const TOC_TARGET_SELECTOR = '#article-body h2[id], #article-body h3[id]';
+
+function onTocNavigate(id: string): void {
+    if (typeof document === 'undefined') {
+        return;
+    }
+
+    document.getElementById(id)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+    });
+}
+</script>
+
+<template>
+  <PublicPageLayout
+    :nav_items="navItems"
+    :active_route="activeRoute"
+    :test_id="props.test_id"
+  >
+    <article
+      v-if="article !== null"
+      class="article-layout"
+      :data-testid="props.test_id"
+    >
+      <ArticleContent
+        :article="article"
+        body_id="article-body"
+        :test_id="`${props.test_id}-content`"
+      />
+
+      <TableOfContents
+        :headings="headings"
+        :target_selector="TOC_TARGET_SELECTOR"
+        :test_id="`${props.test_id}-toc`"
+        @navigate="onTocNavigate"
+      />
+
+      <RelatedPosts
+        :articles="article.related"
+        :test_id="`${props.test_id}-related`"
+      />
+    </article>
+  </PublicPageLayout>
+</template>
+
+<style scoped>
+/* The two-column layout per the mockup (blog-article.html): the
+   reading panel and the sticky TOC sidebar; the related section spans
+   both columns. Below `--bp-lg` (1024px) the grid falls back to a
+   single column (the mockup's mobile rule). */
+.article-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--sidebar-width);
+    gap: var(--space-xl);
+    align-items: start;
+
+    /* User rework 2026-08-16: the whole page content spans
+       `--layout-content` (1000px — the header/footer width; the
+       mockup's `--wide-max-width` 1200px is dropped). */
+    max-width: var(--layout-content);
+    margin: 0 auto var(--space-2xl);
+}
+
+@media (width <= 1024px) {
+    .article-layout {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
