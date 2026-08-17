@@ -72,7 +72,7 @@ function setDescription(value: string): void {
     <div class="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
       <AdminIconPicker
         :model-value="props.modelValue.icon"
-        icon_set="engineering"
+        icon_set="technical"
         :label="t('admin.projects.icon')"
         :required="true"
         :error="props.icon_error"

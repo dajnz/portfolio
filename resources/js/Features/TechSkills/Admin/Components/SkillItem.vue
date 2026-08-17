@@ -116,7 +116,7 @@ function onRowClick(): void {
         <span class="w-28">
           <AdminIconPicker
             :model-value="props.draft_icon ?? props.skill.icon"
-            icon_set="devicon"
+            icon_set="brands"
             :placeholder="t('admin.icon_picker.select_placeholder')"
             :test_id="`${props.test_id}-skill-${props.skill.id}-icon`"
             @update:model-value="

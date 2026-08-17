@@ -144,7 +144,7 @@ function nameError(): string | null {
             </label>
             <AdminIconPicker
               :model-value="props.draft_icon ?? props.group.icon"
-              icon_set="ui"
+              icon_set="technical"
               :placeholder="t('admin.icon_picker.select_placeholder')"
               :test_id="`${props.test_id}-group-${props.group.id}-icon`"
               @update:model-value="
