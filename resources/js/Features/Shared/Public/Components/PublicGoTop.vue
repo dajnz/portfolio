@@ -66,10 +66,9 @@ onBeforeUnmount(() => {
 .public-go-top {
     position: fixed;
 
-    /* User rework 2026-08-14: 3rem offsets (was --space-xl = 2rem) — the
-       button's top edge used to align with the footer's top edge. */
-    bottom: 3rem;
-    right: 3rem;
+    /* User rework 2026-08-16: 1rem offsets (was 3rem). */
+    bottom: 1rem;
+    right: 1rem;
     z-index: var(--z-sticky);
     display: flex;
     align-items: center;
