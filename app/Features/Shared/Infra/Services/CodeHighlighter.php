@@ -78,15 +78,61 @@ final class CodeHighlighter
     /**
      * Renders the highlighted code block — the `data-code-block`
      * wrapper with the language + raw-code attributes (the CodeBlock
-     * mount markers) around the inline-colored token spans.
+     * mount markers) around the inline-colored token spans. Language-
+     * less fences (the editor's "none" option) fall back to
+     * auto-detection (B270 — the public blocks were plain otherwise;
+     * the default autodetect subset covers the common web languages).
      */
     public function highlight(string $code, string $language): string
     {
         $languageId = $this->languageId($language);
+        [$languageId, $tokens] = $this->tokens($code, $languageId);
 
         return '<pre data-code-block data-language="'.htmlspecialchars($languageId, ENT_QUOTES | ENT_HTML5, 'UTF-8')
             .'" data-raw="'.htmlspecialchars($code, ENT_QUOTES | ENT_HTML5, 'UTF-8')
-            .'"><code>'.$this->tokenHtml($code, $languageId).'</code></pre>';
+            .'"><code>'.$tokens.'</code></pre>';
+    }
+
+    /**
+     * The token HTML of the block + the resolved language id (the
+     * auto-detected one for language-less fences, which the CodeBlock
+     * label displays).
+     *
+     * @return array{0: string, 1: string}
+     */
+    private function tokens(string $code, string $languageId): array
+    {
+        if ($languageId === '' || $languageId === 'text' || $languageId === 'plaintext' || $languageId === 'plain') {
+            return $this->autodetect($code);
+        }
+
+        return [$languageId, $this->tokenHtml($code, $languageId)];
+    }
+
+    /**
+     * Auto-detection for language-less fences: `highlightAuto` scores
+     * the code against the library's default subset (xml, json,
+     * javascript, css, php, http). A failed or empty detection
+     * degrades to plain escaped text.
+     *
+     * @return array{0: string, 1: string}
+     */
+    private function autodetect(string $code): array
+    {
+        try {
+            $auto = $this->highlighter->highlightAuto($code);
+        } catch (Throwable) {
+            $auto = null;
+        }
+
+        $languageId = is_object($auto) ? (string) ($auto->language ?? '') : '';
+        $value = is_object($auto) ? (string) ($auto->value ?? '') : '';
+
+        if ($languageId === '' || $value === '') {
+            return ['', htmlspecialchars($code, ENT_QUOTES | ENT_HTML5, 'UTF-8')];
+        }
+
+        return [$languageId, $this->colorize($value)];
     }
 
     private function tokenHtml(string $code, string $languageId): string
@@ -101,6 +147,15 @@ final class CodeHighlighter
             return htmlspecialchars($code, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         }
 
+        return $this->colorize($html);
+    }
+
+    /**
+     * Rewrites the engine's `hljs-*` token classes into the mockup's
+     * inline-color theme spans (the palette of `blog-article.html`).
+     */
+    private function colorize(string $html): string
+    {
         return preg_replace_callback(
             '/<span class="(?:hljs-)?([a-z0-9_-]+)(?:\s+[a-z0-9_-]+)*"[^>]*>/i',
             static function (array $match): string {

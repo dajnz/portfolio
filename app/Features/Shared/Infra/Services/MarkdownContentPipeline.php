@@ -34,7 +34,6 @@ use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\MarkdownConverter;
 use League\CommonMark\Util\HtmlFilter;
 use Illuminate\Support\Facades\Cache;
-use DateTimeImmutable;
 
 /**
  * The shared content pipeline (B23, content-management.md:466-481):
@@ -47,10 +46,11 @@ use DateTimeImmutable;
  * headings carry the anchor ids the TableOfContents scans for.
  *
  * The article variant is cached in Redis under
- * `article:html:{id}:{locale}:{updated_at}` (content-management.md:
- * 479) — the `updated_at` stamp makes the entry self-invalidating on
- * every content save. Reused by any feature rendering Markdown
- * content (Blog detail, Projects detail, ...).
+ * `article:html:{id}:{locale}:{content-hash}` (B270 — the content
+ * hash rotates the key on every content change; the 8.2
+ * `updated_at`-stamp scheme collided for saves within the same
+ * second). Reused by any feature rendering Markdown content (Blog
+ * detail, Projects detail, ...).
  *
  * Implements the app-layer {@see MarkdownContentPipelineInterface} —
  * the app layer never imports this concrete.
@@ -107,13 +107,17 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
 
     /**
      * The rendered article body, cached under
-     * `article:html:{id}:{locale}:{updated_at}` — the timestamp makes
-     * the key rotate on every save of the base row, so stale HTML can
-     * never be served.
+     * `article:html:{id}:{locale}:{content-hash}` (B270) — the key
+     * embeds a hash of the markdown, so ANY content change rotates
+     * the key: self-invalidating by content. The 8.2 stamp scheme
+     * (`updated_at` seconds) collided when two saves landed within
+     * the same second — the second save kept the old key and the
+     * cached render of the first save (observed live 2026-08-16:
+     * edited content never appeared on the public page).
      */
-    public function articleHtml(int $id, string $locale, ?DateTimeImmutable $updatedAt, string $markdown): string
+    public function articleHtml(int $id, string $locale, string $markdown): string
     {
-        $key = 'article:html:'.$id.':'.$locale.':'.($updatedAt?->getTimestamp() ?? 0);
+        $key = 'article:html:'.$id.':'.$locale.':'.substr(hash('xxh128', $markdown), 0, 16);
 
         return Cache::remember($key, self::CACHE_TTL_SECONDS, fn (): string => $this->render($markdown));
     }

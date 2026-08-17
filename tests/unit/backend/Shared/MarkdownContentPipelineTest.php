@@ -6,7 +6,6 @@ namespace Tests\Unit\Backend\Shared;
 
 use App\Features\Shared\Infra\Services\CodeHighlighter;
 use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
-use DateTimeImmutable;
 use Highlight\Highlighter;
 use Illuminate\Cache\ArrayStore;
 use Illuminate\Cache\Repository;
@@ -101,6 +100,25 @@ describe('MarkdownContentPipeline', function (): void {
             ->and($html)->toContain('<code>');
     });
 
+    it('B270: auto-detects the language of language-less fences', function (): void {
+        $html = pipeline()->render('```'.PHP_EOL.'const answer = 42;'.PHP_EOL.'```');
+
+        expect($html)->toContain('data-language="javascript"')
+            ->and($html)->toContain('style="color:')
+            // The raw code attribute stays the plain source (the fence
+            // content keeps its trailing newline).
+            ->and($html)->toContain('data-raw="const answer = 42;');
+    });
+
+    it('falls back to plain escaped text when auto-detection yields nothing', function (): void {
+        // A single short line — no language scores above zero.
+        $html = pipeline()->render('```'.PHP_EOL.'zzz'.PHP_EOL.'```');
+
+        expect($html)->toContain('data-language=""')
+            ->and($html)->not->toContain('style="color:')
+            ->and($html)->toContain('zzz');
+    });
+
     it('falls back to plain escaped text for unknown languages', function (): void {
         $html = pipeline()->render('```notalanguage'.PHP_EOL.'<tag> content'.PHP_EOL.'```');
 
@@ -140,20 +158,35 @@ describe('MarkdownContentPipeline', function (): void {
             ->and($html)->toContain('<h3 id="reshenie-problemy">');
     });
 
-    it('stamps the cache key with id/locale/updated_at', function (): void {
-        pipeline()->articleHtml(7, 'en', new DateTimeImmutable('2026-01-01 00:00:00'), '# Title');
+    it('keys the cache by id/locale/content hash', function (): void {
+        $key = 'article:html:7:en:'.substr(hash('xxh128', '# Title'), 0, 16);
 
-        expect(Cache::has('article:html:7:en:1767225600'))->toBeTrue()
-            ->and(Cache::has('article:html:7:ru:1767225600'))->toBeFalse()
-            ->and(Cache::has('article:html:7:en:1767312000'))->toBeFalse();
+        pipeline()->articleHtml(7, 'en', '# Title');
+
+        expect(Cache::has($key))->toBeTrue()
+            ->and(Cache::has('article:html:7:ru:'.substr(hash('xxh128', '# Title'), 0, 16)))->toBeFalse()
+            ->and(Cache::has('article:html:7:en:'.substr(hash('xxh128', '# Other'), 0, 16)))->toBeFalse();
     });
 
     it('caches a rendered article once and serves the same HTML', function (): void {
-        $first = pipeline()->articleHtml(1, 'en', new DateTimeImmutable('2026-01-01 00:00:00'), '# Hello');
-        $second = pipeline()->articleHtml(1, 'en', new DateTimeImmutable('2026-01-01 00:00:00'), '# Hello');
+        $first = pipeline()->articleHtml(1, 'en', '# Hello');
+        $second = pipeline()->articleHtml(1, 'en', '# Hello');
 
         expect($second)->toBe($first)
             ->and($first)->toContain('<h1 id="hello">Hello</h1>');
+    });
+
+    it('B270-regression: a content change within the same second never serves the old render', function (): void {
+        // The 8.2 `updated_at`-stamp key collided when two saves
+        // landed in the same second — the second render hit the first
+        // save's cached HTML. The content hash in the key rotates
+        // regardless of the timestamp precision.
+        $before = pipeline()->articleHtml(9, 'en', '## First');
+        $after = pipeline()->articleHtml(9, 'en', '## Second');
+
+        expect($before)->toContain('<h2 id="first">')
+            ->and($after)->toContain('<h2 id="second">')
+            ->and($after)->not->toBe($before);
     });
 });
 
