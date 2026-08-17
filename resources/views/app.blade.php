@@ -72,6 +72,7 @@
         <script type="application/ld+json" data-seo-jsonld nonce="{{ app(CspNonce::class)->getValue() }}">{!! json_encode($jsonLdBlock, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
     @endforeach
     @inertiaHead
+    @fonts
     @vite(['resources/js/app.ts', 'resources/css/app.css'])
 </head>
 <body>
