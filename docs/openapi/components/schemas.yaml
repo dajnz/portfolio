@@ -294,6 +294,17 @@ components:
         lead_image:
           type: string
           nullable: true
+        lead_image_alt:
+          type: object
+          nullable: true
+          description: |
+            The per-locale alt labels of the lead image — null when
+            `lead_image` is null.
+          properties:
+            en:
+              type: string
+            ru:
+              type: string
         tags:
           type: array
           items:
