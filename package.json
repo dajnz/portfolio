@@ -3,8 +3,9 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "npm run icons:build && vite build",
         "dev": "vite",
+        "icons:build": "node scripts/build-icon-subsets.mjs",
         "lint": "biome check resources/js && eslint resources/js",
         "lint:css": "stylelint \"resources/js/**/*.vue\"",
         "format": "biome check --write --unsafe resources/js",
@@ -15,10 +16,6 @@
         "ssr:dev": "concurrently -k \"vite build --ssr --watch\" \"wait-on bootstrap/ssr/ssr.js && node --watch bootstrap/ssr/ssr.js\""
     },
     "dependencies": {
-        "@iconify-json/devicon": "^1.2.0",
-        "@iconify-json/heroicons": "^1.2.3",
-        "@iconify-json/lucide": "^1.2.123",
-        "@iconify-json/simple-icons": "^1.2.93",
         "@iconify/vue": "^5.0.1",
         "@inertiajs/vue3": "^3.6.1",
         "@tiptap/extension-code-block-lowlight": "^3.29.2",
@@ -45,6 +42,10 @@
         "@biomejs/biome": "^2.5.6",
         "@commitlint/cli": "^21.2.1",
         "@commitlint/config-conventional": "^21.2.0",
+        "@iconify-json/devicon": "^1.2.0",
+        "@iconify-json/heroicons": "^1.2.3",
+        "@iconify-json/lucide": "^1.2.123",
+        "@iconify-json/simple-icons": "^1.2.93",
         "@playwright/test": "^1.62.1",
         "@stoplight/spectral-cli": "^6.16.3",
         "@tailwindcss/vite": "^4.0.0",

@@ -1,4 +1,6 @@
-// admin-section-components.md:251-283 — AdminIconPicker
+// admin-section-components.md:251-283 — AdminIconPicker (restricted to
+// the strict icon manifests — brands.json for skills, technical.json
+// (mixed sets) for everything else, see scripts/build-icon-subsets.mjs)
 <script setup lang="ts">
 import type { IconifyJSON } from '@iconify/types';
 import { Icon, type IconifyIcon } from '@iconify/vue';
@@ -7,8 +9,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId } from 'vue'
 
 import AdminBaseSkeleton from './AdminBaseSkeleton.vue';
 
-type IconSet = 'brands' | 'engineering' | 'ui' | 'devicon';
-type UiCategory = 'Outline' | 'Solid' | 'Mini';
+type IconSet = 'brands' | 'technical';
 
 interface IconSetData {
     width: number;
@@ -22,36 +23,6 @@ interface IconOption {
     label: string;
 }
 
-interface IconGroup {
-    label: string | null;
-    options: IconOption[];
-}
-
-const ENGINEERING_ICONS: ReadonlyArray<readonly [string, string]> = [
-    ['academic-cap', 'Learning / Education'],
-    ['archive-box', 'Architecture'],
-    ['bolt', 'Performance'],
-    ['chart-bar', 'Analytics'],
-    ['check-badge', 'Quality'],
-    ['circle-stack', 'Database'],
-    ['cloud', 'Cloud / Deployment'],
-    ['code-bracket', 'Development'],
-    ['cog-8-tooth', 'Configuration'],
-    ['cpu-chip', 'Hardware / Systems'],
-    ['document-text', 'Documentation'],
-    ['eye', 'Monitoring'],
-    ['globe-alt', 'Web'],
-    ['key', 'Authentication'],
-    ['lock-closed', 'Security'],
-    ['puzzle-piece', 'Integration'],
-    ['rocket-launch', 'Launch / Startup'],
-    ['server', 'Backend / Infrastructure'],
-    ['shield-check', 'Testing / QA'],
-    ['sparkles', 'Innovation'],
-    ['swatch', 'Design / UI'],
-    ['wrench-screwdriver', 'DevOps / Tooling'],
-];
-
 const props = withDefaults(
     defineProps<{
         modelValue: string | null;
@@ -64,7 +35,7 @@ const props = withDefaults(
     }>(),
     {
         label: undefined,
-        icon_set: 'ui',
+        icon_set: 'technical',
         placeholder: undefined,
         error: null,
         required: false,
@@ -78,11 +49,11 @@ const { t } = useI18n();
 
 const PANEL_WIDTH = 288;
 const PANEL_EDGE_OFFSET = 8;
-const setCache = new Map<IconSet, IconSetData>();
+const setCache = new Map<IconSet, Record<string, IconSetData>>();
 
 const isOpen = ref(false);
 const isLoadingSet = ref(false);
-const setData = ref<IconSetData | null>(null);
+const setData = ref<Record<string, IconSetData> | null>(null);
 const query = ref('');
 const panelStyle = ref({ top: '0px', left: '0px' });
 const panelId = useId();
@@ -102,24 +73,30 @@ function loadSet(set: IconSet): void {
 
     isLoadingSet.value = true;
 
-    const modulePromise =
+    // The picker offers only the icons listed in the strict manifests
+    // (brands.json — devicon for skills; technical.json — the mixed
+    // heroicons/simple-icons/... sets). The generated subsets are tiny,
+    // so both technical sets can load together.
+    const modulePromises =
         set === 'brands'
-            ? import('@iconify-json/simple-icons/icons.json')
-            : set === 'devicon'
-              ? import('@iconify-json/devicon/icons.json')
-              : import('@iconify-json/heroicons/icons.json');
+            ? [import('@/iconSubsets/devicon.json')]
+            : [import('@/iconSubsets/heroicons.json'), import('@/iconSubsets/simple-icons.json')];
 
-    modulePromise
-        .then((module) => {
-            // The vendored icon-set JSONs are too large for TS structural
-            // inference — the dynamic import resolves to `{ default: {} }`.
-            // IconifyJSON is the canonical shape of these files.
-            const json = (module as { default: IconifyJSON }).default;
-            const data: IconSetData = {
-                width: json.width ?? 24,
-                height: json.height ?? 24,
-                icons: json.icons,
-            };
+    Promise.all(modulePromises)
+        .then((modules) => {
+            const data: Record<string, IconSetData> = {};
+
+            for (const module of modules) {
+                // The vendored icon-set JSONs are too large for TS
+                // structural inference — the dynamic import resolves to
+                // `{ default: {} }`. IconifyJSON is the canonical shape.
+                const json = (module as { default: IconifyJSON }).default;
+                data[json.prefix] = {
+                    width: json.width ?? 24,
+                    height: json.height ?? 24,
+                    icons: json.icons,
+                };
+            }
 
             setCache.set(set, data);
             setData.value = data;
@@ -131,113 +108,32 @@ function loadSet(set: IconSet): void {
         });
 }
 
-function uiCategoryOf(name: string): UiCategory {
-    if (name.endsWith('-mini')) {
-        return 'Mini';
-    }
-
-    if (name.endsWith('-solid')) {
-        return 'Solid';
-    }
-
-    return 'Outline';
-}
-
-function stripUiSuffix(name: string): string {
-    return name.replace(/-(solid|mini)$/, '');
-}
-
-function buildGroups(): IconGroup[] {
+function buildOptions(): IconOption[] {
     const data = setData.value;
 
     if (data === null) {
         return [];
     }
 
-    if (props.icon_set === 'brands') {
-        return [
-            {
-                label: null,
-                options: Object.keys(data.icons).map((name) => ({
-                    value: `simple-icons:${name}`,
-                    name,
-                    label: name,
-                })),
-            },
-        ];
-    }
-
-    // Skills carry `devicon:*` icons (B48 — the domain enforces the
-    // format), so the skill editor picker offers the devicon set
-    // (admin-section-components.md:879 says "ui", but ui icons are
-    // heroicons and would be rejected by the SkillIcon VO — spec
-    // internal conflict resolved in favor of the domain, see B133).
-    if (props.icon_set === 'devicon') {
-        return [
-            {
-                label: null,
-                options: Object.keys(data.icons).map((name) => ({
-                    value: `devicon:${name}`,
-                    name,
-                    label: name,
-                })),
-            },
-        ];
-    }
-
-    if (props.icon_set === 'engineering') {
-        return [
-            {
-                label: null,
-                options: ENGINEERING_ICONS.map(([name, label]) => ({
-                    value: `heroicons:${name}`,
-                    name,
-                    label,
-                })),
-            },
-        ];
-    }
-
-    const grouped: Record<UiCategory, IconOption[]> = {
-        Outline: [],
-        Solid: [],
-        Mini: [],
-    };
-
-    for (const name of Object.keys(data.icons)) {
-        grouped[uiCategoryOf(name)].push({
-            value: `heroicons:${name}`,
+    return Object.entries(data).flatMap(([prefix, set]) =>
+        Object.keys(set.icons).map((name) => ({
+            value: `${prefix}:${name}`,
             name,
-            label: stripUiSuffix(name),
-        });
-    }
-
-    return (Object.entries(grouped) as Array<[UiCategory, IconOption[]]>)
-        .filter(([, options]) => options.length > 0)
-        .map(([label, options]) => ({ label, options }));
+            label: name,
+        })),
+    );
 }
 
-const groups = computed(() => buildGroups());
+const allOptions = computed(() => buildOptions());
 
-const allOptions = computed(() => groups.value.flatMap((group) => group.options));
-
-const filteredGroups = computed(() => {
+const filteredOptions = computed(() => {
     const needle = query.value.trim().toLowerCase();
 
     if (needle === '') {
-        return groups.value;
+        return allOptions.value;
     }
 
-    return groups.value
-        .map((group) => ({
-            ...group,
-            options: group.options.filter((option) => {
-                const searchable = props.icon_set === 'engineering' ? option.name : option.label;
-
-                return searchable.toLowerCase().includes(needle);
-            }),
-        }))
-        .filter((group) => group.options.length > 0);
+    return allOptions.value.filter((option) => option.label.toLowerCase().includes(needle));
 });
 
 const selectedLabel = computed(() => {
@@ -256,13 +152,13 @@ const selectedLabel = computed(() => {
 
 function iconFor(value: string): string | IconifyIcon {
     const data = setData.value;
-    const name = value.split(':').at(-1) ?? value;
+    const [prefix, name] = value.split(':');
 
-    if (data === null) {
+    if (data === undefined || data === null || prefix === undefined || name === undefined) {
         return value;
     }
 
-    const entry = data.icons[name];
+    const entry = data[prefix]?.icons[name];
 
     if (entry === undefined) {
         return value;
@@ -270,8 +166,8 @@ function iconFor(value: string): string | IconifyIcon {
 
     return {
         body: entry.body,
-        width: data.width,
-        height: data.height,
+        width: data[prefix].width,
+        height: data[prefix].height,
     };
 }
 
@@ -374,11 +270,7 @@ onMounted(() => {
     window.addEventListener('scroll', onWindowScroll);
 
     if (props.modelValue !== null) {
-        if (props.modelValue.startsWith('devicon:')) {
-            loadSet('devicon');
-        } else if (!props.modelValue.startsWith('heroicons:')) {
-            loadSet('brands');
-        }
+        loadSet(props.modelValue.startsWith('devicon:') ? 'brands' : 'technical');
     }
 });
 
@@ -477,44 +369,33 @@ onBeforeUnmount(() => {
           v-else
           class="thin-scrollbar flex-1 min-h-0 overflow-y-auto"
         >
-          <template
-            v-for="(group, groupIndex) in filteredGroups"
-            :key="group.label ?? `group-${groupIndex}`"
-          >
-            <div
-              v-if="group.label !== null"
-              class="px-3 pt-3 pb-1 text-2xs font-bold uppercase tracking-wider text-slate-400"
+          <div class="grid grid-cols-6 gap-1 p-2">
+            <button
+              v-for="option in filteredOptions"
+              :key="option.value"
+              type="button"
+              class="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-950 transition-colors"
+              :class="{
+                'bg-primary-50 dark:bg-primary-950 ring-1 ring-primary-500':
+                  option.value === props.modelValue,
+              }"
+              :data-testid="`${props.test_id}-icon-${option.value}`"
+              @click="selectIcon(option)"
             >
-              {{ group.label }}
-            </div>
-            <div class="grid grid-cols-6 gap-1 p-2">
-              <button
-                v-for="option in group.options"
-                :key="option.value"
-                type="button"
-                class="flex flex-col items-center gap-1 p-1.5 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-950 transition-colors"
-                :class="{
-                  'bg-primary-50 dark:bg-primary-950 ring-1 ring-primary-500':
-                    option.value === props.modelValue,
-                }"
-                :data-testid="`${props.test_id}-icon-${option.value}`"
-                @click="selectIcon(option)"
+              <Icon
+                class="w-6 h-6"
+                :icon="iconFor(option.value)"
+                aria-hidden="true"
+              />
+              <span
+                class="text-[0.55rem] text-slate-400 truncate w-full text-center"
               >
-                <Icon
-                  class="w-6 h-6"
-                  :icon="iconFor(option.value)"
-                  aria-hidden="true"
-                />
-                <span
-                  class="text-[0.55rem] text-slate-400 truncate w-full text-center"
-                >
-                  {{ option.label }}
-                </span>
-              </button>
-            </div>
-          </template>
+                {{ option.label }}
+              </span>
+            </button>
+          </div>
           <p
-            v-if="filteredGroups.length === 0"
+            v-if="filteredOptions.length === 0"
             class="p-4 text-center text-sm text-slate-400"
           >
             {{ t('admin.icon_picker.no_icons_match') }}

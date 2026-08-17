@@ -5,9 +5,10 @@ import { type Ref, ref } from 'vue';
 // Offline registration of the public landing's icon sets (B78: no runtime
 // calls to the Iconify API). devicon (skill icons) and simple-icons
 // (contact brand icons) ship to the app only through this lazy dynamic
-// import — statically importing the full JSONs (~1 MB + ~5.4 MB raw)
-// would blow the landing page's JS budget (architecture.md Performance
-// Budget). The `iconsReady` ref lets consumers render their `<Icon>`
+// import — the full JSONs (~5 MB each raw) would blow the landing page's
+// JS budget (architecture.md Performance Budget); the subsets generated
+// by `npm run icons:build` (scripts/build-icon-subsets.mjs) keep them at
+// tens of KB. The `iconsReady` ref lets consumers render their `<Icon>`
 // elements only after registration — a non-reactive storage would leave
 // them empty until an unrelated re-render.
 
@@ -26,8 +27,8 @@ export function ensurePublicIcons(): void {
     registered = true;
 
     void Promise.all([
-        import('@iconify-json/devicon/icons.json'),
-        import('@iconify-json/simple-icons/icons.json'),
+        import('@/iconSubsets/devicon.json'),
+        import('@/iconSubsets/simple-icons.json'),
     ])
         .then(([devicon, simpleIcons]) => {
             addCollection((devicon as { default: IconifyJSON }).default);

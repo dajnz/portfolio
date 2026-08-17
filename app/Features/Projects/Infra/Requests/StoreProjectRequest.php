@@ -27,9 +27,11 @@ use Illuminate\Validation\Validator;
  *
  * Nested arrays: `screenshots` (RustFS `image` path, per-locale
  * `alt_text`/`title`/`description` maps — reconciled by id per A2) and
- * `detail_items` (engineering Iconify `icon` from the curated set in
- * config/portfolio.php, per-locale `title`/`description` required when
- * the item exists). The tech-writeup reference must point to a
+ * `detail_items` (engineering Iconify `icon` in the `set:name` format —
+ * membership is constrained by the strict icon manifests and the
+ * restricted picker, the format invariant lives in
+ * `EngineeringDetailIcon`, per-locale `title`/`description` required
+ * when the item exists). The tech-writeup reference must point to a
  * PUBLISHED article (content-management.md:648); the display-time
  * re-check happens in the public controller.
  */
@@ -98,7 +100,7 @@ final class StoreProjectRequest extends FormRequest
                 'required_with:detail_items',
                 'string',
                 'max:100',
-                Rule::in(array_keys((array) config('portfolio.icons.sets.engineering.icons'))),
+                'regex:/^[a-zA-Z0-9\-]+:[a-zA-Z0-9\-]+$/',
             ],
         ];
 

@@ -4,10 +4,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import AdminIconPicker from '@shared-admin/AdminIconPicker.vue';
 
-// The vendored icon-set JSONs are loaded dynamically on every panel open.
-// Both are aliased to tiny fixtures in the vitest config (test.alias)
-// covering every icon name used in the frontend + tests — heroicons
-// includes a `-solid` suffixed icon to exercise the Solid grouping.
+// The icon subsets (resources/js/iconSubsets — generated from the strict
+// icon manifests by `npm run icons:build`) are loaded dynamically on
+// every panel open. They are small enough to load as-is in vitest.
 // These tests verify picker behavior, not the vendored data.
 
 function mountIconPicker(props = {}) {
@@ -59,8 +58,8 @@ describe('AdminIconPicker', () => {
         expect(document.activeElement).toBe(wrapper.get('[data-testid="icon-picker-search"]').element);
     });
 
-    it('shows the 22 curated icons of the engineering set', async () => {
-        const wrapper = mountIconPicker({ icon_set: 'engineering' });
+    it('shows the mixed technical set (heroicons + simple-icons) in a flat list', async () => {
+        const wrapper = mountIconPicker({ icon_set: 'technical' });
 
         await openPanel(wrapper);
 
@@ -71,39 +70,13 @@ describe('AdminIconPicker', () => {
             { timeout: 5000 },
         );
         expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:bolt"]').exists()).toBe(true);
-        expect(wrapper.findAll('[data-testid^="icon-picker-icon-heroicons:"]')).toHaveLength(22);
+        expect(wrapper.find('[data-testid="icon-picker-icon-simple-icons:github"]').exists()).toBe(true);
+        expect(wrapper.text()).not.toContain('Outline');
+        expect(wrapper.find('[data-testid^="icon-picker-icon-devicon:"]').exists()).toBe(false);
     });
 
-    it('groups the ui set into Outline, Solid and Mini', async () => {
-        const wrapper = mountIconPicker({ icon_set: 'ui' });
-
-        await openPanel(wrapper);
-
-        await vi.waitFor(
-            () => {
-                expect(wrapper.find('[data-testid="icon-picker-icon-heroicons:academic-cap"]').exists()).toBe(true);
-            },
-            { timeout: 5000 },
-        );
-        expect(wrapper.text()).toContain('Outline');
-        expect(wrapper.text()).toContain('Solid');
-    });
-
-    it('shows simple-icons in the brands set', async () => {
+    it('shows only devicon icons in the brands set (skills)', async () => {
         const wrapper = mountIconPicker({ icon_set: 'brands' });
-
-        await openPanel(wrapper);
-
-        await vi.waitFor(
-            () => {
-                expect(wrapper.find('[data-testid="icon-picker-icon-simple-icons:github"]').exists()).toBe(true);
-            },
-            { timeout: 5000 },
-        );
-    });
-
-    it('shows devicon icons in the devicon set (skills — B133)', async () => {
-        const wrapper = mountIconPicker({ icon_set: 'devicon' });
 
         await openPanel(wrapper);
 
@@ -115,10 +88,11 @@ describe('AdminIconPicker', () => {
         );
         expect(wrapper.find('[data-testid="icon-picker-icon-devicon:php"]').exists()).toBe(true);
         expect(wrapper.find('[data-testid^="icon-picker-icon-heroicons:"]').exists()).toBe(false);
+        expect(wrapper.find('[data-testid^="icon-picker-icon-simple-icons:"]').exists()).toBe(false);
     });
 
     it('filters the grid with the search query', async () => {
-        const wrapper = mountIconPicker({ icon_set: 'ui' });
+        const wrapper = mountIconPicker({ icon_set: 'technical' });
 
         await openPanel(wrapper);
         await vi.waitFor(
@@ -135,7 +109,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('shows the no-icons-match message for an empty search', async () => {
-        const wrapper = mountIconPicker({ icon_set: 'engineering' });
+        const wrapper = mountIconPicker({ icon_set: 'technical' });
 
         await openPanel(wrapper);
         await vi.waitFor(
@@ -151,7 +125,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('highlights the selected icon in the grid', async () => {
-        const wrapper = mountIconPicker({ icon_set: 'engineering', modelValue: 'heroicons:bolt' });
+        const wrapper = mountIconPicker({ icon_set: 'technical', modelValue: 'heroicons:bolt' });
 
         await openPanel(wrapper);
         await vi.waitFor(
@@ -167,7 +141,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('emits update:modelValue and closes the panel on selection', async () => {
-        const wrapper = mountIconPicker({ icon_set: 'engineering' });
+        const wrapper = mountIconPicker({ icon_set: 'technical' });
 
         await openPanel(wrapper);
         await vi.waitFor(
@@ -184,7 +158,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('ignores a click on the already-selected icon', async () => {
-        const wrapper = mountIconPicker({ icon_set: 'engineering', modelValue: 'heroicons:bolt' });
+        const wrapper = mountIconPicker({ icon_set: 'technical', modelValue: 'heroicons:bolt' });
 
         await openPanel(wrapper);
         await vi.waitFor(
@@ -201,7 +175,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('closes the panel on an outside click', async () => {
-        const wrapper = mountIconPicker({ icon_set: 'engineering' });
+        const wrapper = mountIconPicker({ icon_set: 'technical' });
 
         await openPanel(wrapper);
         await vi.waitFor(
@@ -221,7 +195,7 @@ describe('AdminIconPicker', () => {
     });
 
     it('closes the panel when the trigger is clicked again', async () => {
-        const wrapper = mountIconPicker({ icon_set: 'engineering' });
+        const wrapper = mountIconPicker({ icon_set: 'technical' });
 
         await openPanel(wrapper);
         expect(wrapper.find('[data-testid="icon-picker-panel"]').exists()).toBe(true);

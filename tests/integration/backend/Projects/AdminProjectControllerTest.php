@@ -521,12 +521,12 @@ describe('AdminProjectController', function (): void {
             ->assertSessionHasNoErrors();
     });
 
-    it('validates the engineering icons and the tech-writeup publication', function (): void {
+    it('validates the engineering detail icon format and the tech-writeup publication', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $this->post('/admin/projects', projectPayload([
             'detail_items' => [
-                ['icon' => 'heroicons:not-in-the-set', 'title' => ['en' => 'X'], 'description' => ['en' => 'Y']],
+                ['icon' => 'not an icon', 'title' => ['en' => 'X'], 'description' => ['en' => 'Y']],
             ],
         ]))->assertRedirect()
             ->assertSessionHasErrors('detail_items.0.icon');

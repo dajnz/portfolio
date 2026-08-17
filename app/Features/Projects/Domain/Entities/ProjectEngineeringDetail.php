@@ -12,9 +12,9 @@ use InvalidArgumentException;
 /**
  * An engineering detail item of the project detail page
  * (database.md:236-249): an optional {@see EngineeringDetailIcon}
- * identifier from the curated `engineering` set (config/portfolio.php →
- * `icons.sets.engineering.icons`), its zero-based `sort_order`, and the
- * per-locale title/description rows
+ * identifier in the Iconify `set:name` form (membership is constrained
+ * by the strict icon manifests, not server-side), its zero-based
+ * `sort_order`, and the per-locale title/description rows
  * ({@see ProjectEngineeringDetailTranslation} — required per locale
  * when the item exists, content-management.md:645-646).
  *
