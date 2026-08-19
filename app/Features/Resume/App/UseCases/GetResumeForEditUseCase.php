@@ -4,25 +4,72 @@ declare(strict_types=1);
 
 namespace App\Features\Resume\App\UseCases;
 
-use App\Features\Resume\Domain\Entities\ResumeConfig;
+use App\Features\Resume\App\DTOs\ResumeEditDataDto;
 use App\Features\Resume\Domain\RepositoryInterfaces\ResumeConfigRepositoryInterface;
+use App\Features\Shared\Infra\Services\ActiveLocaleService;
 
 /**
  * Reads the resume configuration for the admin edit form
  * (admin-section-ui.md:248-296, resume.yaml#ResumeEditPageProps): mode,
- * layout, manual file path and the per-locale about texts. The defaults
- * come from the controller layer when the (seeder-guaranteed) single row
- * is absent — the page itself is the creation surface.
+ * layout, manual file path and the per-locale about texts. When the
+ * (seeder-guaranteed) single row is absent, the documented defaults are
+ * returned (content-management.md:337-350) — the page is the creation
+ * surface.
  */
 final class GetResumeForEditUseCase
 {
     public function __construct(
         private readonly ResumeConfigRepositoryInterface $repository,
+        private readonly ActiveLocaleService $locales,
     ) {
     }
 
-    public function get(): ?ResumeConfig
+    public function get(): ResumeEditDataDto
     {
-        return $this->repository->find();
+        $config = $this->repository->find();
+
+        if ($config === null) {
+            return new ResumeEditDataDto(
+                mode: 'manual',
+                layout: self::defaultLayout(),
+                customResumeFile: null,
+                aboutTexts: [],
+            );
+        }
+
+        $aboutTexts = [];
+
+        foreach ($this->locales->activeLocales() as $locale) {
+            $aboutTexts[$locale] = $config->aboutTextFor($locale) ?? '';
+        }
+
+        return new ResumeEditDataDto(
+            mode: $config->toMode(),
+            layout: $config->toLayout(),
+            customResumeFile: $config->toCustomResumeFile(),
+            aboutTexts: $aboutTexts,
+        );
+    }
+
+    /**
+     * The documented default layout (content-management.md:337-347)
+     * normalized to the validated `order` range 0–4 — the example's
+     * 1–5 sequence would fail the request's own `between:0,4` rule
+     * (B275).
+     *
+     * @return array<string, mixed>
+     */
+    private static function defaultLayout(): array
+    {
+        return [
+            'template' => 'modern',
+            'sections' => [
+                'header' => ['visible' => true, 'order' => 0],
+                'about_me' => ['visible' => true, 'order' => 1],
+                'skills' => ['visible' => true, 'order' => 2],
+                'experience' => ['visible' => true, 'order' => 3],
+                'contacts' => ['visible' => true, 'order' => 4],
+            ],
+        ];
     }
 }

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Features\Resume\Domain\Entities;
 
-use App\Features\Resume\Domain\ValueObjects\ResumeMode;
 use App\Features\Shared\Domain\BaseEntity;
 use DateTimeImmutable;
 use InvalidArgumentException;
@@ -17,6 +16,7 @@ use InvalidArgumentException;
  * content lives in {@see ResumeConfigTranslation} value objects; the
  * `updated_at` stamp feeds the PDF content hash
  * (content-management.md:393). Invariants are enforced by construction:
+ * the mode is one of `auto`|`manual` (the varchar + CHECK column domain),
  * the layout shape (template set, exactly the five sections, each with a
  * boolean `visible` and an integer `order` 0–4) matches the request
  * validation table (content-management.md:360-375).
@@ -32,18 +32,21 @@ final class ResumeConfig extends BaseEntity
 
     private const SECTION_KEYS = ['header', 'about_me', 'skills', 'experience', 'contacts'];
 
+    private const MODES = ['auto', 'manual'];
+
     /**
      * @param  array<string, mixed>  $layout  The layout JSON (template + sections map).
      * @param  ResumeConfigTranslation[]  $translations  Keyed by locale on construction.
      */
     public function __construct(
         private readonly int $id,
-        private ResumeMode $mode,
+        private string $mode,
         private array $layout,
         private ?string $customResumeFile,
         private array $translations,
         private readonly DateTimeImmutable $updatedAt,
     ) {
+        $this->validateMode($mode);
         $this->validateLayout($layout);
         $this->validateCustomResumeFile($customResumeFile);
         $this->translations = $this->translationsByLocaleMap($translations);
@@ -54,9 +57,27 @@ final class ResumeConfig extends BaseEntity
         return $this->id;
     }
 
-    public function toMode(): ResumeMode
+    public function toMode(): string
     {
         return $this->mode;
+    }
+
+    /**
+     * `auto` = the PDF is generated from the structured portfolio data
+     * (content-management.md:330).
+     */
+    public function isAuto(): bool
+    {
+        return $this->mode === 'auto';
+    }
+
+    /**
+     * `manual` = the uploaded file (`custom_resume_file`) is served
+     * directly (content-management.md:330,403-405).
+     */
+    public function isManual(): bool
+    {
+        return $this->mode === 'manual';
     }
 
     /**
@@ -101,8 +122,9 @@ final class ResumeConfig extends BaseEntity
         return $translation?->toAboutText();
     }
 
-    public function changeMode(ResumeMode $mode): void
+    public function changeMode(string $mode): void
     {
+        $this->validateMode($mode);
         $this->mode = $mode;
     }
 
@@ -127,6 +149,13 @@ final class ResumeConfig extends BaseEntity
     public function updateAboutText(string $locale, ?string $aboutText): void
     {
         $this->translations[$locale] = new ResumeConfigTranslation($locale, $aboutText);
+    }
+
+    private function validateMode(string $mode): void
+    {
+        if (! in_array($mode, self::MODES, true)) {
+            throw new InvalidArgumentException('Resume mode must be one of: '.implode(', ', self::MODES).'.');
+        }
     }
 
     /**

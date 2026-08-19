@@ -8,7 +8,6 @@ use App\Features\Resume\App\Contracts\ResumePdfRendererInterface;
 use App\Features\Resume\App\DTOs\ResumePdfDto;
 use App\Features\Resume\Domain\Entities\ResumeConfig;
 use App\Features\Resume\Domain\RepositoryInterfaces\ResumeConfigRepositoryInterface;
-use App\Features\Resume\Domain\ValueObjects\ResumeMode;
 use App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 use Illuminate\Support\Facades\Cache;
@@ -50,7 +49,7 @@ final class GetResumePdfUseCase
             return null;
         }
 
-        if ($config->toMode() === ResumeMode::Manual) {
+        if ($config->isManual()) {
             $path = $config->toCustomResumeFile();
 
             return $path === null

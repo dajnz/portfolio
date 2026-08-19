@@ -6,6 +6,7 @@ namespace App\Features\Resume\Infra\Controllers;
 
 use App\Features\Resume\App\UseCases\GetResumePdfUseCase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -29,7 +30,7 @@ final class PublicResumeController
     {
         $locale = $this->resolveLocale($request);
 
-        app()->setLocale($locale);
+        App::setLocale($locale);
 
         $pdf = $this->pdfCase->get($locale);
 
@@ -38,11 +39,11 @@ final class PublicResumeController
         }
 
         return Storage::disk('rustfs')->response(
-            $pdf->toPath(),
-            $pdf->toFileName(),
+            $pdf->path,
+            $pdf->fileName,
             [
-                'Content-Type' => $pdf->toContentType(),
-                'Content-Disposition' => 'inline; filename="'.$pdf->toFileName().'"',
+                'Content-Type' => $pdf->contentType,
+                'Content-Disposition' => 'inline; filename="'.$pdf->fileName.'"',
             ],
         );
     }
@@ -62,6 +63,6 @@ final class PublicResumeController
             return $queryLocale;
         }
 
-        return (string) app()->getLocale();
+        return (string) App::getLocale();
     }
 }

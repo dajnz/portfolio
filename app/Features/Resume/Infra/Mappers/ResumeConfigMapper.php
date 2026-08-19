@@ -6,7 +6,6 @@ namespace App\Features\Resume\Infra\Mappers;
 
 use App\Features\Resume\Domain\Entities\ResumeConfig;
 use App\Features\Resume\Domain\Entities\ResumeConfigTranslation;
-use App\Features\Resume\Domain\ValueObjects\ResumeMode;
 use App\Features\Resume\Infra\Models\ResumeConfigModel;
 use App\Features\Resume\Infra\Models\ResumeConfigTranslationModel;
 use InvalidArgumentException;
@@ -23,7 +22,7 @@ final class ResumeConfigMapper
     {
         return new ResumeConfig(
             id: (int) $model->id,
-            mode: ResumeMode::from((string) $model->mode),
+            mode: (string) $model->mode,
             layout: $model->layout ?? [],
             customResumeFile: $model->custom_resume_file,
             translations: $model->translations
@@ -46,7 +45,7 @@ final class ResumeConfigMapper
     public function toRow(ResumeConfig $config): array
     {
         return [
-            'mode' => $config->toMode()->value,
+            'mode' => $config->toMode(),
             'layout' => $config->toLayout(),
             'custom_resume_file' => $config->toCustomResumeFile(),
         ];

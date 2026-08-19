@@ -13,24 +13,9 @@ namespace App\Features\Resume\App\DTOs;
 final readonly class ResumePdfDto
 {
     public function __construct(
-        private string $path,
-        private string $fileName,
-        private string $contentType,
+        public string $path,
+        public string $fileName,
+        public string $contentType,
     ) {
-    }
-
-    public function toPath(): string
-    {
-        return $this->path;
-    }
-
-    public function toFileName(): string
-    {
-        return $this->fileName;
-    }
-
-    public function toContentType(): string
-    {
-        return $this->contentType;
     }
 }
