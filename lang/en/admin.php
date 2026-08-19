@@ -126,6 +126,8 @@ return [
         'work_type' => 'Work Type',
         'configure_resume' => 'Configure Resume',
         'resume_managed_on_settings' => '— managed on the Resume settings page',
+        'resume_mode_auto' => 'Auto-generated',
+        'resume_mode_manual' => 'Custom upload',
         'replace' => 'Replace',
     ],
 

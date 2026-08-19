@@ -35,6 +35,12 @@ use App\Features\Projects\Infra\Repositories\EloquentProjectListQueryRepository;
 use App\Features\Projects\Infra\Repositories\EloquentProjectRepository;
 use App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface;
 use App\Features\Projects\Infra\Services\PublishedArticleReader;
+use App\Features\Resume\App\Contracts\ResumePdfRendererInterface;
+use App\Features\Resume\Domain\RepositoryInterfaces\ResumeConfigRepositoryInterface;
+use App\Features\Resume\Infra\Repositories\EloquentResumeConfigRepository;
+use App\Features\Resume\Infra\Repositories\EloquentResumeDataReader;
+use App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface;
+use App\Features\Resume\Infra\Services\ResumePdfRenderer;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Settings\Infra\Repositories\EloquentFeatureFlagRepository;
@@ -237,6 +243,21 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             PublicArticleReadRepositoryInterface::class,
             EloquentArticleListQueryRepository::class,
+        );
+
+        $this->app->bind(
+            ResumeConfigRepositoryInterface::class,
+            EloquentResumeConfigRepository::class,
+        );
+
+        $this->app->bind(
+            ResumeDataReaderInterface::class,
+            EloquentResumeDataReader::class,
+        );
+
+        $this->app->bind(
+            ResumePdfRendererInterface::class,
+            ResumePdfRenderer::class,
         );
     }
 

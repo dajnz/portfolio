@@ -70,4 +70,79 @@ describe('CleanupOrphanedFilesCommand', function (): void {
             ->expectsOutputToContain('No orphaned files found.')
             ->assertSuccessful();
     });
+
+    it('preserves the generated resume PDFs matching the current content hash', function (): void {
+        $this->seed(\Database\Seeders\SettingsSeeder::class);
+
+        DB::table('resume_config')->insert([
+            'id' => 1,
+            'mode' => 'auto',
+            'layout' => json_encode([
+                'template' => 'modern',
+                'sections' => [
+                    'header' => ['visible' => true, 'order' => 0],
+                    'about_me' => ['visible' => true, 'order' => 1],
+                    'skills' => ['visible' => true, 'order' => 2],
+                    'experience' => ['visible' => true, 'order' => 3],
+                    'contacts' => ['visible' => true, 'order' => 4],
+                ],
+            ]),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('about_info')->insert([
+            'id' => 1,
+            'show_location' => true,
+            'relocation_readiness' => false,
+            'work_type' => 'remote',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('skill_groups')->insert([
+            'id' => 1,
+            'sort_order' => 0,
+            'icon' => 'heroicons:server',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        DB::table('skills')->insert([
+            'id' => 1,
+            'skill_group_id' => 1,
+            'name' => 'Laravel',
+            'icon' => 'devicon:laravel',
+            'proficiency' => 5,
+            'include_in_resume' => true,
+            'sort_order' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $layout = DB::table('resume_config')->value('layout');
+        $stamps = fn (string $table): array => DB::table($table)
+            ->orderBy('id')
+            ->pluck('updated_at')
+            ->map(fn (mixed $stamp): string => (string) $stamp)
+            ->all();
+        $hash = hash('sha256', json_encode([
+            'stamps' => [
+                'about_info' => DB::table('about_info')->value('updated_at'),
+                'skill_groups' => $stamps('skill_groups'),
+                'skills' => $stamps('skills'),
+                'contacts' => $stamps('contacts'),
+                'experience_timeline_items' => $stamps('experience_timeline_items'),
+            ],
+            'config_updated_at' => DB::table('resume_config')->value('updated_at'),
+            'layout' => json_decode((string) $layout, true),
+        ], JSON_THROW_ON_ERROR));
+
+        Storage::disk('rustfs')->put("about/resume_en_{$hash}.pdf", 'a');
+        Storage::disk('rustfs')->put("about/resume_ru_{$hash}.pdf", 'b');
+        Storage::disk('rustfs')->put('about/resume_en_oldhash.pdf', 'c');
+
+        $this->artisan('app:cleanup-orphaned-files')->assertSuccessful();
+
+        expect(Storage::disk('rustfs')->exists("about/resume_en_{$hash}.pdf"))->toBeTrue()
+            ->and(Storage::disk('rustfs')->exists("about/resume_ru_{$hash}.pdf"))->toBeTrue()
+            ->and(Storage::disk('rustfs')->exists('about/resume_en_oldhash.pdf'))->toBeFalse();
+    });
 });

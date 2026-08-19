@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Features\Auth\Infra\Models\AdminModel;
+use App\Features\Resume\Infra\Models\ResumeConfigModel;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -59,7 +60,33 @@ final class E2ETestSeeder extends Seeder
             FeatureFlagSeeder::class,
         ]);
 
+        $this->seedSingleRowEntities();
+
         $this->seedAdmin();
+    }
+
+    /**
+     * The single-row configuration entities per database.md:597: the
+     * resume_config (id = 1, `mode = 'manual'` matching the column
+     * default, the default layout JSON, no translations).
+     */
+    private function seedSingleRowEntities(): void
+    {
+        ResumeConfigModel::query()->create([
+            'id' => 1,
+            'mode' => 'manual',
+            'layout' => [
+                'template' => 'modern',
+                'sections' => [
+                    'header' => ['visible' => true, 'order' => 0],
+                    'about_me' => ['visible' => true, 'order' => 1],
+                    'skills' => ['visible' => true, 'order' => 2],
+                    'experience' => ['visible' => true, 'order' => 3],
+                    'contacts' => ['visible' => true, 'order' => 4],
+                ],
+            ],
+            'custom_resume_file' => null,
+        ]);
     }
 
     /**

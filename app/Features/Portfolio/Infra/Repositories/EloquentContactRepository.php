@@ -74,7 +74,10 @@ final class EloquentContactRepository implements ContactRepositoryInterface, Con
 
             // Single batched update — no per-row N+1 writes. The CASE
             // operands are validated integers interpolated directly into
-            // the expression (DB::raw carries no bindings).
+            // the expression (DB::raw carries no bindings). `updated_at`
+            // is bumped explicitly — query-builder writes fire no model
+            // events, and the resume PDF content hash (content-
+            // management.md:393) rotates on every source change.
             $cases = [];
             foreach ($ids as $position => $id) {
                 $cases[] = sprintf('WHEN %d THEN %d', $id, $position);
@@ -84,6 +87,7 @@ final class EloquentContactRepository implements ContactRepositoryInterface, Con
                 ->whereIn('id', $ids)
                 ->update([
                     'sort_order' => DB::raw('CASE id '.implode(' ', $cases).' END'),
+                    'updated_at' => now(),
                 ]);
         });
     }

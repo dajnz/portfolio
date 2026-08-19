@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Features\Shared\Infra\Commands;
 
+use App\Features\Settings\Domain\Enums\SettingName;
+use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -20,9 +22,11 @@ use Illuminate\Support\Facades\Storage;
  * `blog_articles.lead_image`, `about_info.photo`, `about_info.resume_file`,
  * `resume_config.custom_resume_file`, and image paths extracted from
  * `blog_article_translations.content` (Markdown `![alt](path)` + HTML
- * `<img src="path">`). The expected generated resume PDFs
- * (`about/resume_{locale}_{content_hash}.pdf`) are matched once the content
- * hash computation lands with the Resume feature (step 10.1).
+ * `<img src="path">`). The generated resume PDFs
+ * (`about/resume_{locale}_{content_hash}.pdf`) matching the CURRENT
+ * content hash are preserved (content-management.md:409,831-833) — the
+ * hash is recomputed here with the same source stamps the Resume feature
+ * uses (step 10.1), so stale-hash PDFs fall out as orphans.
  */
 final class CleanupOrphanedFilesCommand extends Command
 {
@@ -30,6 +34,12 @@ final class CleanupOrphanedFilesCommand extends Command
         {--dry-run : List orphaned files without deleting them}';
 
     protected $description = 'Delete RustFS objects not referenced by any DB column or Markdown content';
+
+    public function __construct(
+        private readonly SettingRepositoryInterface $settings,
+    ) {
+        parent::__construct();
+    }
 
     public function handle(): int
     {
@@ -98,7 +108,77 @@ final class CleanupOrphanedFilesCommand extends Command
             $paths[] = $path;
         }
 
+        foreach ($this->generatedResumePdfPaths() as $path) {
+            $paths[] = $path;
+        }
+
         return array_values(array_filter(array_unique($paths)));
+    }
+
+    /**
+     * The expected generated resume PDFs: `about/resume_{locale}_{hash}.pdf`
+     * for every active locale with the CURRENT content hash
+     * (content-management.md:392,409). The hash mirrors the Resume
+     * feature's computation (source `updated_at` stamps + config stamp +
+     * layout JSON — content-management.md:393) so PDFs of older hashes
+     * are not referenced and get cleaned up.
+     *
+     * @return string[]
+     */
+    private function generatedResumePdfPaths(): array
+    {
+        $config = DB::table('resume_config')->where('id', 1)->first();
+
+        if ($config === null) {
+            return [];
+        }
+
+        $layout = is_string($config->layout) ? json_decode($config->layout, true) : null;
+
+        $hash = hash('sha256', json_encode([
+            'stamps' => [
+                'about_info' => DB::table('about_info')->value('updated_at'),
+                'skill_groups' => $this->stampsOf('skill_groups'),
+                'skills' => $this->stampsOf('skills'),
+                'contacts' => $this->stampsOf('contacts'),
+                'experience_timeline_items' => $this->stampsOf('experience_timeline_items'),
+            ],
+            'config_updated_at' => $config->updated_at,
+            'layout' => $layout,
+        ], JSON_THROW_ON_ERROR));
+
+        $paths = [];
+
+        foreach ($this->activeLocales() as $locale) {
+            $paths[] = "about/resume_{$locale}_{$hash}.pdf";
+        }
+
+        return $paths;
+    }
+
+    /**
+     * @return string[]
+     */
+    private function stampsOf(string $table): array
+    {
+        return DB::table($table)
+            ->orderBy('id')
+            ->pluck('updated_at')
+            ->map(fn (mixed $stamp): string => (string) $stamp)
+            ->all();
+    }
+
+    /**
+     * @return string[]
+     */
+    private function activeLocales(): array
+    {
+        $locales = $this->settings->value(
+            SettingName::SupportedLocales,
+            config('portfolio.supported_locales', ['en', 'ru']),
+        );
+
+        return array_values(array_unique(array_map('strval', (array) $locales)));
     }
 
     /**

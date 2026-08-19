@@ -214,6 +214,31 @@ describe('TechSkillController', function (): void {
             ->and(SkillModel::query()->find($b->id)->sort_order)->toBe(2);
     });
 
+    it('bumps updated_at on reorder — the resume PDF content hash rotates', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $group = SkillGroupModel::factory()->create();
+        $a = SkillModel::factory()->create(['skill_group_id' => $group->id, 'sort_order' => 0]);
+        $b = SkillModel::factory()->create(['skill_group_id' => $group->id, 'sort_order' => 1]);
+
+        $stale = now()->subDay();
+        SkillModel::query()->whereKey($a->id)->update(['updated_at' => $stale]);
+        SkillModel::query()->whereKey($b->id)->update(['updated_at' => $stale]);
+
+        $this->post('/admin/skills/reorder', [
+            'skills' => [
+                ['id' => $b->id, 'skill_group_id' => $group->id],
+                ['id' => $a->id, 'skill_group_id' => $group->id],
+            ],
+        ])->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        // The batched write fires no model events — the explicit stamp
+        // bump is what rotates the resume content hash (step 10.1).
+        expect(SkillModel::query()->find($a->id)->updated_at->isAfter($stale))->toBeTrue()
+            ->and(SkillModel::query()->find($b->id)->updated_at->isAfter($stale))->toBeTrue();
+    });
+
     it('rejects a malformed skill reorder payload', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 

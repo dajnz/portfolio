@@ -31,6 +31,7 @@ interface AboutEditProps {
     availability_status?: string | null;
     work_type?: string;
     relocation_readiness?: boolean;
+    resume_mode?: 'auto' | 'manual';
 }
 
 interface AboutFormValues {
@@ -50,10 +51,12 @@ interface AboutFormValues {
 const props = withDefaults(
     defineProps<{
         about?: AboutEditProps | null;
+        resume_mode?: 'auto' | 'manual';
         test_id?: string;
     }>(),
     {
         about: null,
+        resume_mode: 'manual',
         test_id: 'about-edit-page',
     },
 );
@@ -458,12 +461,17 @@ function cancel(): void {
           />
         </div>
 
-        <!-- Resume summary line — the mode value itself arrives with the
-             Resume feature (Phase 10); until then only the hint + link
-             render (deviation note in IMPLEMENTATION-PLAN.md). -->
+        <!-- Resume summary line — the mode label from the Resume feature
+             (resume_mode prop, step 10.1; admin-section-components.md:793). -->
         <div class="mb-6 flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary">
           <p class="text-sm text-slate-600 dark:text-slate-400">
             {{ t('admin.nav.resume') }}
+            <span
+              class="font-semibold text-slate-800 dark:text-slate-100"
+              :data-testid="`${props.test_id}-resume-mode`"
+            >
+              {{ t(`admin.about.resume_mode_${props.resume_mode ?? 'manual'}`) }}
+            </span>
             <span class="text-xs text-slate-400 dark:text-slate-500">
               {{ t('admin.about.resume_managed_on_settings') }}
             </span>

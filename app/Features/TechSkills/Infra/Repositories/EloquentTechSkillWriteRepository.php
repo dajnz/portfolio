@@ -147,12 +147,16 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
 
             // Single batched update — no per-row N+1 writes. The CASE
             // operands are validated integers interpolated directly into
-            // the expression (DB::raw carries no bindings).
+            // the expression (DB::raw carries no bindings). `updated_at`
+            // is bumped explicitly — query-builder writes fire no model
+            // events, and the resume PDF content hash (content-
+            // management.md:393) rotates on every source change.
             DB::table('skills')
                 ->whereIn('id', $ids)
                 ->update([
                     'sort_order' => DB::raw('CASE id '.implode(' ', $orderCases).' END'),
                     'skill_group_id' => DB::raw('CASE id '.implode(' ', $groupCases).' END'),
+                    'updated_at' => now(),
                 ]);
         });
     }
@@ -175,6 +179,9 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
             ->whereIn('id', $ids)
             ->update([
                 'sort_order' => DB::raw('CASE id '.implode(' ', $cases).' END'),
+                // See reorderSkills: the resume hash rotation depends on
+                // this stamp.
+                'updated_at' => now(),
             ]);
     }
 

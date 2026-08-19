@@ -12,6 +12,15 @@ runtime support.
 
 ### Added
 
+- **`AboutEditPageProps.resume_mode` (v1.0.18, step 10.1):** the About
+  edit page now carries the current resume generation mode
+  (`auto`/`manual`) — the resume summary line's mode label
+  (admin-section-components.md:793-794, about.html
+  `data-dynamic="resume.mode"`), owned by the Resume feature. The value
+  comes from a query-builder read in the Portfolio Infra layer (the B11
+  cross-feature pattern). `info.version` bumped to `1.0.18` in
+  `inertia.yaml`.
+
 - **Blog public pages contract completion (v1.0.17 inertia + v1.0.3 REST, step 9.4, B268):** the public blog surface gains the fields the frontend contracts and the mockup require but the committed schemas lacked: `ArticleCardData.skill_tags` + `ArticleCardData.lead_image_alt` (per-locale map, nullable — the card's `<img>` alt), `ArticleDetailData.skill_tags` (the linked TechSkillTag chips, `{id, name, icon}` — new `SkillTagData` schema, the projects.yaml shape), and `has_projects` on both `BlogIndexPageProps` and `BlogArticlePageProps` (the A10 nav Projects-link condition — the v1.0.16 experience precedent). The REST `ArticleItem` gains the matching `lead_image_alt` (its `skill_tags` was already documented — a latent 8.2 under-delivery the step now fixes in the mapping). The backend `ArticleCardDto` carries `skillTags`/`leadImageAlt`, the public card selects gain `a.lead_image_alt`, and the list/related-card hydration uses the existing `skillTagsFor()` batch read. `info.version` bumped to `1.0.17` in `inertia.yaml` and `1.0.3` in `openapi.yaml`.
 
 - **`projectSortDirection` query parameter + `projectSort` enum narrowed (v1.0.2, step 9.3 rework):** the projects list sort lost the `complexity` strategy (the "most complex" dropdown option was removed per the 2026-08-16 user decision) — `?sort=` now accepts `date` only — and gained the `?direction=asc|desc` parameter (default `desc`; `asc` = "newest last") on the `GET /projects` JSON variant (`listProjectsJson`). The backend's keyset cursor mirrors the direction (the strict seek and the `id` tiebreaker invert for `asc`). `info.version` bumped to `1.0.2` in `openapi.yaml`.

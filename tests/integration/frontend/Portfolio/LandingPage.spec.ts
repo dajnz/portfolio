@@ -241,7 +241,7 @@ describe('LandingPage', () => {
                 {
                     id: 3,
                     name: 'DevOps',
-                    icon: 'heroicons:server-stack',
+                    icon: 'heroicons:circle-stack',
                     skills: [{ id: 31, name: 'Docker', icon: 'devicon:docker', proficiency: 3 }],
                 },
             ],

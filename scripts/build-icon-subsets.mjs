@@ -122,21 +122,25 @@ function writeSubset(prefix, subset) {
 }
 
 function collectSourceTokens() {
-    // Collects every `set:name` literal from resources/js source files
-    // (template `icon="..."` attributes, `:icon="'...'"` bindings and
-    // TS string literals). Generated OpenAPI types and the subset JSONs
-    // themselves are excluded.
+    // Collects every `set:name` literal from the frontend source and the
+    // integration test fixtures (template `icon="..."` attributes,
+    // `:icon="'...'"` bindings and TS string literals). Generated
+    // OpenAPI types, the subset JSONs and the manifests themselves are
+    // excluded. The test fixtures are covered too — a fixture-only icon
+    // missing from the subsets would trigger the same runtime Iconify
+    // API fetch in the specs (B78).
     const knownPrefixes = new Set(['heroicons', 'simple-icons', 'devicon', 'lucide']);
     const tokens = [];
     const regex = /([a-z0-9-]+):([a-zA-Z0-9-]+)/g;
+    const roots = [join(root, 'resources/js'), join(root, 'tests/integration/frontend')];
 
-    function walk(dir) {
+    function walk(dir, excluded) {
         for (const entry of readdirSync(dir, { withFileTypes: true })) {
             const full = join(dir, entry.name);
 
             if (entry.isDirectory()) {
-                if (!excludedDirs.has(entry.name)) {
-                    walk(full);
+                if (!excluded.has(entry.name)) {
+                    walk(full, excluded);
                 }
                 continue;
             }
@@ -165,7 +169,8 @@ function collectSourceTokens() {
         }
     }
 
-    walk(sourceDir);
+    walk(roots[0], excludedDirs);
+    walk(roots[1], new Set());
     return tokens;
 }
 
