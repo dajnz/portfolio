@@ -3,12 +3,14 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 // Mirrors the coverage guard of scripts/build-icon-subsets.mjs: every
-// `set:name` icon literal in the frontend source must be listed in one
-// of the strict icon manifests (resources/js/iconManifests). An unlisted
-// icon would silently fall back to a runtime Iconify API fetch (B78 —
-// offline, no trackers), so this guard fails the test suite instead.
+// `set:name` icon literal in the frontend source AND the integration test
+// fixtures must be listed in one of the strict icon manifests
+// (resources/js/iconManifests). An unlisted icon would silently fall back
+// to a runtime Iconify API fetch (B78 — offline, no trackers), so this
+// guard fails the test suite instead.
 
 const sourceDir = join(process.cwd(), 'resources/js');
+const fixturesDir = join(process.cwd(), 'tests/integration/frontend');
 const manifestsDir = join(sourceDir, 'iconManifests');
 const excludedDirs = new Set(['Types', 'iconManifests', 'iconSubsets']);
 const knownPrefixes = new Set(['heroicons', 'simple-icons', 'devicon', 'lucide']);
@@ -32,13 +34,13 @@ function collectSourceIdentifiers(): string[] {
     const identifiers: string[] = [];
     const regex = /([a-z0-9-]+):([a-zA-Z0-9-]+)/g;
 
-    function walk(dir: string): void {
+    function walk(dir: string, excluded: Set<string>): void {
         for (const entry of readdirSync(dir, { withFileTypes: true })) {
             const full = join(dir, entry.name);
 
             if (entry.isDirectory()) {
-                if (!excludedDirs.has(entry.name)) {
-                    walk(full);
+                if (!excluded.has(entry.name)) {
+                    walk(full, excluded);
                 }
                 continue;
             }
@@ -67,7 +69,8 @@ function collectSourceIdentifiers(): string[] {
         }
     }
 
-    walk(sourceDir);
+    walk(sourceDir, excludedDirs);
+    walk(fixturesDir, new Set());
     return identifiers;
 }
 
