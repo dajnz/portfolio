@@ -193,14 +193,23 @@ function onDragOver(event: DragEvent, index: number): void {
     const visible = dragRows.value.filter((row) => row.visible);
     const draggedIndex = visible.findIndex((row) => row.id === draggedId.value);
 
-    if (draggedIndex === -1 || index === draggedIndex) {
+    if (draggedIndex === -1) {
         return;
     }
 
+    // Every visible row accepts the drop — the dragged row included. The
+    // live-shift parks the ghost directly under the cursor, so the release
+    // lands on the dragged row; without preventDefault the browser treats
+    // it as an invalid drop target and cancels the drop (the order snaps
+    // back — the reorder is only ever "visual").
     event.preventDefault();
 
     if (event.dataTransfer) {
         event.dataTransfer.dropEffect = 'move';
+    }
+
+    if (index === draggedIndex) {
+        return;
     }
 
     // Insert before the hovered row unless the cursor is past its

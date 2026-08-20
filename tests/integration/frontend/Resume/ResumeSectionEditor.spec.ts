@@ -287,6 +287,39 @@ describe('ResumeSectionEditor', () => {
         );
     });
 
+    it('keeps the dragged row a valid drop target and finalizes the drop on it', async () => {
+        const wrapper = mountEditor();
+
+        await wrapper.get('[data-testid="section-editor-row-skills"]').trigger('dragstart');
+        // The live shift parks the dragged row's ghost directly under the
+        // cursor — the release hit-tests the dragged row, so its dragover
+        // must be prevented (the browser cancels the drop on an invalid
+        // target — the reorder would only ever be "visual").
+        await wrapper.get('[data-testid="section-editor-row-header"]').trigger('dragover', {
+            clientY: -10,
+        });
+
+        const ghostOver = new DragEvent('dragover', {
+            clientY: -10,
+            bubbles: true,
+            cancelable: true,
+        });
+        wrapper.get('[data-testid="section-editor-row-skills"]').element.dispatchEvent(ghostOver);
+        expect(ghostOver.defaultPrevented).toBe(true);
+
+        await wrapper.get('[data-testid="section-editor-row-skills"]').trigger('drop');
+
+        const emitted = wrapper.emitted('update:modelValue')?.at(-1)?.[0] as ResumeSectionsMap;
+
+        expect(emitted).toEqual({
+            header: { visible: true, order: 1 },
+            about_me: { visible: true, order: 2 },
+            skills: { visible: true, order: 0 },
+            experience: { visible: false, order: 3 },
+            contacts: { visible: false, order: 4 },
+        });
+    });
+
     it('does not emit when the drop lands back in the original slot', async () => {
         const wrapper = mountEditor();
 
