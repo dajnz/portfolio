@@ -1764,6 +1764,25 @@ export interface components {
                 [key: string]: string[];
             };
         };
+        /** @description A resume layout section's visibility + order (order range 0–4 per the request validation, content-management.md:369). */
+        ResumeSectionConfig: {
+            /** @description Whether the section renders in the auto-generated PDF. */
+            visible: boolean;
+            /** @description Render order among the five sections (hidden sections keep their value). */
+            order: number;
+        };
+        /** @description Resume layout JSON — template selection + section visibility/ordering. */
+        ResumeLayout: {
+            /**
+             * @description PDF template (modern = single column, classic = two-column sidebar, compact = dense 1-page).
+             * @enum {string}
+             */
+            template: "modern" | "classic" | "compact";
+            /** @description The five sections keyed by id (header, about_me, skills, experience, contacts). */
+            sections: {
+                [key: string]: components["schemas"]["ResumeSectionConfig"];
+            };
+        };
         ResumeEditPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
             component?: "Resume/Admin/Pages/ResumeEditPage";
@@ -1773,14 +1792,19 @@ export interface components {
                  * @enum {string}
                  */
                 mode?: "auto" | "manual";
-                /** @description Resume layout JSON — template selection + section visibility/ordering. */
-                layout?: Record<string, never>;
+                layout?: components["schemas"]["ResumeLayout"];
                 /** @description RustFS path of the manually uploaded resume (mode = manual). */
                 custom_resume_file?: string | null;
                 /** @description Per-locale about_text for the auto-generated resume (falls back to about_info short_pitch). */
                 about_texts?: {
                     [key: string]: string;
                 };
+                /** @description Skills with include_in_resume = true — the admin inclusion-summary count. */
+                included_skills_count?: number;
+                /** @description Non-trashed experience items with include_in_resume = true. */
+                included_experience_count?: number;
+                /** @description Contacts with include_in_resume = true. */
+                included_contacts_count?: number;
             };
         };
         AnalyticsReportData: {

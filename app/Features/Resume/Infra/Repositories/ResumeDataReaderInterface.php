@@ -62,4 +62,16 @@ interface ResumeDataReaderInterface
      * @return array<int, array{name: string, value: string, icon: string|null, url: string|null}>
      */
     public function contactsData(string $locale): array;
+
+    /**
+     * The inclusion counts for the admin summary line
+     * (admin-section-ui.md:290): skills / experience items / contacts
+     * with `include_in_resume = true` (soft-deleted experience items
+     * excluded). The counts are the admin-page checkboxes' source —
+     * no `is_published` filter (the PDF additionally requires it,
+     * content-management.md:384).
+     *
+     * @return array{skills: int, experience: int, contacts: int}
+     */
+    public function inclusionCounts(): array;
 }

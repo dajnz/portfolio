@@ -1,5 +1,34 @@
 components:
   schemas:
+    ResumeSectionConfig:
+      type: object
+      description: A resume layout section's visibility + order (order range 0–4 per the request validation, content-management.md:369).
+      properties:
+        visible:
+          type: boolean
+          description: Whether the section renders in the auto-generated PDF.
+        order:
+          type: integer
+          minimum: 0
+          maximum: 4
+          description: Render order among the five sections (hidden sections keep their value).
+      required: [visible, order]
+
+    ResumeLayout:
+      type: object
+      description: Resume layout JSON — template selection + section visibility/ordering.
+      properties:
+        template:
+          type: string
+          enum: [modern, classic, compact]
+          description: PDF template (modern = single column, classic = two-column sidebar, compact = dense 1-page).
+        sections:
+          type: object
+          description: The five sections keyed by id (header, about_me, skills, experience, contacts).
+          additionalProperties:
+            $ref: '#/components/schemas/ResumeSectionConfig'
+      required: [template, sections]
+
     ResumeEditPageProps:
       allOf:
         - $ref: './shared.yaml#/components/schemas/InertiaPage'
@@ -16,8 +45,7 @@ components:
                   enum: [auto, manual]
                   description: Resume generation mode (auto = generate PDF from data, manual = serve uploaded file).
                 layout:
-                  type: object
-                  description: Resume layout JSON — template selection + section visibility/ordering.
+                  $ref: '#/components/schemas/ResumeLayout'
                 custom_resume_file:
                   type: string
                   nullable: true
@@ -27,6 +55,15 @@ components:
                   additionalProperties:
                     type: string
                   description: Per-locale about_text for the auto-generated resume (falls back to about_info short_pitch).
+                included_skills_count:
+                  type: integer
+                  description: Skills with include_in_resume = true — the admin inclusion-summary count.
+                included_experience_count:
+                  type: integer
+                  description: Non-trashed experience items with include_in_resume = true.
+                included_contacts_count:
+                  type: integer
+                  description: Contacts with include_in_resume = true.
 
 paths:
   /admin/resume:

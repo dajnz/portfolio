@@ -126,6 +126,18 @@ final class EloquentResumeDataReader implements ResumeDataReaderInterface
             ->all();
     }
 
+    public function inclusionCounts(): array
+    {
+        return [
+            'skills' => DB::table('skills')->where('include_in_resume', true)->count(),
+            'experience' => DB::table('experience_timeline_items')
+                ->where('include_in_resume', true)
+                ->whereNull('deleted_at')
+                ->count(),
+            'contacts' => DB::table('contacts')->where('include_in_resume', true)->count(),
+        ];
+    }
+
     /**
      * @return string[]
      */

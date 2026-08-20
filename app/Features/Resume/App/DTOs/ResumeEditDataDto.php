@@ -11,7 +11,8 @@ namespace App\Features\Resume\App\DTOs;
  * against the active locales — an empty string when no custom text is
  * stored). When the (seeder-guaranteed) single row is absent the use
  * case returns the documented defaults (content-management.md:337-350) —
- * the page is the creation surface.
+ * the page is the creation surface. The inclusion counts feed the admin
+ * summary line (admin-section-ui.md:290).
  */
 final readonly class ResumeEditDataDto
 {
@@ -24,6 +25,9 @@ final readonly class ResumeEditDataDto
         public array $layout,
         public ?string $customResumeFile,
         public array $aboutTexts,
+        public int $includedSkillsCount,
+        public int $includedExperienceCount,
+        public int $includedContactsCount,
     ) {
     }
 }

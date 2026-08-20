@@ -68,6 +68,9 @@ final class ResumeController
             'layout' => $dto->layout,
             'custom_resume_file' => $dto->customResumeFile,
             'about_texts' => $dto->aboutTexts,
+            'included_skills_count' => $dto->includedSkillsCount,
+            'included_experience_count' => $dto->includedExperienceCount,
+            'included_contacts_count' => $dto->includedContactsCount,
         ];
     }
 

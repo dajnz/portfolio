@@ -6,20 +6,22 @@ namespace App\Features\Resume\App\UseCases;
 
 use App\Features\Resume\App\DTOs\ResumeEditDataDto;
 use App\Features\Resume\Domain\RepositoryInterfaces\ResumeConfigRepositoryInterface;
+use App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
 
 /**
  * Reads the resume configuration for the admin edit form
  * (admin-section-ui.md:248-296, resume.yaml#ResumeEditPageProps): mode,
- * layout, manual file path and the per-locale about texts. When the
- * (seeder-guaranteed) single row is absent, the documented defaults are
- * returned (content-management.md:337-350) — the page is the creation
- * surface.
+ * layout, manual file path, the per-locale about texts and the inclusion
+ * counts (admin-section-ui.md:290). When the (seeder-guaranteed) single
+ * row is absent, the documented defaults are returned
+ * (content-management.md:337-350) — the page is the creation surface.
  */
 final class GetResumeForEditUseCase
 {
     public function __construct(
         private readonly ResumeConfigRepositoryInterface $repository,
+        private readonly ResumeDataReaderInterface $dataReader,
         private readonly ActiveLocaleService $locales,
     ) {
     }
@@ -27,6 +29,7 @@ final class GetResumeForEditUseCase
     public function get(): ResumeEditDataDto
     {
         $config = $this->repository->find();
+        $counts = $this->dataReader->inclusionCounts();
 
         if ($config === null) {
             return new ResumeEditDataDto(
@@ -34,6 +37,9 @@ final class GetResumeForEditUseCase
                 layout: self::defaultLayout(),
                 customResumeFile: null,
                 aboutTexts: [],
+                includedSkillsCount: $counts['skills'],
+                includedExperienceCount: $counts['experience'],
+                includedContactsCount: $counts['contacts'],
             );
         }
 
@@ -48,6 +54,9 @@ final class GetResumeForEditUseCase
             layout: $config->toLayout(),
             customResumeFile: $config->toCustomResumeFile(),
             aboutTexts: $aboutTexts,
+            includedSkillsCount: $counts['skills'],
+            includedExperienceCount: $counts['experience'],
+            includedContactsCount: $counts['contacts'],
         );
     }
 
