@@ -80,4 +80,64 @@ describe('ResumePdfRenderer', function (): void {
 
         expect($pdf)->toStartWith('%PDF');
     });
+
+    it('renders the sections in the layout order (modern + compact)', function (string $template) use ($data): void {
+        $reordered = array_merge($data, [
+            'sections' => [
+                'skills' => ['visible' => true, 'order' => 0],
+                'header' => ['visible' => true, 'order' => 1],
+                'experience' => ['visible' => true, 'order' => 2],
+                'about_me' => ['visible' => true, 'order' => 3],
+                'contacts' => ['visible' => true, 'order' => 4],
+            ],
+        ]);
+
+        $html = view("resume-templates.{$template}", ['data' => $reordered, 'locale' => 'en'])->render();
+
+        $markers = [
+            'skills' => strpos($html, '>Skills</h2>'),
+            'header' => strpos($html, 'Alex Kovalev'),
+            'experience' => strpos($html, '>Work Experience</h2>'),
+            'about_me' => strpos($html, '>About Me</h2>'),
+            'contacts' => strpos($html, '>Contacts</h2>'),
+        ];
+
+        foreach ($markers as $section => $position) {
+            expect($position)->not->toBeFalse("{$section} section missing from the {$template} output");
+        }
+
+        expect($markers['skills'])->toBeLessThan($markers['header'])
+            ->and($markers['header'])->toBeLessThan($markers['experience'])
+            ->and($markers['experience'])->toBeLessThan($markers['about_me'])
+            ->and($markers['about_me'])->toBeLessThan($markers['contacts']);
+    })->with(['modern', 'compact']);
+
+    it('renders the classic columns in their relative layout order', function () use ($data): void {
+        $reordered = array_merge($data, [
+            'sections' => [
+                'header' => ['visible' => true, 'order' => 4],
+                'contacts' => ['visible' => true, 'order' => 0],
+                'experience' => ['visible' => true, 'order' => 1],
+                'skills' => ['visible' => true, 'order' => 2],
+                'about_me' => ['visible' => true, 'order' => 3],
+            ],
+        ]);
+
+        $html = view('resume-templates.classic', ['data' => $reordered, 'locale' => 'en'])->render();
+
+        $sidebarContacts = strpos($html, '>Contacts</h2>');
+        $sidebarSkills = strpos($html, '>Skills</h2>');
+        $mainExperience = strpos($html, '>Work Experience</h2>');
+        $mainAbout = strpos($html, '>About Me</h2>');
+
+        expect($sidebarContacts)->not->toBeFalse()
+            ->and($sidebarSkills)->not->toBeFalse()
+            ->and($mainExperience)->not->toBeFalse()
+            ->and($mainAbout)->not->toBeFalse()
+            // Sidebar: contacts (order 0) before skills (order 2); main:
+            // experience (order 1) before about (order 3) — the fixed
+            // two-column split keeps the relative order within each column.
+            ->and($sidebarContacts)->toBeLessThan($sidebarSkills)
+            ->and($mainExperience)->toBeLessThan($mainAbout);
+    });
 });

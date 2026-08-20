@@ -451,8 +451,12 @@ return [
         'download_preview' => 'Скачать предпросмотр',
         'regenerate' => 'Перегенерировать PDF',
         'regenerated' => 'PDF-резюме перегенерировано.',
+        'regenerate_failed' => 'Не удалось перегенерировать PDF-резюме. Попробуйте ещё раз.',
         'pdf_limit' => 'PDF до 5120 КБ',
         'save_layout' => 'Сохранить макет',
+        'skills_included' => 'навыков включено',
+        'experience_included' => 'пунктов опыта включено',
+        'contacts_included' => 'контактов включено',
     ],
 
     'settings' => [

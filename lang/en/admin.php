@@ -456,8 +456,12 @@ return [
         'download_preview' => 'Download Preview',
         'regenerate' => 'Regenerate PDF',
         'regenerated' => 'Resume PDF regenerated.',
+        'regenerate_failed' => 'Could not regenerate the resume PDF. Please try again.',
         'pdf_limit' => 'PDF up to 5120 KB',
         'save_layout' => 'Save Layout',
+        'skills_included' => 'skills included',
+        'experience_included' => 'experience items included',
+        'contacts_included' => 'contacts included',
     ],
 
     'settings' => [

@@ -57,62 +57,59 @@
     </style>
 </head>
 <body>
-    @if (in_array('header', $order, true))
-        <header>
-            <h1>{{ $data['header']['name'] }} <span class="title">{{ $data['header']['title'] }}</span></h1>
-        </header>
-    @endif
-
-    @if (in_array('about_me', $order, true) && $data['about'] !== '')
-        <h2>{{ __('resume.section_about_me') }}</h2>
-        <p class="about">{{ $data['about'] }}</p>
-    @endif
-
-    @if (in_array('skills', $order, true) && $data['skills'] !== [])
-        <h2>{{ __('resume.section_skills') }}</h2>
-        @foreach ($data['skills'] as $group)
-            <div class="skill-group">
-                <span class="skill-group-name">{{ $group['group'] }}:</span>
-                @foreach ($group['skills'] as $skill)
-                    <span class="skill">{{ $skill['name'] }} <span class="level">({{ $skill['proficiency_label'] }})</span>@if (! $loop->last)·@endif</span>
-                @endforeach
-            </div>
-        @endforeach
-    @endif
-
-    @if (in_array('experience', $order, true) && $data['experience'] !== [])
-        <h2>{{ __('resume.section_experience') }}</h2>
-        @foreach ($data['experience'] as $item)
-            <div class="experience-item">
-                <h3>{{ $item['position'] }}</h3>
-                @if ($item['company_name'] !== null)
-                    <span class="company">{{ $item['company_name'] }}@if ($item['company_country'] !== null), {{ $item['company_country'] }}@endif</span>
-                @endif
-                <span class="period">— {{ $period($item) }}</span>
-                @if ($item['achievements'] !== [])
-                    <ul class="achievements">
-                        @foreach ($item['achievements'] as $achievement)
-                            <li>{{ $achievement['description'] }}</li>
-                        @endforeach
-                    </ul>
-                @endif
-                @if ($item['tech_tags'] !== [])
-                    <p class="tech-tags">{{ implode(' · ', $item['tech_tags']) }}</p>
-                @endif
-            </div>
-        @endforeach
-    @endif
-
-    @if (in_array('contacts', $order, true) && $data['contacts'] !== [])
-        <h2>{{ __('resume.section_contacts') }}</h2>
-        @foreach ($data['contacts'] as $contact)
-            <p class="contact">
-                @if ($contact['name'] !== '')
-                    <span class="label">{{ $contact['name'] }}:</span>
-                @endif
-                <span class="value">{{ $contact['url'] ?? $contact['value'] }}</span>
-            </p>
-        @endforeach
-    @endif
+    {{-- The visible sections render in their layout order — `$order` is
+         the render sequence, not a visibility gate (the @if blocks below
+         skip empty sections, content-management.md:337-347). --}}
+    @foreach ($order as $section)
+        @if ($section === 'header')
+            <header>
+                <h1>{{ $data['header']['name'] }} <span class="title">{{ $data['header']['title'] }}</span></h1>
+            </header>
+        @elseif ($section === 'about_me' && $data['about'] !== '')
+            <h2>{{ __('resume.section_about_me') }}</h2>
+            <p class="about">{{ $data['about'] }}</p>
+        @elseif ($section === 'skills' && $data['skills'] !== [])
+            <h2>{{ __('resume.section_skills') }}</h2>
+            @foreach ($data['skills'] as $group)
+                <div class="skill-group">
+                    <span class="skill-group-name">{{ $group['group'] }}:</span>
+                    @foreach ($group['skills'] as $skill)
+                        <span class="skill">{{ $skill['name'] }} <span class="level">({{ $skill['proficiency_label'] }})</span>@if (! $loop->last)·@endif</span>
+                    @endforeach
+                </div>
+            @endforeach
+        @elseif ($section === 'experience' && $data['experience'] !== [])
+            <h2>{{ __('resume.section_experience') }}</h2>
+            @foreach ($data['experience'] as $item)
+                <div class="experience-item">
+                    <h3>{{ $item['position'] }}</h3>
+                    @if ($item['company_name'] !== null)
+                        <span class="company">{{ $item['company_name'] }}@if ($item['company_country'] !== null), {{ $item['company_country'] }}@endif</span>
+                    @endif
+                    <span class="period">— {{ $period($item) }}</span>
+                    @if ($item['achievements'] !== [])
+                        <ul class="achievements">
+                            @foreach ($item['achievements'] as $achievement)
+                                <li>{{ $achievement['description'] }}</li>
+                            @endforeach
+                        </ul>
+                    @endif
+                    @if ($item['tech_tags'] !== [])
+                        <p class="tech-tags">{{ implode(' · ', $item['tech_tags']) }}</p>
+                    @endif
+                </div>
+            @endforeach
+        @elseif ($section === 'contacts' && $data['contacts'] !== [])
+            <h2>{{ __('resume.section_contacts') }}</h2>
+            @foreach ($data['contacts'] as $contact)
+                <p class="contact">
+                    @if ($contact['name'] !== '')
+                        <span class="label">{{ $contact['name'] }}:</span>
+                    @endif
+                    <span class="value">{{ $contact['url'] ?? $contact['value'] }}</span>
+                </p>
+            @endforeach
+        @endif
+    @endforeach
 </body>
 </html>

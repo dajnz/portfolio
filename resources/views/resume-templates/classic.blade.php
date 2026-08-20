@@ -9,6 +9,18 @@
     $period = fn (array $item): string => substr((string) $item['started_at'], 0, 4)
         .' – '
         .($item['ended_at'] === null ? __('resume.present') : substr((string) $item['ended_at'], 0, 4));
+    // Classic is a fixed two-column layout (skills/contacts sidebar,
+    // about/experience main) — the layout order is honored within each
+    // column: the visible column sections render in their relative order.
+    $columnOrder = function (array $keys) use ($sections): array {
+        return collect($keys)
+            ->filter(fn (string $key): bool => $sections[$key]['visible'] ?? false)
+            ->sortBy(fn (string $key): int => $sections[$key]['order'])
+            ->values()
+            ->all();
+    };
+    $sidebarOrder = $columnOrder(['skills', 'contacts']);
+    $mainOrder = $columnOrder(['about_me', 'experience']);
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $locale }}">
@@ -66,60 +78,60 @@
     <table class="layout">
         <tr>
             <td class="sidebar">
-                @if ($sections['skills']['visible'] ?? false)
-                    <h2 class="first">{{ __('resume.section_skills') }}</h2>
-                    @foreach ($data['skills'] as $group)
-                        <div class="skill-group">
-                            <div class="skill-group-name">{{ $group['group'] }}</div>
-                            @foreach ($group['skills'] as $skill)
-                                <p class="skill">{{ $skill['name'] }} <span class="level">— {{ $skill['proficiency_label'] }}</span></p>
-                            @endforeach
-                        </div>
-                    @endforeach
-                @endif
-
-                @if ($sections['contacts']['visible'] ?? false)
-                    <h2>{{ __('resume.section_contacts') }}</h2>
-                    @foreach ($data['contacts'] as $contact)
-                        <p class="contact">
-                            @if ($contact['name'] !== '')
-                                <span class="label">{{ $contact['name'] }}:</span>
-                            @endif
-                            <span class="value">{{ $contact['url'] ?? $contact['value'] }}</span>
-                        </p>
-                    @endforeach
-                @endif
+                @foreach ($sidebarOrder as $section)
+                    @if ($section === 'skills')
+                        <h2 class="{{ $loop->first ? 'first' : '' }}">{{ __('resume.section_skills') }}</h2>
+                        @foreach ($data['skills'] as $group)
+                            <div class="skill-group">
+                                <div class="skill-group-name">{{ $group['group'] }}</div>
+                                @foreach ($group['skills'] as $skill)
+                                    <p class="skill">{{ $skill['name'] }} <span class="level">— {{ $skill['proficiency_label'] }}</span></p>
+                                @endforeach
+                            </div>
+                        @endforeach
+                    @elseif ($section === 'contacts')
+                        <h2 class="{{ $loop->first ? 'first' : '' }}">{{ __('resume.section_contacts') }}</h2>
+                        @foreach ($data['contacts'] as $contact)
+                            <p class="contact">
+                                @if ($contact['name'] !== '')
+                                    <span class="label">{{ $contact['name'] }}:</span>
+                                @endif
+                                <span class="value">{{ $contact['url'] ?? $contact['value'] }}</span>
+                            </p>
+                        @endforeach
+                    @endif
+                @endforeach
             </td>
             <td class="main">
-                @if ($sections['about_me']['visible'] ?? false)
-                    <h2 class="first">{{ __('resume.section_about_me') }}</h2>
-                    <p class="about">{{ $data['about'] }}</p>
-                @endif
-
-                @if ($sections['experience']['visible'] ?? false)
-                    <h2>{{ __('resume.section_experience') }}</h2>
-                    @foreach ($data['experience'] as $item)
-                        <div class="experience-item">
-                            <h3>{{ $item['position'] }}</h3>
-                            <p class="company">
-                                @if ($item['company_name'] !== null)
-                                    {{ $item['company_name'] }}@if ($item['company_country'] !== null), {{ $item['company_country'] }}@endif ·
+                @foreach ($mainOrder as $section)
+                    @if ($section === 'about_me')
+                        <h2 class="{{ $loop->first ? 'first' : '' }}">{{ __('resume.section_about_me') }}</h2>
+                        <p class="about">{{ $data['about'] }}</p>
+                    @elseif ($section === 'experience')
+                        <h2 class="{{ $loop->first ? 'first' : '' }}">{{ __('resume.section_experience') }}</h2>
+                        @foreach ($data['experience'] as $item)
+                            <div class="experience-item">
+                                <h3>{{ $item['position'] }}</h3>
+                                <p class="company">
+                                    @if ($item['company_name'] !== null)
+                                        {{ $item['company_name'] }}@if ($item['company_country'] !== null), {{ $item['company_country'] }}@endif ·
+                                    @endif
+                                    <span class="period">{{ $period($item) }}</span>
+                                </p>
+                                @if ($item['achievements'] !== [])
+                                    <ul class="achievements">
+                                        @foreach ($item['achievements'] as $achievement)
+                                            <li>{{ $achievement['description'] }}</li>
+                                        @endforeach
+                                    </ul>
                                 @endif
-                                <span class="period">{{ $period($item) }}</span>
-                            </p>
-                            @if ($item['achievements'] !== [])
-                                <ul class="achievements">
-                                    @foreach ($item['achievements'] as $achievement)
-                                        <li>{{ $achievement['description'] }}</li>
-                                    @endforeach
-                                </ul>
-                            @endif
-                            @if ($item['tech_tags'] !== [])
-                                <p class="tech-tags">{{ implode(' · ', $item['tech_tags']) }}</p>
-                            @endif
-                        </div>
-                    @endforeach
-                @endif
+                                @if ($item['tech_tags'] !== [])
+                                    <p class="tech-tags">{{ implode(' · ', $item['tech_tags']) }}</p>
+                                @endif
+                            </div>
+                        @endforeach
+                    @endif
+                @endforeach
             </td>
         </tr>
     </table>

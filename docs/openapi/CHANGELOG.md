@@ -12,6 +12,18 @@ runtime support.
 
 ### Added
 
+- **`ResumeEditPageProps` completion (v1.0.19, step 10.2):** the resume
+  settings page now carries the three inclusion-summary counts
+  (`included_skills_count`, `included_experience_count`,
+  `included_contacts_count` — skills/contacts with
+  `include_in_resume = true`, non-trashed experience items with the
+  flag; admin-section-ui.md:290) and the previously untyped `layout`
+  prop is documented as the `ResumeLayout` schema (template enum +
+  the five `ResumeSectionConfig` entries with `visible` + `order`
+  0–4). The counts come from query-builder reads in the Resume Infra
+  layer (the B11 cross-feature pattern). `info.version` bumped to
+  `1.0.19` in `inertia.yaml`.
+
 - **`AboutEditPageProps.resume_mode` (v1.0.18, step 10.1):** the About
   edit page now carries the current resume generation mode
   (`auto`/`manual`) — the resume summary line's mode label

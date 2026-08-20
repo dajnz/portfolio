@@ -79,6 +79,9 @@ export default defineConfig(({ isSsrBuild }) => ({
             // `@portfolio`; the Components-scoped alias cannot reach Pages).
             '@techskills': featureAlias('TechSkills'),
             '@resume-admin': featureAlias('Resume/Admin/Components'),
+            // Feature-root alias for page imports in specs (mirrors
+            // `@portfolio`; the Components-scoped alias cannot reach Pages).
+            '@resume': featureAlias('Resume'),
             '@shared-public': featureAlias('Shared/Public/Components'),
             '@shared-admin': featureAlias('Shared/Admin/Components'),
             '@shared-cross': featureAlias('Shared/CrossSurface'),
