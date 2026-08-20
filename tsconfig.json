@@ -91,6 +91,9 @@
             "@techskills/*": [
                 "./resources/js/Features/TechSkills/*"
             ],
+            "@resume/*": [
+                "./resources/js/Features/Resume/*"
+            ],
             "@resume-admin/*": [
                 "./resources/js/Features/Resume/Admin/Components/*"
             ],
