@@ -1,6 +1,7 @@
 [
     "heroicons:academic-cap",
     "heroicons:archive-box",
+    "heroicons:arrow-down",
     "heroicons:arrow-left",
     "heroicons:arrow-path",
     "heroicons:arrow-right",
@@ -87,9 +88,9 @@
     "simple-icons:discord",
     "simple-icons:dribbble",
     "simple-icons:facebook",
-    "simple-icons:gmail",
     "simple-icons:github",
     "simple-icons:gitlab",
+    "simple-icons:gmail",
     "simple-icons:instagram",
     "simple-icons:linkedin",
     "simple-icons:mastodon",
