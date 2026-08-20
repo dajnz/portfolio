@@ -49,6 +49,44 @@ describe('ResumeController admin', function (): void {
                 ->where('about_texts.ru', 'Своё «обо мне».'));
     });
 
+    it('carries the inclusion-summary counts (included items only, trashed excluded)', function (): void {
+        $this->seedResumeConfig(['mode' => 'auto']);
+        $this->seedResumeSourceData();
+
+        $groupId = DB::table('skill_groups')->insertGetId(['sort_order' => 1, 'icon' => 'heroicons:server']);
+        DB::table('skills')->insert([
+            'skill_group_id' => $groupId,
+            'name' => 'Vue',
+            'icon' => 'devicon:vuejs',
+            'proficiency' => 4,
+            'include_in_resume' => false,
+            'sort_order' => 0,
+        ]);
+        DB::table('contacts')->insert([
+            'value' => 'dev@example.com',
+            'icon' => 'heroicons:envelope',
+            'url' => null,
+            'include_in_resume' => false,
+            'sort_order' => 1,
+        ]);
+        DB::table('experience_timeline_items')->insert([
+            'started_at' => '2020-01-01',
+            'ended_at' => '2022-01-01',
+            'is_published' => true,
+            'sort_order' => 1,
+            'include_in_resume' => true,
+            'deleted_at' => now(),
+        ]);
+
+        $this->get('/admin/resume')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Resume/Admin/Pages/ResumeEditPage')
+                ->where('included_skills_count', 1)
+                ->where('included_experience_count', 1)
+                ->where('included_contacts_count', 1));
+    });
+
     it('renders the documented defaults when no config row exists', function (): void {
         $this->get('/admin/resume')
             ->assertOk()
