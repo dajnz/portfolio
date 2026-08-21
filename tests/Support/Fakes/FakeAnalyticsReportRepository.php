@@ -101,12 +101,12 @@ final class FakeAnalyticsReportRepository implements AnalyticsReportRepositoryIn
         ));
     }
 
-    public function cumulativeSeries(MetricName $metric): array
+    public function cumulativeSeries(MetricName $metric, ?string $dimension = null): array
     {
         $rows = $this->matching(
             static fn (AnalyticsReport $row): bool => $row->toMetric() === $metric
                 && $row->toSpan() === MetricSpan::Day
-                && $row->toDimension() === null,
+                && $row->toDimension() === $dimension,
         );
 
         usort(

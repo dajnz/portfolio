@@ -216,6 +216,28 @@ describe('dashboard reads (11.3.4)', function (): void {
             ->and($series[0]->toValue())->toBe(3.0);
     });
 
+    it('filters the cumulative series to the given dimension — the per-target cta_clicks dynamics', function (): void {
+        $this->repository->upsertBatch([
+            analyticsReport('cta_clicks', MetricSpan::Day, '2026-08-19', '2026-08-19', 3.0, 'github'),
+            analyticsReport('cta_clicks', MetricSpan::Day, '2026-08-20', '2026-08-20', 4.0, 'github'),
+            analyticsReport('cta_clicks', MetricSpan::Day, '2026-08-19', '2026-08-19', 2.0, 'language'),
+            analyticsReport('cta_clicks', MetricSpan::Day, '2026-08-20', '2026-08-20', 6.0, 'language'),
+        ]);
+
+        $series = $this->repository->cumulativeSeries(MetricName::CtaClicks, 'github');
+
+        expect($series)->toHaveCount(2)
+            ->and(array_map(
+                static fn (AnalyticsReport $r): string => $r->toPeriodStart()->format('Y-m-d'),
+                $series,
+            ))->toBe(['2026-08-19', '2026-08-20'])
+            ->and(array_map(
+                static fn (AnalyticsReport $r): float => $r->toValue(),
+                $series,
+            ))->toBe([3.0, 7.0])
+            ->and($series[0]->toDimension())->toBe('github');
+    });
+
     it('filters the rankings by the dimension prefix — the article/project families', function (): void {
         $this->repository->upsertBatch([
             analyticsReport('views', MetricSpan::All, '2026-06-01', '2026-08-21', 9.0, 'project:2'),

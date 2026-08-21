@@ -699,10 +699,11 @@ export interface paths {
          * Analytics metric series
          * @description The chart points of one metric at one span (analytics.md:225,
          *     B292, 11.3.4) — chronological `period_start` labels, the last
-         *     90 rows; `span=all` returns the cumulative running total. The
-         *     `dimension` parameter selects one `cta_clicks` target (the CTA
-         *     multi-chart series — required for `cta_clicks`, rejected for
-         *     every other metric).
+         *     90 rows; `span=all` returns the cumulative running total (of
+         *     the dimension-NULL day rows — or of the selected target's day
+         *     rows when `dimension` is given). The `dimension` parameter
+         *     selects one `cta_clicks` target (the CTA multi-chart series —
+         *     required for `cta_clicks`, rejected for every other metric).
          */
         get: operations["analyticsMetricSeries"];
         put?: never;
@@ -1939,9 +1940,10 @@ export interface components {
          *     `period_start` date labels (the `span=all` response is the
          *     cumulative running total over the day rows, B292). For
          *     `metric=cta_clicks` the caller passes a `dimension` (one of the
-         *     six targets) and receives that target's series — the CTA
-         *     multi-chart is six such calls, the frontend names each series
-         *     by the requested target.
+         *     six targets) and receives that target's series — the per-target
+         *     day rows, cumulative at `span=all` (the CTA multi-chart is six
+         *     such calls — whole-time included — the frontend names each
+         *     series by the requested target).
          */
         AnalyticsSeriesResponse: {
             points: components["schemas"]["AnalyticsSeriesPoint"][];

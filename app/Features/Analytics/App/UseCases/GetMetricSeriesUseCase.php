@@ -15,8 +15,9 @@ use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepository
  * dimension-NULL rows of the span, chronological with `period_start`
  * date labels; `span=all` returns the cumulative running total over
  * the day rows (the "whole time" chart source). The optional dimension
- * reads the per-target `cta_clicks` rows (the CTA multi-chart — the
- * frontend fetches one series per target, 11.3.7).
+ * reads the per-target `cta_clicks` rows — folded into the cumulative
+ * at `span=all` (the CTA multi-chart fetches one per-target series for
+ * every span, incl. whole-time, 11.3.7).
  */
 final class GetMetricSeriesUseCase
 {
@@ -33,7 +34,7 @@ final class GetMetricSeriesUseCase
     public function series(MetricName $metric, MetricSpan $span, ?string $dimension = null): array
     {
         if ($span === MetricSpan::All) {
-            return ['points' => $this->points($this->reports->cumulativeSeries($metric))];
+            return ['points' => $this->points($this->reports->cumulativeSeries($metric, $dimension))];
         }
 
         $rows = $this->reports->series(

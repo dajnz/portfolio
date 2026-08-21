@@ -63,6 +63,19 @@ it('filters the series to the given dimension — the per-target cta_clicks rows
     expect($points)->toBe([['label' => '2026-08-17', 'value' => 3.0]]);
 });
 
+it('folds the dimension into the cumulative whole-time series — the per-target cta_clicks dynamics', function (): void {
+    $points = seriesPoints([
+        seriesReportRow(MetricSpan::Day, '2026-08-19', 3.0, 'cta_clicks', 'github'),
+        seriesReportRow(MetricSpan::Day, '2026-08-19', 2.0, 'cta_clicks', 'language'),
+        seriesReportRow(MetricSpan::Day, '2026-08-20', 4.0, 'cta_clicks', 'github'),
+    ], MetricSpan::All, 'cta_clicks', 'github');
+
+    expect($points)->toBe([
+        ['label' => '2026-08-19', 'value' => 3.0],
+        ['label' => '2026-08-20', 'value' => 7.0],
+    ]);
+});
+
 it('caps the span points at 90', function (): void {
     $rows = array_map(
         static fn (int $day): AnalyticsReport => seriesReportRow(

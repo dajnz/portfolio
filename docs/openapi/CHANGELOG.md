@@ -32,6 +32,20 @@ runtime support.
   dashboard polls/reloads). Auth + admin gated like every `/admin/*`
   route. `info.version` bumped to `1.0.20` in `inertia.yaml`.
 
+### Fixed
+
+- **`analyticsMetricSeries` `span=all` now folds the `dimension` into
+  the cumulative series (v1.0.22, step 11.3.4 review fix):** the
+  endpoint previously ignored `dimension` at the `all` span — the CTA
+  multi-chart's whole-time fetches returned `points: []` because the
+  per-target `cta_clicks` rows are all dimension-keyed and the
+  cumulative read only the dimension-NULL day rows. The cumulative
+  series now filters the day rows to the requested dimension:
+  `?metric=cta_clicks&span=all&dimension=github` returns the running
+  total of the `github` day rows (the per-target whole-time dynamics
+  of every chart). The description texts state the now-supported
+  combination. `info.version` bumped to `1.0.22` in `inertia.yaml`.
+
 ### Added
 
 - **`ResumeEditPageProps` completion (v1.0.19, step 10.2):** the resume

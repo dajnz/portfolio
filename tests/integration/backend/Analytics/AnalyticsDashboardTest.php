@@ -126,6 +126,23 @@ it('returns the cumulative running total for the whole-time span', function (): 
         ]]);
 });
 
+it('returns the per-target cumulative running total for the whole-time span', function (): void {
+    $this->repository->upsertBatch([
+        dashboardReport('cta_clicks', MetricSpan::Day, '2026-08-19', '2026-08-19', 3.0, 'github'),
+        dashboardReport('cta_clicks', MetricSpan::Day, '2026-08-20', '2026-08-20', 4.0, 'github'),
+        dashboardReport('cta_clicks', MetricSpan::Day, '2026-08-19', '2026-08-19', 2.0, 'language'),
+        dashboardReport('cta_clicks', MetricSpan::Day, '2026-08-20', '2026-08-20', 6.0, 'language'),
+    ]);
+    $this->loginAsAdmin($this->createAdmin());
+
+    getJson('/admin/analytics/series?metric=cta_clicks&span=all&dimension=github')
+        ->assertOk()
+        ->assertExactJson(['points' => [
+            ['label' => '2026-08-19', 'value' => 3],
+            ['label' => '2026-08-20', 'value' => 7],
+        ]]);
+});
+
 it('returns the per-target cta_clicks series for the given dimension', function (): void {
     $this->repository->upsertBatch([
         dashboardReport('cta_clicks', MetricSpan::Week, '2026-08-17', '2026-08-23', 5.0, 'github'),

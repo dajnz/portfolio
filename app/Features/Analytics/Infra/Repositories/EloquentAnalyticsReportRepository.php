@@ -140,14 +140,20 @@ final class EloquentAnalyticsReportRepository implements AnalyticsReportReposito
         ));
     }
 
-    public function cumulativeSeries(MetricName $metric): array
+    public function cumulativeSeries(MetricName $metric, ?string $dimension = null): array
     {
-        $dayModels = AnalyticsReportModel::query()
+        $query = AnalyticsReportModel::query()
             ->where('metric', $metric->value)
             ->where('span', MetricSpan::Day->value)
-            ->whereNull('dimension')
-            ->orderBy('period_start')
-            ->get();
+            ->orderBy('period_start');
+
+        if ($dimension === null) {
+            $query->whereNull('dimension');
+        } else {
+            $query->where('dimension', $dimension);
+        }
+
+        $dayModels = $query->get();
 
         $runningTotal = 0.0;
 

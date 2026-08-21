@@ -93,11 +93,14 @@ interface AnalyticsReportRepositoryInterface
     /**
      * The cumulative running total of the metric's day rows — the
      * "whole time" chart source (analytics.md:199, B292): every
-     * dimension-NULL `span = 'day'` row in chronological order, each
-     * carrying the running total of its value (a pure fold over the
-     * day rows — no window functions).
+     * `span = 'day'` row in chronological order, each carrying the
+     * running total of its value (a pure fold over the day rows — no
+     * window functions). A null `$dimension` folds the dimension-NULL
+     * rows (the global series); a given dimension folds that exact
+     * dimension's day rows — the per-target `cta_clicks` cumulative
+     * (11.3.4).
      *
      * @return list<AnalyticsReport>
      */
-    public function cumulativeSeries(MetricName $metric): array;
+    public function cumulativeSeries(MetricName $metric, ?string $dimension = null): array;
 }
