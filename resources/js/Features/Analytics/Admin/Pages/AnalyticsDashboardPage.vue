@@ -149,8 +149,28 @@ function selectTab(tab: AnalyticsTab): void {
     multiChartError.value = false;
     rankingsError.value = false;
     multiChartSeries.value = [];
-    chartPoints.value = tab === 'overview' ? props.default_chart.spans.day.points : [];
-    rankingRows.value = tab === 'overview' ? props.default_rankings.rows.top : [];
+    seedDefaultState();
+}
+
+// Seeds the prop defaults only when the selected block really is a
+// default state (total visits daily / time-on-page top); any other
+// selection clears the detail area — a stale fetch result (or the
+// default series) must never render under a different block's title.
+function seedDefaultState(): void {
+    const key = selectedBlockKey.value;
+    const config = key ? blockConfigFor(activeTab.value, key) : undefined;
+
+    if (config?.kind === 'chart' && isDefaultChartState(config)) {
+        chartPoints.value = props.default_chart.spans.day.points;
+    } else {
+        chartPoints.value = [];
+    }
+
+    if (config?.kind === 'rankings' && isDefaultRankingsState(config)) {
+        rankingRows.value = props.default_rankings.rows.top;
+    } else {
+        rankingRows.value = [];
+    }
 }
 
 function onBlockSelect(key: string): void {
@@ -163,12 +183,16 @@ function onBlockSelect(key: string): void {
     }
 
     if (config.kind === 'chart') {
-        if (!isDefaultChartState(config)) {
+        if (isDefaultChartState(config)) {
+            chartPoints.value = props.default_chart.spans.day.points;
+        } else {
             fetchSeries(config.metric, span.value, config.dimension);
         }
     } else if (config.kind === 'chart-multi') {
         fetchMultiSeries(config.metric, config.dimensions ?? [], span.value);
-    } else if (!isDefaultRankingsState(config)) {
+    } else if (isDefaultRankingsState(config)) {
+        rankingRows.value = props.default_rankings.rows.top;
+    } else {
         const options = config.variants ?? TOP_BOTTOM_VARIANTS;
 
         if (!options.includes(variant.value)) {
