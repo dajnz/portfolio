@@ -84,6 +84,21 @@ describe('EloquentAnalyticsReportRepository', function (): void {
             ->and(array_map(static fn (AnalyticsReport $r): float => $r->toValue(), $bottom))->toBe([20.0, 40.0]);
     });
 
+    it('breaks ranking ties deterministically by dimension', function (): void {
+        $this->repository->upsertBatch([
+            analyticsReport('views', MetricSpan::All, '2026-06-01', '2026-08-21', 10.0, 'project:beta'),
+            analyticsReport('views', MetricSpan::All, '2026-06-01', '2026-08-21', 10.0, 'project:alpha'),
+            analyticsReport('views', MetricSpan::All, '2026-06-01', '2026-08-21', 10.0, 'project:gamma'),
+        ]);
+
+        $rankings = $this->repository->rankings(MetricName::Views, 'top', 10);
+
+        expect(array_map(
+            static fn (AnalyticsReport $r): ?string => $r->toDimension(),
+            $rankings,
+        ))->toBe(['project:alpha', 'project:beta', 'project:gamma']);
+    });
+
     it('rejects an unknown ranking direction', function (): void {
         expect(fn () => $this->repository->rankings(MetricName::PageViews, 'sideways', 10))
             ->toThrow(InvalidArgumentException::class, 'Unknown ranking direction [sideways].');

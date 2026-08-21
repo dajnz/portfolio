@@ -8,11 +8,11 @@ use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsEventRepositoryI
 use DateTimeImmutable;
 
 /**
- * The 90-day raw-event retention safety net (analytics.md:214-216):
- * deletes `analytics_events` rows older than the cutoff. Called after
- * successful aggregation (the daily metrics job, step 11.3.2) and by
- * the monthly `analytics:prune-events` command (B37 — the fixed cutoff
- * constant lives here).
+ * The 90-day raw-event retention safety net (analytics.md:245-247):
+ * deletes `analytics_events` rows older than the cutoff. Runs via the
+ * monthly `analytics:prune-events` command only (B37 — the fixed cutoff
+ * constant lives here); events may age up to ~120 days before the
+ * monthly sweep removes them.
  */
 final class PruneEventsUseCase
 {

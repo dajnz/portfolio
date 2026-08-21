@@ -103,6 +103,7 @@ final class EloquentAnalyticsReportRepository implements AnalyticsReportReposito
                 static fn ($query) => $query->where('dimension', 'like', $dimensionPrefix.'%'),
             )
             ->orderBy('value', $order)
+            ->orderBy('dimension')
             ->limit($limit)
             ->get()
             ->map(fn (AnalyticsReportModel $model): AnalyticsReport => $this->mapper->toEntity($model))
