@@ -10,6 +10,23 @@ const DATA = [
     { label: 'Jun 15', value: 500 },
 ];
 
+const SERIES = [
+    {
+        name: 'GitHub',
+        points: [
+            { label: 'Jun 01', value: 5 },
+            { label: 'Jun 08', value: 8 },
+        ],
+    },
+    {
+        name: 'Demo',
+        points: [
+            { label: 'Jun 01', value: 3 },
+            { label: 'Jun 08', value: 2 },
+        ],
+    },
+];
+
 function mountChart(props: Record<string, unknown> = {}) {
     return mount(AnalyticsChart, {
         props: { data: DATA, ...props },
@@ -80,6 +97,52 @@ describe('AnalyticsChart', () => {
         expect(svg.get('text').text()).toBe('1');
         expect(svg.findAll('text')[1].text()).toBe('<img src=x onerror="window.__xss=1">');
         // Vue escaped the payload into text nodes — no raw markup in the DOM.
+        expect(wrapper.html()).not.toContain('<img src=x');
+        expect((window as unknown as Record<string, unknown>).__xss).toBeUndefined();
+    });
+
+    it('renders one line per series plus a legend with the series names', () => {
+        const wrapper = mountChart({ series: SERIES, title: 'CTA clicks over time' });
+
+        const svg = wrapper.get('[data-testid="analytics-chart-svg"]');
+        expect(svg.attributes('aria-label')).toBe('Line chart: CTA clicks over time');
+        expect(svg.findAll('polyline')).toHaveLength(2);
+
+        const legend = wrapper.get('[data-testid="analytics-chart-legend"]');
+        expect(legend.findAll('li').map((item) => item.text())).toEqual(['GitHub', 'Demo']);
+    });
+
+    it('prefers the series prop when both series and data are given (mutual exclusivity guard)', () => {
+        const wrapper = mountChart({ series: SERIES, data: DATA });
+
+        expect(wrapper.get('[data-testid="analytics-chart-svg"]').findAll('polyline')).toHaveLength(
+            2,
+        );
+        expect(wrapper.find('[data-testid="analytics-chart-legend"]').exists()).toBe(true);
+        expect(wrapper.findAll('rect')).toHaveLength(0);
+    });
+
+    it('shows the empty state when the series array is empty or every series has no points', () => {
+        const emptyWrapper = mountChart({ series: [] });
+        expect(emptyWrapper.get('[data-testid="analytics-chart-empty"]').text()).toBe(
+            'No data available',
+        );
+
+        const pointlessWrapper = mountChart({ series: [{ name: 'GitHub', points: [] }] });
+        expect(pointlessWrapper.get('[data-testid="analytics-chart-empty"]').text()).toBe(
+            'No data available',
+        );
+    });
+
+    it('renders hostile series names as plain text nodes in the legend (XSS)', () => {
+        const wrapper = mountChart({
+            series: [
+                { name: '<img src=x onerror="window.__xss=1">', points: [{ label: 'a', value: 1 }] },
+            ],
+        });
+
+        const legend = wrapper.get('[data-testid="analytics-chart-legend"]');
+        expect(legend.text()).toContain('<img src=x onerror="window.__xss=1">');
         expect(wrapper.html()).not.toContain('<img src=x');
         expect((window as unknown as Record<string, unknown>).__xss).toBeUndefined();
     });
