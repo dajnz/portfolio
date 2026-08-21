@@ -4,6 +4,7 @@ import { Head } from '@inertiajs/vue3';
 import AboutBlock from '@portfolio-public/AboutBlock.vue';
 import FeaturedProjectsSection from '@portfolio-public/FeaturedProjectsSection.vue';
 import SkillsBlock from '@portfolio-public/SkillsBlock.vue';
+import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
 import { useSeoUpdater } from '@shared-cross/Composables/useSeoUpdater';
 import type { components } from '@shared-cross/Types/inertia';
 import type { ConsoleGreetingData } from '@shared-public/ConsoleGreeting.vue';
@@ -52,6 +53,7 @@ const greeting = (props.console_greeting ?? null) as ConsoleGreetingData | null;
 const ContactsBlock = defineAsyncComponent(() => import('@portfolio-public/ContactsBlock.vue'));
 
 ensurePublicIcons();
+usePageTracking('landing');
 useSeoUpdater();
 
 const {

@@ -1,6 +1,7 @@
 <!-- BlogIndexPage (public-section-ui.md:209-238, public-section-components.md:1209-1239, mockup blog.html) — the public blog index: the BlogHeader toolbar (dual-response search autocomplete, the unified tag filter with the article/skill `type` discriminator, the conditional year filter, the grid/list toggle persisted in the `blog_view_mode` cookie), the ArticleCard grid/list, the infinite-scroll Load More (cursor reload per B158 replace semantics) and the three empty/error states via PublicEmptyState. The nav follows A10 — the Projects link is conditional on `has_projects` (B268). -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
 import { useSeoUpdater } from '@shared-cross/Composables/useSeoUpdater';
 import type { components } from '@shared-cross/Types/inertia';
 import InfiniteScrollLoader from '@shared-public/InfiniteScrollLoader.vue';
@@ -41,6 +42,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
+usePageTracking('blog_index');
 ensureBlogIcons();
 useSeoUpdater();
 

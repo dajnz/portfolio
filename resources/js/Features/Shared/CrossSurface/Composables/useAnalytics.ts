@@ -2,15 +2,32 @@ import { router } from '@inertiajs/vue3';
 
 import { randomUuid } from '../Utils/randomUuid';
 
+/**
+ * The public page kinds reported with every event (B289) — the backend
+ * attributes events to entities (blog article / project detail) from
+ * this context, no URL matching.
+ */
+export type PageType =
+    | 'landing'
+    | 'blog_index'
+    | 'blog_article'
+    | 'projects_index'
+    | 'project_detail'
+    | 'experience';
+
 export interface AnalyticsEvent {
     event_type: string;
     metadata: Record<string, unknown>;
+    page_type: PageType | null;
+    page_entity_id: number | null;
     page_url: string;
     session_id: string;
 }
 
 export interface AnalyticsTracker {
     track: (eventType: string, metadata?: Record<string, unknown>) => void;
+    /** The page context for every event fired from now on (B289). */
+    setPageContext: (type: PageType | null, entityId?: number | null) => void;
     cleanup: () => void;
 }
 
@@ -18,6 +35,14 @@ const SESSION_STORAGE_KEY = 'analytics_session_id';
 const MAX_BUFFER_SIZE = 80;
 const MAX_BUFFER_SIZE_BYTES = 45 * 1024;
 const FLUSH_INTERVAL_MS = 30_000;
+
+// The page context is module-level so every tracker instance (the
+// app-level registration and the per-component trackers) sees the
+// page's context regardless of which instance set it.
+let pageContext: { type: PageType | null; entityId: number | null } = {
+    type: null,
+    entityId: null,
+};
 
 /**
  * Session-scoped analytics tracker (analytics.md:45-114). Must be
@@ -27,7 +52,11 @@ const FLUSH_INTERVAL_MS = 30_000;
  */
 export function useAnalytics(): AnalyticsTracker {
     if (typeof window === 'undefined') {
-        return { track: () => undefined, cleanup: () => undefined };
+        return {
+            track: () => undefined,
+            setPageContext: () => undefined,
+            cleanup: () => undefined,
+        };
     }
 
     const sessionId = getSessionId();
@@ -35,10 +64,16 @@ export function useAnalytics(): AnalyticsTracker {
     let pageStartTime = Date.now();
     let currentPageUrl = window.location.href;
 
+    function setPageContext(type: PageType | null, entityId: number | null = null): void {
+        pageContext = { type, entityId };
+    }
+
     function track(eventType: string, metadata: Record<string, unknown> = {}): void {
         buffer.push({
             event_type: eventType,
             metadata,
+            page_type: pageContext.type,
+            page_entity_id: pageContext.entityId,
             page_url: window.location.href,
             session_id: sessionId,
         });
@@ -127,7 +162,7 @@ export function useAnalytics(): AnalyticsTracker {
         track('page_view', { referrer: document.referrer, title: document.title });
     }
 
-    return { track, cleanup };
+    return { track, setPageContext, cleanup };
 }
 
 function getSessionId(): string {

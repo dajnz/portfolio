@@ -4,6 +4,7 @@ import { Link } from '@inertiajs/vue3';
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
 import { useAnalytics } from '@shared-cross/Composables/useAnalytics';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
 import { useSeoUpdater } from '@shared-cross/Composables/useSeoUpdater';
 import type { components } from '@shared-cross/Types/inertia';
 import PublicBaseButton from '@shared-public/PublicBaseButton.vue';
@@ -36,6 +37,7 @@ const { t } = useI18n();
 const analytics = useAnalytics();
 
 ensureProjectsIcons();
+usePageTracking('project_detail', props.project?.id ?? null);
 useSeoUpdater();
 
 const { navItems, activeRoute, project } = useProjectDetailPage(props);
