@@ -47,7 +47,6 @@ const SETTINGS = {
     mail_from_address: 'hello@example.com',
     mail_from_name: 'Portfolio',
     email_on_feedback: true,
-    analytics_report_frequency: 'weekly',
     analytics_email_enabled: false,
     analytics_email_recipient: '',
 };
@@ -351,7 +350,6 @@ describe('SettingsPage', () => {
             '/admin/settings',
             {
                 settings: {
-                    analytics_report_frequency: 'weekly',
                     analytics_email_enabled: true,
                     analytics_email_recipient: 'reports@example.com',
                 },

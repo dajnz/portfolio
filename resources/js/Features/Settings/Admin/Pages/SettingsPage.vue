@@ -6,7 +6,6 @@ import FeatureFlagToggle, {
 } from '@settings/Admin/Components/FeatureFlagToggle.vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminBaseCheckbox from '@shared-admin/AdminBaseCheckbox.vue';
-import AdminBaseDropdown from '@shared-admin/AdminBaseDropdown.vue';
 import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
 import AdminBaseSwitch from '@shared-admin/AdminBaseSwitch.vue';
 import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
@@ -35,7 +34,6 @@ interface SettingsFormValues {
     mail_from_address: string;
     mail_from_name: string;
     email_on_feedback: boolean;
-    analytics_report_frequency: string;
     analytics_email_enabled: boolean;
     analytics_email_recipient: string;
 }
@@ -141,7 +139,6 @@ function buildForm(settings: Record<string, unknown>): SettingsFormValues {
         mail_from_address: toText(settings.mail_from_address, ''),
         mail_from_name: toText(settings.mail_from_name, ''),
         email_on_feedback: toBool(settings.email_on_feedback, true),
-        analytics_report_frequency: toText(settings.analytics_report_frequency, 'weekly'),
         analytics_email_enabled: toBool(settings.analytics_email_enabled, false),
         analytics_email_recipient: toText(settings.analytics_email_recipient, ''),
     };
@@ -178,11 +175,7 @@ const TAB_KEYS: Record<Exclude<TabId, 'flags'>, Array<keyof SettingsFormValues>>
         'mail_from_name',
         'email_on_feedback',
     ],
-    analytics: [
-        'analytics_report_frequency',
-        'analytics_email_enabled',
-        'analytics_email_recipient',
-    ],
+    analytics: ['analytics_email_enabled', 'analytics_email_recipient'],
 };
 
 const flags = reactive<Record<string, boolean>>({ ...(page.props.featureFlags ?? {}) });
@@ -274,7 +267,6 @@ function mailPayload(): SettingsPayload {
 
 function analyticsPayload(): SettingsPayload {
     return {
-        analytics_report_frequency: form.analytics_report_frequency,
         analytics_email_enabled: form.analytics_email_enabled,
         analytics_email_recipient: form.analytics_email_recipient,
     };
@@ -618,17 +610,6 @@ async function testMail(): Promise<void> {
             <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
               {{ t('admin.settings.reports') }}
             </legend>
-            <AdminBaseDropdown
-              v-model="form.analytics_report_frequency"
-              :label="t('admin.settings.report_frequency')"
-              :options="[
-                { value: 'daily', label: t('admin.settings.report_frequency_daily') },
-                { value: 'weekly', label: t('admin.settings.report_frequency_weekly') },
-                { value: 'monthly', label: t('admin.settings.report_frequency_monthly') },
-              ]"
-              :error="fieldError('analytics_report_frequency')"
-              :test_id="`${props.test_id}-report-frequency`"
-            />
             <AdminBaseCheckbox
               v-model="form.analytics_email_enabled"
               :label="t('admin.settings.email_reports')"
