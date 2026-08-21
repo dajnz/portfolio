@@ -66,4 +66,15 @@ final class EloquentAnalyticsEventRepository implements AnalyticsEventRepository
             ->where('created_at', '<', $cutoff)
             ->delete();
     }
+
+    public function oldestEventDate(): ?DateTimeImmutable
+    {
+        $oldest = AnalyticsEventModel::query()->min('created_at');
+
+        if ($oldest === null) {
+            return null;
+        }
+
+        return new DateTimeImmutable(substr((string) $oldest, 0, 10));
+    }
 }

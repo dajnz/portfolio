@@ -42,4 +42,33 @@ enum MetricName: string
 
     // Per article (`article:{id}`) / per project (`project:{id}`).
     case Views = 'views';
+
+    /**
+     * Whether the metric aggregates as a weighted average across spans
+     * (`SUM(value)/SUM(samples)` — the `*_seconds` and
+     * `completion_rate_sum` metrics, analytics.md:172).
+     */
+    public function isWeightedAverage(): bool
+    {
+        return str_ends_with($this->value, '_seconds')
+            || $this === self::CompletionRateSum;
+    }
+
+    /**
+     * Whether the metric aggregates as the plain MIN across spans
+     * (the `*_min` metrics).
+     */
+    public function isMinimum(): bool
+    {
+        return str_ends_with($this->value, '_min');
+    }
+
+    /**
+     * Whether the metric aggregates as the plain MAX across spans
+     * (the `*_max` metrics).
+     */
+    public function isMaximum(): bool
+    {
+        return str_ends_with($this->value, '_max');
+    }
 }

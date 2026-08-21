@@ -328,6 +328,7 @@ class AppServiceProvider extends ServiceProvider
             \App\Features\Shared\Infra\Commands\PruneTrashedItemsCommand::class,
             \App\Features\Analytics\Infra\Commands\PruneAnalyticsEventsCommand::class,
             \App\Features\Analytics\Infra\Commands\GenerateDailyMetricsCommand::class,
+            \App\Features\Analytics\Infra\Commands\GenerateAnalyticsReportsCommand::class,
         ]);
     }
 }

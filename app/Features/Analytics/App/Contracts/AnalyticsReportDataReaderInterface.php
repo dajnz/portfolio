@@ -21,4 +21,13 @@ interface AnalyticsReportDataReaderInterface
 {
     /** @return list<DateTimeImmutable> */
     public function feedbackSubmissions(ReportPeriod $period): array;
+
+    /**
+     * The calendar date (server-local timezone) of the oldest feedback
+     * submission — the start of the full-rebuild feedback recompute
+     * (feedback rows are never pruned, so `feedback_submissions` can be
+     * re-derived for the full history, analytics.md:209). Null when no
+     * feedback rows exist.
+     */
+    public function oldestFeedbackDate(): ?DateTimeImmutable;
 }

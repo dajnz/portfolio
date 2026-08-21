@@ -112,4 +112,34 @@ final class EloquentAnalyticsReportRepository implements AnalyticsReportReposito
             static fn (MetricSpan $span): bool => in_array($span, $present, true),
         ));
     }
+
+    public function cumulativeSeries(MetricName $metric): array
+    {
+        $dayModels = AnalyticsReportModel::query()
+            ->where('metric', $metric->value)
+            ->where('span', MetricSpan::Day->value)
+            ->whereNull('dimension')
+            ->orderBy('period_start')
+            ->get();
+
+        $runningTotal = 0.0;
+
+        return $dayModels
+            ->map(function (AnalyticsReportModel $model) use (&$runningTotal): AnalyticsReport {
+                $day = $this->mapper->toEntity($model);
+                $runningTotal += $day->toValue();
+
+                return new AnalyticsReport(
+                    id: 0,
+                    metric: $day->toMetric(),
+                    span: $day->toSpan(),
+                    dimension: $day->toDimension(),
+                    periodStart: $day->toPeriodStart(),
+                    periodEnd: $day->toPeriodEnd(),
+                    value: $runningTotal,
+                    createdAt: $day->toCreatedAt(),
+                );
+            })
+            ->all();
+    }
 }

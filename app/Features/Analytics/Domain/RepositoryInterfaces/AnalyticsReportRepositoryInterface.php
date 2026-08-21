@@ -72,4 +72,15 @@ interface AnalyticsReportRepositoryInterface
      * @return list<MetricSpan>
      */
     public function metricSpans(MetricName $metric): array;
+
+    /**
+     * The cumulative running total of the metric's day rows — the
+     * "whole time" chart source (analytics.md:199, B292): every
+     * dimension-NULL `span = 'day'` row in chronological order, each
+     * carrying the running total of its value (a pure fold over the
+     * day rows — no window functions).
+     *
+     * @return list<AnalyticsReport>
+     */
+    public function cumulativeSeries(MetricName $metric): array;
 }

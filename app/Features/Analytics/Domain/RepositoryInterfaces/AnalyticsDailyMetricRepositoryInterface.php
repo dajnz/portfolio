@@ -6,6 +6,7 @@ namespace App\Features\Analytics\Domain\RepositoryInterfaces;
 
 use App\Features\Analytics\Domain\Entities\AnalyticsMetric;
 use App\Features\Analytics\Domain\Enums\MetricName;
+use App\Features\Analytics\Domain\Enums\MetricSpan;
 use DateTimeImmutable;
 
 /**
@@ -56,4 +57,34 @@ interface AnalyticsDailyMetricRepositoryInterface
      * @return list<DateTimeImmutable>
      */
     public function datesCovered(): array;
+
+    /**
+     * The metric rows grouped for one report span (the report-rebuild
+     * source, 11.3.3): one group per `(metric, dimension, period
+     * bucket)` with the raw group stats — the caller derives the
+     * per-metric-kind report value (weighted `SUM(value)/SUM(samples)`
+     * for the avg-able metrics, the plain min/max for the `*_min`/
+     * `*_max` metrics, the plain sum otherwise — analytics.md:172).
+     *
+     * Bucketing is calendar-based (analytics.md:202): `day` = the
+     * calendar date, `week` = Monday–Sunday, `month`/`year` = the
+     * calendar bounds, `all` = one group per metric+dimension spanning
+     * the stored history. Group row shape: `{metric: string,
+     * dimension: ?string, period_start: DateTimeImmutable,
+     * period_end: DateTimeImmutable, value_sum: float, samples_sum:
+     * int, value_min: float, value_max: float}` — ordered by metric,
+     * dimension, period start.
+     *
+     * @return list<array{
+     *     metric: string,
+     *     dimension: ?string,
+     *     period_start: DateTimeImmutable,
+     *     period_end: DateTimeImmutable,
+     *     value_sum: float,
+     *     samples_sum: int,
+     *     value_min: float,
+     *     value_max: float,
+     * }>
+     */
+    public function aggregateForSpan(MetricSpan $span): array;
 }

@@ -28,4 +28,15 @@ final class EloquentAnalyticsReportDataReader implements AnalyticsReportDataRead
             ->map(static fn ($createdAt): DateTimeImmutable => new DateTimeImmutable((string) $createdAt))
             ->all();
     }
+
+    public function oldestFeedbackDate(): ?DateTimeImmutable
+    {
+        $oldest = DB::table('feedback')->min('created_at');
+
+        if ($oldest === null) {
+            return null;
+        }
+
+        return new DateTimeImmutable(substr((string) $oldest, 0, 10));
+    }
 }
