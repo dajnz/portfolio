@@ -1,157 +1,347 @@
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
 import type { components } from '@shared-cross/Types/inertia';
-import { type ComputedRef, computed } from 'vue';
+import { type ComputedRef, computed, onUnmounted, type Ref, reactive, ref } from 'vue';
 
 /**
- * Analytics dashboard data wiring (architecture.md:1002-1008, analytics.md:196-202,
- * admin-section-components.md:1295-1334) — maps the Inertia `reports` prop
- * (typed `AnalyticsReportData`; the per-type `data` payloads are opaque in the
- * OpenAPI contract) into per-tab view models: stat cards, chart series and
- * data tables. Lives in the Analytics feature (not the Shared/CrossSurface
- * tracker — `useAnalytics` there owns public-site event tracking, B74).
+ * Analytics dashboard data wiring (admin-section-components.md:1295-1334,
+ * admin-section-ui.md:441-452, analytics.md:221-232) — maps the Inertia
+ * props (the whole-time metric blocks per tab, typed
+ * `AnalyticsBlock`) into per-tab clickable block view models and owns the
+ * chart/rankings fetch state for the JSON endpoints (`series` /
+ * `rankings`, openapi/inertia/analytics.yaml). Lives in the Analytics
+ * feature (not the Shared/CrossSurface tracker — `useAnalytics` there
+ * owns public-site event tracking, B74).
  *
- * The payload shapes mirror the report entities (`OverallReport`,
- * `BlogReport`, `ProjectsReport`, `FeedbackReport`): scalars are
- * `{ value, previous }` (previous = prior-period value for the trend),
- * series are `{ points: [{label, value}] }` and tables are
- * `{ columns, rows }`. `visits_over_time` is derived across ALL `overall`
- * reports (one point per period), since the report payloads carry no
- * intra-period series. The `reports` array is read through the props
- * object (reactive — useLandingPage precedent) so a later Inertia visit
- * with fresh reports re-computes the views.
+ * The props are read through the props object (reactive — `useLandingPage`
+ * precedent) so a later Inertia visit with fresh blocks re-computes the
+ * views. The block-key → endpoint mapping is hard-coded here per the
+ * OpenAPI `AnalyticsBlock` schema description (11.3.4 decision): the page
+ * looks a clicked block up via `blockConfigFor(tab, key)` and calls the
+ * matching fetch helper (`fetchSeries` for chart metrics — the CTA clicks
+ * block uses `fetchMultiSeries` for its six per-target series —
+ * `fetchRankings` for the ranking metrics). Every fetch family aborts the
+ * previous request of its kind via AbortController (the last request
+ * wins), exposes its own loading/error refs and ignores aborted
+ * responses.
  */
-export type AnalyticsReport = components['schemas']['AnalyticsReportData'];
-export type ReportType = 'overall' | 'blog' | 'projects' | 'feedback';
+export type AnalyticsTab = 'overview' | 'blog' | 'projects';
+export type AnalyticsSpan = 'day' | 'week' | 'month' | 'all';
+export type AnalyticsVariant = 'top' | 'bottom' | 'liked' | 'disliked';
+export type AnalyticsScope = 'page' | 'article' | 'project';
+export type BlockKind = 'chart' | 'chart-multi' | 'rankings';
+
+export type SeriesPoint = components['schemas']['AnalyticsSeriesPoint'];
+export type ChartSeries = { name: string; points: Array<SeriesPoint> };
+export type RankingRow = components['schemas']['AnalyticsRankingResponse']['rows'][number];
+export type AnalyticsSeriesResponse = components['schemas']['AnalyticsSeriesResponse'];
+export type AnalyticsRankingResponse = components['schemas']['AnalyticsRankingResponse'];
+
+/** The whole-time block view model fed to `AnalyticsMetricBlocks`. */
+export interface BlockView {
+    key: string;
+    label: string;
+    /** Locale-formatted value (durations/percent for the avg blocks). */
+    value: string;
+    min?: string;
+    max?: string;
+    selected: boolean;
+}
+
+/** What a block click fetches (openapi/inertia/analytics.yaml — the
+ *  `AnalyticsBlock` schema table). */
+export interface BlockConfig {
+    kind: BlockKind;
+    metric: string;
+    /** Single `cta_clicks` target (the language-switches block). */
+    dimension?: string;
+    /** The six CTA targets (the multi-series clicks block). */
+    dimensions?: Array<string>;
+    scope?: AnalyticsScope;
+    /** The ranking variants a block accepts (reactions only). */
+    variants?: Array<AnalyticsVariant>;
+    /** The metric to pair with a variant — reactions: liked →
+     *  `reactions_likes`, disliked → `reactions_dislikes`. */
+    variantMetric?: Partial<Record<AnalyticsVariant, string>>;
+}
 
 /** The page's own prop slice (mirrors `useLandingPage(props)` — the
- *  composable receives the props object, not a snapshot, so the computed
- *  views stay reactive across Inertia visits with updated props). */
+ *  composable receives the props object, not a snapshot). */
 export type AnalyticsDashboardProps = Pick<
     NonNullable<components['schemas']['AnalyticsDashboardPageProps']['props']>,
-    'reports'
+    'overview_blocks' | 'blog_blocks' | 'projects_blocks'
 >;
 
-export interface ScalarData {
-    value?: number | null;
-    previous?: number | null;
-}
-
-export interface SeriesPoint {
-    label: string;
-    value: number;
-}
-
-export interface TableRow {
-    [key: string]: unknown;
-}
-
-export interface StatView {
-    label: string;
-    value: number | string;
-    trend?: string;
-    isLoading: boolean;
-}
-
-export interface TableView {
-    columns: Array<{ key: string; label: string }>;
-    rows: Array<TableRow>;
-}
-
 export interface UseAnalyticsApi {
-    /** The newest report of the given type — `undefined` when absent. */
-    reportFor: (type: ReportType) => AnalyticsReport | undefined;
-    /** Scalar result of a report — `null` when the report or key is missing. */
-    scalar: (type: ReportType, key: string) => ScalarData | null;
-    /** Table rows of a report result — `[]` when missing. */
-    tableRows: (type: ReportType, key: string) => Array<TableRow>;
-    /** Series points of a report result — `[]` when missing. */
-    series: (type: ReportType, key: string) => Array<SeriesPoint>;
-    /** Percent change vs the previous period — `undefined` when unknown. */
-    changePercent: (scalar: ScalarData | null) => string | undefined;
-    /** Locale-formatted number ("12,847" — mockup analytics.html). */
+    /** Overview blocks (total visits, ..., avg time on page). */
+    overviewBlocks: ComputedRef<Array<BlockView>>;
+    /** Blog blocks (total views, ..., reactions). */
+    blogBlocks: ComputedRef<Array<BlockView>>;
+    /** Projects blocks (total views, unique views). */
+    projectsBlocks: ComputedRef<Array<BlockView>>;
+    /** Marks the block of the given tab selected (deselects the rest). */
+    selectBlock: (tab: AnalyticsTab, key: string) => void;
+    /** The active chart span (the span dropdown v-model, default daily). */
+    span: Ref<AnalyticsSpan>;
+    /** The active rankings variant (the variant dropdown v-model,
+     *  default top). */
+    variant: Ref<AnalyticsVariant>;
+    chartPoints: Ref<Array<SeriesPoint>>;
+    chartLoading: Ref<boolean>;
+    chartError: Ref<boolean>;
+    /** The CTA multi-chart series (one entry per requested target). */
+    multiChartSeries: Ref<Array<ChartSeries>>;
+    multiChartLoading: Ref<boolean>;
+    multiChartError: Ref<boolean>;
+    rankingRows: Ref<Array<RankingRow>>;
+    rankingsLoading: Ref<boolean>;
+    rankingsError: Ref<boolean>;
+    /** Fetches the chart points of a metric at a span (cancels the
+     *  previous series request; `span` defaults to the current state). */
+    fetchSeries: (
+        metric: string,
+        requestedSpan?: AnalyticsSpan,
+        dimension?: string,
+    ) => Promise<void>;
+    /** Fetches one series per dimension — the CTA multi-chart (one batch
+     *  abort signal for all six requests). */
+    fetchMultiSeries: (
+        metric: string,
+        dimensions: Array<string>,
+        requestedSpan?: AnalyticsSpan,
+    ) => Promise<void>;
+    /** Fetches the top/bottom/liked/disliked rows of a metric (cancels
+     *  the previous rankings request; `variant` defaults to the current
+     *  state). */
+    fetchRankings: (
+        metric: string,
+        requestedVariant?: AnalyticsVariant,
+        scope?: AnalyticsScope,
+    ) => Promise<void>;
+    /** Locale-formatted number ("12,847"). */
     formatNumber: (value: number) => string;
-    /** Seconds → "1m 05s" (avg read time / time on page). */
+    /** Seconds → "1m 05s" (avg time on page / read time). */
     formatDuration: (seconds: number | null) => string;
-    /** "2026-07-06" → "Jul 06" chart x-label. */
-    formatPeriodLabel: (date: string) => string;
-    /** Overview stat cards (admin-section-components.md:1304). */
-    overviewStats: ComputedRef<Array<StatView>>;
-    /** Total page views per overall report period, oldest first. */
-    visitsSeries: ComputedRef<Array<SeriesPoint>>;
-    /** Blog stat cards: total views, unique visitors, avg read time. */
-    blogStats: ComputedRef<Array<StatView>>;
-    /** Most-viewed articles table rows (views, avg read time, completion). */
-    topArticlesTable: ComputedRef<TableView>;
-    /** Reactions summary series (likes/dislikes, localized labels). */
-    reactionsSeries: ComputedRef<Array<SeriesPoint>>;
-    /** Project views table rows. */
-    projectViewsTable: ComputedRef<TableView>;
-    /** Feedback submissions per day, oldest first. */
-    submissionsSeries: ComputedRef<Array<SeriesPoint>>;
+    /** Percent points → "87%" (completion rate). */
+    formatPercent: (value: number) => string;
 }
 
-const PERIOD_RE = /^(\d{4})-(\d{2})-(\d{2})/;
+export const CTA_TARGETS = ['github', 'demo', 'cv', 'feedback', 'language', 'theme'] as const;
+
+const BLOCK_PROP_KEYS: Record<AnalyticsTab, keyof AnalyticsDashboardProps> = {
+    overview: 'overview_blocks',
+    blog: 'blog_blocks',
+    projects: 'projects_blocks',
+};
+
+/** The hard-coded block-key → endpoint map (openapi/inertia/analytics.yaml
+ *  — the `AnalyticsBlock` schema description table, 11.3.4). */
+const BLOCK_CONFIGS: Record<AnalyticsTab, Record<string, BlockConfig>> = {
+    overview: {
+        total_visits: { kind: 'chart', metric: 'page_views' },
+        unique_visitors: { kind: 'chart', metric: 'unique_visitors' },
+        cta_clicks: { kind: 'chart-multi', metric: 'cta_clicks', dimensions: [...CTA_TARGETS] },
+        feedback_submissions: { kind: 'chart', metric: 'feedback_submissions' },
+        language_switches: { kind: 'chart', metric: 'cta_clicks', dimension: 'language' },
+        avg_time_on_page: { kind: 'rankings', metric: 'time_on_page_seconds', scope: 'page' },
+    },
+    blog: {
+        total_views: { kind: 'rankings', metric: 'views', scope: 'article' },
+        unique_visitors: { kind: 'rankings', metric: 'unique_visitors', scope: 'article' },
+        avg_read_time: { kind: 'rankings', metric: 'read_time_seconds', scope: 'article' },
+        completion_rate: { kind: 'rankings', metric: 'completion_rate_sum', scope: 'article' },
+        reactions: {
+            kind: 'rankings',
+            metric: 'reactions_likes',
+            scope: 'article',
+            variants: ['liked', 'disliked'],
+            variantMetric: { liked: 'reactions_likes', disliked: 'reactions_dislikes' },
+        },
+    },
+    projects: {
+        total_views: { kind: 'rankings', metric: 'views', scope: 'project' },
+        unique_views: { kind: 'rankings', metric: 'unique_visitors', scope: 'project' },
+    },
+};
+
+export function blockConfigFor(tab: AnalyticsTab, key: string): BlockConfig | undefined {
+    return BLOCK_CONFIGS[tab][key];
+}
+
+const DEFAULT_SELECTED: Record<AnalyticsTab, string> = {
+    overview: 'total_visits',
+    blog: 'total_views',
+    projects: 'total_views',
+};
 
 export function useAnalytics(props: AnalyticsDashboardProps): UseAnalyticsApi {
     const { t, locale } = useI18n();
-    const reports = props.reports ?? [];
+    const { get } = useJsonApi();
 
-    // The backend orders by `period_start` desc, `report_type` asc
-    // (EloquentAnalyticsReportRepository) — the newest period is first.
-    function reportFor(type: ReportType): AnalyticsReport | undefined {
-        return reports.find((report) => report.report_type === type);
+    const selectedKeys = reactive<Record<AnalyticsTab, string>>({ ...DEFAULT_SELECTED });
+    const span = ref<AnalyticsSpan>('day');
+    const variant = ref<AnalyticsVariant>('top');
+
+    const chartPoints = ref<Array<SeriesPoint>>([]);
+    const chartLoading = ref(false);
+    const chartError = ref(false);
+
+    const multiChartSeries = ref<Array<ChartSeries>>([]);
+    const multiChartLoading = ref(false);
+    const multiChartError = ref(false);
+
+    const rankingRows = ref<Array<RankingRow>>([]);
+    const rankingsLoading = ref(false);
+    const rankingsError = ref(false);
+
+    let seriesController: AbortController | null = null;
+    let multiSeriesController: AbortController | null = null;
+    let rankingsController: AbortController | null = null;
+
+    function abortAll(): void {
+        seriesController?.abort();
+        multiSeriesController?.abort();
+        rankingsController?.abort();
     }
 
-    function scalar(type: ReportType, key: string): ScalarData | null {
-        const data = reportFor(type)?.data;
+    onUnmounted(abortAll);
 
-        if (data === undefined || !(key in data)) {
-            return null;
-        }
-
-        const entry = data[key];
-
-        return typeof entry === 'object' && entry !== null && !Array.isArray(entry)
-            ? (entry as ScalarData)
-            : null;
+    function selectBlock(tab: AnalyticsTab, key: string): void {
+        selectedKeys[tab] = key;
     }
 
-    function tableRows(type: ReportType, key: string): Array<TableRow> {
-        const data = reportFor(type)?.data;
+    function blockViews(tab: AnalyticsTab): Array<BlockView> {
+        const blocks = props[BLOCK_PROP_KEYS[tab]] ?? [];
 
-        if (data === undefined || !(key in data)) {
-            return [];
-        }
-
-        const entry = data[key] as { rows?: Array<TableRow> } | null;
-
-        return Array.isArray(entry?.rows) ? (entry.rows as Array<TableRow>) : [];
+        return blocks.map((block) => ({
+            key: block.key,
+            label: t(`admin.analytics.${block.key}`),
+            value: formatBlockValue(block.key, block.value),
+            min: block.min === undefined ? undefined : formatBlockValue(block.key, block.min),
+            max: block.max === undefined ? undefined : formatBlockValue(block.key, block.max),
+            selected: block.key === selectedKeys[tab],
+        }));
     }
 
-    function series(type: ReportType, key: string): Array<SeriesPoint> {
-        const data = reportFor(type)?.data;
+    const overviewBlocks = computed<Array<BlockView>>(() => blockViews('overview'));
+    const blogBlocks = computed<Array<BlockView>>(() => blockViews('blog'));
+    const projectsBlocks = computed<Array<BlockView>>(() => blockViews('projects'));
 
-        if (data === undefined || !(key in data)) {
-            return [];
+    function seriesUrl(metric: string, requestedSpan: AnalyticsSpan, dimension?: string): string {
+        const params = new URLSearchParams({ metric, span: requestedSpan });
+
+        if (dimension !== undefined) {
+            params.set('dimension', dimension);
         }
 
-        const entry = data[key] as { points?: Array<SeriesPoint> } | null;
-
-        return Array.isArray(entry?.points) ? (entry.points as Array<SeriesPoint>) : [];
+        return `/admin/analytics/series?${params.toString()}`;
     }
 
-    function changePercent(current: ScalarData | null): string | undefined {
-        const value = current?.value ?? null;
-        const previous = current?.previous ?? null;
+    async function fetchSeries(
+        metric: string,
+        requestedSpan: AnalyticsSpan = span.value,
+        dimension?: string,
+    ): Promise<void> {
+        const controller = new AbortController();
+        seriesController?.abort();
+        seriesController = controller;
+        chartLoading.value = true;
+        chartError.value = false;
 
-        if (value === null || previous === null || previous === 0) {
-            return undefined;
+        try {
+            const response = await get<AnalyticsSeriesResponse>(
+                seriesUrl(metric, requestedSpan, dimension),
+                { signal: controller.signal },
+            );
+            chartPoints.value = response.points;
+        } catch {
+            if (controller.signal.aborted) {
+                return;
+            }
+            chartError.value = true;
+        } finally {
+            if (!controller.signal.aborted) {
+                chartLoading.value = false;
+            }
+        }
+    }
+
+    async function fetchMultiSeries(
+        metric: string,
+        dimensions: Array<string>,
+        requestedSpan: AnalyticsSpan = span.value,
+    ): Promise<void> {
+        const controller = new AbortController();
+        multiSeriesController?.abort();
+        multiSeriesController = controller;
+        multiChartLoading.value = true;
+        multiChartError.value = false;
+
+        try {
+            const responses = await Promise.all(
+                dimensions.map((dimension) =>
+                    get<AnalyticsSeriesResponse>(seriesUrl(metric, requestedSpan, dimension), {
+                        signal: controller.signal,
+                    }),
+                ),
+            );
+            multiChartSeries.value = dimensions.map((dimension, index) => ({
+                name: dimension,
+                points: responses[index].points,
+            }));
+        } catch {
+            if (controller.signal.aborted) {
+                return;
+            }
+            multiChartError.value = true;
+        } finally {
+            if (!controller.signal.aborted) {
+                multiChartLoading.value = false;
+            }
+        }
+    }
+
+    function rankingsUrl(
+        metric: string,
+        requestedVariant: AnalyticsVariant,
+        scope?: AnalyticsScope,
+    ): string {
+        const params = new URLSearchParams({ metric, variant: requestedVariant });
+
+        if (scope !== undefined) {
+            params.set('scope', scope);
         }
 
-        const change = ((value - previous) / previous) * 100;
-        const sign = change >= 0 ? '+' : '';
+        return `/admin/analytics/rankings?${params.toString()}`;
+    }
 
-        return `${sign}${change.toFixed(1)}%`;
+    async function fetchRankings(
+        metric: string,
+        requestedVariant: AnalyticsVariant = variant.value,
+        scope?: AnalyticsScope,
+    ): Promise<void> {
+        const controller = new AbortController();
+        rankingsController?.abort();
+        rankingsController = controller;
+        rankingsLoading.value = true;
+        rankingsError.value = false;
+
+        try {
+            const response = await get<AnalyticsRankingResponse>(
+                rankingsUrl(metric, requestedVariant, scope),
+                { signal: controller.signal },
+            );
+            rankingRows.value = response.rows;
+        } catch {
+            if (controller.signal.aborted) {
+                return;
+            }
+            rankingsError.value = true;
+        } finally {
+            if (!controller.signal.aborted) {
+                rankingsLoading.value = false;
+            }
+        }
     }
 
     function formatNumber(value: number): string {
@@ -170,185 +360,45 @@ export function useAnalytics(props: AnalyticsDashboardProps): UseAnalyticsApi {
         return `${minutes}m ${remainder}s`;
     }
 
-    function formatPeriodLabel(date: string): string {
-        const match = PERIOD_RE.exec(date);
-
-        if (match === null) {
-            return date;
-        }
-
-        const parsed = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
-
-        return new Intl.DateTimeFormat(locale.value, { month: 'short', day: '2-digit' }).format(
-            parsed,
-        );
+    function formatPercent(value: number): string {
+        return `${new Intl.NumberFormat(locale.value, { maximumFractionDigits: 0 }).format(value)}%`;
     }
 
-    const overviewStats = computed<Array<StatView>>(() => {
-        const totalPageViews = scalar('overall', 'total_page_views');
-        const uniqueVisitors = scalar('overall', 'unique_visitors');
-        const avgTimeOnPage = scalar('overall', 'avg_time_on_page');
-        const ctaRows = tableRows('overall', 'cta_clicks');
-        const ctaCount = (target: string): number =>
-            ctaRows.reduce((sum, row) => {
-                const rowTarget = row.target;
+    // The avg blocks carry seconds (time on page / read time) or percent
+    // points (completion rate); every other block is a plain count.
+    function formatBlockValue(blockKey: string, value: number): string {
+        if (blockKey === 'avg_time_on_page' || blockKey === 'avg_read_time') {
+            return formatDuration(value);
+        }
 
-                return rowTarget === target ? sum + (Number(row.count) || 0) : sum;
-            }, 0);
-        const ctaTotal = ctaRows.reduce((sum, row) => sum + (Number(row.count) || 0), 0);
+        if (blockKey === 'completion_rate') {
+            return formatPercent(value);
+        }
 
-        return [
-            {
-                label: t('admin.analytics.total_visits'),
-                value: formatNumber(totalPageViews?.value ?? 0),
-                trend: changePercent(totalPageViews),
-                isLoading: false,
-            },
-            {
-                label: t('admin.analytics.unique_visitors'),
-                value: formatNumber(uniqueVisitors?.value ?? 0),
-                trend: changePercent(uniqueVisitors),
-                isLoading: false,
-            },
-            {
-                label: t('admin.analytics.avg_time_on_page'),
-                value: formatDuration(avgTimeOnPage?.value ?? null),
-                trend: changePercent(avgTimeOnPage),
-                isLoading: false,
-            },
-            {
-                label: t('admin.analytics.cta_clicks'),
-                value: formatNumber(ctaTotal),
-                isLoading: false,
-            },
-            {
-                label: t('admin.analytics.feedback_submissions'),
-                value: formatNumber(ctaCount('feedback')),
-                isLoading: false,
-            },
-            {
-                label: t('admin.analytics.theme_language_switches'),
-                value: formatNumber(ctaCount('language') + ctaCount('theme')),
-                isLoading: false,
-            },
-        ];
-    });
-
-    const visitsSeries = computed<Array<SeriesPoint>>(() =>
-        reports
-            .filter((report) => report.report_type === 'overall')
-            .sort((a, b) => (a.period_start ?? '').localeCompare(b.period_start ?? ''))
-            .map((report) => {
-                const entry = report.data?.total_page_views as ScalarData | undefined;
-
-                return {
-                    label: formatPeriodLabel(report.period_start ?? ''),
-                    value: entry?.value ?? 0,
-                };
-            }),
-    );
-
-    const blogStats = computed<Array<StatView>>(() => {
-        const totalViews = scalar('blog', 'total_views');
-        const uniqueVisitors = scalar('blog', 'unique_visitors');
-        const readTimes = tableRows('blog', 'top_articles')
-            .map((row) => row.avg_read_time)
-            .filter(
-                (seconds): seconds is number =>
-                    seconds !== null && seconds !== undefined && Number.isFinite(Number(seconds)),
-            )
-            .map((seconds) => Number(seconds));
-        const averageReadTime =
-            readTimes.length === 0 ? null : readTimes.reduce((a, b) => a + b, 0) / readTimes.length;
-
-        return [
-            {
-                label: t('admin.analytics.total_views'),
-                value: formatNumber(totalViews?.value ?? 0),
-                trend: changePercent(totalViews),
-                isLoading: false,
-            },
-            {
-                label: t('admin.analytics.unique_visitors'),
-                value: formatNumber(uniqueVisitors?.value ?? 0),
-                trend: changePercent(uniqueVisitors),
-                isLoading: false,
-            },
-            {
-                label: t('admin.analytics.avg_read_time'),
-                value: formatDuration(averageReadTime),
-                isLoading: false,
-            },
-        ];
-    });
-
-    const topArticlesTable = computed<TableView>(() => ({
-        columns: [
-            { key: 'title', label: t('common.title') },
-            { key: 'views', label: t('admin.analytics.views') },
-            { key: 'avg_read_time', label: t('admin.analytics.avg_read_time') },
-            { key: 'completion_rate', label: t('admin.analytics.completion_rate') },
-        ],
-        rows: tableRows('blog', 'top_articles').map((row) => ({
-            id: row.id,
-            title: row.title ?? '',
-            views: formatNumber(Number(row.views) || 0),
-            avg_read_time: formatDuration(
-                row.avg_read_time === null ? null : Number(row.avg_read_time),
-            ),
-            completion_rate:
-                row.completion_rate === null || row.completion_rate === undefined
-                    ? '—'
-                    : `${Math.round(Number(row.completion_rate))}%`,
-        })),
-    }));
-
-    const reactionsSeries = computed<Array<SeriesPoint>>(() =>
-        series('blog', 'reactions').map((point) => ({
-            label:
-                point.label === 'likes'
-                    ? t('admin.analytics.likes')
-                    : point.label === 'dislikes'
-                      ? t('admin.analytics.dislikes')
-                      : point.label,
-            value: point.value,
-        })),
-    );
-
-    const projectViewsTable = computed<TableView>(() => ({
-        columns: [
-            { key: 'title', label: t('common.title') },
-            { key: 'views', label: t('admin.analytics.views') },
-        ],
-        rows: tableRows('projects', 'project_views').map((row) => ({
-            id: row.id,
-            title: row.title ?? '',
-            views: formatNumber(Number(row.views) || 0),
-        })),
-    }));
-
-    const submissionsSeries = computed<Array<SeriesPoint>>(() =>
-        series('feedback', 'submissions_per_day').map((point) => ({
-            label: formatPeriodLabel(point.label),
-            value: point.value,
-        })),
-    );
+        return formatNumber(value);
+    }
 
     return {
-        reportFor,
-        scalar,
-        tableRows,
-        series,
-        changePercent,
+        overviewBlocks,
+        blogBlocks,
+        projectsBlocks,
+        selectBlock,
+        span,
+        variant,
+        chartPoints,
+        chartLoading,
+        chartError,
+        multiChartSeries,
+        multiChartLoading,
+        multiChartError,
+        rankingRows,
+        rankingsLoading,
+        rankingsError,
+        fetchSeries,
+        fetchMultiSeries,
+        fetchRankings,
         formatNumber,
         formatDuration,
-        formatPeriodLabel,
-        overviewStats,
-        visitsSeries,
-        blogStats,
-        topArticlesTable,
-        reactionsSeries,
-        projectViewsTable,
-        submissionsSeries,
+        formatPercent,
     };
 }
