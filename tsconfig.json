@@ -76,6 +76,9 @@
             "@analytics-admin/*": [
                 "./resources/js/Features/Analytics/Admin/Components/*"
             ],
+            "@analytics/*": [
+                "./resources/js/Features/Analytics/*"
+            ],
             "@settings-admin/*": [
                 "./resources/js/Features/Settings/Admin/Components/*"
             ],
