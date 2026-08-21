@@ -307,6 +307,14 @@ export interface components {
         AnalyticsEvent: {
             event_type: string;
             session_id: string;
+            /**
+             * @description The public page kind the event happened on (B289): landing,
+             *     blog_index, blog_article, projects_index, project_detail,
+             *     experience. Nullable for pages outside the tracked set.
+             */
+            page_type?: string;
+            /** @description The entity id of the entity pages (blog_article / project_detail); null otherwise. */
+            page_entity_id?: number;
             page_url?: string;
             /** @description Event-specific payload. */
             metadata?: Record<string, never>;

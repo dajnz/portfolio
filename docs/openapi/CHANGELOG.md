@@ -12,6 +12,26 @@ runtime support.
 
 ### Added
 
+- **`AnalyticsEvent` page context (v1.0.4 REST, step 11.1, B289):** the
+  tracked events now carry `page_type` (the public page kind — landing,
+  blog_index, blog_article, projects_index, project_detail, experience;
+  nullable) and `page_entity_id` (the entity id of the entity pages,
+  nullable) — the frontend sends the page context with every event, so
+  the backend report attribution no longer matches event URLs. The
+  ingestion caps: `page_type` ≤ 50 chars, `page_entity_id` integer ≥ 1.
+  `info.version` bumped to `1.0.4` in `openapi.yaml`.
+
+- **`analyticsGenerateReports` operation (v1.0.20, step 11.1, B220):** the
+  dashboard "Generate Now" button needs a backend endpoint that bypasses
+  the scheduler's period boundary check (A9) — routes.md documents none,
+  so `POST /admin/analytics/generate-reports` is added as a gap-fill:
+  it dispatches `AggregateAnalyticsReportsJob` for the current period
+  and answers `202` with `{"dispatched": true}` (the job runs async; the
+  dashboard polls/reloads). Auth + admin gated like every `/admin/*`
+  route. `info.version` bumped to `1.0.20` in `inertia.yaml`.
+
+### Added
+
 - **`ResumeEditPageProps` completion (v1.0.19, step 10.2):** the resume
   settings page now carries the three inclusion-summary counts
   (`included_skills_count`, `included_experience_count`,

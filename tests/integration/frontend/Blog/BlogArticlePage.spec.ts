@@ -38,7 +38,7 @@ vi.mock('@inertiajs/vue3', () => ({
 }));
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: vi.fn(), setPageContext: vi.fn(), cleanup: vi.fn() }),
 }));
 
 import BlogArticlePage from '@blog/Public/Pages/BlogArticlePage.vue';

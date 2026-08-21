@@ -1,6 +1,7 @@
 <!-- ProjectsIndexPage (public-section-ui.md:142-175, public-section-components.md:1094-1132, mockup projects.html) — the public projects list: the ProjectsHeader toolbar (dual-response search autocomplete, skill tag filter with AND/intersect, the date/complexity sort dropdown, the grid/list toggle persisted in the `projects_view_mode` cookie), the ProjectCard grid/list, the infinite-scroll Load More (cursor reload per B158 replace semantics) and the three empty/error states via PublicEmptyState. The nav follows A10 — the Projects link is conditional on any published project existing (the same signal the landing uses). -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
 import { useSeoUpdater } from '@shared-cross/Composables/useSeoUpdater';
 import type { components } from '@shared-cross/Types/inertia';
 import InfiniteScrollLoader from '@shared-public/InfiniteScrollLoader.vue';
@@ -37,6 +38,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
+usePageTracking('projects_index');
 ensureProjectsIcons();
 useSeoUpdater();
 

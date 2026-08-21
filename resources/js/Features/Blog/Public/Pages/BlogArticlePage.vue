@@ -1,5 +1,6 @@
 <!-- BlogArticlePage (public-section-ui.md:240-297, public-section-components.md:1244-1341, mockup blog-article.html) — the public article detail: the two-column layout (ArticleContent reading panel | sticky TableOfContents sidebar), the RelatedPosts section spanning the full width. The article's SEO props + JSON-LD (BlogPosting + BreadcrumbList — incl. the skill names in `keywords`) arrive from the backend and are synced via useSeoUpdater (seo.md:119-188). TOC navigation smooth-scrolls to the heading's `scroll-margin-top` offset (respecting the sticky header); the TOC's IntersectionObserver watches the body's headings via the `target_selector`. The mobile variant collapses the sidebar into the floating TOC button. -->
 <script setup lang="ts">
+import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
 import { useSeoUpdater } from '@shared-cross/Composables/useSeoUpdater';
 import type { components } from '@shared-cross/Types/inertia';
 import PublicPageLayout from '@shared-public/PublicPageLayout.vue';
@@ -29,6 +30,7 @@ const props = withDefaults(
 );
 
 ensureBlogIcons();
+usePageTracking('blog_article', props.article?.id ?? null);
 useSeoUpdater();
 
 const { navItems, activeRoute, article, headings } = useBlogArticlePage(props);

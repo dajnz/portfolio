@@ -44,7 +44,7 @@ vi.mock('@inertiajs/vue3', () => ({
 }));
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: analyticsTrack, cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: analyticsTrack, setPageContext: vi.fn(), cleanup: vi.fn() }),
 }));
 
 import LandingPage from '@portfolio/Public/Pages/LandingPage.vue';

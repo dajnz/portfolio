@@ -83,6 +83,49 @@ describe('useAnalytics', () => {
         expect(sessionStorage.getItem(SESSION_STORAGE_KEY)).toBe(storedId);
     });
 
+    it('carries the declared page context in every event', () => {
+        const analytics = useAnalytics();
+        cleanups.push(analytics.cleanup);
+
+        analytics.setPageContext('blog_article', 42);
+        analytics.track('page_view');
+        vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+        expect(lastFetch().body[0]).toMatchObject({
+            event_type: 'page_view',
+            page_type: 'blog_article',
+            page_entity_id: 42,
+        });
+    });
+
+    it('shares the page context across tracker instances', () => {
+        const page = useAnalytics();
+        cleanups.push(page.cleanup);
+        page.setPageContext('project_detail', 7);
+
+        const component = useAnalytics();
+        cleanups.push(component.cleanup);
+        component.track('cta_click_github');
+        vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+        expect(lastFetch().body[0]).toMatchObject({
+            page_type: 'project_detail',
+            page_entity_id: 7,
+        });
+    });
+
+    it('resets the page context when a page without an entity is tracked', () => {
+        const analytics = useAnalytics();
+        cleanups.push(analytics.cleanup);
+
+        analytics.setPageContext('blog_article', 42);
+        analytics.setPageContext('landing');
+        analytics.track('page_view');
+        vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+        expect(lastFetch().body[0]).toMatchObject({ page_type: 'landing', page_entity_id: null });
+    });
+
     it('buffers events without sending anything', () => {
         const analytics = useAnalytics();
         cleanups.push(analytics.cleanup);
@@ -130,6 +173,8 @@ describe('useAnalytics', () => {
         const makeEvent = (index: number) => ({
             event_type: 'big_event',
             metadata: { payload: 'x'.repeat(900), index },
+            page_type: null,
+            page_entity_id: null,
             page_url: window.location.href,
             session_id: sessionId,
         });

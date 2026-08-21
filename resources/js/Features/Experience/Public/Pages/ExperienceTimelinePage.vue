@@ -4,6 +4,7 @@ import ExperienceDetailModal from '@experience-public/ExperienceDetailModal.vue'
 import TagPopupModal from '@experience-public/TagPopupModal.vue';
 import Timeline from '@experience-public/Timeline.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
 import { useSeoUpdater } from '@shared-cross/Composables/useSeoUpdater';
 import type { components } from '@shared-cross/Types/inertia';
 import InfiniteScrollLoader from '@shared-public/InfiniteScrollLoader.vue';
@@ -42,6 +43,7 @@ const props = withDefaults(
 const { t } = useI18n();
 
 ensureExperienceIcons();
+usePageTracking('experience');
 useSeoUpdater();
 
 const { navItems, activeRoute, items, isLoading, loadError, loadMore, retry } =

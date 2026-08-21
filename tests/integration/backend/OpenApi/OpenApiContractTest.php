@@ -15,7 +15,6 @@ use App\Features\Projects\Infra\Models\ProjectTranslationModel;
 use Database\Seeders\SettingsSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use LogicException;
 use Tests\Support\Traits\InteractsWithAdmin;
 use Tests\Support\Traits\OpenApiContractAssertions;
 
@@ -174,20 +173,30 @@ it('validates the createTag responses against the spec', function (): void {
     ]));
 });
 
-it('answers 404 with the error envelope for not-yet-implemented operations', function (): void {
-    foreach (array_keys(array_filter(
-        self::scenarios(),
-        static fn (array $scenario): bool => ! $scenario['implemented'],
-    )) as $operationId) {
-        $response = match ($operationId) {
-            'trackEvents' => $this->postJson('/api/analytics/track', ['events' => [
-                ['event_type' => 'page_view', 'session_id' => 'contract-test-session'],
-            ]]),
-            default => throw new LogicException("No pending-request builder for [{$operationId}]."),
-        };
+it('validates the trackEvents responses against the spec', function (): void {
+    $browserHeaders = ['User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) Chrome/126.0'];
 
-        $this->assertPendingOperation($response);
+    // 204: a valid batch from a real browser.
+    $this->assertConformsToSpec('trackEvents', 0, $this->postJson('/api/analytics/track', [
+        ['event_type' => 'page_view', 'session_id' => 'contract-session'],
+    ], $browserHeaders));
+
+    // 422: an invalid event item rejects the whole batch (B30).
+    $this->assertConformsToSpec('trackEvents', 1, $this->postJson('/api/analytics/track', [
+        ['event_type' => str_repeat('x', 101), 'session_id' => 'contract-session'],
+    ], $browserHeaders));
+
+    // 429: consume the 60/min analytics limiter (60 requests already
+    // issued above; 59 more reach the cap, the 61st is rejected).
+    foreach (range(1, 59) as $attempt) {
+        $this->postJson('/api/analytics/track', [
+            ['event_type' => 'page_view', 'session_id' => 'contract-session-'.$attempt],
+        ], $browserHeaders);
     }
+
+    $this->assertConformsToSpec('trackEvents', 2, $this->postJson('/api/analytics/track', [
+        ['event_type' => 'page_view', 'session_id' => 'contract-session-61'],
+    ], $browserHeaders));
 });
 
 it('validates the regenerateResume responses against the spec', function (): void {

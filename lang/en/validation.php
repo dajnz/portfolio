@@ -151,5 +151,13 @@ return [
         'only_last_current' => 'Only the most recent item can be ongoing — an end date is required for this period.',
     ],
 
+    'analytics' => [
+        'batch_empty' => 'The event batch must contain at least one event.',
+        'batch_shape' => 'The event batch must be an array of events.',
+        'batch_too_large' => 'The event batch must not contain more than 100 events.',
+        'payload_too_large' => 'The event batch must not exceed 50 KB.',
+        'event_invalid' => 'The event batch contains an unknown event type or malformed event payload.',
+    ],
+
     'attributes' => [],
 ];
