@@ -199,11 +199,15 @@ describe('AdminExperienceController', function (): void {
 
         $group = \App\Features\Shared\Infra\Models\SkillGroupModel::factory()->create();
         SkillModel::factory()->create(['skill_group_id' => $group->id, 'name' => 'PHP', 'icon' => 'devicon:php']);
-        DB::table('projects')->insert([
-            ['slug' => 'payments', 'is_published' => true, 'featured_sort_order' => 0, 'created_at' => now(), 'updated_at' => now()],
+        $projectId = DB::table('projects')->insertGetId([
+            'slug' => 'payments',
+            'is_published' => true,
+            'featured_sort_order' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
         DB::table('project_translations')->insert([
-            ['project_id' => 1, 'locale' => 'en', 'title' => 'Payments Gateway', 'brief_description' => 'Gateway'],
+            ['project_id' => $projectId, 'locale' => 'en', 'title' => 'Payments Gateway', 'brief_description' => 'Gateway'],
         ]);
 
         $this->get('/admin/experience/create')
@@ -214,7 +218,7 @@ describe('AdminExperienceController', function (): void {
                 ->has('skills', 1)
                 ->where('skills.0.name', 'PHP')
                 ->has('projects', 1)
-                ->where('projects.0.id', 1)
+                ->where('projects.0.id', $projectId)
                 ->where('projects.0.title', 'Payments Gateway')
                 ->where('projects.0.slug', 'payments'));
     });
