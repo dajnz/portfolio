@@ -130,28 +130,62 @@ interface LinePointGeometry {
     y: number;
 }
 
-const multiLineGeometries = computed<Array<Array<LinePointGeometry>>>(() =>
-    chartSeries.value.map((series) => {
-        const count = Math.max(1, series.points.length);
-        const slot = (VIEWBOX_WIDTH - PADDING_X * 2) / count;
+// The union of every series' point labels, in first-seen order. The
+// per-target CTA series are cumulative and start on different days, so
+// plotting each series by its own index would time-distort them — every
+// series plots against the same union slots instead.
+const unionLabels = computed<Array<string>>(() => {
+    const labels: Array<string> = [];
+    const seen = new Set<string>();
 
-        return series.points.map((point, index) => ({
-            x: PADDING_X + slot * index + slot / 2,
-            y: TOP_AREA + PLOT_HEIGHT - (point.value / maxValue.value) * PLOT_HEIGHT,
-        }));
-    }),
-);
+    for (const series of chartSeries.value) {
+        for (const point of series.points) {
+            if (!seen.has(point.label)) {
+                seen.add(point.label);
+                labels.push(point.label);
+            }
+        }
+    }
+
+    return labels;
+});
+
+// Each series maps its points onto the union slots; a series without a
+// point for a slot yields null — the polyline skips the gap but the
+// slot stays (the x-axis keeps the full union).
+const multiLineGeometries = computed<Array<Array<LinePointGeometry | null>>>(() => {
+    const count = Math.max(1, unionLabels.value.length);
+    const slot = (VIEWBOX_WIDTH - PADDING_X * 2) / count;
+
+    return chartSeries.value.map((series) => {
+        const pointsByLabel = new Map(series.points.map((point) => [point.label, point]));
+
+        return unionLabels.value.map((label, index) => {
+            const point = pointsByLabel.get(label);
+            if (point === undefined) {
+                return null;
+            }
+
+            return {
+                x: PADDING_X + slot * index + slot / 2,
+                y: TOP_AREA + PLOT_HEIGHT - (point.value / maxValue.value) * PLOT_HEIGHT,
+            };
+        });
+    });
+});
 
 const multiLinePoints = computed(() =>
-    multiLineGeometries.value.map((line) => line.map((point) => `${point.x},${point.y}`).join(' ')),
+    multiLineGeometries.value.map((line) =>
+        line
+            .filter((point): point is LinePointGeometry => point !== null)
+            .map((point) => `${point.x},${point.y}`)
+            .join(' '),
+    ),
 );
 
-// The x-axis labels come from the first series — the per-target series
-// are aligned (same period rows), so the positions match.
-const multiXLabels = computed(() => chartSeries.value[0]?.points ?? []);
-
+// The x-axis labels come from the union of all series.
 const multiSlot = computed(() => {
-    const count = Math.max(1, multiXLabels.value.length);
+    const count = Math.max(1, unionLabels.value.length);
 
     return (VIEWBOX_WIDTH - PADDING_X * 2) / count;
 });
@@ -251,7 +285,7 @@ const svgLabel = computed(() =>
           />
         </g>
         <g
-          v-for="(point, index) in multiXLabels"
+          v-for="(label, index) in unionLabels"
           :key="index"
         >
           <text
@@ -260,7 +294,7 @@ const svgLabel = computed(() =>
             text-anchor="middle"
             class="fill-slate-400 text-[10px] font-mono"
           >
-            {{ point.label }}
+            {{ label }}
           </text>
         </g>
       </svg>
