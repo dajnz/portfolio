@@ -2,9 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Features\Analytics\Infra\Controllers\AnalyticsController;
+use Illuminate\Support\Facades\Route;
+
 /*
- * Analytics web routes (routes.md:136). The old-schema dashboard and
- * "Generate Now" routes were removed with the periodic report pipeline
- * (step 11.3.1 — the new dashboard + JSON endpoints land in 11.3.4);
- * the public event ingestion lives in `api_routes.php`.
+ * Analytics admin routes (routes.md:136-139): the dashboard Inertia
+ * page, the chart-series and ranking JSON endpoints and the "Generate
+ * Now" full-rebuild dispatch — all gated by the Auth middleware chain
+ * (`auth` + `auth.session_version` + `admin`). The public event
+ * ingestion lives in `api_routes.php`.
  */
+
+Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function (): void {
+    Route::get('/admin/analytics', [AnalyticsController::class, 'index']);
+    Route::get('/admin/analytics/series', [AnalyticsController::class, 'series']);
+    Route::get('/admin/analytics/rankings', [AnalyticsController::class, 'rankings']);
+    Route::post('/admin/analytics/generate-reports', [AnalyticsController::class, 'generate']);
+});

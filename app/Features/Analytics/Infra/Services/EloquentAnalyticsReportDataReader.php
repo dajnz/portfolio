@@ -39,4 +39,24 @@ final class EloquentAnalyticsReportDataReader implements AnalyticsReportDataRead
 
         return new DateTimeImmutable(substr((string) $oldest, 0, 10));
     }
+
+    public function articleTitles(array $articleIds): array
+    {
+        return DB::table('blog_article_translations')
+            ->where('locale', 'en')
+            ->whereIn('article_id', $articleIds)
+            ->pluck('title', 'article_id')
+            ->mapWithKeys(static fn (mixed $title, mixed $id): array => [(int) $id => (string) $title])
+            ->all();
+    }
+
+    public function projectTitles(array $projectIds): array
+    {
+        return DB::table('project_translations')
+            ->where('locale', 'en')
+            ->whereIn('project_id', $projectIds)
+            ->pluck('title', 'project_id')
+            ->mapWithKeys(static fn (mixed $title, mixed $id): array => [(int) $id => (string) $title])
+            ->all();
+    }
 }

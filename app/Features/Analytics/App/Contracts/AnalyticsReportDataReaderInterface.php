@@ -11,9 +11,9 @@ use DateTimeImmutable;
  * The cross-feature data the analytics pipeline needs (B11/B292): the
  * feedback submission timestamps (the `feedback_submissions` metric —
  * feedback rows are never pruned, so the metric can be rebuilt for the
- * full history). The per-article/per-project metric rows carry the
- * entity IDs only (`article:{id}`/`project:{id}`); the titles are
- * joined at query time by the dashboard/rankings layer (11.3.4).
+ * full history) and the EN titles of the ranking dimensions (11.3.4 —
+ * the `article:{id}`/`project:{id}` metric rows carry the entity IDs
+ * only; the dashboard rankings join the titles at query time).
  * Implemented on the Infra layer; the use cases depend on this
  * interface only.
  */
@@ -30,4 +30,26 @@ interface AnalyticsReportDataReaderInterface
      * feedback rows exist.
      */
     public function oldestFeedbackDate(): ?DateTimeImmutable;
+
+    /**
+     * The EN titles of the given article ids, keyed by id (the
+     * rankings' display names). Articles without an EN translation are
+     * absent — the rankings drop their rows.
+     *
+     * @param list<int> $articleIds
+     *
+     * @return array<int, string>
+     */
+    public function articleTitles(array $articleIds): array;
+
+    /**
+     * The EN titles of the given project ids, keyed by id (the
+     * rankings' display names). Projects without an EN translation are
+     * absent — the rankings drop their rows.
+     *
+     * @param list<int> $projectIds
+     *
+     * @return array<int, string>
+     */
+    public function projectTitles(array $projectIds): array;
 }

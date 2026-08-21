@@ -64,20 +64,27 @@ final class EloquentAnalyticsReportRepository implements AnalyticsReportReposito
             ->all();
     }
 
-    public function series(MetricName $metric, MetricSpan $span, int $limit): array
+    public function series(MetricName $metric, MetricSpan $span, int $limit, ?string $dimension = null): array
     {
-        return AnalyticsReportModel::query()
+        $query = AnalyticsReportModel::query()
             ->where('metric', $metric->value)
             ->where('span', $span->value)
-            ->whereNull('dimension')
-            ->orderByDesc('period_start')
+            ->orderByDesc('period_start');
+
+        if ($dimension === null) {
+            $query->whereNull('dimension');
+        } else {
+            $query->where('dimension', $dimension);
+        }
+
+        return $query
             ->limit($limit)
             ->get()
             ->map(fn (AnalyticsReportModel $model): AnalyticsReport => $this->mapper->toEntity($model))
             ->all();
     }
 
-    public function rankings(MetricName $metric, string $direction, int $limit): array
+    public function rankings(MetricName $metric, string $direction, int $limit, ?string $dimensionPrefix = null): array
     {
         $order = match ($direction) {
             'top' => 'desc',
@@ -91,8 +98,28 @@ final class EloquentAnalyticsReportRepository implements AnalyticsReportReposito
             ->where('metric', $metric->value)
             ->where('span', MetricSpan::All->value)
             ->whereNotNull('dimension')
+            ->when(
+                $dimensionPrefix !== null,
+                static fn ($query) => $query->where('dimension', 'like', $dimensionPrefix.'%'),
+            )
             ->orderBy('value', $order)
             ->limit($limit)
+            ->get()
+            ->map(fn (AnalyticsReportModel $model): AnalyticsReport => $this->mapper->toEntity($model))
+            ->all();
+    }
+
+    public function dimensionRows(MetricName $metric, ?string $dimensionPrefix = null): array
+    {
+        return AnalyticsReportModel::query()
+            ->where('metric', $metric->value)
+            ->where('span', MetricSpan::All->value)
+            ->whereNotNull('dimension')
+            ->when(
+                $dimensionPrefix !== null,
+                static fn ($query) => $query->where('dimension', 'like', $dimensionPrefix.'%'),
+            )
+            ->orderBy('dimension')
             ->get()
             ->map(fn (AnalyticsReportModel $model): AnalyticsReport => $this->mapper->toEntity($model))
             ->all();

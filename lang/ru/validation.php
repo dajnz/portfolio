@@ -157,6 +157,11 @@ return [
         'batch_too_large' => 'Пакет событий не должен содержать более 100 событий.',
         'payload_too_large' => 'Пакет событий не должен превышать 50 КБ.',
         'event_invalid' => 'Пакет событий содержит неизвестный тип события или некорректную полезную нагрузку.',
+        'series_dimension_required' => 'Ряд cta_clicks требует измерения.',
+        'series_dimension_forbidden' => 'Фильтр измерения доступен только для метрики cta_clicks.',
+        'rankings_metric_not_allowed' => 'Метрика не может быть ранжирована в данной области.',
+        'rankings_liked_metric' => 'Вариант liked требует метрику reactions_likes.',
+        'rankings_disliked_metric' => 'Вариант disliked требует метрику reactions_dislikes.',
     ],
 
     'attributes' => [],

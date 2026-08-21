@@ -49,21 +49,38 @@ interface AnalyticsReportRepositoryInterface
     public function blocks(array $metricNames): array;
 
     /**
-     * The last `$limit` dimension-NULL rows for the metric at the
-     * span, newest period first (chart series — the caller reverses
-     * them for chronological display).
+     * The last `$limit` rows for the metric at the span, newest period
+     * first (chart series — the caller reverses them for chronological
+     * display). A null `$dimension` reads the dimension-NULL rows (the
+     * global series); a given dimension filters to that exact
+     * dimension — the per-target `cta_clicks` series (11.3.4).
      *
      * @return list<AnalyticsReport>
      */
-    public function series(MetricName $metric, MetricSpan $span, int $limit): array;
+    public function series(MetricName $metric, MetricSpan $span, int $limit, ?string $dimension = null): array;
 
     /**
      * The `span = 'all'` dimension rows for the metric ordered by
-     * value — `top` descending, `bottom` ascending (rankings).
+     * value — `top` descending, `bottom` ascending (rankings). A
+     * `$dimensionPrefix` filters to one dimension family
+     * (`article:`/`project:` — the `views`/`unique_visitors` metrics
+     * span both, 11.3.4); null returns every dimension row.
      *
      * @return list<AnalyticsReport>
      */
-    public function rankings(MetricName $metric, string $direction, int $limit): array;
+    public function rankings(MetricName $metric, string $direction, int $limit, ?string $dimensionPrefix = null): array;
+
+    /**
+     * The whole-time (`span = 'all'`) dimension rows of the metric,
+     * dimension ascending — the block-total source (11.3.4): the
+     * per-target `cta_clicks` rows sum to the CTA total and carry the
+     * language-switch block, the `views`/`unique_visitors` project
+     * rows sum to the projects blocks, and the `*_min`/`*_max` rows
+     * join the time/read/completion rankings by dimension.
+     *
+     * @return list<AnalyticsReport>
+     */
+    public function dimensionRows(MetricName $metric, ?string $dimensionPrefix = null): array;
 
     /**
      * The distinct spans that have at least one row for the metric,
