@@ -29,112 +29,63 @@ vi.mock('@shared-cross/Composables/useAnalytics', () => ({
 import AnalyticsDashboardPage from '@analytics/Admin/Pages/AnalyticsDashboardPage.vue';
 import { useToastStore } from '@shared-cross/Stores/toastStore';
 
-// Wire fixtures mirroring the 11.1 backend payloads
-// (AnalyticsReportGenerationTest / AnalyticsDashboardTest).
-const OVERALL_REPORT = {
-    report_type: 'overall',
-    period_start: '2026-08-10',
-    period_end: '2026-08-16',
-    data: {
-        total_page_views: { value: 12847, previous: 11420 },
-        unique_visitors: { value: 890, previous: 812 },
-        avg_time_on_page: { value: 75, previous: 70 },
-        cta_clicks: {
-            columns: ['target', 'count'],
-            rows: [
-                { target: 'github', count: 5 },
-                { target: 'demo', count: 3 },
-                { target: 'cv', count: 9 },
-                { target: 'feedback', count: 2 },
-                { target: 'language', count: 4 },
-                { target: 'theme', count: 1 },
-            ],
-        },
-    },
-};
+// Wire fixtures mirroring the OpenAPI AnalyticsDashboardPageProps shape
+// (docs/openapi/inertia/analytics.yaml — AnalyticsBlock, AnalyticsDefaultChart,
+// AnalyticsDefaultRankings).
+const OVERVIEW_BLOCKS = [
+    { key: 'total_visits', value: 12847 },
+    { key: 'unique_visitors', value: 890 },
+    { key: 'cta_clicks', value: 24 },
+    { key: 'feedback_submissions', value: 7 },
+    { key: 'language_switches', value: 5 },
+    { key: 'avg_time_on_page', value: 75, min: 3, max: 240 },
+];
 
-const PREVIOUS_OVERALL_REPORT = {
-    report_type: 'overall',
-    period_start: '2026-08-03',
-    period_end: '2026-08-09',
-    data: {
-        total_page_views: { value: 10000, previous: null },
-        unique_visitors: { value: 700, previous: null },
-        avg_time_on_page: { value: 60, previous: null },
-        cta_clicks: {
-            columns: ['target', 'count'],
-            rows: [
-                { target: 'github', count: 1 },
-                { target: 'demo', count: 0 },
-                { target: 'cv', count: 2 },
-                { target: 'feedback', count: 0 },
-                { target: 'language', count: 0 },
-                { target: 'theme', count: 0 },
-            ],
-        },
-    },
-};
+const BLOG_BLOCKS = [
+    { key: 'total_views', value: 4820 },
+    { key: 'unique_visitors', value: 300 },
+    { key: 'avg_read_time', value: 60, min: 5, max: 300 },
+    { key: 'completion_rate', value: 87.4, min: 40, max: 100 },
+    { key: 'reactions', value: 49 },
+];
 
-const BLOG_REPORT = {
-    report_type: 'blog',
-    period_start: '2026-08-10',
-    period_end: '2026-08-16',
-    data: {
-        total_views: { value: 4820, previous: 4100 },
-        unique_visitors: { value: 300, previous: 280 },
-        top_articles: {
-            columns: ['id', 'title', 'views', 'avg_read_time', 'completion_rate'],
-            rows: [
-                { id: 1, title: 'Payments Gateway', views: 12, avg_read_time: 60, completion_rate: 75 },
-                { id: 2, title: 'Ledger Architecture', views: 8, avg_read_time: null, completion_rate: null },
-            ],
-        },
-        reactions: {
+const PROJECTS_BLOCKS = [
+    { key: 'total_views', value: 24 },
+    { key: 'unique_views', value: 9 },
+];
+
+const DEFAULT_CHART = {
+    metric: 'page_views',
+    spans: {
+        day: {
             points: [
-                { label: 'likes', value: 42 },
-                { label: 'dislikes', value: 7 },
+                { label: '2026-08-19', value: 100 },
+                { label: '2026-08-20', value: 150 },
             ],
         },
+        week: { points: [{ label: '2026-08-10', value: 700 }] },
+        month: { points: [] },
+        all: { points: [] },
     },
 };
 
-const PROJECTS_REPORT = {
-    report_type: 'projects',
-    period_start: '2026-08-10',
-    period_end: '2026-08-16',
-    data: {
-        project_views: {
-            columns: ['id', 'title', 'views'],
-            rows: [{ id: 1, title: 'Ledger', views: 24 }],
-        },
+const DEFAULT_RANKINGS = {
+    metric: 'time_on_page_seconds',
+    scope: 'page',
+    rows: {
+        top: [{ page_url: '/about', avg: 75, min: 3, max: 240 }],
+        bottom: [],
     },
 };
-
-const FEEDBACK_REPORT = {
-    report_type: 'feedback',
-    period_start: '2026-08-10',
-    period_end: '2026-08-16',
-    data: {
-        total_submissions: { value: 7, previous: 3 },
-        submissions_per_day: {
-            points: [
-                { label: '2026-08-10', value: 2 },
-                { label: '2026-08-11', value: 5 },
-            ],
-        },
-    },
-};
-
-// Backend order: `period_start` desc, `report_type` asc — the newest
-// period first (EloquentAnalyticsReportRepository).
-const REPORTS = [OVERALL_REPORT, PREVIOUS_OVERALL_REPORT, BLOG_REPORT, PROJECTS_REPORT, FEEDBACK_REPORT];
 
 function mountPage(props: Record<string, unknown> = {}) {
-    // The OpenAPI contract types `data` as opaque (`Record<string, never>`),
-    // so the wire fixtures are cast at the mount boundary.
     const wrapper = mount(AnalyticsDashboardPage, {
         props: {
-            reports: REPORTS,
+            overview_blocks: OVERVIEW_BLOCKS,
+            blog_blocks: BLOG_BLOCKS,
+            projects_blocks: PROJECTS_BLOCKS,
+            default_chart: DEFAULT_CHART,
+            default_rankings: DEFAULT_RANKINGS,
             ...props,
         } as unknown as InstanceType<typeof AnalyticsDashboardPage>['$props'],
     });
@@ -143,17 +94,22 @@ function mountPage(props: Record<string, unknown> = {}) {
     return wrapper;
 }
 
-// The lazy AnalyticsChart (defineAsyncComponent) resolves across several
-// microtask/macrotask turns (LandingPage.spec precedent — the first
-// dynamic import pays the SFC transform time, so poll instead of sleeping).
-async function flushUntilChart(
+function jsonResponse(payload: unknown) {
+    return { ok: true, json: async () => payload };
+}
+
+// The lazy AnalyticsChart (defineAsyncComponent — architecture.md:1250)
+// resolves across several microtask/macrotask turns (the first dynamic
+// import pays the SFC transform time), so poll instead of sleeping.
+async function flushUntil(
     wrapper: ReturnType<typeof mountPage>,
-    testId: string,
+    selector: string,
 ): Promise<void> {
     const deadline = Date.now() + 10_000;
-    while (!wrapper.find(`[data-testid="${testId}-svg"]`).exists()) {
+
+    while (!wrapper.find(selector).exists()) {
         if (Date.now() > deadline) {
-            throw new Error('AnalyticsChart did not render within 10s');
+            throw new Error(`Element ${selector} did not render within 10s`);
         }
 
         await new Promise((resolve) => setTimeout(resolve, 100));
@@ -161,10 +117,15 @@ async function flushUntilChart(
     }
 }
 
+interface FetchInit {
+    signal?: AbortSignal;
+}
+
 let mountedWrappers: Array<ReturnType<typeof mount>> = [];
 
 describe('AnalyticsDashboardPage', () => {
     let toastStore: ReturnType<typeof useToastStore>;
+    let fetchMock: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
         setActivePinia(createPinia());
@@ -172,7 +133,14 @@ describe('AnalyticsDashboardPage', () => {
         reloadMock.mockClear();
         pageProps.locale = 'en';
         window.localStorage.clear();
-        vi.stubGlobal('fetch', vi.fn());
+        fetchMock = vi.fn().mockImplementation((url: string) =>
+            Promise.resolve(
+                url.includes('/rankings')
+                    ? jsonResponse({ rows: [] })
+                    : jsonResponse({ points: [] }),
+            ),
+        );
+        vi.stubGlobal('fetch', fetchMock);
     });
 
     afterEach(() => {
@@ -183,148 +151,322 @@ describe('AnalyticsDashboardPage', () => {
         vi.unstubAllGlobals();
     });
 
-    it('renders within the admin layout with the title, four tabs and Generate Now', () => {
+    it('renders within the admin layout with the title, three tabs and Generate Now', () => {
         const wrapper = mountPage();
 
         expect(wrapper.find('[data-testid="analytics-dashboard-page-layout"]').exists()).toBe(true);
         expect(wrapper.get('[data-testid="analytics-dashboard-page"] h1').text()).toBe('Analytics');
         expect(
-            wrapper.findAll('[data-testid^="analytics-dashboard-page-tab-"]').map((tab) => tab.text()),
-        ).toEqual(['Overview', 'Blog', 'Projects', 'Feedback']);
+            wrapper
+                .findAll('[data-testid^="analytics-dashboard-page-tab-"]')
+                .map((tab) => tab.text()),
+        ).toEqual(['Overview', 'Blog', 'Projects']);
         expect(wrapper.get('[data-testid="analytics-dashboard-page-generate-now"]').text()).toBe(
             'Generate Now',
         );
     });
 
-    it('renders the overview stats cards from the overall report', () => {
+    it('shows the whole-time note on the Overview and Blog tabs but not on Projects', async () => {
         const wrapper = mountPage();
 
-        const cards = wrapper.findAll('[data-testid^="analytics-dashboard-page-stats-card-"]');
-        expect(cards).toHaveLength(6);
-        expect(cards[0].text()).toContain('Total Visits');
-        expect(cards[0].text()).toContain('12,847');
-        expect(cards[0].text()).toContain('+12.5%');
-        expect(cards[1].text()).toContain('Unique Visitors');
-        expect(cards[1].text()).toContain('890');
-        expect(cards[2].text()).toContain('Avg Time on Page');
-        expect(cards[2].text()).toContain('1m 15s');
-        expect(cards[3].text()).toContain('CTA Clicks');
-        expect(cards[3].text()).toContain('24');
-        expect(cards[4].text()).toContain('Feedback Submissions');
-        expect(cards[4].text()).toContain('2');
-        expect(cards[5].text()).toContain('Theme/Language Switches');
-        expect(cards[5].text()).toContain('5');
-    });
-
-    it('renders the visits-over-time bar chart from the overall reports across periods', async () => {
-        const wrapper = mountPage();
-        await flushUntilChart(wrapper, 'analytics-dashboard-page-visits-chart');
-
-        const svg = wrapper.get(
-            '[data-testid="analytics-dashboard-page-visits-chart-svg"]',
-        );
-        expect(svg.attributes('role')).toBe('img');
-        expect(svg.attributes('aria-label')).toBe('Bar chart: Visits over time');
-        // One bar per overall report, oldest period first.
-        const labels = wrapper
-            .findAll('[data-testid="analytics-dashboard-page-visits-chart-svg"] text')
-            .map((node) => node.text());
-        expect(labels).toContain('Aug 03');
-        expect(labels).toContain('Aug 10');
-        expect(labels).toContain('10000');
-        expect(labels).toContain('12847');
-    });
-
-    it('switches to the blog tab: top-articles table, stats and reactions chart', async () => {
-        const wrapper = mountPage();
-        await wrapper.get('[data-testid="analytics-dashboard-page-tab-blog"]').trigger('click');
-        await flushUntilChart(wrapper, 'analytics-dashboard-page-reactions-chart');
-
-        const rows = wrapper
-            .get('[data-testid="analytics-dashboard-page-top-articles"]')
-            .findAll('tbody tr');
-        expect(rows).toHaveLength(2);
-        expect(rows[0].text()).toContain('Payments Gateway');
-        expect(rows[0].text()).toContain('12');
-        expect(rows[0].text()).toContain('1m 00s');
-        expect(rows[0].text()).toContain('75%');
-        expect(rows[1].text()).toContain('Ledger Architecture');
-        expect(rows[1].text()).toContain('—');
-
-        const cards = wrapper.findAll('[data-testid^="analytics-dashboard-page-blog-stats-card-"]');
-        expect(cards).toHaveLength(3);
-        expect(cards[0].text()).toContain('Total Views');
-        expect(cards[0].text()).toContain('4,820');
-        expect(cards[2].text()).toContain('Avg Read Time');
-        expect(cards[2].text()).toContain('1m 00s');
-
-        const svgLabels = wrapper
-            .findAll('[data-testid="analytics-dashboard-page-reactions-chart-svg"] text')
-            .map((node) => node.text());
-        expect(svgLabels).toContain('Likes');
-        expect(svgLabels).toContain('42');
-        expect(svgLabels).toContain('Dislikes');
-        expect(svgLabels).toContain('7');
-    });
-
-    it('switches to the projects tab with the project views table', async () => {
-        const wrapper = mountPage();
-        await wrapper.get('[data-testid="analytics-dashboard-page-tab-projects"]').trigger('click');
-
-        const rows = wrapper
-            .get('[data-testid="analytics-dashboard-page-project-views"]')
-            .findAll('tbody tr');
-        expect(rows).toHaveLength(1);
-        expect(rows[0].text()).toContain('Ledger');
-        expect(rows[0].text()).toContain('24');
-    });
-
-    it('switches to the feedback tab with the submissions line chart', async () => {
-        const wrapper = mountPage();
-        await wrapper.get('[data-testid="analytics-dashboard-page-tab-feedback"]').trigger('click');
-        await flushUntilChart(wrapper, 'analytics-dashboard-page-submissions-chart');
-
-        const svg = wrapper.get(
-            '[data-testid="analytics-dashboard-page-submissions-chart-svg"]',
-        );
-        expect(svg.attributes('aria-label')).toBe('Line chart: Submissions over time');
-        expect(svg.find('polyline').exists()).toBe(true);
-        const labels = wrapper
-            .findAll('[data-testid="analytics-dashboard-page-submissions-chart-svg"] text')
-            .map((node) => node.text());
-        expect(labels).toContain('Aug 10');
-        expect(labels).toContain('Aug 11');
-        expect(labels).toContain('5');
-    });
-
-    it('shows the empty state when a tab has no report of its type', async () => {
-        const wrapper = mountPage({ reports: [OVERALL_REPORT] });
-
-        expect(wrapper.find('[data-testid="analytics-dashboard-page-stats-card-0"]').exists()).toBe(
-            true,
+        expect(wrapper.get('[data-testid="analytics-dashboard-page-note"]').text()).toBe(
+            'Showing whole-time analytics.',
         );
 
         await wrapper.get('[data-testid="analytics-dashboard-page-tab-blog"]').trigger('click');
         await flushPromises();
+        expect(wrapper.get('[data-testid="analytics-dashboard-page-note"]').text()).toBe(
+            'Showing whole-time analytics.',
+        );
+
+        await wrapper.get('[data-testid="analytics-dashboard-page-tab-projects"]').trigger('click');
+        await flushPromises();
+        expect(wrapper.find('[data-testid="analytics-dashboard-page-note"]').exists()).toBe(false);
+    });
+
+    it('renders the overview blocks with their whole-time values and the avg min/max line', () => {
+        const wrapper = mountPage();
+
+        const blocks = wrapper.findAll('[data-testid^="analytics-dashboard-page-blocks-block-"]');
+        expect(blocks).toHaveLength(6);
+        expect(blocks[0].text()).toContain('Total Visits');
+        expect(blocks[0].text()).toContain('12,847');
+        expect(blocks[2].text()).toContain('CTA Clicks');
+        expect(blocks[2].text()).toContain('24');
+
+        const avgBlock = wrapper.get(
+            '[data-testid="analytics-dashboard-page-blocks-block-avg_time_on_page"]',
+        );
+        expect(avgBlock.text()).toContain('1m 15s');
+        expect(avgBlock.text()).toContain('Min 0m 03s');
+        expect(avgBlock.text()).toContain('Max 4m 00s');
+    });
+
+    it('renders the default chart (total visits, daily) from the default_chart prop without fetching', async () => {
+        const wrapper = mountPage();
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
+
+        const svg = wrapper.get('[data-testid="analytics-dashboard-page-chart-svg"]');
+        expect(svg.attributes('aria-label')).toBe('Bar chart: Visits over time');
+        expect(
+            svg.findAll('text').map((node) => node.text()),
+        ).toEqual(['100', '2026-08-19', '150', '2026-08-20']);
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('fetches the series of the clicked chart block', async () => {
+        fetchMock.mockResolvedValue(jsonResponse({ points: [{ label: '2026-08-21', value: 10 }] }));
+        const wrapper = mountPage();
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
+
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-unique_visitors"]')
+            .trigger('click');
+        await flushPromises();
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/admin/analytics/series?metric=unique_visitors&span=day',
+            expect.objectContaining({ signal: expect.any(AbortSignal) }),
+        );
+        const labels = wrapper
+            .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
+            .map((node) => node.text());
+        expect(labels).toContain('10');
+    });
+
+    it('refetches the chart at the chosen span', async () => {
+        fetchMock.mockResolvedValue(jsonResponse({ points: [{ label: '2026-08-10', value: 700 }] }));
+        const wrapper = mountPage();
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
+
+        await wrapper.get('[data-testid="analytics-dashboard-page-span"]').trigger('click');
+        await wrapper.get('[data-testid="analytics-dashboard-page-span-option-week"]').trigger('click');
+        await flushPromises();
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/admin/analytics/series?metric=page_views&span=week',
+            expect.objectContaining({ signal: expect.any(AbortSignal) }),
+        );
+        const labels = wrapper
+            .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
+            .map((node) => node.text());
+        expect(labels).toContain('700');
+    });
+
+    it('renders the CTA multi-series chart with a legend of the six targets', async () => {
+        fetchMock.mockResolvedValue(jsonResponse({ points: [{ label: '2026-08-19', value: 3 }] }));
+        const wrapper = mountPage();
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
+
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-cta_clicks"]')
+            .trigger('click');
+        await flushPromises();
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-legend"]');
+
+        for (const target of ['github', 'demo', 'cv', 'feedback', 'language', 'theme']) {
+            expect(fetchMock).toHaveBeenCalledWith(
+                `/admin/analytics/series?metric=cta_clicks&span=day&dimension=${target}`,
+                expect.objectContaining({ signal: expect.any(AbortSignal) }),
+            );
+        }
+
+        const legend = wrapper.get('[data-testid="analytics-dashboard-page-chart-legend"]');
+        expect(legend.findAll('li').map((item) => item.text())).toEqual([
+            'GitHub',
+            'Live Demo',
+            'CV',
+            'Feedback',
+            'Language',
+            'Theme',
+        ]);
+        expect(
+            wrapper.findAll('[data-testid="analytics-dashboard-page-chart-svg"] polyline'),
+        ).toHaveLength(6);
+    });
+
+    it('shows the seeded top pages for the time-on-page block and refetches on variant change', async () => {
+        fetchMock.mockResolvedValue(
+            jsonResponse({ rows: [{ page_url: '/blog', avg: 45, min: 2, max: 130 }] }),
+        );
+        const wrapper = mountPage();
+
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-avg_time_on_page"]')
+            .trigger('click');
+        await flushPromises();
+
+        // The default top rankings come from the prop — no fetch.
+        expect(fetchMock).not.toHaveBeenCalled();
+        expect(wrapper.findAll('thead th').map((th) => th.text())).toEqual(['Page', 'Avg', 'Min', 'Max']);
+        expect(wrapper.get('tbody').text()).toContain('/about');
+        expect(wrapper.get('tbody').text()).toContain('1m 15s');
+
+        await wrapper.get('[data-testid="analytics-dashboard-page-rankings-variant"]').trigger('click');
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-rankings-variant-option-bottom"]')
+            .trigger('click');
+        await flushPromises();
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/admin/analytics/rankings?metric=time_on_page_seconds&variant=bottom&scope=page',
+            expect.objectContaining({ signal: expect.any(AbortSignal) }),
+        );
+        expect(wrapper.get('tbody').text()).toContain('/blog');
+        expect(wrapper.get('tbody').text()).toContain('0m 45s');
+    });
+
+    it('cancels the previous series request when another block is clicked', async () => {
+        let firstSignal: AbortSignal | undefined;
+        fetchMock.mockImplementation((url: string, init?: FetchInit) => {
+            if (url.includes('metric=unique_visitors')) {
+                firstSignal = init?.signal;
+
+                return new Promise(() => {});
+            }
+
+            return Promise.resolve(jsonResponse({ points: [{ label: '2026-08-20', value: 5 }] }));
+        });
+        const wrapper = mountPage();
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
+
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-unique_visitors"]')
+            .trigger('click');
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-feedback_submissions"]')
+            .trigger('click');
+        await flushPromises();
+
+        expect(firstSignal?.aborted).toBe(true);
+    });
+
+    it('shows the article rankings and the liked/disliked variant for the reactions block', async () => {
+        fetchMock.mockResolvedValue(
+            jsonResponse({ rows: [{ id: 1, title: 'Payments Gateway', value: 42 }] }),
+        );
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="analytics-dashboard-page-tab-blog"]').trigger('click');
+        await flushPromises();
+
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-reactions"]')
+            .trigger('click');
+        await flushPromises();
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/admin/analytics/rankings?metric=reactions_likes&variant=liked&scope=article',
+            expect.objectContaining({ signal: expect.any(AbortSignal) }),
+        );
+        expect(wrapper.findAll('thead th').map((th) => th.text())).toEqual(['Article', 'Likes']);
+        expect(wrapper.get('tbody').text()).toContain('Payments Gateway');
+        expect(
+            wrapper.get('[data-testid="analytics-dashboard-page-rankings-variant"]').text(),
+        ).toBe('Most liked');
+
+        await wrapper.get('[data-testid="analytics-dashboard-page-rankings-variant"]').trigger('click');
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-rankings-variant-option-disliked"]')
+            .trigger('click');
+        await flushPromises();
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/admin/analytics/rankings?metric=reactions_dislikes&variant=disliked&scope=article',
+            expect.objectContaining({ signal: expect.any(AbortSignal) }),
+        );
+        expect(wrapper.findAll('thead th').map((th) => th.text())).toEqual(['Article', 'Dislikes']);
+    });
+
+    it('shows the project rankings on the Projects tab', async () => {
+        fetchMock.mockResolvedValue(jsonResponse({ rows: [{ id: 1, title: 'Ledger', value: 24 }] }));
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="analytics-dashboard-page-tab-projects"]').trigger('click');
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-total_views"]')
+            .trigger('click');
+        await flushPromises();
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/admin/analytics/rankings?metric=views&variant=top&scope=project',
+            expect.objectContaining({ signal: expect.any(AbortSignal) }),
+        );
+        expect(wrapper.findAll('thead th').map((th) => th.text())).toEqual(['Project', 'Views']);
+        expect(wrapper.get('tbody').text()).toContain('Ledger');
+    });
+
+    it('shows the chart error state on a failed fetch and refetches on block re-click', async () => {
+        fetchMock.mockResolvedValue({ ok: false, json: async () => ({}) });
+        const wrapper = mountPage();
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
+
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-unique_visitors"]')
+            .trigger('click');
+        await flushPromises();
+
+        expect(wrapper.get('[data-testid="analytics-dashboard-page-chart-error"]').text()).toBe(
+            'Could not load chart. [Retry]',
+        );
+
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-unique_visitors"]')
+            .trigger('click');
+        await flushPromises();
+        expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('shows the rankings error state with a retry button that refetches', async () => {
+        fetchMock.mockResolvedValue({ ok: false, json: async () => ({}) });
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="analytics-dashboard-page-tab-blog"]').trigger('click');
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-total_views"]')
+            .trigger('click');
+        await flushPromises();
+
+        const errorState = wrapper.get('[data-testid="analytics-dashboard-page-rankings-table-empty"]');
+        expect(errorState.text()).toContain('Could not load rankings');
+
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-rankings-table-empty-action"]')
+            .trigger('click');
+        await flushPromises();
+
+        expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    it('shows the empty state on a tab without any blocks', async () => {
+        const wrapper = mountPage({ blog_blocks: [] });
+
+        await wrapper.get('[data-testid="analytics-dashboard-page-tab-blog"]').trigger('click');
+        await flushPromises();
+
         expect(wrapper.get('[data-testid="analytics-dashboard-page-empty"]').text()).toBe(
             'No data available',
         );
     });
 
-    it('shows the empty state on every tab when no reports exist', () => {
-        const wrapper = mountPage({ reports: [] });
+    it('re-seeds the default overview chart when returning to the Overview tab', async () => {
+        const wrapper = mountPage();
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
 
-        expect(wrapper.get('[data-testid="analytics-dashboard-page-empty"]').text()).toBe(
-            'No data available',
-        );
+        await wrapper.get('[data-testid="analytics-dashboard-page-tab-blog"]').trigger('click');
+        await flushPromises();
+        await wrapper.get('[data-testid="analytics-dashboard-page-tab-overview"]').trigger('click');
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
+
+        const labels = wrapper
+            .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
+            .map((node) => node.text());
+        expect(labels).toEqual(['100', '2026-08-19', '150', '2026-08-20']);
+        expect(fetchMock).not.toHaveBeenCalled();
     });
 
     it('dispatches report generation and reloads the dashboard on success', async () => {
-        const fetchMock = vi.fn().mockResolvedValue({
-            ok: true,
-            json: async () => ({ dispatched: true }),
-        });
-        vi.mocked(fetch).mockImplementation(fetchMock);
+        fetchMock.mockResolvedValue({ ok: true, json: async () => ({ dispatched: true }) });
         document.cookie = 'XSRF-TOKEN=abc123';
 
         const wrapper = mountPage();
@@ -350,8 +492,7 @@ describe('AnalyticsDashboardPage', () => {
     });
 
     it('toasts an error when report generation fails', async () => {
-        const fetchMock = vi.fn().mockResolvedValue({ ok: false, json: async () => ({}) });
-        vi.mocked(fetch).mockImplementation(fetchMock);
+        fetchMock.mockResolvedValue({ ok: false, json: async () => ({}) });
 
         const wrapper = mountPage();
         await wrapper.get('[data-testid="analytics-dashboard-page-generate-now"]').trigger('click');
