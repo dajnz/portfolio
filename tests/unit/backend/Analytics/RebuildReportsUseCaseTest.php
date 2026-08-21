@@ -8,6 +8,7 @@ use App\Features\Analytics\App\UseCases\RebuildReportsUseCase;
 use App\Features\Analytics\Domain\Entities\AnalyticsReport;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
 use DateTimeImmutable;
+use Tests\Support\AnalyticsMetricFixture;
 use Tests\Support\Fakes\FakeAnalyticsDailyMetricRepository;
 use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 
@@ -22,27 +23,6 @@ use Tests\Support\Fakes\FakeAnalyticsReportRepository;
  * repository's SQL (integration-covered); here the use case maps the
  * groups to report rows.
  */
-
-/**
- * A canned `aggregateForSpan` group row (the repository contract
- * shape: metric, dimension, period bounds + the raw group stats).
- *
- * @return array<string, mixed>
- */
-function metricGroup(array $attributes = []): array
-{
-    return [
-        'metric' => 'page_views',
-        'dimension' => null,
-        'period_start' => new DateTimeImmutable('2026-06-01'),
-        'period_end' => new DateTimeImmutable('2026-08-21'),
-        'value_sum' => 100.0,
-        'samples_sum' => 100,
-        'value_min' => 1.0,
-        'value_max' => 10.0,
-        ...$attributes,
-    ];
-}
 
 /**
  * Runs the rebuild against the canned groups and returns the replaced
@@ -95,7 +75,7 @@ describe('RebuildReportsUseCase', function (): void {
         $metrics = new FakeAnalyticsDailyMetricRepository();
 
         foreach (MetricSpan::cases() as $span) {
-            $metrics->groups[$span->value] = [metricGroup()];
+            $metrics->groups[$span->value] = [AnalyticsMetricFixture::metricGroup()];
         }
 
         $rows = rebuiltReports($metrics);
@@ -107,7 +87,7 @@ describe('RebuildReportsUseCase', function (): void {
 
     it('sums the count-like metrics across the group', function (): void {
         $metrics = new FakeAnalyticsDailyMetricRepository();
-        $metrics->groups[MetricSpan::All->value] = [metricGroup([
+        $metrics->groups[MetricSpan::All->value] = [AnalyticsMetricFixture::metricGroup([
             'metric' => 'page_views',
             'value_sum' => 250.0,
             'samples_sum' => 250,
@@ -123,8 +103,8 @@ describe('RebuildReportsUseCase', function (): void {
     it('derives the weighted average for the avg-able metrics', function (): void {
         $metrics = new FakeAnalyticsDailyMetricRepository();
         $metrics->groups[MetricSpan::All->value] = [
-            metricGroup(['metric' => 'time_on_page_seconds', 'value_sum' => 130.0, 'samples_sum' => 3]),
-            metricGroup(['metric' => 'completion_rate_sum', 'value_sum' => 150.0, 'samples_sum' => 2]),
+            AnalyticsMetricFixture::metricGroup(['metric' => 'time_on_page_seconds', 'value_sum' => 130.0, 'samples_sum' => 3]),
+            AnalyticsMetricFixture::metricGroup(['metric' => 'completion_rate_sum', 'value_sum' => 150.0, 'samples_sum' => 2]),
         ];
 
         $rows = rebuiltReports($metrics);
@@ -136,8 +116,8 @@ describe('RebuildReportsUseCase', function (): void {
     it('derives min and max for the `*_min`/`*_max` metrics', function (): void {
         $metrics = new FakeAnalyticsDailyMetricRepository();
         $metrics->groups[MetricSpan::All->value] = [
-            metricGroup(['metric' => 'time_on_page_min', 'value_min' => 5.0, 'value_max' => 80.0]),
-            metricGroup(['metric' => 'time_on_page_max', 'value_min' => 5.0, 'value_max' => 80.0]),
+            AnalyticsMetricFixture::metricGroup(['metric' => 'time_on_page_min', 'value_min' => 5.0, 'value_max' => 80.0]),
+            AnalyticsMetricFixture::metricGroup(['metric' => 'time_on_page_max', 'value_min' => 5.0, 'value_max' => 80.0]),
         ];
 
         $rows = rebuiltReports($metrics);
@@ -148,7 +128,7 @@ describe('RebuildReportsUseCase', function (): void {
 
     it('carries the dimension and the period bounds onto the report rows', function (): void {
         $metrics = new FakeAnalyticsDailyMetricRepository();
-        $metrics->groups[MetricSpan::All->value] = [metricGroup([
+        $metrics->groups[MetricSpan::All->value] = [AnalyticsMetricFixture::metricGroup([
             'metric' => 'views',
             'dimension' => 'article:42',
             'period_start' => new DateTimeImmutable('2026-03-01'),
@@ -164,7 +144,7 @@ describe('RebuildReportsUseCase', function (): void {
 
     it('replaces the stored reports with the rebuilt rows', function (): void {
         $metrics = new FakeAnalyticsDailyMetricRepository();
-        $metrics->groups[MetricSpan::Day->value] = [metricGroup()];
+        $metrics->groups[MetricSpan::Day->value] = [AnalyticsMetricFixture::metricGroup()];
 
         $reports = new FakeAnalyticsReportRepository();
         $useCase = new RebuildReportsUseCase($metrics, $reports);

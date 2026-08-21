@@ -14,6 +14,7 @@ use App\Features\Analytics\Domain\Enums\PageType;
 use App\Features\Analytics\Infra\Jobs\RebuildReportsJob;
 use DateTimeImmutable;
 use Tests\Support\AnalyticsEventFixture;
+use Tests\Support\AnalyticsMetricFixture;
 use Tests\Support\Fakes\FakeAnalyticsDailyMetricRepository;
 use Tests\Support\Fakes\FakeAnalyticsEventRepository;
 use Tests\Support\Fakes\FakeAnalyticsReportDataReader;
@@ -79,7 +80,7 @@ function metricRowsByName(array $rows, MetricName $metric): array
 describe('RebuildReportsJob', function (): void {
     it('rebuilds the reports without touching the metrics on the daily path', function (): void {
         $metrics = new FakeAnalyticsDailyMetricRepository();
-        $metrics->groups[MetricSpan::All->value] = [metricGroup()];
+        $metrics->groups[MetricSpan::All->value] = [AnalyticsMetricFixture::metricGroup()];
 
         $reports = runRebuildJob(
             recomputeMetrics: false,
