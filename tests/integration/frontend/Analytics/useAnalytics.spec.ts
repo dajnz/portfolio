@@ -308,6 +308,78 @@ describe('useAnalytics', () => {
         expect(signals[1]?.aborted).toBe(true);
     });
 
+    it('selectBlock aborts every in-flight fetch and clears the detail-area loading refs', async () => {
+        const analytics = mountHost();
+        const signals: Array<AbortSignal | undefined> = [];
+        fetchMock.mockImplementation((_url: string, init?: FetchInit) => {
+            signals.push(init?.signal);
+
+            return new Promise(() => {});
+        });
+
+        void analytics.fetchSeries('page_views', 'day');
+        void analytics.fetchMultiSeries('cta_clicks', ['github']);
+        void analytics.fetchRankings('views', 'top', 'article');
+        await nextTick();
+
+        analytics.selectBlock('overview', 'total_visits');
+
+        expect(signals).toHaveLength(3);
+        expect(signals.every((signal) => signal?.aborted)).toBe(true);
+        expect(analytics.chartLoading.value).toBe(false);
+        expect(analytics.multiChartLoading.value).toBe(false);
+        expect(analytics.rankingsLoading.value).toBe(false);
+    });
+
+    it('clears the single-series error state when a multi-series fetch succeeds', async () => {
+        const analytics = mountHost();
+        fetchMock.mockResolvedValue({ ok: false, json: async () => ({}) });
+
+        await analytics.fetchSeries('page_views', 'day');
+        expect(analytics.chartError.value).toBe(true);
+
+        fetchMock.mockResolvedValue(jsonResponse({ points: [{ label: '2026-08-19', value: 1 }] }));
+        await analytics.fetchMultiSeries('cta_clicks', ['github']);
+
+        expect(analytics.chartError.value).toBe(false);
+        expect(analytics.multiChartError.value).toBe(false);
+        expect(analytics.multiChartSeries.value).toEqual([
+            { name: 'github', points: [{ label: '2026-08-19', value: 1 }] },
+        ]);
+    });
+
+    it('clears the multi-series error state when a single-series fetch succeeds', async () => {
+        const analytics = mountHost();
+        fetchMock.mockResolvedValue({ ok: false, json: async () => ({}) });
+
+        await analytics.fetchMultiSeries('cta_clicks', ['github']);
+        expect(analytics.multiChartError.value).toBe(true);
+
+        fetchMock.mockResolvedValue(jsonResponse({ points: [{ label: '2026-08-19', value: 5 }] }));
+        await analytics.fetchSeries('page_views', 'day');
+
+        expect(analytics.multiChartError.value).toBe(false);
+        expect(analytics.chartError.value).toBe(false);
+    });
+
+    it('does not overwrite the chart points with a response that lands after abort', async () => {
+        const analytics = mountHost();
+        let resolveFetch: (value: unknown) => void = () => {};
+        fetchMock.mockImplementation(
+            () =>
+                new Promise((resolve) => {
+                    resolveFetch = resolve;
+                }),
+        );
+
+        const request = analytics.fetchSeries('page_views', 'day');
+        analytics.selectBlock('overview', 'total_visits');
+        resolveFetch(jsonResponse({ points: [{ label: '2026-08-20', value: 999 }] }));
+        await request;
+
+        expect(analytics.chartPoints.value).toEqual([]);
+    });
+
     it('hard-codes the block-key to endpoint mapping from the OpenAPI AnalyticsBlock schema', () => {
         expect(blockConfigFor('overview', 'total_visits')).toEqual({
             kind: 'chart',

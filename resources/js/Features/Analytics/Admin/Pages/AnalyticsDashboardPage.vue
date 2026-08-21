@@ -61,6 +61,7 @@ const {
     blogBlocks,
     projectsBlocks,
     selectBlock,
+    abortFetches,
     span,
     variant,
     chartPoints,
@@ -138,6 +139,9 @@ chartPoints.value = props.default_chart.spans.day.points;
 rankingRows.value = props.default_rankings.rows.top;
 
 function selectTab(tab: AnalyticsTab): void {
+    // Re-seeding must cancel in-flight fetches — a stale response can
+    // never overwrite the fresh default state of the new tab.
+    abortFetches();
     activeTab.value = tab;
     span.value = 'day';
     variant.value = 'top';

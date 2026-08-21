@@ -23,7 +23,10 @@ import { type ComputedRef, computed, onUnmounted, type Ref, reactive, ref } from
  * `fetchRankings` for the ranking metrics). Every fetch family aborts the
  * previous request of its kind via AbortController (the last request
  * wins), exposes its own loading/error refs and ignores aborted
- * responses.
+ * responses. Selecting a block (or aborting via `abortFetches`) cancels
+ * every in-flight request and clears the detail-area error/loading refs
+ * so a stale response can never overwrite state seeded later — even when
+ * the new selection fetches nothing (default-seed clicks, tab switches).
  */
 export type AnalyticsTab = 'overview' | 'blog' | 'projects';
 export type AnalyticsSpan = 'day' | 'week' | 'month' | 'all';
@@ -79,8 +82,15 @@ export interface UseAnalyticsApi {
     blogBlocks: ComputedRef<Array<BlockView>>;
     /** Projects blocks (total views, unique views). */
     projectsBlocks: ComputedRef<Array<BlockView>>;
-    /** Marks the block of the given tab selected (deselects the rest). */
+    /** Marks the block of the given tab selected (deselects the rest).
+     *  Cancels every in-flight chart/rankings fetch and clears the
+     *  detail-area error/loading refs — a block click starts the detail
+     *  area fresh, so a stale response can never overwrite the state
+     *  seeded for the new selection (default-seed clicks fetch nothing). */
     selectBlock: (tab: AnalyticsTab, key: string) => void;
+    /** Cancels every in-flight chart/rankings fetch and clears the
+     *  detail-area loading refs (tab re-seeding, unmount). */
+    abortFetches: () => void;
     /** The active chart span (the span dropdown v-model, default daily). */
     span: Ref<AnalyticsSpan>;
     /** The active rankings variant (the variant dropdown v-model,
@@ -198,15 +208,22 @@ export function useAnalytics(props: AnalyticsDashboardProps): UseAnalyticsApi {
     let multiSeriesController: AbortController | null = null;
     let rankingsController: AbortController | null = null;
 
-    function abortAll(): void {
+    function abortFetches(): void {
         seriesController?.abort();
         multiSeriesController?.abort();
         rankingsController?.abort();
+        chartLoading.value = false;
+        multiChartLoading.value = false;
+        rankingsLoading.value = false;
     }
 
-    onUnmounted(abortAll);
+    onUnmounted(abortFetches);
 
     function selectBlock(tab: AnalyticsTab, key: string): void {
+        abortFetches();
+        chartError.value = false;
+        multiChartError.value = false;
+        rankingsError.value = false;
         selectedKeys[tab] = key;
     }
 
@@ -247,12 +264,18 @@ export function useAnalytics(props: AnalyticsDashboardProps): UseAnalyticsApi {
         seriesController = controller;
         chartLoading.value = true;
         chartError.value = false;
+        multiChartError.value = false;
 
         try {
             const response = await get<AnalyticsSeriesResponse>(
                 seriesUrl(metric, requestedSpan, dimension),
                 { signal: controller.signal },
             );
+
+            if (controller.signal.aborted) {
+                return;
+            }
+
             chartPoints.value = response.points;
         } catch {
             if (controller.signal.aborted) {
@@ -275,6 +298,7 @@ export function useAnalytics(props: AnalyticsDashboardProps): UseAnalyticsApi {
         multiSeriesController?.abort();
         multiSeriesController = controller;
         multiChartLoading.value = true;
+        chartError.value = false;
         multiChartError.value = false;
 
         try {
@@ -285,6 +309,11 @@ export function useAnalytics(props: AnalyticsDashboardProps): UseAnalyticsApi {
                     }),
                 ),
             );
+
+            if (controller.signal.aborted) {
+                return;
+            }
+
             multiChartSeries.value = dimensions.map((dimension, index) => ({
                 name: dimension,
                 points: responses[index].points,
@@ -331,6 +360,11 @@ export function useAnalytics(props: AnalyticsDashboardProps): UseAnalyticsApi {
                 rankingsUrl(metric, requestedVariant, scope),
                 { signal: controller.signal },
             );
+
+            if (controller.signal.aborted) {
+                return;
+            }
+
             rankingRows.value = response.rows;
         } catch {
             if (controller.signal.aborted) {
@@ -383,6 +417,7 @@ export function useAnalytics(props: AnalyticsDashboardProps): UseAnalyticsApi {
         blogBlocks,
         projectsBlocks,
         selectBlock,
+        abortFetches,
         span,
         variant,
         chartPoints,

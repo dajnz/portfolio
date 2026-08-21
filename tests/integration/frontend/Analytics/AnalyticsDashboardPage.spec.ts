@@ -465,6 +465,102 @@ describe('AnalyticsDashboardPage', () => {
         expect(fetchMock).not.toHaveBeenCalled();
     });
 
+    it('renders the CTA multi-series chart after a failed single-series fetch', async () => {
+        fetchMock.mockImplementation((url: string) =>
+            Promise.resolve(
+                url.includes('dimension=')
+                    ? jsonResponse({ points: [{ label: '2026-08-19', value: 3 }] })
+                    : { ok: false, json: async () => ({}) },
+            ),
+        );
+        const wrapper = mountPage();
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
+
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-unique_visitors"]')
+            .trigger('click');
+        await flushPromises();
+        expect(wrapper.get('[data-testid="analytics-dashboard-page-chart-error"]').text()).toBe(
+            'Could not load chart. [Retry]',
+        );
+
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-cta_clicks"]')
+            .trigger('click');
+        await flushPromises();
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-legend"]');
+
+        expect(wrapper.find('[data-testid="analytics-dashboard-page-chart-error"]').exists()).toBe(
+            false,
+        );
+        expect(
+            wrapper.findAll('[data-testid="analytics-dashboard-page-chart-svg"] polyline'),
+        ).toHaveLength(6);
+    });
+
+    it('aborts the in-flight series fetch when a default block is clicked (no refetch)', async () => {
+        let firstSignal: AbortSignal | undefined;
+        fetchMock.mockImplementation((url: string, init?: FetchInit) => {
+            if (url.includes('metric=unique_visitors')) {
+                firstSignal = init?.signal;
+
+                return new Promise(() => {});
+            }
+
+            return Promise.resolve(jsonResponse({ points: [] }));
+        });
+        const wrapper = mountPage();
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
+
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-unique_visitors"]')
+            .trigger('click');
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-total_visits"]')
+            .trigger('click');
+        await flushPromises();
+
+        expect(firstSignal?.aborted).toBe(true);
+        const labels = wrapper
+            .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
+            .map((node) => node.text());
+        expect(labels).toEqual(['100', '2026-08-19', '150', '2026-08-20']);
+    });
+
+    it('aborts an in-flight rankings fetch on tab switch and keeps the re-seeded rows', async () => {
+        let firstSignal: AbortSignal | undefined;
+        fetchMock.mockImplementation((url: string, init?: FetchInit) => {
+            if (url.includes('metric=views')) {
+                firstSignal = init?.signal;
+
+                return new Promise(() => {});
+            }
+
+            return Promise.resolve(jsonResponse({ points: [] }));
+        });
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="analytics-dashboard-page-tab-blog"]').trigger('click');
+        await flushPromises();
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-total_views"]')
+            .trigger('click');
+        await flushPromises();
+
+        await wrapper.get('[data-testid="analytics-dashboard-page-tab-overview"]').trigger('click');
+        await flushPromises();
+
+        expect(firstSignal?.aborted).toBe(true);
+
+        await wrapper
+            .get('[data-testid="analytics-dashboard-page-blocks-block-avg_time_on_page"]')
+            .trigger('click');
+        await flushPromises();
+
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(wrapper.get('tbody').text()).toContain('/about');
+    });
+
     it('dispatches report generation and reloads the dashboard on success', async () => {
         fetchMock.mockResolvedValue({ ok: true, json: async () => ({ dispatched: true }) });
         document.cookie = 'XSRF-TOKEN=abc123';
