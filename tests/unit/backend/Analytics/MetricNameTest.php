@@ -46,4 +46,28 @@ describe('MetricName', function (): void {
             ->and(MetricName::Views->value)->toBe('views')
             ->and(MetricName::TimeOnPageSeconds->value)->toBe('time_on_page_seconds');
     });
+
+    it('classifies the span aggregation rule per metric kind', function (): void {
+        // avg-able (`*_seconds`, `completion_rate_sum`) → SUM(value)/SUM(samples).
+        expect(MetricName::TimeOnPageSeconds->isWeightedAverage())->toBeTrue()
+            ->and(MetricName::ReadTimeSeconds->isWeightedAverage())->toBeTrue()
+            ->and(MetricName::CompletionRateSum->isWeightedAverage())->toBeTrue()
+            ->and(MetricName::PageViews->isWeightedAverage())->toBeFalse()
+            ->and(MetricName::TimeOnPageSamples->isWeightedAverage())->toBeFalse()
+            ->and(MetricName::TimeOnPageMin->isWeightedAverage())->toBeFalse();
+
+        // `*_min` → MIN(value).
+        expect(MetricName::TimeOnPageMin->isMinimum())->toBeTrue()
+            ->and(MetricName::ReadTimeMin->isMinimum())->toBeTrue()
+            ->and(MetricName::CompletionRateMin->isMinimum())->toBeTrue()
+            ->and(MetricName::TimeOnPageSeconds->isMinimum())->toBeFalse()
+            ->and(MetricName::PageViews->isMinimum())->toBeFalse();
+
+        // `*_max` → MAX(value).
+        expect(MetricName::TimeOnPageMax->isMaximum())->toBeTrue()
+            ->and(MetricName::ReadTimeMax->isMaximum())->toBeTrue()
+            ->and(MetricName::CompletionRateMax->isMaximum())->toBeTrue()
+            ->and(MetricName::CtaClicks->isMaximum())->toBeFalse()
+            ->and(MetricName::TimeOnPageSeconds->isMaximum())->toBeFalse();
+    });
 });

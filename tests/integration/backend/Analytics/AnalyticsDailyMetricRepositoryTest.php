@@ -6,6 +6,7 @@ namespace Tests\Integration\Backend\Analytics;
 
 use App\Features\Analytics\Domain\Entities\AnalyticsMetric;
 use App\Features\Analytics\Domain\Enums\MetricName;
+use App\Features\Analytics\Domain\Enums\MetricSpan;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsDailyMetricRepositoryInterface;
 use DateTimeImmutable;
 
@@ -195,5 +196,123 @@ describe('EloquentAnalyticsDailyMetricRepository', function (): void {
             dateTo: new DateTimeImmutable('2026-07-31'),
         ))->toBe([])
             ->and($this->repository->datesCovered())->toBe([]);
+    });
+});
+
+describe('span aggregation (aggregateForSpan)', function (): void {
+    beforeEach(function (): void {
+        $this->repository = app(AnalyticsDailyMetricRepositoryInterface::class);
+    });
+
+    it('buckets the day span per calendar date', function (): void {
+        $this->repository->upsertBatch([
+            analyticsMetric('2026-07-09', 1.0, 1),
+            analyticsMetric('2026-07-09', 2.0, 2, dimension: 'cv', metric: MetricName::CtaClicks),
+            analyticsMetric('2026-07-10', 3.0, 3),
+        ]);
+
+        $rows = $this->repository->aggregateForSpan(MetricSpan::Day);
+
+        $globals = array_values(array_filter(
+            $rows,
+            static fn (array $row): bool => $row['dimension'] === null,
+        ));
+
+        expect($globals)->toHaveCount(2)
+            ->and($globals[0]['period_start']->format('Y-m-d'))->toBe('2026-07-09')
+            ->and($globals[0]['period_end']->format('Y-m-d'))->toBe('2026-07-09')
+            ->and($globals[0]['value_sum'])->toBe(1.0)
+            ->and($globals[1]['period_start']->format('Y-m-d'))->toBe('2026-07-10')
+            ->and($globals[1]['value_sum'])->toBe(3.0);
+    });
+
+    it('buckets the week span Monday–Sunday across the week boundary', function (): void {
+        $this->repository->upsertBatch([
+            analyticsMetric('2026-06-29', 1.0, 1), // Monday
+            analyticsMetric('2026-07-01', 2.0, 2), // Wednesday
+            analyticsMetric('2026-07-05', 3.0, 3), // Sunday
+            analyticsMetric('2026-07-06', 4.0, 4), // Monday — the next week
+        ]);
+
+        $rows = $this->repository->aggregateForSpan(MetricSpan::Week);
+
+        expect($rows)->toHaveCount(2)
+            ->and($rows[0]['period_start']->format('Y-m-d'))->toBe('2026-06-29')
+            ->and($rows[0]['period_end']->format('Y-m-d'))->toBe('2026-07-05')
+            ->and($rows[0]['value_sum'])->toBe(6.0)
+            ->and($rows[1]['period_start']->format('Y-m-d'))->toBe('2026-07-06')
+            ->and($rows[1]['period_end']->format('Y-m-d'))->toBe('2026-07-12')
+            ->and($rows[1]['value_sum'])->toBe(4.0);
+    });
+
+    it('buckets the month and year spans to their calendar bounds', function (): void {
+        $this->repository->upsertBatch([
+            analyticsMetric('2026-07-01', 1.0, 1),
+            analyticsMetric('2026-07-31', 2.0, 2),
+            analyticsMetric('2026-12-31', 3.0, 3),
+            analyticsMetric('2027-01-01', 4.0, 4),
+        ]);
+
+        $months = $this->repository->aggregateForSpan(MetricSpan::Month);
+        $years = $this->repository->aggregateForSpan(MetricSpan::Year);
+
+        expect($months)->toHaveCount(3)
+            ->and($months[0]['period_start']->format('Y-m-d'))->toBe('2026-07-01')
+            ->and($months[0]['period_end']->format('Y-m-d'))->toBe('2026-07-31')
+            ->and($months[0]['value_sum'])->toBe(3.0)
+            ->and($months[2]['period_start']->format('Y-m-d'))->toBe('2027-01-01')
+            ->and($months[2]['period_end']->format('Y-m-d'))->toBe('2027-01-31')
+            ->and($months[2]['value_sum'])->toBe(4.0);
+
+        expect($years)->toHaveCount(2)
+            ->and($years[0]['period_start']->format('Y-m-d'))->toBe('2026-01-01')
+            ->and($years[0]['period_end']->format('Y-m-d'))->toBe('2026-12-31')
+            ->and($years[0]['value_sum'])->toBe(6.0)
+            ->and($years[1]['period_start']->format('Y-m-d'))->toBe('2027-01-01')
+            ->and($years[1]['period_end']->format('Y-m-d'))->toBe('2027-12-31')
+            ->and($years[1]['value_sum'])->toBe(4.0);
+    });
+
+    it('aggregates the whole history into one row per metric+dimension for the all span', function (): void {
+        $this->repository->upsertBatch([
+            analyticsMetric('2026-06-29', 1.0, 1),
+            analyticsMetric('2026-07-09', 2.0, 2),
+            analyticsMetric('2026-07-09', 3.0, 3, dimension: 'github', metric: MetricName::CtaClicks),
+        ]);
+
+        $rows = $this->repository->aggregateForSpan(MetricSpan::All);
+
+        // Ordered by metric, then dimension (PostgreSQL: NULLS LAST).
+        expect($rows)->toHaveCount(2);
+
+        $cta = $rows[0];
+        $global = $rows[1];
+
+        expect($cta['dimension'])->toBe('github')
+            ->and($cta['period_start']->format('Y-m-d'))->toBe('2026-07-09')
+            ->and($cta['value_sum'])->toBe(3.0)
+            ->and($global['dimension'])->toBeNull()
+            ->and($global['period_start']->format('Y-m-d'))->toBe('2026-06-29')
+            ->and($global['period_end']->format('Y-m-d'))->toBe('2026-07-09')
+            ->and($global['value_sum'])->toBe(3.0);
+    });
+
+    it('computes the raw group stats for the weighted and min/max derivation', function (): void {
+        $this->repository->upsertBatch([
+            analyticsMetric('2026-07-08', 10.0, 1, metric: MetricName::TimeOnPageSeconds),
+            analyticsMetric('2026-07-09', 120.0, 2, metric: MetricName::TimeOnPageSeconds),
+        ]);
+
+        $rows = $this->repository->aggregateForSpan(MetricSpan::Week);
+
+        expect($rows)->toHaveCount(1)
+            ->and($rows[0]['value_sum'])->toBe(130.0)
+            ->and($rows[0]['samples_sum'])->toBe(3)
+            ->and($rows[0]['value_min'])->toBe(10.0)
+            ->and($rows[0]['value_max'])->toBe(120.0);
+    });
+
+    it('returns an empty read when nothing is stored', function (): void {
+        expect($this->repository->aggregateForSpan(MetricSpan::Day))->toBe([]);
     });
 });

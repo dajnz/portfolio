@@ -144,7 +144,34 @@ describe('EloquentAnalyticsReportRepository', function (): void {
         expect($this->repository->blocks([MetricName::PageViews]))->toBe([])
             ->and($this->repository->series(MetricName::PageViews, MetricSpan::Day, 10))->toBe([])
             ->and($this->repository->rankings(MetricName::PageViews, 'top', 10))->toBe([])
-            ->and($this->repository->metricSpans(MetricName::PageViews))->toBe([]);
+            ->and($this->repository->metricSpans(MetricName::PageViews))->toBe([])
+            ->and($this->repository->cumulativeSeries(MetricName::PageViews))->toBe([]);
+    });
+
+    it('computes the cumulative running total over the day rows', function (): void {
+        $this->repository->upsertBatch([
+            analyticsReport('page_views', MetricSpan::Day, '2026-08-19', '2026-08-19', 10.0),
+            analyticsReport('page_views', MetricSpan::Day, '2026-08-21', '2026-08-21', 30.0),
+            analyticsReport('page_views', MetricSpan::Day, '2026-08-20', '2026-08-20', 20.0),
+            // The other spans and the dimension rows must not contribute.
+            analyticsReport('page_views', MetricSpan::Week, '2026-08-17', '2026-08-23', 60.0),
+            analyticsReport('page_views', MetricSpan::All, '2026-06-01', '2026-08-21', 60.0),
+            analyticsReport('views', MetricSpan::Day, '2026-08-20', '2026-08-20', 5.0, 'article:42'),
+        ]);
+
+        $series = $this->repository->cumulativeSeries(MetricName::PageViews);
+
+        expect($series)->toHaveCount(3)
+            ->and(array_map(
+                static fn (AnalyticsReport $r): string => $r->toPeriodStart()->format('Y-m-d'),
+                $series,
+            ))->toBe(['2026-08-19', '2026-08-20', '2026-08-21'])
+            ->and(array_map(
+                static fn (AnalyticsReport $r): float => $r->toValue(),
+                $series,
+            ))->toBe([10.0, 30.0, 60.0])
+            ->and($series[0]->toSpan())->toBe(MetricSpan::Day)
+            ->and($series[0]->toDimension())->toBeNull();
     });
 });
 

@@ -26,6 +26,7 @@ final class FakeAnalyticsEventRepository implements AnalyticsEventRepositoryInte
     public function __construct(
         public readonly array $periodEvents = [],
         public readonly int $deletedCount = 0,
+        public readonly ?DateTimeImmutable $oldestEventDate = null,
     ) {
     }
 
@@ -37,6 +38,11 @@ final class FakeAnalyticsEventRepository implements AnalyticsEventRepositoryInte
     public function eventsBetween(ReportPeriod $period): array
     {
         return $this->periodEvents;
+    }
+
+    public function oldestEventDate(): ?DateTimeImmutable
+    {
+        return $this->oldestEventDate;
     }
 
     public function deleteOlderThan(DateTimeImmutable $cutoff): int
