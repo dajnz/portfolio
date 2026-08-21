@@ -82,8 +82,9 @@ trait OpenApiContractAssertions
             'trackEvents' => [
                 'path' => '/api/analytics/track',
                 'method' => 'post',
-                'implemented' => false,
-                'implemented_in' => 'Step 11.1 (B33)',
+                'implemented' => true,
+                'implemented_in' => 'Step 11.1',
+                'cases' => [204, 422, 429],
             ],
             'regenerateResume' => [
                 'path' => '/api/resume/regenerate',
@@ -142,7 +143,8 @@ trait OpenApiContractAssertions
     /**
      * Not-yet-implemented endpoints (scenario `implemented: false`) must
      * answer 404 with the general `{message}` error envelope until their
-     * feature step lands.
+     * feature step lands. All operations are currently implemented; the
+     * helper stays for future pending operations.
      */
     protected function assertPendingOperation(TestResponse $response): void
     {
