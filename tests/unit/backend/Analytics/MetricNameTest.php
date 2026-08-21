@@ -1,0 +1,49 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Unit\Backend\Analytics;
+
+use App\Features\Analytics\Domain\Enums\MetricName;
+
+/**
+ * The metric catalog guard (analytics.md:172-178): the enum must carry
+ * exactly the spec'd names — the global set (dimension NULL), the CTA
+ * clicks (dimension = target) and the per-entity `views` (per-article
+ * `article:{id}` / per-project `project:{id}`). The per-page and
+ * per-article rows reuse the global names (e.g. `time_on_page_*`,
+ * `unique_visitors`) — the dimension column carries the scope.
+ */
+describe('MetricName', function (): void {
+    it('covers the full metric catalog from the spec', function (): void {
+        expect(array_column(MetricName::cases(), 'value'))->toBe([
+            'page_views',
+            'unique_visitors',
+            'feedback_submissions',
+            'time_on_page_seconds',
+            'time_on_page_samples',
+            'time_on_page_min',
+            'time_on_page_max',
+            'blog_views',
+            'blog_unique_visitors',
+            'read_time_seconds',
+            'read_time_samples',
+            'read_time_min',
+            'read_time_max',
+            'completion_rate_sum',
+            'completion_rate_samples',
+            'completion_rate_min',
+            'completion_rate_max',
+            'reactions_likes',
+            'reactions_dislikes',
+            'cta_clicks',
+            'views',
+        ]);
+    });
+
+    it('keeps the CTA target and the entity-key scopes as dimensions, not names', function (): void {
+        expect(MetricName::CtaClicks->value)->toBe('cta_clicks')
+            ->and(MetricName::Views->value)->toBe('views')
+            ->and(MetricName::TimeOnPageSeconds->value)->toBe('time_on_page_seconds');
+    });
+});

@@ -87,9 +87,7 @@ describe('EloquentSettingRepository', function (): void {
         $repository = app(SettingRepositoryInterface::class);
 
         expect(fn () => $repository->saveValue(SettingName::ItemsPerPage, 0))
-            ->toThrow(InvalidArgumentException::class, "Setting 'items_per_page' must be at least 1.")
-            ->and(fn () => $repository->saveValue(SettingName::AnalyticsReportFrequency, 'hourly'))
-            ->toThrow(InvalidArgumentException::class);
+            ->toThrow(InvalidArgumentException::class, "Setting 'items_per_page' must be at least 1.");
     });
 
     it('creates new rows from a name and value', function (): void {

@@ -10,24 +10,13 @@ return [
     |--------------------------------------------------------------------------
     |
     | Raw `analytics_events` are kept for 90 days from event creation (see
-    | analytics.md). Note (B37): the 90-day cutoff is a fixed constant inside
-    | `AggregateAnalyticsReportsJob` — this key is informational only.
+    | analytics.md). Note (B37): the 90-day cutoff is a fixed constant in
+    | the pruning pipeline (`PruneEventsUseCase`) — this key is
+    | informational only.
     |
     */
 
     'event_retention_days' => 90,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Report defaults
-    |--------------------------------------------------------------------------
-    |
-    | The `analytics_report_frequency` setting (daily/weekly/monthly) defaults
-    | to `weekly`; used by the `analytics:generate-reports` command.
-    |
-    */
-
-    'report_frequency' => 'weekly',
 
     /*
     |--------------------------------------------------------------------------

@@ -9,12 +9,14 @@ use DateTimeImmutable;
 
 /**
  * The 90-day raw-event retention safety net (analytics.md:214-216):
- * deletes `analytics_events` rows older than the cutoff. Called by
- * `AggregateAnalyticsReportsJob` after successful aggregation and by the
- * monthly `analytics:prune-events` command.
+ * deletes `analytics_events` rows older than the cutoff. Called after
+ * successful aggregation (the daily metrics job, step 11.3.2) and by
+ * the monthly `analytics:prune-events` command (B37 — the fixed cutoff
+ * constant lives here).
  */
 final class PruneEventsUseCase
 {
+    public const EVENT_RETENTION_DAYS = 90;
     public function __construct(
         private readonly AnalyticsEventRepositoryInterface $repository,
     ) {

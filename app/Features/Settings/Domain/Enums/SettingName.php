@@ -17,7 +17,6 @@ enum SettingName: string
     case ProjectsPerPage = 'projects_per_page';
     case ArticlesPerPage = 'articles_per_page';
     case ExperienceItemsPerPage = 'experience_items_per_page';
-    case AnalyticsReportFrequency = 'analytics_report_frequency';
     case AnalyticsEmailEnabled = 'analytics_email_enabled';
     case AnalyticsEmailRecipient = 'analytics_email_recipient';
     case EmailOnFeedback = 'email_on_feedback';
@@ -43,7 +42,6 @@ enum SettingName: string
             self::BackupMaxCount,
             self::BackupUploadMaxSize,
             self::TrashRetentionDays => SettingType::Integer,
-            self::AnalyticsReportFrequency,
             self::AnalyticsEmailRecipient,
             self::MailApiEndpoint,
             self::MailApiToken,

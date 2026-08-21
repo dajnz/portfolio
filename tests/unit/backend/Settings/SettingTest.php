@@ -75,20 +75,6 @@ describe('Setting', function (): void {
             ->not->toThrow(InvalidArgumentException::class);
     });
 
-    it('enforces the analytics report frequency domain', function (): void {
-        expect(fn () => new Setting(
-            SettingName::AnalyticsReportFrequency,
-            new SettingValue(SettingType::String, 'hourly'),
-        ))->toThrow(InvalidArgumentException::class, "Setting 'analytics_report_frequency' must be one of: daily, weekly, monthly.");
-
-        foreach (['daily', 'weekly', 'monthly'] as $frequency) {
-            expect(fn () => new Setting(
-                SettingName::AnalyticsReportFrequency,
-                new SettingValue(SettingType::String, $frequency),
-            ))->not->toThrow(InvalidArgumentException::class);
-        }
-    });
-
     it('requires at least one supported locale', function (): void {
         expect(fn () => new Setting(SettingName::SupportedLocales, new SettingValue(SettingType::Json, [])))
             ->toThrow(InvalidArgumentException::class, "Setting 'supported_locales' must contain at least one locale.")

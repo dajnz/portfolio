@@ -180,19 +180,6 @@ describe('SettingsController', function (): void {
             ]);
     });
 
-    it('enforces the analytics_report_frequency domain', function (): void {
-        $this->put('/admin/settings', [
-            'settings' => ['analytics_report_frequency' => 'hourly'],
-        ])->assertRedirect()
-            ->assertSessionHasErrors([
-                'settings.analytics_report_frequency' => "Setting 'analytics_report_frequency' must be one of: daily, weekly, monthly.",
-            ]);
-
-        $this->put('/admin/settings', [
-            'settings' => ['analytics_report_frequency' => 'weekly'],
-        ])->assertRedirect();
-    });
-
     it('requires the settings payload', function (): void {
         $this->put('/admin/settings', [])->assertRedirect()
             ->assertSessionHasErrors('settings');
