@@ -1,4 +1,4 @@
-import StatsCards, { type StatCardData } from '@portfolio-admin/StatsCards.vue';
+import StatsCards, { type StatCardData } from '@shared-admin/StatsCards.vue';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
