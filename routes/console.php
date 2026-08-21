@@ -15,12 +15,14 @@ Artisan::command('inspire', function () {
  * the Shared maintenance commands run monthly at 03:00 on the 1st.
  * `analytics:prune-events` runs monthly at 03:00 on the 1st (the 90-day
  * retention safety net, backup.md:464). The daily metrics generation
- * schedule (`0 2 * * *`) lands with the daily aggregation (step 11.3.2 —
- * it supersedes the old `analytics:generate-reports` every-4-hours
- * cadence, B22/B290). `backup:create` lands with the Backup feature
- * (step 12.3, B22).
+ * runs at 02:00 daily (analytics.md:182 — supersedes B22's old
+ * `analytics:generate-reports` every-4-hours cadence); the manual full
+ * rebuild command `analytics:generate-reports` (11.3.3) is NOT
+ * scheduled — manual only. `backup:create` lands with the Backup
+ * feature (step 12.3, B22).
  */
 
 Schedule::command('app:cleanup-orphaned-files')->cron('0 3 1 * *');
 Schedule::command('app:prune-trashed-items')->cron('0 3 1 * *');
 Schedule::command('analytics:prune-events')->cron('0 3 1 * *');
+Schedule::command('analytics:generate-daily-metrics')->dailyAt('02:00');
