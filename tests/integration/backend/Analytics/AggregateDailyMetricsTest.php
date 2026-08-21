@@ -5,15 +5,22 @@ declare(strict_types=1);
 namespace Tests\Integration\Backend\Analytics;
 
 use App\Features\Analytics\App\UseCases\AggregateDailyMetricsUseCase;
+use App\Features\Analytics\App\UseCases\GetDailyDigestUseCase;
 use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsDailyMetricRepositoryInterface;
 use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
 use App\Features\Analytics\Infra\Jobs\AggregateDailyMetricsJob;
 use App\Features\Analytics\Infra\Jobs\RebuildReportsJob;
+use App\Features\Analytics\Infra\Mail\SendAnalyticsReportMail;
 use App\Features\Analytics\Infra\Models\AnalyticsEventModel;
+use App\Features\Blog\Infra\Models\ArticleModel;
+use App\Features\Blog\Infra\Models\ArticleTranslationModel;
 use App\Features\Portfolio\Infra\Models\FeedbackModel;
+use App\Features\Settings\Domain\Enums\SettingName;
+use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * The per-day metrics aggregation on real PostgreSQL (analytics.md:158-184,
@@ -218,7 +225,11 @@ describe('AggregateDailyMetricsJob (integration)', function (): void {
             new DateTimeImmutable('2026-07-09 00:00:00'),
             new DateTimeImmutable('2026-07-09 23:59:59'),
         );
-        $job->handle(app(AggregateDailyMetricsUseCase::class));
+        $job->handle(
+            app(AggregateDailyMetricsUseCase::class),
+            app(GetDailyDigestUseCase::class),
+            app(SettingRepositoryInterface::class),
+        );
 
         Bus::assertDispatched(RebuildReportsJob::class);
 
@@ -229,5 +240,78 @@ describe('AggregateDailyMetricsJob (integration)', function (): void {
 
         expect($pageViews)->toHaveCount(1)
             ->and($pageViews[0]->toValue())->toBe(3.0);
+    });
+
+    it('queues the digest mail for the aggregated day when emailing is enabled', function (): void {
+        seedDailyMetricsFixture();
+
+        ArticleModel::factory()->create(['id' => 5]);
+        ArticleTranslationModel::factory()->forLocale('en')->create([
+            'article_id' => 5,
+            'title' => 'Payments Gateway',
+            'short_description' => 'A payments article.',
+            'content' => 'The article body with enough words.',
+        ]);
+
+        app(SettingRepositoryInterface::class)->saveValue(SettingName::AnalyticsEmailEnabled, true);
+        app(SettingRepositoryInterface::class)->saveValue(SettingName::AnalyticsEmailRecipient, 'admin@example.com');
+
+        Mail::fake();
+
+        $job = new AggregateDailyMetricsJob(
+            new DateTimeImmutable('2026-07-09 00:00:00'),
+            new DateTimeImmutable('2026-07-09 23:59:59'),
+        );
+        $job->handle(
+            app(AggregateDailyMetricsUseCase::class),
+            app(GetDailyDigestUseCase::class),
+            app(SettingRepositoryInterface::class),
+        );
+
+        Mail::assertQueued(SendAnalyticsReportMail::class, function (SendAnalyticsReportMail $mail): bool {
+            return $mail->to[0]['address'] === 'admin@example.com'
+                && $mail->digest->day->format('Y-m-d') === '2026-07-09'
+                && $mail->digest->pageViews === 3.0
+                && $mail->digest->uniqueVisitors === 3.0
+                && $mail->digest->feedbackSubmissions === 2.0
+                && $mail->digest->topArticle?->title === 'Payments Gateway';
+        });
+    });
+
+    it('does not send the digest mail when emailing is disabled', function (): void {
+        app(SettingRepositoryInterface::class)->saveValue(SettingName::AnalyticsEmailEnabled, false);
+        app(SettingRepositoryInterface::class)->saveValue(SettingName::AnalyticsEmailRecipient, 'admin@example.com');
+
+        Mail::fake();
+
+        $job = new AggregateDailyMetricsJob(
+            new DateTimeImmutable('2026-07-09 00:00:00'),
+            new DateTimeImmutable('2026-07-09 23:59:59'),
+        );
+        $job->handle(
+            app(AggregateDailyMetricsUseCase::class),
+            app(GetDailyDigestUseCase::class),
+            app(SettingRepositoryInterface::class),
+        );
+
+        Mail::assertNotQueued(SendAnalyticsReportMail::class);
+    });
+
+    it('does not send the digest mail without a recipient', function (): void {
+        app(SettingRepositoryInterface::class)->saveValue(SettingName::AnalyticsEmailEnabled, true);
+
+        Mail::fake();
+
+        $job = new AggregateDailyMetricsJob(
+            new DateTimeImmutable('2026-07-09 00:00:00'),
+            new DateTimeImmutable('2026-07-09 23:59:59'),
+        );
+        $job->handle(
+            app(AggregateDailyMetricsUseCase::class),
+            app(GetDailyDigestUseCase::class),
+            app(SettingRepositoryInterface::class),
+        );
+
+        Mail::assertNotQueued(SendAnalyticsReportMail::class);
     });
 });

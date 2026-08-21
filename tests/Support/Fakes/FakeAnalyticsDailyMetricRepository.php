@@ -13,7 +13,8 @@ use DateTimeImmutable;
 /**
  * In-memory `AnalyticsDailyMetricRepositoryInterface` double for the
  * aggregation + report-rebuild unit suites: records the upserted rows
- * and the deleted date ranges, returns the canned per-span group rows.
+ * and the deleted date ranges, returns the canned per-span group rows
+ * and the canned `rowsBetween` result (the email-digest reads, 11.3.5).
  */
 final class FakeAnalyticsDailyMetricRepository implements AnalyticsDailyMetricRepositoryInterface
 {
@@ -26,6 +27,12 @@ final class FakeAnalyticsDailyMetricRepository implements AnalyticsDailyMetricRe
     /** @var array<string, list<array<string, mixed>>> */
     public array $groups = [];
 
+    /** @param list<AnalyticsMetric> $rows */
+    public function __construct(
+        public array $rows = [],
+    ) {
+    }
+
     public function upsertBatch(array $metrics): void
     {
         $this->stored = array_merge($this->stored, $metrics);
@@ -37,7 +44,7 @@ final class FakeAnalyticsDailyMetricRepository implements AnalyticsDailyMetricRe
         DateTimeImmutable $dateTo,
         ?string $dimension = null,
     ): array {
-        return [];
+        return $this->rows;
     }
 
     public function deleteForDates(DateTimeImmutable $dateFrom, DateTimeImmutable $dateTo): int
