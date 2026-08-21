@@ -52,3 +52,31 @@ paths:
             application/json:
               schema:
                 $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
+
+  /admin/analytics/generate-reports:
+    post:
+      tags: [Admin]
+      summary: Generate analytics reports now
+      description: |
+        Dispatches `AggregateAnalyticsReportsJob` for the current period,
+        bypassing the period boundary check — the dashboard "Generate
+        Now" button (A9, B220). The job runs async; the dashboard reloads
+        on completion.
+      operationId: analyticsGenerateReports
+      responses:
+        '202':
+          description: Report generation dispatched.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [dispatched]
+                properties:
+                  dispatched:
+                    type: boolean
+        '419':
+          description: Session expired. Redirects to the login page.
+          content:
+            application/json:
+              schema:
+                $ref: './shared.yaml#/components/schemas/InertiaErrorProps'
