@@ -197,3 +197,63 @@ function analyticsReport(
         createdAt: new DateTimeImmutable('2026-08-21 02:00:00'),
     );
 }
+
+describe('dashboard reads (11.3.4)', function (): void {
+    beforeEach(function (): void {
+        $this->repository = app(AnalyticsReportRepositoryInterface::class);
+    });
+
+    it('filters the series to the exact dimension — the per-target cta_clicks rows', function (): void {
+        $this->repository->upsertBatch([
+            analyticsReport('cta_clicks', MetricSpan::Week, '2026-08-17', '2026-08-23', 5.0, 'github'),
+            analyticsReport('cta_clicks', MetricSpan::Week, '2026-08-17', '2026-08-23', 3.0, 'language'),
+        ]);
+
+        $series = $this->repository->series(MetricName::CtaClicks, MetricSpan::Week, 10, 'language');
+
+        expect($series)->toHaveCount(1)
+            ->and($series[0]->toDimension())->toBe('language')
+            ->and($series[0]->toValue())->toBe(3.0);
+    });
+
+    it('filters the rankings by the dimension prefix — the article/project families', function (): void {
+        $this->repository->upsertBatch([
+            analyticsReport('views', MetricSpan::All, '2026-06-01', '2026-08-21', 9.0, 'project:2'),
+            analyticsReport('views', MetricSpan::All, '2026-06-01', '2026-08-21', 50.0, 'article:5'),
+            analyticsReport('views', MetricSpan::All, '2026-06-01', '2026-08-21', 20.0, 'article:7'),
+        ]);
+
+        $articles = $this->repository->rankings(MetricName::Views, 'top', 10, 'article:');
+        $projects = $this->repository->rankings(MetricName::Views, 'top', 10, 'project:');
+
+        expect(array_map(
+            static fn (AnalyticsReport $r): ?string => $r->toDimension(),
+            $articles,
+        ))->toBe(['article:5', 'article:7'])
+            ->and(array_map(
+                static fn (AnalyticsReport $r): ?string => $r->toDimension(),
+                $projects,
+            ))->toBe(['project:2']);
+    });
+
+    it('returns the whole-time dimension rows for the block totals — dimension ascending', function (): void {
+        $this->repository->upsertBatch([
+            analyticsReport('cta_clicks', MetricSpan::All, '2026-06-01', '2026-08-21', 4.0, 'github'),
+            analyticsReport('cta_clicks', MetricSpan::All, '2026-06-01', '2026-08-21', 5.0, 'language'),
+            analyticsReport('cta_clicks', MetricSpan::All, '2026-06-01', '2026-08-21', 1.0, 'theme'),
+            analyticsReport('views', MetricSpan::All, '2026-06-01', '2026-08-21', 8.0, 'project:1'),
+        ]);
+
+        $targets = $this->repository->dimensionRows(MetricName::CtaClicks);
+        $projects = $this->repository->dimensionRows(MetricName::Views, 'project:');
+
+        expect(array_map(
+            static fn (AnalyticsReport $r): ?string => $r->toDimension(),
+            $targets,
+        ))->toBe(['github', 'language', 'theme'])
+            ->and(array_map(
+                static fn (AnalyticsReport $r): float => $r->toValue(),
+                $projects,
+            ))->toBe([8.0]);
+    });
+});
