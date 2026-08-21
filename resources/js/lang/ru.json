@@ -850,7 +850,12 @@
             "batch_shape": "Пакет событий должен быть массивом событий.",
             "batch_too_large": "Пакет событий не должен содержать более 100 событий.",
             "event_invalid": "Пакет событий содержит неизвестный тип события или некорректную полезную нагрузку.",
-            "payload_too_large": "Пакет событий не должен превышать 50 КБ."
+            "payload_too_large": "Пакет событий не должен превышать 50 КБ.",
+            "rankings_disliked_metric": "Вариант disliked требует метрику reactions_dislikes.",
+            "rankings_liked_metric": "Вариант liked требует метрику reactions_likes.",
+            "rankings_metric_not_allowed": "Метрика не может быть ранжирована в данной области.",
+            "series_dimension_forbidden": "Фильтр измерения доступен только для метрики cta_clicks.",
+            "series_dimension_required": "Ряд cta_clicks требует измерения."
         },
         "array": "Поле :attribute должно быть массивом.",
         "attributes": [],

@@ -10,7 +10,7 @@ info:
     Locale-prefixed public routes (`/{locale}/...`) are not listed here —
     they render the same page components with the same props as their
     non-prefixed counterparts (only the locale resolution differs).
-  version: '1.0.20'
+  version: '1.0.21'
   contact:
     name: Portfolio Administrator
     url: 'https://portfolio.dev.lan'
@@ -115,6 +115,12 @@ paths:
   # Analytics page
   /admin/analytics:
     $ref: './analytics.yaml#/paths/~1admin~1analytics'
+  /admin/analytics/series:
+    $ref: './analytics.yaml#/paths/~1admin~1analytics~1series'
+  /admin/analytics/rankings:
+    $ref: './analytics.yaml#/paths/~1admin~1analytics~1rankings'
+  /admin/analytics/generate-reports:
+    $ref: './analytics.yaml#/paths/~1admin~1analytics~1generate-reports'
 
   # Settings pages
   /admin/settings:
