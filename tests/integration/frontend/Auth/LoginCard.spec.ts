@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
 import LoginCard from '@auth-admin/LoginCard.vue';

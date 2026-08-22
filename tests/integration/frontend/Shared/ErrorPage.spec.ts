@@ -13,7 +13,7 @@ vi.mock('@inertiajs/vue3', async (importOriginal) => {
 });
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
 import ErrorPage from '@shared-cross/Pages/ErrorPage.vue';

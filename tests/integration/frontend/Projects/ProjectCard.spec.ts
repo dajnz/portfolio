@@ -12,7 +12,7 @@ vi.mock('@inertiajs/vue3', () => ({
 }));
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: trackMock, cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: trackMock, cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
 import ProjectCard from '@projects/Public/Components/ProjectCard.vue';

@@ -5,7 +5,7 @@ const { trackMock } = vi.hoisted(() => ({
 }));
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: trackMock, cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: trackMock, cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
 import { ARTICLE_READ_THRESHOLD, useReadingProgress, type ReadingProgress } from '@shared-cross/Composables/useReadingProgress';

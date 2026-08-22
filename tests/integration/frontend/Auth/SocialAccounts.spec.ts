@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ComponentProps } from 'vue-component-type-helpers';
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
 import SocialAccounts from '@auth-admin/SocialAccounts.vue';

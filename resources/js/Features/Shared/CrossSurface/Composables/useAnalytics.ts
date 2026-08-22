@@ -28,6 +28,13 @@ export interface AnalyticsTracker {
     track: (eventType: string, metadata?: Record<string, unknown>) => void;
     /** The page context for every event fired from now on (B289). */
     setPageContext: (type: PageType | null, entityId?: number | null) => void;
+    /**
+     * Fires the page view for the just-mounted page and restarts the
+     * time-on-page clock (called by `usePageTracking` from the page's
+     * setup — one event per mount: the initial load included, prefetch
+     * visits never mount and therefore never count as views).
+     */
+    trackPageView: () => void;
     cleanup: () => void;
 }
 
@@ -44,19 +51,33 @@ let pageContext: { type: PageType | null; entityId: number | null } = {
     entityId: null,
 };
 
+// The tracker is a module-level SINGLETON: `useAnalytics()` is called
+// from many sites (the app root, the layout's LanguageSelector, every
+// public page's `usePageTracking`, the CTA components). Each instance
+// would register its own router listeners + flush interval and fire
+// its own copy of every event — the observed N× event duplication
+// (a single blog visit recorded 8 page_views). The singleton shares
+// one buffer, one interval and one listener set.
+let instance: AnalyticsTracker | null = null;
+
 /**
- * Session-scoped analytics tracker (analytics.md:45-114). Must be
- * registered exactly once at the app level (`app.vue`); components fire
- * events through `track()`. On the SSR side (no `window`) it degrades
- * to a no-op so the server render never touches browser storage.
+ * Session-scoped analytics tracker (analytics.md:45-114). Registered
+ * exactly once as a module-level singleton; components fire events
+ * through `track()`. On the SSR side (no `window`) it degrades to a
+ * no-op so the server render never touches browser storage.
  */
 export function useAnalytics(): AnalyticsTracker {
     if (typeof window === 'undefined') {
         return {
             track: () => undefined,
             setPageContext: () => undefined,
+            trackPageView: () => undefined,
             cleanup: () => undefined,
         };
+    }
+
+    if (instance !== null) {
+        return instance;
     }
 
     const sessionId = getSessionId();
@@ -107,6 +128,12 @@ export function useAnalytics(): AnalyticsTracker {
         }
     }
 
+    function trackPageView(): void {
+        pageStartTime = Date.now();
+        currentPageUrl = window.location.href;
+        track('page_view', { referrer: document.referrer, title: document.title });
+    }
+
     async function flush(useKeepalive = false): Promise<void> {
         if (buffer.length === 0) {
             return;
@@ -153,25 +180,33 @@ export function useAnalytics(): AnalyticsTracker {
         }
     }
 
-    // Time on the departing page + page view for the arriving one.
-    const unsubscribeStart = router.on('start', trackTimeOnPage);
-    const unsubscribeFinish = router.on('finish', routerFinish);
+    // Time on the departing page, fired by real navigations only —
+    // prefetch visits (usePrefetch) are background fetches, not
+    // departures, and must not fire events.
+    const unsubscribeStart = router.on('start', (event) => {
+        if (event.detail.visit.prefetch) {
+            return;
+        }
+
+        trackTimeOnPage();
+    });
 
     function cleanup(): void {
         clearInterval(intervalId);
         window.removeEventListener('beforeunload', onBeforeUnload);
         document.removeEventListener('visibilitychange', onVisibilityChange);
         unsubscribeStart();
-        unsubscribeFinish();
+        instance = null;
     }
 
-    function routerFinish(): void {
-        pageStartTime = Date.now();
-        currentPageUrl = window.location.href;
-        track('page_view', { referrer: document.referrer, title: document.title });
-    }
+    instance = {
+        track,
+        setPageContext,
+        trackPageView,
+        cleanup,
+    };
 
-    return { track, setPageContext, cleanup };
+    return instance;
 }
 
 function getSessionId(): string {

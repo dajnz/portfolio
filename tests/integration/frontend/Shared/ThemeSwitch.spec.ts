@@ -7,7 +7,7 @@ const { trackMock } = vi.hoisted(() => ({
 }));
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: trackMock, cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: trackMock, cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
 import ThemeSwitch from '@shared-cross/Components/ThemeSwitch.vue';
