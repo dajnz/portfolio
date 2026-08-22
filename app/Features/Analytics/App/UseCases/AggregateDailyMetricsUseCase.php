@@ -103,6 +103,23 @@ final class AggregateDailyMetricsUseCase
     }
 
     /**
+     * Whether the event's page URL points into the admin section
+     * (analytics.md:3,38 — tracking is `[Public]`-only): such events
+     * are ignored at aggregation. Null page URLs (events without one)
+     * are never treated as admin.
+     */
+    private function isAdminPageUrl(?string $pageUrl): bool
+    {
+        if ($pageUrl === null) {
+            return false;
+        }
+
+        $path = parse_url($pageUrl, PHP_URL_PATH);
+
+        return $path !== null && str_starts_with($path, '/admin');
+    }
+
+    /**
      * The single-pass accumulation of the day's events (the 11.1
      * `OverallReport`/`BlogReport`/`ProjectsReport::accumulate()`
      * logic combined — B292). CTA targets come from the event types
@@ -149,6 +166,16 @@ final class AggregateDailyMetricsUseCase
         $projects = [];
 
         foreach ($events as $event) {
+            // The aggregation net (analytics.md:3,38 — tracking is
+            // `[Public]`-only): events whose page URL points into the
+            // admin section are ignored, so admin browsing can never
+            // pollute the global metrics even if the client-side guard
+            // regresses. `page_type: null` events on PUBLIC urls
+            // (legacy rows without the page context, B289) are kept.
+            if ($this->isAdminPageUrl($event->toPageUrl())) {
+                continue;
+            }
+
             $ip = $event->toIpAddress();
 
             if ($ip !== null) {
@@ -226,8 +253,7 @@ final class AggregateDailyMetricsUseCase
             'dislikes' => $dislikes,
             'cta' => $cta,
             'pages' => $pages,
-            'articles' => $articles,
-            'projects' => $projects,
+            'articles' => $articles,            'projects' => $projects,
         ];
     }
 

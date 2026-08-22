@@ -210,6 +210,41 @@ describe('AggregateDailyMetricsUseCase', function (): void {
         assertMetricRow($rows, MetricName::TimeOnPageMax, null, 80.0, 1);
     });
 
+    it('excludes events whose page url is an admin route (tracking is [Public]-only)', function (): void {
+        $metrics = aggregateDaily([
+            new PageViewEvent(
+                id: 99,
+                clientIds: AnalyticsEventFixture::clientIds('s-admin', 'ip-admin'),
+                pageDetails: AnalyticsEventFixture::pageDetails(null, null, 'https://example.com/admin/analytics'),
+                referrer: null,
+                title: 'Analytics',
+                createdAt: new DateTimeImmutable('2026-07-09 10:00:00'),
+            ),
+            new TimeOnPageEvent(
+                id: 100,
+                clientIds: AnalyticsEventFixture::clientIds('s-admin', 'ip-admin'),
+                pageDetails: AnalyticsEventFixture::pageDetails(null, null, 'https://example.com/admin/analytics'),
+                seconds: 500,
+                createdAt: new DateTimeImmutable('2026-07-09 10:05:00'),
+            ),
+            ...dayEvents(),
+        ]);
+
+        $rows = $metrics->stored;
+
+        // The admin page view + time-on-page are ignored: the global
+        // metrics stay at the public-day values and no admin-URL page
+        // row appears.
+        assertMetricRow($rows, MetricName::PageViews, null, 3.0, 1);
+        assertMetricRow($rows, MetricName::UniqueVisitors, null, 3.0, 1);
+        assertMetricRow($rows, MetricName::TimeOnPageSeconds, null, 130.0, 3);
+        expect(
+            collect($rows)->contains(
+                static fn (AnalyticsMetric $row): bool => $row->toDimension() === 'https://example.com/admin/analytics',
+            ),
+        )->toBeFalse();
+    });
+
     it('computes the blog-scoped metrics from the events on article pages', function (): void {
         $metrics = aggregateDaily(dayEvents());
 

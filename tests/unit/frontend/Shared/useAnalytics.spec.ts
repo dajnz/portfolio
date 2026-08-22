@@ -20,6 +20,7 @@ const fetchMock = vi.fn();
 interface TrackedEvent {
     event_type: string;
     metadata: Record<string, unknown>;
+    page_url: string;
 }
 
 function listener(type: string): () => void {
@@ -67,6 +68,46 @@ describe('useAnalytics', () => {
         }
         vi.unstubAllGlobals();
         vi.useRealTimers();
+    });
+
+    it('drops events fired on admin routes (tracking is [Public]-only)', () => {
+        window.history.pushState({}, '', '/admin/analytics');
+
+        const analytics = useAnalytics();
+        cleanups.push(analytics.cleanup);
+
+        analytics.track('page_view');
+        vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('does not fire the page view for admin navigation', () => {
+        window.history.pushState({}, '', '/admin/analytics');
+
+        const analytics = useAnalytics();
+        cleanups.push(analytics.cleanup);
+
+        listener('finish')();
+        vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('resumes tracking once the route leaves the admin section', () => {
+        window.history.pushState({}, '', '/admin/analytics');
+
+        const analytics = useAnalytics();
+        cleanups.push(analytics.cleanup);
+
+        analytics.track('page_view');
+        window.history.pushState({}, '', '/projects');
+        analytics.track('page_view');
+        vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(lastFetch().body).toHaveLength(1);
+        expect(lastFetch().body[0].page_url).toContain('/projects');
     });
 
     it('generates and reuses a session id from sessionStorage', () => {

@@ -69,6 +69,15 @@ export function useAnalytics(): AnalyticsTracker {
     }
 
     function track(eventType: string, metadata: Record<string, unknown> = {}): void {
+        // Tracking is [Public]-only (analytics.md:3,38) — the admin
+        // section must never emit events (the backend drops any strays
+        // at aggregation, AggregateDailyMetricsUseCase). The URL is
+        // read here so the departing page's `time_on_page` is judged
+        // by its own path.
+        if (window.location.pathname.startsWith('/admin')) {
+            return;
+        }
+
         buffer.push({
             event_type: eventType,
             metadata,
