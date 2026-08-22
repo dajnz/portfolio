@@ -329,6 +329,7 @@ class AppServiceProvider extends ServiceProvider
             \App\Features\Analytics\Infra\Commands\PruneAnalyticsEventsCommand::class,
             \App\Features\Analytics\Infra\Commands\GenerateDailyMetricsCommand::class,
             \App\Features\Analytics\Infra\Commands\GenerateAnalyticsReportsCommand::class,
+            \App\Features\Analytics\Infra\Commands\ResetAnalyticsCommand::class,
         ]);
     }
 }
