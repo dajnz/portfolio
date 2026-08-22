@@ -30,7 +30,7 @@ describe('EloquentAnalyticsReportRepository', function (): void {
             analyticsReport('page_views', MetricSpan::Day, '2026-08-20', '2026-08-20', 20.0),
         ]);
 
-        $blocks = $this->repository->blocks([MetricName::PageViews]);
+        $blocks = $this->repository->wholeTimeScalarValues([MetricName::PageViews]);
         $series = $this->repository->series(MetricName::PageViews, MetricSpan::Day, 2);
 
         expect($blocks)->toHaveCount(1)
@@ -48,7 +48,7 @@ describe('EloquentAnalyticsReportRepository', function (): void {
         $this->repository->upsertBatch([analyticsReport('page_views', MetricSpan::All, '2026-06-01', '2026-08-21', 100.0)]);
         $this->repository->upsertBatch([analyticsReport('page_views', MetricSpan::All, '2026-06-01', '2026-08-21', 150.0)]);
 
-        $blocks = $this->repository->blocks([MetricName::PageViews]);
+        $blocks = $this->repository->wholeTimeScalarValues([MetricName::PageViews]);
 
         expect($blocks)->toHaveCount(1)
             ->and($blocks[0]->toValue())->toBe(150.0);
@@ -113,7 +113,7 @@ describe('EloquentAnalyticsReportRepository', function (): void {
             analyticsReport('views', MetricSpan::All, '2026-06-01', '2026-08-21', 9.0, 'article:42'),
         ]);
 
-        $blocks = $this->repository->blocks([MetricName::PageViews, MetricName::UniqueVisitors]);
+        $blocks = $this->repository->wholeTimeScalarValues([MetricName::PageViews, MetricName::UniqueVisitors]);
 
         expect($blocks)->toHaveCount(2)
             ->and(array_map(static fn (AnalyticsReport $r): string => $r->toMetric()->value, $blocks))
@@ -146,7 +146,7 @@ describe('EloquentAnalyticsReportRepository', function (): void {
             analyticsReport('page_views', MetricSpan::Day, '2026-08-20', '2026-08-20', 25.0),
         ]);
 
-        $blocks = $this->repository->blocks([MetricName::PageViews, MetricName::UniqueVisitors]);
+        $blocks = $this->repository->wholeTimeScalarValues([MetricName::PageViews, MetricName::UniqueVisitors]);
         $series = $this->repository->series(MetricName::PageViews, MetricSpan::Day, 10);
 
         expect($blocks)->toHaveCount(1)
@@ -156,7 +156,7 @@ describe('EloquentAnalyticsReportRepository', function (): void {
     });
 
     it('returns empty reads when nothing is stored', function (): void {
-        expect($this->repository->blocks([MetricName::PageViews]))->toBe([])
+        expect($this->repository->wholeTimeScalarValues([MetricName::PageViews]))->toBe([])
             ->and($this->repository->series(MetricName::PageViews, MetricSpan::Day, 10))->toBe([])
             ->and($this->repository->rankings(MetricName::PageViews, 'top', 10))->toBe([])
             ->and($this->repository->metricSpans(MetricName::PageViews))->toBe([])

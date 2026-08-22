@@ -26,6 +26,7 @@ enum MetricName: string
     case TimeOnPageMax = 'time_on_page_max';
     case BlogViews = 'blog_views';
     case BlogUniqueVisitors = 'blog_unique_visitors';
+    case ProjectUniqueVisitors = 'project_unique_visitors';
     case ReadTimeSeconds = 'read_time_seconds';
     case ReadTimeSamples = 'read_time_samples';
     case ReadTimeMin = 'read_time_min';

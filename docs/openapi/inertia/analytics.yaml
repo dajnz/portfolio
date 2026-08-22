@@ -51,7 +51,7 @@ components:
         | `completion_rate` (blog) | `completion_rate_sum` + min/max | `rankings?metric=completion_rate_sum&scope=article` |
         | `reactions` (blog) | `reactions_likes` + `reactions_dislikes` | `rankings?metric=reactions_likes|reactions_dislikes&scope=article&variant=liked|disliked` |
         | `total_views` (projects) | sum of the `views` project rows | `rankings?metric=views&scope=project` |
-        | `unique_views` (projects) | sum of the `unique_visitors` project rows | `rankings?metric=unique_visitors&scope=project` |
+        | `unique_views` (projects) | `project_unique_visitors` (the distinct visitors across ALL project pages — one visitor on several projects counts once) | `rankings?metric=unique_visitors&scope=project` |
 
         Metrics without stored rows fall back to `value: 0`; `min`/`max`
         are present only for the avg blocks with data

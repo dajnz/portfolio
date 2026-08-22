@@ -26,6 +26,7 @@ describe('MetricName', function (): void {
             'time_on_page_max',
             'blog_views',
             'blog_unique_visitors',
+            'project_unique_visitors',
             'read_time_seconds',
             'read_time_samples',
             'read_time_min',

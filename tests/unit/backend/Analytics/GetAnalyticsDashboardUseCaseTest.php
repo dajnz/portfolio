@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Analytics;
 
+use App\Features\Analytics\App\DTOs\AnalyticsDashboardDto;
 use App\Features\Analytics\App\UseCases\GetAnalyticsDashboardUseCase;
 use App\Features\Analytics\App\UseCases\GetMetricRankingsUseCase;
 use App\Features\Analytics\Domain\Entities\AnalyticsReport;
@@ -25,7 +26,7 @@ use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 /**
  * @param list<AnalyticsReport> $rows
  */
-function dashboardProps(array $rows): array
+function dashboardProps(array $rows): AnalyticsDashboardDto
 {
     $reports = new FakeAnalyticsReportRepository($rows);
     $rankings = new GetMetricRankingsUseCase($reports, new FakeAnalyticsReportDataReader());
@@ -49,7 +50,7 @@ it('builds the overview blocks in order with the values, min and max', function 
         dashboardRankingRow('cta_clicks', 1.0, 'theme'),
     ]);
 
-    expect($props['overview_blocks'])->toBe([
+    expect($props->overviewBlocks)->toBe([
         ['key' => 'total_visits', 'value' => 100.0],
         ['key' => 'unique_visitors', 'value' => 42.0],
         ['key' => 'cta_clicks', 'value' => 16.0],
@@ -73,7 +74,7 @@ it('builds the blog blocks in order — the read/completion blocks carry min and
         dashboardBlockRow('reactions_dislikes', 6.0),
     ]);
 
-    expect($props['blog_blocks'])->toBe([
+    expect($props->blogBlocks)->toBe([
         ['key' => 'total_views', 'value' => 30.0],
         ['key' => 'unique_visitors', 'value' => 12.0],
         ['key' => 'avg_read_time', 'value' => 90.0, 'min' => 5.0, 'max' => 300.0],
@@ -82,37 +83,36 @@ it('builds the blog blocks in order — the read/completion blocks carry min and
     ]);
 });
 
-it('builds the projects blocks as the sums of the per-project dimension rows', function (): void {
+it('builds the projects blocks from the per-project views and the project-scoped uniques', function (): void {
     $props = dashboardProps([
         dashboardRankingRow('views', 8.0, 'project:1'),
         dashboardRankingRow('views', 6.0, 'project:2'),
-        dashboardRankingRow('unique_visitors', 3.0, 'project:1'),
-        dashboardRankingRow('unique_visitors', 2.0, 'project:2'),
+        dashboardBlockRow('project_unique_visitors', 3.0),
     ]);
 
-    expect($props['projects_blocks'])->toBe([
+    expect($props->projectsBlocks)->toBe([
         ['key' => 'total_views', 'value' => 14.0],
-        ['key' => 'unique_views', 'value' => 5.0],
+        ['key' => 'unique_views', 'value' => 3.0],
     ]);
 });
 
 it('falls back to zero for metrics without stored rows', function (): void {
     $props = dashboardProps([]);
 
-    expect($props['overview_blocks'])->toBe([
+    expect($props->overviewBlocks)->toBe([
         ['key' => 'total_visits', 'value' => 0.0],
         ['key' => 'unique_visitors', 'value' => 0.0],
         ['key' => 'cta_clicks', 'value' => 0.0],
         ['key' => 'feedback_submissions', 'value' => 0.0],
         ['key' => 'language_switches', 'value' => 0.0],
         ['key' => 'avg_time_on_page', 'value' => 0.0],
-    ])->and($props['blog_blocks'])->toBe([
+    ])->and($props->blogBlocks)->toBe([
         ['key' => 'total_views', 'value' => 0.0],
         ['key' => 'unique_visitors', 'value' => 0.0],
         ['key' => 'avg_read_time', 'value' => 0.0],
         ['key' => 'completion_rate', 'value' => 0.0],
         ['key' => 'reactions', 'value' => 0.0],
-    ])->and($props['projects_blocks'])->toBe([
+    ])->and($props->projectsBlocks)->toBe([
         ['key' => 'total_views', 'value' => 0.0],
         ['key' => 'unique_views', 'value' => 0.0],
     ]);
@@ -126,20 +126,20 @@ it('builds the default chart with the page_views series at the four spans', func
         dashboardReportRow(MetricSpan::Month, '2026-08-01', 40.0),
     ]);
 
-    expect($props['default_chart']['metric'])->toBe('page_views')
-        ->and($props['default_chart']['spans']['day'])->toBe([
+    expect($props->defaultChart['metric'])->toBe('page_views')
+        ->and($props->defaultChart['spans']['day'])->toBe([
             'points' => [
                 ['label' => '2026-08-19', 'value' => 10.0],
                 ['label' => '2026-08-20', 'value' => 20.0],
             ],
         ])
-        ->and($props['default_chart']['spans']['week'])->toBe([
+        ->and($props->defaultChart['spans']['week'])->toBe([
             'points' => [['label' => '2026-08-17', 'value' => 30.0]],
         ])
-        ->and($props['default_chart']['spans']['month'])->toBe([
+        ->and($props->defaultChart['spans']['month'])->toBe([
             'points' => [['label' => '2026-08-01', 'value' => 40.0]],
         ])
-        ->and($props['default_chart']['spans']['all'])->toBe([
+        ->and($props->defaultChart['spans']['all'])->toBe([
             'points' => [
                 ['label' => '2026-08-19', 'value' => 10.0],
                 ['label' => '2026-08-20', 'value' => 30.0],
@@ -157,7 +157,7 @@ it('builds the default rankings with the top and bottom 10 pages', function (): 
         dashboardRankingRow('time_on_page_max', 120.0, 'https://example.com/b'),
     ];
 
-    expect(dashboardProps($rows)['default_rankings'])->toBe([
+    expect(dashboardProps($rows)->defaultRankings)->toBe([
         'metric' => 'time_on_page_seconds',
         'scope' => 'page',
         'rows' => [

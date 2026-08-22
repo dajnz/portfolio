@@ -34,8 +34,10 @@ use DateTimeImmutable;
  * `project:{id}`. `unique_visitors` is always `COUNT(DISTINCT
  * ip_hash)` (session ids are client-generated and untrustworthy);
  * blog-scoped uniques count distinct IPs among the events on article
- * pages (`toBlogArticleId() !== null`); per-entity uniques count the
- * page views' distinct IPs on that entity's pages.
+ * pages (`toBlogArticleId() !== null`), project-scoped uniques among
+ * the events on project pages (`toProjectId() !== null`) — the same
+ * visitor across several project pages counts once; per-entity uniques
+ * count the page views' distinct IPs on that entity's pages.
  */
 final class AggregateDailyMetricsUseCase
 {
@@ -68,6 +70,24 @@ final class AggregateDailyMetricsUseCase
         }
 
         $this->metrics->upsertBatch($rows);
+    }
+
+    /**
+     * The default aggregation range (analytics.md:182-184): the
+     * previous day + the in-progress day, in the server-local
+     * timezone — the dashboard stays live. Shared by the scheduled
+     * command and the job.
+     *
+     * @return array{DateTimeImmutable, DateTimeImmutable}
+     */
+    public function defaultDateRange(): array
+    {
+        $today = new DateTimeImmutable('today');
+
+        return [
+            $today->modify('-1 day'),
+            $today->modify('+1 day')->modify('-1 second'),
+        ];
     }
 
     /**
@@ -132,6 +152,7 @@ final class AggregateDailyMetricsUseCase
      *     page_views: int,
      *     visitors: array<string, true>,
      *     blog_visitors: array<string, true>,
+     *     project_visitors: array<string, true>,
      *     seconds: list<int>,
      *     article_seconds: list<int>,
      *     completion: list<int>,
@@ -152,18 +173,21 @@ final class AggregateDailyMetricsUseCase
      */
     private function accumulate(array $events): array
     {
-        $pageViews = 0;
-        $visitors = [];
-        $blogVisitors = [];
-        $seconds = [];
-        $articleSeconds = [];
-        $completion = [];
-        $likes = 0;
-        $dislikes = 0;
-        $cta = [];
-        $pages = [];
-        $articles = [];
-        $projects = [];
+        $totals = [
+            'page_views' => 0,
+            'visitors' => [],
+            'blog_visitors' => [],
+            'project_visitors' => [],
+            'seconds' => [],
+            'article_seconds' => [],
+            'completion' => [],
+            'likes' => 0,
+            'dislikes' => 0,
+            'cta' => [],
+            'pages' => [],
+            'articles' => [],
+            'projects' => [],
+        ];
 
         foreach ($events as $event) {
             // The aggregation net (analytics.md:3,38 — tracking is
@@ -176,85 +200,149 @@ final class AggregateDailyMetricsUseCase
                 continue;
             }
 
-            $ip = $event->toIpAddress();
+            $this->accumulateEvent($totals, $event);
+        }
+
+        return $totals;
+    }
+
+    /**
+     * The per-event dispatch: the shared client/entity context feeds
+     * the distinct-IP sets, then the event type routes to its
+     * accumulator.
+     *
+     * @param array<string, mixed> $totals
+     */
+    private function accumulateEvent(array &$totals, AnalyticsEvent $event): void
+    {
+        $this->trackVisitorSets($totals, $event);
+
+        if ($event instanceof PageViewEvent) {
+            $this->accumulatePageView($totals, $event);
+        } elseif ($event instanceof TimeOnPageEvent) {
+            $this->accumulateTimeOnPage($totals, $event);
+        } elseif ($event instanceof CallToActionClickEvent) {
+            $this->incrementCta($totals, $event->toTarget()->value);
+        } elseif ($event instanceof LanguageSwitchEvent) {
+            $this->incrementCta($totals, 'language');
+        } elseif ($event instanceof ThemeSwitchEvent) {
+            $this->incrementCta($totals, 'theme');
+        } elseif ($event instanceof ArticleReadEvent) {
+            $this->accumulateArticleRead($totals, $event);
+        } elseif ($event instanceof ArticleReactionEvent) {
+            $this->accumulateArticleReaction($totals, $event);
+        }
+    }
+
+    /**
+     * The distinct-IP sets: the global visitors (every event), the
+     * blog-scoped (events on article pages) and the project-scoped
+     * (events on project pages).
+     *
+     * @param array<string, mixed> $totals
+     */
+    private function trackVisitorSets(array &$totals, AnalyticsEvent $event): void
+    {
+        $ip = $event->toIpAddress();
+        $articleId = $event->toPageDetails()->toBlogArticleId();
+        $projectId = $event->toPageDetails()->toProjectId();
+
+        if ($ip !== null) {
+            $totals['visitors'][$ip] = true;
+        }
+
+        if ($articleId !== null && $ip !== null) {
+            $totals['blog_visitors'][$ip] = true;
+        }
+
+        if ($projectId !== null && $ip !== null) {
+            $totals['project_visitors'][$ip] = true;
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $totals
+     */
+    private function accumulatePageView(array &$totals, PageViewEvent $event): void
+    {
+        $totals['page_views']++;
+
+        $articleId = $event->toPageDetails()->toBlogArticleId();
+        $projectId = $event->toPageDetails()->toProjectId();
+        $ip = $event->toIpAddress();
+
+        if ($articleId !== null) {
+            $totals['articles'][$articleId]['views'] = ($totals['articles'][$articleId]['views'] ?? 0) + 1;
 
             if ($ip !== null) {
-                $visitors[$ip] = true;
-            }
-
-            $articleId = $event->toPageDetails()->toBlogArticleId();
-            $projectId = $event->toPageDetails()->toProjectId();
-
-            if ($articleId !== null && $ip !== null) {
-                $blogVisitors[$ip] = true;
-            }
-
-            if ($event instanceof PageViewEvent) {
-                $pageViews++;
-
-                if ($articleId !== null) {
-                    $articles[$articleId]['views'] = ($articles[$articleId]['views'] ?? 0) + 1;
-
-                    if ($ip !== null) {
-                        $articles[$articleId]['visitors'][$ip] = true;
-                    }
-                }
-
-                if ($projectId !== null) {
-                    $projects[$projectId]['views'] = ($projects[$projectId]['views'] ?? 0) + 1;
-
-                    if ($ip !== null) {
-                        $projects[$projectId]['visitors'][$ip] = true;
-                    }
-                }
-            } elseif ($event instanceof TimeOnPageEvent) {
-                $seconds[] = $event->toSeconds();
-
-                $url = $event->toPageUrl();
-
-                if ($url !== null) {
-                    $pages[$url][] = $event->toSeconds();
-                }
-
-                if ($articleId !== null) {
-                    $articleSeconds[] = $event->toSeconds();
-                    $articles[$articleId]['read_seconds'][] = $event->toSeconds();
-                }
-            } elseif ($event instanceof CallToActionClickEvent) {
-                $target = $event->toTarget()->value;
-                $cta[$target] = ($cta[$target] ?? 0) + 1;
-            } elseif ($event instanceof LanguageSwitchEvent) {
-                $cta['language'] = ($cta['language'] ?? 0) + 1;
-            } elseif ($event instanceof ThemeSwitchEvent) {
-                $cta['theme'] = ($cta['theme'] ?? 0) + 1;
-            } elseif ($event instanceof ArticleReadEvent) {
-                $percentage = $event->toPercentageCompleted();
-                $completion[] = $percentage;
-                $articles[$event->toArticleId()]['completion'][] = $percentage;
-            } elseif ($event instanceof ArticleReactionEvent) {
-                if ($event->toReaction() === SocialReaction::Like) {
-                    $likes++;
-                    $articles[$event->toArticleId()]['likes'] = ($articles[$event->toArticleId()]['likes'] ?? 0) + 1;
-                } else {
-                    $dislikes++;
-                    $articles[$event->toArticleId()]['dislikes'] = ($articles[$event->toArticleId()]['dislikes'] ?? 0) + 1;
-                }
+                $totals['articles'][$articleId]['visitors'][$ip] = true;
             }
         }
 
-        return [
-            'page_views' => $pageViews,
-            'visitors' => $visitors,
-            'blog_visitors' => $blogVisitors,
-            'seconds' => $seconds,
-            'article_seconds' => $articleSeconds,
-            'completion' => $completion,
-            'likes' => $likes,
-            'dislikes' => $dislikes,
-            'cta' => $cta,
-            'pages' => $pages,
-            'articles' => $articles,            'projects' => $projects,
-        ];
+        if ($projectId !== null) {
+            $totals['projects'][$projectId]['views'] = ($totals['projects'][$projectId]['views'] ?? 0) + 1;
+
+            if ($ip !== null) {
+                $totals['projects'][$projectId]['visitors'][$ip] = true;
+            }
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $totals
+     */
+    private function accumulateTimeOnPage(array &$totals, TimeOnPageEvent $event): void
+    {
+        $totals['seconds'][] = $event->toSeconds();
+
+        $url = $event->toPageUrl();
+
+        if ($url !== null) {
+            $totals['pages'][$url][] = $event->toSeconds();
+        }
+
+        $articleId = $event->toPageDetails()->toBlogArticleId();
+
+        if ($articleId !== null) {
+            $totals['article_seconds'][] = $event->toSeconds();
+            $totals['articles'][$articleId]['read_seconds'][] = $event->toSeconds();
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $totals
+     */
+    private function incrementCta(array &$totals, string $target): void
+    {
+        $totals['cta'][$target] = ($totals['cta'][$target] ?? 0) + 1;
+    }
+
+    /**
+     * @param array<string, mixed> $totals
+     */
+    private function accumulateArticleRead(array &$totals, ArticleReadEvent $event): void
+    {
+        $percentage = $event->toPercentageCompleted();
+        $totals['completion'][] = $percentage;
+        $totals['articles'][$event->toArticleId()]['completion'][] = $percentage;
+    }
+
+    /**
+     * @param array<string, mixed> $totals
+     */
+    private function accumulateArticleReaction(array &$totals, ArticleReactionEvent $event): void
+    {
+        $articleId = $event->toArticleId();
+
+        if ($event->toReaction() === SocialReaction::Like) {
+            $totals['likes']++;
+            $totals['articles'][$articleId]['likes'] = ($totals['articles'][$articleId]['likes'] ?? 0) + 1;
+
+            return;
+        }
+
+        $totals['dislikes']++;
+        $totals['articles'][$articleId]['dislikes'] = ($totals['articles'][$articleId]['dislikes'] ?? 0) + 1;
     }
 
     /**
@@ -268,6 +356,7 @@ final class AggregateDailyMetricsUseCase
      *     page_views: int,
      *     visitors: array<string, true>,
      *     blog_visitors: array<string, true>,
+     *     project_visitors: array<string, true>,
      *     seconds: list<int>,
      *     article_seconds: list<int>,
      *     completion: list<int>,
@@ -292,6 +381,7 @@ final class AggregateDailyMetricsUseCase
             ...$this->minMaxRows($day, MetricName::TimeOnPageMin, MetricName::TimeOnPageMax, null, $totals['seconds']),
             $this->countRow($day, MetricName::BlogViews, null, $this->blogViews($totals['articles'])),
             $this->countRow($day, MetricName::BlogUniqueVisitors, null, $this->blogVisitors($totals['blog_visitors'])),
+            $this->countRow($day, MetricName::ProjectUniqueVisitors, null, $this->projectVisitors($totals['project_visitors'])),
             $this->sumRow($day, MetricName::ReadTimeSeconds, null, $totals['article_seconds']),
             $this->countRow($day, MetricName::ReadTimeSamples, null, count($totals['article_seconds'])),
             ...$this->minMaxRows($day, MetricName::ReadTimeMin, MetricName::ReadTimeMax, null, $totals['article_seconds']),
@@ -328,6 +418,19 @@ final class AggregateDailyMetricsUseCase
     private function blogVisitors(array $blogVisitors): int
     {
         return count($blogVisitors);
+    }
+
+    /**
+     * The project-scoped unique visitors — the distinct IPs among ALL
+     * events on project pages (`toProjectId() !== null`): the same
+     * visitor across several project pages counts once (the per-project
+     * `unique_visitors` rows stay per-project).
+     *
+     * @param array<string, true> $projectVisitors
+     */
+    private function projectVisitors(array $projectVisitors): int
+    {
+        return count($projectVisitors);
     }
 
     /**

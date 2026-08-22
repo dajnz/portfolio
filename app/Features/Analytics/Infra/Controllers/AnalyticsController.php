@@ -56,7 +56,33 @@ final class AnalyticsController
 
     public function index(ResponseFactory $inertia): Response
     {
-        return $inertia->render('Analytics/Admin/Pages/AnalyticsDashboardPage', $this->dashboard->get());
+        return $inertia->render('Analytics/Admin/Pages/AnalyticsDashboardPage', $this->dashboardProps());
+    }
+
+    /**
+     * The Inertia props (analytics.md:223-227) — the dashboard DTO
+     * mapped onto the wire shape (the transport structure is the
+     * controller's concern, not the app layer's).
+     *
+     * @return array{
+     *     overview_blocks: list<array{key: string, value: float, min?: float, max?: float}>,
+     *     blog_blocks: list<array{key: string, value: float, min?: float, max?: float}>,
+     *     projects_blocks: list<array{key: string, value: float}>,
+     *     default_chart: array{metric: string, spans: array<string, array{points: list<array{label: string, value: float}>}>},
+     *     default_rankings: array{metric: string, scope: string, rows: array<string, list<array<string, mixed>>>},
+     * }
+     */
+    private function dashboardProps(): array
+    {
+        $dashboard = $this->dashboard->get();
+
+        return [
+            'overview_blocks' => $dashboard->overviewBlocks,
+            'blog_blocks' => $dashboard->blogBlocks,
+            'projects_blocks' => $dashboard->projectsBlocks,
+            'default_chart' => $dashboard->defaultChart,
+            'default_rankings' => $dashboard->defaultRankings,
+        ];
     }
 
     public function series(SeriesRequest $request): JsonResponse

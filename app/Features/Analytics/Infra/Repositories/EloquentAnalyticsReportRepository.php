@@ -57,7 +57,7 @@ final class EloquentAnalyticsReportRepository implements AnalyticsReportReposito
         );
     }
 
-    public function blocks(array $metricNames): array
+    public function wholeTimeScalarValues(array $metricNames): array
     {
         return AnalyticsReportModel::query()
             ->whereIn('metric', array_map(fn (MetricName $metric): string => $metric->value, $metricNames))

@@ -55,6 +55,7 @@ function seedDashboardReports(AnalyticsReportRepositoryInterface $repository): v
         dashboardReport('time_on_page_max', MetricSpan::All, '2026-06-01', '2026-08-21', 120.0, 'https://example.com/b'),
         dashboardReport('views', MetricSpan::All, '2026-06-01', '2026-08-21', 50.0, 'article:5'),
         dashboardReport('views', MetricSpan::All, '2026-06-01', '2026-08-21', 9.0, 'project:2'),
+        dashboardReport('project_unique_visitors', MetricSpan::All, '2026-06-01', '2026-08-21', 3.0),
     ]);
 }
 
@@ -75,6 +76,7 @@ it('renders the dashboard with the whole-time blocks, the default chart and the 
             ->where('blog_blocks.0', ['key' => 'total_views', 'value' => 0])
             ->has('projects_blocks', 2)
             ->where('projects_blocks.0', ['key' => 'total_views', 'value' => 9])
+            ->where('projects_blocks.1', ['key' => 'unique_views', 'value' => 3])
             ->where('default_chart.metric', 'page_views')
             ->has('default_chart.spans', 4)
             ->where('default_chart.spans.day.points.0', ['label' => '2026-08-19', 'value' => 10])

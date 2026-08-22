@@ -58,7 +58,7 @@ final class FakeAnalyticsReportRepository implements AnalyticsReportRepositoryIn
         $this->upserted = array_merge($this->upserted, $reports);
     }
 
-    public function blocks(array $metricNames): array
+    public function wholeTimeScalarValues(array $metricNames): array
     {
         return $this->matching(
             static fn (AnalyticsReport $row): bool => in_array($row->toMetric(), $metricNames, true)

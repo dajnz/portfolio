@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Analytics\App\UseCases;
 
+use App\Features\Analytics\App\DTOs\AnalyticsDashboardDto;
 use App\Features\Analytics\Domain\Entities\AnalyticsReport;
 use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
@@ -29,24 +30,15 @@ final class GetAnalyticsDashboardUseCase
     ) {
     }
 
-    /**
-     * @return array{
-     *     overview_blocks: list<array{key: string, value: float, min?: float, max?: float}>,
-     *     blog_blocks: list<array{key: string, value: float, min?: float, max?: float}>,
-     *     projects_blocks: list<array{key: string, value: float}>,
-     *     default_chart: array{metric: string, spans: array<string, array{points: list<array{label: string, value: float}>}>},
-     *     default_rankings: array{metric: string, scope: string, rows: array<string, list<array<string, mixed>>>},
-     * }
-     */
-    public function get(): array
+    public function get(): AnalyticsDashboardDto
     {
-        return [
-            'overview_blocks' => $this->overviewBlocks(),
-            'blog_blocks' => $this->blogBlocks(),
-            'projects_blocks' => $this->projectsBlocks(),
-            'default_chart' => $this->defaultChart(),
-            'default_rankings' => $this->defaultRankings(),
-        ];
+        return new AnalyticsDashboardDto(
+            overviewBlocks: $this->overviewBlocks(),
+            blogBlocks: $this->blogBlocks(),
+            projectsBlocks: $this->projectsBlocks(),
+            defaultChart: $this->defaultChart(),
+            defaultRankings: $this->defaultRankings(),
+        );
     }
 
     /**
@@ -125,15 +117,19 @@ final class GetAnalyticsDashboardUseCase
     /**
      * The projects blocks — the sums of the per-project dimension rows
      * (the catalog stores no dimension-NULL project totals;
-     * analytics.md:178).
+     * analytics.md:178) and the project-scoped uniques (the distinct
+     * visitors across ALL project pages — the same visitor viewing
+     * several projects counts once, unlike the per-project rows).
      *
      * @return list<array{key: string, value: float}>
      */
     private function projectsBlocks(): array
     {
+        $values = $this->blockValues([MetricName::ProjectUniqueVisitors]);
+
         return [
             ['key' => 'total_views', 'value' => (float) array_sum($this->dimensionValues(MetricName::Views, 'project:'))],
-            ['key' => 'unique_views', 'value' => (float) array_sum($this->dimensionValues(MetricName::UniqueVisitors, 'project:'))],
+            ['key' => 'unique_views', 'value' => $values[MetricName::ProjectUniqueVisitors->value] ?? 0.0],
         ];
     }
 
@@ -181,7 +177,7 @@ final class GetAnalyticsDashboardUseCase
     {
         $values = [];
 
-        foreach ($this->reports->blocks($metricNames) as $row) {
+        foreach ($this->reports->wholeTimeScalarValues($metricNames) as $row) {
             $values[$row->toMetric()->value] = $row->toValue();
         }
 

@@ -12,6 +12,13 @@ runtime support.
 
 ### Changed
 
+- **Projects `unique_views` block source fixed (v1.0.24, step 11.3):** the
+  block previously described the sum of the per-project `unique_visitors`
+  rows (a visitor on several project pages counted once per project); it now
+  reads the `project_unique_visitors` whole-time metric — the distinct
+  visitors across all project pages. `analytics.yaml` descriptions updated.
+  No schema changes.
+
 - **CTA `projects` target added (v1.0.23, step 11.3):** the landing hero's
   "View Projects" button now fires `cta_click_projects` — the CTA multi-chart
   covers seven targets (`github`, `demo`, `cv`, `feedback`, `projects`,

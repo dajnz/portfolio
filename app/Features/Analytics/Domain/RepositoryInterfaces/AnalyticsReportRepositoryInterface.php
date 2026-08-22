@@ -41,15 +41,16 @@ interface AnalyticsReportRepositoryInterface
     public function upsertBatch(array $reports): void;
 
     /**
-     * The whole-time blocks for the given metrics
-     * (`span = 'all'`, dimension NULL rows), ordered by metric name
-     * ascending — the caller orders them by its tab layout.
+     * The whole-time scalar values for the given metrics
+     * (`span = 'all'`, dimension NULL rows) — the dashboard block
+     * source, ordered by metric name ascending (the caller orders them
+     * by its tab layout).
      *
      * @param list<MetricName> $metricNames
      *
      * @return list<AnalyticsReport>
      */
-    public function blocks(array $metricNames): array;
+    public function wholeTimeScalarValues(array $metricNames): array;
 
     /**
      * The last `$limit` rows for the metric at the span, newest period

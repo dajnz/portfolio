@@ -316,6 +316,51 @@ describe('AggregateDailyMetricsUseCase', function (): void {
 
         assertMetricRow($rows, MetricName::Views, 'project:7', 1.0, 1);
         assertMetricRow($rows, MetricName::UniqueVisitors, 'project:7', 1.0, 1);
+        // The project-scoped global uniques — the distinct IPs among
+        // the events on project pages (ip-a here), not the sum of the
+        // per-project uniques.
+        assertMetricRow($rows, MetricName::ProjectUniqueVisitors, null, 1.0, 1);
+    });
+
+    it('counts one project unique visitor across several project pages (same visitor)', function (): void {
+        $metrics = aggregateDaily([
+            new PageViewEvent(
+                id: 21,
+                clientIds: AnalyticsEventFixture::clientIds('s-1', 'ip-a'),
+                pageDetails: AnalyticsEventFixture::pageDetails(PageType::ProjectDetail, 1, 'https://example.com/projects/one'),
+                referrer: null,
+                title: 'One',
+                createdAt: new DateTimeImmutable('2026-07-09 10:00:00'),
+            ),
+            new PageViewEvent(
+                id: 22,
+                clientIds: AnalyticsEventFixture::clientIds('s-1', 'ip-a'),
+                pageDetails: AnalyticsEventFixture::pageDetails(PageType::ProjectDetail, 2, 'https://example.com/projects/two'),
+                referrer: null,
+                title: 'Two',
+                createdAt: new DateTimeImmutable('2026-07-09 10:00:01'),
+            ),
+            new PageViewEvent(
+                id: 23,
+                clientIds: AnalyticsEventFixture::clientIds('s-1', 'ip-a'),
+                pageDetails: AnalyticsEventFixture::pageDetails(PageType::ProjectDetail, 3, 'https://example.com/projects/three'),
+                referrer: null,
+                title: 'Three',
+                createdAt: new DateTimeImmutable('2026-07-09 10:00:02'),
+            ),
+        ]);
+
+        $rows = $metrics->stored;
+
+        // Each project row carries its own unique count; the global
+        // row deduplicates the same visitor across the project pages.
+        assertMetricRow($rows, MetricName::Views, 'project:1', 1.0, 1);
+        assertMetricRow($rows, MetricName::Views, 'project:2', 1.0, 1);
+        assertMetricRow($rows, MetricName::Views, 'project:3', 1.0, 1);
+        assertMetricRow($rows, MetricName::UniqueVisitors, 'project:1', 1.0, 1);
+        assertMetricRow($rows, MetricName::UniqueVisitors, 'project:2', 1.0, 1);
+        assertMetricRow($rows, MetricName::UniqueVisitors, 'project:3', 1.0, 1);
+        assertMetricRow($rows, MetricName::ProjectUniqueVisitors, null, 1.0, 1);
     });
 
     it('aggregates every day of the range into its own rows', function (): void {
@@ -371,5 +416,23 @@ describe('AggregateDailyMetricsUseCase', function (): void {
         $metrics = aggregateDaily([]);
 
         expect($metrics->stored)->toBe([]);
+    });
+
+    it('defaults the range to the previous day plus the in-progress day', function (): void {
+        $useCase = new AggregateDailyMetricsUseCase(
+            new FakeAnalyticsEventRepository(),
+            new FakeAnalyticsReportDataReader(),
+            new FakeAnalyticsDailyMetricRepository(),
+        );
+
+        [$dateFrom, $dateTo] = $useCase->defaultDateRange();
+
+        $today = (new DateTimeImmutable('today'))->format('Y-m-d');
+        $yesterday = (new DateTimeImmutable('yesterday'))->format('Y-m-d');
+
+        expect($dateFrom->format('Y-m-d'))->toBe($yesterday)
+            ->and($dateFrom->format('H:i:s'))->toBe('00:00:00')
+            ->and($dateTo->format('Y-m-d'))->toBe($today)
+            ->and($dateTo->format('H:i:s'))->toBe('23:59:59');
     });
 });
