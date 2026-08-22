@@ -14,7 +14,7 @@ use Illuminate\Validation\Validator;
  * The `GET /admin/analytics/series` validator (analytics.md:225,
  * 11.3.4): the metric must be a known catalog name and the span one of
  * the report spans. The `dimension` filter is exclusive to the
- * per-target `cta_clicks` rows — the six targets (the plain
+ * per-target `cta_clicks` rows — the seven targets (the plain
  * `CallToActionTarget` values plus the `language`/`theme` switch
  * dimensions, analytics.md:175) — required for `cta_clicks` and
  * rejected for every other metric.
@@ -22,7 +22,7 @@ use Illuminate\Validation\Validator;
 final class SeriesRequest extends FormRequest
 {
     /** @var list<string> */
-    private const CTA_TARGETS = ['github', 'demo', 'cv', 'feedback', 'language', 'theme'];
+    private const CTA_TARGETS = ['github', 'demo', 'cv', 'feedback', 'projects', 'language', 'theme'];
 
     /**
      * @return array<string, mixed>

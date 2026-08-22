@@ -10,6 +10,14 @@ runtime support.
 
 ## [Unreleased]
 
+### Changed
+
+- **CTA `projects` target added (v1.0.23, step 11.3):** the landing hero's
+  "View Projects" button now fires `cta_click_projects` — the CTA multi-chart
+  covers seven targets (`github`, `demo`, `cv`, `feedback`, `projects`,
+  `language`, `theme`); `analytics.yaml` descriptions updated. No schema
+  changes.
+
 ### Added
 
 - **Analytics dashboard props rework + `series`/`rankings` endpoints (v1.0.21, step 11.3.4, B290/B293):** the `AnalyticsDashboardPageProps` no longer carry the periodic `reports` array — the dashboard now loads the whole-time **blocks** per tab (`overview_blocks`/`blog_blocks`/`projects_blocks` — `{key, value, min?, max?}`, the keys are stable identifiers the frontend maps to i18n labels AND to the fetch parameters; the mapping is documented on the `AnalyticsBlock` schema), the **default chart** (`default_chart` — `page_views` at day/week/month + the cumulative `all`, B292) and the **default rankings** (`default_rankings` — time-on-page top/bottom 10 with the joined per-page min/max). Two new JSON operations serve the block interactions: `analyticsMetricSeries` (`GET /admin/analytics/series?metric=&span=` — chronological `period_start` points, 90-row cap, `span=all` = the cumulative running total; the optional `dimension` parameter selects one `cta_clicks` target — the CTA multi-chart series, required for `cta_clicks` and rejected for other metrics) and `analyticsMetricRankings` (`GET /admin/analytics/rankings?metric=&variant=&scope=` — top/bottom/liked/disliked 10 lists of the `span='all'` dimension rows; `scope=page|article|project` disambiguates the `views`/`unique_visitors` dimension families, liked/disliked pair with `reactions_likes`/`reactions_dislikes`, rows join the EN titles and the min/max; both answer 422 on unknown/ill-paired parameters). The `analyticsGenerateReports` description now states the full rebuild (`RebuildReportsJob` with `recomputeMetrics = true`). The `generate-reports` path is also stitched into the root spec for the first time (an 11.1 omission). `info.version` bumped to `1.0.21` in `inertia.yaml`.

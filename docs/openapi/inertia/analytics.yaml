@@ -41,7 +41,7 @@ components:
         |---|---|---|
         | `total_visits` (overview) | `page_views` | `series?metric=page_views` |
         | `unique_visitors` (overview) | `unique_visitors` | `series?metric=unique_visitors` |
-        | `cta_clicks` (overview) | sum of the 6 `cta_clicks` target rows | `series?metric=cta_clicks&dimension=<target>` ×6 (multi-series) |
+        | `cta_clicks` (overview) | sum of the 7 `cta_clicks` target rows | `series?metric=cta_clicks&dimension=<target>` ×7 (multi-series) |
         | `feedback_submissions` (overview) | `feedback_submissions` | `series?metric=feedback_submissions` |
         | `language_switches` (overview) | `cta_clicks` dimension `language` | `series?metric=cta_clicks&dimension=language` |
         | `avg_time_on_page` (overview) | `time_on_page_seconds` + `time_on_page_min`/`max` | `rankings?metric=time_on_page_seconds&scope=page` |
@@ -132,8 +132,8 @@ components:
         `period_start` date labels (the `span=all` response is the
         cumulative running total over the day rows, B292). For
         `metric=cta_clicks` the caller passes a `dimension` (one of the
-        six targets) and receives that target's series — the per-target
-        day rows, cumulative at `span=all` (the CTA multi-chart is six
+        seven targets) and receives that target's series — the per-target
+        day rows, cumulative at `span=all` (the CTA multi-chart is seven
         such calls — whole-time included — the frontend names each
         series by the requested target).
       properties:
