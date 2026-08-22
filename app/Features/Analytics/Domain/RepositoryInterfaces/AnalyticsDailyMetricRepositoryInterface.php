@@ -49,6 +49,9 @@ interface AnalyticsDailyMetricRepositoryInterface
      */
     public function deleteForDates(DateTimeImmutable $dateFrom, DateTimeImmutable $dateTo): int;
 
+    /** Deletes every stored metric row (the `analytics:wipe` reset). */
+    public function deleteAll(): int;
+
     /**
      * The distinct dates that have at least one stored row, ordered
      * ascending — the coverage signal for the report rebuild and the

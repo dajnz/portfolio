@@ -31,6 +31,9 @@ interface AnalyticsEventRepositoryInterface
     /** Deletes events older than the cutoff (90-day retention, B37). */
     public function deleteOlderThan(DateTimeImmutable $cutoff): int;
 
+    /** Deletes every stored event (the `analytics:wipe` reset). */
+    public function deleteAll(): int;
+
     /**
      * The calendar date (server-local timezone) of the oldest stored
      * event — the start of the full-rebuild metric-window recompute

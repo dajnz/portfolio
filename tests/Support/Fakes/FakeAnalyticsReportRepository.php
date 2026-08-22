@@ -27,13 +27,24 @@ final class FakeAnalyticsReportRepository implements AnalyticsReportRepositoryIn
 
     public int $replaceAllCalls = 0;
 
+    public int $deletedAllCalls = 0;
+
     /** @var list<AnalyticsReport> */
     private array $rows;
 
     /** @param list<AnalyticsReport> $rows */
-    public function __construct(array $rows = [])
-    {
+    public function __construct(
+        array $rows = [],
+        public readonly int $deletedAllCount = 0,
+    ) {
         $this->rows = $rows;
+    }
+
+    public function deleteAll(): int
+    {
+        $this->deletedAllCalls++;
+
+        return $this->deletedAllCount;
     }
 
     public function replaceAll(array $reports): void

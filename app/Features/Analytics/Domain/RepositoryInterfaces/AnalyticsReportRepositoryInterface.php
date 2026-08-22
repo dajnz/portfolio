@@ -28,6 +28,9 @@ interface AnalyticsReportRepositoryInterface
      */
     public function replaceAll(array $reports): void;
 
+    /** Deletes every stored report row (the `analytics:wipe` reset). */
+    public function deleteAll(): int;
+
     /**
      * Upserts the given reports on the
      * `(metric, span, dimension, period_start, period_end)` unique key

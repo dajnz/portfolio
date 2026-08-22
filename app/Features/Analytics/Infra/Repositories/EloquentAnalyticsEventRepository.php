@@ -10,6 +10,7 @@ use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
 use App\Features\Analytics\Infra\Mappers\AnalyticsEventMapper;
 use App\Features\Analytics\Infra\Models\AnalyticsEventModel;
 use DateTimeImmutable;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Eloquent-backed raw event storage. The period read uses a half-open
@@ -58,6 +59,11 @@ final class EloquentAnalyticsEventRepository implements AnalyticsEventRepository
             ->filter()
             ->values()
             ->all();
+    }
+
+    public function deleteAll(): int
+    {
+        return DB::table('analytics_events')->delete();
     }
 
     public function deleteOlderThan(DateTimeImmutable $cutoff): int

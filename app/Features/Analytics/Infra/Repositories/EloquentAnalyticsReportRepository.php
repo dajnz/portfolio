@@ -28,6 +28,11 @@ final class EloquentAnalyticsReportRepository implements AnalyticsReportReposito
     ) {
     }
 
+    public function deleteAll(): int
+    {
+        return DB::table('analytics_reports')->delete();
+    }
+
     public function replaceAll(array $reports): void
     {
         DB::transaction(function () use ($reports): void {

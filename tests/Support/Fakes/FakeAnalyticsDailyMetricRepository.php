@@ -24,12 +24,15 @@ final class FakeAnalyticsDailyMetricRepository implements AnalyticsDailyMetricRe
     /** @var list<array{DateTimeImmutable, DateTimeImmutable}> */
     public array $deletedRanges = [];
 
+    public int $deletedAllCalls = 0;
+
     /** @var array<string, list<array<string, mixed>>> */
     public array $groups = [];
 
     /** @param list<AnalyticsMetric> $rows */
     public function __construct(
         public array $rows = [],
+        public readonly int $deletedAllCount = 0,
     ) {
     }
 
@@ -45,6 +48,13 @@ final class FakeAnalyticsDailyMetricRepository implements AnalyticsDailyMetricRe
         ?string $dimension = null,
     ): array {
         return $this->rows;
+    }
+
+    public function deleteAll(): int
+    {
+        $this->deletedAllCalls++;
+
+        return $this->deletedAllCount;
     }
 
     public function deleteForDates(DateTimeImmutable $dateFrom, DateTimeImmutable $dateTo): int

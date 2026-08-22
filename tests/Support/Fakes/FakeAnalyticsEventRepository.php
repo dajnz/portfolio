@@ -22,11 +22,14 @@ final class FakeAnalyticsEventRepository implements AnalyticsEventRepositoryInte
     /** @var list<DateTimeImmutable> */
     public array $deletedCutoffs = [];
 
+    public int $deletedAllCalls = 0;
+
     /** @param list<AnalyticsEvent> $periodEvents */
     public function __construct(
         public readonly array $periodEvents = [],
         public readonly int $deletedCount = 0,
         public readonly ?DateTimeImmutable $oldestEventDate = null,
+        public readonly int $deletedAllCount = 0,
     ) {
     }
 
@@ -43,6 +46,13 @@ final class FakeAnalyticsEventRepository implements AnalyticsEventRepositoryInte
     public function oldestEventDate(): ?DateTimeImmutable
     {
         return $this->oldestEventDate;
+    }
+
+    public function deleteAll(): int
+    {
+        $this->deletedAllCalls++;
+
+        return $this->deletedAllCount;
     }
 
     public function deleteOlderThan(DateTimeImmutable $cutoff): int

@@ -70,6 +70,11 @@ final class EloquentAnalyticsDailyMetricRepository implements AnalyticsDailyMetr
             ->all();
     }
 
+    public function deleteAll(): int
+    {
+        return DB::table('analytics_daily_metrics')->delete();
+    }
+
     public function deleteForDates(DateTimeImmutable $dateFrom, DateTimeImmutable $dateTo): int
     {
         return DB::table('analytics_daily_metrics')
