@@ -90,12 +90,17 @@ const TAB_BLOCKS: Record<AnalyticsTab, ComputedRef<Array<BlockView>>> = {
 const TABS: Array<AnalyticsTab> = ['overview', 'blog', 'projects'];
 const TOP_BOTTOM_VARIANTS: Array<AnalyticsVariant> = ['top', 'bottom'];
 
-const SPAN_OPTIONS: Array<{ value: string; label: string }> = [
-    { value: 'day', label: t('admin.analytics.span_day') },
-    { value: 'week', label: t('admin.analytics.span_week') },
-    { value: 'month', label: t('admin.analytics.span_month') },
-    { value: 'all', label: t('admin.analytics.span_all') },
-];
+// The dropdown labels resolve at render time — module-level `t()`
+// calls would bake the pre-hydration locale (en) and never update
+// after a language switch.
+function spanOptions(): Array<{ value: string; label: string }> {
+    return [
+        { value: 'day', label: t('admin.analytics.span_day') },
+        { value: 'week', label: t('admin.analytics.span_week') },
+        { value: 'month', label: t('admin.analytics.span_month') },
+        { value: 'all', label: t('admin.analytics.span_all') },
+    ];
+}
 
 // The chart blocks keyed to their chart-card titles (the selected block
 // drives the detail area; the block-key map mirrors the OpenAPI
@@ -111,14 +116,21 @@ const CHART_TITLE_KEYS: Record<string, string> = {
 // The CTA multi-chart legend: the backend dimension targets mapped to
 // i18n labels BEFORE the series reach AnalyticsChart (the chart renders
 // the names verbatim into text nodes).
-const CTA_TARGET_LABELS: Record<string, string> = {
-    github: t('admin.analytics.cta_github'),
-    demo: t('admin.analytics.cta_demo'),
-    cv: t('admin.analytics.cta_cv'),
-    feedback: t('admin.analytics.feedback'),
-    language: t('admin.analytics.cta_language'),
-    theme: t('admin.analytics.cta_theme'),
+const CTA_TARGET_LABEL_KEYS: Record<string, string> = {
+    github: 'admin.analytics.cta_github',
+    demo: 'admin.analytics.cta_demo',
+    cv: 'admin.analytics.cta_cv',
+    feedback: 'admin.analytics.feedback',
+    projects: 'admin.analytics.cta_projects',
+    language: 'admin.analytics.cta_language',
+    theme: 'admin.analytics.cta_theme',
 };
+
+function ctaTargetLabel(target: string): string {
+    const key = CTA_TARGET_LABEL_KEYS[target];
+
+    return key === undefined ? target : t(key);
+}
 
 const activeTab = ref<AnalyticsTab>('overview');
 const isGenerating = ref(false);
@@ -271,7 +283,7 @@ const chartData = computed(() => (chartError.value ? null : chartPoints.value));
 
 const chartSeries = computed(() =>
     multiChartSeries.value.map((series) => ({
-        name: CTA_TARGET_LABELS[series.name] ?? series.name,
+        name: ctaTargetLabel(series.name),
         points: series.points,
     })),
 );
@@ -500,7 +512,7 @@ function generateNow(): void {
               <div class="mb-3 mt-6 flex items-center justify-end">
                 <AdminBaseDropdown
                   :model-value="span"
-                  :options="SPAN_OPTIONS"
+                  :options="spanOptions()"
                   :test_id="`${props.test_id}-span`"
                   @update:model-value="onSpanChange"
                 />

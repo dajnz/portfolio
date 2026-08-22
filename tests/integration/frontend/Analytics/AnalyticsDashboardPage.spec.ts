@@ -23,7 +23,7 @@ vi.mock('@inertiajs/vue3', () => ({
 }));
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
 import AnalyticsDashboardPage from '@analytics/Admin/Pages/AnalyticsDashboardPage.vue';
@@ -197,9 +197,9 @@ describe('AnalyticsDashboardPage', () => {
         const avgBlock = wrapper.get(
             '[data-testid="analytics-dashboard-page-blocks-block-avg_time_on_page"]',
         );
-        expect(avgBlock.text()).toContain('1m 15s');
-        expect(avgBlock.text()).toContain('Min 0m 03s');
-        expect(avgBlock.text()).toContain('Max 4m 00s');
+        expect(avgBlock.text()).toContain('1 min. 15 sec.');
+        expect(avgBlock.text()).toContain('Min 0 min. 03 sec.');
+        expect(avgBlock.text()).toContain('Max 4 min. 00 sec.');
     });
 
     it('renders the default chart (total visits, daily) from the default_chart prop without fetching', async () => {
@@ -253,7 +253,7 @@ describe('AnalyticsDashboardPage', () => {
         expect(labels).toContain('700');
     });
 
-    it('renders the CTA multi-series chart with a legend of the six targets', async () => {
+    it('renders the CTA multi-series chart with a legend of the seven targets', async () => {
         fetchMock.mockResolvedValue(jsonResponse({ points: [{ label: '2026-08-19', value: 3 }] }));
         const wrapper = mountPage();
         await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
@@ -264,7 +264,7 @@ describe('AnalyticsDashboardPage', () => {
         await flushPromises();
         await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-legend"]');
 
-        for (const target of ['github', 'demo', 'cv', 'feedback', 'language', 'theme']) {
+        for (const target of ['github', 'demo', 'cv', 'feedback', 'projects', 'language', 'theme']) {
             expect(fetchMock).toHaveBeenCalledWith(
                 `/admin/analytics/series?metric=cta_clicks&span=day&dimension=${target}`,
                 expect.objectContaining({ signal: expect.any(AbortSignal) }),
@@ -277,12 +277,13 @@ describe('AnalyticsDashboardPage', () => {
             'Live Demo',
             'CV',
             'Feedback',
+            'Projects',
             'Language',
             'Theme',
         ]);
         expect(
             wrapper.findAll('[data-testid="analytics-dashboard-page-chart-svg"] polyline'),
-        ).toHaveLength(6);
+        ).toHaveLength(7);
     });
 
     it('shows the seeded top pages for the time-on-page block and refetches on variant change', async () => {
@@ -300,7 +301,7 @@ describe('AnalyticsDashboardPage', () => {
         expect(fetchMock).not.toHaveBeenCalled();
         expect(wrapper.findAll('thead th').map((th) => th.text())).toEqual(['Page', 'Avg', 'Min', 'Max']);
         expect(wrapper.get('tbody').text()).toContain('/about');
-        expect(wrapper.get('tbody').text()).toContain('1m 15s');
+        expect(wrapper.get('tbody').text()).toContain('1 min. 15 sec.');
 
         await wrapper.get('[data-testid="analytics-dashboard-page-rankings-variant"]').trigger('click');
         await wrapper
@@ -313,7 +314,7 @@ describe('AnalyticsDashboardPage', () => {
             expect.objectContaining({ signal: expect.any(AbortSignal) }),
         );
         expect(wrapper.get('tbody').text()).toContain('/blog');
-        expect(wrapper.get('tbody').text()).toContain('0m 45s');
+        expect(wrapper.get('tbody').text()).toContain('0 min. 45 sec.');
     });
 
     it('cancels the previous series request when another block is clicked', async () => {
@@ -495,7 +496,7 @@ describe('AnalyticsDashboardPage', () => {
         );
         expect(
             wrapper.findAll('[data-testid="analytics-dashboard-page-chart-svg"] polyline'),
-        ).toHaveLength(6);
+        ).toHaveLength(7);
     });
 
     it('aborts the in-flight series fetch when a default block is clicked (no refetch)', async () => {
@@ -653,7 +654,7 @@ describe('AnalyticsDashboardPage', () => {
 
         expect(fetchMock).toHaveBeenCalledTimes(1);
         expect(wrapper.get('tbody').text()).toContain('/about');
-        expect(wrapper.get('tbody').text()).toContain('1m 15s');
+        expect(wrapper.get('tbody').text()).toContain('1 min. 15 sec.');
     });
 
     it('dispatches report generation and reloads the dashboard on success', async () => {

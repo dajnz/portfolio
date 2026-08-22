@@ -79,9 +79,24 @@ describe('useAnalytics', () => {
         expect(analytics.overviewBlocks.value[2]).toEqual({
             key: 'avg_time_on_page',
             label: 'Avg Time on Page',
-            value: '1m 15s',
-            min: '0m 03s',
-            max: '4m 00s',
+            value: [
+                { text: '1', bold: true },
+                { text: 'min.', bold: false },
+                { text: '15', bold: true },
+                { text: 'sec.', bold: false },
+            ],
+            min: [
+                { text: '0', bold: true },
+                { text: 'min.', bold: false },
+                { text: '03', bold: true },
+                { text: 'sec.', bold: false },
+            ],
+            max: [
+                { text: '4', bold: true },
+                { text: 'min.', bold: false },
+                { text: '00', bold: true },
+                { text: 'sec.', bold: false },
+            ],
             selected: false,
         });
         expect(analytics.blogBlocks.value[1]).toEqual({
@@ -388,7 +403,7 @@ describe('useAnalytics', () => {
         expect(blockConfigFor('overview', 'cta_clicks')).toEqual({
             kind: 'chart-multi',
             metric: 'cta_clicks',
-            dimensions: ['github', 'demo', 'cv', 'feedback', 'language', 'theme'],
+            dimensions: ['github', 'demo', 'cv', 'feedback', 'projects', 'language', 'theme'],
         });
         expect(blockConfigFor('overview', 'language_switches')).toEqual({
             kind: 'chart',

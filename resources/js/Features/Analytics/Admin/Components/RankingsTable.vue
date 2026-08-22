@@ -3,7 +3,8 @@
 import AdminBaseDropdown from '@shared-admin/AdminBaseDropdown.vue';
 import DataTable from '@shared-admin/DataTable.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
-import type { AnalyticsVariant } from '../Composables/useAnalytics';
+import type { AnalyticsVariant, RichText } from '../Composables/useAnalytics';
+import AnalyticsRichValue from './AnalyticsRichValue.vue';
 
 interface ColumnDefinition {
     key: string;
@@ -39,6 +40,12 @@ const { t } = useI18n();
 function onVariantChange(value: string | string[]): void {
     emit('update:variant', value as AnalyticsVariant);
 }
+
+// The cell value is `unknown` — narrowed via the helper instead of an
+// inline cast (`|` in a template expression is Vue filter syntax).
+function toRichValue(value: unknown): number | string | RichText {
+    return value as number | string | RichText;
+}
 </script>
 
 <template>
@@ -66,6 +73,16 @@ function onVariantChange(value: string | string[]): void {
       :empty_action_label="props.error ? t('common.retry') : null"
       :test_id="`${props.test_id}-table`"
       @empty-action="emit('retry')"
-    />
+    >
+      <!-- The duration columns (avg/min/max) render the bold-number +
+           dull-unit segments; the other cells render their plain values. -->
+      <template
+        v-for="columnKey in ['avg', 'min', 'max']"
+        :key="columnKey"
+        #[`cell-${columnKey}`]="{ value }"
+      >
+        <AnalyticsRichValue :parts="toRichValue(value)" />
+      </template>
+    </DataTable>
   </div>
 </template>

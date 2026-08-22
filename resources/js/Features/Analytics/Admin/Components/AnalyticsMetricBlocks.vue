@@ -1,13 +1,15 @@
 <!-- AnalyticsMetricBlocks (admin-section-components.md:1326-1328, admin-section-ui.md:445-448) — clickable whole-time metric blocks: label, formatted value and an optional min/max line for the avg blocks (time on page / read time / completion rate). The selected block is highlighted (aria-pressed + data-state) and the detail area below follows it. -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import type { RichText } from '../Composables/useAnalytics';
+import AnalyticsRichValue from './AnalyticsRichValue.vue';
 
 export interface MetricBlock {
     key: string;
     label: string;
-    value: number | string;
-    min?: number | string;
-    max?: number | string;
+    value: number | string | RichText;
+    min?: number | string | RichText;
+    max?: number | string | RichText;
     selected: boolean;
 }
 
@@ -52,17 +54,28 @@ const { t } = useI18n();
         {{ block.label }}
       </span>
       <span class="block text-2xl font-extrabold text-slate-900 dark:text-white">
-        {{ block.value }}
+        <AnalyticsRichValue
+          :parts="block.value"
+          :test_id="`${props.test_id}-block-${block.key}-value`"
+        />
       </span>
       <span
         v-if="block.min !== undefined || block.max !== undefined"
         class="mt-2 flex gap-3 text-xs font-medium text-slate-400 dark:text-slate-500"
       >
         <span v-if="block.min !== undefined">
-          {{ t('admin.analytics.min') }} {{ block.min }}
+          {{ t('admin.analytics.min') }}
+          <AnalyticsRichValue
+            :parts="block.min"
+            :test_id="`${props.test_id}-block-${block.key}-min`"
+          />
         </span>
         <span v-if="block.max !== undefined">
-          {{ t('admin.analytics.max') }} {{ block.max }}
+          {{ t('admin.analytics.max') }}
+          <AnalyticsRichValue
+            :parts="block.max"
+            :test_id="`${props.test_id}-block-${block.key}-max`"
+          />
         </span>
       </span>
     </button>

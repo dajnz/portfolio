@@ -40,14 +40,24 @@ export type RankingRow = components['schemas']['AnalyticsRankingResponse']['rows
 export type AnalyticsSeriesResponse = components['schemas']['AnalyticsSeriesResponse'];
 export type AnalyticsRankingResponse = components['schemas']['AnalyticsRankingResponse'];
 
+/** A renderable text segment — the duration numbers are bold, the
+ *  `min.`/`sec.` unit labels dull (analytics.md/admin-section-ui.md —
+ *  user request 2026-08-22). */
+export interface RichTextPart {
+    text: string;
+    bold: boolean;
+}
+
+export type RichText = Array<RichTextPart>;
+
 /** The whole-time block view model fed to `AnalyticsMetricBlocks`. */
 export interface BlockView {
     key: string;
     label: string;
     /** Locale-formatted value (durations/percent for the avg blocks). */
-    value: string;
-    min?: string;
-    max?: string;
+    value: string | RichText;
+    min?: string | RichText;
+    max?: string | RichText;
     selected: boolean;
 }
 
@@ -130,13 +140,22 @@ export interface UseAnalyticsApi {
     ) => Promise<void>;
     /** Locale-formatted number ("12,847"). */
     formatNumber: (value: number) => string;
-    /** Seconds → "1m 05s" (avg time on page / read time). */
-    formatDuration: (seconds: number | null) => string;
+    /** Seconds → "1 min. 05 sec." segments (avg time on page / read
+     *  time) — the numbers bold, the unit labels dull. */
+    formatDuration: (seconds: number | null) => RichText;
     /** Percent points → "87%" (completion rate). */
     formatPercent: (value: number) => string;
 }
 
-export const CTA_TARGETS = ['github', 'demo', 'cv', 'feedback', 'language', 'theme'] as const;
+export const CTA_TARGETS = [
+    'github',
+    'demo',
+    'cv',
+    'feedback',
+    'projects',
+    'language',
+    'theme',
+] as const;
 
 const BLOCK_PROP_KEYS: Record<AnalyticsTab, keyof AnalyticsDashboardProps> = {
     overview: 'overview_blocks',
@@ -382,16 +401,21 @@ export function useAnalytics(props: AnalyticsDashboardProps): UseAnalyticsApi {
         return new Intl.NumberFormat(locale.value).format(value);
     }
 
-    function formatDuration(seconds: number | null): string {
+    function formatDuration(seconds: number | null): RichText {
         if (seconds === null || !Number.isFinite(seconds)) {
-            return '—';
+            return [{ text: '—', bold: false }];
         }
 
         const total = Math.round(seconds);
         const minutes = Math.floor(total / 60);
         const remainder = String(total % 60).padStart(2, '0');
 
-        return `${minutes}m ${remainder}s`;
+        return [
+            { text: String(minutes), bold: true },
+            { text: t('admin.analytics.min_unit'), bold: false },
+            { text: remainder, bold: true },
+            { text: t('admin.analytics.sec_unit'), bold: false },
+        ];
     }
 
     function formatPercent(value: number): string {
@@ -400,7 +424,7 @@ export function useAnalytics(props: AnalyticsDashboardProps): UseAnalyticsApi {
 
     // The avg blocks carry seconds (time on page / read time) or percent
     // points (completion rate); every other block is a plain count.
-    function formatBlockValue(blockKey: string, value: number): string {
+    function formatBlockValue(blockKey: string, value: number): string | RichText {
         if (blockKey === 'avg_time_on_page' || blockKey === 'avg_read_time') {
             return formatDuration(value);
         }
