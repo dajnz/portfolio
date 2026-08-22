@@ -42,7 +42,10 @@ function onVariantChange(value: string | string[]): void {
 </script>
 
 <template>
-  <div :data-testid="props.test_id">
+  <div
+    class="mt-6"
+    :data-testid="props.test_id"
+  >
     <div class="mb-3 flex items-center justify-end">
       <AdminBaseDropdown
         :model-value="props.variant"

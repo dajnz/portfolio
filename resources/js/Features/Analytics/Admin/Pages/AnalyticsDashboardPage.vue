@@ -497,7 +497,7 @@ function generateNow(): void {
             />
 
             <template v-if="activeConfig?.kind === 'chart' || activeConfig?.kind === 'chart-multi'">
-              <div class="mb-3 flex items-center justify-end">
+              <div class="mb-3 mt-6 flex items-center justify-end">
                 <AdminBaseDropdown
                   :model-value="span"
                   :options="SPAN_OPTIONS"
