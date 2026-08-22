@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\Analytics;
 
+use App\Features\Analytics\App\UseCases\AggregateDailyMetricsUseCase;
 use App\Features\Analytics\Infra\Jobs\AggregateDailyMetricsJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Bus;
@@ -21,7 +22,7 @@ describe('analytics:generate-daily-metrics command', function (): void {
         $this->artisan('analytics:generate-daily-metrics')->assertSuccessful();
 
         Bus::assertDispatched(AggregateDailyMetricsJob::class, function (AggregateDailyMetricsJob $job): bool {
-            [$expectedFrom, $expectedTo] = AggregateDailyMetricsJob::defaultDateRange();
+            [$expectedFrom, $expectedTo] = app(AggregateDailyMetricsUseCase::class)->defaultDateRange();
 
             return $job->dateFrom->format('Y-m-d H:i:s') === $expectedFrom->format('Y-m-d H:i:s')
                 && $job->dateTo->format('Y-m-d H:i:s') === $expectedTo->format('Y-m-d H:i:s');

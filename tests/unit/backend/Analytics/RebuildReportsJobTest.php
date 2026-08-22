@@ -45,13 +45,13 @@ function runRebuildJob(
     $reports = new FakeAnalyticsReportRepository();
 
     $job = new RebuildReportsJob($recomputeMetrics);
-    $job->handle(
-        new RebuildReportsUseCase($metrics, $reports),
-        new AggregateDailyMetricsUseCase($events, $dataReader, $metrics),
-        $metrics,
-        $events,
-        $dataReader,
-    );
+    $job->handle(new RebuildReportsUseCase(
+        metrics: $metrics,
+        reports: $reports,
+        events: $events,
+        dataReader: $dataReader,
+        aggregate: new AggregateDailyMetricsUseCase($events, $dataReader, $metrics),
+    ));
 
     return $reports;
 }

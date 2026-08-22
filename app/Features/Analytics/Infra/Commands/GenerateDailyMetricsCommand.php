@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Analytics\Infra\Commands;
 
+use App\Features\Analytics\App\UseCases\AggregateDailyMetricsUseCase;
 use App\Features\Analytics\Infra\Jobs\AggregateDailyMetricsJob;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
@@ -11,11 +12,12 @@ use Illuminate\Support\Facades\Bus;
 /**
  * `analytics:generate-daily-metrics` (analytics.md:182-184,
  * backup.md:463): the thin scheduler entry point — resolves the date
- * range (the previous day + the in-progress day, `AggregateDailyMetricsJob`
- * default) and dispatches the queued aggregation job. The job does the
- * work; the command does not block the scheduler. Registered in
- * `routes/console.php` at `0 2 * * *` (dailyAt 02:00), superseding
- * B22's old every-4-hours analytics cadence.
+ * range (the previous day + the in-progress day,
+ * `AggregateDailyMetricsUseCase::defaultDateRange()`) and dispatches
+ * the queued aggregation job. The job does the work; the command does
+ * not block the scheduler. Registered in `routes/console.php` at
+ * `0 2 * * *` (dailyAt 02:00), superseding B22's old every-4-hours
+ * analytics cadence.
  */
 final class GenerateDailyMetricsCommand extends Command
 {
@@ -23,9 +25,9 @@ final class GenerateDailyMetricsCommand extends Command
 
     protected $description = 'Dispatch the daily metrics aggregation for the previous and in-progress days';
 
-    public function handle(): int
+    public function handle(AggregateDailyMetricsUseCase $aggregate): int
     {
-        [$dateFrom, $dateTo] = AggregateDailyMetricsJob::defaultDateRange();
+        [$dateFrom, $dateTo] = $aggregate->defaultDateRange();
 
         Bus::dispatch(new AggregateDailyMetricsJob($dateFrom, $dateTo));
 

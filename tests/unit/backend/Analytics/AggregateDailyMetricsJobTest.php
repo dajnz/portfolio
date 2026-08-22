@@ -7,25 +7,15 @@ namespace Tests\Unit\Backend\Analytics;
 use App\Features\Analytics\Infra\Jobs\AggregateDailyMetricsJob;
 
 /**
- * The default date range of the daily aggregation (analytics.md:182-184):
- * the previous day + the in-progress day, in the server-local
- * timezone — the range shared by the scheduled command and the job.
- * The full `handle()` flow (use case + report-rebuild dispatch) is
- * covered by the integration suite (the container is required there).
+ * The daily aggregation job's range contract (analytics.md:182-184):
+ * explicit dates win, otherwise the job resolves the default (the
+ * previous day + the in-progress day) from `AggregateDailyMetricsUseCase
+ * ::defaultDateRange()` — the default-range math itself is covered by
+ * the use-case unit suite. The full `handle()` flow (use case +
+ * report-rebuild dispatch + digest mail) is covered by the integration
+ * suite (the container is required there).
  */
 describe('AggregateDailyMetricsJob', function (): void {
-    it('defaults to the previous day plus the in-progress day', function (): void {
-        [$dateFrom, $dateTo] = AggregateDailyMetricsJob::defaultDateRange();
-
-        $today = (new \DateTimeImmutable('today'))->format('Y-m-d');
-        $yesterday = (new \DateTimeImmutable('yesterday'))->format('Y-m-d');
-
-        expect($dateFrom->format('Y-m-d'))->toBe($yesterday)
-            ->and($dateFrom->format('H:i:s'))->toBe('00:00:00')
-            ->and($dateTo->format('Y-m-d'))->toBe($today)
-            ->and($dateTo->format('H:i:s'))->toBe('23:59:59');
-    });
-
     it('accepts an explicit range instead of the default', function (): void {
         $job = new AggregateDailyMetricsJob(
             new \DateTimeImmutable('2026-07-09 00:00:00'),
@@ -34,5 +24,12 @@ describe('AggregateDailyMetricsJob', function (): void {
 
         expect($job->dateFrom->format('Y-m-d'))->toBe('2026-07-09')
             ->and($job->dateTo->format('Y-m-d'))->toBe('2026-07-10');
+    });
+
+    it('defaults to null dates — the use case resolves the range', function (): void {
+        $job = new AggregateDailyMetricsJob();
+
+        expect($job->dateFrom)->toBeNull()
+            ->and($job->dateTo)->toBeNull();
     });
 });

@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Analytics;
 
+use App\Features\Analytics\App\UseCases\AggregateDailyMetricsUseCase;
 use App\Features\Analytics\App\UseCases\RebuildReportsUseCase;
 use App\Features\Analytics\Domain\Entities\AnalyticsReport;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
 use DateTimeImmutable;
 use Tests\Support\AnalyticsMetricFixture;
 use Tests\Support\Fakes\FakeAnalyticsDailyMetricRepository;
+use Tests\Support\Fakes\FakeAnalyticsEventRepository;
+use Tests\Support\Fakes\FakeAnalyticsReportDataReader;
 use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 
 /**
@@ -33,7 +36,15 @@ use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 function rebuiltReports(FakeAnalyticsDailyMetricRepository $metrics): array
 {
     $reports = new FakeAnalyticsReportRepository();
-    $useCase = new RebuildReportsUseCase($metrics, $reports);
+    $events = new FakeAnalyticsEventRepository();
+    $dataReader = new FakeAnalyticsReportDataReader();
+    $useCase = new RebuildReportsUseCase(
+        metrics: $metrics,
+        reports: $reports,
+        events: $events,
+        dataReader: $dataReader,
+        aggregate: new AggregateDailyMetricsUseCase($events, $dataReader, $metrics),
+    );
 
     $useCase->rebuild();
 
@@ -147,7 +158,15 @@ describe('RebuildReportsUseCase', function (): void {
         $metrics->groups[MetricSpan::Day->value] = [AnalyticsMetricFixture::metricGroup()];
 
         $reports = new FakeAnalyticsReportRepository();
-        $useCase = new RebuildReportsUseCase($metrics, $reports);
+        $events = new FakeAnalyticsEventRepository();
+        $dataReader = new FakeAnalyticsReportDataReader();
+        $useCase = new RebuildReportsUseCase(
+            metrics: $metrics,
+            reports: $reports,
+            events: $events,
+            dataReader: $dataReader,
+            aggregate: new AggregateDailyMetricsUseCase($events, $dataReader, $metrics),
+        );
 
         $useCase->rebuild();
 
