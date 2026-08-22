@@ -119,6 +119,55 @@ describe('AnalyticsChart', () => {
         expect(legend.findAll('li').map((item) => item.text())).toEqual(['GitHub', 'Demo']);
     });
 
+    it('renders a point marker per data point in multi-series mode', () => {
+        const wrapper = mountChart({ series: SERIES });
+
+        const svg = wrapper.get('[data-testid="analytics-chart-svg"]');
+        // Each marker is a visible dot + an invisible hover hit area.
+        expect(svg.findAll('circle')).toHaveLength(8);
+        // Each marker carries its series color so a lone point stays visible.
+        const firstDot = wrapper.get('[data-testid="analytics-chart-marker-0-0"]').findAll('circle')[0];
+        const secondSeriesDot = wrapper.get('[data-testid="analytics-chart-marker-1-0"]').findAll('circle')[0];
+        expect(firstDot.attributes('fill')).toBe('#5C87EF');
+        expect(secondSeriesDot.attributes('fill')).toBe('#22c55e');
+    });
+
+    it('renders a visible marker for a single-point series (a lone polyline is invisible)', () => {
+        const wrapper = mountChart({
+            series: [{ name: 'Projects', points: [{ label: '2026-08-22', value: 3 }] }],
+        });
+
+        const marker = wrapper.get('[data-testid="analytics-chart-marker-0-0"]');
+        const dot = marker.findAll('circle')[0];
+        expect(dot.attributes('cx')).toBe('320');
+        expect(dot.attributes('cy')).toBe('40');
+        expect(dot.attributes('fill')).toBe('#5C87EF');
+    });
+
+    it('shows a tooltip with the series name and the point value on hover', async () => {
+        const wrapper = mountChart({ series: SERIES });
+
+        expect(wrapper.find('[data-testid="analytics-chart-tooltip"]').exists()).toBe(false);
+
+        const marker = wrapper.get('[data-testid="analytics-chart-marker-0-0"]');
+        await marker.trigger('mouseenter');
+
+        const tooltip = wrapper.get('[data-testid="analytics-chart-tooltip"]');
+        expect(tooltip.text()).toContain('GitHub');
+        expect(tooltip.text()).toContain('5');
+    });
+
+    it('hides the tooltip when the pointer leaves the point', async () => {
+        const wrapper = mountChart({ series: SERIES });
+
+        const marker = wrapper.get('[data-testid="analytics-chart-marker-0-0"]');
+        await marker.trigger('mouseenter');
+        expect(wrapper.find('[data-testid="analytics-chart-tooltip"]').exists()).toBe(true);
+
+        await marker.trigger('mouseleave');
+        expect(wrapper.find('[data-testid="analytics-chart-tooltip"]').exists()).toBe(false);
+    });
+
     it('prefers the series prop when both series and data are given (mutual exclusivity guard)', () => {
         const wrapper = mountChart({ series: SERIES, data: DATA });
 
@@ -179,7 +228,7 @@ describe('AnalyticsChart', () => {
         expect(xsOf(polylines[1])).toEqual([120, 320, 520]);
     });
 
-    it('renders hostile series names as plain text nodes in the legend (XSS)', () => {
+    it('renders hostile series names as plain text nodes in the legend (XSS)', async () => {
         const wrapper = mountChart({
             series: [
                 { name: '<img src=x onerror="window.__xss=1">', points: [{ label: 'a', value: 1 }] },
@@ -188,6 +237,13 @@ describe('AnalyticsChart', () => {
 
         const legend = wrapper.get('[data-testid="analytics-chart-legend"]');
         expect(legend.text()).toContain('<img src=x onerror="window.__xss=1">');
+        expect(wrapper.html()).not.toContain('<img src=x');
+        expect((window as unknown as Record<string, unknown>).__xss).toBeUndefined();
+
+        // The tooltip carries the same hostile name as a text node.
+        await wrapper.get('[data-testid="analytics-chart-marker-0-0"]').trigger('mouseenter');
+        const tooltip = wrapper.get('[data-testid="analytics-chart-tooltip"]');
+        expect(tooltip.text()).toContain('<img src=x onerror="window.__xss=1">');
         expect(wrapper.html()).not.toContain('<img src=x');
         expect((window as unknown as Record<string, unknown>).__xss).toBeUndefined();
     });

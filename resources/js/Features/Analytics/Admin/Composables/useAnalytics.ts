@@ -85,7 +85,8 @@ export type AnalyticsDashboardProps = Pick<
     'overview_blocks' | 'blog_blocks' | 'projects_blocks'
 >;
 
-export interface UseAnalyticsApi {
+/** The per-tab block view models + the selection/cancellation. */
+export interface UseAnalyticsBlocks {
     /** Overview blocks (total visits, ..., avg time on page). */
     overviewBlocks: ComputedRef<Array<BlockView>>;
     /** Blog blocks (total views, ..., reactions). */
@@ -101,11 +102,12 @@ export interface UseAnalyticsApi {
     /** Cancels every in-flight chart/rankings fetch and clears the
      *  detail-area loading refs (tab re-seeding, unmount). */
     abortFetches: () => void;
+}
+
+/** The chart fetch state — the single-series and the CTA multi-series. */
+export interface UseAnalyticsSeries {
     /** The active chart span (the span dropdown v-model, default daily). */
     span: Ref<AnalyticsSpan>;
-    /** The active rankings variant (the variant dropdown v-model,
-     *  default top). */
-    variant: Ref<AnalyticsVariant>;
     chartPoints: Ref<Array<SeriesPoint>>;
     chartLoading: Ref<boolean>;
     chartError: Ref<boolean>;
@@ -113,9 +115,6 @@ export interface UseAnalyticsApi {
     multiChartSeries: Ref<Array<ChartSeries>>;
     multiChartLoading: Ref<boolean>;
     multiChartError: Ref<boolean>;
-    rankingRows: Ref<Array<RankingRow>>;
-    rankingsLoading: Ref<boolean>;
-    rankingsError: Ref<boolean>;
     /** Fetches the chart points of a metric at a span (cancels the
      *  previous series request; `span` defaults to the current state). */
     fetchSeries: (
@@ -130,6 +129,16 @@ export interface UseAnalyticsApi {
         dimensions: Array<string>,
         requestedSpan?: AnalyticsSpan,
     ) => Promise<void>;
+}
+
+/** The rankings fetch state. */
+export interface UseAnalyticsRankings {
+    /** The active rankings variant (the variant dropdown v-model,
+     *  default top). */
+    variant: Ref<AnalyticsVariant>;
+    rankingRows: Ref<Array<RankingRow>>;
+    rankingsLoading: Ref<boolean>;
+    rankingsError: Ref<boolean>;
     /** Fetches the top/bottom/liked/disliked rows of a metric (cancels
      *  the previous rankings request; `variant` defaults to the current
      *  state). */
@@ -138,6 +147,10 @@ export interface UseAnalyticsApi {
         requestedVariant?: AnalyticsVariant,
         scope?: AnalyticsScope,
     ) => Promise<void>;
+}
+
+/** The locale-aware value formatters. */
+export interface UseAnalyticsFormatting {
     /** Locale-formatted number ("12,847"). */
     formatNumber: (value: number) => string;
     /** Seconds → "1 min. 05 sec." segments (avg time on page / read
@@ -146,6 +159,13 @@ export interface UseAnalyticsApi {
     /** Percent points → "87%" (completion rate). */
     formatPercent: (value: number) => string;
 }
+
+/** The full dashboard data-wiring API — the grouped sub-interfaces. */
+export interface UseAnalyticsApi
+    extends UseAnalyticsBlocks,
+        UseAnalyticsSeries,
+        UseAnalyticsRankings,
+        UseAnalyticsFormatting {}
 
 export const CTA_TARGETS = [
     'github',
@@ -437,25 +457,29 @@ export function useAnalytics(props: AnalyticsDashboardProps): UseAnalyticsApi {
     }
 
     return {
+        // Blocks + selection (UseAnalyticsBlocks).
         overviewBlocks,
         blogBlocks,
         projectsBlocks,
         selectBlock,
         abortFetches,
+        // Chart fetch state (UseAnalyticsSeries).
         span,
-        variant,
         chartPoints,
         chartLoading,
         chartError,
         multiChartSeries,
         multiChartLoading,
         multiChartError,
+        fetchSeries,
+        fetchMultiSeries,
+        // Rankings fetch state (UseAnalyticsRankings).
+        variant,
         rankingRows,
         rankingsLoading,
         rankingsError,
-        fetchSeries,
-        fetchMultiSeries,
         fetchRankings,
+        // Value formatting (UseAnalyticsFormatting).
         formatNumber,
         formatDuration,
         formatPercent,

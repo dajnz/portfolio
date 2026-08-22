@@ -1,8 +1,7 @@
-<!-- AnalyticsDashboardPage (admin-section-components.md:1295-1352, admin-section-ui.md:441-452, mockup analytics.html) — the admin analytics dashboard: three tabs (Overview/Blog/Projects — the Feedback tab is gone, its submissions chart moved under the overview feedback-submissions block), a whole-time note on the Overview and Blog tabs, clickable whole-time metric blocks per tab and a detail area below them. Block clicks and the span/variant dropdowns fetch from the JSON endpoints through `useAnalytics` (11.3.6 — AbortController cancellation + per-fetch loading/error refs); the default overview chart (total visits, daily) and the default time-on-page top rankings render from the `default_chart`/`default_rankings` props without fetching. The CTA clicks block renders the six per-target series as a multi-series chart (AnalyticsChart `series` prop — the page maps the target keys to i18n labels before passing them in). "Generate Now" (A9/B284) dispatches report generation via POST /admin/analytics/generate-reports; the job runs async and the dashboard reloads (202 → toast + reload, existing). Chart data is set via textContent exclusively (analytics.md:230). The chart component is code-split (defineAsyncComponent — architecture.md:1250 "dashboard charts async"). -->
+<!-- AnalyticsDashboardPage (admin-section-components.md:1295-1352, admin-section-ui.md:441-452, mockup analytics.html) — the admin analytics dashboard root: the header ("Generate Now"), the three tabs, the clickable whole-time metric blocks per tab and the empty state. All the selection/fetch/view-model wiring lives in `useAnalyticsDashboardDetail` (chart/rankings detail semantics) and `useAnalytics` (fetch state); the detail section renders through the `AnalyticsDetailArea` sub-component (the span/variant dropdowns, the chart and the rankings table). "Generate Now" (A9/B284) dispatches report generation via POST /admin/analytics/generate-reports; the job runs async and the dashboard reloads (202 → toast + reload, existing). -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
-import AdminBaseDropdown from '@shared-admin/AdminBaseDropdown.vue';
 import AdminEmptyState from '@shared-admin/AdminEmptyState.vue';
 import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
 import { useAdminMenu } from '@shared-cross/Composables/useAdminMenu';
@@ -11,28 +10,16 @@ import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
 import { useToast } from '@shared-cross/Composables/useToast';
 import type { components } from '@shared-cross/Types/inertia';
 import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
-import { type ComputedRef, computed, defineAsyncComponent, ref } from 'vue';
+import { ref } from 'vue';
 
+import AnalyticsDetailArea from '../Components/AnalyticsDetailArea.vue';
 import AnalyticsMetricBlocks from '../Components/AnalyticsMetricBlocks.vue';
-import RankingsTable from '../Components/RankingsTable.vue';
-import {
-    type AnalyticsSpan,
-    type AnalyticsTab,
-    type AnalyticsVariant,
-    type BlockConfig,
-    type BlockView,
-    blockConfigFor,
-    type RankingRow,
-    useAnalytics,
-} from '../Composables/useAnalytics';
-
-const AnalyticsChart = defineAsyncComponent(() => import('@analytics-admin/AnalyticsChart.vue'));
+import { useAnalytics } from '../Composables/useAnalytics';
+import { useAnalyticsDashboardDetail } from '../Composables/useAnalyticsDashboardDetail';
 
 type DashboardPageProps = NonNullable<
     components['schemas']['AnalyticsDashboardPageProps']['props']
 >;
-type RankingColumns = Array<{ key: string; label: string }>;
-type RankingRowsView = Array<Record<string, unknown>>;
 
 const props = withDefaults(
     defineProps<{
@@ -55,366 +42,9 @@ const { menuGroups } = useAdminMenu();
 const { post } = useJsonApi();
 
 const analytics = useAnalytics(props);
+const detail = useAnalyticsDashboardDetail(analytics, props);
 
-const {
-    overviewBlocks,
-    blogBlocks,
-    projectsBlocks,
-    selectBlock,
-    abortFetches,
-    span,
-    variant,
-    chartPoints,
-    chartLoading,
-    chartError,
-    multiChartSeries,
-    multiChartLoading,
-    multiChartError,
-    rankingRows,
-    rankingsLoading,
-    rankingsError,
-    fetchSeries,
-    fetchMultiSeries,
-    fetchRankings,
-    formatNumber,
-    formatDuration,
-    formatPercent,
-} = analytics;
-
-const TAB_BLOCKS: Record<AnalyticsTab, ComputedRef<Array<BlockView>>> = {
-    overview: overviewBlocks,
-    blog: blogBlocks,
-    projects: projectsBlocks,
-};
-
-const TABS: Array<AnalyticsTab> = ['overview', 'blog', 'projects'];
-const TOP_BOTTOM_VARIANTS: Array<AnalyticsVariant> = ['top', 'bottom'];
-
-// The dropdown labels resolve at render time — module-level `t()`
-// calls would bake the pre-hydration locale (en) and never update
-// after a language switch.
-function spanOptions(): Array<{ value: string; label: string }> {
-    return [
-        { value: 'day', label: t('admin.analytics.span_day') },
-        { value: 'week', label: t('admin.analytics.span_week') },
-        { value: 'month', label: t('admin.analytics.span_month') },
-        { value: 'all', label: t('admin.analytics.span_all') },
-    ];
-}
-
-// The chart blocks keyed to their chart-card titles (the selected block
-// drives the detail area; the block-key map mirrors the OpenAPI
-// AnalyticsBlock table, 11.3.4).
-const CHART_TITLE_KEYS: Record<string, string> = {
-    total_visits: 'admin.analytics.visits_over_time',
-    unique_visitors: 'admin.analytics.unique_visitors_over_time',
-    cta_clicks: 'admin.analytics.cta_clicks_over_time',
-    feedback_submissions: 'admin.analytics.submissions_over_time',
-    language_switches: 'admin.analytics.language_switches_over_time',
-};
-
-// The CTA multi-chart legend: the backend dimension targets mapped to
-// i18n labels BEFORE the series reach AnalyticsChart (the chart renders
-// the names verbatim into text nodes).
-const CTA_TARGET_LABEL_KEYS: Record<string, string> = {
-    github: 'admin.analytics.cta_github',
-    demo: 'admin.analytics.cta_demo',
-    cv: 'admin.analytics.cta_cv',
-    feedback: 'admin.analytics.feedback',
-    projects: 'admin.analytics.cta_projects',
-    language: 'admin.analytics.cta_language',
-    theme: 'admin.analytics.cta_theme',
-};
-
-function ctaTargetLabel(target: string): string {
-    const key = CTA_TARGET_LABEL_KEYS[target];
-
-    return key === undefined ? target : t(key);
-}
-
-const activeTab = ref<AnalyticsTab>('overview');
 const isGenerating = ref(false);
-
-const activeBlocks = computed(() => TAB_BLOCKS[activeTab.value].value);
-const selectedBlockKey = computed(() => activeBlocks.value.find((block) => block.selected)?.key);
-const activeConfig = computed(() => {
-    const key = selectedBlockKey.value;
-
-    return key ? blockConfigFor(activeTab.value, key) : undefined;
-});
-
-// The default overview detail comes from the props (OpenAPI
-// AnalyticsDefaultChart/AnalyticsDefaultRankings): total visits daily +
-// the time-on-page top 10. No fetch until a span/variant change or a
-// different block click.
-chartPoints.value = props.default_chart.spans.day.points;
-rankingRows.value = props.default_rankings.rows.top;
-
-function selectTab(tab: AnalyticsTab): void {
-    // Re-seeding must cancel in-flight fetches — a stale response can
-    // never overwrite the fresh default state of the new tab.
-    abortFetches();
-    activeTab.value = tab;
-    span.value = 'day';
-    variant.value = 'top';
-    chartError.value = false;
-    multiChartError.value = false;
-    rankingsError.value = false;
-    multiChartSeries.value = [];
-    seedDefaultState();
-}
-
-// Seeds the prop defaults only when the selected block really is a
-// default state (total visits daily / time-on-page top); any other
-// selection clears the detail area — a stale fetch result (or the
-// default series) must never render under a different block's title.
-function seedDefaultState(): void {
-    const key = selectedBlockKey.value;
-    const config = key ? blockConfigFor(activeTab.value, key) : undefined;
-
-    if (config?.kind === 'chart' && isDefaultChartState(config)) {
-        chartPoints.value = props.default_chart.spans.day.points;
-    } else {
-        chartPoints.value = [];
-    }
-
-    if (config?.kind === 'rankings' && isDefaultRankingsState(config)) {
-        rankingRows.value = props.default_rankings.rows.top;
-    } else {
-        rankingRows.value = [];
-    }
-}
-
-function onBlockSelect(key: string): void {
-    const tab = activeTab.value;
-    selectBlock(tab, key);
-
-    const config = blockConfigFor(tab, key);
-    if (config === undefined) {
-        return;
-    }
-
-    if (config.kind === 'chart') {
-        if (isDefaultChartState(config)) {
-            chartPoints.value = props.default_chart.spans.day.points;
-        } else {
-            fetchSeries(config.metric, span.value, config.dimension);
-        }
-    } else if (config.kind === 'chart-multi') {
-        fetchMultiSeries(config.metric, config.dimensions ?? [], span.value);
-    } else if (isDefaultRankingsState(config)) {
-        rankingRows.value = props.default_rankings.rows.top;
-    } else {
-        const options = config.variants ?? TOP_BOTTOM_VARIANTS;
-
-        if (!options.includes(variant.value)) {
-            variant.value = options[0];
-        }
-
-        fetchRankings(rankingsMetricFor(config, variant.value), variant.value, config.scope);
-    }
-}
-
-// The seeded default states render from the props — re-clicking them
-// before any span/variant change must not refetch.
-function isDefaultChartState(config: BlockConfig): boolean {
-    return config.metric === 'page_views' && config.dimension === undefined && span.value === 'day';
-}
-
-function isDefaultRankingsState(config: BlockConfig): boolean {
-    return config.metric === 'time_on_page_seconds' && variant.value === 'top';
-}
-
-function rankingsMetricFor(config: BlockConfig, requestedVariant: AnalyticsVariant): string {
-    return config.variantMetric?.[requestedVariant] ?? config.metric;
-}
-
-function onSpanChange(value: string | string[]): void {
-    span.value = value as AnalyticsSpan;
-    refetchChart();
-}
-
-function onVariantChange(value: AnalyticsVariant): void {
-    variant.value = value;
-    refetchRankings();
-}
-
-function onRankingsRetry(): void {
-    refetchRankings();
-}
-
-function refetchChart(): void {
-    const config = activeConfig.value;
-
-    if (config?.kind === 'chart') {
-        fetchSeries(config.metric, span.value, config.dimension);
-    } else if (config?.kind === 'chart-multi') {
-        fetchMultiSeries(config.metric, config.dimensions ?? [], span.value);
-    }
-}
-
-function refetchRankings(): void {
-    const config = activeConfig.value;
-
-    if (config?.kind === 'rankings') {
-        fetchRankings(rankingsMetricFor(config, variant.value), variant.value, config.scope);
-    }
-}
-
-const chartTitle = computed(() => {
-    const key = selectedBlockKey.value;
-
-    return key ? t(CHART_TITLE_KEYS[key] ?? 'admin.analytics.visits_over_time') : '';
-});
-
-const chartType = computed<'bar' | 'line'>(() =>
-    activeConfig.value?.kind === 'chart-multi' || selectedBlockKey.value === 'feedback_submissions'
-        ? 'line'
-        : 'bar',
-);
-
-const chartIsLoading = computed(() =>
-    activeConfig.value?.kind === 'chart-multi' ? multiChartLoading.value : chartLoading.value,
-);
-
-// A fetch failure passes a non-array data/series — the chart contract's
-// error signal (admin-section-components.md:1351).
-const chartData = computed(() => (chartError.value ? null : chartPoints.value));
-
-const chartSeries = computed(() =>
-    multiChartSeries.value.map((series) => ({
-        name: ctaTargetLabel(series.name),
-        points: series.points,
-    })),
-);
-
-const chartSeriesProp = computed(() => {
-    if (activeConfig.value?.kind !== 'chart-multi') {
-        return undefined;
-    }
-
-    return multiChartError.value ? null : chartSeries.value;
-});
-
-const rankingVariantOptions = computed(() => {
-    const options = activeConfig.value?.variants ?? TOP_BOTTOM_VARIANTS;
-
-    return options.map((value) => ({ value, label: t(`admin.analytics.variant_${value}`) }));
-});
-
-const rankingColumns = computed<RankingColumns>(() => {
-    const config = activeConfig.value;
-
-    if (config?.kind !== 'rankings') {
-        return [];
-    }
-
-    if (config.scope === 'page') {
-        return [
-            { key: 'page_url', label: t('admin.analytics.page') },
-            { key: 'avg', label: t('admin.analytics.avg') },
-            { key: 'min', label: t('admin.analytics.min') },
-            { key: 'max', label: t('admin.analytics.max') },
-        ];
-    }
-
-    const titleLabel = t(
-        config.scope === 'project' ? 'admin.analytics.project' : 'admin.analytics.article',
-    );
-
-    if (config.metric === 'read_time_seconds' || config.metric === 'completion_rate_sum') {
-        return [
-            { key: 'title', label: titleLabel },
-            { key: 'avg', label: t('admin.analytics.avg') },
-            { key: 'min', label: t('admin.analytics.min') },
-            { key: 'max', label: t('admin.analytics.max') },
-        ];
-    }
-
-    const valueLabel =
-        variant.value === 'liked'
-            ? t('admin.analytics.likes')
-            : variant.value === 'disliked'
-              ? t('admin.analytics.dislikes')
-              : t(
-                    config.metric === 'unique_visitors' && config.scope === 'project'
-                        ? 'admin.analytics.unique_views'
-                        : config.metric === 'unique_visitors'
-                          ? 'admin.analytics.unique_visitors'
-                          : 'admin.analytics.views',
-                );
-
-    return [
-        { key: 'title', label: titleLabel },
-        { key: 'value', label: valueLabel },
-    ];
-});
-
-const rankingRowKey = computed(() => (activeConfig.value?.scope === 'page' ? 'page_url' : 'id'));
-
-// The raw ranking rows (OpenAPI oneOf — shape follows the scope) are
-// mapped to display rows with locale-formatted values; the scope/metric
-// drives the shape, so the type guards pick the matching member.
-function isPageRow(row: RankingRow): row is components['schemas']['AnalyticsPageRankingRow'] {
-    return 'page_url' in row;
-}
-
-function isArticleAvgRow(
-    row: RankingRow,
-): row is components['schemas']['AnalyticsArticleAvgRankingRow'] {
-    return !('page_url' in row) && 'avg' in row;
-}
-
-function isValueRow(
-    row: RankingRow,
-): row is
-    | components['schemas']['AnalyticsArticleValueRankingRow']
-    | components['schemas']['AnalyticsProjectRankingRow'] {
-    return 'value' in row;
-}
-
-const rankingRowsView = computed<RankingRowsView>(() => {
-    const config = activeConfig.value;
-
-    if (config?.kind !== 'rankings') {
-        return [];
-    }
-
-    if (config.scope === 'page') {
-        return rankingRows.value.filter(isPageRow).map((row) => ({
-            page_url: row.page_url,
-            avg: formatDuration(row.avg),
-            min: formatDuration(row.min),
-            max: formatDuration(row.max),
-        }));
-    }
-
-    if (config.metric === 'read_time_seconds') {
-        return rankingRows.value.filter(isArticleAvgRow).map((row) => ({
-            id: row.id,
-            title: row.title,
-            avg: formatDuration(row.avg),
-            min: formatDuration(row.min),
-            max: formatDuration(row.max),
-        }));
-    }
-
-    if (config.metric === 'completion_rate_sum') {
-        return rankingRows.value.filter(isArticleAvgRow).map((row) => ({
-            id: row.id,
-            title: row.title,
-            avg: formatPercent(row.avg),
-            min: formatPercent(row.min),
-            max: formatPercent(row.max),
-        }));
-    }
-
-    return rankingRows.value.filter(isValueRow).map((row) => ({
-        id: row.id,
-        title: row.title,
-        value: formatNumber(row.value),
-    }));
-});
 
 function generateNow(): void {
     if (isGenerating.value) {
@@ -472,27 +102,27 @@ function generateNow(): void {
         :data-testid="`${props.test_id}-tabs`"
       >
         <AdminBaseButton
-          v-for="tab in TABS"
+          v-for="tab in detail.tabs"
           :key="tab"
           :variant="'ghost'"
           :type="'button'"
           :class="
-            activeTab === tab
+            detail.activeTab.value === tab
               ? '-mb-px rounded-none border-b-2 border-primary-600 text-primary-600 dark:text-primary-400'
               : 'rounded-none'
           "
           :test_id="`${props.test_id}-tab-${tab}`"
-          @click="selectTab(tab)"
+          @click="detail.selectTab(tab)"
         >
           {{ t(`admin.analytics.${tab}`) }}
         </AdminBaseButton>
       </div>
 
       <div
-        v-for="tab in TABS"
+        v-for="tab in detail.tabs"
         :key="tab"
       >
-        <template v-if="activeTab === tab">
+        <template v-if="detail.activeTab.value === tab">
           <p
             v-if="tab !== 'projects'"
             class="mb-4 text-sm text-slate-500 dark:text-slate-400"
@@ -501,44 +131,16 @@ function generateNow(): void {
             {{ t('admin.analytics.whole_time_note') }}
           </p>
 
-          <template v-if="activeBlocks.length > 0">
+          <template v-if="detail.activeBlocks.value.length > 0">
             <AnalyticsMetricBlocks
-              :blocks="activeBlocks"
+              :blocks="detail.activeBlocks.value"
               :test_id="`${props.test_id}-blocks`"
-              @select="onBlockSelect"
+              @select="detail.onBlockSelect"
             />
 
-            <template v-if="activeConfig?.kind === 'chart' || activeConfig?.kind === 'chart-multi'">
-              <div class="mb-3 mt-6 flex items-center justify-end">
-                <AdminBaseDropdown
-                  :model-value="span"
-                  :options="spanOptions()"
-                  :test_id="`${props.test_id}-span`"
-                  @update:model-value="onSpanChange"
-                />
-              </div>
-              <AnalyticsChart
-                :type="chartType"
-                :data="chartData"
-                :series="chartSeriesProp"
-                :is_loading="chartIsLoading"
-                :title="chartTitle"
-                :test_id="`${props.test_id}-chart`"
-              />
-            </template>
-
-            <RankingsTable
-              v-else-if="activeConfig?.kind === 'rankings'"
-              :columns="rankingColumns"
-              :rows="rankingRowsView"
-              :variant="variant"
-              :variant_options="rankingVariantOptions"
-              :is_loading="rankingsLoading"
-              :error="rankingsError"
-              :row_key="rankingRowKey"
-              :test_id="`${props.test_id}-rankings`"
-              @update:variant="onVariantChange"
-              @retry="onRankingsRetry"
+            <AnalyticsDetailArea
+              :detail="detail"
+              :test_id="props.test_id"
             />
           </template>
 
