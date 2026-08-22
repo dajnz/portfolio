@@ -14,7 +14,7 @@ vi.mock('@inertiajs/vue3', async (importOriginal) => {
 });
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: trackMock, cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: trackMock, cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
 import LanguageSelector from '@shared-cross/Components/LanguageSelector.vue';

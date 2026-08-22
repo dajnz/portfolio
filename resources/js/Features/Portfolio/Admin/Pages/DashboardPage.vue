@@ -2,13 +2,13 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
+import StatsCards, { type StatCardData } from '@shared-admin/StatsCards.vue';
 import { useAdminMenu } from '@shared-cross/Composables/useAdminMenu';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import type { components } from '@shared-cross/Types/inertia';
 import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
 import { computed } from 'vue';
 import QuickLinks, { type QuickLinkData } from '../Components/QuickLinks.vue';
-import StatsCards, { type StatCardData } from '../Components/StatsCards.vue';
 
 type Stats = NonNullable<components['schemas']['DashboardPageProps']['props']>['stats'];
 

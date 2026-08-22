@@ -42,6 +42,8 @@ function handleCta(link: CtaLink): void {
         analytics.track('cta_click_github');
     } else if (ctaKey(link.url) === 'cv') {
         analytics.track('cta_click_cv');
+    } else if (ctaKey(link.url) === 'projects') {
+        analytics.track('cta_click_projects');
     }
 }
 </script>

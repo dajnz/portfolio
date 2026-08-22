@@ -672,11 +672,95 @@ export interface paths {
         };
         /**
          * Analytics dashboard
-         * @description Report selection and per-report data views for the admin analytics dashboard.
+         * @description The admin analytics dashboard (analytics.md:223-227, B293): the
+         *     whole-time metric blocks per tab (overview/blog/projects), the
+         *     default chart series (`page_views`, four spans) and the default
+         *     rankings (time-on-page top/bottom 10) as Inertia props. Chart
+         *     and ranking data for other blocks load from the
+         *     `series`/`rankings` endpoints on click (11.3.4).
          */
         get: operations["analyticsDashboardPage"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/series": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Analytics metric series
+         * @description The chart points of one metric at one span (analytics.md:225,
+         *     B292, 11.3.4) — chronological `period_start` labels, the last
+         *     90 rows; `span=all` returns the cumulative running total (of
+         *     the dimension-NULL day rows — or of the selected target's day
+         *     rows when `dimension` is given). The `dimension` parameter
+         *     selects one `cta_clicks` target (the CTA multi-chart series —
+         *     required for `cta_clicks`, rejected for every other metric).
+         */
+        get: operations["analyticsMetricSeries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/rankings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Analytics metric rankings
+         * @description The top/bottom/liked/disliked 10 lists (analytics.md:226, B293,
+         *     11.3.4): the `span='all'` dimension rows of the metric ordered
+         *     by value. `scope` selects the dimension family (`page` — the
+         *     time-on-page URLs; `article`/`project` — the entity keys of the
+         *     `views`/`unique_visitors` metrics, which span both). The
+         *     liked/disliked variants rank the reactions metrics (most liked
+         *     / most disliked articles) and require the matching
+         *     `reactions_likes`/`reactions_dislikes` metric. Rows carry the
+         *     joined display data (EN titles, min/max).
+         */
+        get: operations["analyticsMetricRankings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/analytics/generate-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate analytics reports now
+         * @description The dashboard "Generate Now" button (analytics.md:204-212,
+         *     B290): dispatches the full rebuild — `RebuildReportsJob` with
+         *     `recomputeMetrics = true` (recompute the metrics for the
+         *     still-present event window + the full feedback history, then
+         *     rebuild every report span). The job runs async (202); the
+         *     dashboard reloads on completion.
+         */
+        post: operations["analyticsGenerateReports"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1807,22 +1891,152 @@ export interface components {
                 included_contacts_count?: number;
             };
         };
-        AnalyticsReportData: {
-            /** @enum {string} */
-            report_type?: "overall" | "blog" | "projects" | "feedback";
-            /** Format: date */
-            period_start?: string;
-            /** Format: date */
-            period_end?: string;
-            /** @description Report-type-specific payload (views, unique_visitors, etc.). */
-            data?: Record<string, never>;
+        /**
+         * @description A whole-time metric block (`span = 'all'` of the report rows,
+         *     analytics.md:223). The `key` is the stable identifier the
+         *     frontend maps to an i18n label AND to the series/rankings
+         *     parameters on click (11.3.4 decision — the hard-coded map):
+         *
+         *     | key (tab) | metric source | click → |
+         *     |---|---|---|
+         *     | `total_visits` (overview) | `page_views` | `series?metric=page_views` |
+         *     | `unique_visitors` (overview) | `unique_visitors` | `series?metric=unique_visitors` |
+         *     | `cta_clicks` (overview) | sum of the 7 `cta_clicks` target rows | `series?metric=cta_clicks&dimension=<target>` ×7 (multi-series) |
+         *     | `feedback_submissions` (overview) | `feedback_submissions` | `series?metric=feedback_submissions` |
+         *     | `language_switches` (overview) | `cta_clicks` dimension `language` | `series?metric=cta_clicks&dimension=language` |
+         *     | `avg_time_on_page` (overview) | `time_on_page_seconds` + `time_on_page_min`/`max` | `rankings?metric=time_on_page_seconds&scope=page` |
+         *     | `total_views` (blog) | `blog_views` | `rankings?metric=views&scope=article` |
+         *     | `unique_visitors` (blog) | `blog_unique_visitors` | `rankings?metric=unique_visitors&scope=article` |
+         *     | `avg_read_time` (blog) | `read_time_seconds` + min/max | `rankings?metric=read_time_seconds&scope=article` |
+         *     | `completion_rate` (blog) | `completion_rate_sum` + min/max | `rankings?metric=completion_rate_sum&scope=article` |
+         *     | `reactions` (blog) | `reactions_likes` + `reactions_dislikes` | `rankings?metric=reactions_likes|reactions_dislikes&scope=article&variant=liked|disliked` |
+         *     | `total_views` (projects) | sum of the `views` project rows | `rankings?metric=views&scope=project` |
+         *     | `unique_views` (projects) | `project_unique_visitors` (the distinct visitors across ALL project pages — one visitor on several projects counts once) | `rankings?metric=unique_visitors&scope=project` |
+         *
+         *     Metrics without stored rows fall back to `value: 0`; `min`/`max`
+         *     are present only for the avg blocks with data
+         *     (`avg_time_on_page`, `avg_read_time`, `completion_rate`).
+         */
+        AnalyticsBlock: {
+            /** @description Stable block identifier (the i18n + fetch mapping key). */
+            key: string;
+            /** @description The whole-time value (weighted average for the avg blocks). */
+            value: number;
+            /** @description The whole-time minimum (avg blocks only). */
+            min?: number;
+            /** @description The whole-time maximum (avg blocks only). */
+            max?: number;
+        };
+        AnalyticsSeriesPoint: {
+            /**
+             * Format: date
+             * @description The period start (`Y-m-d`).
+             */
+            label: string;
+            value: number;
+        };
+        /**
+         * @description The chart points of one metric at one span: chronological
+         *     `period_start` date labels (the `span=all` response is the
+         *     cumulative running total over the day rows, B292). For
+         *     `metric=cta_clicks` the caller passes a `dimension` (one of the
+         *     seven targets) and receives that target's series — the per-target
+         *     day rows, cumulative at `span=all` (the CTA multi-chart is seven
+         *     such calls — whole-time included — the frontend names each
+         *     series by the requested target).
+         */
+        AnalyticsSeriesResponse: {
+            points: components["schemas"]["AnalyticsSeriesPoint"][];
+        };
+        /**
+         * @description The default chart (total visits): the `page_views` series at
+         *     the four span options — daily/weekly/monthly points
+         *     (chronological, `period_start` date labels, up to 90) and the
+         *     cumulative running total for `all` (B292). The frontend renders
+         *     the `day` series initially and fetches on span change.
+         */
+        AnalyticsDefaultChart: {
+            /** @constant */
+            metric: "page_views";
+            spans: {
+                day: components["schemas"]["AnalyticsSeriesResponse"];
+                week: components["schemas"]["AnalyticsSeriesResponse"];
+                month: components["schemas"]["AnalyticsSeriesResponse"];
+                all: components["schemas"]["AnalyticsSeriesResponse"];
+            };
+        };
+        AnalyticsPageRankingRow: {
+            /** @description The ranked page URL (the ranking dimension). */
+            page_url: string;
+            /** @description The weighted average seconds on the page. */
+            avg: number;
+            /** @description The minimum seconds on the page. */
+            min: number;
+            /** @description The maximum seconds on the page. */
+            max: number;
+        };
+        /**
+         * @description The default rankings (time on page): the top and bottom 10
+         *     pages by the weighted average, each row joined with the
+         *     per-page min/max. The frontend serves the `top` rows initially
+         *     and fetches on variant change.
+         */
+        AnalyticsDefaultRankings: {
+            /** @constant */
+            metric: "time_on_page_seconds";
+            /** @constant */
+            scope: "page";
+            rows: {
+                top: components["schemas"]["AnalyticsPageRankingRow"][];
+                bottom: components["schemas"]["AnalyticsPageRankingRow"][];
+            };
         };
         AnalyticsDashboardPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
             component?: "Analytics/Admin/Pages/AnalyticsDashboardPage";
             props?: {
-                reports?: components["schemas"]["AnalyticsReportData"][];
+                overview_blocks: components["schemas"]["AnalyticsBlock"][];
+                blog_blocks: components["schemas"]["AnalyticsBlock"][];
+                projects_blocks: components["schemas"]["AnalyticsBlock"][];
+                default_chart: components["schemas"]["AnalyticsDefaultChart"];
+                default_rankings: components["schemas"]["AnalyticsDefaultRankings"];
             };
+        };
+        /** @description The count-like article rankings (views, unique visitors, reactions). */
+        AnalyticsArticleValueRankingRow: {
+            id: number;
+            /** @description The EN article title. */
+            title: string;
+            /** @description The whole-time metric value of the article. */
+            value: number;
+        };
+        /** @description The avg-able article rankings (read time, completion rate). */
+        AnalyticsArticleAvgRankingRow: {
+            id: number;
+            /** @description The EN article title. */
+            title: string;
+            /** @description The weighted average of the metric. */
+            avg: number;
+            min: number;
+            max: number;
+        };
+        AnalyticsProjectRankingRow: {
+            id: number;
+            /** @description The EN project title. */
+            title: string;
+            /** @description The whole-time metric value of the project. */
+            value: number;
+        };
+        /**
+         * @description The top/bottom/liked/disliked lists (B293): the `span='all'`
+         *     dimension rows of the metric, capped at 10. The row shape
+         *     follows the `scope` — pages carry the URL + avg/min/max,
+         *     articles and projects the EN title + the metric value (the
+         *     read-time/completion rows carry avg/min/max instead of a plain
+         *     value). Rows whose entity has no EN translation are dropped.
+         */
+        AnalyticsRankingResponse: {
+            rows: (components["schemas"]["AnalyticsPageRankingRow"] | components["schemas"]["AnalyticsArticleValueRankingRow"] | components["schemas"]["AnalyticsArticleAvgRankingRow"] | components["schemas"]["AnalyticsProjectRankingRow"])[];
         };
         SettingsPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
@@ -2916,13 +3130,129 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Analytics reports for recent periods. */
+            /** @description The dashboard blocks, default chart and default rankings. */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": components["schemas"]["AnalyticsDashboardPageProps"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
+        };
+    };
+    analyticsMetricSeries: {
+        parameters: {
+            query: {
+                metric: "page_views" | "unique_visitors" | "feedback_submissions" | "time_on_page_seconds" | "time_on_page_samples" | "time_on_page_min" | "time_on_page_max" | "blog_views" | "blog_unique_visitors" | "read_time_seconds" | "read_time_samples" | "read_time_min" | "read_time_max" | "completion_rate_sum" | "completion_rate_samples" | "completion_rate_min" | "completion_rate_max" | "reactions_likes" | "reactions_dislikes" | "cta_clicks" | "views";
+                span: "day" | "week" | "month" | "year" | "all";
+                /** @description The `cta_clicks` target (the CTA multi-chart series). */
+                dimension?: "github" | "demo" | "cv" | "feedback" | "language" | "theme";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The metric series points. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalyticsSeriesResponse"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
+            /** @description Unknown metric/span or a dimension misuse — validation error. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    analyticsMetricRankings: {
+        parameters: {
+            query: {
+                metric: "time_on_page_seconds" | "views" | "unique_visitors" | "read_time_seconds" | "completion_rate_sum" | "reactions_likes" | "reactions_dislikes";
+                variant: "top" | "bottom" | "liked" | "disliked";
+                scope: "page" | "article" | "project";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The ranking rows for the metric, variant and scope. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalyticsRankingResponse"];
+                };
+            };
+            /** @description Session expired. Redirects to the login page. */
+            419: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InertiaErrorProps"];
+                };
+            };
+            /** @description Unknown metric, variant, scope or a metric/scope or variant/metric mismatch — validation error. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorResponse"];
+                };
+            };
+        };
+    };
+    analyticsGenerateReports: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Full rebuild dispatched. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        dispatched: boolean;
+                    };
                 };
             };
             /** @description Session expired. Redirects to the login page. */

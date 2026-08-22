@@ -27,6 +27,8 @@ use DateTimeImmutable;
  */
 abstract class AnalyticsEvent extends BaseEntity
 {
+    public const EVENT_TYPE = '';
+
     public function __construct(
         private readonly int $id,
         private readonly ClientIds $clientIds,
@@ -80,6 +82,10 @@ abstract class AnalyticsEvent extends BaseEntity
         return $this->createdAt;
     }
 
-    /** The event's own payload as stored in the `metadata` jsonb column. */
+    /**
+     * The event's own payload as stored in the `metadata` jsonb column.
+     *
+     * @return array
+     * */
     abstract public function toEventSpecificData(): array;
 }

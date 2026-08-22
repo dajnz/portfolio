@@ -20,7 +20,6 @@ describe('SettingsSeeder', function (): void {
             'projects_per_page',
             'articles_per_page',
             'experience_items_per_page',
-            'analytics_report_frequency',
             'analytics_email_enabled',
             'analytics_email_recipient',
             'email_on_feedback',
@@ -47,7 +46,6 @@ describe('SettingsSeeder', function (): void {
             ->and($values['projects_per_page'])->toBe((string) config('portfolio.projects_per_page'))
             ->and($values['articles_per_page'])->toBe((string) config('portfolio.articles_per_page'))
             ->and($values['experience_items_per_page'])->toBe((string) config('portfolio.experience_items_per_page'))
-            ->and($values['analytics_report_frequency'])->toBe(config('analytics.report_frequency'))
             ->and($values['analytics_email_enabled'])->toBe('0')
             ->and($values['email_on_feedback'])->toBe('1')
             ->and($values['backup_max_count'])->toBe((string) config('backup.max_count'))
@@ -117,7 +115,7 @@ describe('DatabaseSeeder', function (): void {
     it('composes the settings and feature flag seeders without touching admins', function (): void {
         $this->seed();
 
-        expect(SettingModel::query()->count())->toBe(17)
+        expect(SettingModel::query()->count())->toBe(16)
             ->and(FeatureFlagModel::query()->count())->toBe(3);
     });
 });

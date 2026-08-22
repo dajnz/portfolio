@@ -5,93 +5,180 @@ declare(strict_types=1);
 namespace App\Features\Analytics\Infra\Repositories;
 
 use App\Features\Analytics\Domain\Entities\AnalyticsReport;
-use App\Features\Analytics\Domain\Factories\AnalyticsReportFactory;
+use App\Features\Analytics\Domain\Enums\MetricName;
+use App\Features\Analytics\Domain\Enums\MetricSpan;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
-use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
-use App\Features\Analytics\Domain\ValueObjects\ReportScalarValue;
-use App\Features\Analytics\Domain\ValueObjects\ReportSeriesValue;
-use App\Features\Analytics\Domain\ValueObjects\ReportTableValue;
+use App\Features\Analytics\Infra\Mappers\AnalyticsReportMapper;
 use App\Features\Analytics\Infra\Models\AnalyticsReportModel;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 
 /**
- * Eloquent-backed unified report storage (B288). Upserts happen
- * through the query builder (`Eloquent\Builder::upsert` does not apply
- * the model's casts, so the jsonb `data` column is encoded here) on
- * the `(report_type, period_start, period_end)` unique key —
- * re-aggregating a period overwrites `data` + `generated_at`
- * (analytics.md:186); `generated_at` is persisted from the entity.
- * The serialized results come from the entity's typed `toResults()`
- * (B289 — the entity exposes no payload accessor). Reads materialize
- * the rows through {@see AnalyticsReportFactory}.
+ * Eloquent-backed `analytics_reports` storage (B290). Writes go
+ * through the query builder (the model's casts do not apply there —
+ * the mapper prepares the rows: dates as `Y-m-d` strings, floats as
+ * scalars) and upsert on the `(metric, span, dimension, period_start,
+ * period_end)` unique key (NULLS NOT DISTINCT). Reads materialize the
+ * rows through the entity's `fromRow()`.
  */
 final class EloquentAnalyticsReportRepository implements AnalyticsReportRepositoryInterface
 {
-    public function save(AnalyticsReport $report): void
+    public function __construct(
+        private readonly AnalyticsReportMapper $mapper,
+    ) {
+    }
+
+    public function deleteAll(): int
     {
+        return DB::table('analytics_reports')->delete();
+    }
+
+    public function replaceAll(array $reports): void
+    {
+        DB::transaction(function () use ($reports): void {
+            DB::table('analytics_reports')->delete();
+
+            $this->upsertBatch($reports);
+        });
+    }
+
+    public function upsertBatch(array $reports): void
+    {
+        if ($reports === []) {
+            return;
+        }
+
+        $rows = array_map(fn (AnalyticsReport $report): array => $this->mapper->toRow($report), $reports);
+
         DB::table('analytics_reports')->upsert(
-            [[
-                'report_type' => $report->reportType(),
-                'period_start' => $report->toPeriodStart()->format('Y-m-d'),
-                'period_end' => $report->toPeriodEnd()->format('Y-m-d'),
-                'data' => json_encode(
-                    $this->serializeResults($report),
-                    JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
-                ),
-                'generated_at' => $report->toGeneratedAt(),
-            ]],
-            ['report_type', 'period_start', 'period_end'],
-            ['data', 'generated_at'],
+            $rows,
+            ['metric', 'span', 'dimension', 'period_start', 'period_end'],
+            ['value'],
         );
     }
 
-    public function all(): array
+    public function wholeTimeScalarValues(array $metricNames): array
     {
         return AnalyticsReportModel::query()
-            ->orderByDesc('period_start')
-            ->orderBy('report_type')
+            ->whereIn('metric', array_map(fn (MetricName $metric): string => $metric->value, $metricNames))
+            ->where('span', MetricSpan::All->value)
+            ->whereNull('dimension')
+            ->orderBy('metric')
             ->get()
-            ->map(fn (AnalyticsReportModel $model): ?AnalyticsReport => $this->toEntity($model))
-            ->filter()
-            ->values()
+            ->map(fn (AnalyticsReportModel $model): AnalyticsReport => $this->mapper->toEntity($model))
             ->all();
     }
 
-    public function findNewestBefore(string $reportType, ReportPeriod $period): ?AnalyticsReport
+    public function series(MetricName $metric, MetricSpan $span, int $limit, ?string $dimension = null): array
     {
-        $model = AnalyticsReportModel::query()
-            ->where('report_type', $reportType)
-            ->where('period_start', '<', $period->toPeriodStart()->format('Y-m-d'))
-            ->orderByDesc('period_start')
-            ->first();
+        $query = AnalyticsReportModel::query()
+            ->where('metric', $metric->value)
+            ->where('span', $span->value)
+            ->orderByDesc('period_start');
 
-        return $model === null
-            ? null
-            : $this->toEntity($model);
+        if ($dimension === null) {
+            $query->whereNull('dimension');
+        } else {
+            $query->where('dimension', $dimension);
+        }
+
+        return $query
+            ->limit($limit)
+            ->get()
+            ->map(fn (AnalyticsReportModel $model): AnalyticsReport => $this->mapper->toEntity($model))
+            ->all();
     }
 
-    private function toEntity(AnalyticsReportModel $model): ?AnalyticsReport
+    public function rankings(MetricName $metric, string $direction, int $limit, ?string $dimensionPrefix = null): array
     {
-        return AnalyticsReportFactory::fromRow(
-            id: $model->id,
-            reportType: $model->report_type,
-            period: new ReportPeriod(
-                $model->period_start->toDateTimeImmutable(),
-                $model->period_end->toDateTimeImmutable(),
+        $order = match ($direction) {
+            'top' => 'desc',
+            'bottom' => 'asc',
+            default => throw new InvalidArgumentException(
+                sprintf('Unknown ranking direction [%s].', $direction),
             ),
-            payload: $model->data,
-            generatedAt: $model->generated_at->toDateTimeImmutable(),
-        );
+        };
+
+        return AnalyticsReportModel::query()
+            ->where('metric', $metric->value)
+            ->where('span', MetricSpan::All->value)
+            ->whereNotNull('dimension')
+            ->when(
+                $dimensionPrefix !== null,
+                static fn ($query) => $query->where('dimension', 'like', $dimensionPrefix.'%'),
+            )
+            ->orderBy('value', $order)
+            ->orderBy('dimension')
+            ->limit($limit)
+            ->get()
+            ->map(fn (AnalyticsReportModel $model): AnalyticsReport => $this->mapper->toEntity($model))
+            ->all();
     }
 
-    /**
-     * @return array<string, array<string, mixed>>
-     */
-    private function serializeResults(AnalyticsReport $report): array
+    public function dimensionRows(MetricName $metric, ?string $dimensionPrefix = null): array
     {
-        return array_map(
-            static fn (ReportScalarValue|ReportSeriesValue|ReportTableValue $result): array => $result->toArray(),
-            $report->toResults(),
-        );
+        return AnalyticsReportModel::query()
+            ->where('metric', $metric->value)
+            ->where('span', MetricSpan::All->value)
+            ->whereNotNull('dimension')
+            ->when(
+                $dimensionPrefix !== null,
+                static fn ($query) => $query->where('dimension', 'like', $dimensionPrefix.'%'),
+            )
+            ->orderBy('dimension')
+            ->get()
+            ->map(fn (AnalyticsReportModel $model): AnalyticsReport => $this->mapper->toEntity($model))
+            ->all();
+    }
+
+    public function metricSpans(MetricName $metric): array
+    {
+        $present = AnalyticsReportModel::query()
+            ->where('metric', $metric->value)
+            ->distinct()
+            ->pluck('span')
+            ->map(fn (mixed $span): MetricSpan => MetricSpan::from((string) $span))
+            ->all();
+
+        return array_values(array_filter(
+            MetricSpan::cases(),
+            static fn (MetricSpan $span): bool => in_array($span, $present, true),
+        ));
+    }
+
+    public function cumulativeSeries(MetricName $metric, ?string $dimension = null): array
+    {
+        $query = AnalyticsReportModel::query()
+            ->where('metric', $metric->value)
+            ->where('span', MetricSpan::Day->value)
+            ->orderBy('period_start');
+
+        if ($dimension === null) {
+            $query->whereNull('dimension');
+        } else {
+            $query->where('dimension', $dimension);
+        }
+
+        $dayModels = $query->get();
+
+        $runningTotal = 0.0;
+
+        return $dayModels
+            ->map(function (AnalyticsReportModel $model) use (&$runningTotal): AnalyticsReport {
+                $day = $this->mapper->toEntity($model);
+                $runningTotal += $day->toValue();
+
+                return new AnalyticsReport(
+                    id: 0,
+                    metric: $day->toMetric(),
+                    span: $day->toSpan(),
+                    dimension: $day->toDimension(),
+                    periodStart: $day->toPeriodStart(),
+                    periodEnd: $day->toPeriodEnd(),
+                    value: $runningTotal,
+                    createdAt: $day->toCreatedAt(),
+                );
+            })
+            ->all();
     }
 }

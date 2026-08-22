@@ -5,7 +5,7 @@ const { trackMock } = vi.hoisted(() => ({
 }));
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: trackMock, cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: trackMock, cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
 import { ARTICLE_READ_THRESHOLD, useReadingProgress, type ReadingProgress } from '@shared-cross/Composables/useReadingProgress';
@@ -109,6 +109,24 @@ describe('useReadingProgress', () => {
         vi.advanceTimersByTime(16);
 
         expect(progress.value).toBe(1);
+    });
+
+    it('never fires completion when the page fits the viewport (no scrolling)', () => {
+        stubScrollMetrics(0, 800, 1000);
+
+        const { progress } = track(42);
+
+        // maxScroll <= 0: there is no scroll depth to reach — the event
+        // must not fire 100% on mount without any user scrolling.
+        expect(progress.value).toBe(0);
+        expect(trackMock).not.toHaveBeenCalled();
+
+        dispatchScroll();
+        window.dispatchEvent(new Event('resize'));
+        vi.advanceTimersByTime(16);
+
+        expect(trackMock).not.toHaveBeenCalled();
+        expect(progress.value).toBe(0);
     });
 
     it('coalesces burst scroll events into a single measurement per frame', () => {

@@ -20,13 +20,18 @@ const fetchMock = vi.fn();
 interface TrackedEvent {
     event_type: string;
     metadata: Record<string, unknown>;
+    page_url: string;
 }
 
-function listener(type: string): () => void {
-    const calls = onMock.mock.calls as unknown as Array<[string, () => void]>;
+interface VisitEvent {
+    detail: { visit: { prefetch: boolean } };
+}
+
+function listener(type: string): (event?: VisitEvent) => void {
+    const calls = onMock.mock.calls as unknown as Array<[string, (event?: VisitEvent) => void]>;
     const call = calls.find(([eventType]) => eventType === type);
 
-    return call?.[1] as unknown as () => void;
+    return call?.[1] as unknown as (event?: VisitEvent) => void;
 }
 
 function lastFetch(): { url: string; init: RequestInit; body: TrackedEvent[] } {
@@ -67,6 +72,46 @@ describe('useAnalytics', () => {
         }
         vi.unstubAllGlobals();
         vi.useRealTimers();
+    });
+
+    it('drops events fired on admin routes (tracking is [Public]-only)', () => {
+        window.history.pushState({}, '', '/admin/analytics');
+
+        const analytics = useAnalytics();
+        cleanups.push(analytics.cleanup);
+
+        analytics.track('page_view');
+        vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('does not fire the page view on admin routes', () => {
+        window.history.pushState({}, '', '/admin/analytics');
+
+        const analytics = useAnalytics();
+        cleanups.push(analytics.cleanup);
+
+        analytics.trackPageView();
+        vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('resumes tracking once the route leaves the admin section', () => {
+        window.history.pushState({}, '', '/admin/analytics');
+
+        const analytics = useAnalytics();
+        cleanups.push(analytics.cleanup);
+
+        analytics.track('page_view');
+        window.history.pushState({}, '', '/projects');
+        analytics.track('page_view');
+        vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(lastFetch().body).toHaveLength(1);
+        expect(lastFetch().body[0].page_url).toContain('/projects');
     });
 
     it('generates and reuses a session id from sessionStorage', () => {
@@ -221,12 +266,12 @@ describe('useAnalytics', () => {
         expect(body.some((event) => event.event_type === 'time_on_page' && event.metadata.seconds === 5)).toBe(true);
     });
 
-    it('tracks time_on_page when a navigation starts', () => {
+    it('tracks time_on_page when a real navigation starts', () => {
         const analytics = useAnalytics();
         cleanups.push(analytics.cleanup);
 
         vi.advanceTimersByTime(3000);
-        listener('start')();
+        listener('start')({ detail: { visit: { prefetch: false } } });
 
         vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
         const { body } = lastFetch();
@@ -234,16 +279,49 @@ describe('useAnalytics', () => {
         expect(body.some((event) => event.event_type === 'time_on_page' && event.metadata.seconds === 3)).toBe(true);
     });
 
-    it('tracks page_view when a navigation finishes', () => {
+    it('skips time_on_page for prefetch visits', () => {
         const analytics = useAnalytics();
         cleanups.push(analytics.cleanup);
 
-        listener('finish')();
+        vi.advanceTimersByTime(3000);
+        listener('start')({ detail: { visit: { prefetch: true } } });
+        vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+        expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('fires the page view once per page mount via trackPageView', () => {
+        const analytics = useAnalytics();
+        cleanups.push(analytics.cleanup);
+
+        analytics.setPageContext('blog_article', 5);
+        analytics.trackPageView();
 
         vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
         const { body } = lastFetch();
 
-        expect(body.some((event) => event.event_type === 'page_view' && event.metadata.referrer === document.referrer)).toBe(true);
+        expect(body).toHaveLength(1);
+        expect(body[0]).toMatchObject({
+            event_type: 'page_view',
+            page_type: 'blog_article',
+            page_entity_id: 5,
+        });
+        expect(body[0].metadata.referrer).toBe(document.referrer);
+    });
+
+    it('shares a single tracker instance across call sites', () => {
+        const first = useAnalytics();
+        const second = useAnalytics();
+        cleanups.push(first.cleanup);
+
+        expect(second).toBe(first);
+
+        first.setPageContext('landing', null);
+        second.track('page_view');
+        vi.advanceTimersByTime(FLUSH_INTERVAL_MS);
+
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(lastFetch().body).toHaveLength(1);
     });
 
     it('swallows fetch failures silently', async () => {

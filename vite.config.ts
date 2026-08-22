@@ -71,6 +71,9 @@ export default defineConfig(({ isSsrBuild }) => ({
             '@auth-admin': featureAlias('Auth/Admin/Components'),
             '@auth': featureAlias('Auth'),
             '@analytics-admin': featureAlias('Analytics/Admin/Components'),
+            // Feature-root alias for page imports in specs (mirrors
+            // `@auth`; the Components-scoped alias cannot reach Pages).
+            '@analytics': featureAlias('Analytics'),
             '@settings-admin': featureAlias('Settings/Admin/Components'),
             '@settings': featureAlias('Settings'),
             '@backup-admin': featureAlias('Backup/Admin/Components'),

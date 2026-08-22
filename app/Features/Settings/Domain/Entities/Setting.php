@@ -98,13 +98,6 @@ final readonly class Setting
             );
         }
 
-        if ($this->name === SettingName::AnalyticsReportFrequency
-            && ! in_array($this->value->asString(), ['daily', 'weekly', 'monthly'], true)) {
-            throw new InvalidArgumentException(
-                sprintf("Setting '%s' must be one of: daily, weekly, monthly.", $this->name->value),
-            );
-        }
-
         // The public site must stay reachable in at least one locale —
         // disabling every locale would leave the portfolio without a
         // rendered language (i18n-and-theming.md; user request 2026-08-07).

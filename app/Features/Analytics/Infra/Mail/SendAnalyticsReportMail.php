@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Analytics\Infra\Mail;
 
-use DateTimeImmutable;
+use App\Features\Analytics\App\DTOs\AnalyticsDigestDto;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -13,11 +13,14 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Queued analytics report mail (analytics.md:189-194, architecture.md:
- * 172): a simple HTML table with the key metrics of the four report
- * types, sent when `analytics_email_enabled` is on and a recipient is
- * configured. The mailable is queued (ShouldQueue) — dispatched via
- * `Mail::to(...)->send()`, which queues ShouldQueue mailables.
+ * Queued analytics digest mail (analytics.md:214-219, architecture.md:
+ * 172, B294): a simple HTML table with the previous day's key metrics
+ * (page views, unique visitors, feedback submissions) and the top
+ * article by views, sent when `analytics_email_enabled` is on and a
+ * recipient is configured. The mailable is queued (ShouldQueue) —
+ * dispatched via `Mail::to(...)->send()`, which queues ShouldQueue
+ * mailables. The digest is built by `GetDailyDigestUseCase` (11.3.5)
+ * before the mailable is queued, so the queued payload is plain data.
  */
 final class SendAnalyticsReportMail extends Mailable implements ShouldQueue
 {
@@ -25,18 +28,8 @@ final class SendAnalyticsReportMail extends Mailable implements ShouldQueue
 
     use SerializesModels;
 
-    /**
-     * @param array{
-     *     overall: array<string, mixed>,
-     *     blog: array<string, mixed>,
-     *     projects: array<string, mixed>,
-     *     feedback: array<string, mixed>,
-     * } $reports
-     */
     public function __construct(
-        public readonly array $reports,
-        public readonly DateTimeImmutable $periodStart,
-        public readonly DateTimeImmutable $periodEnd,
+        public readonly AnalyticsDigestDto $digest,
     ) {
     }
 
@@ -52,7 +45,7 @@ final class SendAnalyticsReportMail extends Mailable implements ShouldQueue
         return new Content(
             view: 'mail.analytics-report',
             with: [
-                'reports' => $this->reports,
+                'digest' => $this->digest,
                 'periodLabel' => $this->periodLabel(),
             ],
         );
@@ -60,8 +53,6 @@ final class SendAnalyticsReportMail extends Mailable implements ShouldQueue
 
     public function periodLabel(): string
     {
-        return $this->periodStart->format('M j')
-            .' – '
-            .$this->periodEnd->format('M j, Y');
+        return $this->digest->day->format('M j, Y');
     }
 }

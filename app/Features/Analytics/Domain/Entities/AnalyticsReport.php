@@ -4,55 +4,78 @@ declare(strict_types=1);
 
 namespace App\Features\Analytics\Domain\Entities;
 
-use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
-use App\Features\Analytics\Domain\ValueObjects\ReportScalarValue;
-use App\Features\Analytics\Domain\ValueObjects\ReportSeriesValue;
-use App\Features\Analytics\Domain\ValueObjects\ReportTableValue;
+use App\Features\Analytics\Domain\Enums\MetricName;
+use App\Features\Analytics\Domain\Enums\MetricSpan;
 use App\Features\Shared\Domain\BaseEntity;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * Base class for the typed analytics reports (analytics.md:174-179,
- * B288/B289): one entity per report type, each exposing its actual
- * results as a map of typed result values — `ReportScalarValue`
- * (scalar with an optional previous-period value), `ReportSeriesValue`
- * (chart points) or `ReportTableValue` (tabular). The report-specific
- * aggregation is encapsulated in the subclasses' constructors (a
- * report instance is created directly from the period's events), so
- * adding a new report type means a new entity, nothing else; the
- * helpers shared by the report classes (averages, previous-period
- * scalars) live here.
+ * One row of `analytics_reports` (database.md:531-548,
+ * analytics.md:186-202, B290): a per-metric aggregate over the daily
+ * metrics, pre-computed for one span. NULL dimension = block/chart
+ * series row (`span = 'all'` for the whole-time blocks, the last-N
+ * rows of the span for the series); otherwise the entity key —
+ * `span = 'all'` + dimension rows power the rankings.
  *
- * The results are the domain representation; the storage/mail/UI
- * serialization happens at the persistence/transport boundary via the
- * result values' `toArray()`.
+ * The constructor protects the invariants: the period bounds are
+ * ordered, the value is finite, and the dimension must fit the
+ * `varchar(500)` column. `fromRow()` materializes a stored row (the
+ * single row-to-entity path — used by the mapper); unknown metric or
+ * span names throw (the storage is written by the aggregation only,
+ * so an unknown name is corrupt data).
  */
-abstract class AnalyticsReport extends BaseEntity
+final class AnalyticsReport extends BaseEntity
 {
-    /** @param array<string, ReportScalarValue|ReportSeriesValue|ReportTableValue> $results */
+    public const MAX_DIMENSION_LENGTH = 500;
+
     public function __construct(
         private readonly int $id,
-        private readonly ReportPeriod $period,
-        private readonly array $results,
-        private readonly DateTimeImmutable $generatedAt,
+        private readonly MetricName $metric,
+        private readonly MetricSpan $span,
+        private readonly ?string $dimension,
+        private readonly DateTimeImmutable $periodStart,
+        private readonly DateTimeImmutable $periodEnd,
+        private readonly float $value,
+        private readonly DateTimeImmutable $createdAt,
     ) {
-        if ($results === []) {
-            throw new InvalidArgumentException('Report results must not be empty.');
+        if ($periodStart > $periodEnd) {
+            throw new InvalidArgumentException('Analytics report period start must not be after its end.');
         }
 
-        foreach ($results as $result) {
-            if (! $result instanceof ReportScalarValue
-                && ! $result instanceof ReportSeriesValue
-                && ! $result instanceof ReportTableValue) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'Report result [%s] must be a ReportScalarValue, ReportSeriesValue or ReportTableValue.',
-                        $result::class,
-                    ),
-                );
-            }
+        if (! is_finite($value)) {
+            throw new InvalidArgumentException('Analytics report value must be finite.');
         }
+
+        if ($dimension !== null && mb_strlen($dimension) > self::MAX_DIMENSION_LENGTH) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Analytics report dimension must not exceed %d characters.',
+                    self::MAX_DIMENSION_LENGTH,
+                ),
+            );
+        }
+    }
+
+    /**
+     * Materializes a stored `analytics_reports` row (array keys match
+     * the column names: id, metric, span, dimension, period_start,
+     * period_end, value, created_at).
+     *
+     * @param array<string, mixed> $row
+     */
+    public static function fromRow(array $row): self
+    {
+        return new self(
+            id: (int) $row['id'],
+            metric: MetricName::from($row['metric']),
+            span: MetricSpan::from($row['span']),
+            dimension: $row['dimension'],
+            periodStart: new DateTimeImmutable($row['period_start']),
+            periodEnd: new DateTimeImmutable($row['period_end']),
+            value: (float) $row['value'],
+            createdAt: new DateTimeImmutable($row['created_at']),
+        );
     }
 
     public function toId(): int
@@ -60,65 +83,38 @@ abstract class AnalyticsReport extends BaseEntity
         return $this->id;
     }
 
-    public function reportType(): string
+    public function toMetric(): MetricName
     {
-        return static::REPORT_TYPE;
+        return $this->metric;
     }
 
-    public function toPeriod(): ReportPeriod
+    public function toSpan(): MetricSpan
     {
-        return $this->period;
+        return $this->span;
+    }
+
+    public function toDimension(): ?string
+    {
+        return $this->dimension;
     }
 
     public function toPeriodStart(): DateTimeImmutable
     {
-        return $this->period->toPeriodStart();
+        return $this->periodStart;
     }
 
     public function toPeriodEnd(): DateTimeImmutable
     {
-        return $this->period->toPeriodEnd();
+        return $this->periodEnd;
     }
 
-    /**
-     * @return array<string, ReportScalarValue|ReportSeriesValue|ReportTableValue>
-     */
-    public function toResults(): array
+    public function toValue(): float
     {
-        return $this->results;
+        return $this->value;
     }
 
-    /** The named scalar result, or null when the key is missing or not a scalar. */
-    public function toScalar(string $key): ?ReportScalarValue
+    public function toCreatedAt(): DateTimeImmutable
     {
-        $result = $this->results[$key] ?? null;
-
-        return $result instanceof ReportScalarValue
-            ? $result
-            : null;
-    }
-
-    public function toGeneratedAt(): DateTimeImmutable
-    {
-        return $this->generatedAt;
-    }
-
-    /**
-     * The previous-period value of the given scalar key (used as the
-     * `previous` of the current period's scalar) — null when the
-     * previous report is missing or does not expose the key as a
-     * scalar.
-     */
-    protected function previousScalarValue(?AnalyticsReport $previous, string $key): int|float|null
-    {
-        return $previous?->toScalar($key)?->toValue();
-    }
-
-    /** The rounded average of the samples; null without samples. */
-    protected function average(int|float $total, int $samples): ?float
-    {
-        return $samples > 0
-            ? round($total / $samples, 1)
-            : null;
+        return $this->createdAt;
     }
 }

@@ -157,6 +157,11 @@ return [
         'batch_too_large' => 'The event batch must not contain more than 100 events.',
         'payload_too_large' => 'The event batch must not exceed 50 KB.',
         'event_invalid' => 'The event batch contains an unknown event type or malformed event payload.',
+        'series_dimension_required' => 'The cta_clicks series requires a dimension.',
+        'series_dimension_forbidden' => 'The dimension filter is only available for the cta_clicks metric.',
+        'rankings_metric_not_allowed' => 'The metric cannot be ranked at the given scope.',
+        'rankings_liked_metric' => 'The liked variant requires the reactions_likes metric.',
+        'rankings_disliked_metric' => 'The disliked variant requires the reactions_dislikes metric.',
     ],
 
     'attributes' => [],

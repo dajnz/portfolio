@@ -30,7 +30,6 @@ class SettingsSeeder extends Seeder
             [SettingName::ProjectsPerPage, config('portfolio.projects_per_page')],
             [SettingName::ArticlesPerPage, config('portfolio.articles_per_page')],
             [SettingName::ExperienceItemsPerPage, config('portfolio.experience_items_per_page')],
-            [SettingName::AnalyticsReportFrequency, config('analytics.report_frequency')],
             [SettingName::AnalyticsEmailEnabled, false],
             [SettingName::AnalyticsEmailRecipient, ''],
             [SettingName::EmailOnFeedback, true],

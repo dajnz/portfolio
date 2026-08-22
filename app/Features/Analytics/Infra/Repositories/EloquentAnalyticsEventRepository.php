@@ -10,6 +10,7 @@ use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
 use App\Features\Analytics\Infra\Mappers\AnalyticsEventMapper;
 use App\Features\Analytics\Infra\Models\AnalyticsEventModel;
 use DateTimeImmutable;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Eloquent-backed raw event storage. The period read uses a half-open
@@ -60,10 +61,26 @@ final class EloquentAnalyticsEventRepository implements AnalyticsEventRepository
             ->all();
     }
 
+    public function deleteAll(): int
+    {
+        return DB::table('analytics_events')->delete();
+    }
+
     public function deleteOlderThan(DateTimeImmutable $cutoff): int
     {
         return AnalyticsEventModel::query()
             ->where('created_at', '<', $cutoff)
             ->delete();
+    }
+
+    public function oldestEventDate(): ?DateTimeImmutable
+    {
+        $oldest = AnalyticsEventModel::query()->min('created_at');
+
+        if ($oldest === null) {
+            return null;
+        }
+
+        return new DateTimeImmutable(substr((string) $oldest, 0, 10));
     }
 }

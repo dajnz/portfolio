@@ -1,9 +1,8 @@
 <!doctype html>
-{{-- Queued analytics report mail (analytics.md:189-194): a simple HTML
-     table with the key metrics of the four report types. The payloads
-     are the serialized typed results (B288): KPIs as {value, previous},
-     series as {points}, tables as {columns, rows} — the values are
-     aggregated numbers and EN titles, no user-controlled markup. --}}
+{{-- Queued analytics digest mail (analytics.md:214-219, B294, 11.3.5):
+     a simple HTML table with the previous day's key metrics and the
+     top article by views. All values are aggregated numbers and
+     translated labels — no user-controlled markup. --}}
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -25,71 +24,27 @@
         <h1>{{ __('mail.analytics_title') }}</h1>
         <div class="period">{{ $periodLabel }}</div>
 
-        <h2>{{ __('mail.analytics_overall') }}</h2>
         <table>
-            <tr><th>{{ __('mail.analytics_total_page_views') }}</th><td class="value">{{ $reports['overall']['total_page_views']['value'] }}</td></tr>
-            <tr><th>{{ __('mail.analytics_unique_visitors') }}</th><td class="value">{{ $reports['overall']['unique_visitors']['value'] }}</td></tr>
-            <tr><th>{{ __('mail.analytics_avg_time_on_page') }}</th><td class="value">{{ $reports['overall']['avg_time_on_page']['value'] ?? '—' }}</td></tr>
-            @foreach ($reports['overall']['cta_clicks']['rows'] as $row)
-                <tr><th>{{ __('mail.analytics_cta_'.$row['target']) }}</th><td class="value">{{ $row['count'] }}</td></tr>
-            @endforeach
+            <tr><th>{{ __('mail.analytics_total_page_views') }}</th><td class="value">{{ $digest->pageViews }}</td></tr>
+            <tr><th>{{ __('mail.analytics_unique_visitors') }}</th><td class="value">{{ $digest->uniqueVisitors }}</td></tr>
+            <tr><th>{{ __('mail.analytics_feedback_submissions') }}</th><td class="value">{{ $digest->feedbackSubmissions }}</td></tr>
         </table>
 
-        <h2>{{ __('mail.analytics_blog') }}</h2>
-        <table>
-            <tr><th>{{ __('mail.analytics_total_views') }}</th><td class="value">{{ $reports['blog']['total_views']['value'] }}</td></tr>
-            <tr><th>{{ __('mail.analytics_unique_visitors') }}</th><td class="value">{{ $reports['blog']['unique_visitors']['value'] }}</td></tr>
-            @foreach ($reports['blog']['reactions']['points'] as $point)
-                <tr><th>{{ __('mail.analytics_'.$point['label']) }}</th><td class="value">{{ $point['value'] }}</td></tr>
-            @endforeach
-        </table>
-        @if (count($reports['blog']['top_articles']['rows']) > 0)
+        <h2>{{ __('mail.analytics_top_article') }}</h2>
+        @if ($digest->topArticle !== null)
             <table>
                 <tr>
                     <th>{{ __('mail.analytics_article') }}</th>
                     <th>{{ __('mail.analytics_views') }}</th>
-                    <th>{{ __('mail.analytics_avg_read_time') }}</th>
-                    <th>{{ __('mail.analytics_completion_rate') }}</th>
                 </tr>
-                @foreach ($reports['blog']['top_articles']['rows'] as $row)
-                    <tr>
-                        <td>{{ $row['title'] }}</td>
-                        <td class="value">{{ $row['views'] }}</td>
-                        <td class="value">{{ $row['avg_read_time'] ?? '—' }}</td>
-                        <td class="value">{{ $row['completion_rate'] ?? '—' }}</td>
-                    </tr>
-                @endforeach
-            </table>
-        @endif
-
-        <h2>{{ __('mail.analytics_projects') }}</h2>
-        @if (count($reports['projects']['project_views']['rows']) > 0)
-            <table>
                 <tr>
-                    <th>{{ __('mail.analytics_project') }}</th>
-                    <th>{{ __('mail.analytics_views') }}</th>
+                    <td>{{ $digest->topArticle->title }}</td>
+                    <td class="value">{{ $digest->topArticle->views }}</td>
                 </tr>
-                @foreach ($reports['projects']['project_views']['rows'] as $row)
-                    <tr>
-                        <td>{{ $row['title'] }}</td>
-                        <td class="value">{{ $row['views'] }}</td>
-                    </tr>
-                @endforeach
             </table>
         @else
             <div class="muted">{{ __('mail.analytics_none') }}</div>
         @endif
-
-        <h2>{{ __('mail.analytics_feedback') }}</h2>
-        <table>
-            <tr><th>{{ __('mail.analytics_total_submissions') }}</th><td class="value">{{ $reports['feedback']['total_submissions']['value'] }}</td></tr>
-            @foreach ($reports['feedback']['submissions_per_day']['points'] as $point)
-                <tr>
-                    <th>{{ $point['label'] }}</th>
-                    <td class="value">{{ $point['value'] }}</td>
-                </tr>
-            @endforeach
-        </table>
     </div>
 </body>
 </html>

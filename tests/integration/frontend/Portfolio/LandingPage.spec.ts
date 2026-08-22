@@ -44,7 +44,7 @@ vi.mock('@inertiajs/vue3', () => ({
 }));
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: analyticsTrack, setPageContext: vi.fn(), cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: analyticsTrack, setPageContext: vi.fn(), cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
 import LandingPage from '@portfolio/Public/Pages/LandingPage.vue';
@@ -203,7 +203,7 @@ describe('LandingPage', () => {
         expect(projects.attributes('href')).toBe('/projects');
     });
 
-    it('fires cta_click_github and cta_click_cv from the about CTAs', async () => {
+    it('fires cta_click_github, cta_click_cv and cta_click_projects from the about CTAs', async () => {
         const wrapper = mountPage();
         await flush();
 
@@ -215,7 +215,7 @@ describe('LandingPage', () => {
 
         analyticsTrack.mockClear();
         await wrapper.get('[data-testid="landing-about-block-cta-projects"]').trigger('click');
-        expect(analyticsTrack).not.toHaveBeenCalled();
+        expect(analyticsTrack).toHaveBeenCalledWith('cta_click_projects');
     });
 
     it('renders the about skeleton when no about row exists', async () => {

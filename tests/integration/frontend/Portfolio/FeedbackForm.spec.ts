@@ -23,7 +23,7 @@ vi.mock('@inertiajs/vue3', () => ({
 }));
 
 vi.mock('@shared-cross/Composables/useAnalytics', () => ({
-    useAnalytics: () => ({ track: analyticsTrack, cleanup: vi.fn() }),
+    useAnalytics: () => ({ track: analyticsTrack, cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
 import FeedbackForm from '@portfolio-public/FeedbackForm.vue';

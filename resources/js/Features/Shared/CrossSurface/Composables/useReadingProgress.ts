@@ -43,7 +43,9 @@ export function useReadingProgress(
         ticking = false;
 
         const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-        const current = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 1;
+        // A page that fits the viewport has no scroll depth — the read
+        // event must not report 100% without the reader scrolling.
+        const current = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
         progress.value = current;
 
         if (!fired && current >= threshold) {

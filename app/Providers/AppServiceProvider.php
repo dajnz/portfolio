@@ -10,8 +10,10 @@ use App\Features\Auth\Infra\Listeners\LoginListener;
 use App\Features\Auth\Infra\Repositories\EloquentAdminRepository;
 use App\Features\Auth\Infra\Repositories\EloquentAdminTimedOtpRepository;
 use App\Features\Analytics\App\Contracts\AnalyticsReportDataReaderInterface;
+use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsDailyMetricRepositoryInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsEventRepositoryInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
+use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsDailyMetricRepository;
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsEventRepository;
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsReportRepository;
 use App\Features\Analytics\Infra\Services\EloquentAnalyticsReportDataReader;
@@ -194,6 +196,11 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
+            AnalyticsDailyMetricRepositoryInterface::class,
+            EloquentAnalyticsDailyMetricRepository::class,
+        );
+
+        $this->app->bind(
             AnalyticsReportRepositoryInterface::class,
             EloquentAnalyticsReportRepository::class,
         );
@@ -319,8 +326,10 @@ class AppServiceProvider extends ServiceProvider
             \App\Features\Auth\Infra\Commands\ResetAdminPasswordCommand::class,
             \App\Features\Shared\Infra\Commands\CleanupOrphanedFilesCommand::class,
             \App\Features\Shared\Infra\Commands\PruneTrashedItemsCommand::class,
-            \App\Features\Analytics\Infra\Commands\GenerateAnalyticsReportsCommand::class,
             \App\Features\Analytics\Infra\Commands\PruneAnalyticsEventsCommand::class,
+            \App\Features\Analytics\Infra\Commands\GenerateDailyMetricsCommand::class,
+            \App\Features\Analytics\Infra\Commands\GenerateAnalyticsReportsCommand::class,
+            \App\Features\Analytics\Infra\Commands\ResetAnalyticsCommand::class,
         ]);
     }
 }
