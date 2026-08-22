@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Integration\Backend\Analytics;
 
 use App\Features\Analytics\App\UseCases\AggregateDailyMetricsUseCase;
-use App\Features\Analytics\App\UseCases\GetDailyDigestUseCase;
+use App\Features\Analytics\App\UseCases\SendDailyDigestUseCase;
 use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsDailyMetricRepositoryInterface;
 use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
@@ -100,24 +100,33 @@ function dailyMetricsRows(): array
     );
 }
 
+/**
+ * The day's rows keyed by `metric → dimension ('' for null) → {value, samples}`
+ * — the catalog-assertion shape shared by the focused tests.
+ *
+ * @return array<string, array<string, array{value: float, samples: int}>>
+ */
+function dailyMetricsByKey(): array
+{
+    $byMetric = [];
+
+    foreach (dailyMetricsRows() as $row) {
+        $byMetric[$row->toMetric()->value][$row->toDimension() ?? ''] = [
+            'value' => $row->toValue(),
+            'samples' => $row->toSamples(),
+        ];
+    }
+
+    return $byMetric;
+}
+
 describe('AggregateDailyMetricsUseCase (integration)', function (): void {
-    it('aggregates the full metric catalog for the day', function (): void {
+    it('aggregates the global metrics for the day', function (): void {
         seedDailyMetricsFixture();
         runDailyAggregation();
 
-        $rows = dailyMetricsRows();
+        $byMetric = dailyMetricsByKey();
 
-        expect($rows)->not->toBeEmpty();
-
-        $byMetric = [];
-        foreach ($rows as $row) {
-            $byMetric[$row->toMetric()->value][$row->toDimension() ?? ''] = [
-                'value' => $row->toValue(),
-                'samples' => $row->toSamples(),
-            ];
-        }
-
-        // Global.
         expect($byMetric['page_views'][''])->toBe(['value' => 3.0, 'samples' => 1]);
         // ip-a, ip-b (page views + reads + like) and ip-c (dislike).
         expect($byMetric['unique_visitors'][''])->toBe(['value' => 3.0, 'samples' => 1]);
@@ -126,9 +135,16 @@ describe('AggregateDailyMetricsUseCase (integration)', function (): void {
         expect($byMetric['time_on_page_samples'][''])->toBe(['value' => 3.0, 'samples' => 1]);
         expect($byMetric['time_on_page_min'][''])->toBe(['value' => 10.0, 'samples' => 1]);
         expect($byMetric['time_on_page_max'][''])->toBe(['value' => 80.0, 'samples' => 1]);
+    });
 
-        // Blog-scoped.
+    it('aggregates the blog-scoped metrics from the article-page events', function (): void {
+        seedDailyMetricsFixture();
+        runDailyAggregation();
+
+        $byMetric = dailyMetricsByKey();
+
         expect($byMetric['blog_views'][''])->toBe(['value' => 1.0, 'samples' => 1]);
+        // ip-a, ip-b (reads + like) and ip-c (dislike) on the article page.
         expect($byMetric['blog_unique_visitors'][''])->toBe(['value' => 3.0, 'samples' => 1]);
         expect($byMetric['read_time_seconds'][''])->toBe(['value' => 120.0, 'samples' => 2]);
         expect($byMetric['read_time_min'][''])->toBe(['value' => 40.0, 'samples' => 1]);
@@ -138,24 +154,51 @@ describe('AggregateDailyMetricsUseCase (integration)', function (): void {
         expect($byMetric['completion_rate_max'][''])->toBe(['value' => 100.0, 'samples' => 1]);
         expect($byMetric['reactions_likes'][''])->toBe(['value' => 1.0, 'samples' => 1]);
         expect($byMetric['reactions_dislikes'][''])->toBe(['value' => 1.0, 'samples' => 1]);
+    });
 
-        // CTA per target.
+    it('aggregates the cta clicks per target', function (): void {
+        seedDailyMetricsFixture();
+        runDailyAggregation();
+
+        $byMetric = dailyMetricsByKey();
+
         expect($byMetric['cta_clicks']['cv'])->toBe(['value' => 1.0, 'samples' => 1]);
         expect($byMetric['cta_clicks']['language'])->toBe(['value' => 1.0, 'samples' => 1]);
         expect($byMetric['cta_clicks']['theme'])->toBe(['value' => 1.0, 'samples' => 1]);
+    });
 
-        // Per page.
+    it('aggregates the per-page time-on-page rows keyed by the page url', function (): void {
+        seedDailyMetricsFixture();
+        runDailyAggregation();
+
+        $byMetric = dailyMetricsByKey();
+
         expect($byMetric['time_on_page_seconds']['https://example.com/'])->toBe(['value' => 10.0, 'samples' => 1]);
+    });
 
-        // Per article / per project.
+    it('aggregates the per-article rows keyed by article:{id}', function (): void {
+        seedDailyMetricsFixture();
+        runDailyAggregation();
+
+        $byMetric = dailyMetricsByKey();
+
         expect($byMetric['views']['article:5'])->toBe(['value' => 1.0, 'samples' => 1]);
         expect($byMetric['unique_visitors']['article:5'])->toBe(['value' => 1.0, 'samples' => 1]);
         expect($byMetric['read_time_seconds']['article:5'])->toBe(['value' => 120.0, 'samples' => 2]);
         expect($byMetric['completion_rate_sum']['article:5'])->toBe(['value' => 150.0, 'samples' => 2]);
         expect($byMetric['reactions_likes']['article:5'])->toBe(['value' => 1.0, 'samples' => 1]);
         expect($byMetric['reactions_dislikes']['article:5'])->toBe(['value' => 1.0, 'samples' => 1]);
+    });
+
+    it('aggregates the per-project rows and the project-scoped uniques', function (): void {
+        seedDailyMetricsFixture();
+        runDailyAggregation();
+
+        $byMetric = dailyMetricsByKey();
+
         expect($byMetric['views']['project:7'])->toBe(['value' => 1.0, 'samples' => 1]);
         expect($byMetric['unique_visitors']['project:7'])->toBe(['value' => 1.0, 'samples' => 1]);
+        expect($byMetric['project_unique_visitors'][''])->toBe(['value' => 1.0, 'samples' => 1]);
     });
 
     it('re-aggregating the same input produces the identical rows (upsert idempotence)', function (): void {
@@ -227,8 +270,7 @@ describe('AggregateDailyMetricsJob (integration)', function (): void {
         );
         $job->handle(
             app(AggregateDailyMetricsUseCase::class),
-            app(GetDailyDigestUseCase::class),
-            app(SettingRepositoryInterface::class),
+            app(SendDailyDigestUseCase::class),
         );
 
         Bus::assertDispatched(RebuildReportsJob::class);
@@ -264,8 +306,7 @@ describe('AggregateDailyMetricsJob (integration)', function (): void {
         );
         $job->handle(
             app(AggregateDailyMetricsUseCase::class),
-            app(GetDailyDigestUseCase::class),
-            app(SettingRepositoryInterface::class),
+            app(SendDailyDigestUseCase::class),
         );
 
         Mail::assertQueued(SendAnalyticsReportMail::class, function (SendAnalyticsReportMail $mail): bool {
@@ -290,8 +331,7 @@ describe('AggregateDailyMetricsJob (integration)', function (): void {
         );
         $job->handle(
             app(AggregateDailyMetricsUseCase::class),
-            app(GetDailyDigestUseCase::class),
-            app(SettingRepositoryInterface::class),
+            app(SendDailyDigestUseCase::class),
         );
 
         Mail::assertNotQueued(SendAnalyticsReportMail::class);
@@ -308,8 +348,7 @@ describe('AggregateDailyMetricsJob (integration)', function (): void {
         );
         $job->handle(
             app(AggregateDailyMetricsUseCase::class),
-            app(GetDailyDigestUseCase::class),
-            app(SettingRepositoryInterface::class),
+            app(SendDailyDigestUseCase::class),
         );
 
         Mail::assertNotQueued(SendAnalyticsReportMail::class);
