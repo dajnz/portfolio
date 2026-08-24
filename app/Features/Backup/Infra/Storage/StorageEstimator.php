@@ -6,6 +6,7 @@ namespace App\Features\Backup\Infra\Storage;
 
 use App\Features\Backup\App\Contracts\AssetPathCollectorInterface;
 use App\Features\Backup\App\Contracts\DbTableBatchReadable;
+use App\Features\Backup\App\Contracts\StorageEstimatorInterface;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use InvalidArgumentException;
 
@@ -26,7 +27,7 @@ use const JSON_UNESCAPED_UNICODE;
  * `hasEnoughSpace()` returns false when the available space is below
  * the 2× requirement (backup.md:249).
  */
-final class StorageEstimator
+final class StorageEstimator implements StorageEstimatorInterface
 {
     /**
      * Rows per batch while streaming the data-size estimate.

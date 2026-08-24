@@ -44,13 +44,15 @@ final class JsonlTableSerializer implements DbTableExportable, DbTableImportable
     ) {
     }
 
-    public function writeToFile(DbTableBatchReadable $source, string $path): void
+    public function writeToFile(DbTableBatchReadable $source, string $path): int
     {
         $handle = fopen($path, 'wb');
 
         if ($handle === false) {
             throw new RuntimeException("Unable to open the JSONL export file for '{$this->tableName}' at '{$path}'.");
         }
+
+        $rows = 0;
 
         try {
             foreach ($source->readBatch(self::BATCH_SIZE) as $row) {
@@ -59,10 +61,14 @@ final class JsonlTableSerializer implements DbTableExportable, DbTableImportable
                 if (fwrite($handle, $line."\n") === false) {
                     throw new RuntimeException("Unable to write the JSONL export file for '{$this->tableName}'.");
                 }
+
+                $rows++;
             }
         } finally {
             fclose($handle);
         }
+
+        return $rows;
     }
 
     public function readFromFile(string $path, DbTableBatchWritable $dest): void
