@@ -6,10 +6,12 @@ namespace App\Features\Backup\App\Contracts;
 
 /**
  * Batch object transfer to/from the archive storage (backup.md:201-207,
- * 353-369): concurrent downloads/uploads keyed by path. The contract
+ * 353-369): concurrent downloads/uploads keyed by path, plus batch
+ * deletion (the restore's delete-extras mirror and the archive
+ * hard-deletes of delete/prune — backup.md:405,435-438). The contract
  * is storage-agnostic — the Infra layer's `RustFsBatchTransfer`
  * implements it over RustFS; the app layer never names the storage
- * backend.
+ * backend. Deleting a missing object is a no-op.
  */
 interface StorageBatchTransferable
 {
@@ -28,4 +30,13 @@ interface StorageBatchTransferable
      * @param  array<string, string>  $localToRemote  local path => object key
      */
     public function uploadBatch(array $localToRemote): void;
+
+    /**
+     * Hard-deletes the given object keys (the restore's exact mirror —
+     * objects absent from the manifest — and the archive deletions of
+     * `DestroyBackupUseCase`/`PruneBackupsUseCase`).
+     *
+     * @param  list<string>  $remotePaths
+     */
+    public function deleteObjects(array $remotePaths): void;
 }
