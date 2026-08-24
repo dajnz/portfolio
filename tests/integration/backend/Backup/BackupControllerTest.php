@@ -93,6 +93,11 @@ describe('BackupController', function (): void {
 
         $this->post('/admin/backups/restore', [
             'backup_id' => $backup->id,
+            'password' => 'wrong-password',
+        ])->assertSessionHasErrors(['password' => __('auth.current_password_incorrect')]);
+
+        $this->post('/admin/backups/restore', [
+            'backup_id' => $backup->id,
         ])->assertSessionHasErrors('password');
     });
 
