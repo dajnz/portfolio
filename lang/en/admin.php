@@ -592,6 +592,10 @@ return [
         'generate_reports_started' => 'Reports generation started.',
         'failed_to_save' => 'Failed to save. Please try again.',
         'upload_failed' => 'Upload failed, try again.',
+        'backup_created' => 'Backup created.',
+        'backup_deleted' => 'Backup deleted.',
+        'backup_restore_started' => 'Restore started. The site is in maintenance mode until it completes.',
+        'backup_restore_failed' => 'Could not start the restore.',
     ],
 
     'lists' => [

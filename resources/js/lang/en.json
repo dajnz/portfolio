@@ -547,6 +547,10 @@
             "title": "Tags"
         },
         "toasts": {
+            "backup_created": "Backup created.",
+            "backup_deleted": "Backup deleted.",
+            "backup_restore_failed": "Could not start the restore.",
+            "backup_restore_started": "Restore started. The site is in maintenance mode until it completes.",
             "delete_failed": "Could not delete feedback.",
             "deleted": "Deleted successfully.",
             "failed_to_save": "Failed to save. Please try again.",
