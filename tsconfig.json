@@ -88,6 +88,9 @@
             "@backup-admin/*": [
                 "./resources/js/Features/Backup/Admin/Components/*"
             ],
+            "@backup/*": [
+                "./resources/js/Features/Backup/*"
+            ],
             "@techskills-admin/*": [
                 "./resources/js/Features/TechSkills/Admin/Components/*"
             ],
