@@ -37,6 +37,14 @@ interface EncryptionKeyRepositoryInterface
     public function findActive(): ?EncryptionKey;
 
     /**
+     * Every key, newest first — the admin keys list
+     * (admin-section-ui.md:482-489).
+     *
+     * @return list<EncryptionKey>
+     */
+    public function all(): array;
+
+    /**
      * Hard-deletes the row — the DB's `ON DELETE RESTRICT` on
      * `backups.encryption_key_id` rejects it while backups still
      * reference the key (database.md:587); the use case checks

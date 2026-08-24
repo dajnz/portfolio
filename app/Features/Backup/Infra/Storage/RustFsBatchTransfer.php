@@ -72,4 +72,11 @@ final class RustFsBatchTransfer implements StorageBatchTransferable
             }
         }
     }
+
+    public function deleteObjects(array $remotePaths): void
+    {
+        foreach ($remotePaths as $remotePath) {
+            $this->disk->delete($remotePath);
+        }
+    }
 }

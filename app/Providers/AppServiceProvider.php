@@ -17,6 +17,30 @@ use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsDailyMetricReposi
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsEventRepository;
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsReportRepository;
 use App\Features\Analytics\Infra\Services\EloquentAnalyticsReportDataReader;
+use App\Features\Backup\App\Contracts\AssetPathCollectorInterface;
+use App\Features\Backup\App\Contracts\BackupArchiveInterface;
+use App\Features\Backup\App\Contracts\BackupJobDispatcherInterface;
+use App\Features\Backup\App\Contracts\StorageBatchTransferable;
+use App\Features\Backup\App\Contracts\StorageEstimatorInterface;
+use App\Features\Backup\App\Contracts\TableTruncatorInterface;
+use App\Features\Backup\App\DTOs\BackupSources;
+use App\Features\Backup\App\Services\BackupWorkflowService;
+use App\Features\Backup\App\Services\DatabaseRestoreService;
+use App\Features\Backup\App\Services\RestoreWorkflowService;
+use App\Features\Backup\App\UseCases\CreateBackupUseCase;
+use App\Features\Backup\App\UseCases\PruneBackupsUseCase;
+use App\Features\Backup\App\UseCases\RestoreBackupUseCase;
+use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
+use App\Features\Backup\Domain\RepositoryInterfaces\EncryptionKeyRepositoryInterface;
+use App\Features\Backup\Infra\Archive\ZipBackupArchive;
+use App\Features\Backup\Infra\Persistence\LaravelTableTruncator;
+use App\Features\Backup\Infra\Repositories\EloquentBackupRepository;
+use App\Features\Backup\Infra\Repositories\EloquentEncryptionKeyRepository;
+use App\Features\Backup\Infra\Services\BackupTableFactory;
+use App\Features\Backup\Infra\Services\QueueBackupJobDispatcher;
+use App\Features\Backup\Infra\Storage\RustFsAssetPathCollector;
+use App\Features\Backup\Infra\Storage\RustFsBatchTransfer;
+use App\Features\Backup\Infra\Storage\StorageEstimator;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleReactionRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
@@ -55,20 +79,26 @@ use App\Features\Settings\Infra\Repositories\EloquentFeatureFlagRepository;
 use App\Features\Settings\Infra\Repositories\EloquentSettingRepository;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
+use App\Features\Shared\App\Contracts\CacheClearerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
+use App\Features\Shared\App\Contracts\MaintenanceModeInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\PublishedArticleReadRepositoryInterface;
+use App\Features\Shared\Domain\RepositoryInterfaces\SettingsReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 use App\Features\Shared\Infra\Repositories\EloquentAboutInfoReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentProjectReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentPublishedArticleReadRepository;
+use App\Features\Shared\Infra\Repositories\EloquentSettingsReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
 use App\Features\Shared\Infra\Services\AdminListCountCacheInvalidator;
 use App\Features\Shared\Infra\Services\AdminListPaginator;
+use App\Features\Shared\Infra\Services\LaravelCacheClearer;
+use App\Features\Shared\Infra\Services\LaravelMaintenanceMode;
 use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
 use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
 use App\Features\Shared\Infra\Services\RustFsAssetCleaner;
@@ -78,6 +108,7 @@ use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepository
 use App\Features\TechSkills\Infra\Repositories\EloquentTechSkillWriteRepository;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
@@ -287,6 +318,174 @@ class AppServiceProvider extends ServiceProvider
             ResumePdfRendererInterface::class,
             ResumePdfRenderer::class,
         );
+
+        // The Backup feature's repositories + workflow services. The
+        // storage surfaces: `Filesystem` (the contract) resolves to the
+        // private `backups` disk (its only consumer — the archives live
+        // there); the transfers are per-bucket instances (B301) — the
+        // assets one is the named `backup.assets-transfer` binding, the
+        // interface binds the backups bucket. The workflows consume
+        // only app-layer contracts: the per-table readers/exporters/
+        // writers arrive as ready bundles from `BackupTableFactory`
+        // (B306) and the config-derived values via the `BackupSources`
+        // DTO. The Shared cross-feature surfaces (B306) sit in front
+        // of the Settings feature.
+        $this->app->bind(
+            BackupRepositoryInterface::class,
+            EloquentBackupRepository::class,
+        );
+
+        $this->app->bind(
+            EncryptionKeyRepositoryInterface::class,
+            EloquentEncryptionKeyRepository::class,
+        );
+
+        $this->app->bind(
+            AssetPathCollectorInterface::class,
+            RustFsAssetPathCollector::class,
+        );
+
+        $this->app->bind(
+            BackupArchiveInterface::class,
+            fn (): ZipBackupArchive => new ZipBackupArchive(
+                encryptionEnabled: config('backup.encryption_enabled', true),
+            ),
+        );
+
+        $this->app->bind(
+            StorageEstimatorInterface::class,
+            fn ($app): StorageEstimator => new StorageEstimator(
+                assetCollector: $app->make(AssetPathCollectorInterface::class),
+                assetsDisk: $app->make('backup.assets-disk'),
+                stagingPath: config('backup.staging_path'),
+            ),
+        );
+
+        $this->app->bind(
+            TableTruncatorInterface::class,
+            LaravelTableTruncator::class,
+        );
+
+        $this->app->bind(
+            BackupJobDispatcherInterface::class,
+            QueueBackupJobDispatcher::class,
+        );
+
+        $this->app->bind(
+            Filesystem::class,
+            fn ($app): \Illuminate\Contracts\Filesystem\Filesystem => $app['filesystem']->disk('rustfs-backups'),
+        );
+
+        $this->app->bind(
+            StorageBatchTransferable::class,
+            fn ($app): RustFsBatchTransfer => new RustFsBatchTransfer($app['filesystem']->disk('rustfs-backups')),
+        );
+
+        $this->app->bind(
+            'backup.assets-transfer',
+            fn ($app): RustFsBatchTransfer => new RustFsBatchTransfer($app['filesystem']->disk('rustfs')),
+        );
+
+        $this->app->bind(
+            'backup.assets-disk',
+            fn ($app): \Illuminate\Contracts\Filesystem\Filesystem => $app['filesystem']->disk('rustfs'),
+        );
+
+        // The Shared cross-feature surfaces (B306): settings reads and
+        // the maintenance toggle for non-Settings features, and the
+        // restore's cache flush.
+        $this->app->bind(
+            SettingsReadRepositoryInterface::class,
+            EloquentSettingsReadRepository::class,
+        );
+
+        $this->app->bind(
+            MaintenanceModeInterface::class,
+            LaravelMaintenanceMode::class,
+        );
+
+        $this->app->bind(
+            CacheClearerInterface::class,
+            LaravelCacheClearer::class,
+        );
+
+        $backupSources = fn (): BackupSources => new BackupSources(
+            stagingPath: config('backup.staging_path'),
+            assetsBucket: config('filesystems.disks.rustfs.bucket'),
+        );
+
+        $this->app->bind(
+            BackupWorkflowService::class,
+            fn ($app): BackupWorkflowService => new BackupWorkflowService(
+                assetCollector: $app->make(AssetPathCollectorInterface::class),
+                assetsTransfer: $app->make('backup.assets-transfer'),
+                backupsTransfer: $app->make(StorageBatchTransferable::class),
+                archive: $app->make(BackupArchiveInterface::class),
+                backupRepo: $app->make(BackupRepositoryInterface::class),
+                pruner: $app->make(PruneBackupsUseCase::class),
+                estimator: $app->make(StorageEstimatorInterface::class),
+                sources: $backupSources(),
+                tables: $app->make(BackupTableFactory::class)->exportTables(),
+            ),
+        );
+
+        $this->app->bind(
+            DatabaseRestoreService::class,
+            fn ($app): DatabaseRestoreService => new DatabaseRestoreService(
+                truncator: $app->make(TableTruncatorInterface::class),
+                truncateOrder: config('backup.truncate_order'),
+                tables: $app->make(BackupTableFactory::class)->importTables(),
+            ),
+        );
+
+        $this->app->bind(
+            RestoreWorkflowService::class,
+            fn ($app): RestoreWorkflowService => new RestoreWorkflowService(
+                backupsTransfer: $app->make(StorageBatchTransferable::class),
+                assetsTransfer: $app->make('backup.assets-transfer'),
+                archive: $app->make(BackupArchiveInterface::class),
+                assetCollector: $app->make(AssetPathCollectorInterface::class),
+                databaseRestore: $app->make(DatabaseRestoreService::class),
+                maintenance: $app->make(MaintenanceModeInterface::class),
+                sitemap: $app->make(SitemapInvalidatorInterface::class),
+                cacheClearer: $app->make(CacheClearerInterface::class),
+                logger: $app->make(\Psr\Log\LoggerInterface::class),
+                sources: $backupSources(),
+            ),
+        );
+
+        // The use cases whose constructor takes config-derived scalars
+        // (encryption toggles, the legacy key fallback, the retention
+        // fallback) are wired explicitly; the rest auto-resolve.
+        $this->app->bind(
+            CreateBackupUseCase::class,
+            fn ($app): CreateBackupUseCase => new CreateBackupUseCase(
+                backups: $app->make(BackupRepositoryInterface::class),
+                keys: $app->make(EncryptionKeyRepositoryInterface::class),
+                dispatcher: $app->make(BackupJobDispatcherInterface::class),
+                encryptionEnabled: (bool) config('backup.encryption_enabled', true),
+            ),
+        );
+
+        $this->app->bind(
+            RestoreBackupUseCase::class,
+            fn ($app): RestoreBackupUseCase => new RestoreBackupUseCase(
+                backups: $app->make(BackupRepositoryInterface::class),
+                keys: $app->make(EncryptionKeyRepositoryInterface::class),
+                workflow: $app->make(RestoreWorkflowService::class),
+                legacyEncryptionKey: config('backup.encryption_key') ?: null,
+            ),
+        );
+
+        $this->app->bind(
+            PruneBackupsUseCase::class,
+            fn ($app): PruneBackupsUseCase => new PruneBackupsUseCase(
+                backups: $app->make(BackupRepositoryInterface::class),
+                settings: $app->make(SettingsReadRepositoryInterface::class),
+                backupsTransfer: $app->make(StorageBatchTransferable::class),
+                fallbackMaxCount: (int) config('backup.max_count', 30),
+            ),
+        );
     }
 
     /**
@@ -330,6 +529,10 @@ class AppServiceProvider extends ServiceProvider
             \App\Features\Analytics\Infra\Commands\GenerateDailyMetricsCommand::class,
             \App\Features\Analytics\Infra\Commands\GenerateAnalyticsReportsCommand::class,
             \App\Features\Analytics\Infra\Commands\ResetAnalyticsCommand::class,
+            \App\Features\Backup\Infra\Commands\CreateBackupCommand::class,
+            \App\Features\Backup\Infra\Commands\RestoreBackupCommand::class,
+            \App\Features\Backup\Infra\Commands\PruneBackupsCommand::class,
+            \App\Features\Backup\Infra\Commands\GenerateEncryptionKeyCommand::class,
         ]);
     }
 }

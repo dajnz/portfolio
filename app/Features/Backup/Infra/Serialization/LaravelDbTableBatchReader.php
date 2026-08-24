@@ -8,19 +8,27 @@ use App\Features\Backup\App\Contracts\DbTableBatchReadable;
 use Generator;
 use Illuminate\Support\Facades\DB;
 
+use function is_array;
+
 /**
  * The query-builder batch reader (backup.md:254-270, 379): streams one
  * table's rows as arrays keyed by column name, in keyset-paginated
- * chunks of `$batchSize` ordered by the primary key (`id`, or `key`
- * for the `settings` table which has no `id` column). Keyset
- * pagination (not `offset`) keeps the export stable while rows change
- * concurrently and avoids the offset scan cost on large tables.
+ * chunks of `$batchSize` ordered by the key column(s) — `id` by
+ * default, `key` for the `settings` table (B301), and the composite
+ * primary-key columns for the translation/pivot tables that have no
+ * `id` (the row-value comparison keeps the keyset stable under
+ * duplicate first-column values). Keyset pagination (not `offset`)
+ * keeps the export stable while rows change concurrently and avoids
+ * the offset scan cost on large tables.
  */
 final class LaravelDbTableBatchReader implements DbTableBatchReadable
 {
+    /**
+     * @param  string|list<string>  $keyColumns
+     */
     public function __construct(
         private readonly string $tableName,
-        private readonly string $keyColumn = 'id',
+        private readonly string|array $keyColumns = 'id',
     ) {
     }
 
@@ -29,21 +37,26 @@ final class LaravelDbTableBatchReader implements DbTableBatchReadable
      */
     public function readBatch(int $batchSize): Generator
     {
+        $keys = is_array($this->keyColumns) ? $this->keyColumns : [$this->keyColumns];
         $lastKey = null;
 
         do {
-            $query = DB::table($this->tableName)
-                ->orderBy($this->keyColumn)
-                ->limit($batchSize);
+            $query = DB::table($this->tableName);
+
+            foreach ($keys as $key) {
+                $query->orderBy($key);
+            }
+
+            $query->limit($batchSize);
 
             if ($lastKey !== null) {
-                $query->where($this->keyColumn, '>', $lastKey);
+                $query->whereRowValues($keys, '>', $lastKey);
             }
 
             $rows = $query->get();
 
             foreach ($rows as $row) {
-                $lastKey = $row->{$this->keyColumn};
+                $lastKey = array_map(static fn (string $key): mixed => $row->{$key}, $keys);
                 yield (array) $row;
             }
 

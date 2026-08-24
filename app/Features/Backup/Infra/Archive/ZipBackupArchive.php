@@ -34,7 +34,9 @@ use function substr;
  * archive reads with any password). The produced archive follows the
  * B18 filename convention `backup-{Y-m-d-His}-k{id}.zip` — the key id
  * suffix is passed by the caller (the workflow owns the key record's
- * id); without it the plain `backup-{Y-m-d-His}.zip` is produced.
+ * id); the optional `$filename` lets the create workflow force the
+ * exact name the pending `backups` row carries, so the record, the
+ * RustFS object key and the offline artifact always agree (B302).
  *
  * Failures (unopenable archive, wrong key, corrupt manifest) throw a
  * `RuntimeException` — the DR import's "invalid key or corrupted
@@ -47,9 +49,9 @@ final class ZipBackupArchive implements BackupArchiveInterface
     ) {
     }
 
-    public function create(string $sourceDir, string $encryptionKey, ?int $encryptionKeyId = null): string
+    public function create(string $sourceDir, string $encryptionKey, ?int $encryptionKeyId = null, ?string $filename = null): string
     {
-        $filename = 'backup-'.date('Y-m-d-His').($encryptionKeyId !== null ? '-k'.$encryptionKeyId : '').'.zip';
+        $filename ??= 'backup-'.date('Y-m-d-His').($encryptionKeyId !== null ? '-k'.$encryptionKeyId : '').'.zip';
         $path = dirname($sourceDir).'/'.$filename;
 
         $zip = new ZipArchive();

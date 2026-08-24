@@ -18,11 +18,12 @@ Artisan::command('inspire', function () {
  * runs at 02:00 daily (analytics.md:182 — supersedes B22's old
  * `analytics:generate-reports` every-4-hours cadence); the manual full
  * rebuild command `analytics:generate-reports` (11.3.3) is NOT
- * scheduled — manual only. `backup:create` lands with the Backup
- * feature (step 12.3, B22).
+ * scheduled — manual only. `backup:create` runs daily at 02:00
+ * (backup.md:460).
  */
 
 Schedule::command('app:cleanup-orphaned-files')->cron('0 3 1 * *');
 Schedule::command('app:prune-trashed-items')->cron('0 3 1 * *');
 Schedule::command('analytics:prune-events')->cron('0 3 1 * *');
 Schedule::command('analytics:generate-daily-metrics')->dailyAt('02:00');
+Schedule::command('backup:create')->dailyAt('02:00');

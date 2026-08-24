@@ -9,6 +9,9 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 use function base64_decode;
+use function bin2hex;
+use function random_bytes;
+use function sprintf;
 use function strlen;
 
 /**
@@ -61,6 +64,25 @@ final class EncryptionKey extends BaseEntity
             isActive: (bool) $row['is_active'],
             createdAt: new DateTimeImmutable($row['created_at']),
             updatedAt: new DateTimeImmutable($row['updated_at']),
+        );
+    }
+
+    /**
+     * The DR-imported key (backup.md:417): `is_active = false` — it
+     * serves this specific imported backup only, never future
+     * creations. The name follows the `imported-{Y-m-d-His}-{hex}`
+     * convention (unique + NOT NULL, database.md:557) so multiple
+     * imports never collide.
+     */
+    public static function forImport(string $rawKey, DateTimeImmutable $createdAt): self
+    {
+        return new self(
+            id: 0,
+            name: sprintf('imported-%s-%s', $createdAt->format('Y-m-d-His'), bin2hex(random_bytes(4))),
+            keyValue: $rawKey,
+            isActive: false,
+            createdAt: $createdAt,
+            updatedAt: $createdAt,
         );
     }
 
