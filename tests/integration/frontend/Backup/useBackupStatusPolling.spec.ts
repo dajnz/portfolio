@@ -142,6 +142,34 @@ describe('useBackupStatusPolling', () => {
         wrapper.unmount();
     });
 
+    it('fires onCompleted when the completed_at stamp changes without a processing observation', async () => {
+        // A worker faster than the poll interval re-completes the record
+        // between polls — the re-completion re-stamps `completed_at`.
+        const { api, wrapper } = createHost();
+        const onCompleted = vi.fn();
+
+        fetchMock
+            .mockResolvedValueOnce(
+                jsonResponse(statusPayload('completed', { completed_at: '2026-08-01T02:00:00+00:00' })),
+            )
+            .mockResolvedValueOnce(
+                jsonResponse(statusPayload('completed', { completed_at: '2026-08-24T12:00:00+00:00' })),
+            );
+
+        api.start({ id: 1, restore: true, onCompleted });
+
+        await settle();
+        expect(onCompleted).not.toHaveBeenCalled();
+
+        await vi.advanceTimersByTimeAsync(2000);
+        await settle();
+
+        expect(onCompleted).toHaveBeenCalledTimes(1);
+        expect(api.isPolling.value).toBe(false);
+
+        wrapper.unmount();
+    });
+
     it('keeps polling a completed row in restore mode until a transition is observed', async () => {
         const { api, wrapper } = createHost();
         const onCompleted = vi.fn();

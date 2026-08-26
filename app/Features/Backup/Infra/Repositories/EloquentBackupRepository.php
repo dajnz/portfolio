@@ -84,7 +84,10 @@ final class EloquentBackupRepository implements BackupRepositoryInterface
 
     public function countForEncryptionKey(int $encryptionKeyId): int
     {
-        return BackupModel::query()
+        // Trashed rows count too — the FK `ON DELETE RESTRICT` (database
+        // .md:587) sees every row, so the delete-eligibility guard must
+        // match (a soft-deleted backup still pins its key).
+        return BackupModel::withTrashed()
             ->where('encryption_key_id', $encryptionKeyId)
             ->count();
     }

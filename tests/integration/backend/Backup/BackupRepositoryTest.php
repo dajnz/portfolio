@@ -133,7 +133,7 @@ describe('EloquentBackupRepository', function (): void {
             ->and($repository->oldestActive(1))->toHaveCount(1);
     });
 
-    it('counts backups referencing a key and excludes trashed rows', function (): void {
+    it('counts backups referencing a key including trashed rows (the FK restrict sees every row)', function (): void {
         $key = \App\Features\Backup\Infra\Models\BackupEncryptionKeyModel::factory()->create();
 
         BackupModel::factory()->create(['encryption_key_id' => $key->id]);
@@ -143,7 +143,7 @@ describe('EloquentBackupRepository', function (): void {
 
         $repository = app(BackupRepositoryInterface::class);
 
-        expect($repository->countForEncryptionKey($key->id))->toBe(2);
+        expect($repository->countForEncryptionKey($key->id))->toBe(3);
     });
 
     it('soft-deletes records so reads return null', function (): void {

@@ -17,11 +17,15 @@ export interface BackupPollingOptions {
     /** The backup record whose status endpoint is polled. */
     id: number;
     /** Restore-mode semantics (backup.md:598, A1): a terminal
-     *  `completed` counts only after a non-terminal status was observed
-     *  (the record re-completes after its restore), and a 404 — the
-     *  restored database swapped out the row — also counts as
-     *  completed. Create-mode polls plain `pending → processing →
-     *  completed/failed` and stop silently on a 404. */
+     *  `completed` counts only after the restore actually ran — either a
+     *  non-terminal status was observed (the record re-completes after
+     *  its restore) or the record's `completed_at` stamp CHANGED between
+     *  polls (a worker faster than the poll interval never lets the
+     *  record show `processing`, but the re-completion re-stamps the
+     *  timestamp). A 404 — the restored database swapped the row out —
+     *  also counts as completed. Create-mode polls plain
+     *  `pending → processing → completed/failed` and stop silently on a
+     *  404. */
     restore?: boolean;
     /** Poll interval in milliseconds (~2 s per A1). */
     intervalMs?: number;
@@ -55,6 +59,7 @@ export function useBackupStatusPolling(): BackupPollingHandle {
     let interval: ReturnType<typeof setInterval> | null = null;
     let ticks = 0;
     let observedNonTerminal = false;
+    let firstCompletedAt: string | null = null;
     let options: BackupPollingOptions | null = null;
 
     function stop(): void {
@@ -132,8 +137,25 @@ export function useBackupStatusPolling(): BackupPollingHandle {
 
                 if (data.status === 'completed') {
                     if (current.restore === true && !observedNonTerminal) {
-                        // The worker has not picked the record up yet —
-                        // keep polling until a transition is observed.
+                        if (firstCompletedAt === null) {
+                            // First observation — remember the stamp; the
+                            // worker may not have picked the record up yet.
+                            firstCompletedAt = data.completed_at;
+
+                            return;
+                        }
+
+                        if (data.completed_at !== firstCompletedAt) {
+                            // The stamp changed — the restore re-completed
+                            // the record between polls (a worker faster
+                            // than the interval never showed `processing`).
+                            complete(data);
+
+                            return;
+                        }
+
+                        // Unchanged — the worker has not started; keep
+                        // polling.
                         return;
                     }
 
@@ -167,6 +189,7 @@ export function useBackupStatusPolling(): BackupPollingHandle {
         };
         ticks = 0;
         observedNonTerminal = false;
+        firstCompletedAt = null;
         progress.value = null;
         errorMessage.value = null;
         isPolling.value = true;
