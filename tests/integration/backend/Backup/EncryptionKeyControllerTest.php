@@ -94,15 +94,15 @@ describe('EncryptionKeyController', function (): void {
         expect(BackupEncryptionKeyModel::query()->find($key->id))->not->toBeNull();
     });
 
-    it('rejects deleting a key referenced only by trashed backups (the FK sees every row)', function (): void {
+    it('deletes a key referenced only by trashed backups (the trashed rows are detached first)', function (): void {
         $key = BackupEncryptionKeyModel::factory()->create();
         $backup = BackupModel::factory()->create(['encryption_key_id' => $key->id]);
         $backup->delete();
 
         $this->deleteJson("/admin/backups/encryption-keys/{$key->id}")
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors('key');
+            ->assertNoContent();
 
-        expect(BackupEncryptionKeyModel::query()->find($key->id))->not->toBeNull();
+        expect(BackupEncryptionKeyModel::query()->find($key->id))->toBeNull()
+            ->and(BackupModel::withTrashed()->find($backup->id)->encryption_key_id)->toBeNull();
     });
 });
