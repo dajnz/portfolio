@@ -48,7 +48,7 @@ const COMPLETED_45MB = {
     id: 1,
     filename: 'backup-2026-08-01-020000-k3.zip',
     size_bytes: 47185920,
-    status: 'completed',
+    status: 'completed' as const,
     created_at: '2026-08-01T02:00:00+00:00',
 };
 
@@ -56,7 +56,7 @@ const COMPLETED_1MB = {
     id: 2,
     filename: 'backup-2026-07-01-020000-k3.zip',
     size_bytes: 1048576,
-    status: 'completed',
+    status: 'completed' as const,
     created_at: '2026-07-01T02:00:00+00:00',
 };
 
@@ -615,6 +615,38 @@ describe('BackupListPage', () => {
         expect(wrapper.find('[data-testid="backup-list-page-key-modal"]').exists()).toBe(false);
     });
 
+    it('refreshes the key counts when the backup list changes (create/delete visits)', async () => {
+        let keyFetchCount = 0;
+        fetchMock.mockImplementation((url: string) => {
+            if (url.includes('/status')) {
+                return Promise.resolve(jsonResponse(statusPayload('completed')));
+            }
+
+            keyFetchCount += 1;
+
+            return Promise.resolve(
+                jsonResponse({
+                    data: keyFetchCount === 1
+                        ? [{ id: 3, name: 'rotated-2026', created_at: '2026-07-01T00:00:00+00:00', is_active: true, backups_count: 0 }]
+                        : [{ id: 3, name: 'rotated-2026', created_at: '2026-07-01T00:00:00+00:00', is_active: true, backups_count: 1 }],
+                }),
+            );
+        });
+
+        const wrapper = mountPage();
+        await settle();
+
+        expect(wrapper.text()).toContain('0 backups');
+
+        // The Inertia visit after a create/delete merges the props — the
+        // page component survives, so the keys must be re-fetched.
+        await wrapper.setProps({ backups: [COMPLETED_45MB] });
+        await settle();
+
+        expect(keyFetchCount).toBe(2);
+        expect(wrapper.text()).toContain('1 backup');
+    });
+
     it('deletes a key only when no backups reference it, via the confirmation dialog', async () => {
         fetchMock.mockImplementation((_url: string, init?: RequestInit) => {
             if (init?.method === 'DELETE') {
@@ -655,6 +687,12 @@ describe('BackupListPage', () => {
             '/admin/backups/encryption-keys/4',
             expect.objectContaining({ method: 'DELETE' }),
         );
+
+        // The 204 resolves (useJsonApi skips the empty-body parse) — no
+        // "Failed to save..." toast, and the key list is re-fetched.
+        const toastStore = useToastStore();
+        expect(toastStore.toasts).toHaveLength(0);
+        expect(fetchMock.mock.calls.filter(([url]) => url === '/admin/backups/encryption-keys')).toHaveLength(2);
     });
 
     it('disables the download for non-completed backups', async () => {

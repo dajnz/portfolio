@@ -1,6 +1,7 @@
 <!-- BackupListPage (admin-section-ui.md:468-515, admin-section-components.md:1415-1459, backups.html) — the Backup & Restore admin page: BackupStats, the backups DataTable with pagination, EncryptionKeyList + the show-once KeyGenerationModal, the RestoreForm and the DR UploadRestoreForm. The restore/create progress is polled at ~2 s via the status endpoint (A1); the page picks up in-flight records from the list props (worker-lag fallback: a submitted restore id is polled with a transition requirement). -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
+import AdminBaseBadge from '@shared-admin/AdminBaseBadge.vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
 import ConfirmationDialog from '@shared-admin/ConfirmationDialog.vue';
@@ -164,6 +165,11 @@ watch(
     () => props.backups,
     () => {
         tableRows.value = props.backups.map((backup) => ({ ...backup }));
+
+        // The per-key backup counts (the keys section) must follow the
+        // list — a create/delete visit changes the counts even though
+        // this component instance survives the Inertia visit.
+        void loadKeys();
     },
 );
 
@@ -428,6 +434,7 @@ onMounted(() => {
         :columns="columns"
         :rows="tableRows"
         :selected_ids="[]"
+        :center_actions="true"
         :empty_mode="'empty'"
         :empty_message="t('admin.backups.no_backups')"
         :test_id="`${props.test_id}-table`"
@@ -448,26 +455,25 @@ onMounted(() => {
           </span>
         </template>
         <template #cell-status="{ row }">
-          <span
-            class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
-            :class="{
-              'bg-success-50 text-success-700 dark:bg-success-950 dark:text-success-400':
-                row.status === 'completed',
-              'bg-warning-50 text-warning-700 dark:bg-warning-950 dark:text-warning-400':
-                row.status === 'processing',
-              'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400':
-                row.status === 'pending',
-              'bg-danger-50 text-danger-700 dark:bg-danger-950 dark:text-danger-400':
-                row.status === 'failed',
-            }"
-            :data-testid="`${props.test_id}-table-status-${String(row.id)}`"
+          <AdminBaseBadge
+            size="sm"
+            :variant="
+              row.status === 'completed'
+                ? 'success'
+                : row.status === 'processing'
+                  ? 'warning'
+                  : row.status === 'failed'
+                    ? 'danger'
+                    : 'default'
+            "
+            :test_id="`${props.test_id}-table-status-${String(row.id)}`"
           >
             {{ t(`admin.statuses.${String(row.status)}`) }}
-          </span>
+          </AdminBaseBadge>
         </template>
         <template #row-actions="{ row }">
           <div
-            class="flex items-center gap-1"
+            class="flex items-center gap-2"
             @click.stop
           >
             <AdminBaseButton

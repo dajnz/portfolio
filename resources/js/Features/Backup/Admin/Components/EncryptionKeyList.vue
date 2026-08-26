@@ -1,4 +1,4 @@
-<!-- EncryptionKeyList (admin-section-components.md:1479-1491, backups.html) — the key table (name / created / active / backups) with the Generate New Key action and the per-key Delete (enabled only when no backups reference the key; disabled rows carry the "N backups reference this key." tooltip). -->
+<!-- EncryptionKeyList (admin-section-components.md:1479-1491, backups.html) — the key table (name / created / active / backups) with the Generate New Key action and the per-key Delete (enabled only when no backups reference the key; disabled rows carry the "N backups reference this key." tooltip). Rows carry the DataTable's zebra styling; the created/status/count columns have fixed widths so the rows stay aligned across locales (the RU count label fits 4-digit totals). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import AdminBaseBadge from '@shared-admin/AdminBaseBadge.vue';
@@ -61,32 +61,39 @@ const createdLabel = (iso: string): string => {
       <div
         v-for="key in props.keys"
         :key="key.id"
-        class="flex items-center gap-4 py-3 odd:bg-surface-secondary dark:odd:bg-surface-dark-secondary"
+        class="flex items-center gap-4 px-4 py-3 odd:bg-surface-secondary dark:odd:bg-surface-dark-secondary"
         :data-testid="`${props.test_id}-key-${key.id}`"
       >
         <Icon
-          class="w-5 h-5 text-slate-400"
+          class="w-5 h-5 shrink-0 text-slate-400"
           icon="heroicons:key"
           aria-hidden="true"
         />
-        <p class="flex-1 font-mono text-sm font-semibold text-slate-800 dark:text-slate-100">
+        <p class="min-w-0 flex-1 truncate font-mono text-sm font-semibold text-slate-800 dark:text-slate-100">
           {{ key.name }}
         </p>
-        <p class="font-mono text-xs text-slate-400 dark:text-slate-500">
+        <p class="w-24 shrink-0 text-right font-mono text-xs text-slate-400 dark:text-slate-500">
           {{ createdLabel(key.created_at) }}
         </p>
-        <AdminBaseBadge
-          :variant="key.is_active ? 'success' : 'default'"
-          :test_id="`${props.test_id}-key-${key.id}-active`"
+        <div class="flex w-28 shrink-0 justify-center">
+          <AdminBaseBadge
+            size="sm"
+            :variant="key.is_active ? 'success' : 'default'"
+            :test_id="`${props.test_id}-key-${key.id}-active`"
+          >
+            {{ key.is_active ? t('admin.backups.active') : t('admin.backups.inactive') }}
+          </AdminBaseBadge>
+        </div>
+        <p
+          class="w-44 shrink-0 truncate text-center font-mono text-xs text-slate-400 dark:text-slate-500"
+          :title="t('admin.backups.backup_count', { count: key.backup_count })"
         >
-          {{ key.is_active ? t('admin.backups.active') : t('admin.backups.inactive') }}
-        </AdminBaseBadge>
-        <p class="font-mono text-xs text-slate-400 dark:text-slate-500">
           {{ t('admin.backups.backup_count', { count: key.backup_count }) }}
         </p>
         <AdminBaseButton
           variant="danger"
           size="sm"
+          class="shrink-0"
           :disabled="key.backup_count > 0"
           :title="
             key.backup_count > 0

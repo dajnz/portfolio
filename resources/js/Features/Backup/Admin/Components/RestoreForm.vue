@@ -48,6 +48,13 @@ const options = computed(() =>
     })),
 );
 
+// The full filename of the selected backup — the trigger label is
+// truncated, the native tooltip carries the whole name (the same
+// pattern as the blog form's Related Articles field).
+const selectedLabel = computed(
+    () => options.value.find((option) => option.value === selectedId.value)?.label ?? '',
+);
+
 const canSubmit = computed(
     () => !props.is_restoring && selectedId.value !== '' && password.value.trim() !== '',
 );
@@ -98,7 +105,9 @@ function submit(): void {
         :options="options"
         :label="t('admin.backups.select_backup')"
         :placeholder="t('admin.backups.select_backup')"
+        :title="selectedLabel"
         :disabled="props.is_restoring"
+        class="sm:col-span-2"
         :test_id="`${props.test_id}-backup`"
       />
       <AdminBaseInput
