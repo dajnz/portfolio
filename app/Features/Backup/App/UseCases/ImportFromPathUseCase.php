@@ -60,7 +60,7 @@ final class ImportFromPathUseCase
         $now = new DateTimeImmutable();
         $key = $this->keys->create(EncryptionKey::forImport($rawKey, $now));
 
-        $filename = BackupFilename::forImport($now, $key->toId());
+        $filename = BackupFilename::forImport($now, $key->toId(), $key->toName());
         $this->backupsTransfer->uploadBatch([$path => $filename]);
 
         return $this->backups->create(new Backup(
