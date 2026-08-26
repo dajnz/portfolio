@@ -130,7 +130,7 @@ function submit(): void {
     </h2>
     <div class="mb-4 flex items-start gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900/50 dark:text-slate-400">
       <Icon
-        class="mt-0.5 w-5 h-5"
+        class="mt-0.5 w-5 h-5 shrink-0"
         icon="heroicons:information-circle"
         aria-hidden="true"
       />
@@ -182,7 +182,7 @@ function submit(): void {
       </div>
       <div class="flex items-start gap-3 rounded-lg border border-warning-200 bg-warning-50 px-4 py-3 text-sm text-warning-700 dark:border-warning-900 dark:bg-warning-950/50 dark:text-warning-400">
         <Icon
-          class="mt-0.5 w-5 h-5"
+          class="mt-0.5 w-5 h-5 shrink-0"
           icon="heroicons:exclamation-triangle"
           aria-hidden="true"
         />
