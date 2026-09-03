@@ -38,7 +38,7 @@ vi.mock('@inertiajs/vue3', () => ({
     usePage: () => ({ props: pageProps }),
 }));
 
-import BackupListPage from '@backup/Admin/Pages/BackupListPage.vue';
+import BackupListPage from '@backup/Admin/Pages/BackupListPage/BackupListPage.vue';
 import RestoreForm from '@backup/Admin/Components/RestoreForm.vue';
 import { useToastStore } from '@shared-cross/Stores/toastStore';
 
@@ -69,6 +69,27 @@ const KEY_ENTRIES = [
         backups_count: 12,
     },
 ];
+
+// 44-char base64 raw key accepted by the DR upload's client-side checks.
+const RAW_ENCRYPTION_KEY = 'MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=';
+
+// The stored-key rows of the DR import-vs-reuse scenarios: one existing
+// key before the upload; a fresh import adds a `disaster-key-*` row.
+const ROTATED_KEY_ROW = {
+    id: 3,
+    name: 'rotated-2026',
+    created_at: '2026-07-01T00:00:00+00:00',
+    is_active: true,
+    backups_count: 1,
+};
+
+const IMPORTED_KEY_ROW = {
+    id: 4,
+    name: 'disaster-key-abc12345',
+    created_at: '2026-08-24T12:00:01+00:00',
+    is_active: false,
+    backups_count: 1,
+};
 
 function jsonResponse(payload: unknown, status = 200) {
     return {
@@ -108,6 +129,61 @@ function mountPage(props: Record<string, unknown> = {}) {
     return wrapper;
 }
 
+/** Selects the first completed backup in the RestoreForm dropdown and
+ *  submits it with the given password. */
+async function fillRestoreForm(wrapper: ReturnType<typeof mount>): Promise<void> {
+    await wrapper
+        .get('[data-testid="backup-list-page-restore-backup"]')
+        .trigger('click');
+    await wrapper
+        .get('[data-testid="backup-list-page-restore-backup-option-1"]')
+        .trigger('click');
+    await wrapper
+        .get('[data-testid="backup-list-page-restore-password"]')
+        .setValue('correct-password');
+    await wrapper.get('[data-testid="backup-list-page-restore-submit"]').trigger('click');
+    await settle();
+}
+
+/** Picks a `.zip` file in the DR dropzone. */
+async function pickDisasterZip(wrapper: ReturnType<typeof mount>): Promise<void> {
+    const zip = new File(['zip'], 'backup.zip', { type: 'application/zip' });
+    const input = wrapper.get('[data-testid="backup-list-page-upload-file-input"]')
+        .element as HTMLInputElement;
+    Object.defineProperty(input, 'files', { value: [zip] });
+    await input.dispatchEvent(new Event('change'));
+    await settle();
+}
+
+/** Fills the DR form (zip + raw key + password) and submits it. */
+async function submitDisasterUpload(wrapper: ReturnType<typeof mount>): Promise<void> {
+    await pickDisasterZip(wrapper);
+
+    await wrapper
+        .get('[data-testid="backup-list-page-upload-key"]')
+        .setValue(RAW_ENCRYPTION_KEY);
+    await wrapper
+        .get('[data-testid="backup-list-page-upload-password"]')
+        .setValue('correct-password');
+    await wrapper.get('[data-testid="backup-list-page-upload-submit"]').trigger('click');
+    await settle();
+}
+
+/** Asserts the DR form inputs were cleared (successful restore). */
+function expectDisasterFormCleared(wrapper: ReturnType<typeof mount>): void {
+    expect(wrapper.text()).not.toContain('backup.zip');
+    expect(
+        (wrapper.get('[data-testid="backup-list-page-upload-key"]').element as HTMLInputElement)
+            .value,
+    ).toBe('');
+    expect(
+        (
+            wrapper.get('[data-testid="backup-list-page-upload-password"]')
+                .element as HTMLInputElement
+        ).value,
+    ).toBe('');
+}
+
 let mountedWrappers: Array<ReturnType<typeof mount>> = [];
 
 describe('BackupListPage', () => {
@@ -143,7 +219,59 @@ describe('BackupListPage', () => {
         vi.useRealTimers();
     });
 
-    it('renders the page title, derived stats, table rows and both restore forms', async () => {
+    /** Lands the DR upload redirect: the imported `backup-import-*` row
+     *  (id 9) is still `completed` (worker lag), the keys refetch
+     *  already sees the post-import state, and the submit-time fallback
+     *  poll of the imported row starts (its first tick reports
+     *  `processing`). */
+    async function stageDisasterRestoreRedirect(
+        wrapper: ReturnType<typeof mount>,
+        options: {
+            filename: string;
+            keyRowsAfterRedirect: Array<typeof ROTATED_KEY_ROW>;
+        },
+    ): Promise<void> {
+        fetchMock.mockImplementation((url: string) => {
+            if (url.includes('/status')) {
+                return Promise.resolve(jsonResponse(statusPayload('processing')));
+            }
+
+            return Promise.resolve(jsonResponse({ data: options.keyRowsAfterRedirect }));
+        });
+
+        await wrapper.setProps({
+            backups: [
+                {
+                    id: 9,
+                    filename: options.filename,
+                    size_bytes: 52428800,
+                    status: 'completed',
+                    created_at: '2026-08-24T12:00:00+00:00',
+                },
+            ],
+        });
+        await settle();
+
+        const postOptions = routerMock.post.mock.calls[0][2] as { onSuccess: () => void };
+        postOptions.onSuccess();
+        await settle();
+    }
+
+    /** Lets the running restore poll observe the record's completion. */
+    async function completeRunningPoll(): Promise<void> {
+        fetchMock.mockImplementation((url: string) => {
+            if (url.includes('/status')) {
+                return Promise.resolve(jsonResponse(statusPayload('completed')));
+            }
+
+            return Promise.resolve(jsonResponse({ data: [] }));
+        });
+
+        await vi.advanceTimersByTimeAsync(2000);
+        await settle();
+    }
+
+    it('renders the page title and the derived stats card', async () => {
         const wrapper = mountPage({
             backups: [COMPLETED_45MB, COMPLETED_1MB],
             meta: { current_page: 1, from: 1, to: 2, last_page: 1, per_page: 12, total: 2 },
@@ -162,13 +290,32 @@ describe('BackupListPage', () => {
         expect(stats.get('[data-testid="backup-list-page-stats-last-backup"]').text()).toBe(
             '2026-08-01 02:00 UTC',
         );
+    });
 
-        // The DataTable rows with status badges.
+    it('renders the backup table rows with their formatted size and status badges', async () => {
+        const wrapper = mountPage({
+            backups: [COMPLETED_45MB, COMPLETED_1MB],
+            meta: { current_page: 1, from: 1, to: 2, last_page: 1, per_page: 12, total: 2 },
+        });
+        await settle();
+
         const rows = wrapper.findAll('[data-testid="backup-list-page-table"] tbody tr');
         expect(rows).toHaveLength(2);
-        expect(rows[0].text()).toContain('backup-2026-08-01-020000-k3.zip');
-        expect(rows[0].text()).toContain('45 MB');
-        expect(rows[0].text()).toContain('Completed');
+
+        const first = rows[0];
+        expect(first.text()).toContain('backup-2026-08-01-020000-k3.zip');
+        expect(first.text()).toContain('45 MB');
+        expect(first.text()).toContain('Completed');
+
+        expect(rows[1].text()).toContain('backup-2026-07-01-020000-k3.zip');
+    });
+
+    it('renders the restore form with only the completed backups and the DR upload form', async () => {
+        const wrapper = mountPage({
+            backups: [COMPLETED_45MB, COMPLETED_1MB],
+            meta: { current_page: 1, from: 1, to: 2, last_page: 1, per_page: 12, total: 2 },
+        });
+        await settle();
 
         // The RestoreForm dropdown lists only completed backups.
         const restoreForm = wrapper.findComponent(RestoreForm);
@@ -186,7 +333,6 @@ describe('BackupListPage', () => {
         );
 
         const wrapper = mountPage();
-        await settle();
         await settle();
 
         const keyRow = wrapper.get('[data-testid="backup-list-page-keys-key-3"]');
@@ -240,7 +386,23 @@ describe('BackupListPage', () => {
         await vi.advanceTimersByTimeAsync(2000);
         await settle();
 
-        expect(routerMock.reload).toHaveBeenCalled();
+        // The completion reload lands the completed row first, then the
+        // "Backup created." toast fires (a toast shown before the reload
+        // would be cleared when the visit starts).
+        expect(routerMock.reload).toHaveBeenCalledTimes(1);
+
+        const reloadOptions = routerMock.reload.mock.calls[0][0] as {
+            onSuccess?: () => void;
+        };
+        reloadOptions.onSuccess?.();
+        await settle();
+
+        const toastStore = useToastStore();
+        expect(toastStore.toasts).toHaveLength(1);
+        expect(toastStore.toasts[0]).toMatchObject({
+            message: 'Backup created.',
+            variant: 'success',
+        });
     });
 
     it('disables the create button while a create is in flight', async () => {
@@ -270,34 +432,34 @@ describe('BackupListPage', () => {
         ).toBe('true');
     });
 
-    it('submits the restore with the selected backup and password, then polls to success', async () => {
+    it('submits the restore payload for the selected completed backup', async () => {
         const wrapper = mountPage({
             backups: [COMPLETED_45MB],
             meta: { current_page: 1, from: 1, to: 1, last_page: 1, per_page: 12, total: 1 },
         });
         await settle();
 
-        await wrapper
-            .get('[data-testid="backup-list-page-restore-backup"]')
-            .trigger('click');
-        await wrapper
-            .get('[data-testid="backup-list-page-restore-backup-option-1"]')
-            .trigger('click');
-        await wrapper
-            .get('[data-testid="backup-list-page-restore-password"]')
-            .setValue('correct-password');
-        await wrapper.get('[data-testid="backup-list-page-restore-submit"]').trigger('click');
-        await settle();
+        await fillRestoreForm(wrapper);
 
         expect(routerMock.post).toHaveBeenCalledWith(
             '/admin/backups/restore',
             { backup_id: 1, password: 'correct-password' },
             expect.anything(),
         );
+    });
+
+    it('polls the submitted restore row to completion and shows the success toast', async () => {
+        const wrapper = mountPage({
+            backups: [COMPLETED_45MB],
+            meta: { current_page: 1, from: 1, to: 1, last_page: 1, per_page: 12, total: 1 },
+        });
+        await settle();
+
+        await fillRestoreForm(wrapper);
 
         // The redirect lands (worker-lag: the row still completed) — the
         // page polls the submitted record; processing → completed fires
-        // the B36 success toast and reloads.
+        // the B36 success toast.
         const options = routerMock.post.mock.calls[0][2] as { onSuccess: () => void };
         fetchMock.mockImplementation((url: string) => {
             if (url.includes('/status')) {
@@ -321,13 +483,15 @@ describe('BackupListPage', () => {
         await vi.advanceTimersByTimeAsync(2000);
         await settle();
 
+        // The completion needs no reload (the restored row's local copy
+        // is patched instead) — the success toast fires right away.
         const toastStore = useToastStore();
         expect(toastStore.toasts).toHaveLength(1);
         expect(toastStore.toasts[0]).toMatchObject({
             message: 'Restore completed successfully.',
             variant: 'success',
         });
-        expect(routerMock.reload).toHaveBeenCalled();
+        expect(routerMock.reload).not.toHaveBeenCalled();
     });
 
     it('shows the server password validation error inline in the restore form', async () => {
@@ -385,7 +549,7 @@ describe('BackupListPage', () => {
         ).toBe('boom');
     });
 
-    it('restores a processing backup-import row with the DR success toast', async () => {
+    it('restores a processing backup-import row with the DR success toast and patches the badge', async () => {
         fetchMock.mockImplementation((url: string) => {
             if (url.includes('/status')) {
                 return Promise.resolve(jsonResponse(statusPayload('processing')));
@@ -394,7 +558,7 @@ describe('BackupListPage', () => {
             return Promise.resolve(jsonResponse({ data: [] }));
         });
 
-        mountPage({
+        const wrapper = mountPage({
             backups: [
                 {
                     id: 7,
@@ -418,13 +582,111 @@ describe('BackupListPage', () => {
         await vi.advanceTimersByTimeAsync(2000);
         await settle();
 
+        // No submit snapshot in this page lifetime — the import message
+        // is the default (fresh-instance DR semantics). No reload after
+        // the completion: the toast would be cleared by the visit start.
         const toastStore = useToastStore();
         expect(toastStore.toasts).toHaveLength(1);
         expect(toastStore.toasts[0]).toMatchObject({
             message: 'Backup restored successfully. The imported encryption key has been saved.',
             variant: 'success',
         });
-        expect(routerMock.reload).toHaveBeenCalled();
+        expect(routerMock.reload).not.toHaveBeenCalled();
+        expect(
+            wrapper.get('[data-testid="backup-list-page-table-status-7"]').text(),
+        ).toContain('Completed');
+    });
+
+    it('falls back to polling the newest imported row when the DR upload redirect leaves it completed', async () => {
+        // One stored key before the upload — the page loads it at mount.
+        fetchMock.mockImplementation(() =>
+            Promise.resolve(jsonResponse({ data: [ROTATED_KEY_ROW] })),
+        );
+
+        const wrapper = mountPage();
+        await settle();
+        await submitDisasterUpload(wrapper);
+
+        expect(routerMock.post).toHaveBeenCalledWith(
+            '/admin/backups/upload',
+            expect.any(FormData),
+            expect.anything(),
+        );
+
+        // The redirect lands with the imported row still `completed`
+        // (worker lag). The import added a `disaster-key-*` row — the
+        // keys refetch (props change) must already see it.
+        const keyRowsAfterRedirect = [ROTATED_KEY_ROW, IMPORTED_KEY_ROW];
+        await stageDisasterRestoreRedirect(wrapper, {
+            filename: 'backup-import-2026-08-24-120000-k4--disaster-key-abc12345.zip',
+            keyRowsAfterRedirect,
+        });
+
+        // The submit-time fallback: the imported row's id is unknown
+        // client-side, so the newest `backup-import-*` row is polled.
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/admin/backups/9/status',
+            expect.objectContaining({ credentials: 'same-origin' }),
+        );
+    });
+
+    it('toasts the imported-key message and clears the DR form once the fallback poll completes', async () => {
+        fetchMock.mockImplementation(() =>
+            Promise.resolve(jsonResponse({ data: [ROTATED_KEY_ROW] })),
+        );
+
+        const wrapper = mountPage();
+        await settle();
+        await submitDisasterUpload(wrapper);
+
+        const keyRowsAfterRedirect = [ROTATED_KEY_ROW, IMPORTED_KEY_ROW];
+        await stageDisasterRestoreRedirect(wrapper, {
+            filename: 'backup-import-2026-08-24-120000-k4--disaster-key-abc12345.zip',
+            keyRowsAfterRedirect,
+        });
+
+        // The poll completes — the count grew by one, so the finish
+        // toast reports the fresh import.
+        await completeRunningPoll();
+
+        const toastStore = useToastStore();
+        expect(toastStore.toasts).toHaveLength(1);
+        expect(toastStore.toasts[0]).toMatchObject({
+            message: 'Backup restored successfully. The imported encryption key has been saved.',
+            variant: 'success',
+        });
+        expectDisasterFormCleared(wrapper);
+        expect(routerMock.reload).not.toHaveBeenCalled();
+    });
+
+    it('toasts the reused-key message and clears the DR form when the uploaded key matches a stored key', async () => {
+        // The stored key stays the same before and after the upload —
+        // the uploaded archive's key matched the stored one (no import).
+        fetchMock.mockImplementation(() =>
+            Promise.resolve(jsonResponse({ data: [ROTATED_KEY_ROW] })),
+        );
+
+        const wrapper = mountPage();
+        await settle();
+        await submitDisasterUpload(wrapper);
+
+        await stageDisasterRestoreRedirect(wrapper, {
+            filename: 'backup-import-2026-08-24-120000-k3--rotated-2026.zip',
+            keyRowsAfterRedirect: [ROTATED_KEY_ROW],
+        });
+
+        // The poll completes — the count did not grow, so the finish
+        // toast reports the reused key.
+        await completeRunningPoll();
+
+        const toastStore = useToastStore();
+        expect(toastStore.toasts).toHaveLength(1);
+        expect(toastStore.toasts[0]).toMatchObject({
+            message: 'Backup restored successfully. The matching existing encryption key was used.',
+            variant: 'success',
+        });
+        expectDisasterFormCleared(wrapper);
+        expect(routerMock.reload).not.toHaveBeenCalled();
     });
 
     it('rejects a non-zip DR file client-side', async () => {
@@ -552,7 +814,6 @@ describe('BackupListPage', () => {
 
         await dialog.get('[data-testid="backup-list-page-generate-dialog-confirm"]').trigger('click');
         await settle();
-        await settle();
 
         // The raw key is shown exactly once in the modal.
         const modal = wrapper.get('[data-testid="backup-list-page-key-modal"]');
@@ -595,7 +856,6 @@ describe('BackupListPage', () => {
         await wrapper
             .get('[data-testid="backup-list-page-generate-dialog-confirm"]')
             .trigger('click');
-        await settle();
         await settle();
 
         const copyButton = wrapper.get('[data-testid="backup-list-page-key-modal-copy"]');
@@ -665,7 +925,6 @@ describe('BackupListPage', () => {
 
         const wrapper = mountPage();
         await settle();
-        await settle();
 
         // The referenced key's Delete is disabled with the tooltip.
         const referencedDelete = wrapper.get(
@@ -680,7 +939,6 @@ describe('BackupListPage', () => {
         await wrapper
             .get('[data-testid="backup-list-page-delete-key-dialog-confirm"]')
             .trigger('click');
-        await settle();
         await settle();
 
         expect(fetchMock).toHaveBeenCalledWith(

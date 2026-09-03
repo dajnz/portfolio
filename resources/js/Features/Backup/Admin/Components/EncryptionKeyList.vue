@@ -4,6 +4,7 @@ import { Icon } from '@iconify/vue';
 import AdminBaseBadge from '@shared-admin/AdminBaseBadge.vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useBackupFormat } from '../Composables/useBackupFormat';
 
 export interface EncryptionKeyListItem {
     id: number;
@@ -30,13 +31,9 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-
-const createdLabel = (iso: string): string => {
-    const date = new Date(iso);
-    const pad = (value: number): string => String(value).padStart(2, '0');
-
-    return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
-};
+// The created column renders the same UTC date format as the table's
+// Date column — the shared formatting composable (no local `pad()`).
+const { formatBackupDate } = useBackupFormat();
 </script>
 
 <template>
@@ -73,7 +70,7 @@ const createdLabel = (iso: string): string => {
           {{ key.name }}
         </p>
         <p class="w-24 shrink-0 text-right font-mono text-xs text-slate-400 dark:text-slate-500">
-          {{ createdLabel(key.created_at) }}
+          {{ formatBackupDate(key.created_at) }}
         </p>
         <div class="flex w-28 shrink-0 justify-center">
           <AdminBaseBadge

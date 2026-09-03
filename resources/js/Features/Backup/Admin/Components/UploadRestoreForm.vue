@@ -6,7 +6,7 @@ import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
 import DropzoneUpload, { type UploadedFile } from '@shared-admin/DropzoneUpload.vue';
 import ProgressBar from '@shared-admin/ProgressBar.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 const props = withDefaults(
     defineProps<{
@@ -16,6 +16,10 @@ const props = withDefaults(
         is_restoring?: boolean;
         restore_progress?: number | null;
         restore_error?: string | null;
+        /** Incremented on every successful DR restore — the form clears
+         *  its inputs on the tick (B311): a reload can't do it, the
+         *  component outlives the Inertia visit. */
+        restore_success_tick?: number;
         /** Max file size in KB from the `backup_upload_max_size` setting
          *  (default 102400 = 100 MB, admin-section-components.md:1526). */
         max_file_size?: number;
@@ -28,6 +32,7 @@ const props = withDefaults(
         is_restoring: false,
         restore_progress: null,
         restore_error: null,
+        restore_success_tick: 0,
         max_file_size: 102400,
         test_id: 'upload-restore-form',
     },
@@ -49,6 +54,28 @@ const showKey = ref(false);
 const fileError = ref<string | null>(null);
 const keyError = ref<string | null>(null);
 const passwordError = ref<string | null>(null);
+
+// A successful DR restore clears the submitted inputs (B311) — the
+// parent increments the tick exactly when the restore-mode poll
+// observes the completion (a failed restore keeps the inputs so the
+// admin can retry). Failure-driven server errors land via props and
+// stay untouched here.
+watch(
+    () => props.restore_success_tick,
+    (tick) => {
+        if (tick <= 0) {
+            return;
+        }
+
+        selectedFile.value = null;
+        key.value = '';
+        confirmPassword.value = '';
+        showKey.value = false;
+        fileError.value = null;
+        keyError.value = null;
+        passwordError.value = null;
+    },
+);
 
 const fileInputError = computed(() => fileError.value ?? props.restore_error);
 
