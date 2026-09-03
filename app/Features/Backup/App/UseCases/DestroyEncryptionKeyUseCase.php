@@ -35,6 +35,9 @@ final class DestroyEncryptionKeyUseCase
             );
         }
 
+        // Only live rows are counted above — trashed rows still pin the
+        // key via the FK, so detach them before the delete.
+        $this->backups->detachTrashedEncryptionKeyReferences($key->toId());
         $this->keys->delete($key);
     }
 }

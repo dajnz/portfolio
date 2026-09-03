@@ -89,6 +89,18 @@ final class EloquentBackupRepository implements BackupRepositoryInterface
             ->count();
     }
 
+    public function detachTrashedEncryptionKeyReferences(int $encryptionKeyId): void
+    {
+        // Soft-deleted rows are invisible to the admin yet still pin the
+        // key via the FK `ON DELETE RESTRICT` — key destruction detaches
+        // them first (the trashed archive keeps its `-k{id}--{name}`
+        // filename for manual decryption).
+        BackupModel::withTrashed()
+            ->where('encryption_key_id', $encryptionKeyId)
+            ->whereNotNull('deleted_at')
+            ->update(['encryption_key_id' => null]);
+    }
+
     public function delete(Backup $backup): void
     {
         $model = BackupModel::query()->find($backup->toId());

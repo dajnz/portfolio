@@ -53,7 +53,7 @@ describe('BackupWorkflowService — create pipeline', function (): void {
         $record = BackupModel::query()->find($created->toId());
         $files = Storage::disk('rustfs-backups')->allFiles();
 
-        expect($record->filename)->toContain('-k'.$key->toId().'.zip')
+        expect($record->filename)->toContain('-k'.$key->toId().'--'.$key->toName().'.zip')
             ->and($record->path)->toBe($record->filename)
             ->and($files)->toHaveCount(1)
             ->and($files[0])->toBe($record->filename)

@@ -71,6 +71,25 @@ describe('EncryptionKey', function (): void {
         expect($key->isActive())->toBeFalse();
     });
 
+    it('names DR-imported keys deterministically disaster-key-{hash}', function (): void {
+        $rawKey = base64_encode(random_bytes(32));
+        $createdAt = new DateTimeImmutable('2026-08-24 10:00:00');
+
+        $key = EncryptionKey::forImport($rawKey, $createdAt);
+        $expectedName = 'disaster-key-'.substr(hash('sha256', $rawKey), 0, 8);
+
+        expect($key->toName())->toBe($expectedName)
+            ->and($key->isActive())->toBeFalse()
+            ->and($key->toId())->toBe(0)
+            ->and(strlen($key->toName()))->toBe(21);
+
+        // The same raw key always yields the same name — no timestamp or
+        // randomness in it (B311): the reuse check relies on the stable
+        // mapping, and re-imports of the same key never collide.
+        expect(EncryptionKey::forImport($rawKey, new DateTimeImmutable('2026-08-25 09:00:00'))->toName())
+            ->toBe($expectedName);
+    });
+
     it('rejects an empty or too-long name', function (): void {
         expect(fn () => new EncryptionKey(
             id: 1,

@@ -25,11 +25,12 @@ final class SwaggerUiService
 
     /**
      * @return string|null The written docs file path, or null when l5-swagger
-     *                     is not installed (config absent).
+     *                     is not installed (config absent or empty — the
+     *                     production build caches an empty config).
      */
     public function sync(): ?string
     {
-        if (config('l5-swagger') === null) {
+        if (empty(config('l5-swagger'))) {
             return null;
         }
 

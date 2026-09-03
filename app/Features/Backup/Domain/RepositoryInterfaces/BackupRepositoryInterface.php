@@ -66,6 +66,15 @@ interface BackupRepositoryInterface
     public function countForEncryptionKey(int $encryptionKeyId): int;
 
     /**
+     * Clears `encryption_key_id` on the TRASHED backups referencing the
+     * key — called right before the key's deletion so the FK
+     * `ON DELETE RESTRICT` (database.md:587) does not block it (the
+     * soft-deleted rows are invisible to the admin; their archives keep
+     * the `-k{id}--{name}` filename for manual decryption).
+     */
+    public function detachTrashedEncryptionKeyReferences(int $encryptionKeyId): void;
+
+    /**
      * Soft-deletes the record (deleted_at) — the archive's RustFS
      * hard-delete is the caller's concern (backup.md:157,435).
      */

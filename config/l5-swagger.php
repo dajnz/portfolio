@@ -17,7 +17,17 @@ declare(strict_types=1);
 | Route: GET /docs/api — local environment only, behind auth + admin.
 | The route is registered unconditionally; `swagger.local` middleware
 | (openapi.md:274) 404s it outside `APP_ENV=local`.
+|
+| The package is a require-dev dependency — the production image build
+| (`composer install --no-dev`) evaluates this file during
+| `php artisan config:cache`, so the class reference below would fatal the
+| build. An empty config (missing package) makes the Swagger UI a no-op;
+| `SwaggerUiService::sync()` guards on `empty()`.
 */
+
+if (! class_exists(\L5Swagger\Generator::class)) {
+    return [];
+}
 
 return [
     'default' => 'default',

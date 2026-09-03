@@ -7,6 +7,13 @@ services:
     labels: []                        # no Traefik labels — Nginx is accessed directly
     ports:
       - "127.0.0.1:8888:80"          # expose Nginx HTTP on localhost:8888
+    environment:
+      # Dev: the config is bind-mounted read-only (changes apply without an
+      # image rebuild — the baked config stays the prod path). The entrypoint
+      # skips its template processing (no <domain> placeholders, no certs).
+      NGINX_SKIP_TEMPLATE: "1"
+    volumes:
+      - ./devops/docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     # Compose merges service `networks` by name (union), so a plain list cannot
     # remove the base file's `traefik` attachment — `!override` replaces it.
     # localhost mode must not attach to the external Traefik network (created

@@ -20,9 +20,15 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY devops/docker/dev/xdebug.ini /usr/local/etc/php/conf.d/
 COPY devops/docker/dev/php.ini /usr/local/etc/php/conf.d/
 RUN adduser -D -u 1000 portfolio
-# Git runs as root, but the bind-mounted repo is owned by the host user
-# (uid 1000) — without this, git refuses the repo ("dubious ownership"),
-# which breaks `make commitlint` inside the dev container.
-RUN git config --global --add safe.directory /var/www/html
+# Git runs as the container user, but the bind-mounted repo is owned by the
+# host user (uid 1000) — without this, git refuses the repo ("dubious
+# ownership"), which breaks `make commitlint` inside the dev container. The
+# SYSTEM config covers both the root build-time user and the runtime
+# portfolio user (the container now defaults to it).
+RUN git config --system --add safe.directory /var/www/html
 WORKDIR /var/www/html
+# The dev container runs as the local user (uid 1000 = the host user) so
+# npm/composer/artisan artifacts keep the host's ownership; use
+# `docker compose exec -u root dev <cmd>` for root operations.
+USER portfolio
 CMD ["sleep", "infinity"]

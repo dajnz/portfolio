@@ -65,6 +65,13 @@ export function useJsonApi(): JsonApi {
             throw new Error(`Request failed with status ${response.status}`);
         }
 
+        // 204 No Content (e.g. the encryption-key delete) — there is no
+        // body to parse; `response.json()` would reject on the empty
+        // payload.
+        if (response.status === 204 || response.status === 205) {
+            return undefined as T;
+        }
+
         return (await response.json()) as T;
     }
 

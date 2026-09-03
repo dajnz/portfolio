@@ -146,6 +146,20 @@ describe('EloquentBackupRepository', function (): void {
         expect($repository->countForEncryptionKey($key->id))->toBe(2);
     });
 
+    it('detaches trashed backups from an encryption key', function (): void {
+        $key = \App\Features\Backup\Infra\Models\BackupEncryptionKeyModel::factory()->create();
+
+        $live = BackupModel::factory()->create(['encryption_key_id' => $key->id]);
+        $trashed = BackupModel::factory()->create(['encryption_key_id' => $key->id]);
+        $trashed->delete();
+
+        $repository = app(BackupRepositoryInterface::class);
+        $repository->detachTrashedEncryptionKeyReferences($key->id);
+
+        expect(BackupModel::withTrashed()->find($trashed->id)->encryption_key_id)->toBeNull()
+            ->and(BackupModel::find($live->id)->encryption_key_id)->toBe($key->id);
+    });
+
     it('soft-deletes records so reads return null', function (): void {
         $repository = app(BackupRepositoryInterface::class);
         $entity = BackupModel::factory()->create();

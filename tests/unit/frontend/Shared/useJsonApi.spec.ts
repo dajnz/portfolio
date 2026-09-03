@@ -88,6 +88,30 @@ describe('useJsonApi', () => {
         expect(init.headers).toEqual({ Accept: 'application/json' });
     });
 
+    it('deletes and resolves undefined for an empty 204 response', async () => {
+        const fetchMock = vi
+            .fn()
+            .mockResolvedValue({
+                ok: true,
+                status: 204,
+                json: async () => {
+                    throw new SyntaxError('Unexpected end of JSON input');
+                },
+            } as unknown as Response);
+        vi.mocked(fetch).mockImplementation(fetchMock);
+
+        const { del } = useJsonApi();
+        await expect(del('/admin/backups/encryption-keys/4')).resolves.toBeUndefined();
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/admin/backups/encryption-keys/4',
+            expect.objectContaining({
+                method: 'DELETE',
+                headers: expect.objectContaining({ 'X-XSRF-TOKEN': 'abc123+def' }),
+            }),
+        );
+    });
+
     it('throws on non-OK responses', async () => {
         vi.mocked(fetch).mockResolvedValue({ ok: false, status: 500 } as Response);
 

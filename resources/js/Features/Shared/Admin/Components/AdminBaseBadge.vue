@@ -58,7 +58,7 @@ function onKeydown(event: KeyboardEvent): void {
     class="inline-flex items-center gap-1 font-semibold rounded-full"
     :class="[
       variantClass,
-      props.size === 'sm' ? 'text-xs px-2 py-0.5' : 'text-sm px-2.5 py-1',
+      props.size === 'sm' ? 'text-xs px-2.5 py-0.5' : 'text-sm px-2.5 py-1',
       { 'cursor-pointer': props.clickable },
     ]"
     :role="props.clickable ? 'button' : undefined"

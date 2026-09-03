@@ -44,7 +44,7 @@ final class CreateBackupUseCase
 
         $backup = new Backup(
             id: 0,
-            filename: BackupFilename::for($now, $key?->toId()),
+            filename: BackupFilename::for($now, $key?->toId(), $key?->toName()),
             path: null,
             summary: new BackupContentSummary(null, null, null, null),
             status: BackupStatus::Pending,

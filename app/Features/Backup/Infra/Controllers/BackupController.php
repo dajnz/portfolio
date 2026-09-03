@@ -69,7 +69,10 @@ final class BackupController
     {
         $this->createCase->create();
 
-        return back()->with('notification', ['type' => 'success', 'message' => __('admin.toasts.backup_created')]);
+        // B311 — the async create only STARTS here: the flash announces
+        // the start, the UI fires the "Backup created." toast when its
+        // status poll observes the completed record.
+        return back()->with('notification', ['type' => 'success', 'message' => __('admin.toasts.backup_creation_started')]);
     }
 
     public function destroy(int $backup): HttpResponse

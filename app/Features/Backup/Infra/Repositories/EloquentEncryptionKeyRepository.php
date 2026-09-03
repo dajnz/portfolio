@@ -62,6 +62,19 @@ final class EloquentEncryptionKeyRepository implements EncryptionKeyRepositoryIn
             ->all();
     }
 
+    public function findByValue(string $rawKey): ?EncryptionKey
+    {
+        foreach (BackupEncryptionKeyModel::query()->get() as $model) {
+            $key = $this->mapper->toEntity($model);
+
+            if (hash_equals($key->toKeyValue(), $rawKey)) {
+                return $key;
+            }
+        }
+
+        return null;
+    }
+
     public function delete(EncryptionKey $key): void
     {
         BackupEncryptionKeyModel::query()->whereKey($key->toId())->delete();
