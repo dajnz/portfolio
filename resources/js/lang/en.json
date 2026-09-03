@@ -116,8 +116,9 @@
             "replace_all_warning": "This will replace ALL current portfolio data, assets, and settings with the backup content. Admin credentials will be preserved.",
             "restore": "Restore",
             "restore_completed": "Restore completed successfully.",
-            "restore_description": "Restore a downloaded backup .zip on a fresh or different instance using a saved encryption key. The key is imported and saved — it will not be shown again.",
+            "restore_description": "Restore a downloaded backup .zip on a fresh or different instance using a saved encryption key. A matching stored key is reused; otherwise the key is imported and saved — it will not be shown again.",
             "restore_failed_generic": "Restore failed.",
+            "restore_reused_key": "Backup restored successfully. The matching existing encryption key was used.",
             "restore_selected": "Restore Selected Backup",
             "restore_success": "Backup restored successfully. The imported encryption key has been saved.",
             "restore_warning": "This will replace all portfolio content and wipe analytics. Admin credentials will be preserved. The site goes into maintenance mode until the restore completes.",
@@ -565,6 +566,7 @@
         },
         "toasts": {
             "backup_created": "Backup created.",
+            "backup_creation_started": "Backup creation started.",
             "backup_deleted": "Backup deleted.",
             "backup_restore_failed": "Could not start the restore.",
             "backup_restore_started": "Restore started. The site is in maintenance mode until it completes.",

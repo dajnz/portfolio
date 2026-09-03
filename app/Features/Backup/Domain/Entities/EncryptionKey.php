@@ -9,10 +9,10 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 use function base64_decode;
-use function bin2hex;
-use function random_bytes;
+use function hash;
 use function sprintf;
 use function strlen;
+use function substr;
 
 /**
  * One row of `backup_encryption_keys` (database.md:550-565): the
@@ -70,15 +70,20 @@ final class EncryptionKey extends BaseEntity
     /**
      * The DR-imported key (backup.md:417): `is_active = false` — it
      * serves this specific imported backup only, never future
-     * creations. The name follows the `imported-{Y-m-d-His}-{hex}`
-     * convention (unique + NOT NULL, database.md:557) so multiple
-     * imports never collide.
+     * creations. The name is the deterministic
+     * `disaster-key-{8-hex sha256 prefix of the raw value}` — the
+     * `{name}` part of the archive filename (`--{name}` suffix) then
+     * stays stable for the same key across imports, and the short
+     * checksum keeps the key identifiable without the timestamp noise.
+     * The `name` column is unique + NOT NULL (database.md:557); two
+     * imports of the same raw key produce the same name, which the
+     * reuse check in `ImportFromPathUseCase` prevents from colliding.
      */
     public static function forImport(string $rawKey, DateTimeImmutable $createdAt): self
     {
         return new self(
             id: 0,
-            name: sprintf('imported-%s-%s', $createdAt->format('Y-m-d-His'), bin2hex(random_bytes(4))),
+            name: sprintf('disaster-key-%s', substr(hash('sha256', $rawKey), 0, 8)),
             keyValue: $rawKey,
             isActive: false,
             createdAt: $createdAt,

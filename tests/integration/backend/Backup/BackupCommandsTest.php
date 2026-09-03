@@ -59,6 +59,11 @@ describe('Backup commands', function (): void {
         $tempPath = tempnam(sys_get_temp_dir(), 'dr-cli-').'.zip';
         file_put_contents($tempPath, $archiveBytes);
 
+        // The fresh-instance scenario — no stored key matches the
+        // archive's (the source key + its record are dropped first).
+        BackupModel::query()->whereKey($backup->toId())->forceDelete();
+        BackupEncryptionKeyModel::query()->whereKey($key->toId())->delete();
+
         try {
             $this->artisan('backup:restore', [
                 '--path' => $tempPath,
@@ -69,7 +74,9 @@ describe('Backup commands', function (): void {
         }
 
         expect(BackupModel::query()->where('filename', 'like', 'backup-import-%')->exists())->toBeTrue()
-            ->and(BackupEncryptionKeyModel::query()->where('is_active', false)->count())->toBe(1);
+            ->and(BackupEncryptionKeyModel::query()->where('is_active', false)->count())->toBe(1)
+            ->and(BackupEncryptionKeyModel::query()->where('is_active', false)->first()->name)
+                ->toMatch('/^disaster-key-[0-9a-f]{8}$/');
     });
 
     it('backup:restore DR mode rejects an invalid key', function (): void {

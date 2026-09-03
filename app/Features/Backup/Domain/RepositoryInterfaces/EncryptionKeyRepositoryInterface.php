@@ -45,6 +45,15 @@ interface EncryptionKeyRepositoryInterface
     public function all(): array;
 
     /**
+     * The stored key whose raw value equals `$rawKey`, null when no
+     * such key exists. The DR import (backup.md:417, B311) checks this
+     * first and reuses the existing key instead of importing a
+     * duplicate. The ciphertext is non-deterministic (Crypt salts per
+     * row), so the match decrypts and compares in PHP.
+     */
+    public function findByValue(string $rawKey): ?EncryptionKey;
+
+    /**
      * Hard-deletes the row — the DB's `ON DELETE RESTRICT` on
      * `backups.encryption_key_id` rejects it while backups still
      * reference the key (database.md:587); the use case checks

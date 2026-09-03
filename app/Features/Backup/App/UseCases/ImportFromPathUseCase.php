@@ -24,13 +24,17 @@ use function is_readable;
 
 /**
  * The disaster-recovery import (backup.md:410-421): validates a
- * downloaded `.zip` against a raw offline-saved key, imports the key
- * into `backup_encryption_keys` (`is_active = false` — it serves this
- * backup only, never future creations; the naming convention lives on
- * `EncryptionKey::forImport()`), uploads the archive to the `backups`
- * bucket under the B18 `backup-import-...-k{id}.zip` name and creates
- * the `completed` `backups` record from the manifest. The caller
- * passes the returned entity to the restore flow (B298).
+ * downloaded `.zip` against a raw offline-saved key, resolves the
+ * matching stored key — `EncryptionKeyRepositoryInterface::findByValue()`
+ * first (a key the archive was encrypted with may already exist in
+ * `backup_encryption_keys`, e.g. re-importing a backup downloaded from
+ * this same instance — reusing it avoids the duplicate row), importing
+ * the key only when no match exists (`is_active = false` — it serves
+ * this backup only, never future creations; the naming convention
+ * lives on `EncryptionKey::forImport()`), uploads the archive to the
+ * `backups` bucket under the B18 `backup-import-...-k{id}--{name}.zip`
+ * name and creates the `completed` `backups` record from the manifest.
+ * The caller passes the returned entity to the restore flow (B298).
  */
 final class ImportFromPathUseCase
 {
@@ -58,7 +62,7 @@ final class ImportFromPathUseCase
         }
 
         $now = new DateTimeImmutable();
-        $key = $this->keys->create(EncryptionKey::forImport($rawKey, $now));
+        $key = $this->keys->findByValue($rawKey) ?? $this->keys->create(EncryptionKey::forImport($rawKey, $now));
 
         $filename = BackupFilename::forImport($now, $key->toId(), $key->toName());
         $this->backupsTransfer->uploadBatch([$path => $filename]);

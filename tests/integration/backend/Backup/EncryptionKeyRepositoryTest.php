@@ -8,6 +8,7 @@ use App\Features\Backup\Domain\Entities\EncryptionKey;
 use App\Features\Backup\Domain\RepositoryInterfaces\EncryptionKeyRepositoryInterface;
 use App\Features\Backup\Infra\Models\BackupEncryptionKeyModel;
 use DateTimeImmutable;
+use Illuminate\Support\Facades\Crypt;
 
 uses()->group('backup');
 
@@ -57,6 +58,25 @@ describe('EloquentEncryptionKeyRepository', function (): void {
 
         expect($repository->find($entity->toId())->isActive())->toBeFalse()
             ->and($repository->findActive())->toBeNull();
+    });
+
+    it('finds a stored key by its raw value — the DR reuse check', function (): void {
+        $repository = app(EncryptionKeyRepositoryInterface::class);
+        $raw = 'MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=';
+
+        BackupEncryptionKeyModel::factory()->create(['name' => 'initial-key', 'key_value' => Crypt::encryptString($raw)]);
+        BackupEncryptionKeyModel::factory()->create([
+            'name' => 'rotated-2026',
+            'key_value' => Crypt::encryptString('YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXowMTIzNDU='),
+        ]);
+
+        $match = $repository->findByValue($raw);
+
+        expect($match)->not->toBeNull()
+            ->and($match->toName())->toBe('initial-key')
+            ->and($match->toKeyValue())->toBe($raw)
+            ->and($repository->findByValue('YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXowMTIzNDU=')->toName())->toBe('rotated-2026')
+            ->and($repository->findByValue('ZmVkY2JhOTg3NjU0MzIxMGZlZGNiYTk4NzY1NDMyMTA='))->toBeNull();
     });
 
     it('hard-deletes the row', function (): void {

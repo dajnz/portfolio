@@ -7,6 +7,7 @@ namespace Tests\Integration\Backend\Backup;
 use App\Features\Backup\App\UseCases\GenerateEncryptionKeyUseCase;
 use App\Features\Backup\Infra\Jobs\CreateBackupJob;
 use App\Features\Backup\Infra\Jobs\RestoreBackupJob;
+use App\Features\Backup\Infra\Models\BackupEncryptionKeyModel;
 use App\Features\Backup\Infra\Models\BackupModel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Bus;
@@ -41,12 +42,12 @@ describe('BackupController', function (): void {
                 ->where('encryption_key_prompt', true));
     });
 
-    it('creates a pending record and dispatches the job, then redirects with a toast', function (): void {
+    it('creates a pending record and dispatches the job, then redirects with a started toast', function (): void {
         Bus::fake([CreateBackupJob::class]);
 
         $this->post('/admin/backups')
             ->assertRedirect()
-            ->assertSessionHas('notification', ['type' => 'success', 'message' => __('admin.toasts.backup_created')]);
+            ->assertSessionHas('notification', ['type' => 'success', 'message' => __('admin.toasts.backup_creation_started')]);
 
         $record = BackupModel::query()->latest('id')->first();
 
@@ -171,7 +172,7 @@ describe('BackupController', function (): void {
         $this->getJson('/admin/backups/999999/status')->assertNotFound();
     });
 
-    it('imports and restores an uploaded DR archive', function (): void {
+    it('imports and restores an uploaded DR archive with a freshly imported disaster key', function (): void {
         Bus::fake([RestoreBackupJob::class]);
 
         $key = app(GenerateEncryptionKeyUseCase::class)->generate('initial-key');
@@ -180,6 +181,11 @@ describe('BackupController', function (): void {
         $archiveBytes = Storage::disk('rustfs-backups')->get($backup->toFilename());
         $tempPath = tempnam(sys_get_temp_dir(), 'dr-upload-').'.zip';
         file_put_contents($tempPath, $archiveBytes);
+
+        // The fresh-instance scenario: no stored key matches the
+        // archive's — drop the source key (and its backup record) first.
+        BackupModel::query()->whereKey($backup->toId())->forceDelete();
+        BackupEncryptionKeyModel::query()->whereKey($key->toId())->delete();
 
         try {
             $this->post('/admin/backups/upload', [
@@ -196,6 +202,44 @@ describe('BackupController', function (): void {
 
         expect($imported->filename)->toContain('backup-import-')
             ->and($imported->status)->toBe('completed');
+
+        $importedKey = BackupEncryptionKeyModel::query()->whereKey($imported->encryption_key_id)->first();
+
+        expect($importedKey)->not->toBeNull()
+            ->and($importedKey->name)->toMatch('/^disaster-key-[0-9a-f]{8}$/')
+            ->and($importedKey->is_active)->toBeFalse()
+            ->and($imported->filename)->toContain('-k'.$importedKey->id.'--'.$importedKey->name.'.zip');
+
+        Bus::assertDispatched(RestoreBackupJob::class, fn (RestoreBackupJob $job): bool => $job->backupId === $imported->id);
+    });
+
+    it('reuses the matching stored key when the DR archive key already exists', function (): void {
+        Bus::fake([RestoreBackupJob::class]);
+
+        $key = app(GenerateEncryptionKeyUseCase::class)->generate('initial-key');
+        $backup = app(\App\Features\Backup\App\UseCases\CreateBackupUseCase::class)->create();
+
+        $archiveBytes = Storage::disk('rustfs-backups')->get($backup->toFilename());
+        $tempPath = tempnam(sys_get_temp_dir(), 'dr-upload-').'.zip';
+        file_put_contents($tempPath, $archiveBytes);
+
+        try {
+            $this->post('/admin/backups/upload', [
+                'file' => new UploadedFile($tempPath, $backup->toFilename(), 'application/zip', null, true),
+                'key' => $key->toKeyValue(),
+                'password' => self::ADMIN_PASSWORD,
+            ])->assertRedirect('/admin/backups');
+        } finally {
+            @unlink($tempPath);
+        }
+
+        $imported = BackupModel::query()->latest('id')->first();
+
+        // No duplicate key row — the imported record references the
+        // existing key (its `-k{id}--{name}` filename suffix included).
+        expect(BackupEncryptionKeyModel::query()->count())->toBe(1)
+            ->and($imported->encryption_key_id)->toBe($key->toId())
+            ->and($imported->filename)->toContain('-k'.$key->toId().'--'.$key->toName().'.zip');
 
         Bus::assertDispatched(RestoreBackupJob::class, fn (RestoreBackupJob $job): bool => $job->backupId === $imported->id);
     });

@@ -37,8 +37,8 @@ describe('BackupFilename', function (): void {
     it('builds the DR import name with the imported key name', function (): void {
         $createdAt = new DateTimeImmutable('2026-07-09 02:00:00');
 
-        expect(BackupFilename::forImport($createdAt, 3, 'imported-2026-07-09-020000-a1b2c3'))
-            ->toBe('backup-import-2026-07-09-020000-k3--imported-2026-07-09-020000-a1b2c3.zip');
+        expect(BackupFilename::forImport($createdAt, 3, 'disaster-key-a1b2c3d4'))
+            ->toBe('backup-import-2026-07-09-020000-k3--disaster-key-a1b2c3d4.zip');
     });
 
     it('keeps the timestamp-second precision of the B18 convention', function (): void {
