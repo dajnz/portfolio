@@ -5,7 +5,8 @@
     "scripts": {
         "build": "npm run icons:build && vite build",
         "dev": "vite",
-        "icons:build": "node scripts/build-icon-subsets.mjs",
+        "icons:build": "npm run icons:custom && node scripts/build-icon-subsets.mjs",
+        "icons:custom": "node scripts/build-custom-icons.mjs",
         "lint": "biome check resources/js && eslint resources/js",
         "lint:css": "stylelint \"resources/js/**/*.vue\"",
         "format": "biome check --write --unsafe resources/js",
@@ -46,6 +47,7 @@
         "@iconify-json/heroicons": "^1.2.3",
         "@iconify-json/lucide": "^1.2.123",
         "@iconify-json/simple-icons": "^1.2.93",
+        "@iconify/tools": "^5.0.14",
         "@playwright/test": "^1.62.1",
         "@stoplight/spectral-cli": "^6.16.3",
         "@tailwindcss/vite": "^4.0.0",
