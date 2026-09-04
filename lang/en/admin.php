@@ -122,6 +122,7 @@ return [
         'location' => 'Location',
         'show_location' => 'Show Location',
         'timezone' => 'Timezone',
+        'timezone_placeholder' => 'Search timezone…',
         'relocation' => 'Relocation',
         'work_type' => 'Work Type',
         'configure_resume' => 'Configure Resume',

@@ -45,9 +45,11 @@ const ABOUT = {
     relocation_readiness: true,
 };
 
+const TIMEZONES = ['Europe/Berlin', 'Europe/Moscow', 'Asia/Kolkata', 'UTC'];
+
 function mountPage(props: Record<string, unknown> = {}) {
     return mount(AboutEditPage, {
-        props: { about: ABOUT, ...props },
+        props: { about: ABOUT, timezones: TIMEZONES, ...props },
     });
 }
 
@@ -87,13 +89,35 @@ describe('AboutEditPage', () => {
     it('prefills the shared fields outside the tabs', () => {
         const wrapper = mountPage();
 
-        expect((wrapper.get('[data-testid="about-edit-page-timezone"]').element as HTMLInputElement).value).toBe(
-            'Europe/Berlin',
-        );
+        expect(wrapper.get('[data-testid="about-edit-page-timezone"]').text()).toContain('Europe/Berlin');
         expect(wrapper.find('[data-testid="about-edit-page-photo-preview"]').exists()).toBe(true);
         expect(
             (wrapper.get('[data-testid="about-edit-page-photo-alt-en"]').element as HTMLInputElement).value,
         ).toBe('Portrait of Alex');
+    });
+
+    it('filters the timezone options by the search query and saves the picked zone', async () => {
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="about-edit-page-timezone"]').trigger('click');
+        const search = wrapper.get('[data-testid="about-edit-page-timezone-search"]');
+        expect(search.attributes('placeholder')).toBe('Search timezone…');
+        await search.setValue('Moscow');
+
+        const visible = wrapper
+            .findAll('[role="option"]')
+            .map((option) => option.text())
+            .filter((text) => text.length > 0);
+        expect(visible).toEqual(['Europe/Moscow (UTC+3)']);
+
+        await wrapper.get('[data-testid="about-edit-page-timezone-option-Europe/Moscow"]').trigger('click');
+        await wrapper.get('[data-testid="about-edit-page-form"]').trigger('submit');
+
+        expect(putMock).toHaveBeenCalledWith(
+            '/admin/about',
+            expect.objectContaining({ timezone: 'Europe/Moscow' }),
+            expect.any(Object),
+        );
     });
 
     it('saves the full form with PUT /admin/about', async () => {

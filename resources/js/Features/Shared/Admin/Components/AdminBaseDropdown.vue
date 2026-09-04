@@ -142,6 +142,10 @@ function open(): void {
 function close(): void {
     isOpen.value = false;
     highlighted.value = -1;
+    // The search query must not leak into the next open — a reopened
+    // panel would otherwise stay filtered by the previous term (the
+    // timezone picker renders 400+ options).
+    query.value = '';
 }
 
 function toggleOpen(): void {
@@ -299,20 +303,24 @@ onBeforeUnmount(() => {
       <div
         v-if="isOpen"
         :id="listboxId"
-        class="absolute top-full left-0 right-0 mt-1 max-h-[280px] overflow-y-auto bg-white dark:bg-surface-dark-secondary border border-slate-200 dark:border-slate-700 rounded-lg shadow-dropdown z-dropdown"
+        class="thin-scrollbar absolute top-full left-0 right-0 mt-1 max-h-[280px] overflow-y-auto bg-white dark:bg-surface-dark-secondary border border-slate-200 dark:border-slate-700 rounded-lg shadow-dropdown z-dropdown"
         role="listbox"
         :aria-label="props.label"
       >
-        <input
+        <div
           v-if="props.searchable"
-          ref="searchEl"
-          v-model="query"
-          type="text"
-          class="w-full h-9 px-3 text-sm bg-transparent border-b border-slate-200 dark:border-slate-700 outline-none"
-          :placeholder="props.placeholder"
-          :data-testid="`${props.test_id}-search`"
-          @input="onQueryInput"
+          class="p-2 pb-1"
         >
+          <input
+            ref="searchEl"
+            v-model="query"
+            type="text"
+            class="w-full h-9 px-3 text-sm bg-white dark:bg-surface-dark-secondary border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 dark:focus:ring-primary-900 outline-none transition-all"
+            :placeholder="props.placeholder"
+            :data-testid="`${props.test_id}-search`"
+            @input="onQueryInput"
+          >
+        </div>
         <div
           v-if="props.loading"
           class="flex flex-col gap-2 px-3 py-2"

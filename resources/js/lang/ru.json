@@ -18,6 +18,7 @@
             "short_pitch": "Краткое описание",
             "show_location": "Показывать локацию",
             "timezone": "Часовой пояс",
+            "timezone_placeholder": "Поиск часового пояса…",
             "title": "Обо мне",
             "title_label": "Должность",
             "work_type": "Формат работы"

@@ -18,6 +18,7 @@
             "short_pitch": "Short Pitch",
             "show_location": "Show Location",
             "timezone": "Timezone",
+            "timezone_placeholder": "Search timezone…",
             "title": "About Me",
             "title_label": "Title",
             "work_type": "Work Type"

@@ -117,6 +117,7 @@ return [
         'location' => 'Локация',
         'show_location' => 'Показывать локацию',
         'timezone' => 'Часовой пояс',
+        'timezone_placeholder' => 'Поиск часового пояса…',
         'relocation' => 'Переезд',
         'work_type' => 'Формат работы',
         'configure_resume' => 'Настроить резюме',

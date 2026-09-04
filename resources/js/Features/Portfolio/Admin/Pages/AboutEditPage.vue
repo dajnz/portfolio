@@ -17,6 +17,7 @@ import { useUnsavedChanges } from '@shared-cross/Composables/useUnsavedChanges';
 import { SUPPORTED_LOCALES } from '@shared-cross/Stores/localeStore';
 import { localesWithErrors } from '@shared-cross/Utils/localeErrors';
 import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
+import { formatTimezoneLabel } from '@shared-cross/Utils/timezoneLabel';
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 
 interface AboutEditProps {
@@ -51,11 +52,16 @@ interface AboutFormValues {
 const props = withDefaults(
     defineProps<{
         about?: AboutEditProps | null;
+        /** IANA timezone identifiers offered by the timezone dropdown
+         *  (AboutController — DateTimeZone::listIdentifiers(), the same
+         *  set the `timezone` validation rule accepts). */
+        timezones?: string[];
         resume_mode?: 'auto' | 'manual';
         test_id?: string;
     }>(),
     {
         about: null,
+        timezones: () => [],
         resume_mode: 'manual',
         test_id: 'about-edit-page',
     },
@@ -107,6 +113,13 @@ onBeforeUnmount(() => {
 // shared `supported_locales` prop — disabled locales are not editable,
 // 5.2 rework).
 const locales = computed(() => localeOptionsFromCodes(page.props?.supported_locales));
+
+// The timezone dropdown's option set — each identifier is labelled with
+// its current UTC offset ("Europe/Moscow (UTC+3)") so the admin can pick
+// by shift without knowing the IANA table.
+const timezoneOptions = computed(() =>
+    props.timezones.map((value) => ({ value, label: formatTimezoneLabel(value) })),
+);
 
 function buildForm(about: AboutEditProps | null | undefined): AboutFormValues {
     const empty = (): Record<string, string> =>
@@ -418,10 +431,12 @@ function cancel(): void {
           />
 
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <AdminBaseInput
+            <AdminBaseDropdown
               v-model="form.timezone"
-              name="timezone"
               :label="t('admin.about.timezone')"
+              :placeholder="t('admin.about.timezone_placeholder')"
+              :options="timezoneOptions"
+              searchable
               :error="errors.timezone ?? null"
               :disabled="isSaving"
               :test_id="`${props.test_id}-timezone`"
