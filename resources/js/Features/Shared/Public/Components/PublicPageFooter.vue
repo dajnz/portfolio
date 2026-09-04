@@ -69,7 +69,12 @@ function copyrightText(): string {
       <p class="footer__copyright">
         {{ copyrightText() }}
       </p>
-      <slot />
+      <div
+        v-if="hasExtras()"
+        class="footer__extras"
+      >
+        <slot />
+      </div>
     </PublicCenteredContainer>
   </footer>
 </template>

@@ -765,7 +765,7 @@
         "feedback_send_another": "Send another",
         "feedback_sending": "Sending...",
         "feedback_sent": "Thanks, {sender_name}! Your message has been sent.",
-        "footer_copyright": "© :year :name. All rights reserved.",
+        "footer_copyright": "© :owner_year. All rights reserved.",
         "get_in_touch": "Get in Touch",
         "loading": "Loading...",
         "my_skills": "My Skills",

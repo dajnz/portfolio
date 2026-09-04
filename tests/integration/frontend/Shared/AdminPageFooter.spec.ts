@@ -27,6 +27,13 @@ describe('AdminPageFooter', () => {
         );
     });
 
+    it('glues the closing dot to the year when no name is given', () => {
+        const wrapper = mountFooter({ copyright_year: '2026' });
+
+        expect(wrapper.text()).toContain('© 2026. All rights reserved.');
+        expect(wrapper.text()).not.toContain('© 2026 .');
+    });
+
     it('renders the default slot content', () => {
         const wrapper = mountFooter({}, { default: '<a data-testid="footer-link">GitHub</a>' });
 

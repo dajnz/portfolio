@@ -27,6 +27,14 @@ describe('PublicPageFooter', () => {
         expect(wrapper.get('.footer__copyright').text()).toContain(String(new Date().getFullYear()));
     });
 
+    it('glues the closing dot to the year when no name is given', () => {
+        const wrapper = mount(PublicPageFooter, {
+            props: { copyright_year: '2026' },
+        });
+
+        expect(wrapper.get('.footer__copyright').text()).toBe('© 2026. All rights reserved.');
+    });
+
     it('renders additional footer links from the default slot', () => {
         const wrapper = mount(PublicPageFooter, {
             props: { copyright_year: '2026', copyright_name: 'Alex' },
