@@ -12,6 +12,15 @@ runtime support.
 
 ### Changed
 
+- **`POST /api/upload` image processing described (v1.0.5 REST, step 12.5):**
+  JPEG/PNG/WebP/AVIF uploads are now converted to WebP before storage — EXIF
+  auto-orientation, downscale to the `image_max_dimension` setting
+  (default 2048), 85% quality encode with all metadata stripped; the returned
+  `path` ends in `.webp` and `size` is the stored (processed) size. GIFs and
+  PDFs pass through as-uploaded; undecodable files return 422. `shared.yaml`
+  upload description + `UploadResponse` descriptions updated. No schema
+  changes.
+
 - **Projects `unique_views` block source fixed (v1.0.24, step 11.3):** the
   block previously described the sum of the per-project `unique_visitors`
   rows (a visitor on several project pages counted once per project); it now

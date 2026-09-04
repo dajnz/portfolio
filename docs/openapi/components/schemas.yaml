@@ -70,7 +70,10 @@ components:
           properties:
             path:
               type: string
-              description: RustFS object path (e.g. 'blog/abc123/image.jpg').
+              description: >-
+                RustFS object path. Raster image uploads are stored as WebP
+                (e.g. 'blog/abc123/image.webp'); GIF/PDF uploads keep their
+                original extension.
             url:
               type: string
               format: uri
@@ -79,7 +82,7 @@ components:
               description: Original filename.
             size:
               type: integer
-              description: File size in bytes.
+              description: Stored file size in bytes (the processed WebP for converted images).
               minimum: 0
 
     # --- Feedback ---

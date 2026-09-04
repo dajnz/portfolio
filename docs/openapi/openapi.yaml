@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Portfolio API
-  version: '1.0.4'
+  version: '1.0.5'
   description: |
     Public REST API for the portfolio site. This is the **single source of truth**
     for all API contracts — endpoints are implemented to match these specs, not the
