@@ -13,6 +13,7 @@ use App\Features\Portfolio\Domain\ValueObjects\WorkType;
 use App\Features\Portfolio\Infra\Requests\UpdateAboutRequest;
 use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 use App\Features\Shared\Infra\Services\PerLocaleValues;
+use DateTimeZone;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -39,6 +40,10 @@ final class AboutController
 
         return $inertia->render('Portfolio/Admin/Pages/AboutEditPage', [
             'about' => $data['about'] === null ? null : $this->props($data['about']),
+            // The timezone picker's option set — the same IANA list the
+            // `timezone` validation rule accepts (UpdateAboutRequest),
+            // already sorted alphabetically by PHP.
+            'timezones' => DateTimeZone::listIdentifiers(),
             'resume_mode' => $data['resume_mode'],
         ]);
     }

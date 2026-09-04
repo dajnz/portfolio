@@ -139,6 +139,25 @@ describe('AdminBaseDropdown', () => {
         expect(wrapper.emitted('search')).toEqual([['ph']]);
     });
 
+    it('resets the search query on close so a reopened list is not filtered', async () => {
+        const wrapper = mount(AdminBaseDropdown, {
+            props: { modelValue: '', searchable: true, options: OPTIONS },
+        });
+
+        await wrapper.get('[data-testid="base-dropdown"]').trigger('click');
+        await wrapper.get('[data-testid="base-dropdown-search"]').setValue('ph');
+        expect(wrapper.findAll('[role="option"]')).toHaveLength(1);
+
+        await wrapper.get('[data-testid="base-dropdown"]').trigger('keydown', { key: 'Escape' });
+        expect(wrapper.find('[role="listbox"]').exists()).toBe(false);
+
+        await wrapper.get('[data-testid="base-dropdown"]').trigger('click');
+        expect(wrapper.findAll('[role="option"]')).toHaveLength(3);
+        expect((wrapper.get('[data-testid="base-dropdown-search"]').element as HTMLInputElement).value).toBe(
+            '',
+        );
+    });
+
     it('shows skeleton rows while loading', async () => {
         const wrapper = mount(AdminBaseDropdown, {
             props: { modelValue: '', loading: true, options: OPTIONS },

@@ -1126,6 +1126,15 @@ export interface components {
             props?: {
                 about?: components["schemas"]["AboutData"];
                 /**
+                 * @description IANA timezone identifiers offered by the timezone picker
+                 *     (the about form's shared fields) — the full
+                 *     `DateTimeZone::listIdentifiers()` set (the same source the
+                 *     `timezone` validation rule accepts), sorted alphabetically.
+                 *     Option labels with the current UTC offset
+                 *     ("Europe/Moscow (UTC+3)") are formatted client-side.
+                 */
+                timezones?: string[];
+                /**
                  * @description Current resume generation mode (Resume feature) — the resume summary line's mode label (admin-section-components.md:793-794).
                  * @enum {string}
                  */

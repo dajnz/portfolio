@@ -6,6 +6,7 @@ namespace Tests\Integration\Backend\Portfolio;
 
 use App\Features\Portfolio\Infra\Models\AboutInfoModel;
 use App\Features\Portfolio\Infra\Models\AboutInfoTranslationModel;
+use DateTimeZone;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Traits\InteractsWithAdmin;
 
@@ -41,6 +42,7 @@ describe('AboutController', function (): void {
                 ->where('about.location.ru', null)
                 ->where('about.show_location', true)
                 ->where('about.work_type', 'remote')
+                ->where('timezones', DateTimeZone::listIdentifiers())
                 ->where('resume_mode', 'manual'));
     });
 
