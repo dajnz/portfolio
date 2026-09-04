@@ -106,6 +106,12 @@ export interface paths {
          * @description Auth required. Uploads a file to RustFS and returns the stored reference.
          *     The returned `path` is stored in the appropriate DB column by the caller.
          *     MIME type validation depends on `entity_type` (images: 3 MB, PDFs: 5 MB).
+         *     JPEG/PNG/WebP/AVIF images are converted to WebP before storage: EXIF
+         *     auto-orientation, downscale so the largest side does not exceed the
+         *     `image_max_dimension` setting (default 2048 px), 85% quality encode with
+         *     all metadata stripped — the returned `path` ends in `.webp`. GIFs
+         *     (animation) and PDFs (resume upload) are stored as-uploaded. Files that
+         *     cannot be decoded as an image are rejected with 422.
          */
         post: operations["uploadFile"];
         /**
@@ -322,13 +328,13 @@ export interface components {
         AnalyticsTrackRequest: components["schemas"]["AnalyticsEvent"][];
         UploadResponse: {
             data: {
-                /** @description RustFS object path (e.g. 'blog/abc123/image.jpg'). */
+                /** @description RustFS object path. Raster image uploads are stored as WebP (e.g. 'blog/abc123/image.webp'); GIF/PDF uploads keep their original extension. */
                 path: string;
                 /** Format: uri */
                 url: string;
                 /** @description Original filename. */
                 name: string;
-                /** @description File size in bytes. */
+                /** @description Stored file size in bytes (the processed WebP for converted images). */
                 size: number;
             };
         };

@@ -11,13 +11,14 @@ RUN apk add --no-cache \
         libpng-dev \
         libjpeg-turbo-dev \
         libwebp-dev \
+        libavif-dev \
         freetype-dev \
         libxml2-dev \
         oniguruma-dev \
     && pecl install redis \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-avif \
     && docker-php-ext-install \
-        pdo pdo_pgsql mbstring xml zip bcmath intl gd pcntl \
+        pdo pdo_pgsql mbstring xml zip bcmath intl gd exif pcntl \
     && docker-php-ext-enable redis
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -44,13 +45,14 @@ RUN apk add --no-cache \
         libpng-dev \
         libjpeg-turbo-dev \
         libwebp-dev \
+        libavif-dev \
         freetype-dev \
         libxml2-dev \
         oniguruma-dev \
     && pecl install redis \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-avif \
     && docker-php-ext-install \
-        pdo pdo_pgsql mbstring xml zip bcmath intl gd pcntl \
+        pdo pdo_pgsql mbstring xml zip bcmath intl gd exif pcntl \
     && docker-php-ext-enable redis
 RUN adduser -D -u 1000 portfolio \
     && sed -i 's/^user = .*/user = portfolio/; s/^group = .*/group = portfolio/' /usr/local/etc/php-fpm.d/www.conf

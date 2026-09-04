@@ -40,6 +40,7 @@ class SettingsSeeder extends Seeder
             [SettingName::BackupMaxCount, config('backup.max_count')],
             [SettingName::BackupUploadMaxSize, 102400],
             [SettingName::TrashRetentionDays, 30],
+            [SettingName::ImageMaxDimension, config('portfolio.image_max_dimension')],
         ];
 
         foreach ($defaults as [$name, $value]) {

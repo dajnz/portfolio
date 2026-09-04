@@ -1,4 +1,4 @@
-<!-- SettingsPage (admin-section-components.md:1263-1322, admin-section-ui.md:431-441, settings.html) — tabbed settings form: General (Site Status / Languages / Pagination / Data Retention), Mail (API Connection with the B20/B125 Test Connection probe + Notifications), Feature Flags (FeatureFlagToggle rows, PATCH endpoint), Analytics (Reports). Each form tab submits a grouped `{ settings: { key: value } }` payload to PUT /admin/settings. -->
+<!-- SettingsPage (admin-section-components.md:1263-1322, admin-section-ui.md:431-441, settings.html) — tabbed settings form: General (Site Status / Languages / Content settings / Pagination / Data Retention), Mail (API Connection with the B20/B125 Test Connection probe + Notifications), Feature Flags (FeatureFlagToggle rows, PATCH endpoint), Analytics (Reports). Each form tab submits a grouped `{ settings: { key: value } }` payload to PUT /admin/settings. -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import FeatureFlagToggle, {
@@ -29,6 +29,7 @@ interface SettingsFormValues {
     trash_retention_days: string;
     backup_max_count: string;
     backup_upload_max_size: string;
+    image_max_dimension: string;
     mail_api_endpoint: string;
     mail_api_token: string;
     mail_from_address: string;
@@ -134,6 +135,7 @@ function buildForm(settings: Record<string, unknown>): SettingsFormValues {
         trash_retention_days: toNumberText(settings.trash_retention_days, 30),
         backup_max_count: toNumberText(settings.backup_max_count, 30),
         backup_upload_max_size: toNumberText(settings.backup_upload_max_size, 102400),
+        image_max_dimension: toNumberText(settings.image_max_dimension, 2048),
         mail_api_endpoint: toText(settings.mail_api_endpoint, ''),
         mail_api_token: toText(settings.mail_api_token, ''),
         mail_from_address: toText(settings.mail_from_address, ''),
@@ -167,6 +169,7 @@ const TAB_KEYS: Record<Exclude<TabId, 'flags'>, Array<keyof SettingsFormValues>>
         'trash_retention_days',
         'backup_max_count',
         'backup_upload_max_size',
+        'image_max_dimension',
     ],
     mail: [
         'mail_api_endpoint',
@@ -252,6 +255,7 @@ function generalPayload(): SettingsPayload {
         trash_retention_days: toInt(form.trash_retention_days, 0),
         backup_max_count: toInt(form.backup_max_count, 1),
         backup_upload_max_size: toInt(form.backup_upload_max_size, 1),
+        image_max_dimension: toInt(form.image_max_dimension, 2048),
     };
 }
 
@@ -466,6 +470,23 @@ async function testMail(): Promise<void> {
                 />
               </div>
             </div>
+          </fieldset>
+
+          <!-- ══ Content settings ══ -->
+          <fieldset class="space-y-4">
+            <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
+              {{ t('admin.settings.content_settings') }}
+            </legend>
+            <AdminBaseInput
+              v-model="form.image_max_dimension"
+              type="number"
+              min="512"
+              max="4096"
+              :label="t('admin.settings.image_max_dimension')"
+              :help="t('admin.settings.image_max_dimension_hint')"
+              :error="fieldError('image_max_dimension')"
+              :test_id="`${props.test_id}-image-max-dimension`"
+            />
           </fieldset>
 
           <!-- ══ Pagination ══ -->

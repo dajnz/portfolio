@@ -6,12 +6,12 @@ FROM php:8.5-cli-alpine
 # PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH (tests/e2e/playwright.config.ts).
 RUN apk add --no-cache \
         $PHPIZE_DEPS \
-        postgresql-dev libzip-dev icu-dev libpng-dev libjpeg-turbo-dev libwebp-dev freetype-dev libxml2-dev oniguruma-dev \
+        postgresql-dev libzip-dev icu-dev libpng-dev libjpeg-turbo-dev libwebp-dev libavif-dev freetype-dev libxml2-dev oniguruma-dev \
         git openssh unzip bash jq nodejs npm age linux-headers \
         chromium fontconfig ttf-dejavu \
     && pecl install redis xdebug \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
-    && docker-php-ext-install pdo pdo_pgsql mbstring xml zip bcmath intl gd pcntl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-avif \
+    && docker-php-ext-install pdo pdo_pgsql mbstring xml zip bcmath intl gd exif pcntl \
     && docker-php-ext-enable redis xdebug
 
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser

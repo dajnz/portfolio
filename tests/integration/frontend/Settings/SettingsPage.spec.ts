@@ -42,6 +42,7 @@ const SETTINGS = {
     trash_retention_days: 30,
     backup_max_count: 30,
     backup_upload_max_size: 102400,
+    image_max_dimension: 2048,
     mail_api_endpoint: 'https://api.example.com/v1/mail',
     mail_api_token: '',
     mail_from_address: 'hello@example.com',
@@ -109,6 +110,10 @@ describe('SettingsPage', () => {
             (wrapper.get('[data-testid="settings-page-trash-days"]').element as HTMLInputElement).value,
         ).toBe('30');
         expect(
+            (wrapper.get('[data-testid="settings-page-image-max-dimension"]').element as HTMLInputElement).value,
+        ).toBe('2048');
+        expect(wrapper.text()).toContain('Content settings');
+        expect(
             (wrapper.get('[data-testid="settings-page-maintenance"]').element as HTMLInputElement).checked,
         ).toBe(false);
         expect(
@@ -130,6 +135,8 @@ describe('SettingsPage', () => {
         ]) {
             expect(wrapper.get(`[data-testid="${testId}"]`).attributes('min')).toBe('1');
         }
+        expect(wrapper.get('[data-testid="settings-page-image-max-dimension"]').attributes('min')).toBe('512');
+        expect(wrapper.get('[data-testid="settings-page-image-max-dimension"]').attributes('max')).toBe('4096');
     });
 
     it('toggles the maintenance switch and reflects the ON/OFF status', async () => {
@@ -221,6 +228,7 @@ describe('SettingsPage', () => {
                     trash_retention_days: 30,
                     backup_max_count: 30,
                     backup_upload_max_size: 102400,
+                    image_max_dimension: 2048,
                 },
             },
             expect.any(Object),

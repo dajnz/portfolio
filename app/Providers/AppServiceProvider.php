@@ -103,6 +103,7 @@ use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
 use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
 use App\Features\Shared\Infra\Services\RustFsAssetCleaner;
 use App\Features\Shared\Infra\Services\SitemapService;
+use App\Features\Shared\Infra\Services\UploadedImageProcessor;
 use App\Features\Shared\Infra\Swagger\SwaggerUiService;
 use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepositoryInterface;
 use App\Features\TechSkills\Infra\Repositories\EloquentTechSkillWriteRepository;
@@ -113,6 +114,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -254,6 +257,15 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             CountCacheInvalidatorInterface::class,
             AdminListCountCacheInvalidator::class,
+        );
+
+        // The upload WebP pipeline (Shared Infra) — GD driver: the decode
+        // applies the EXIF auto-orientation, WebP encode strips metadata.
+        $this->app->bind(
+            UploadedImageProcessor::class,
+            fn (): UploadedImageProcessor => new UploadedImageProcessor(
+                new ImageManager(new Driver()),
+            ),
         );
 
         $this->app->bind(
