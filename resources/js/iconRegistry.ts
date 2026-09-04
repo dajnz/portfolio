@@ -1,5 +1,6 @@
 import type { IconifyJSON } from '@iconify/types';
 import { addCollection } from '@iconify/vue';
+import custom from './iconSubsets/custom.json';
 import heroicons from './iconSubsets/heroicons.json';
 import lucide from './iconSubsets/lucide.json';
 
@@ -18,3 +19,10 @@ addCollection(heroicons as IconifyJSON);
 // glyphs; B231) — the generated subset keeps the bundle flat while
 // staying offline.
 addCollection(lucide as IconifyJSON);
+
+// The hand-fed custom subset (SVGs dropped into resources/icons/custom,
+// scripts/build-custom-icons.mjs) ships glyphs that do not exist in
+// Iconify, e.g. a messenger mark for a contact row. It is tiny and
+// registered here (not lazily) so every surface — admin rows, public
+// blocks, SSR — can render `custom:*` icons without a readiness gate.
+addCollection(custom as IconifyJSON);

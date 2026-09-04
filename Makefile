@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed setup setup-localhost test test-unit test-int test-backend test-frontend test-e2e coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images redis cache-clear health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed setup setup-localhost test test-unit test-int test-backend test-frontend test-e2e coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -195,6 +195,9 @@ typecheck: ## TypeScript type check (includes API + Inertia type generation)
 
 images: ## Prepare image assets: optimize/minify resources/images -> public/images + section favicons
 	$(DE) node devops/images/prepare-images.mjs
+
+custom-icons: ## Regenerate the custom icon subset from resources/icons/custom/*.svg (add an SVG and run this — the file name becomes the icon id, e.g. messenger.svg -> custom:messenger)
+	$(DE) npm run icons:custom
 
 redis: ## Open an interactive redis-cli against the dev Redis (sessions/cache/rate limits)
 	$(DC) exec redis redis-cli
