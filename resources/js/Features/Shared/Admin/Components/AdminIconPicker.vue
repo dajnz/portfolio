@@ -1,6 +1,7 @@
 // admin-section-components.md:251-283 — AdminIconPicker (restricted to
 // the strict icon manifests — brands.json for skills, technical.json
-// (mixed sets) for everything else, see scripts/build-icon-subsets.mjs)
+// (mixed sets) for everything else — plus the hand-fed custom subset
+// custom.json for non-Iconify glyphs, see scripts/build-icon-subsets.mjs)
 <script setup lang="ts">
 import type { IconifyJSON } from '@iconify/types';
 import { Icon, type IconifyIcon } from '@iconify/vue';
@@ -75,12 +76,18 @@ function loadSet(set: IconSet): void {
 
     // The picker offers only the icons listed in the strict manifests
     // (brands.json — devicon for skills; technical.json — the mixed
-    // heroicons/simple-icons/... sets). The generated subsets are tiny,
-    // so both technical sets can load together.
+    // heroicons/simple-icons/... sets) plus the hand-fed custom subset
+    // (resources/icons/custom — glyphs that do not exist in Iconify).
+    // The generated subsets are tiny, so the technical sets can load
+    // together.
     const modulePromises =
         set === 'brands'
             ? [import('@/iconSubsets/devicon.json')]
-            : [import('@/iconSubsets/heroicons.json'), import('@/iconSubsets/simple-icons.json')];
+            : [
+                  import('@/iconSubsets/heroicons.json'),
+                  import('@/iconSubsets/simple-icons.json'),
+                  import('@/iconSubsets/custom.json'),
+              ];
 
     Promise.all(modulePromises)
         .then((modules) => {
