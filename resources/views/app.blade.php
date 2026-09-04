@@ -33,11 +33,15 @@
         // Section favicons (Makefile `images` pipeline): the admin area
         // gets its own set, the public surface its own. (`$request` is
         // not in scope in the Inertia SSR render — use the helper.)
-        $faviconBase = str_starts_with((string) request()->path(), 'admin') ? 'favicon-admin' : 'favicon-public';
+        $isAdminSurface = str_starts_with((string) request()->path(), 'admin');
+        $faviconBase = $isAdminSurface ? 'favicon-admin' : 'favicon-public';
     @endphp
     <link rel="icon" href="/images/{{ $faviconBase }}.svg" type="image/svg+xml">
     <link rel="icon" href="/images/{{ $faviconBase }}-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" href="/images/{{ $faviconBase }}-180.png">
+    @if (!$isAdminSurface)
+        <link rel="alternate" type="application/rss+xml" href="{{ rtrim((string) config('app.url'), '/') }}/rss">
+    @endif
     <script nonce="{{ app(CspNonce::class)->getValue() }}">
         (function () {
             var c = document.cookie.match(/(?:^|;\s*)theme=(light|dark)/);

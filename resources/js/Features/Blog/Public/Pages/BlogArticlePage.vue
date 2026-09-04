@@ -1,5 +1,6 @@
 <!-- BlogArticlePage (public-section-ui.md:240-297, public-section-components.md:1244-1341, mockup blog-article.html) — the public article detail: the two-column layout (ArticleContent reading panel | sticky TableOfContents sidebar), the RelatedPosts section spanning the full width. The article's SEO props + JSON-LD (BlogPosting + BreadcrumbList — incl. the skill names in `keywords`) arrive from the backend and are synced via useSeoUpdater (seo.md:119-188). TOC navigation smooth-scrolls to the heading's `scroll-margin-top` offset (respecting the sticky header); the TOC's IntersectionObserver watches the body's headings via the `target_selector`. The mobile variant collapses the sidebar into the floating TOC button. -->
 <script setup lang="ts">
+import { useI18n } from '@shared-cross/Composables/useI18n';
 import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
 import { useSeoUpdater } from '@shared-cross/Composables/useSeoUpdater';
 import type { components } from '@shared-cross/Types/inertia';
@@ -32,6 +33,8 @@ const props = withDefaults(
 ensureBlogIcons();
 usePageTracking('blog_article', props.article?.id ?? null);
 useSeoUpdater();
+
+const { t } = useI18n();
 
 const { navItems, activeRoute, article, headings } = useBlogArticlePage(props);
 
@@ -81,6 +84,16 @@ function onTocNavigate(id: string): void {
         :test_id="`${props.test_id}-related`"
       />
     </article>
+
+    <template #footer>
+      <a
+        class="footer__link"
+        href="/rss"
+        data-testid="footer-rss-link"
+      >
+        {{ t('blog.rss_feed') }}
+      </a>
+    </template>
   </PublicPageLayout>
 </template>
 

@@ -200,6 +200,15 @@ describe('BlogIndexPage', () => {
         expect(wrapper.find('[data-testid="public-header-nav-/projects"]').exists()).toBe(true);
     });
 
+    it('renders the RSS footer link pointing at the feed', async () => {
+        const wrapper = mountPage();
+        await flush();
+
+        const link = wrapper.get('[data-testid="footer-rss-link"]');
+        expect(link.attributes('href')).toBe('/rss');
+        expect(link.text()).toBe('RSS');
+    });
+
     it('hides the Projects nav link when no published project exists', async () => {
         const wrapper = mountPage({ has_projects: false });
         await flush();

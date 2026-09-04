@@ -20,10 +20,11 @@ const props = withDefaults(
 const { t } = useI18n();
 
 function copyrightText(): string {
-    return t('landing.footer_copyright', {
-        year: props.copyright_year ?? String(new Date().getFullYear()),
-        name: props.copyright_name ?? '',
-    });
+    const year = props.copyright_year ?? String(new Date().getFullYear());
+    const name = props.copyright_name ?? '';
+    const ownerYear = name !== '' ? `${year} ${name}` : year;
+
+    return t('landing.footer_copyright', { owner_year: ownerYear });
 }
 </script>
 

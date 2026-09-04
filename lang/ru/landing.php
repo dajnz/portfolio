@@ -32,7 +32,7 @@ return [
 
     'cookies_notice' => 'Этот сайт использует cookie для языковых предпочтений, настроек темы и собственной аналитики. Сторонних трекеров нет.',
     'cookies_accept' => 'Принять',
-    'footer_copyright' => '© :year :name. Все права защищены.',
+    'footer_copyright' => '© :owner_year. Все права защищены.',
 
     'feedback_name' => 'Имя',
     'feedback_email' => 'Email',

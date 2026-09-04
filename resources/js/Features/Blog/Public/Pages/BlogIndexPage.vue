@@ -149,6 +149,16 @@ function onViewModeChange(mode: 'grid' | 'list'): void {
         />
       </template>
     </div>
+
+    <template #footer>
+      <a
+        class="footer__link"
+        href="/rss"
+        data-testid="footer-rss-link"
+      >
+        {{ t('blog.rss_feed') }}
+      </a>
+    </template>
   </PublicPageLayout>
 </template>
 

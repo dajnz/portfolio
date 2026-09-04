@@ -37,7 +37,7 @@ return [
 
     'cookies_notice' => 'This site uses cookies for language preferences, theme settings, and self-hosted analytics. No third-party trackers.',
     'cookies_accept' => 'Accept',
-    'footer_copyright' => '© :year :name. All rights reserved.',
+    'footer_copyright' => '© :owner_year. All rights reserved.',
 
     'feedback_name' => 'Name',
     'feedback_email' => 'Email',
