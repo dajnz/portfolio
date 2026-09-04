@@ -5,15 +5,16 @@ import { describe, expect, it } from 'vitest';
 // Mirrors the coverage guard of scripts/build-icon-subsets.mjs: every
 // `set:name` icon literal in the frontend source AND the integration test
 // fixtures must be listed in one of the strict icon manifests
-// (resources/js/iconManifests). An unlisted icon would silently fall back
-// to a runtime Iconify API fetch (B78 — offline, no trackers), so this
-// guard fails the test suite instead.
+// (resources/js/iconManifests) or — for the hand-fed `custom` set — be an
+// icon in resources/js/iconSubsets/custom.json. An unlisted icon would
+// silently fall back to a runtime Iconify API fetch (B78 — offline, no
+// trackers), so this guard fails the test suite instead.
 
 const sourceDir = join(process.cwd(), 'resources/js');
 const fixturesDir = join(process.cwd(), 'tests/integration/frontend');
 const manifestsDir = join(sourceDir, 'iconManifests');
 const excludedDirs = new Set(['Types', 'iconManifests', 'iconSubsets']);
-const knownPrefixes = new Set(['heroicons', 'simple-icons', 'devicon', 'lucide']);
+const knownPrefixes = new Set(['heroicons', 'simple-icons', 'devicon', 'lucide', 'custom']);
 
 function readJson(file: string): unknown {
     return JSON.parse(readFileSync(file, 'utf8')) as unknown;
@@ -28,6 +29,17 @@ function listManifestIdentifiers(): string[] {
     }
 
     return identifiers;
+}
+
+function listCustomIdentifiers(): string[] {
+    const custom = readJson(join(sourceDir, 'iconSubsets', 'custom.json')) as {
+        icons: Record<string, unknown>;
+        aliases?: Record<string, unknown>;
+    };
+
+    return [...Object.keys(custom.icons), ...Object.keys(custom.aliases ?? {})].map(
+        (name) => `custom:${name}`,
+    );
 }
 
 function collectSourceIdentifiers(): string[] {
@@ -76,7 +88,7 @@ function collectSourceIdentifiers(): string[] {
 
 describe('icon manifests', () => {
     it('cover every icon literal used in the source code', () => {
-        const allowed = new Set(listManifestIdentifiers());
+        const allowed = new Set([...listManifestIdentifiers(), ...listCustomIdentifiers()]);
         const used = collectSourceIdentifiers();
         const missing = [...new Set(used)].filter((identifier) => !allowed.has(identifier));
 
@@ -94,6 +106,24 @@ describe('icon manifests', () => {
             };
 
             expect(pack.icons[name] ?? pack.aliases?.[name], identifier).toBeDefined();
+        }
+    });
+
+    it('holds a well-formed custom subset (non-iconify glyphs)', () => {
+        const custom = readJson(join(sourceDir, 'iconSubsets', 'custom.json')) as {
+            prefix: string;
+            width: number;
+            height: number;
+            icons: Record<string, { body: string }>;
+        };
+
+        expect(custom.prefix).toBe('custom');
+        expect(custom.width).toBe(100);
+        expect(custom.height).toBe(100);
+
+        for (const [name, icon] of Object.entries(custom.icons)) {
+            expect(typeof icon.body, `custom:${name} body`).toBe('string');
+            expect(icon.body.trim(), `custom:${name} body`).not.toBe('');
         }
     });
 });
