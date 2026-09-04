@@ -22,6 +22,7 @@ return [
     'published_on' => 'Опубликовано: :date',
     'table_of_contents' => 'Содержание',
     'back_to_blog' => 'Назад к блогу',
+    'rss_feed' => 'RSS',
 
     'filter_year' => 'Год',
     'filter_all' => 'Все',

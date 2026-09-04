@@ -22,6 +22,7 @@ return [
     'published_on' => 'Published: :date',
     'table_of_contents' => 'Table of Contents',
     'back_to_blog' => 'Back to blog',
+    'rss_feed' => 'RSS',
 
     'filter_year' => 'Year',
     'filter_all' => 'All',

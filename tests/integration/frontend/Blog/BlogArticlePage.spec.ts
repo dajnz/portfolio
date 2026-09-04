@@ -164,6 +164,15 @@ describe('BlogArticlePage', () => {
         expect(content.text()).toContain('Views: 142');
     });
 
+    it('renders the RSS footer link pointing at the feed', async () => {
+        const wrapper = mountPage();
+        await flush();
+
+        const link = wrapper.get('[data-testid="footer-rss-link"]');
+        expect(link.attributes('href')).toBe('/rss');
+        expect(link.text()).toBe('RSS');
+    });
+
     it('extracts h2/h3 headings only into the TOC (h4 silently dropped)', async () => {
         const wrapper = mountPage();
         await flush();
