@@ -26,10 +26,14 @@ return [
     |
     | Images accept 3072 KB; PDFs (resume upload) accept 5120 KB — enforced
     | per `entity_type` by the upload endpoint (see content-management.md).
+    | `image_max_dimension` is the runtime-default cap (px) for the largest
+    | side of uploaded images after the WebP processing pipeline; it is
+    | overridable per-install via the `settings` table.
     |
     */
 
     'max_upload_size_kb' => 3072,
+    'image_max_dimension' => 2048,
 
     /*
     |--------------------------------------------------------------------------

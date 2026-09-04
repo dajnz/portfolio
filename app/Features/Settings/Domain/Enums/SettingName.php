@@ -27,6 +27,7 @@ enum SettingName: string
     case BackupMaxCount = 'backup_max_count';
     case BackupUploadMaxSize = 'backup_upload_max_size';
     case TrashRetentionDays = 'trash_retention_days';
+    case ImageMaxDimension = 'image_max_dimension';
 
     public function type(): SettingType
     {
@@ -41,7 +42,8 @@ enum SettingName: string
             self::ExperienceItemsPerPage,
             self::BackupMaxCount,
             self::BackupUploadMaxSize,
-            self::TrashRetentionDays => SettingType::Integer,
+            self::TrashRetentionDays,
+            self::ImageMaxDimension => SettingType::Integer,
             self::AnalyticsEmailRecipient,
             self::MailApiEndpoint,
             self::MailApiToken,

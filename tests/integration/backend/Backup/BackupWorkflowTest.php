@@ -68,7 +68,7 @@ describe('BackupWorkflowService — create pipeline', function (): void {
         $manifest = app(BackupArchiveInterface::class)
             ->readManifest(Storage::disk('rustfs-backups')->path($backup->toFilename()), $key->toKeyValue());
 
-        expect($manifest->recordCount('settings'))->toBe(16)
+        expect($manifest->recordCount('settings'))->toBe(17)
             ->and($manifest->recordCount('feedback'))->toBe(1)
             ->and($manifest->recordCount('projects'))->toBe(1)
             ->and($manifest->recordCount('project_screenshots'))->toBe(1);

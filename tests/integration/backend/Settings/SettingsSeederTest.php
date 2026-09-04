@@ -30,6 +30,7 @@ describe('SettingsSeeder', function (): void {
             'backup_max_count',
             'backup_upload_max_size',
             'trash_retention_days',
+            'image_max_dimension',
         ];
 
         $keys = SettingModel::query()->orderBy('key')->pluck('key')->all();
@@ -50,7 +51,8 @@ describe('SettingsSeeder', function (): void {
             ->and($values['email_on_feedback'])->toBe('1')
             ->and($values['backup_max_count'])->toBe((string) config('backup.max_count'))
             ->and($values['backup_upload_max_size'])->toBe('102400')
-            ->and($values['trash_retention_days'])->toBe('30');
+            ->and($values['trash_retention_days'])->toBe('30')
+            ->and($values['image_max_dimension'])->toBe((string) config('portfolio.image_max_dimension'));
     });
 
     it('matches the SettingName enum exactly (strict name-to-type mapping)', function (): void {
@@ -115,7 +117,7 @@ describe('DatabaseSeeder', function (): void {
     it('composes the settings and feature flag seeders without touching admins', function (): void {
         $this->seed();
 
-        expect(SettingModel::query()->count())->toBe(16)
+        expect(SettingModel::query()->count())->toBe(17)
             ->and(FeatureFlagModel::query()->count())->toBe(3);
     });
 });
