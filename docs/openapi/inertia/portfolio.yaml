@@ -108,6 +108,17 @@ components:
               properties:
                 about:
                   $ref: '#/components/schemas/AboutData'
+                timezones:
+                  type: array
+                  items:
+                    type: string
+                  description: |
+                    IANA timezone identifiers offered by the timezone picker
+                    (the about form's shared fields) — the full
+                    `DateTimeZone::listIdentifiers()` set (the same source the
+                    `timezone` validation rule accepts), sorted alphabetically.
+                    Option labels with the current UTC offset
+                    ("Europe/Moscow (UTC+3)") are formatted client-side.
                 resume_mode:
                   type: string
                   enum: [auto, manual]
