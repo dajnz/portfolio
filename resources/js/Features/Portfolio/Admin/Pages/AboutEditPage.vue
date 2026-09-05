@@ -1,4 +1,4 @@
-<!-- AboutEditPage (admin-section-components.md:709-739, admin-section-ui.md:230-239, about.html) — the about edit form: LocaleTabs-bound translatable fields (name/title/short_pitch/location per B102), shared fields (photo via DropzoneUpload + locale alt texts, toggles, timezone, work type, availability) and the resume summary link. PUT /admin/about (id=1 single row). -->
+<!-- AboutEditPage (admin-section-components.md:766-807, admin-section-ui.md:235-251, about.html) — the about edit form: LocaleTabs-bound translatable fields (name/title/short_pitch per B102), a Photo card (DropzoneUpload + per-locale alt texts) and a Work & location settings card (three two-column rows: location [locale-tab-bound, label carries the [en]/[ru] suffix] + timezone / show location + relocation / work type + availability), plus the resume summary link. PUT /admin/about (id=1 single row). -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
@@ -384,18 +384,10 @@ function cancel(): void {
             :test_id="`${props.test_id}-short-pitch-${activeLocale}`"
             @update:model-value="setLocaleValue(activeLocale, form.short_pitch, $event)"
           />
-          <AdminBaseInput
-            :model-value="localeValue(activeLocale, form.location)"
-            :label="t('admin.about.location')"
-            :error="fieldError('location')"
-            :disabled="isSaving"
-            :maxlength="100"
-            :test_id="`${props.test_id}-location-${activeLocale}`"
-            @update:model-value="setLocaleValue(activeLocale, form.location, $event)"
-          />
         </div>
 
-        <!-- Shared fields (outside the tabs) -->
+        <!-- Photo (shared — outside the tabs): the per-locale Alt Text
+             inputs render in the dropzone's slot. -->
         <div class="mb-6 space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary">
           <DropzoneUpload
             :model-value="photo"
@@ -422,15 +414,25 @@ function cancel(): void {
               />
             </div>
           </DropzoneUpload>
+        </div>
 
-          <AdminBaseCheckbox
-            v-model="form.show_location"
-            :label="t('admin.about.show_location')"
-            :disabled="isSaving"
-            :test_id="`${props.test_id}-show-location`"
-          />
-
+        <!-- Work & location settings (shared — outside the tabs; two
+             columns on sm+). Location keeps per-locale values: the input
+             and the [en]/[ru] suffix in its label follow the active
+             locale tab (unlike the rest of this card, which is shared).
+             Rows: location + timezone / show location + relocation /
+             work type + availability. -->
+        <div class="mb-6 space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary">
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <AdminBaseInput
+              :model-value="localeValue(activeLocale, form.location)"
+              :label="`${t('admin.about.location')} [${activeLocale}]`"
+              :error="fieldError('location')"
+              :disabled="isSaving"
+              :maxlength="100"
+              :test_id="`${props.test_id}-location-${activeLocale}`"
+              @update:model-value="setLocaleValue(activeLocale, form.location, $event)"
+            />
             <AdminBaseDropdown
               v-model="form.timezone"
               :label="t('admin.about.timezone')"
@@ -441,6 +443,24 @@ function cancel(): void {
               :disabled="isSaving"
               :test_id="`${props.test_id}-timezone`"
             />
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <AdminBaseCheckbox
+              v-model="form.show_location"
+              :label="t('admin.about.show_location')"
+              :disabled="isSaving"
+              :test_id="`${props.test_id}-show-location`"
+            />
+            <AdminBaseCheckbox
+              v-model="form.relocation_readiness"
+              :label="t('admin.about.relocation')"
+              :disabled="isSaving"
+              :test_id="`${props.test_id}-relocation`"
+            />
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <AdminBaseDropdown
               v-model="form.work_type"
               :label="t('admin.about.work_type')"
@@ -453,27 +473,19 @@ function cancel(): void {
               :disabled="isSaving"
               :test_id="`${props.test_id}-work-type`"
             />
+            <AdminBaseDropdown
+              v-model="form.availability_status"
+              :label="t('admin.about.availability')"
+              :options="[
+                { value: 'available', label: t('admin.about.available') },
+                { value: 'limited', label: t('admin.about.limited') },
+                { value: 'busy', label: t('admin.about.busy') },
+              ]"
+              :error="errors.availability_status ?? null"
+              :disabled="isSaving"
+              :test_id="`${props.test_id}-availability`"
+            />
           </div>
-
-          <AdminBaseCheckbox
-            v-model="form.relocation_readiness"
-            :label="t('admin.about.relocation')"
-            :disabled="isSaving"
-            :test_id="`${props.test_id}-relocation`"
-          />
-
-          <AdminBaseDropdown
-            v-model="form.availability_status"
-            :label="t('admin.about.availability')"
-            :options="[
-              { value: 'available', label: t('admin.about.available') },
-              { value: 'limited', label: t('admin.about.limited') },
-              { value: 'busy', label: t('admin.about.busy') },
-            ]"
-            :error="errors.availability_status ?? null"
-            :disabled="isSaving"
-            :test_id="`${props.test_id}-availability`"
-          />
         </div>
 
         <!-- Resume summary line — the mode label from the Resume feature
