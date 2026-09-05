@@ -8,6 +8,12 @@ docs/plans
 .env
 .env.backup
 .env.production
+# Production secrets (secrets-management.md): the plaintext work file and the
+# age-encrypted transfer artifact are local-only. The age PRIVATE key is also
+# ignored as a safety net — only devops/secrets/age.pub is committed.
+.env.prod.local
+.env.prod.age
+devops/secrets/age-identity.txt
 .phpactor.json
 .phpunit.result.cache
 /.codex
