@@ -176,7 +176,7 @@ function isActive(item: NavItem): boolean {
 .header {
     position: sticky;
     top: 0;
-    z-index: var(--z-sticky);
+    z-index: var(--z-header);
     height: var(--header-height);
     display: flex;
     align-items: center;

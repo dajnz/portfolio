@@ -74,7 +74,7 @@ function handleLogout(): void {
 
 <template>
   <header
-    class="sticky top-0 z-sticky bg-white dark:bg-surface-dark border-b border-slate-200 dark:border-slate-700"
+    class="sticky top-0 z-overlay bg-white dark:bg-surface-dark border-b border-slate-200 dark:border-slate-700"
     :data-testid="props.test_id"
   >
     <!-- The header content spans the FULL header width (mockup profile.html

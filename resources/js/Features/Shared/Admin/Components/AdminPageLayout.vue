@@ -125,10 +125,39 @@ function handleKeydown(event: KeyboardEvent): void {
     }
 }
 
+// Click-away dismissal (user request 2026-09-05): while the mobile panel is
+// open, any pointer press OUTSIDE it closes it — including the header
+// controls (theme/language/identity) — so a header popup like the language
+// dropdown can never be overlapped by the panel. The hamburger is excluded
+// (its own click toggles the panel) and so is the panel itself.
+function handlePointerDown(event: Event): void {
+    if (!mobileMenuOpen.value) {
+        return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof Node)) {
+        return;
+    }
+
+    const panel = document.querySelector<HTMLElement>('[data-testid="admin-sidebar"]');
+    if (panel?.contains(target) === true) {
+        return;
+    }
+
+    const hamburger = document.querySelector<HTMLElement>('[data-testid="admin-header-hamburger"]');
+    if (hamburger?.contains(target) === true) {
+        return;
+    }
+
+    mobileMenuOpen.value = false;
+}
+
 let offNavigationStart: (() => void) | undefined;
 
 onMounted(() => {
     window.addEventListener('keydown', handleKeydown);
+    window.addEventListener('pointerdown', handlePointerDown);
     offNavigationStart = router.on('start', () => {
         mobileMenuOpen.value = false;
     });
@@ -136,6 +165,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     window.removeEventListener('keydown', handleKeydown);
+    window.removeEventListener('pointerdown', handlePointerDown);
     offNavigationStart?.();
 });
 
