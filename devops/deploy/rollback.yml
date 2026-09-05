@@ -1,0 +1,82 @@
+---
+# Rollback playbook — devops.md "Ansible Rollback Playbook".
+#
+# Invoked via `make rollback [SERVICE=<name>]` (defaults to all services of
+# the portfolio stack). Rolls each service back to its previous Swarm task
+# specification — Swarm stores the previous spec per service, so this is a
+# pure orchestrator-level operation: no image rebuild, no git interaction.
+# Only the most recent update per service can be rolled back; to go back
+# further use `make deploy GIT_REF=<older-commit>` instead.
+#
+#   1. Accept the optional service variable (default: all)
+#   2. For each service (or the given one): docker service rollback
+#      (a service without a previous spec is a no-op — tolerated)
+#   3. Wait for the rollback to converge (no transitional tasks left)
+#   4. Verify the replica counts of the whole stack
+#
+# The convergence wait is devops/deploy/scripts/wait-for-convergence.sh
+# (shared with deploy.yml).
+- name: Roll back portfolio services
+  hosts: production
+  gather_facts: false
+  become: true
+  vars:
+    stack_name: portfolio
+    rollback_wait_seconds: 600
+    service: all
+
+  tasks:
+    - name: 1 | List the services of the portfolio stack
+      ansible.builtin.command:
+        cmd: docker stack services --format "{% raw %}{{.Name}}{% endraw %}" {{ stack_name }}
+      register: stack_services
+      changed_when: false
+
+    - name: 1 | Fail when the stack is not deployed
+      ansible.builtin.fail:
+        msg: "no services found in the {{ stack_name }} stack — is it deployed?"
+      when: stack_services.stdout_lines | length == 0
+
+    - name: 1 | Resolve the services to roll back
+      ansible.builtin.set_fact:
+        services_to_rollback: >-
+          {{
+            stack_services.stdout_lines
+            | map('regex_replace', '^' + stack_name + '_', '')
+            | list
+            if service == 'all'
+            else [service]
+          }}
+
+    - name: 1 | Fail when the requested service is not part of the stack
+      ansible.builtin.fail:
+        msg: "service '{{ service }}' is not part of the {{ stack_name }} stack"
+      when: service != 'all' and service not in services_to_rollback
+
+    # ---------------------------------------------------------------- 2
+    # A service without a previous spec ("no previous spec" / "not currently
+    # in an update") is a no-op, not an error — the wait below converges
+    # immediately and the final listing verifies the state.
+    - name: 2 | Roll back each service to its previous spec
+      ansible.builtin.command:
+        cmd: docker service rollback {{ stack_name }}_{{ item }}
+      loop: "{{ services_to_rollback }}"
+      failed_when: false
+      changed_when: false
+
+    # ---------------------------------------------------------------- 3
+    - name: 3 | Wait for each rollback to converge
+      ansible.builtin.script:
+        cmd: >-
+          {{ playbook_dir }}/scripts/wait-for-convergence.sh
+          {{ rollback_wait_seconds }}
+          {{ stack_name }}_{{ item }}
+      loop: "{{ services_to_rollback }}"
+
+    # ---------------------------------------------------------------- 4
+    - name: 4 | Verify the resulting service state
+      ansible.builtin.command:
+        cmd: >-
+          docker service ls --filter name=portfolio_
+          --format "{% raw %}{{.Name}}\t{{.Replicas}}\t{{.Image}}{% endraw %}"
+      changed_when: false
