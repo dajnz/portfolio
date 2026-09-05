@@ -4,12 +4,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import AdminPageSidebar from '@shared-admin/AdminPageSidebar.vue';
 
+const { postMock } = vi.hoisted(() => ({ postMock: vi.fn() }));
+
 vi.mock('@inertiajs/vue3', () => ({
     Link: {
         props: ['href'],
         template: '<a :href="href" :data-inertia-stub="href"><slot /></a>',
     },
-    router: { visit: vi.fn() },
+    router: { visit: vi.fn(), post: postMock },
 }));
 
 const MENU_GROUPS = [
@@ -41,12 +43,28 @@ function mountSidebar(props: Record<string, unknown> = {}) {
 describe('AdminPageSidebar', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
+        postMock.mockClear();
     });
 
-    it('labels the navigation landmark', () => {
+    it('labels the navigation landmark and carries the mobile-menu target id', () => {
         const wrapper = mountSidebar();
 
-        expect(wrapper.get('aside').attributes('aria-label')).toBe('Admin sidebar');
+        const aside = wrapper.get('aside');
+        expect(aside.attributes('aria-label')).toBe('Admin sidebar');
+        expect(aside.attributes('id')).toBe('admin-mobile-menu');
+    });
+
+    it('hides the element below lg unless mobile_open is set', async () => {
+        const wrapper = mountSidebar();
+
+        expect(wrapper.get('[data-testid="admin-sidebar"]').classes()).toContain('hidden');
+
+        await wrapper.setProps({ mobile_open: true });
+
+        const aside = wrapper.get('[data-testid="admin-sidebar"]');
+        expect(aside.classes()).toContain('flex');
+        expect(aside.classes()).not.toContain('hidden');
+        expect(aside.classes()).toContain('fixed');
     });
 
     it('renders the dashboard item when a dashboard prop is given', () => {
@@ -151,27 +169,28 @@ describe('AdminPageSidebar', () => {
         expect(posts.attributes('data-inertia-stub')).toBe('/admin/posts');
     });
 
-    it('hides labels and adds titles when collapsed', () => {
+    it('emits close-mobile when a nav item or the dashboard link is activated', async () => {
         const wrapper = mountSidebar({
-            collapsed: true,
-            expanded_groups: ['content'],
             dashboard: DASHBOARD,
+            expanded_groups: ['content'],
         });
 
-        const aside = wrapper.get('[data-testid="admin-sidebar"]');
+        await wrapper.get('[data-testid="admin-sidebar-group-content-item-/admin/posts"]').trigger('click');
+        await wrapper.get('[data-testid="admin-sidebar-dashboard"]').trigger('click');
+        await wrapper.get('[data-testid="admin-sidebar-group-content-item-/horizon"]').trigger('click');
 
-        expect(aside.classes()).toContain('w-16');
-        expect(aside.classes()).not.toContain('w-64');
+        expect(wrapper.emitted('close-mobile')).toHaveLength(3);
+    });
 
-        const posts = wrapper.get('[data-testid="admin-sidebar-group-content-item-/admin/posts"]');
-        expect(posts.attributes('title')).toBe('Posts');
-        expect(posts.find('span').exists()).toBe(false);
+    it('renders the mobile Logout row (lg:hidden) and posts to logout_url on click', async () => {
+        const wrapper = mountSidebar({ logout_url: '/admin/sign-out' });
 
-        expect(wrapper.get('[data-testid="admin-sidebar-dashboard"]').attributes('title')).toBe(
-            'Dashboard',
-        );
-        expect(wrapper.get('[data-testid="admin-sidebar-group-content"]').attributes('title')).toBe(
-            'Content',
-        );
+        const logout = wrapper.get('[data-testid="admin-sidebar-logout-mobile"]');
+
+        expect(logout.element.parentElement?.className).toContain('lg:hidden');
+        await logout.trigger('click');
+
+        expect(postMock).toHaveBeenCalledExactlyOnceWith('/admin/sign-out');
+        expect(wrapper.emitted('close-mobile')).toHaveLength(1);
     });
 });

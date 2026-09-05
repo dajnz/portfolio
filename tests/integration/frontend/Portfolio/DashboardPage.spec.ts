@@ -14,7 +14,7 @@ vi.mock('@inertiajs/vue3', () => ({
         props: ['href'],
         template: '<a :href="href"><slot /></a>',
     },
-    router: { visit: vi.fn() },
+    router: { visit: vi.fn(), on: vi.fn(() => vi.fn()) },
     usePage: () => ({ props: pageProps }),
 }));
 

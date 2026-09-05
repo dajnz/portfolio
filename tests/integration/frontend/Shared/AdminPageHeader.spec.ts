@@ -62,6 +62,18 @@ describe('AdminPageHeader', () => {
         expect(link.text()).toContain('Jane Admin');
     });
 
+    it('hides the identity + logout group below lg and shows the desktop header above it', () => {
+        const wrapper = mount(AdminPageHeader);
+
+        const identity = wrapper.get('[data-testid="admin-header-identity"]');
+
+        expect(identity.classes()).toContain('hidden');
+        expect(identity.classes()).toContain('lg:flex');
+        expect(wrapper.get('[data-testid="admin-header-hamburger"]').classes()).toContain(
+            'lg:hidden',
+        );
+    });
+
     it('posts to the logout url when logout is clicked', async () => {
         const wrapper = mount(AdminPageHeader, {
             props: { logout_url: '/admin/logout' },
@@ -80,12 +92,24 @@ describe('AdminPageHeader', () => {
         expect(postMock).toHaveBeenCalledExactlyOnceWith('/admin/logout');
     });
 
-    it('emits toggle-sidebar from the hamburger button', async () => {
+    it('emits toggle-mobile-menu from the hamburger button', async () => {
         const wrapper = mount(AdminPageHeader);
 
         await wrapper.get('[data-testid="admin-header-hamburger"]').trigger('click');
 
-        expect(wrapper.emitted('toggle-sidebar')).toHaveLength(1);
+        expect(wrapper.emitted('toggle-mobile-menu')).toHaveLength(1);
+    });
+
+    it('binds aria-expanded and the aria-controls target to the mobile menu state', async () => {
+        const wrapper = mount(AdminPageHeader);
+
+        const hamburger = () => wrapper.get('[data-testid="admin-header-hamburger"]');
+        expect(hamburger().attributes('aria-expanded')).toBe('false');
+        expect(hamburger().attributes('aria-controls')).toBe('admin-mobile-menu');
+
+        await wrapper.setProps({ mobile_menu_open: true });
+
+        expect(hamburger().attributes('aria-expanded')).toBe('true');
     });
 
     it('renders the controls slot', () => {

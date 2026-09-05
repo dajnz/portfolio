@@ -1,7 +1,7 @@
-<!-- AdminPageSidebar (admin-section-components.md:331-353, admin-section-ui.md:47-53) — collapsible navigation groups, sticky on desktop, icons-only when collapsed. -->
+<!-- AdminPageSidebar (admin-section-components.md:409-475, admin-section-ui.md:47-56) — collapsible navigation groups on ONE element that covers both viewport modes (B315): the sticky w-64 rail at lg+, and below lg the fixed full-width panel directly under the header that shows only while `mobile_open` (id `admin-mobile-menu` — the header hamburger's aria-controls target). The panel's last element is a Logout row (`lg:hidden`, desktop keeps the header Logout only). No icons-only collapse mode. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { computed } from 'vue';
 
@@ -28,29 +28,39 @@ const props = withDefaults(
     defineProps<{
         menu_groups?: Array<SidebarGroup>;
         active_route?: string;
-        collapsed?: boolean;
         expanded_groups?: Array<string>;
+        mobile_open?: boolean;
+        logout_url?: string;
         dashboard?: DashboardItem | null;
         test_id?: string;
     }>(),
     {
         menu_groups: () => [],
         active_route: undefined,
-        collapsed: false,
         expanded_groups: () => [],
+        mobile_open: false,
+        logout_url: '/admin/logout',
         dashboard: null,
         test_id: 'admin-sidebar',
     },
 );
 
 const emit = defineEmits<{
-    'update:collapsed': [];
     'update:expanded_groups': [ids: string[]];
+    'close-mobile': [];
 }>();
 
 const { t } = useI18n();
 
-const widthClass = computed(() => (props.collapsed ? 'w-16' : 'w-64'));
+// Mobile-first classes: the base set renders the fixed full-width panel
+// under the header; the lg:* overrides restore the in-flow sticky rail so
+// `mobile_open` never affects the desktop appearance.
+const asideClass = computed(() => [
+    'w-full flex-col shrink-0 bg-sidebar text-sidebar-text',
+    'fixed inset-x-0 bottom-0 top-16 z-overlay overflow-y-auto',
+    'lg:sticky lg:inset-x-auto lg:bottom-auto lg:z-auto lg:w-64 lg:h-[calc(100vh-4rem)]',
+    props.mobile_open ? 'flex' : 'hidden lg:flex',
+]);
 
 const activeGroupIds = computed(() =>
     props.menu_groups
@@ -72,9 +82,6 @@ function isGroupExpanded(groupId: string): boolean {
 
 // The pages pass the FULL route path (`active_route="/admin/experience"`,
 // B174) — a prefix match also highlights the section on sub-routes
-// (`/admin/experience/create`, `/admin/experience/{id}/edit`).
-// The pages pass the FULL route path (`active_route="/admin/experience"`,
-// B174) — a prefix match also highlights the section on sub-routes
 // (`/admin/experience/create`, `/admin/experience/{id}/edit`). The
 // dashboard link (`/admin`) is EXACT-match only — its prefix would
 // match every admin page (B175: the dashboard was highlighted on the
@@ -89,17 +96,15 @@ function isActive(route: string): boolean {
 
 function groupHeaderClass(): string {
     return [
-        'select-none w-full py-1.5 text-xs font-bold uppercase tracking-wider text-sidebar-text/60',
-        props.collapsed
-            ? 'flex items-center justify-center'
-            : 'flex items-center justify-between px-4',
+        'select-none w-full flex items-center justify-between px-4 py-1.5',
+        'text-xs font-bold uppercase tracking-wider text-sidebar-text/60',
     ].join(' ');
 }
 
 function navItemClass(route: string): string {
     return [
-        'flex items-center rounded-lg text-sm font-medium text-sidebar-text hover:text-sidebar-text-active hover:bg-sidebar-hover transition-colors',
-        props.collapsed ? 'justify-center px-0 py-2.5 mx-2' : 'gap-3 px-4 py-2.5 mx-2',
+        'flex items-center gap-3 rounded-lg text-sm font-medium text-sidebar-text',
+        'hover:text-sidebar-text-active hover:bg-sidebar-hover transition-colors px-4 py-2.5 mx-2',
         isActive(route) ? 'bg-sidebar-active text-white font-semibold' : '',
     ]
         .filter(Boolean)
@@ -115,12 +120,17 @@ function toggleGroup(groupId: string): void {
     }
     emit('update:expanded_groups', [...next]);
 }
+
+function handleMobileLogout(): void {
+    router.post(props.logout_url);
+    emit('close-mobile');
+}
 </script>
 
 <template>
   <aside
-    class="flex h-full flex-col bg-sidebar text-sidebar-text lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto"
-    :class="widthClass"
+    id="admin-mobile-menu"
+    :class="asideClass"
     :aria-label="t('admin.nav.sidebar')"
     :data-testid="props.test_id"
   >
@@ -130,15 +140,15 @@ function toggleGroup(groupId: string): void {
         class="mt-2"
         :class="navItemClass(props.dashboard.route)"
         :href="props.dashboard.route"
-        :title="props.collapsed ? props.dashboard.label : undefined"
         :data-testid="`${props.test_id}-dashboard`"
+        @click="emit('close-mobile')"
       >
         <Icon
           class="w-5 h-5 shrink-0"
           :icon="props.dashboard.icon"
           aria-hidden="true"
         />
-        <span v-if="!props.collapsed">{{ props.dashboard.label }}</span>
+        <span>{{ props.dashboard.label }}</span>
       </Link>
       <div
         v-for="group in props.menu_groups"
@@ -148,20 +158,12 @@ function toggleGroup(groupId: string): void {
         <button
           type="button"
           :class="groupHeaderClass()"
-          :title="props.collapsed ? group.label : undefined"
           :aria-expanded="isGroupExpanded(group.id)"
           :data-testid="`${props.test_id}-group-${group.id}`"
           @click="toggleGroup(group.id)"
         >
+          <span>{{ group.label }}</span>
           <Icon
-            v-if="props.collapsed"
-            class="w-5 h-5 shrink-0"
-            :icon="group.icon"
-            aria-hidden="true"
-          />
-          <span v-else>{{ group.label }}</span>
-          <Icon
-            v-if="!props.collapsed"
             class="w-4 h-4 transition-transform"
             :class="{ 'rotate-180': isGroupExpanded(group.id) }"
             icon="heroicons:chevron-down"
@@ -177,33 +179,50 @@ function toggleGroup(groupId: string): void {
               v-if="item.route !== '/horizon'"
               :class="navItemClass(item.route)"
               :href="item.route"
-              :title="props.collapsed ? item.label : undefined"
               :data-testid="`${props.test_id}-group-${group.id}-item-${item.route}`"
+              @click="emit('close-mobile')"
             >
               <Icon
                 class="w-5 h-5 shrink-0"
                 :icon="item.icon"
                 aria-hidden="true"
               />
-              <span v-if="!props.collapsed">{{ item.label }}</span>
+              <span>{{ item.label }}</span>
             </Link>
             <a
               v-else
               :class="navItemClass(item.route)"
               :href="item.route"
-              :title="props.collapsed ? item.label : undefined"
               :data-testid="`${props.test_id}-group-${group.id}-item-${item.route}`"
+              @click="emit('close-mobile')"
             >
               <Icon
                 class="w-5 h-5 shrink-0"
                 :icon="item.icon"
                 aria-hidden="true"
               />
-              <span v-if="!props.collapsed">{{ item.label }}</span>
+              <span>{{ item.label }}</span>
             </a>
           </template>
         </template>
       </div>
+    </div>
+    <!-- Mobile panel only (below lg; the desktop rail hides this row via
+         lg:hidden): Logout is the last element of the full-width menu. -->
+    <div class="mt-3 border-t border-white/10 px-2 pb-3 pt-3 lg:hidden">
+      <button
+        type="button"
+        class="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium text-sidebar-text transition-colors hover:bg-sidebar-hover hover:text-sidebar-text-active"
+        :data-testid="`${props.test_id}-logout-mobile`"
+        @click="handleMobileLogout"
+      >
+        <Icon
+          class="w-5 h-5 shrink-0"
+          icon="heroicons:arrow-right-start-on-rectangle"
+          aria-hidden="true"
+        />
+        <span>{{ t('admin.nav.logout') }}</span>
+      </button>
     </div>
   </aside>
 </template>
