@@ -147,6 +147,49 @@ describe('AdminPageLayout', () => {
         expect(sidebarClasses(wrapper)).toContain('hidden');
     });
 
+    it('closes the mobile menu on a pointer press outside the panel (language selector)', async () => {
+        const wrapper = mountLayoutAttached();
+
+        await wrapper.get('[data-testid="admin-header-hamburger"]').trigger('click');
+        expect(sidebarClasses(wrapper)).toContain('flex');
+
+        const languageButton = wrapper.get('[data-testid="language-selector-button"]');
+        languageButton.element.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+        await wrapper.vm.$nextTick();
+
+        expect(sidebarClasses(wrapper)).toContain('hidden');
+
+        wrapper.unmount();
+    });
+
+    it('keeps the mobile menu open on a pointer press inside the panel', async () => {
+        const wrapper = mountLayoutAttached();
+
+        await wrapper.get('[data-testid="admin-header-hamburger"]').trigger('click');
+
+        const groupHeader = wrapper.get('[data-testid="admin-sidebar-group-content"]');
+        groupHeader.element.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+        await wrapper.vm.$nextTick();
+
+        expect(sidebarClasses(wrapper)).toContain('flex');
+
+        wrapper.unmount();
+    });
+
+    it('keeps the mobile menu open on a pointer press on the hamburger', async () => {
+        const wrapper = mountLayoutAttached();
+
+        await wrapper.get('[data-testid="admin-header-hamburger"]').trigger('click');
+
+        const hamburger = wrapper.get('[data-testid="admin-header-hamburger"]');
+        hamburger.element.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+        await wrapper.vm.$nextTick();
+
+        expect(sidebarClasses(wrapper)).toContain('flex');
+
+        wrapper.unmount();
+    });
+
     it('persists expanded groups through the sidebar store', async () => {
         const wrapper = mountLayout();
 
