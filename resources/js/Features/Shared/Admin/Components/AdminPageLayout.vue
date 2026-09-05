@@ -1,9 +1,10 @@
-<!-- AdminPageLayout (admin-section-components.md:370-403) — root layout for all admin Inertia pages except Login. -->
+<!-- AdminPageLayout (admin-section-components.md:438-501) — root layout for all admin Inertia pages except Login. Owns the mobile-menu open state (`mobileMenuOpen`, page-local, never persisted — B315): the header hamburger toggles it, the sidebar reports `close-mobile` on nav-item activation, and the layout closes it on Escape (focus back to the hamburger) and on every Inertia navigation start. -->
 <script setup lang="ts">
+import { router } from '@inertiajs/vue3';
 import { useAdminShortcuts } from '@shared-cross/Composables/useAdminShortcuts';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useSidebarStore } from '@shared-cross/Stores/sidebarStore';
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import AdminBaseToast from './AdminBaseToast.vue';
 import AdminCenteredContainer from './AdminCenteredContainer.vue';
@@ -78,29 +79,6 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
-const COLLAPSED_STORAGE_KEY = 'admin_sidebar_collapsed';
-
-function readCollapsed(): boolean {
-    if (typeof window === 'undefined') {
-        return false;
-    }
-
-    try {
-        const raw = window.localStorage.getItem(COLLAPSED_STORAGE_KEY);
-        if (!raw) {
-            return false;
-        }
-
-        const parsed: unknown = JSON.parse(raw);
-
-        return parsed === true;
-    } catch {
-        return false;
-    }
-}
-
-const collapsed = ref(readCollapsed());
-
 // Every admin page shows the Dashboard link at the top of the sidebar —
 // the pages don't pass a `dashboard` prop; the layout supplies the
 // default (B175: it was previously passed only by the profile page).
@@ -109,14 +87,6 @@ const dashboardItem = computed<DashboardItem>(() => ({
     route: '/admin',
     icon: 'heroicons:chart-bar',
 }));
-
-watch(collapsed, (value) => {
-    if (typeof window === 'undefined') {
-        return;
-    }
-
-    window.localStorage.setItem(COLLAPSED_STORAGE_KEY, JSON.stringify(value));
-});
 
 const sidebarStore = useSidebarStore();
 
@@ -135,6 +105,38 @@ const expandedGroups = computed<string[]>({
             }
         }
     },
+});
+
+// Mobile menu state (B315): below lg the sidebar renders as the full-width
+// panel under the header while this flag is true. Closed by the hamburger,
+// nav-item clicks (via the sidebar's close-mobile), Escape, and navigation.
+const mobileMenuOpen = ref(false);
+
+const HAMBURGER_SELECTOR = '[data-testid="admin-header-hamburger"]';
+
+function focusHamburger(): void {
+    document.querySelector<HTMLElement>(HAMBURGER_SELECTOR)?.focus();
+}
+
+function handleKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && mobileMenuOpen.value) {
+        mobileMenuOpen.value = false;
+        focusHamburger();
+    }
+}
+
+let offNavigationStart: (() => void) | undefined;
+
+onMounted(() => {
+    window.addEventListener('keydown', handleKeydown);
+    offNavigationStart = router.on('start', () => {
+        mobileMenuOpen.value = false;
+    });
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('keydown', handleKeydown);
+    offNavigationStart?.();
 });
 
 useAdminShortcuts();
@@ -157,11 +159,11 @@ useAdminShortcuts();
       :admin_name="props.admin_name"
       :profile_url="props.profile_url"
       :logout_url="props.logout_url"
-      :sidebar_collapsed="collapsed"
+      :mobile_menu_open="mobileMenuOpen"
       :locale_props="props.locale_props"
       :theme_props="props.theme_props"
       :language_classes="props.language_classes"
-      @toggle-sidebar="collapsed = !collapsed"
+      @toggle-mobile-menu="mobileMenuOpen = !mobileMenuOpen"
     >
       <template #controls>
         <slot name="controls" />
@@ -172,8 +174,10 @@ useAdminShortcuts();
         v-model:expanded_groups="expandedGroups"
         :menu_groups="props.menu_groups"
         :active_route="props.active_route"
-        :collapsed="collapsed"
+        :mobile_open="mobileMenuOpen"
+        :logout_url="props.logout_url"
         :dashboard="props.dashboard ?? dashboardItem"
+        @close-mobile="mobileMenuOpen = false"
       />
       <AdminCenteredContainer
         id="main-content"

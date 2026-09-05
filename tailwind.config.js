@@ -135,6 +135,7 @@ export default {
             zIndex: {
                 dropdown: '100',
                 sticky: '200',
+                overlay: '250',
                 modal: '300',
                 toast: '400',
             },

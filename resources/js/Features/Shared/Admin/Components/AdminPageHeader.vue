@@ -1,4 +1,4 @@
-<!-- AdminPageHeader (admin-section-components.md:291-309, admin-section-ui.md:55-60) — full-width top bar (content spans the whole header, not the centred container — mockup profile.html): logo, controls slot, admin identity, logout. The `controls` slot defaults to the shared ThemeSwitch + LanguageSelector (B80/B84 bridge) with the Tailwind classes from `theme_props`/`language_classes`. The admin name/avatar letter fall back to the shared `auth.user` prop so every admin page shows the identity without per-page props (4.2 rework, user request). -->
+<!-- AdminPageHeader (admin-section-components.md:344-406, admin-section-ui.md:58-75) — full-width top bar (content spans the whole header, not the centred container — mockup profile.html): logo left, controls + admin identity right. The `controls` slot defaults to the shared ThemeSwitch + LanguageSelector (B80/B84 bridge) with the Tailwind classes from `theme_props`/`language_classes`. Responsive (breakpoint `lg`, B315): below lg the identity group (avatar letter + name → profile) and the Logout button are hidden and a hamburger renders as the rightmost control — right of the language selector — toggling the full-width mobile menu (`toggle-mobile-menu`, aria-expanded/aria-controls="admin-mobile-menu"). The admin name/avatar letter fall back to the shared `auth.user` prop so every admin page shows the identity without per-page props (4.2 rework, user request). -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import LanguageSelector from '@shared-cross/Components/LanguageSelector.vue';
@@ -25,7 +25,7 @@ const props = withDefaults(
         admin_name?: string;
         profile_url?: string;
         logout_url?: string;
-        sidebar_collapsed?: boolean;
+        mobile_menu_open?: boolean;
         locale_props?: LocaleProps;
         theme_props?: Record<string, string>;
         language_classes?: Record<string, string>;
@@ -36,7 +36,7 @@ const props = withDefaults(
         admin_name: undefined,
         profile_url: '/admin/profile',
         logout_url: '/admin/logout',
-        sidebar_collapsed: false,
+        mobile_menu_open: false,
         locale_props: () => ({ active_locale: 'en', supported_locales: [] }),
         theme_props: () => ({}),
         language_classes: () => ({}),
@@ -44,7 +44,7 @@ const props = withDefaults(
     },
 );
 
-const emit = defineEmits<{ 'toggle-sidebar': [] }>();
+const emit = defineEmits<{ 'toggle-mobile-menu': [] }>();
 
 const { t } = useI18n();
 const page = usePage<{ auth?: { user?: { name?: string } } }>();
@@ -61,6 +61,10 @@ const resolvedAdminName = computed(() => props.admin_name ?? page.props?.auth?.u
 
 const avatarLetter = computed(() => resolvedAdminName.value.charAt(0).toUpperCase());
 
+const hamburgerIcon = computed(() =>
+    props.mobile_menu_open ? 'heroicons:x-mark' : 'heroicons:bars-3',
+);
+
 function handleLogout(): void {
     if (props.logout_url !== undefined) {
         router.post(props.logout_url);
@@ -76,29 +80,21 @@ function handleLogout(): void {
     <!-- The header content spans the FULL header width (mockup profile.html
          header) — only the main content column is block-centred. -->
     <div class="flex items-center justify-between h-16 px-4 sm:px-6">
-      <div class="flex items-center gap-4">
-        <AdminBaseButton
-          variant="icon-only"
-          icon="heroicons:bars-3"
-          class="lg:hidden"
-          :aria-label="t('admin.nav.sidebar')"
-          :test_id="`${props.test_id}-hamburger`"
-          @click="emit('toggle-sidebar')"
-        />
-        <a
-          class="flex items-center"
-          :href="props.logo_url"
-          :data-testid="`${props.test_id}-logo`"
+      <a
+        class="flex items-center"
+        :href="props.logo_url"
+        :data-testid="`${props.test_id}-logo`"
+      >
+        <img
+          class="h-8 w-auto"
+          :src="logoImage"
+          :alt="t('admin.section_title')"
+          :data-testid="`${props.test_id}-logo-image`"
         >
-          <img
-            class="h-8 w-auto"
-            :src="logoImage"
-            :alt="t('admin.section_title')"
-            :data-testid="`${props.test_id}-logo-image`"
-          >
-        </a>
-      </div>
-      <div class="flex items-center gap-4">
+      </a>
+      <!-- Right cluster order: controls, hamburger (mobile only), identity +
+           logout (lg+ only — the divider lives on the identity group). -->
+      <div class="flex items-center gap-2 sm:gap-3">
         <div class="flex items-center gap-3">
           <slot name="controls">
             <ThemeSwitch :classes="props.theme_props" />
@@ -109,7 +105,20 @@ function handleLogout(): void {
             />
           </slot>
         </div>
-        <div class="flex items-center gap-2 pl-3 border-l border-slate-200 dark:border-slate-700">
+        <AdminBaseButton
+          variant="icon-only"
+          :icon="hamburgerIcon"
+          class="lg:hidden"
+          :aria-label="t('admin.nav.sidebar')"
+          :aria-expanded="props.mobile_menu_open"
+          aria-controls="admin-mobile-menu"
+          :test_id="`${props.test_id}-hamburger`"
+          @click="emit('toggle-mobile-menu')"
+        />
+        <div
+          class="hidden lg:flex items-center gap-2 pl-3 border-l border-slate-200 dark:border-slate-700"
+          :data-testid="`${props.test_id}-identity`"
+        >
           <a
             class="flex items-center gap-2"
             :href="props.profile_url"
@@ -120,7 +129,7 @@ function handleLogout(): void {
             </div>
             <span
               v-if="resolvedAdminName"
-              class="hidden sm:block text-sm font-semibold text-slate-700 dark:text-slate-200"
+              class="text-sm font-semibold text-slate-700 dark:text-slate-200"
             >
               {{ resolvedAdminName }}
             </span>
