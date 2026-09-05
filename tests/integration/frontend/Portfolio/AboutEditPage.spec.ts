@@ -246,4 +246,57 @@ describe('AboutEditPage', () => {
             message: 'The Russian translation is incomplete.',
         });
     });
+
+    it('splits the form into translatable, photo, work settings and resume cards', () => {
+        const wrapper = mountPage();
+        const form = wrapper.get('[data-testid="about-edit-page-form"]').element;
+
+        const has = (card: Element, testId: string): boolean =>
+            card.querySelector(`[data-testid="${testId}"]`) !== null;
+
+        const cards = Array.from(form.children).filter((child) =>
+            child.classList.contains('shadow-card'),
+        );
+        expect(cards).toHaveLength(4);
+        expect(has(cards[0], 'about-edit-page-name-en')).toBe(true);
+        expect(has(cards[1], 'about-edit-page-photo-preview')).toBe(true);
+        expect(has(cards[2], 'about-edit-page-location-en')).toBe(true);
+        expect(has(cards[3], 'about-edit-page-configure-resume')).toBe(true);
+    });
+
+    it('arranges the work settings fields in three two-column rows', () => {
+        const wrapper = mountPage();
+        const card = wrapper
+            .get('[data-testid="about-edit-page-location-en"]')
+            .element.closest('.shadow-card') as Element;
+
+        const has = (row: Element, testId: string): boolean =>
+            row.querySelector(`[data-testid="${testId}"]`) !== null;
+
+        const rows = Array.from(card.querySelectorAll(':scope > .grid'));
+        expect(rows).toHaveLength(3);
+        expect(has(rows[0], 'about-edit-page-location-en')).toBe(true);
+        expect(has(rows[0], 'about-edit-page-timezone')).toBe(true);
+        expect(has(rows[1], 'about-edit-page-show-location')).toBe(true);
+        expect(has(rows[1], 'about-edit-page-relocation')).toBe(true);
+        expect(has(rows[2], 'about-edit-page-work-type')).toBe(true);
+        expect(has(rows[2], 'about-edit-page-availability')).toBe(true);
+    });
+
+    it('keeps the location field locale-bound with an [en]/[ru] label suffix', async () => {
+        const wrapper = mountPage();
+
+        const labelOf = (input: Element): string | undefined =>
+            input.closest('div')?.querySelector('label')?.textContent?.trim() ?? undefined;
+
+        const enLocation = wrapper.get('[data-testid="about-edit-page-location-en"]');
+        expect((enLocation.element as HTMLInputElement).value).toBe('Berlin, Germany');
+        expect(labelOf(enLocation.element)).toBe('Location [en]');
+
+        await wrapper.get('[data-testid="about-edit-page-locale-tabs-tab-ru"]').trigger('click');
+
+        const ruLocation = wrapper.get('[data-testid="about-edit-page-location-ru"]');
+        expect((ruLocation.element as HTMLInputElement).value).toBe('Берлин, Германия');
+        expect(labelOf(ruLocation.element)).toBe('Location [ru]');
+    });
 });
