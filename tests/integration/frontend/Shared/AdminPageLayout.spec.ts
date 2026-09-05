@@ -9,7 +9,7 @@ vi.mock('@inertiajs/vue3', () => ({
         props: ['href'],
         template: '<a :href="href"><slot /></a>',
     },
-    router: { post: vi.fn(), visit: vi.fn() },
+    router: { post: vi.fn(), visit: vi.fn(), on: vi.fn(() => vi.fn()) },
     usePage: () => ({ props: undefined }),
 }));
 
@@ -40,6 +40,17 @@ function mountLayout(props: Record<string, unknown> = {}, slots: Record<string, 
         props: { menu_groups: MENU_GROUPS, admin_name: 'John Doe', ...props },
         slots,
     });
+}
+
+function mountLayoutAttached(props: Record<string, unknown> = {}) {
+    return mount(AdminPageLayout, {
+        props: { menu_groups: MENU_GROUPS, admin_name: 'John Doe', ...props },
+        attachTo: document.body,
+    });
+}
+
+function sidebarClasses(wrapper: ReturnType<typeof mountLayout>): string[] {
+    return wrapper.get('[data-testid="admin-sidebar"]').classes();
 }
 
 describe('AdminPageLayout', () => {
@@ -90,13 +101,50 @@ describe('AdminPageLayout', () => {
         expect(wrapper.find('[data-testid="layout-footer-link"]').exists()).toBe(true);
     });
 
-    it('collapses the sidebar when the header hamburger is clicked', async () => {
+    it('opens and closes the mobile menu from the header hamburger (not persisted)', async () => {
+        const wrapper = mountLayout();
+
+        const hamburger = wrapper.get('[data-testid="admin-header-hamburger"]');
+
+        expect(sidebarClasses(wrapper)).toContain('hidden');
+
+        await hamburger.trigger('click');
+
+        expect(sidebarClasses(wrapper)).toContain('flex');
+        expect(sidebarClasses(wrapper)).not.toContain('hidden');
+        expect(wrapper.find('[data-testid="admin-sidebar-logout-mobile"]').exists()).toBe(true);
+
+        await hamburger.trigger('click');
+
+        expect(sidebarClasses(wrapper)).toContain('hidden');
+        expect(localStorage.getItem('admin_sidebar_collapsed')).toBeNull();
+    });
+
+    it('closes the mobile menu on Escape and returns focus to the hamburger', async () => {
+        const wrapper = mountLayoutAttached();
+        const hamburger = wrapper.get('[data-testid="admin-header-hamburger"]');
+
+        await hamburger.trigger('click');
+        expect(sidebarClasses(wrapper)).toContain('flex');
+
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        await wrapper.vm.$nextTick();
+
+        expect(sidebarClasses(wrapper)).toContain('hidden');
+        expect(document.activeElement?.getAttribute('data-testid')).toBe(
+            'admin-header-hamburger',
+        );
+
+        wrapper.unmount();
+    });
+
+    it('closes the mobile menu when a nav item is activated', async () => {
         const wrapper = mountLayout();
 
         await wrapper.get('[data-testid="admin-header-hamburger"]').trigger('click');
+        await wrapper.get('[data-testid="admin-sidebar-group-content-item-/admin/posts"]').trigger('click');
 
-        expect(wrapper.get('[data-testid="admin-sidebar"]').classes()).toContain('w-16');
-        expect(JSON.parse(localStorage.getItem('admin_sidebar_collapsed') ?? 'null')).toBe(true);
+        expect(sidebarClasses(wrapper)).toContain('hidden');
     });
 
     it('persists expanded groups through the sidebar store', async () => {
