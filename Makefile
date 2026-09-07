@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed setup setup-localhost test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup setup-localhost admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -64,6 +64,49 @@ migrate: ## Run database migrations
 
 seed: ## Seed demo content (no admin credentials)
 	$(DE) php artisan db:seed
+
+seed-fresh: ## Wipe and re-seed the whole dev database (migrate:fresh --seed — demo content incl. the landing profile + photo stub)
+	$(DE) php artisan migrate:fresh --seed
+
+admin-reset-password: ## Reset an admin password (prompts interactively; optional overrides: LOGIN=<admin> PASSWORD=<new-password>)
+	@ARGS=""; \
+	if [ -n "$(LOGIN)" ]; then ARGS="$$ARGS --login=$(LOGIN)"; fi; \
+	if [ -n "$(PASSWORD)" ]; then ARGS="$$ARGS --password=$(PASSWORD)"; fi; \
+	$(DE) php artisan admin:reset-password $$ARGS
+
+# The `switch-*` targets flip the app between development and production
+# mode on the local machine (both compose modes — TLS `make up` and
+# `make up-localhost` — are supported). They (1) rewrite APP_ENV/APP_DEBUG
+# in .env (bind-mounted into every container), (2) bake or clear the
+# Laravel caches (`php artisan optimize` / `optimize:clear`) and (3)
+# restart the persistent env-consuming services (queue worker + scheduler;
+# php-fpm re-reads .env per request and serves the cached config after
+# `optimize`). The restart reuses the compose config files the running
+# project was started with, so the active TLS/localhost mode is preserved.
+define restart-persistent-services
+	@CTR="$$($(DC) ps -q app 2>/dev/null | head -n1)"; \
+	if [ -z "$$CTR" ]; then \
+		echo "No running app container found — skipped the queue/scheduler restart."; \
+	else \
+		FLAGS=""; \
+		for f in $$(docker inspect "$$CTR" --format '{{index .Config.Labels "com.docker.compose.project.config_files"}}' 2>/dev/null | tr ',' ' '); do \
+			FLAGS="$$FLAGS -f $$f"; \
+		done; \
+		docker compose $$FLAGS restart queue scheduler; \
+	fi
+endef
+
+switch-prod: ## Switch the portfolio to production mode locally (APP_ENV=production/APP_DEBUG=false in .env + php artisan optimize + queue/scheduler restart)
+	@sed -i 's/^APP_ENV=.*/APP_ENV=production/; s/^APP_DEBUG=.*/APP_DEBUG=false/' .env
+	$(DE) php artisan optimize
+	$(restart-persistent-services)
+	@echo "Production mode: APP_ENV=production, APP_DEBUG=false, caches baked."
+
+switch-dev: ## Switch the portfolio back to development mode (APP_ENV=local/APP_DEBUG=true in .env + php artisan optimize:clear + queue/scheduler restart)
+	@sed -i 's/^APP_ENV=.*/APP_ENV=local/; s/^APP_DEBUG=.*/APP_DEBUG=true/' .env
+	$(DE) php artisan optimize:clear
+	$(restart-persistent-services)
+	@echo "Development mode: APP_ENV=local, APP_DEBUG=true, caches cleared."
 
 setup: ## First-run setup: env, build, wait for healthy, install, migrate, admin
 	cp -n .env.example .env || true

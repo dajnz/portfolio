@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\Settings;
 
+use App\Features\Blog\Infra\Models\ArticleModel;
+use App\Features\Portfolio\Infra\Models\AboutInfoModel;
+use App\Features\Projects\Infra\Models\ProjectModel;
+use App\Features\Resume\Infra\Models\ResumeConfigModel;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Infra\Models\FeatureFlagModel;
 use App\Features\Settings\Infra\Models\SettingModel;
+use App\Features\Shared\Infra\Models\SkillGroupModel;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 
 describe('SettingsSeeder', function (): void {
     it('inserts exactly the predefined settings keys with their defaults', function (): void {
@@ -114,10 +120,51 @@ describe('FeatureFlagSeeder', function (): void {
 });
 
 describe('DatabaseSeeder', function (): void {
-    it('composes the settings and feature flag seeders without touching admins', function (): void {
+    it('composes the settings, feature flag, single-row entity and demo content seeders without touching admins', function (): void {
         $this->seed();
 
         expect(SettingModel::query()->count())->toBe(17)
-            ->and(FeatureFlagModel::query()->count())->toBe(3);
+            ->and(FeatureFlagModel::query()->count())->toBe(3)
+            ->and(AboutInfoModel::query()->find(1))->not->toBeNull()
+            ->and(ResumeConfigModel::query()->find(1))->not->toBeNull()
+            ->and(ArticleModel::query()->count())->toBe(4)
+            ->and(ProjectModel::query()->count())->toBe(4)
+            ->and(SkillGroupModel::query()->count())->toBe(3);
+    });
+
+    it('seeds the demo landing profile without a photo under tests', function (): void {
+        $this->seed();
+
+        $about = AboutInfoModel::query()->find(1);
+
+        expect($about)->not->toBeNull()
+            ->and($about->photo)->toBeNull()
+            ->and($about->photo_alt)->toBeNull()
+            ->and($about->availability_status)->toBe('available')
+            ->and($about->work_type)->toBe('hybrid')
+            ->and($about->show_location)->toBeTrue()
+            ->and($about->relocation_readiness)->toBeTrue();
+
+        $translations = DB::table('about_info_translations')
+            ->where('about_info_id', 1)
+            ->orderBy('locale')
+            ->pluck('name', 'locale');
+
+        expect($translations->toArray())->toBe([
+            'en' => 'Ivan Ivanov',
+            'ru' => 'Иван Иванов',
+        ]);
+    });
+
+    it('is idempotent on a database that already holds content', function (): void {
+        $this->seed();
+        $this->seed();
+
+        expect(ArticleModel::query()->count())->toBe(4)
+            ->and(ProjectModel::query()->count())->toBe(4)
+            ->and(SkillGroupModel::query()->count())->toBe(3)
+            ->and(AboutInfoModel::query()->count())->toBe(1)
+            ->and(ResumeConfigModel::query()->count())->toBe(1)
+            ->and(DB::table('about_info_translations')->where('about_info_id', 1)->count())->toBe(2);
     });
 });

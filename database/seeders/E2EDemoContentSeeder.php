@@ -8,7 +8,6 @@ use App\Features\Blog\Infra\Models\ArticleModel;
 use App\Features\Blog\Infra\Models\ArticleTagModel;
 use App\Features\Blog\Infra\Models\ArticleTagTranslationModel;
 use App\Features\Blog\Infra\Models\ArticleTranslationModel;
-use App\Features\Blog\Infra\Models\ArticleViewModel;
 use App\Features\Experience\Infra\Models\TimelineItemModel;
 use App\Features\Experience\Infra\Models\TimelineItemTranslationModel;
 use App\Features\Portfolio\Infra\Models\ContactModel;
@@ -55,7 +54,6 @@ final class E2EDemoContentSeeder extends Seeder
             'published_at' => '2026-05-12 09:00:00',
             'tag' => 'php',
             'skills' => ['Laravel', 'Redis'],
-            'views' => 128,
             'en' => [
                 'title' => 'Understanding Laravel Queues',
                 'short_description' => 'A practical deep dive into queue workers, retries and backoff.',
@@ -114,7 +112,6 @@ final class E2EDemoContentSeeder extends Seeder
             'published_at' => '2026-04-20 10:00:00',
             'tag' => 'web-performance',
             'skills' => ['Vue.js', 'TypeScript'],
-            'views' => 96,
             'en' => [
                 'title' => 'Vue Performance Tuning',
                 'short_description' => 'Cutting bundle size and rendering cost in a Vue single-page app.',
@@ -159,7 +156,6 @@ final class E2EDemoContentSeeder extends Seeder
             'published_at' => '2025-10-05 08:30:00',
             'tag' => 'php',
             'skills' => ['PostgreSQL'],
-            'views' => 54,
             'en' => [
                 'title' => 'Full-Text Search in Postgres',
                 'short_description' => 'Ranking, highlighting and typo tolerance without a search server.',
@@ -525,11 +521,6 @@ final class E2EDemoContentSeeder extends Seeder
                     'skill_id' => $skillIds[$skill],
                 ]);
             }
-
-            ArticleViewModel::query()->create([
-                'article_id' => $model->id,
-                'views' => $article['views'],
-            ]);
 
             $articleIds[$article['slug']] = (int) $model->id;
         }
