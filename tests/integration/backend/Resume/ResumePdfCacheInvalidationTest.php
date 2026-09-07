@@ -12,10 +12,12 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\Fakes\FakeResumePdfRenderer;
 use Tests\Support\Traits\SeedsResumeData;
+use Tests\Support\Traits\SerializesResumePdfCache;
 
-uses(SeedsResumeData::class);
+uses(SeedsResumeData::class, SerializesResumePdfCache::class);
 
 beforeEach(function (): void {
+    $this->lockResumePdfCache();
     $this->seed(SettingsSeeder::class);
     Storage::fake('rustfs');
     Cache::store('redis')->flush();
@@ -25,6 +27,10 @@ beforeEach(function (): void {
 
     $this->seedResumeConfig(['mode' => 'auto']);
     $this->seedResumeSourceData();
+});
+
+afterEach(function (): void {
+    $this->unlockResumePdfCache();
 });
 
 describe('resume PDF cache invalidation', function (): void {

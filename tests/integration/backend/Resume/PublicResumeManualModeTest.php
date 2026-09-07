@@ -10,16 +10,22 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Tests\Support\Fakes\FakeResumePdfRenderer;
 use Tests\Support\Traits\SeedsResumeData;
+use Tests\Support\Traits\SerializesResumePdfCache;
 
-uses(SeedsResumeData::class);
+uses(SeedsResumeData::class, SerializesResumePdfCache::class);
 
 beforeEach(function (): void {
+    $this->lockResumePdfCache();
     $this->seed(SettingsSeeder::class);
     Storage::fake('rustfs');
     Cache::store('redis')->flush();
 
     $this->renderer = new FakeResumePdfRenderer();
     app()->instance(ResumePdfRendererInterface::class, $this->renderer);
+});
+
+afterEach(function (): void {
+    $this->unlockResumePdfCache();
 });
 
 describe('PublicResumeController /cv — manual mode', function (): void {
