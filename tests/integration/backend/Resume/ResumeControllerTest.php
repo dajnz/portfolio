@@ -13,16 +13,22 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\Support\Traits\InteractsWithAdmin;
 use Tests\Support\Traits\SeedsResumeData;
+use Tests\Support\Traits\SerializesResumePdfCache;
 
-uses(InteractsWithAdmin::class, SeedsResumeData::class);
+uses(InteractsWithAdmin::class, SeedsResumeData::class, SerializesResumePdfCache::class);
 
 beforeEach(function (): void {
+    $this->lockResumePdfCache();
     $this->seed(SettingsSeeder::class);
     Storage::fake('rustfs');
     Cache::store('redis')->flush();
 
     $this->renderer = new \Tests\Support\Fakes\FakeResumePdfRenderer();
     app()->instance(\App\Features\Resume\App\Contracts\ResumePdfRendererInterface::class, $this->renderer);
+});
+
+afterEach(function (): void {
+    $this->unlockResumePdfCache();
 });
 
 describe('ResumeController admin', function (): void {

@@ -14,7 +14,8 @@
         "generate-inertia-types": "npx openapi-typescript docs/openapi/inertia/inertia.yaml -o resources/js/Features/Shared/CrossSurface/Types/inertia.ts",
         "typecheck": "npm run generate-api-types && npm run generate-inertia-types && vue-tsc --noEmit",
         "ssr:build": "vite build --ssr",
-        "ssr:dev": "concurrently -k \"vite build --ssr --watch\" \"wait-on bootstrap/ssr/ssr.js && node --watch bootstrap/ssr/ssr.js\""
+        "ssr:dev": "concurrently -k \"vite build --ssr --watch\" \"wait-on bootstrap/ssr/ssr.js && node --watch bootstrap/ssr/ssr.js\"",
+        "lighthouse": "lhci autorun --config=devops/lighthouse-config/lighthouserc.cjs"
     },
     "dependencies": {
         "@iconify/vue": "^5.0.1",
@@ -48,6 +49,7 @@
         "@iconify-json/lucide": "^1.2.123",
         "@iconify-json/simple-icons": "^1.2.93",
         "@iconify/tools": "^5.0.14",
+        "@lhci/cli": "^0.15.1",
         "@playwright/test": "^1.62.1",
         "@stoplight/spectral-cli": "^6.16.3",
         "@tailwindcss/vite": "^4.0.0",

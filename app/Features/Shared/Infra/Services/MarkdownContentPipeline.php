@@ -8,6 +8,7 @@ use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\Infra\Markdown\CalloutBlock;
 use App\Features\Shared\Infra\Markdown\CalloutBlockRenderer;
 use App\Features\Shared\Infra\Markdown\CalloutBlockStartParser;
+use App\Features\Shared\Infra\Markdown\ContentImageListener;
 use App\Features\Shared\Infra\Markdown\HeadingIdListener;
 use App\Features\Shared\Infra\Markdown\HeadingIdRenderer;
 use App\Features\Shared\Infra\Markdown\HighlightedCodeRenderer;
@@ -101,6 +102,9 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
         $environment->addRenderer(IndentedCode::class, new HighlightedCodeRenderer($this->highlighter));
         $environment->addRenderer(Heading::class, new HeadingIdRenderer());
         $environment->addEventListener(DocumentParsedEvent::class, new HeadingIdListener());
+        // Marks every Markdown image `loading="lazy"` (below-fold body
+        // images defer; the renderer merges node `attributes` data).
+        $environment->addEventListener(DocumentParsedEvent::class, new ContentImageListener());
 
         $this->converter = new MarkdownConverter($environment);
     }

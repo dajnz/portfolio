@@ -216,6 +216,79 @@ jobs:
           npx wait-on tcp:127.0.0.1:8000 && npx wait-on http://127.0.0.1:8000
           PLAYWRIGHT_BASE_URL=http://127.0.0.1:8000 npx playwright test
 
+  # Performance-budget + Core Web Vitals spot check (plan step 13.3,
+  # architecture.md "Performance Budget"): Lighthouse collects the six
+  # canonical public routes against the seeded demo content and asserts
+  # the per-page gzipped-JS budgets from devops/lighthouse-config/budgets.json.
+  # Budget assertions run at WARN severity AND the job is
+  # continue-on-error — non-blocking by design (architecture.md:1262-1263);
+  # flip both when the budgets are consistently met. Same env caveat as
+  # the local `make lighthouse` target: `php artisan serve` sends no gzip,
+  # so collected script sizes exceed the (gzipped) caps — the production
+  # nginx stack gzips (see devops/lighthouse-config/README.md).
+  lighthouse:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: portfolio_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+      - uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-${{ runner.os }}-
+      - run: cp .env.example .env
+      - run: composer install --no-progress
+      - run: php artisan key:generate
+      - run: |
+          cat <<'EOF' >> .env
+          DB_HOST=127.0.0.1
+          DB_PORT=5432
+          DB_DATABASE=portfolio_test
+          DB_USERNAME=test
+          DB_PASSWORD=test
+          APP_URL=http://127.0.0.1:8000
+          CACHE_STORE=array
+          SESSION_DRIVER=file
+          QUEUE_CONNECTION=sync
+          MAIL_MAILER=log
+          EOF
+      - run: php artisan migrate --env=testing
+      - run: php artisan db:seed --class=E2ETestSeeder --env=testing
+      - run: npm ci
+      - run: npm run build -- --mode testing
+      - run: npm run ssr:build -- --mode testing
+      # Playwright's chromium doubles as Lighthouse's Chrome; the lhci
+      # config resolves it (devops/lighthouse-config/lighthouserc.cjs).
+      - run: npx playwright install --with-deps chromium
+      # Servers and the run share ONE step — GitHub Actions kills
+      # background processes between steps (same constraint as test-e2e).
+      - name: Run Lighthouse budget checks
+        run: |
+          php artisan serve --env=testing --port=8000 &
+          php artisan inertia:start-ssr --env=testing &
+          npx wait-on tcp:127.0.0.1:8000 && npx wait-on http://127.0.0.1:8000
+          LH_URLS="http://127.0.0.1:8000/,http://127.0.0.1:8000/blog,http://127.0.0.1:8000/blog/understanding-laravel-queues,http://127.0.0.1:8000/projects,http://127.0.0.1:8000/projects/portfolio-platform,http://127.0.0.1:8000/experience" npx lhci autorun --config=devops/lighthouse-config/lighthouserc.cjs
+
   # Only on push to main: detect changed service sources, update image tags in
   # devops/deploy/manifest.yml, and commit the manifest back (see devops.md
   # "Manifest Update Job"). The auto-commit carries [skip ci] so it never

@@ -407,7 +407,7 @@ final class E2EDemoContentSeeder extends Seeder
     {
         $groups = [
             'backend' => ['icon' => 'heroicons:cpu-chip', 'en' => 'Backend', 'ru' => 'Бэкенд'],
-            'frontend' => ['icon' => 'heroicons:computer-desktop', 'en' => 'Frontend', 'ru' => 'Фронтенд'],
+            'frontend' => ['icon' => 'heroicons:device-phone-mobile', 'en' => 'Frontend', 'ru' => 'Фронтенд'],
             'devops' => ['icon' => 'heroicons:cog-6-tooth', 'en' => 'DevOps', 'ru' => 'Девопс'],
         ];
 

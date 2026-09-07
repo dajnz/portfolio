@@ -113,6 +113,7 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
@@ -505,6 +506,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Fonts load lazily from the inlined @font-face styles
+        // (`@fonts` — font-display: swap), only when a face is actually
+        // rendered. The framework's per-face `<link rel=preload>`s are
+        // dropped: they fetched every family/weight on every page ahead
+        // of the LCP image (step 13.3 performance record — 15 font
+        // requests started before the hero background).
+        Vite::usePreloadTagAttributes(
+            fn (mixed $type, ...$rest): array|false => $type === 'fonts' ? false : [],
+        );
+
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
 
         // authentication.md:21-27 — 5 attempts per minute per IP.

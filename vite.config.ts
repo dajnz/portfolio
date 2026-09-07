@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
+import { pageJsBudgetWarnings } from './devops/vite-plugins/page-js-budget-warnings.ts';
+import { stripWoffFallbackFaces } from './devops/vite-plugins/strip-woff-fallback-faces.ts';
 import { defineConfig } from 'vitest/config';
 
 const featureAlias = (path: string) =>
@@ -16,11 +18,15 @@ export default defineConfig(({ isSsrBuild }) => ({
             ssr: 'resources/js/ssr.ts',
             refresh: true,
             fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
-                }),
+                // Inter + JetBrains Mono are the only families in the
+                // committed design tokens (docs/mockups/public/tokens.css):
+                // Inter for body/headings on every surface, JetBrains Mono
+                // for code. Instrument Sans was bundled but never referenced
+                // by any token — every face was preloaded on every page for
+                // nothing (step 13.3 performance record). Inter 800 dropped:
+                // its 4 font-extrabold/black usages render 700 instead.
                 bunny('Inter', {
-                    weights: [400, 500, 600, 700, 800],
+                    weights: [400, 500, 600, 700],
                 }),
                 bunny('JetBrains Mono', {
                     weights: [400, 500, 600],
@@ -29,6 +35,12 @@ export default defineConfig(({ isSsrBuild }) => ({
         }),
         vue(),
         tailwindcss(),
+        // Build-time audits (devops/vite-plugins): per-page gzip budget
+        // warnings and the woff-fallback stripping. Client builds only —
+        // the SSR build writes a single server bundle under bootstrap/ssr
+        // (no page chunks, no fonts CSS); each plugin re-checks `ssr` in
+        // its hook as well.
+        ...(isSsrBuild ? [] : [pageJsBudgetWarnings(), stripWoffFallbackFaces()]),
     ],
     server: {
         // The dev container resolves `localhost` to `::1` only — vite would

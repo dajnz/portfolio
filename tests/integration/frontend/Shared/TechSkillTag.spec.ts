@@ -11,8 +11,21 @@ describe('TechSkillTag', () => {
         setActivePinia(createPinia());
     });
 
-    it('renders the skill name with the icon', () => {
+    it('renders the skill name with the icon once the offline devicon subset is registered', async () => {
         const wrapper = mount(TechSkillTag, { props: { skill: SKILL } });
+
+        // The devicon subset imports lazily; the glyph pops in after the
+        // shared registration resolves (never before — the Iconify
+        // runtime would otherwise fall back to its blocked remote API).
+        // The import chain is timer-driven, so poll instead of a fixed
+        // flush (mirrors waitForHead in the useSeoUpdater spec).
+        const deadline = Date.now() + 1000;
+        while (!wrapper.find('svg').exists()) {
+            if (Date.now() >= deadline) {
+                throw new Error('devicon glyph did not appear within 1000ms');
+            }
+            await new Promise((resolve) => setTimeout(resolve, 10));
+        }
 
         expect(wrapper.text()).toContain('Laravel');
         expect(wrapper.find('svg').exists()).toBe(true);

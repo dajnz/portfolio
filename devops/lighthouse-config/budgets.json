@@ -1,0 +1,38 @@
+[
+  {
+    "path": "/",
+    "resourceSizes": [
+      { "resourceType": "script", "budget": 150 }
+    ]
+  },
+  {
+    "path": "/blog",
+    "resourceSizes": [
+      { "resourceType": "script", "budget": 180 }
+    ]
+  },
+  {
+    "path": "/blog/*",
+    "resourceSizes": [
+      { "resourceType": "script", "budget": 200 }
+    ]
+  },
+  {
+    "path": "/projects",
+    "resourceSizes": [
+      { "resourceType": "script", "budget": 170 }
+    ]
+  },
+  {
+    "path": "/projects/*",
+    "resourceSizes": [
+      { "resourceType": "script", "budget": 190 }
+    ]
+  },
+  {
+    "path": "/experience",
+    "resourceSizes": [
+      { "resourceType": "script", "budget": 160 }
+    ]
+  }
+]

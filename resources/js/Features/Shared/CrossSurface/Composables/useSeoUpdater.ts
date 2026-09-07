@@ -23,8 +23,13 @@ export function useSeoUpdater(): void {
         return;
     }
 
-    const page = usePage<{ seo?: SeoProps | null; cspNonce?: string }>();
+    const page = usePage<{
+        seo?: SeoProps | null;
+        cspNonce?: string;
+        supported_locales?: string[];
+    }>();
     const seo = computed(() => page.props?.seo ?? null);
+    const supportedLocales = computed(() => page.props?.supported_locales ?? []);
 
     const container = document.createElement('div');
 
@@ -34,7 +39,9 @@ export function useSeoUpdater(): void {
         // title/meta from the previous page.
         render(null, container);
         const current = seo.value;
-        const vnode = h(Head, { title: current?.title ?? '' }, () => headChildren(current));
+        const vnode = h(Head, { title: current?.title ?? '' }, () =>
+            headChildren(current, supportedLocales.value),
+        );
         render(vnode, container);
     }
 
@@ -77,7 +84,7 @@ export function useSeoUpdater(): void {
     });
 }
 
-function headChildren(seo: SeoProps | null): VNode[] {
+function headChildren(seo: SeoProps | null, supportedLocales: string[]): VNode[] {
     if (seo === null) {
         return [];
     }
@@ -111,6 +118,16 @@ function headChildren(seo: SeoProps | null): VNode[] {
     }
 
     if (seo.canonical_url !== undefined) {
+        // hreflang alternates (seo.md:246-256): locale-prefixed variants
+        // of the slashless canonical + x-default. The Blade layout
+        // renders the same set during SSR from the shared
+        // `supported_locales` prop, so hydration replaces them 1:1.
+        for (const alternate of alternateHrefs(seo.canonical_url, supportedLocales)) {
+            nodes.push(
+                h('link', { rel: 'alternate', hreflang: alternate.hreflang, href: alternate.href }),
+            );
+        }
+        nodes.push(h('link', { rel: 'alternate', hreflang: 'x-default', href: seo.canonical_url }));
         nodes.push(h('link', { rel: 'canonical', href: seo.canonical_url }));
     }
 
@@ -119,4 +136,31 @@ function headChildren(seo: SeoProps | null): VNode[] {
     }
 
     return nodes;
+}
+
+interface AlternateHref {
+    hreflang: string;
+    href: string;
+}
+
+/**
+ * Locale-prefixed URL variants of a canonical (slashless) URL —
+ * `https://site/blog/x` → `https://site/{locale}/blog/x`; the root path
+ * maps to `https://site/{locale}` (no trailing slash, mirroring the
+ * sitemap alternates).
+ */
+function alternateHrefs(canonicalUrl: string, locales: string[]): AlternateHref[] {
+    let parsed: URL;
+    try {
+        parsed = new URL(canonicalUrl);
+    } catch {
+        return [];
+    }
+
+    const path = parsed.pathname === '/' ? '' : parsed.pathname;
+
+    return locales.map((locale) => ({
+        hreflang: locale,
+        href: `${parsed.origin}/${locale}${path}`,
+    }));
 }

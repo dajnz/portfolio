@@ -13,7 +13,7 @@ import { computed } from 'vue';
 import EngineeringDetailItem from '../Components/EngineeringDetailItem.vue';
 import ScreenshotsGallery from '../Components/ScreenshotsGallery.vue';
 import { useProjectDetailPage } from '../Composables/useProjectDetailPage';
-import { ensureProjectsIcons } from '../iconRegistration';
+import { ensureProjectsIcons, useProjectsIconsReady } from '../iconRegistration';
 
 type DetailProps = NonNullable<components['schemas']['ProjectDetailPageProps']['props']>;
 
@@ -41,6 +41,11 @@ usePageTracking('project_detail', props.project?.id ?? null);
 useSeoUpdater();
 
 const { navItems, activeRoute, project } = useProjectDetailPage(props);
+
+// The Sources GitHub glyph comes from the lazily-registered simple-icons
+// subset — rendering before registration would trigger the Iconify
+// runtime's remote fallback (blocked by CSP, B78).
+const projectsIconsReady = useProjectsIconsReady();
 
 // The bottom block's two-column condition — extracted so the class
 // binding stays a single line (biome lineWidth 100 vs vue/html-indent).
@@ -226,7 +231,7 @@ function onDemoClick(): void {
                 target="_blank"
                 rel="noopener"
                 variant="secondary"
-                icon="simple-icons:github"
+                :icon="projectsIconsReady ? 'simple-icons:github' : undefined"
                 :test_id="`${props.test_id}-github`"
                 @click="onSourcesClick"
               >

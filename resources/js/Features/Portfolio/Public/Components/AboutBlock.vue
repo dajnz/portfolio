@@ -7,6 +7,7 @@ import PublicBaseButton from '@shared-public/PublicBaseButton.vue';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
 import PublicCenteredContainer from '@shared-public/PublicCenteredContainer.vue';
 import type { AboutBlockData, CtaLink } from '../Composables/useLandingPage';
+import { usePublicIconsReady } from '../iconRegistration';
 
 const props = withDefaults(
     defineProps<{
@@ -23,6 +24,11 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const analytics = useAnalytics();
+// The CTA icons (e.g. the simple-icons GitHub mark) must not render
+// before the landing's lazy pack registration resolved — the Iconify
+// runtime would otherwise fall back to its remote API (blocked by CSP
+// `connect-src 'self'`, B78 self-hosted stance).
+const publicIconsReady = usePublicIconsReady();
 
 function ctaKey(url: string): string {
     const normalized = url.toLowerCase();
@@ -145,7 +151,7 @@ function handleCta(link: CtaLink): void {
               tag="a"
               :href="link.url"
               :variant="link.variant"
-              :icon="link.icon"
+              :icon="publicIconsReady ? link.icon : undefined"
               :icon_position="link.icon_position"
               :test_id="`${props.test_id}-cta-${ctaKey(link.url)}`"
               @click="handleCta(link)"
