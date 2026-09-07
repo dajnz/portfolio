@@ -18,9 +18,9 @@
    1. Fonts
    --------------------------------------------------------------------------
    The mockup imports Inter/JetBrains Mono from Google Fonts. The app
-   bundles its own font (Instrument Sans) via the Vite bunny plugin
-   (vite.config.ts), so the remote import is dropped; the stacks below
-   remain the design-token font faces verbatim.
+   bundles the same faces via the Vite bunny plugin (vite.config.ts), so
+   the remote import is dropped; the stacks below remain the
+   design-token font faces verbatim.
    -------------------------------------------------------------------------- */
 
 /* --------------------------------------------------------------------------

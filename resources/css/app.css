@@ -20,11 +20,13 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Inter is the single text family (design tokens, docs/mockups/
+       public/tokens.css) — served to every surface through the bundled
+       fonts stylesheet; the admin root applies it via the `font-admin`
+       utility below. */
+    --font-sans: 'Inter', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
     /* Admin font face per the Ledger preset (docs/mockups/admin/tailwind-preset.js:33) —
-       Inter is Vite-bundled (vite.config.ts), used via the `font-admin` utility on
-       the admin layout root so the public Instrument Sans stays untouched. */
+       applied via the `font-admin` utility on the admin layout root. */
     --font-admin: 'Inter', -apple-system, 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
 }
