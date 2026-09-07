@@ -2,6 +2,7 @@ AGENTS.md
 docs/detailed-spec
 docs/mockups
 docs/plans
+docs/spot-checks
 
 *.log
 .DS_Store
@@ -26,6 +27,7 @@ devops/secrets/age-identity.txt
 /.auth
 /auth.json
 /coverage
+.lighthouseci/
 /node_modules
 /public/build
 /public/fonts-manifest.dev.json

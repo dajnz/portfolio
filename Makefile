@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed setup setup-localhost test test-unit test-int test-backend test-frontend test-e2e coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed setup setup-localhost test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -150,6 +150,29 @@ test-e2e: ## Run e2e tests against the dedicated e2e database (dev DB untouched)
 	trap '$(DE) sh -c "pkill -f \"[p]hp artisan serve.*8001\"; pkill -f \"[p]hp -S .*8001\"; true"' EXIT; \
 	$(DE) sh -c 'npx wait-on -t 30000 http://127.0.0.1:8001/up || (echo "e2e server failed:"; cat /tmp/e2e-serve.log; exit 1)'; \
 	$(DE) env DB_DATABASE=portfolio_e2e REDIS_DB=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:8001 npx playwright test
+
+# The Lighthouse budget + Core Web Vitals spot check (plan step 13.3,
+# architecture.md Performance Budget): runs the 6 canonical public routes
+# against the dedicated e2e database on 127.0.0.1:8002 (same isolation
+# pattern as test-e2e; the dev DB and the nginx stack are untouched).
+# Budget assertions are warn-level — see devops/lighthouse-config/README.md for
+# the gzip caveat of `php artisan serve`.
+lighthouse: ## Run the Lighthouse budget + CWV spot check on the public pages (dev DB untouched)
+	@set -e; \
+	DB_USER="$$(sed -n 's/^DB_USERNAME=//p' .env)"; \
+	EXISTS="$$($(DC) exec -T db psql -U "$$DB_USER" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='portfolio_e2e'" | tr -d '[:space:]')"; \
+	if [ "$$EXISTS" != "1" ]; then \
+		echo "Creating e2e database portfolio_e2e..."; \
+		$(DC) exec -T db createdb -U "$$DB_USER" portfolio_e2e; \
+	fi; \
+	$(DE) env DB_DATABASE=portfolio_e2e REDIS_DB=1 php artisan migrate --force; \
+	$(DE) env DB_DATABASE=portfolio_e2e REDIS_DB=1 php artisan db:seed --class=E2ETestSeeder --force; \
+	$(DE) sh -c 'pkill -f "[p]hp -S .*8002" 2>/dev/null; pkill -f "[p]hp artisan serve.*8002" 2>/dev/null; true'; \
+	$(DE) sh -c 'rm -f /tmp/lighthouse-serve.log'; \
+	$(DC) exec -u 1000 -d dev sh -c 'env DB_DATABASE=portfolio_e2e REDIS_DB=1 php artisan serve --no-reload --host=0.0.0.0 --port=8002 >/tmp/lighthouse-serve.log 2>&1'; \
+	trap '$(DE) sh -c "pkill -f \"[p]hp artisan serve.*8002\"; pkill -f \"[p]hp -S .*8002\"; true"' EXIT; \
+	$(DE) sh -c 'npx wait-on -t 30000 http://127.0.0.1:8002/up || (echo "lighthouse server failed:"; cat /tmp/lighthouse-serve.log; exit 1)'; \
+	$(DE) env LH_URLS="http://127.0.0.1:8002/,http://127.0.0.1:8002/blog,http://127.0.0.1:8002/blog/understanding-laravel-queues,http://127.0.0.1:8002/projects,http://127.0.0.1:8002/projects/portfolio-platform,http://127.0.0.1:8002/experience" npm run lighthouse
 
 coverage: ## Run all test suites with coverage (80% line coverage threshold, per testing spec)
 	$(DE) env XDEBUG_MODE=coverage php artisan test --coverage --min=80
