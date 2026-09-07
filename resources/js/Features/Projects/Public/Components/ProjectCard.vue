@@ -10,6 +10,7 @@ import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
 import { computed } from 'vue';
 
 import type { ProjectCardView } from '../Composables/useProjectsIndexPage';
+import { useProjectsIconsReady } from '../iconRegistration';
 import ProjectCardCarousel from './ProjectCardCarousel.vue';
 
 const props = withDefaults(
@@ -33,6 +34,10 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const analytics = useAnalytics();
+// The Sources GitHub glyph comes from the lazily-registered simple-icons
+// subset — rendering before registration would trigger the Iconify
+// runtime's remote fallback (blocked by CSP, B78).
+const projectsIconsReady = useProjectsIconsReady();
 
 const visibleTags = computed(() => props.project?.tech_tags.slice(0, props.tags_limit) ?? []);
 const overflowCount = computed(() =>
@@ -166,7 +171,7 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
           target="_blank"
           rel="noopener"
           variant="outline"
-          icon="simple-icons:github"
+          :icon="projectsIconsReady ? 'simple-icons:github' : undefined"
           :test_id="`${props.test_id}-github`"
           @click.stop="onSourcesClick"
         >
