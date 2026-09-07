@@ -1,4 +1,4 @@
-<!-- ProjectCard (public-section-components.md:703-732, mockup projects.html) — the project preview card shared by the landing's featured section (compact) and the projects index (default). Root is an Inertia `<Link>` to `/projects/{slug}`; the image area renders ProjectCardCarousel when screenshots exist (its `single` state covers the one-shot case), the static preview image otherwise, and a neat placeholder (icon + label) when neither is present. The tech tags are capped at `tags_limit` (3 on the grid cards, 5 on the list cards — user rework 2026-08-16) with a "+N" chip carrying the remaining names as its accessible name; the chips link to `/projects?tags={id}` (the projects index tag filter). The Sources/Live Demo buttons are anchors opened in a new tab whose click is stopped from reaching the card link (nested-anchor hijack — the default-action + propagation both must be neutralized for `target=_blank`, public-section-components.md:727). Analytics: `cta_click_github` / `cta_click_demo` (analytics.md:34-37). -->
+<!-- ProjectCard (public-section-components.md:703-732, mockup projects.html) — the project preview card shared by the landing's featured section (compact) and the projects index (default). The card is a container with a stretched Inertia `<Link>` overlay to `/projects/{slug}` (a DOM sibling of the card's own filter-chip and source links — nested anchors would be invalid HTML); the image area renders ProjectCardCarousel when screenshots exist (its `single` state covers the one-shot case), the static preview image otherwise, and a neat placeholder (icon + label) when neither is present. The tech tags are capped at `tags_limit` (3 on the grid cards, 5 on the list cards — user rework 2026-08-16) with a "+N" chip carrying the remaining names as its accessible name; the chips link to `/projects?tags={id}` (the projects index tag filter). The Sources/Live Demo buttons are anchors opened in a new tab (analytics-tracked); with the overlay link they are DOM siblings, not children, of the card link — no nested-anchor hijack to neutralize. Analytics: `cta_click_github` / `cta_click_demo` (analytics.md:34-37). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { Link } from '@inertiajs/vue3';
@@ -62,10 +62,9 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
 </script>
 
 <template>
-  <Link
+  <div
     v-if="props.is_loading"
     class="card project-card project-card--skeleton"
-    href="#"
     :data-testid="props.test_id"
   >
     <PublicBaseSkeleton
@@ -81,14 +80,21 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
       shape="pill"
       :repeat="3"
     />
-  </Link>
-  <Link
+  </div>
+  <div
     v-else-if="props.project !== null"
     class="card card--hoverable project-card"
     :class="`project-card--${props.variant}`"
-    :href="`/projects/${props.project.slug}`"
     :data-testid="props.test_id"
   >
+    <!-- The stretched overlay link keeps the whole card clickable while
+         staying a DOM sibling of the card's own links (filter chips and
+         the source buttons) — nested anchors would be invalid HTML. -->
+    <Link
+      class="project-card__link"
+      :href="`/projects/${props.project.slug}`"
+      :aria-label="props.project.title"
+    />
     <ProjectCardCarousel
       v-if="props.project.screenshots !== null && props.project.screenshots.length > 0"
       :screenshots="props.project.screenshots"
@@ -122,9 +128,9 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
       />
     </div>
     <div class="card__content project-card__content">
-      <h3 class="card__title project-card__title">
+      <h2 class="card__title project-card__title">
         {{ props.project.title }}
-      </h3>
+      </h2>
       <p class="card__description project-card__description">
         {{ props.project.brief_description }}
       </p>
@@ -181,7 +187,7 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
         </PublicBaseButton>
       </div>
     </div>
-  </Link>
+  </div>
 </template>
 
 <style scoped>
@@ -191,6 +197,7 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
    wrapper the 16/9 slot; the inner image fills it. */
 .project-card {
     display: block;
+    position: relative;
     color: inherit;
     text-decoration: none;
 }
@@ -241,6 +248,29 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
     white-space: nowrap;
 }
 
+/* The stretched whole-card link overlays the container; the card's own
+   links (filter chips, source buttons) and the carousel controls sit
+   above it on their own layers. The carousel layer is click-through
+   (pointer-events: none) so the card navigation still works over the
+   slides — only its buttons receive the pointer. */
+.project-card__link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.project-card__tags,
+.project-card__actions {
+    position: relative;
+    z-index: 2;
+}
+
+.project-card-carousel {
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+}
+
 .project-card--skeleton {
     display: flex;
     flex-direction: column;
@@ -258,6 +288,14 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
      2026-08-16). The specificity beats the scoped `.btn[data-v-…]`
      rules regardless of stylesheet order. -->
 <style>
+/* The carousel lives inside the card: the scoped overlay rules make
+   the carousel layer click-through; its internal buttons must stay
+   clickable — reached here because the scoped styles cannot target the
+   carousel component's internals. */
+.project-card .project-card-carousel button {
+    pointer-events: auto;
+}
+
 .project-card .card__actions {
     flex-wrap: nowrap;
     justify-content: flex-start;

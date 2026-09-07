@@ -13,6 +13,8 @@ declare(strict_types=1);
 */
 
 return [
+    'home_link' => 'Home',
+
     'about_me' => 'About Me',
     'projects' => 'Projects',
     'blog' => 'Blog',

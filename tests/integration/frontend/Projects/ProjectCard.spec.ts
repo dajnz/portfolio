@@ -55,9 +55,12 @@ describe('ProjectCard', () => {
     it('renders as a link to the detail page with title and description', () => {
         const wrapper = mountCard();
 
-        expect(wrapper.element.tagName).toBe('A');
-        expect(wrapper.attributes('href')).toBe('/projects/ledger');
-        expect(wrapper.get('h3').text()).toBe('Ledger — Invoice Automation');
+        // The whole-card click surface is the stretched overlay link —
+        // a sibling of the card's own anchors (valid HTML).
+        expect(wrapper.element.tagName).toBe('DIV');
+        expect(wrapper.get('a.project-card__link').attributes('href')).toBe('/projects/ledger');
+        expect(wrapper.get('a.project-card__link').attributes('aria-label')).toBe('Ledger — Invoice Automation');
+        expect(wrapper.get('h2').text()).toBe('Ledger — Invoice Automation');
         expect(wrapper.get('p').text()).toBe('Automated invoice processing pipeline with OCR.');
     });
 

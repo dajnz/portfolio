@@ -84,6 +84,7 @@ function isActive(item: NavItem): boolean {
       <a
         class="header__logo"
         :href="props.logo_url"
+        :aria-label="t('nav.home_link')"
         data-testid="public-header-logo"
       >
         <img

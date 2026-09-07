@@ -61,12 +61,12 @@ function onCardClick(event: MouseEvent): void {
       >
         {{ props.item.period }}
       </span>
-      <h3
+      <h2
         class="timeline-item__position"
         :data-testid="`${props.test_id}-item-${props.item.id}-position`"
       >
         {{ props.item.position }}
-      </h3>
+      </h2>
       <p
         v-if="props.item.company_name !== null"
         class="timeline-item__company"

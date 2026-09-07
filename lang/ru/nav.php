@@ -9,6 +9,8 @@ declare(strict_types=1);
 */
 
 return [
+    'home_link' => 'На главную',
+
     'about_me' => 'Обо мне',
     'projects' => 'Проекты',
     'blog' => 'Блог',

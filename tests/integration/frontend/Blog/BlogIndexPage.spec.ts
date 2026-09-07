@@ -222,8 +222,8 @@ describe('BlogIndexPage', () => {
         await flush();
 
         const first = wrapper.get('[data-testid="blog-page-card-1"]');
-        expect(first.attributes('href')).toBe('/blog/vue-composables');
-        expect(first.get('h3').text()).toBe('Building Reusable Vue Composables');
+        expect(first.get('a.article-card__link').attributes('href')).toBe('/blog/vue-composables');
+        expect(first.get('h2').text()).toBe('Building Reusable Vue Composables');
         expect(first.get('img').attributes('src')).toBe('/assets/blog/vue-composables.png');
         expect(first.get('img').attributes('alt')).toBe('Code editor with a composable');
         expect(first.get('[data-testid="blog-page-card-1-tag-11"]').text()).toBe('Vue');

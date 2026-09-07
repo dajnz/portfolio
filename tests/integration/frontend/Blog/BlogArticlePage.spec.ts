@@ -327,7 +327,7 @@ describe('BlogArticlePage', () => {
         const related = wrapper.get('[data-testid="blog-article-page-related"]');
         expect(related.get('h2').text()).toBe('Related Articles');
         const card = related.get('[data-testid="blog-article-page-related-card-2"]');
-        expect(card.attributes('href')).toBe('/blog/cursor-pagination');
+        expect(card.get('a.article-card__link').attributes('href')).toBe('/blog/cursor-pagination');
         // Compact variant: no image.
         expect(card.find('img').exists()).toBe(false);
 

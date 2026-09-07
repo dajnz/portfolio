@@ -1,4 +1,4 @@
-<!-- FeaturedProjectCard (Portfolio feature — NOT the shared Projects ProjectCard) — the landing's compact featured-project card (mockup index.html:587-623). Always renders a STATIC preview image or the same no-image placeholder as the projects index cards (large faint photo icon on the tinted surface — user request 2026-08-16) when the project has no preview (no carousel, no action buttons — the landing wire carries neither screenshots nor URLs). The card look comes from the global `.card` pattern (resources/css/app.css — the mockup's pages.css); tech-tag chips link to `/projects?tags={id}` only when `tags_linked` (more published projects than featured — 9.1 decision) and render after the feature's lazy icon registration. Root is a plain anchor (the 9.1 behavior; the projects public pages existed only after 9.3). -->
+<!-- FeaturedProjectCard (Portfolio feature — NOT the shared Projects ProjectCard) — the landing's compact featured-project card (mockup index.html:587-623). Always renders a STATIC preview image or the same no-image placeholder as the projects index cards (large faint photo icon on the tinted surface — user request 2026-08-16) when the project has no preview (no carousel, no action buttons — the landing wire carries neither screenshots nor URLs). The card look comes from the global `.card` pattern (resources/css/app.css — the mockup's pages.css); tech-tag chips link to `/projects?tags={id}` only when `tags_linked` (more published projects than featured — 9.1 decision) and render after the feature's lazy icon registration. The card is a container with a stretched anchor overlay to `/projects/{slug}` (a DOM sibling of the card's own filter-chip links — nested anchors would be invalid HTML); the overlay keeps the whole card clickable. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
@@ -23,12 +23,19 @@ const iconsReady = usePublicIconsReady();
 </script>
 
 <template>
-  <a
+  <div
     v-if="props.project !== null"
     class="card card--hoverable project-card"
-    :href="`/projects/${props.project.slug}`"
     :data-testid="props.test_id"
   >
+    <!-- The stretched overlay link keeps the whole card clickable while
+         staying a DOM sibling of the card's own filter-chip links
+         (nested anchors would be invalid HTML). -->
+    <a
+      class="project-card__link"
+      :href="`/projects/${props.project.slug}`"
+      :aria-label="props.project.title"
+    />
     <img
       v-if="props.project.preview_image"
       class="card__image project-card__image"
@@ -72,14 +79,28 @@ const iconsReady = usePublicIconsReady();
         />
       </div>
     </div>
-  </a>
+  </div>
 </template>
 
 <style scoped>
 .project-card {
     display: block;
+    position: relative;
     color: inherit;
     text-decoration: none;
+}
+
+/* The stretched whole-card link overlays the container; the card's own
+   links (tech-tag chips) sit above it on their own layer. */
+.project-card__link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.project-card__tags {
+    position: relative;
+    z-index: 2;
 }
 
 /* The image IS the `.card__image` slot (9.1 markup): the global class

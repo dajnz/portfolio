@@ -164,8 +164,8 @@ describe('ProjectsIndexPage', () => {
         await flush();
 
         const first = wrapper.get('[data-testid="projects-page-card-1"]');
-        expect(first.attributes('href')).toBe('/projects/ledger');
-        expect(first.get('h3').text()).toBe('Ledger — Invoice Automation');
+        expect(first.get('a.project-card__link').attributes('href')).toBe('/projects/ledger');
+        expect(first.get('h2').text()).toBe('Ledger — Invoice Automation');
         expect(first.find('[data-testid="projects-page-card-1-carousel"]').exists()).toBe(true);
         // The wire screenshot alt map resolves to the EN value.
         expect(first.get('[data-testid="projects-page-card-1-carousel"] img').attributes('alt')).toBe(

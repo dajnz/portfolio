@@ -1,4 +1,4 @@
-<!-- ArticleCard (public-section-components.md:800-816, mockup blog.html + blog-article.html) — the blog article preview card shared by the blog index (default variant) and the article page's related section (compact variant — no image). Root is an Inertia `<Link>` to `/blog/{slug}`; the lead image renders with the resolved per-locale alt (placeholder icon when absent — the `empty_image` state), the search results' `short_description` may carry the FTS `<mark>` snippet (B16 — server-sanitized, rendered via v-html), the meta row shows the localized date + reading time, the article tags render as accent badges and the skill tags as linked TechSkillTag chips (`/blog?skill_tags={id}`), capped at 3 with a "+N" overflow chip (the B264 projects convention, mockup parity). Hover prefetches the article page data after the 100 ms linger (architecture.md:1264-1271 — `router.prefetch` is a genuine cache-warming fetch, no navigation; the B262 hazard does not apply). -->
+<!-- ArticleCard (public-section-components.md:800-816, mockup blog.html + blog-article.html) — the blog article preview card shared by the blog index (default variant) and the article page's related section (compact variant — no image). The card is a container with a stretched Inertia `<Link>` overlay to `/blog/{slug}` (a DOM sibling of the card's own filter-chip links — nested anchors would be invalid HTML); the lead image renders with the resolved per-locale alt (placeholder icon when absent — the `empty_image` state), the search results' `short_description` may carry the FTS `<mark>` snippet (B16 — server-sanitized, rendered via v-html), the meta row shows the localized date + reading time, the article tags render as accent badges and the skill tags as linked TechSkillTag chips (`/blog?skill_tags={id}`), capped at 3 with a "+N" overflow chip (the B264 projects convention, mockup parity). Hover prefetches the article page data after the 100 ms linger (architecture.md:1264-1271 — `router.prefetch` is a genuine cache-warming fetch, no navigation; the B262 hazard does not apply). -->
 <script setup lang="ts">
 import { type ArticleCardView, formatArticleDate } from '@blog-shared/Composables/useArticleCards';
 import { Icon } from '@iconify/vue';
@@ -85,10 +85,9 @@ function onLeave(): void {
 </script>
 
 <template>
-  <Link
+  <div
     v-if="props.is_loading"
     class="card article-card article-card--skeleton"
-    href="#"
     :data-testid="props.test_id"
   >
     <PublicBaseSkeleton
@@ -107,16 +106,23 @@ function onLeave(): void {
       shape="pill"
       :repeat="2"
     />
-  </Link>
-  <Link
+  </div>
+  <div
     v-else-if="props.article !== null"
     class="card card--hoverable article-card"
     :class="`article-card--${props.variant}`"
-    :href="`/blog/${props.article.slug}`"
     :data-testid="props.test_id"
-    @mouseenter="onEnter"
-    @mouseleave="onLeave"
   >
+    <!-- The stretched overlay link keeps the whole card clickable while
+         staying a DOM sibling of the card's own links (filter chips) —
+         nested anchors would be invalid HTML (element-permitted-content). -->
+    <Link
+      class="article-card__link"
+      :href="`/blog/${props.article.slug}`"
+      :aria-label="props.article.title"
+      @mouseenter="onEnter"
+      @mouseleave="onLeave"
+    />
     <template v-if="props.variant === 'default'">
       <img
         v-if="props.article.lead_image"
@@ -143,9 +149,9 @@ function onLeave(): void {
       </div>
     </template>
     <div class="card__content article-card__content">
-      <h3 class="card__title article-card__title">
+      <h2 class="card__title article-card__title">
         {{ props.article.title }}
-      </h3>
+      </h2>
       <!-- The FTS snippet may carry `<mark>` tags (B16) — the server
            sanitizes everything else (ArticleCardDto::sanitizeSnippet),
            so only the highlight survives; eslint accepts the v-html by
@@ -203,12 +209,13 @@ function onLeave(): void {
         </span>
       </div>
     </div>
-  </Link>
+  </div>
 </template>
 
 <style scoped>
 .article-card {
     display: block;
+    position: relative;
     color: inherit;
     text-decoration: none;
 }
@@ -223,6 +230,19 @@ function onLeave(): void {
     margin-bottom: var(--space-md);
     background: var(--color-bg-tertiary);
     overflow: hidden;
+}
+
+/* The stretched whole-card link overlays the container; the card's own
+   links (filter chips) sit above it on their own layer. */
+.article-card__link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.article-card__tags {
+    position: relative;
+    z-index: 2;
 }
 
 /* The no-image placeholder: the tinted surface + dashed frame + faint

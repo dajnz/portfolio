@@ -50,7 +50,7 @@ const { t } = useI18n();
       :data-testid="`${props.test_id}-block-${block.key}`"
       @click="emit('select', block.key)"
     >
-      <span class="mb-1 block text-2xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+      <span class="mb-1 block text-2xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
         {{ block.label }}
       </span>
       <span class="block text-2xl font-extrabold text-slate-900 dark:text-white">

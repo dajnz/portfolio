@@ -194,7 +194,7 @@ onBeforeUnmount(cleanup);
     font-weight: var(--font-semibold);
     text-transform: uppercase;
     letter-spacing: var(--letter-spacing-wide);
-    color: var(--color-text-tertiary);
+    color: var(--color-text-secondary);
     margin-bottom: var(--space-md);
 }
 

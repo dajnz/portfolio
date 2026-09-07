@@ -97,7 +97,7 @@ function isActive(route: string): boolean {
 function groupHeaderClass(): string {
     return [
         'select-none w-full flex items-center justify-between px-4 py-1.5',
-        'text-xs font-bold uppercase tracking-wider text-sidebar-text/60',
+        'text-xs font-bold uppercase tracking-wider text-sidebar-text',
     ].join(' ');
 }
 
