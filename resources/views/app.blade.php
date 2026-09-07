@@ -20,6 +20,22 @@
     $canonicalUrl = $seo['canonical_url'] ?? null;
     $robots = $seo['robots'] ?? null;
     $jsonLd = $seo['json_ld'] ?? [];
+    // hreflang alternates (seo.md:246-256): locale-prefixed variants of
+    // the canonical (slashless) URL plus the `x-default` — derived from
+    // the shared `supported_locales` prop so the tags mirror what
+    // useSeoUpdater renders after client-side navigations.
+    $seoAlternates = [];
+    if ($canonicalUrl !== null && $canonicalUrl !== '') {
+        $canonicalPath = (string) parse_url($canonicalUrl, PHP_URL_PATH);
+        $canonicalBase = substr($canonicalUrl, 0, strlen($canonicalUrl) - strlen($canonicalPath));
+        $localeSuffix = $canonicalPath === '' || $canonicalPath === '/' ? '' : $canonicalPath;
+        foreach (($page['props']['supported_locales'] ?? []) as $alternateLocale) {
+            $seoAlternates[] = [
+                'hreflang' => $alternateLocale,
+                'href' => rtrim($canonicalBase, '/').'/'.$alternateLocale.$localeSuffix,
+            ];
+        }
+    }
 @endphp
 <html
     lang="{{ str_replace('_', '-', app()->getLocale()) }}"
@@ -35,12 +51,24 @@
         // not in scope in the Inertia SSR render — use the helper.)
         $isAdminSurface = str_starts_with((string) request()->path(), 'admin');
         $faviconBase = $isAdminSurface ? 'favicon-admin' : 'favicon-public';
+        $isLanding = str_ends_with((string) ($page['component'] ?? ''), 'LandingPage');
     @endphp
     <link rel="icon" href="/images/{{ $faviconBase }}.svg" type="image/svg+xml">
     <link rel="icon" href="/images/{{ $faviconBase }}-32.png" sizes="32x32" type="image/png">
     <link rel="apple-touch-icon" href="/images/{{ $faviconBase }}-180.png">
     @if (!$isAdminSurface)
         <link rel="alternate" type="application/rss+xml" href="{{ rtrim((string) config('app.url'), '/') }}/rss">
+    @endif
+    @if ($isLanding)
+        {{-- LCP preloads (step 13.3 performance record): the hero's
+             tech-stack-tiles.svg CSS background is the landing LCP and a
+             background image cannot carry fetchpriority — preloading
+             starts it at parse time instead of after the stylesheet;
+             the hero photo preloads when the about row has one. --}}
+        <link rel="preload" as="image" href="/images/tech-stack-tiles.svg" fetchpriority="high">
+        @if (($page['props']['about']['photo'] ?? null) !== null)
+            <link rel="preload" as="image" href="{{ url('/assets/'.$page['props']['about']['photo']) }}" fetchpriority="high">
+        @endif
     @endif
     <script nonce="{{ app(CspNonce::class)->getValue() }}">
         (function () {
@@ -67,6 +95,10 @@
         <meta property="og:url" content="{{ $ogUrl }}" data-inertia="">
     @endif
     @if ($canonicalUrl)
+        @foreach ($seoAlternates as $seoAlternate)
+            <link rel="alternate" hreflang="{{ $seoAlternate['hreflang'] }}" href="{{ $seoAlternate['href'] }}" data-inertia="">
+        @endforeach
+        <link rel="alternate" hreflang="x-default" href="{{ $canonicalUrl }}" data-inertia="">
         <link rel="canonical" href="{{ $canonicalUrl }}" data-inertia="">
     @endif
     @if ($robots)

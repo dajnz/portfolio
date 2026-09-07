@@ -13,7 +13,10 @@ vi.mock('@inertiajs/vue3', async (importOriginal) => {
 
     // The composable's view of the page is controllable; the real App is
     // still mounted below so the module-level headManager exists.
-    const propsObj = reactive<Record<string, unknown>>({ cspNonce: 'test-nonce' });
+    const propsObj = reactive<Record<string, unknown>>({
+        cspNonce: 'test-nonce',
+        supported_locales: ['en', 'ru'],
+    });
     __seoState.propsObj = propsObj;
 
     return { ...actual, usePage: () => reactive({ props: computed(() => propsObj) }) };
@@ -72,6 +75,14 @@ function setSeo(seo: SeoProps | null): void {
     }
 }
 
+function setLocales(locales: string[]): void {
+    if (__seoState.propsObj === null) {
+        throw new Error('usePage mock not initialized');
+    }
+
+    __seoState.propsObj.supported_locales = locales;
+}
+
 describe('useSeoUpdater', () => {
     beforeEach(() => {
         document.head.innerHTML = '';
@@ -105,6 +116,58 @@ describe('useSeoUpdater', () => {
         expect(document.querySelector('meta[name="robots"]')?.getAttribute('content')).toBe(
             'noindex',
         );
+
+        wrapper.unmount();
+    });
+
+    it('renders the locale-prefixed hreflang alternates and the x-default from the canonical URL', async () => {
+        const wrapper = mountApp();
+        setSeo({ title: 'T', description: 'D', canonical_url: 'https://example.com/blog/hello' });
+        await waitForHead(() => document.querySelectorAll('link[rel="alternate"][hreflang]').length === 3);
+
+        const alternates = [...document.querySelectorAll('link[rel="alternate"][hreflang]')].map(
+            (link) => ({ hreflang: link.getAttribute('hreflang'), href: link.getAttribute('href') }),
+        );
+
+        expect(alternates).toEqual([
+            { hreflang: 'en', href: 'https://example.com/en/blog/hello' },
+            { hreflang: 'ru', href: 'https://example.com/ru/blog/hello' },
+            { hreflang: 'x-default', href: 'https://example.com/blog/hello' },
+        ]);
+        expect(document.querySelector('link[rel="canonical"]')?.getAttribute('href')).toBe(
+            'https://example.com/blog/hello',
+        );
+
+        wrapper.unmount();
+    });
+
+    it('maps the root canonical to slashless locale prefixes', async () => {
+        const wrapper = mountApp();
+        setSeo({ title: 'T', description: 'D', canonical_url: 'https://example.com/' });
+        await waitForHead(() => document.querySelectorAll('link[rel="alternate"][hreflang]').length === 3);
+
+        const hrefs = [...document.querySelectorAll('link[rel="alternate"][hreflang]')].map(
+            (link) => link.getAttribute('href'),
+        );
+
+        expect(hrefs).toEqual([
+            'https://example.com/en',
+            'https://example.com/ru',
+            'https://example.com/',
+        ]);
+
+        wrapper.unmount();
+    });
+
+    it('renders only the x-default when no locales are active', async () => {
+        const wrapper = mountApp();
+        setLocales([]);
+        setSeo({ title: 'T', description: 'D', canonical_url: 'https://example.com/projects' });
+        await waitForHead(() => document.querySelectorAll('link[rel="alternate"][hreflang]').length === 1);
+
+        const alternate = document.querySelector('link[rel="alternate"][hreflang]');
+        expect(alternate?.getAttribute('hreflang')).toBe('x-default');
+        expect(alternate?.getAttribute('href')).toBe('https://example.com/projects');
 
         wrapper.unmount();
     });
