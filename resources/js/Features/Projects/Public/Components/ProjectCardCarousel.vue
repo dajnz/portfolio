@@ -44,7 +44,7 @@ const activeScreenshot = computed(() => props.screenshots[0] ?? null);
         :alt="activeScreenshot?.alt_text ?? ''"
         width="800"
         height="450"
-        loading="lazy"
+        fetchpriority="high"
       >
       <HorizontalCarousel
         v-else
@@ -57,13 +57,14 @@ const activeScreenshot = computed(() => props.screenshots[0] ?? null);
         compact_dots
         :test_id="`${props.test_id}-carousel`"
       >
-        <template #default="{ item }">
+        <template #default="{ item, index }">
           <img
             :src="(item as ScreenshotView).image_url"
             :alt="(item as ScreenshotView).alt_text"
             width="800"
             height="450"
-            loading="lazy"
+            :loading="index === 0 ? undefined : 'lazy'"
+            :fetchpriority="index === 0 ? 'high' : undefined"
           >
         </template>
       </HorizontalCarousel>
