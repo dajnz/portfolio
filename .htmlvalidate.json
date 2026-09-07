@@ -1,11 +1,18 @@
 {
-    "extends": ["html-validate:recommended"],
+    "extends": [
+        "html-validate:recommended"
+    ],
     "rules": {
-        "no-unknown-elements": [
-            "error",
-            { "pattern": "^[a-z][a-z0-9-]*$" }
-        ],
         "no-unknown-attributes": "off",
-        "no-inline-style": "off"
+        "no-inline-style": "off",
+        "no-trailing-whitespace": "off",
+        "attribute-empty-style": "off",
+        "element-permitted-content": "error",
+        "attribute-boolean-style": [
+            "error",
+            {
+                "style": "empty"
+            }
+        ]
     }
 }
