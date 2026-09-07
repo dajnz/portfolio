@@ -290,7 +290,7 @@ describe('LandingPage', () => {
         await flush();
 
         const card = wrapper.get('[data-testid="landing-featured-section-card-1"]');
-        expect(card.attributes('href')).toBe('/projects/ledger');
+        expect(card.get('a.project-card__link').attributes('href')).toBe('/projects/ledger');
         expect(card.get('h3').text()).toBe('Ledger');
         expect(card.get('img').attributes('src')).toBe('/assets/projects/ledger.jpg');
         expect(card.get('img').attributes('loading')).toBe('lazy');

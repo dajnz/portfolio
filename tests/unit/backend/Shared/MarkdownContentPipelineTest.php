@@ -74,7 +74,7 @@ describe('MarkdownContentPipeline', function (): void {
             .'> [!TRADEOFF] Tradeoff'.PHP_EOL.'> A tradeoff body.'
         );
 
-        expect($html)->toContain('<aside class="callout callout--warning" data-callout-type="warning">')
+        expect($html)->toContain('<aside role="note" class="callout callout--warning" data-callout-type="warning">')
             ->and($html)->toContain('<div class="callout__title">Watch out</div>')
             ->and($html)->toContain('<div class="callout__content"><p>This is a warning.</p></div>')
             ->and($html)->toContain('data-callout-type="tip"')

@@ -47,6 +47,13 @@ final class BackupModel extends Model
         'assets_size_bytes',
         'status',
         'encryption_key_id',
+        // `created_at` must be fillable: the mapper serializes the
+        // entity's own `created_at` (the row's `completed_at` shares its
+        // instant — an import creates a completed row in one go), and an
+        // Eloquent auto-stamp could land a second later, violating the
+        // `BackupTimings` invariant (completion must not precede
+        // creation).
+        'created_at',
         'completed_at',
     ];
 

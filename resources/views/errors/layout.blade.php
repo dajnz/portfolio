@@ -248,18 +248,18 @@
     </style>
 </head>
 <body>
-<main class="error-page" data-component="error-page" data-status="{{ $status }}">
+<main class="error-page" data-component="error-page" data-status="{{ $status }}" data-testid="error-page">
     <div class="gradient-hero__yellow-blue" aria-hidden="true"></div>
     <div class="gradient-hero__red" aria-hidden="true"></div>
 
     <div class="error-page__panel">
-        <p class="error-page__code">{{ $status }}</p>
+        <p class="error-page__code" data-testid="error-page-code">{{ $status }}</p>
         <p class="error-page__message">{{ $message }}</p>
         @if ($requestId)
             <p class="error-page__reference">{{ __('errors.reference_id', ['request_id' => $requestId]) }}</p>
         @endif
         <div class="error-page__action">
-            <a class="btn btn--primary btn--lg" href="{{ url('/') }}">{{ __('errors.back_home') }}</a>
+            <a class="btn btn--primary btn--lg" href="{{ url('/') }}" data-testid="error-page-home">{{ __('errors.back_home') }}</a>
         </div>
     </div>
 </main>

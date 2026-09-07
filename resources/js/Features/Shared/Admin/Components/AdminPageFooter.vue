@@ -35,7 +35,7 @@ function copyrightText(): string {
   >
     <AdminCenteredContainer size="xl">
       <div class="flex items-center justify-center gap-2 h-14">
-        <p class="text-sm text-slate-400 dark:text-slate-500">
+        <p class="text-sm text-slate-500 dark:text-slate-400">
           {{ copyrightText() }}
         </p>
         <slot />

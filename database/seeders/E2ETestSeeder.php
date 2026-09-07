@@ -5,20 +5,24 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Features\Auth\Infra\Models\AdminModel;
+use App\Features\Portfolio\Infra\Models\AboutInfoModel;
+use App\Features\Portfolio\Infra\Models\AboutInfoTranslationModel;
 use App\Features\Resume\Infra\Models\ResumeConfigModel;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * E2E test seeder (testing.md:550-552, authentication.md:427) — the sole
+ * E2E test seeder (testing.md:550-553, authentication.md:427) — the sole
  * exception to the "no seeder creates admin credentials" rule. Idempotent:
  * truncates every table (`TRUNCATE ... RESTART IDENTITY CASCADE`) before
  * inserting, so a fresh DB and a re-run produce identical state.
  *
  * Playwright's `global-setup.ts` is the only caller (CI + local e2e). The
- * seeder refuses to run in production. Demo content (articles, projects,
- * skills, experience items) extends this class in the feature steps
- * (4.x-8.x) — this step seeds the admin account and the shared lookups.
+ * seeder refuses to run in production. Besides the admin account, the
+ * shared lookups, the single-row entities and the bilingual about block,
+ * it delegates the demo dataset (skills, tags, articles, projects,
+ * experience, contacts) to {@see E2EDemoContentSeeder} — the canonical
+ * fixtures the e2e suites assert on (added in step 13.2).
  */
 final class E2ETestSeeder extends Seeder
 {
@@ -63,12 +67,15 @@ final class E2ETestSeeder extends Seeder
         $this->seedSingleRowEntities();
 
         $this->seedAdmin();
+
+        $this->call(E2EDemoContentSeeder::class);
     }
 
     /**
      * The single-row configuration entities per database.md:597: the
      * resume_config (id = 1, `mode = 'manual'` matching the column
-     * default, the default layout JSON, no translations).
+     * default, the default layout JSON, no translations) and the
+     * about_info row (id = 1) with its bilingual translations.
      */
     private function seedSingleRowEntities(): void
     {
@@ -86,6 +93,54 @@ final class E2ETestSeeder extends Seeder
                 ],
             ],
             'custom_resume_file' => null,
+        ]);
+
+        AboutInfoModel::query()->create([
+            'id' => 1,
+            'photo' => null,
+            'photo_alt' => null,
+            'show_location' => true,
+            'timezone' => 'Europe/Berlin',
+            'relocation_readiness' => true,
+            'availability_status' => 'available',
+            'work_type' => 'hybrid',
+            'resume_file' => null,
+        ]);
+
+        AboutInfoTranslationModel::query()->insert([
+            [
+                'about_info_id' => 1,
+                'locale' => 'en',
+                'name' => 'Alex Kovalev',
+                'title' => 'Full-Stack Developer',
+                'short_pitch' => 'I craft fast, accessible web applications end to end.',
+                'location' => 'Berlin',
+            ],
+            [
+                'about_info_id' => 1,
+                'locale' => 'ru',
+                'name' => 'Алекс Ковалев',
+                'title' => 'Фулстек-разработчик',
+                'short_pitch' => 'Я создаю быстрые и доступные веб-приложения.',
+                'location' => 'Берлин',
+            ],
+        ]);
+    }
+
+    /**
+     * The known-credentials admin account (authentication.md:427) —
+     * the password is bcrypt-hashed by the model's `hashed` cast.
+     */
+    private function seedAdmin(): void
+    {
+        AdminModel::query()->create([
+            'name' => self::ADMIN_LOGIN,
+            'login' => self::ADMIN_LOGIN,
+            'email' => self::ADMIN_EMAIL,
+            'password' => self::ADMIN_PASSWORD,
+            'totp_enabled' => false,
+            'totp_failed_attempts' => 0,
+            'session_version' => 0,
         ]);
     }
 
@@ -117,18 +172,5 @@ final class E2ETestSeeder extends Seeder
         }
 
         DB::statement('TRUNCATE TABLE '.implode(', ', $names).' RESTART IDENTITY CASCADE');
-    }
-
-    private function seedAdmin(): void
-    {
-        AdminModel::query()->create([
-            'name' => self::ADMIN_LOGIN,
-            'login' => self::ADMIN_LOGIN,
-            'email' => self::ADMIN_EMAIL,
-            'password' => self::ADMIN_PASSWORD,
-            'totp_enabled' => false,
-            'totp_failed_attempts' => 0,
-            'session_version' => 0,
-        ]);
     }
 }

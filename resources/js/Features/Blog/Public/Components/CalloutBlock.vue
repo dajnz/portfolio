@@ -42,6 +42,7 @@ const headingLabel = computed(() =>
 
 <template>
   <aside
+    role="note"
     class="callout"
     :class="`callout--${props.type}`"
     :data-callout-type="props.type"

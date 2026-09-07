@@ -44,7 +44,7 @@ final class CalloutBlockRenderer implements NodeRendererInterface
             ? ''
             : '<div class="callout__title">'.$this->renderTitle($node, $childRenderer).'</div>';
 
-        return '<aside class="callout callout--'.$node->toType().'" data-callout-type="'.$node->toType().'">'
+        return '<aside role="note" class="callout callout--'.$node->toType().'" data-callout-type="'.$node->toType().'">'
             .$titleHtml
             .'<div class="callout__content">'.$childRenderer->renderNodes($node->children()).'</div>'
             .'</aside>';

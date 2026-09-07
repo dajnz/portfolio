@@ -73,7 +73,7 @@ const wideGridClass = computed(() => (props.columns === 4 ? 'xl:grid-cols-4' : '
         />
       </template>
       <template v-else>
-        <div class="mb-1 text-2xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+        <div class="mb-1 text-2xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
           {{ stat.label }}
         </div>
         <div class="text-2xl font-extrabold text-slate-900 dark:text-white">

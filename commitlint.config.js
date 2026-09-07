@@ -18,6 +18,7 @@ export default {
                 'ci',
                 'deps',
                 'devops',
+                'e2e',
                 'docker',
                 'experience',
                 'experience-admin',
