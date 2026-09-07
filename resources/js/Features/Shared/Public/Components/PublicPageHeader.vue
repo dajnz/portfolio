@@ -91,6 +91,8 @@ function isActive(item: NavItem): boolean {
           class="header__logo-image"
           :src="logoImage"
           :alt="props.logo_text ?? ''"
+          width="83"
+          height="22"
           data-testid="public-header-logo-image"
         >
       </a>

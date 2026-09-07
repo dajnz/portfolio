@@ -158,6 +158,13 @@ describe('MarkdownContentPipeline', function (): void {
             ->and($html)->toContain('<h3 id="reshenie-problemy">');
     });
 
+    it('marks every Markdown image loading="lazy" (architecture.md below-fold rule)', function (): void {
+        $html = pipeline()->render('![Scheme](/assets/blog/scheme.webp) text ![Second](/assets/blog/two.png)');
+
+        expect($html)->toContain('<img loading="lazy" src="/assets/blog/scheme.webp" alt="Scheme" />')
+            ->and($html)->toContain('<img loading="lazy" src="/assets/blog/two.png" alt="Second" />');
+    });
+
     it('keys the cache by id/locale/content hash', function (): void {
         $key = 'article:html:7:en:'.substr(hash('xxh128', '# Title'), 0, 16);
 
