@@ -4,12 +4,40 @@ FROM php:8.5-cli-alpine
 # own downloads are glibc builds that cannot run on this musl image (the
 # kernel fails exec with ENOENT). The e2e harness launches it via
 # PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH (tests/e2e/playwright.config.ts).
+#
+# redis and xdebug are built from PINNED GitHub release tarballs (6.3.0 /
+# 3.5.3) instead of `pecl install`: the pecl.php.net channel/CDN is flaky
+# and intermittently fails builds with "No releases available for package
+# pecl.php.net/redis". Pinning also makes image builds deterministic (the
+# versions match what the previous pecl-based build resolved).
 RUN apk add --no-cache \
         $PHPIZE_DEPS \
+        curl \
         postgresql-dev libzip-dev icu-dev libpng-dev libjpeg-turbo-dev libwebp-dev libavif-dev freetype-dev libxml2-dev oniguruma-dev \
         git openssh unzip bash jq nodejs npm age linux-headers \
         chromium fontconfig ttf-dejavu \
-    && pecl install redis xdebug \
+    && mkdir -p /tmp/build/redis \
+    && curl -fsSL -o /tmp/build/redis.tar.gz \
+        https://github.com/phpredis/phpredis/archive/refs/tags/6.3.0.tar.gz \
+    && tar -xzf /tmp/build/redis.tar.gz -C /tmp/build/redis --strip-components=1 \
+    && cd /tmp/build/redis \
+    && phpize \
+    && ./configure \
+    && make -j"$(nproc)" \
+    && make install \
+    && cd / \
+    && rm -rf /tmp/build/redis /tmp/build/redis.tar.gz \
+    && mkdir -p /tmp/build/xdebug \
+    && curl -fsSL -o /tmp/build/xdebug.tar.gz \
+        https://github.com/xdebug/xdebug/archive/refs/tags/3.5.3.tar.gz \
+    && tar -xzf /tmp/build/xdebug.tar.gz -C /tmp/build/xdebug --strip-components=1 \
+    && cd /tmp/build/xdebug \
+    && phpize \
+    && ./configure \
+    && make -j"$(nproc)" \
+    && make install \
+    && cd / \
+    && rm -rf /tmp/build \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-avif \
     && docker-php-ext-install pdo pdo_pgsql mbstring xml zip bcmath intl gd exif pcntl \
     && docker-php-ext-enable redis xdebug
