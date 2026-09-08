@@ -9,6 +9,12 @@ services:
     build:
       context: .
       dockerfile: devops/docker/php/Dockerfile
+      args:
+        # Containers that touch the bind-mounted repo run as the host user
+        # (see the Dockerfiles). Compose resolves these from the environment
+        # (make exports `id -u`/`id -g`) or from .env; default 1000.
+        HOST_UID: ${HOST_UID:-1000}
+        HOST_GID: ${HOST_GID:-1000}
     restart: unless-stopped
     logging: *default-logging
     volumes:
@@ -85,11 +91,15 @@ services:
     build:
       context: .
       dockerfile: devops/docker/php/Dockerfile
-    # Run as uid 1000 (the `portfolio` user / host user / php-fpm pool user,
-    # B42) — the queue worker logs info events to the shared bind-mounted
-    # storage/logs; running as root created root-owned daily log files that
-    # php-fpm (uid 1000) could not append to (500s on login — B171).
-    user: "1000:1000"
+      args:
+        HOST_UID: ${HOST_UID:-1000}
+        HOST_GID: ${HOST_GID:-1000}
+    # Run as the host user (the `portfolio` user in the image / host user /
+    # php-fpm pool user, B42) — the queue worker logs info events to the
+    # shared bind-mounted storage/logs; running as root created root-owned
+    # daily log files that php-fpm (the host uid) could not append to
+    # (500s on login — B171).
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     command: php artisan queue:work --tries=3
     volumes:
       - .:/var/www/html
@@ -109,9 +119,12 @@ services:
     build:
       context: .
       dockerfile: devops/docker/php/Dockerfile
+      args:
+        HOST_UID: ${HOST_UID:-1000}
+        HOST_GID: ${HOST_GID:-1000}
     # Same uid rationale as the queue service (B171): scheduled commands
     # (backup:create etc.) log info events to the shared storage/logs.
-    user: "1000:1000"
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     command: php artisan schedule:work
     volumes:
       - .:/var/www/html
@@ -162,6 +175,9 @@ services:
     build:
       context: .
       dockerfile: devops/docker/dev/Dockerfile
+      args:
+        HOST_UID: ${HOST_UID:-1000}
+        HOST_GID: ${HOST_GID:-1000}
     ports:
       - "5173:5173"          # Vite dev server / HMR (npm run dev)
       - "3000:3000"          # Inertia SSR dev server (npm run ssr:dev) — app reaches it via INERTIA_SSR_URL
