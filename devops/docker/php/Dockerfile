@@ -1,8 +1,14 @@
 # Stage 1: Build dependencies and optimize
 FROM php:8.5-fpm-alpine AS build
 
+# redis is built from a PINNED GitHub release tarball (6.3.0) instead of
+# `pecl install redis`: the pecl.php.net channel/CDN is flaky and
+# intermittently fails builds with "No releases available for package
+# pecl.php.net/redis". Pinning also makes image builds deterministic (the
+# version matches what the previous pecl-based build resolved).
 RUN apk add --no-cache \
         $PHPIZE_DEPS \
+        curl \
         fcgi \
         procps \
         postgresql-dev \
@@ -15,7 +21,17 @@ RUN apk add --no-cache \
         freetype-dev \
         libxml2-dev \
         oniguruma-dev \
-    && pecl install redis \
+    && mkdir -p /tmp/build/redis \
+    && curl -fsSL -o /tmp/build/redis.tar.gz \
+        https://github.com/phpredis/phpredis/archive/refs/tags/6.3.0.tar.gz \
+    && tar -xzf /tmp/build/redis.tar.gz -C /tmp/build/redis --strip-components=1 \
+    && cd /tmp/build/redis \
+    && phpize \
+    && ./configure \
+    && make -j"$(nproc)" \
+    && make install \
+    && cd / \
+    && rm -rf /tmp/build \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-avif \
     && docker-php-ext-install \
         pdo pdo_pgsql mbstring xml zip bcmath intl gd exif pcntl \
@@ -45,6 +61,7 @@ ARG HOST_GID=1000
 
 RUN apk add --no-cache \
         $PHPIZE_DEPS \
+        curl \
         fcgi \
         procps \
         postgresql-dev \
@@ -57,7 +74,17 @@ RUN apk add --no-cache \
         freetype-dev \
         libxml2-dev \
         oniguruma-dev \
-    && pecl install redis \
+    && mkdir -p /tmp/build/redis \
+    && curl -fsSL -o /tmp/build/redis.tar.gz \
+        https://github.com/phpredis/phpredis/archive/refs/tags/6.3.0.tar.gz \
+    && tar -xzf /tmp/build/redis.tar.gz -C /tmp/build/redis --strip-components=1 \
+    && cd /tmp/build/redis \
+    && phpize \
+    && ./configure \
+    && make -j"$(nproc)" \
+    && make install \
+    && cd / \
+    && rm -rf /tmp/build \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-avif \
     && docker-php-ext-install \
         pdo pdo_pgsql mbstring xml zip bcmath intl gd exif pcntl \
