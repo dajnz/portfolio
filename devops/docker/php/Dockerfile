@@ -35,6 +35,14 @@ RUN rm -f bootstrap/cache/packages.php bootstrap/cache/services.php \
 # Stage 2: Production runtime — only built artifacts
 FROM php:8.5-fpm-alpine
 
+# The fpm pool runs as the host user (dev: bind-mounted storage/ writes;
+# prod: internal uid — builds pass no args and default to 1000, keeping the
+# baked artifacts' ownership consistent). Overridden via HOST_UID/HOST_GID
+# build args (docker-compose.yml), required on hosts whose user is not
+# uid 1000 (e.g. a VM).
+ARG HOST_UID=1000
+ARG HOST_GID=1000
+
 RUN apk add --no-cache \
         $PHPIZE_DEPS \
         fcgi \
@@ -54,7 +62,8 @@ RUN apk add --no-cache \
     && docker-php-ext-install \
         pdo pdo_pgsql mbstring xml zip bcmath intl gd exif pcntl \
     && docker-php-ext-enable redis
-RUN adduser -D -u 1000 portfolio \
+RUN addgroup -g ${HOST_GID} portfolio \
+    && adduser -D -u ${HOST_UID} -G portfolio portfolio \
     && sed -i 's/^user = .*/user = portfolio/; s/^group = .*/group = portfolio/' /usr/local/etc/php-fpm.d/www.conf
 WORKDIR /var/www/html
 COPY --from=build --chown=portfolio:portfolio /var/www/html .

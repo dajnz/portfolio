@@ -19,16 +19,23 @@ ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY devops/docker/dev/xdebug.ini /usr/local/etc/php/conf.d/
 COPY devops/docker/dev/php.ini /usr/local/etc/php/conf.d/
-RUN adduser -D -u 1000 portfolio
+# The container runs as the host user so npm/composer/artisan artifacts keep
+# the host's ownership on the bind-mounted repo. The uid/gid default to 1000
+# and are overridden via the HOST_UID/HOST_GID build args (compose
+# interpolates them from the environment/.env — see docker-compose.yml) —
+# required on hosts whose user is not uid 1000 (e.g. a VM), where a baked
+# uid 1000 cannot write the bind mount.
+ARG HOST_UID=1000
+ARG HOST_GID=1000
+RUN addgroup -g ${HOST_GID} portfolio \
+    && adduser -D -u ${HOST_UID} -G portfolio portfolio
 # Git runs as the container user, but the bind-mounted repo is owned by the
-# host user (uid 1000) — without this, git refuses the repo ("dubious
-# ownership"), which breaks `make commitlint` inside the dev container. The
-# SYSTEM config covers both the root build-time user and the runtime
-# portfolio user (the container now defaults to it).
+# host user — without this, git refuses the repo ("dubious ownership"),
+# which breaks `make commitlint` inside the dev container. The SYSTEM config
+# covers both the root build-time user and the runtime portfolio user (the
+# container now defaults to it).
 RUN git config --system --add safe.directory /var/www/html
 WORKDIR /var/www/html
-# The dev container runs as the local user (uid 1000 = the host user) so
-# npm/composer/artisan artifacts keep the host's ownership; use
-# `docker compose exec -u root dev <cmd>` for root operations.
+# Use `docker compose exec -u root dev <cmd>` for root operations.
 USER portfolio
 CMD ["sleep", "infinity"]
