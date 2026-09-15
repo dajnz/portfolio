@@ -39,13 +39,21 @@ define create-rustfs-buckets
 	docker run --rm --network portfolio_dev -e MC_HOST_local $(MC) admin policy attach local readwrite --user "$${BACKUP_KEY}" || true
 endef
 
+# .env stores each mode-dependent variable twice — the active value and the
+# other mode's value commented (localhost is the default; see .env.example).
+# The mode entry points rewrite the pairs via this script, so switching
+# between the localhost and TLS dev modes is a single command.
+ENV_MODE = ./devops/scripts/switch-env-mode.sh
+
 up: ## Start dev containers (TLS mode — requires Traefik + DNS)
+	@$(ENV_MODE) tls
 	$(DC) up -d
 
 down: ## Stop and remove containers
 	$(DC) down
 
 up-localhost: ## Start dev containers in localhost mode (no Traefik — http://localhost:8888)
+	@$(ENV_MODE) localhost
 	$(DC_LOCALHOST) up -d
 
 down-localhost: ## Stop and remove localhost mode containers
@@ -127,6 +135,7 @@ switch-dev: ## Switch the portfolio back to development mode (APP_ENV=local/APP_
 
 setup: ## First-run setup: env, build, wait for healthy, install, migrate, admin
 	cp -n .env.example .env || true
+	@$(ENV_MODE) tls
 	$(DC) build
 	$(DC) up -d
 	@echo "Waiting for all services to become healthy..."
@@ -145,8 +154,7 @@ setup: ## First-run setup: env, build, wait for healthy, install, migrate, admin
 
 setup-localhost: ## First-run setup in localhost mode (no Traefik required)
 	cp -n .env.example .env || true
-	@# Override APP_URL for localhost mode
-	sed -i 's|^APP_URL=.*|APP_URL=http://localhost:8888|' .env
+	@$(ENV_MODE) localhost
 	$(DC_LOCALHOST) build
 	$(DC_LOCALHOST) up -d
 	@echo "Waiting for all services to become healthy..."
