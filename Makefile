@@ -139,18 +139,27 @@ setup: ## First-run setup: env, build, wait for healthy, install, migrate, admin
 	$(DC) build
 	$(DC) up -d
 	@echo "Waiting for all services to become healthy..."
-	@while [ $$($(DC) ps -q --filter "health=starting" | wc -l) -gt 0 ]; do \
+	@while [ $$($(DC) ps --format '{{.Health}}' | grep -c '^starting$$') -gt 0 ]; do \
 		sleep 3; \
 	done
 	@echo "All services healthy:"
 	@$(DC) ps -a --format 'table {{.Name}}\t{{.Status}}'
 	$(DE) composer install
 	$(DE) npm ci
+	$(DE) npm run build
 	$(DE) php artisan key:generate
 	$(DE) php artisan migrate
 	$(DE) php artisan admin:create
 	$(create-rustfs-buckets)
+	$(DE) php artisan db:seed
 	$(DE) php artisan backup:generate-key --name "initial"
+	@echo "Waiting for services to settle..."
+	@i=0; \
+	while [ "$$i" -lt 20 ] && [ "$$($(DC) ps --format '{{.Health}}' | grep -cE '^(unhealthy|starting)$$')" -gt 0 ]; do \
+		sleep 3; \
+		i=$$((i + 1)); \
+	done
+	@$(DC) ps -a --format 'table {{.Name}}\t{{.Status}}'
 
 setup-localhost: ## First-run setup in localhost mode (no Traefik required)
 	cp -n .env.example .env || true
@@ -158,18 +167,27 @@ setup-localhost: ## First-run setup in localhost mode (no Traefik required)
 	$(DC_LOCALHOST) build
 	$(DC_LOCALHOST) up -d
 	@echo "Waiting for all services to become healthy..."
-	@while [ $$($(DC_LOCALHOST) ps -q --filter "health=starting" | wc -l) -gt 0 ]; do \
+	@while [ $$($(DC_LOCALHOST) ps --format '{{.Health}}' | grep -c '^starting$$') -gt 0 ]; do \
 		sleep 3; \
 	done
 	@echo "All services healthy:"
 	@$(DC_LOCALHOST) ps -a --format 'table {{.Name}}\t{{.Status}}'
 	$(DE_LOCALHOST) composer install
 	$(DE_LOCALHOST) npm ci
+	$(DE_LOCALHOST) npm run build
 	$(DE_LOCALHOST) php artisan key:generate
 	$(DE_LOCALHOST) php artisan migrate
 	$(DE_LOCALHOST) php artisan admin:create
 	$(create-rustfs-buckets)
+	$(DE_LOCALHOST) php artisan db:seed
 	$(DE_LOCALHOST) php artisan backup:generate-key --name "initial"
+	@echo "Waiting for services to settle..."
+	@i=0; \
+	while [ "$$i" -lt 20 ] && [ "$$($(DC_LOCALHOST) ps --format '{{.Health}}' | grep -cE '^(unhealthy|starting)$$')" -gt 0 ]; do \
+		sleep 3; \
+		i=$$((i + 1)); \
+	done
+	@$(DC_LOCALHOST) ps -a --format 'table {{.Name}}\t{{.Status}}'
 
 test: ## Run all test suites except e2e (backend + frontend)
 	$(DE) env XDEBUG_MODE=off php artisan test --parallel --recreate-databases --drop-databases --processes=8
