@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup setup-localhost admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup test-db admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -133,43 +133,52 @@ switch-dev: ## Switch the portfolio back to development mode (APP_ENV=local/APP_
 	$(restart-persistent-services)
 	@echo "Development mode: APP_ENV=local, APP_DEBUG=true, caches cleared."
 
-setup: ## First-run setup: env, build, wait for healthy, install, migrate, admin
-	cp -n .env.example .env || true
-	@$(ENV_MODE) tls
-	$(DC) build
-	$(DC) up -d
-	@echo "Waiting for all services to become healthy..."
-	@while [ $$($(DC) ps -q --filter "health=starting" | wc -l) -gt 0 ]; do \
-		sleep 3; \
-	done
-	@echo "All services healthy:"
-	@$(DC) ps -a --format 'table {{.Name}}\t{{.Status}}'
-	$(DE) composer install
-	$(DE) npm ci
-	$(DE) php artisan key:generate
-	$(DE) php artisan migrate
-	$(DE) php artisan admin:create
-	$(create-rustfs-buckets)
-	$(DE) php artisan backup:generate-key --name "initial"
-
-setup-localhost: ## First-run setup in localhost mode (no Traefik required)
+# Initial setup always provisions the localhost environment (no Traefik/DNS
+# required); switch to TLS mode later with `make up` (see devops.md).
+setup: ## First-run setup (localhost mode; switch to TLS later with `make up`)
 	cp -n .env.example .env || true
 	@$(ENV_MODE) localhost
 	$(DC_LOCALHOST) build
 	$(DC_LOCALHOST) up -d
 	@echo "Waiting for all services to become healthy..."
-	@while [ $$($(DC_LOCALHOST) ps -q --filter "health=starting" | wc -l) -gt 0 ]; do \
+	@while [ $$($(DC_LOCALHOST) ps --format '{{.Health}}' | grep -c '^starting$$') -gt 0 ]; do \
 		sleep 3; \
 	done
 	@echo "All services healthy:"
 	@$(DC_LOCALHOST) ps -a --format 'table {{.Name}}\t{{.Status}}'
 	$(DE_LOCALHOST) composer install
 	$(DE_LOCALHOST) npm ci
+	$(DE_LOCALHOST) npm run build
 	$(DE_LOCALHOST) php artisan key:generate
 	$(DE_LOCALHOST) php artisan migrate
 	$(DE_LOCALHOST) php artisan admin:create
 	$(create-rustfs-buckets)
+	$(DE_LOCALHOST) php artisan db:seed
 	$(DE_LOCALHOST) php artisan backup:generate-key --name "initial"
+	@echo "Waiting for services to settle..."
+	@i=0; \
+	while [ "$$i" -lt 20 ] && [ "$$($(DC_LOCALHOST) ps --format '{{.Health}}' | grep -cE '^(unhealthy|starting)$$')" -gt 0 ]; do \
+		sleep 3; \
+		i=$$((i + 1)); \
+	done
+	@$(DC_LOCALHOST) ps -a --format 'table {{.Name}}\t{{.Status}}'
+	$(ensure-test-database)
+
+# The backend suites run against the dedicated `portfolio_test` database
+# (phpunit.xml) — the db container only creates the dev database, so ensure
+# it exists first (CI's postgres service creates it via POSTGRES_DB). The
+# parallel runs derive their own `portfolio_test_test_<n>` databases.
+define ensure-test-database
+	@DB_USER="$$(sed -n 's/^DB_USERNAME=//p' .env)"; \
+	EXISTS="$$($(DC) exec -T db psql -U "$$DB_USER" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='portfolio_test'" | tr -d '[:space:]')"; \
+	if [ "$$EXISTS" != "1" ]; then \
+		echo "Creating test database portfolio_test..."; \
+		$(DC) exec -T db createdb -U "$$DB_USER" portfolio_test; \
+	fi
+endef
+
+test-db: ## Create the dedicated backend test database (portfolio_test) if missing
+	$(ensure-test-database)
 
 test: ## Run all test suites except e2e (backend + frontend)
 	$(DE) env XDEBUG_MODE=off php artisan test --parallel --recreate-databases --drop-databases --processes=8
