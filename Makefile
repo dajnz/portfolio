@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup setup-localhost admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -133,35 +133,9 @@ switch-dev: ## Switch the portfolio back to development mode (APP_ENV=local/APP_
 	$(restart-persistent-services)
 	@echo "Development mode: APP_ENV=local, APP_DEBUG=true, caches cleared."
 
-setup: ## First-run setup: env, build, wait for healthy, install, migrate, admin
-	cp -n .env.example .env || true
-	@$(ENV_MODE) tls
-	$(DC) build
-	$(DC) up -d
-	@echo "Waiting for all services to become healthy..."
-	@while [ $$($(DC) ps --format '{{.Health}}' | grep -c '^starting$$') -gt 0 ]; do \
-		sleep 3; \
-	done
-	@echo "All services healthy:"
-	@$(DC) ps -a --format 'table {{.Name}}\t{{.Status}}'
-	$(DE) composer install
-	$(DE) npm ci
-	$(DE) npm run build
-	$(DE) php artisan key:generate
-	$(DE) php artisan migrate
-	$(DE) php artisan admin:create
-	$(create-rustfs-buckets)
-	$(DE) php artisan db:seed
-	$(DE) php artisan backup:generate-key --name "initial"
-	@echo "Waiting for services to settle..."
-	@i=0; \
-	while [ "$$i" -lt 20 ] && [ "$$($(DC) ps --format '{{.Health}}' | grep -cE '^(unhealthy|starting)$$')" -gt 0 ]; do \
-		sleep 3; \
-		i=$$((i + 1)); \
-	done
-	@$(DC) ps -a --format 'table {{.Name}}\t{{.Status}}'
-
-setup-localhost: ## First-run setup in localhost mode (no Traefik required)
+# Initial setup always provisions the localhost environment (no Traefik/DNS
+# required); switch to TLS mode later with `make up` (see devops.md).
+setup: ## First-run setup (localhost mode; switch to TLS later with `make up`)
 	cp -n .env.example .env || true
 	@$(ENV_MODE) localhost
 	$(DC_LOCALHOST) build

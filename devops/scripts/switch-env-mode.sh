@@ -34,7 +34,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ENV_FILE="$ROOT/.env"
 
 if [[ ! -f "$ENV_FILE" ]]; then
-    echo "error: $ENV_FILE not found — run 'make setup' / 'make setup-localhost' first" >&2
+    echo "error: $ENV_FILE not found — run 'make setup' first" >&2
     exit 1
 fi
 
