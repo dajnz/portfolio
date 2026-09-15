@@ -55,8 +55,16 @@ COPY devops/docker/dev/php.ini /usr/local/etc/php/conf.d/
 # uid 1000 cannot write the bind mount.
 ARG HOST_UID=1000
 ARG HOST_GID=1000
+# `.npm`/`.composer` are the mount points of the `npm_cache`/`composer_cache`
+# named volumes (docker-compose.yml). Creating them here, portfolio-owned,
+# means a FIRST-MOUNT EMPTY volume is seeded from the image with the correct
+# ownership — otherwise the empty volume is root-owned and the first
+# non-root `npm ci`/`composer install` dies with EACCES
+# (`mkdir /home/portfolio/.npm/_cacache`).
 RUN addgroup -g ${HOST_GID} portfolio \
-    && adduser -D -u ${HOST_UID} -G portfolio portfolio
+    && adduser -D -u ${HOST_UID} -G portfolio portfolio \
+    && mkdir -p /home/portfolio/.npm /home/portfolio/.composer \
+    && chown portfolio:portfolio /home/portfolio/.npm /home/portfolio/.composer
 # Git runs as the container user, but the bind-mounted repo is owned by the
 # host user — without this, git refuses the repo ("dubious ownership"),
 # which breaks `make commitlint` inside the dev container. The SYSTEM config
