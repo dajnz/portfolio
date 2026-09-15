@@ -13,20 +13,30 @@ export HOST_UID = $(shell id -u)
 export HOST_GID = $(shell id -g)
 
 # The rustfs image does not ship the MinIO `mc` client, so bucket creation
-# runs a one-off minio/mc container on the compose network, using the RustFS
+# runs a one-off MinIO mc container on the compose network, using the RustFS
 # credentials from the project .env (same approach as the CI e2e job).
+# Pinned on quay.io: MinIO removed the `minio/mc` Docker Hub repository
+# (pulls now fail with "access denied" — B335).
+MC = quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
+
 # The `portfolio` bucket gets a public-read ("download") policy — public asset
 # URLs are served same-origin via nginx `/assets/ → rustfs:9000/portfolio/`
 # (assumption A7) and must be anonymously readable. The `backups` bucket
-# stays private (encrypted archives).
+# stays private (encrypted archives) and the app writes it with the separate
+# `RUSTFS_BACKUPS_*` credentials, so that user is provisioned here as well
+# (B308) — created if missing and granted the built-in `readwrite` policy.
 define create-rustfs-buckets
 	@set -e; \
 	KEY="$$(sed -n 's/^RUSTFS_ACCESS_KEY=//p' .env)"; \
 	SECRET="$$(sed -n 's/^RUSTFS_SECRET_KEY=//p' .env)"; \
+	BACKUP_KEY="$$(sed -n 's/^RUSTFS_BACKUPS_ACCESS_KEY=//p' .env)"; \
+	BACKUP_SECRET="$$(sed -n 's/^RUSTFS_BACKUPS_SECRET_KEY=//p' .env)"; \
 	export MC_HOST_local="http://$${KEY}:$${SECRET}@rustfs:9000"; \
-	docker run --rm --network portfolio_dev -e MC_HOST_local minio/mc:latest mb --ignore-existing local/portfolio || true; \
-	docker run --rm --network portfolio_dev -e MC_HOST_local minio/mc:latest mb --ignore-existing local/backups || true; \
-	docker run --rm --network portfolio_dev -e MC_HOST_local minio/mc:latest anonymous set download local/portfolio || true
+	docker run --rm --network portfolio_dev -e MC_HOST_local $(MC) mb --ignore-existing local/portfolio || true; \
+	docker run --rm --network portfolio_dev -e MC_HOST_local $(MC) mb --ignore-existing local/backups || true; \
+	docker run --rm --network portfolio_dev -e MC_HOST_local $(MC) anonymous set download local/portfolio || true; \
+	docker run --rm --network portfolio_dev -e MC_HOST_local $(MC) admin user add local "$${BACKUP_KEY}" "$${BACKUP_SECRET}" || true; \
+	docker run --rm --network portfolio_dev -e MC_HOST_local $(MC) admin policy attach local readwrite --user "$${BACKUP_KEY}" || true
 endef
 
 up: ## Start dev containers (TLS mode — requires Traefik + DNS)

@@ -196,9 +196,9 @@ jobs:
       # Create both RustFS buckets (portfolio + backups) — the e2e suite
       # exercises backup creation/restore, which needs the backups bucket.
       - run: |
-          docker run --rm --network host minio/mc:latest alias set local http://localhost:9000 rustfsadmin rustfsadmin \
-            && docker run --rm --network host minio/mc:latest mb --ignore-existing local/portfolio \
-            && docker run --rm --network host minio/mc:latest mb --ignore-existing local/backups
+          docker run --rm --network host quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z alias set local http://localhost:9000 rustfsadmin rustfsadmin \
+            && docker run --rm --network host quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z mb --ignore-existing local/portfolio \
+            && docker run --rm --network host quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z mb --ignore-existing local/backups
       - run: npm ci
       - run: npm run build -- --mode testing
       - run: npm run ssr:build -- --mode testing
