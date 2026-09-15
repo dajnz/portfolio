@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup test-db admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -162,6 +162,23 @@ setup: ## First-run setup (localhost mode; switch to TLS later with `make up`)
 		i=$$((i + 1)); \
 	done
 	@$(DC_LOCALHOST) ps -a --format 'table {{.Name}}\t{{.Status}}'
+	$(ensure-test-database)
+
+# The backend suites run against the dedicated `portfolio_test` database
+# (phpunit.xml) — the db container only creates the dev database, so ensure
+# it exists first (CI's postgres service creates it via POSTGRES_DB). The
+# parallel runs derive their own `portfolio_test_test_<n>` databases.
+define ensure-test-database
+	@DB_USER="$$(sed -n 's/^DB_USERNAME=//p' .env)"; \
+	EXISTS="$$($(DC) exec -T db psql -U "$$DB_USER" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='portfolio_test'" | tr -d '[:space:]')"; \
+	if [ "$$EXISTS" != "1" ]; then \
+		echo "Creating test database portfolio_test..."; \
+		$(DC) exec -T db createdb -U "$$DB_USER" portfolio_test; \
+	fi
+endef
+
+test-db: ## Create the dedicated backend test database (portfolio_test) if missing
+	$(ensure-test-database)
 
 test: ## Run all test suites except e2e (backend + frontend)
 	$(DE) env XDEBUG_MODE=off php artisan test --parallel --recreate-databases --drop-databases --processes=8
