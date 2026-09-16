@@ -25,6 +25,29 @@ test.describe('public layout', () => {
         await expect(page.locator('html')).not.toHaveClass(/dark/);
     });
 
+    // A first visit has no `theme` cookie yet: the server prop is "light"
+    // while the blocking boot script applies the system preference — the
+    // client must trust the document state, or theme-dependent UI (the
+    // header logo, the toggle's label) renders the wrong variant until a
+    // reload.
+    test.describe('dark system preference', () => {
+        test.use({ colorScheme: 'dark' });
+
+        test('renders the dark logo on a first visit without a theme cookie', async ({ page }) => {
+            await page.goto('/');
+
+            await expect(page.locator('html')).toHaveClass(/dark/);
+            await expect(page.getByTestId('public-header-logo-image')).toHaveAttribute(
+                'src',
+                '/images/logo-full-dark.svg',
+            );
+            await expect(page.getByTestId('theme-switch-button')).toHaveAttribute(
+                'aria-label',
+                'Switch to light mode',
+            );
+        });
+    });
+
     test('switches the interface language to Russian and back', async ({ page }) => {
         await page.addInitScript(() => {
             localStorage.setItem('cookies_accepted', '1');
