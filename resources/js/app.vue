@@ -41,10 +41,25 @@ const localeStore = useLocaleStore();
 const authStore = useAuthStore();
 const toastStore = useToastStore();
 
-function hydrateFromPage(page: Page): void {
-    themeStore.hydrate(page.props.theme);
+function hydrateFromPage(page: Page, theme: unknown = page.props.theme): void {
+    themeStore.hydrate(theme);
     localeStore.hydrate(page.props.locale);
     authStore.hydrate(page.props.auth);
+}
+
+// The effective theme at the initial mount. On a first visit the server
+// has no `theme` cookie yet, so the shared prop cannot reflect the system
+// preference — the blocking boot script in app.blade.php resolves it and
+// sets the `dark` class before hydration (i18n-and-theming.md:179). The
+// document state is therefore authoritative on the client; the server
+// (no `document`) falls back to the prop. Inertia visits keep hydrating
+// from the prop.
+function resolveInitialTheme(page: Page): unknown {
+    if (typeof document === 'undefined') {
+        return page.props.theme;
+    }
+
+    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
 }
 
 // Session `notification` flashes (error-handling.md:103-115) are picked
@@ -64,7 +79,7 @@ function showNotification(page: Page): void {
     }
 }
 
-hydrateFromPage(props.page);
+hydrateFromPage(props.page, resolveInitialTheme(props.page));
 
 // useAnalytics is registered exactly once at the app level
 // (analytics.md:45-48); its cleanup tears down the flush interval and
