@@ -211,12 +211,33 @@ final class CleanupOrphanedFilesCommand extends Command
             preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/', $content, $html);
 
             foreach ([...$markdown[1], ...$html[1]] as $path) {
-                if (is_string($path) && $path !== '' && ! str_starts_with($path, 'http')) {
-                    $paths[] = $path;
+                $storagePath = $this->toStoragePath($path);
+
+                if ($storagePath !== null) {
+                    $paths[] = $storagePath;
                 }
             }
         }
 
         return $paths;
+    }
+
+    /**
+     * Normalizes an image reference to its RustFS object key. The admin
+     * editor stores inline images as `/assets/{key}` while direct columns
+     * store the bare `{key}` — both must resolve to the same key so the
+     * cleanup does not delete referenced objects.
+     */
+    private function toStoragePath(mixed $path): ?string
+    {
+        if (! is_string($path) || $path === '' || str_starts_with($path, 'http')) {
+            return null;
+        }
+
+        if (str_starts_with($path, '/assets/')) {
+            return substr($path, strlen('/assets/'));
+        }
+
+        return ltrim($path, '/');
     }
 }

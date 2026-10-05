@@ -55,6 +55,26 @@ describe('CleanupOrphanedFilesCommand', function (): void {
         expect(Storage::disk('rustfs')->exists('blog/markdown/image.png'))->toBeTrue();
     });
 
+    it('resolves /assets-prefixed Markdown image references to their storage keys', function (): void {
+        Storage::disk('rustfs')->put('blog/markdown/editor-image.png', 'x');
+        Storage::disk('rustfs')->put('blog/markdown/orphaned.png', 'y');
+
+        $articleId = DB::table('blog_articles')->insertGetId([
+            'slug' => 'md-assets', 'is_published' => true, 'created_at' => now(), 'updated_at' => now(),
+        ]);
+        DB::table('blog_article_translations')->insert([
+            'article_id' => $articleId, 'locale' => 'en',
+            'title' => 'MD', 'short_description' => 's',
+            'content' => '![alt](/assets/blog/markdown/editor-image.png)',
+            'reading_time_minutes' => 1,
+        ]);
+
+        $this->artisan('app:cleanup-orphaned-files')->assertSuccessful();
+
+        expect(Storage::disk('rustfs')->exists('blog/markdown/editor-image.png'))->toBeTrue()
+            ->and(Storage::disk('rustfs')->exists('blog/markdown/orphaned.png'))->toBeFalse();
+    });
+
     it('lists orphans without deleting them with --dry-run', function (): void {
         Storage::disk('rustfs')->put('blog/orphaned.jpg', 'd');
 
