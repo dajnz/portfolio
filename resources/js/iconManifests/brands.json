@@ -1,6 +1,7 @@
 [
     "devicon:amazonwebservices",
     "devicon:ansible",
+    "devicon:bootstrap",
     "devicon:csharp",
     "devicon:css3",
     "devicon:dart",
@@ -30,16 +31,21 @@
     "devicon:php",
     "devicon:postgresql",
     "devicon:python",
+    "devicon:rabbitmq",
     "devicon:react",
     "devicon:redis",
     "devicon:rust",
     "devicon:sass",
+    "devicon:sentry",
     "devicon:sqlite",
     "devicon:swift",
     "devicon:symfony",
     "devicon:tailwindcss",
     "devicon:terraform",
     "devicon:typescript",
+    "devicon:vite",
+    "devicon:vitest",
     "devicon:vscode",
-    "devicon:vuejs"
+    "devicon:vuejs",
+    "devicon:yii"
 ]
