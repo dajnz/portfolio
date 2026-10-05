@@ -127,9 +127,9 @@ describe('DatabaseSeeder', function (): void {
             ->and(FeatureFlagModel::query()->count())->toBe(3)
             ->and(AboutInfoModel::query()->find(1))->not->toBeNull()
             ->and(ResumeConfigModel::query()->find(1))->not->toBeNull()
-            ->and(ArticleModel::query()->count())->toBe(4)
-            ->and(ProjectModel::query()->count())->toBe(4)
-            ->and(SkillGroupModel::query()->count())->toBe(3);
+            ->and(ArticleModel::query()->count())->toBe(16)
+            ->and(ProjectModel::query()->count())->toBe(16)
+            ->and(SkillGroupModel::query()->count())->toBe(6);
     });
 
     it('seeds the demo landing profile without a photo under tests', function (): void {
@@ -160,9 +160,9 @@ describe('DatabaseSeeder', function (): void {
         $this->seed();
         $this->seed();
 
-        expect(ArticleModel::query()->count())->toBe(4)
-            ->and(ProjectModel::query()->count())->toBe(4)
-            ->and(SkillGroupModel::query()->count())->toBe(3)
+        expect(ArticleModel::query()->count())->toBe(16)
+            ->and(ProjectModel::query()->count())->toBe(16)
+            ->and(SkillGroupModel::query()->count())->toBe(6)
             ->and(AboutInfoModel::query()->count())->toBe(1)
             ->and(ResumeConfigModel::query()->count())->toBe(1)
             ->and(DB::table('about_info_translations')->where('about_info_id', 1)->count())->toBe(2);

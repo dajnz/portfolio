@@ -23,14 +23,16 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The canonical demo dataset for the e2e suites (testing.md:553 — the
- * E2ETestSeeder delegate; added in step 13.2): three skill groups with
- * seven skills, two article tags, three published blog articles spread
- * over two years (plus a draft and a trashed row), three published
- * projects (two featured, one with engineering detail items), three
- * experience items (one current) and three contacts. Every content row
- * is fully translated into `en` and `ru`, so the public pages render
- * both locales.
+ * The lean, deterministic e2e fixture dataset (testing.md:553 — the
+ * E2ETestSeeder delegate; added in step 13.2). The richer dev dataset
+ * lives in {@see DemoContentSeeder}; this one keeps the exact row
+ * counts, order and slugs the Playwright suites assert on: three skill
+ * groups with seven skills, two article tags, three published blog
+ * articles spread over two years (plus a draft and a trashed row),
+ * three published projects (two featured, one with engineering detail
+ * items), three experience items (one current) and three contacts.
+ * Every content row is fully translated into `en` and `ru`, so the
+ * public pages render both locales.
  *
  * The large content literals live in the `ARTICLES`, `PROJECTS` and
  * `EXPERIENCE_ITEMS` constants so the seed methods stay small and
