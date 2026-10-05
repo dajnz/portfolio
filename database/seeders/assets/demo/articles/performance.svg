@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Performance Budget">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#04231d"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1010" cy="120" r="180" fill="#22c55e" opacity="0.35"/>
+  <circle cx="1080" cy="540" r="220" fill="#04231d" opacity="0.4"/>
+  <rect x="70" y="150" width="120" height="10" rx="5" fill="#bbf7d0"/>
+  <text x="70" y="330" fill="#ffffff" font-family="Inter, sans-serif" font-size="62" font-weight="700">Performance Budget</text>
+  <text x="70" y="400" fill="#bbf7d0" font-family="Inter, sans-serif" font-size="28">Keeping the bundle honest</text>
+  <text x="70" y="560" fill="#bbf7d0" font-family="Inter, sans-serif" font-size="20" letter-spacing="4">DEMO CONTENT</text>
+</svg>

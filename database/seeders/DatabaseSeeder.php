@@ -12,8 +12,8 @@ use Illuminate\Database\Seeder;
 /**
  * Seed the application's database (authentication.md:425,
  * database.md:617): composes SettingsSeeder + FeatureFlagSeeder + the
- * single-row entities (via SingleRowEntitySeeder) + the canonical demo
- * content (via E2EDemoContentSeeder). Must never touch the `admins`
+ * single-row entities (via SingleRowEntitySeeder) + the rich bilingual
+ * demo content (via DemoContentSeeder). Must never touch the `admins`
  * table.
  *
  * Idempotent: the settings/flags seeders refresh values, the single-row
@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         if ($this->contentDatabaseIsEmpty()) {
-            $this->call(E2EDemoContentSeeder::class);
+            $this->call(DemoContentSeeder::class);
         }
     }
 

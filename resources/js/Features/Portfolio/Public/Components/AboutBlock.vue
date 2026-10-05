@@ -260,6 +260,7 @@ function handleCta(link: CtaLink): void {
     color: var(--color-text-secondary);
     max-width: 56ch;
     margin-bottom: var(--space-lg);
+    white-space: pre-line;
 }
 
 .about-block__ctas {

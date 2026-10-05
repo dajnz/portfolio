@@ -33,13 +33,13 @@ final class SingleRowEntitySeeder extends Seeder
         'en' => [
             'name' => 'Ivan Ivanov',
             'title' => 'Full-Stack Developer',
-            'short_pitch' => 'I craft fast, accessible web applications end to end — from PostgreSQL-backed Laravel APIs to Vue interfaces that feel instant.',
+            'short_pitch' => "I craft fast, accessible web applications end to end — from PostgreSQL-backed Laravel APIs to Vue interfaces that feel instant.\n\nI care about clean architecture, strict domain boundaries and tests that document behavior, so features ship without regressions.\nAway from the keyboard I write about backend performance, bilingual UX and the tooling that keeps a solo project maintainable.\n\nGlory to the robots!",
             'location' => 'Berlin',
         ],
         'ru' => [
             'name' => 'Иван Иванов',
             'title' => 'Фулстек-разработчик',
-            'short_pitch' => 'Я создаю быстрые и доступные веб-приложения целиком — от API на Laravel и PostgreSQL до интерфейсов на Vue, которые откликаются мгновенно.',
+            'short_pitch' => "Я создаю быстрые и доступные веб-приложения целиком — от API на Laravel и PostgreSQL до интерфейсов на Vue, которые откликаются мгновенно.\n\nЦеню чистую архитектуру, строгие границы домена и тесты, которые документируют поведение, чтобы новые функции выходили без регрессий.\nВне клавиатуры пишу о производительности бэкенда, двуязычном UX и инструментах, которые держат одиночный проект поддерживаемым.\n\nСлава роботам!",
             'location' => 'Берлин',
         ],
     ];

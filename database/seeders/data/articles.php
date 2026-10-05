@@ -1,0 +1,261 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    [
+        'slug' => 'designing-bilingual-content-models',
+        'published_at' => '2026-07-18 09:00:00',
+        'tag' => 'laravel',
+        'skills' => ['Laravel', 'PostgreSQL', 'Redis'],
+        'lead_image' => 'demo/articles/content-model.svg',
+        'en' => [
+            'title' => 'Designing a Bilingual Content Model',
+            'short_description' => 'How to model translations so both locales stay first-class citizens.',
+            'lead_image_alt' => 'Abstract illustration of a bilingual content model',
+        ],
+        'ru' => [
+            'title' => 'Проектируем двуязычную модель контента',
+            'short_description' => 'Как смоделировать переводы, чтобы оба языка оставались полноценными.',
+            'lead_image_alt' => 'Абстрактная иллюстрация двуязычной модели контента',
+        ],
+    ],
+    [
+        'slug' => 'postgres-full-text-search-at-scale',
+        'published_at' => '2026-06-30 08:30:00',
+        'tag' => 'postgresql',
+        'skills' => ['PostgreSQL', 'Redis', 'Laravel'],
+        'lead_image' => 'demo/articles/search.svg',
+        'en' => [
+            'title' => 'Full-Text Search at Scale with PostgreSQL',
+            'short_description' => 'Ranking, highlighting and typo tolerance without a search server.',
+            'lead_image_alt' => 'Abstract illustration of full-text search',
+        ],
+        'ru' => [
+            'title' => 'Полнотекстовый поиск в PostgreSQL',
+            'short_description' => 'Ранжирование, подсветка и устойчивость к опечаткам без поискового сервера.',
+            'lead_image_alt' => 'Абстрактная иллюстрация полнотекстового поиска',
+        ],
+    ],
+    [
+        'slug' => 'keeping-a-vue-performance-budget',
+        'published_at' => '2026-06-12 10:15:00',
+        'tag' => 'vue',
+        'skills' => ['Vue', 'TypeScript', 'Vite'],
+        'lead_image' => 'demo/articles/performance.svg',
+        'en' => [
+            'title' => 'Keeping a Vue Performance Budget',
+            'short_description' => 'A practical budget for bundle size, hydration and rendering cost.',
+            'lead_image_alt' => 'Abstract illustration of a performance budget',
+        ],
+        'ru' => [
+            'title' => 'Бюджет производительности Vue-приложения',
+            'short_description' => 'Практичный бюджет размера бандла, гидратации и стоимости рендеринга.',
+            'lead_image_alt' => 'Абстрактная иллюстрация бюджета производительности',
+        ],
+    ],
+    [
+        'slug' => 'queue-reliability-patterns',
+        'published_at' => '2026-05-24 09:45:00',
+        'tag' => 'php',
+        'skills' => ['PHP', 'Laravel', 'RabbitMQ', 'Redis'],
+        'lead_image' => 'demo/articles/queues.svg',
+        'en' => [
+            'title' => 'Queue Reliability Patterns',
+            'short_description' => 'Retries, backoff, idempotency and the monitoring that catches failures.',
+            'lead_image_alt' => 'Abstract illustration of queue reliability',
+        ],
+        'ru' => [
+            'title' => 'Паттерны надёжных очередей',
+            'short_description' => 'Повторы, отсрочка, идемпотентность и мониторинг, который ловит сбои.',
+            'lead_image_alt' => 'Абстрактная иллюстрация надёжных очередей',
+        ],
+    ],
+    [
+        'slug' => 'testing-domain-logic-without-the-framework',
+        'published_at' => '2026-05-02 11:00:00',
+        'tag' => 'testing',
+        'skills' => ['PHP', 'Laravel', 'PostgreSQL'],
+        'lead_image' => 'demo/articles/testing.svg',
+        'en' => [
+            'title' => 'Testing Domain Logic Without the Framework',
+            'short_description' => 'Fast feedback for the rules that matter, with the framework at the edges.',
+            'lead_image_alt' => 'Abstract illustration of domain testing',
+        ],
+        'ru' => [
+            'title' => 'Тестирование доменной логики без фреймворка',
+            'short_description' => 'Быстрая обратная связь для важных правил, фреймворк — по краям.',
+            'lead_image_alt' => 'Абстрактная иллюстрация тестирования домена',
+        ],
+    ],
+    [
+        'slug' => 'structured-logging-and-observability',
+        'published_at' => '2026-04-15 09:20:00',
+        'tag' => 'devops',
+        'skills' => ['Grafana', 'Sentry', 'PHP', 'Docker'],
+        'lead_image' => 'demo/articles/observability.svg',
+        'en' => [
+            'title' => 'Structured Logging and Observability',
+            'short_description' => 'Turning scattered logs into signals you can actually act on.',
+            'lead_image_alt' => 'Abstract illustration of observability',
+        ],
+        'ru' => [
+            'title' => 'Структурное логирование и наблюдаемость',
+            'short_description' => 'Превращаем разрозненные логи в сигналы, по которым можно действовать.',
+            'lead_image_alt' => 'Абстрактная иллюстрация наблюдаемости',
+        ],
+    ],
+    [
+        'slug' => 'an-ai-assisted-development-workflow',
+        'published_at' => '2026-03-28 12:00:00',
+        'tag' => 'ai',
+        'skills' => ['ChatGPT', 'Claude AI', 'OpenCode', 'Git'],
+        'lead_image' => 'demo/articles/ai-tooling.svg',
+        'en' => [
+            'title' => 'An AI-Assisted Development Workflow',
+            'short_description' => 'Where assistants help, where they hurt, and how to keep the code yours.',
+            'lead_image_alt' => 'Abstract illustration of AI-assisted development',
+        ],
+        'ru' => [
+            'title' => 'Рабочий процесс с ИИ-ассистентами',
+            'short_description' => 'Где ассистенты помогают, где вредят и как сохранить код своим.',
+            'lead_image_alt' => 'Абстрактная иллюстрация разработки с ИИ',
+        ],
+    ],
+    [
+        'slug' => 'composable-vue-architecture',
+        'published_at' => '2026-03-10 10:30:00',
+        'tag' => 'vue',
+        'skills' => ['Vue', 'TypeScript', 'Vitest', 'Jest'],
+        'lead_image' => null,
+        'en' => [
+            'title' => 'Composable Vue Architecture',
+            'short_description' => 'Splitting state, side effects and presentation into testable pieces.',
+            'lead_image_alt' => null,
+        ],
+        'ru' => [
+            'title' => 'Композиционная архитектура на Vue',
+            'short_description' => 'Делим состояние, побочные эффекты и представление на тестируемые части.',
+            'lead_image_alt' => null,
+        ],
+    ],
+    [
+        'slug' => 'zero-downtime-database-migrations',
+        'published_at' => '2026-02-20 08:00:00',
+        'tag' => 'postgresql',
+        'skills' => ['PostgreSQL', 'Laravel'],
+        'lead_image' => null,
+        'en' => [
+            'title' => 'Zero-Downtime Database Migrations',
+            'short_description' => 'Expand, migrate and contract — safely, while the app keeps serving.',
+            'lead_image_alt' => null,
+        ],
+        'ru' => [
+            'title' => 'Миграции базы данных без простоя',
+            'short_description' => 'Расширяем, переносим и сжимаем — безопасно, пока приложение работает.',
+            'lead_image_alt' => null,
+        ],
+    ],
+    [
+        'slug' => 'caching-layers-explained',
+        'published_at' => '2026-02-02 09:10:00',
+        'tag' => 'web-performance',
+        'skills' => ['Redis', 'Vue', 'PostgreSQL'],
+        'lead_image' => 'demo/articles/caching.svg',
+        'en' => [
+            'title' => 'Caching Layers Explained',
+            'short_description' => 'HTTP, application, query and page cache — what belongs where.',
+            'lead_image_alt' => 'Abstract illustration of caching layers',
+        ],
+        'ru' => [
+            'title' => 'Слои кеширования простыми словами',
+            'short_description' => 'HTTP, приложение, запросы и страницы — что где хранить.',
+            'lead_image_alt' => 'Абстрактная иллюстрация слоёв кеширования',
+        ],
+    ],
+    [
+        'slug' => 'building-accessible-web-interfaces',
+        'published_at' => '2026-01-15 10:00:00',
+        'tag' => 'vue',
+        'skills' => ['Vue', 'HTML', 'CSS'],
+        'lead_image' => null,
+        'en' => [
+            'title' => 'Building Accessible Web Interfaces',
+            'short_description' => 'Semantics, focus management and testing accessibility in CI.',
+            'lead_image_alt' => null,
+        ],
+        'ru' => [
+            'title' => 'Создание доступных веб-интерфейсов',
+            'short_description' => 'Семантика, управление фокусом и проверка доступности в CI.',
+            'lead_image_alt' => null,
+        ],
+    ],
+    [
+        'slug' => 'automating-deploys-with-ansible',
+        'published_at' => '2025-12-05 08:40:00',
+        'tag' => 'devops',
+        'skills' => ['Ansible', 'Docker', 'Git'],
+        'lead_image' => null,
+        'en' => [
+            'title' => 'Automating Deploys with Ansible',
+            'short_description' => 'A repeatable release pipeline without a fleet of specialists.',
+            'lead_image_alt' => null,
+        ],
+        'ru' => [
+            'title' => 'Автоматизация деплоя с Ansible',
+            'short_description' => 'Повторяемый конвейер релиза без целой команды специалистов.',
+            'lead_image_alt' => null,
+        ],
+    ],
+    [
+        'slug' => 'modern-php-without-the-legacy',
+        'published_at' => '2025-11-10 09:00:00',
+        'tag' => 'php',
+        'skills' => ['PHP', 'Laravel', 'Yii'],
+        'lead_image' => null,
+        'en' => [
+            'title' => 'Modern PHP Without the Legacy',
+            'short_description' => 'Strict types, value objects and the end of array soup.',
+            'lead_image_alt' => null,
+        ],
+        'ru' => [
+            'title' => 'Современный PHP без легаси',
+            'short_description' => 'Строгие типы, объекты-значения и конец «массивозного супа».',
+            'lead_image_alt' => null,
+        ],
+    ],
+    [
+        'slug' => 'design-systems-in-figma',
+        'published_at' => '2025-10-08 11:30:00',
+        'tag' => 'design',
+        'skills' => ['Figma', 'CSS', 'Vue'],
+        'lead_image' => null,
+        'en' => [
+            'title' => 'Design Systems in Figma',
+            'short_description' => 'From tokens and components to a shared language with the developers.',
+            'lead_image_alt' => null,
+        ],
+        'ru' => [
+            'title' => 'Дизайн-системы в Figma',
+            'short_description' => 'От токенов и компонентов до общего языка с разработчиками.',
+            'lead_image_alt' => null,
+        ],
+    ],
+    [
+        'slug' => 'redis-patterns-for-read-heavy-apps',
+        'published_at' => '2025-09-01 09:50:00',
+        'tag' => 'web-performance',
+        'skills' => ['Redis', 'PostgreSQL', 'Laravel'],
+        'lead_image' => null,
+        'en' => [
+            'title' => 'Redis Patterns for Read-Heavy Apps',
+            'short_description' => 'Cache-aside, counters, sorted sets and the invalidation you will regret skipping.',
+            'lead_image_alt' => null,
+        ],
+        'ru' => [
+            'title' => 'Паттерны Redis для приложений с высокой нагрузкой на чтение',
+            'short_description' => 'Cache-aside, счётчики, сортированные множества и инвалидация, которую лучше не пропускать.',
+            'lead_image_alt' => null,
+        ],
+    ],
+];
