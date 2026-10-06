@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup test-db admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup test-db admin-create admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -92,6 +92,17 @@ seed: ## Seed demo content (no admin credentials)
 
 seed-fresh: ## Wipe and re-seed the whole dev database (migrate:fresh --seed — demo content incl. the landing profile + photo stub)
 	$(DE) php artisan migrate:fresh --seed
+	$(MAKE) --no-print-directory admin-create
+
+# Create the initial admin account
+# (prompts interactively; optional overrides: LOGIN=<admin> EMAIL=<email> PASSWORD=<password> FORCE=1)
+admin-create:
+	@ARGS=""; \
+	if [ -n "$(LOGIN)" ]; then ARGS="$$ARGS --login=$(LOGIN)"; fi; \
+	if [ -n "$(EMAIL)" ]; then ARGS="$$ARGS --email=$(EMAIL)"; fi; \
+	if [ -n "$(PASSWORD)" ]; then ARGS="$$ARGS --password=$(PASSWORD)"; fi; \
+	if [ -n "$(FORCE)" ]; then ARGS="$$ARGS --force"; fi; \
+	$(DE) php artisan admin:create $$ARGS
 
 admin-reset-password: ## Reset an admin password (prompts interactively; optional overrides: LOGIN=<admin> PASSWORD=<new-password>)
 	@ARGS=""; \
