@@ -20,11 +20,9 @@ export HOST_GID = $(shell id -g)
 MC = quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
 
 # The `portfolio` bucket gets a public-read ("download") policy — public asset
-# URLs are served same-origin via nginx `/assets/ → rustfs:9000/portfolio/`
-# (assumption A7) and must be anonymously readable. The `backups` bucket
-# stays private (encrypted archives) and the app writes it with the separate
-# `RUSTFS_BACKUPS_*` credentials, so that user is provisioned here as well
-# (B308) — created if missing and granted the built-in `readwrite` policy.
+# URLs are served same-origin via nginx `/assets/ → rustfs:9000/portfolio/` and must be publicly readable.
+# The `backups` bucket stays private (encrypted archives) and the app writes it with the separate
+# `RUSTFS_BACKUPS_*` credentials, so that user is provisioned here as well.
 define create-rustfs-buckets
 	@set -e; \
 	KEY="$$(sed -n 's/^RUSTFS_ACCESS_KEY=//p' .env)"; \
@@ -45,52 +43,68 @@ endef
 # between the localhost and TLS dev modes is a single command.
 ENV_MODE = ./devops/scripts/switch-env-mode.sh
 
-up: ## Start dev containers (TLS mode — requires Traefik + DNS)
+# Start dev containers (TLS mode — requires Traefik + DNS)
+up:
 	@$(ENV_MODE) tls
 	$(DC) up -d
 
-down: ## Stop and remove containers
+# Stop and remove containers
+down:
 	$(DC) down
 
-up-localhost: ## Start dev containers in localhost mode (no Traefik — http://localhost:8888)
+# Start dev containers in localhost mode (no Traefik — http://localhost:8888)
+up-localhost:
 	@$(ENV_MODE) localhost
 	$(DC_LOCALHOST) up -d
 
-down-localhost: ## Stop and remove localhost mode containers
+# Stop and remove localhost mode containers
+down-localhost:
 	$(DC_LOCALHOST) down
 
-restart: down up ## Restart all containers
+# Restart all containers
+restart: down up
 
-build: ## Build Docker images
+# Build Docker images
+build:
 	$(DC) build
 
-build-frontend: ## Rebuild the production front-end assets into public/build (needed after Vue/TS changes when the Vite dev server is NOT running — without public/hot Laravel serves this bundle)
+# Rebuild the production front-end assets into public/build
+# (needed after Vue/TS changes when the Vite dev server is NOT running)
+build-frontend:
 	$(DE) npm run build
 
-dev-frontend: ## Start the Vite dev server (HMR — front-end changes apply automatically while it runs; keep the terminal open)
+# Start the Vite dev server (HMR — front-end changes apply automatically while it runs)
+dev-frontend:
 	$(DE) npm run dev
 
-health: ## Show service health status (all services must be healthy before proceeding)
+# Show service health status (all services must be healthy before proceeding)
+health:
 	@echo "Service health status:"
 	@$(DC) ps -a --format 'table {{.Name}}\t{{.Status}}'
 
-install: ## Install PHP + JS dependencies
+# Install PHP + JS dependencies
+install:
 	$(DE) composer install
 	$(DE) npm ci
 
-open-db: ## Open an interactive psql session in the db container
+# Open an interactive psql session in the db container
+open-db:
 	$(DC) exec db sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
 
-open-dev: ## Open an interactive shell in the dev container
+# Open an interactive shell in the dev container
+open-dev:
 	$(DE) bash
 
-migrate: ## Run database migrations
+# Run database migrations
+migrate:
 	$(DE) php artisan migrate
 
-seed: ## Seed demo content (no admin credentials)
+# Seed demo content (no admin credentials)
+seed:
 	$(DE) php artisan db:seed
 
-seed-fresh: ## Wipe and re-seed the whole dev database (migrate:fresh --seed — demo content incl. the landing profile + photo stub)
+# Wipe and re-seed the whole dev database, then recreate the admin account
+seed-fresh:
 	$(DE) php artisan migrate:fresh --seed
 	$(MAKE) --no-print-directory admin-create
 
@@ -104,19 +118,20 @@ admin-create:
 	if [ -n "$(FORCE)" ]; then ARGS="$$ARGS --force"; fi; \
 	$(DE) php artisan admin:create $$ARGS
 
-admin-reset-password: ## Reset an admin password (prompts interactively; optional overrides: LOGIN=<admin> PASSWORD=<new-password>)
+# Reset an admin password
+# (prompts interactively; optional overrides: LOGIN=<admin> PASSWORD=<new-password>)
+admin-reset-password:
 	@ARGS=""; \
 	if [ -n "$(LOGIN)" ]; then ARGS="$$ARGS --login=$(LOGIN)"; fi; \
 	if [ -n "$(PASSWORD)" ]; then ARGS="$$ARGS --password=$(PASSWORD)"; fi; \
 	$(DE) php artisan admin:reset-password $$ARGS
 
-# The `switch-*` targets flip the app between development and production
-# mode on the local machine (both compose modes — TLS `make up` and
-# `make up-localhost` — are supported). They (1) rewrite APP_ENV/APP_DEBUG
-# in .env (bind-mounted into every container), (2) bake or clear the
-# Laravel caches (`php artisan optimize` / `optimize:clear`) and (3)
-# restart the persistent env-consuming services (queue worker + scheduler;
-# php-fpm re-reads .env per request and serves the cached config after
+# The `switch-*` targets flip the app between development and production mode on the local machine
+# (both compose modes — TLS `make up` and `make up-localhost` — are supported). They:
+# (1) rewrite APP_ENV/APP_DEBUG in .env (bind-mounted into every container),
+# (2) bake or clear the Laravel caches (`php artisan optimize` / `optimize:clear`),
+# (3) restart the persistent env-consuming services
+# (queue worker + scheduler; php-fpm re-reads .env per request and serves the cached config after
 # `optimize`). The restart reuses the compose config files the running
 # project was started with, so the active TLS/localhost mode is preserved.
 define restart-persistent-services
@@ -132,21 +147,25 @@ define restart-persistent-services
 	fi
 endef
 
-switch-prod: ## Switch the portfolio to production mode locally (APP_ENV=production/APP_DEBUG=false in .env + php artisan optimize + queue/scheduler restart)
+# Switch the portfolio to production mode locally
+# (APP_ENV=production/APP_DEBUG=false in .env + php artisan optimize + queue/scheduler restart)
+switch-prod:
 	@sed -i 's/^APP_ENV=.*/APP_ENV=production/; s/^APP_DEBUG=.*/APP_DEBUG=false/' .env
 	$(DE) php artisan optimize
 	$(restart-persistent-services)
 	@echo "Production mode: APP_ENV=production, APP_DEBUG=false, caches baked."
 
-switch-dev: ## Switch the portfolio back to development mode (APP_ENV=local/APP_DEBUG=true in .env + php artisan optimize:clear + queue/scheduler restart)
+# Switch the portfolio back to development mode
+# (APP_ENV=local/APP_DEBUG=true in .env + php artisan optimize:clear + queue/scheduler restart)
+switch-dev:
 	@sed -i 's/^APP_ENV=.*/APP_ENV=local/; s/^APP_DEBUG=.*/APP_DEBUG=true/' .env
 	$(DE) php artisan optimize:clear
 	$(restart-persistent-services)
 	@echo "Development mode: APP_ENV=local, APP_DEBUG=true, caches cleared."
 
-# Initial setup always provisions the localhost environment (no Traefik/DNS
-# required); switch to TLS mode later with `make up` (see devops.md).
-setup: ## First-run setup (localhost mode; switch to TLS later with `make up`)
+# Initial setup always provisions the localhost environment
+# (no Traefik/DNS required); switch to TLS mode later with `make up` (see devops.md).
+setup:
 	cp -n .env.example .env || true
 	@$(ENV_MODE) localhost
 	$(DC_LOCALHOST) build
@@ -175,10 +194,10 @@ setup: ## First-run setup (localhost mode; switch to TLS later with `make up`)
 	@$(DC_LOCALHOST) ps -a --format 'table {{.Name}}\t{{.Status}}'
 	$(ensure-test-database)
 
-# The backend suites run against the dedicated `portfolio_test` database
-# (phpunit.xml) — the db container only creates the dev database, so ensure
-# it exists first (CI's postgres service creates it via POSTGRES_DB). The
-# parallel runs derive their own `portfolio_test_test_<n>` databases.
+# The backend suites run against the dedicated `portfolio_test` database (phpunit.xml)
+# the db container only creates the dev database, so ensure
+# it exists first (CI's postgres service creates it via POSTGRES_DB).
+# The parallel runs derive their own `portfolio_test_test_<n>` databases.
 define ensure-test-database
 	@DB_USER="$$(sed -n 's/^DB_USERNAME=//p' .env)"; \
 	EXISTS="$$($(DC) exec -T db psql -U "$$DB_USER" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='portfolio_test'" | tr -d '[:space:]')"; \
@@ -188,42 +207,38 @@ define ensure-test-database
 	fi
 endef
 
-test-db: ## Create the dedicated backend test database (portfolio_test) if missing
+# Create the dedicated backend test database (portfolio_test) if missing
+test-db:
 	$(ensure-test-database)
 
-test: ## Run all test suites except e2e (backend + frontend)
+# Run all test suites except e2e (backend + frontend)
+test:
 	$(DE) env XDEBUG_MODE=off php artisan test --parallel --recreate-databases --drop-databases --processes=8
 	$(DE) npx vitest run
 
-test-unit: ## Run unit tests (backend + frontend)
+# Run unit tests (backend + frontend)
+test-unit:
 	$(DE) env XDEBUG_MODE=off php artisan test tests/unit/backend/
 	$(DE) npx vitest run tests/unit/frontend/
 
-test-int: ## Run integration tests (backend + frontend)
+# Run integration tests (backend + frontend)
+test-int:
 	$(DE) env XDEBUG_MODE=off php artisan test tests/integration/backend/ --parallel --recreate-databases --drop-databases --processes=8
 	$(DE) npx vitest run tests/integration/frontend/
 
-test-backend: ## Run all backend tests (unit + integration)
+# Run all backend tests (unit + integration)
+test-backend:
 	$(DE) env XDEBUG_MODE=off php artisan test --parallel --recreate-databases --drop-databases --processes=8
 
-test-frontend: ## Run all frontend tests (unit + integration)
+# Run all frontend tests (unit + integration)
+test-frontend:
 	$(DE) npx vitest run
 
-# The e2e suite runs against a DEDICATED database (`portfolio_e2e`) and an
-# isolated Redis DB (1), served by `php artisan serve` on 127.0.0.1:8001
-# inside the dev container (same pattern as CI, devops.md:1097) — the dev
-# database and the nginx stack are never touched. `E2ETestSeeder` still
-# truncates + reseeds on every run (via global-setup), but only the e2e DB.
-# The serve process runs as the host user (HOST_UID, B171): e2e logins log
-# info events to the SHARED storage/logs — a root-owned daily file 500s
-# every php-fpm request that logs, including dev logins on localhost:8888.
-# The e2e serve log is removed first — a root-owned leftover from
-# pre-B171 runs makes the uid-$(HOST_UID) redirect fail with permission
-# denied and the server silently never starts.
-# `--no-reload` is REQUIRED: ServeCommand otherwise passes only a curated
-# env whitelist (APP_ENV/PATH/...) to the `php -S` child, silently dropping
-# the DB_DATABASE/REDIS_DB overrides (the server would hit the dev DB).
-test-e2e: ## Run e2e tests against the dedicated e2e database (dev DB untouched)
+# The e2e suite runs against a DEDICATED database (`portfolio_e2e`) and an isolated Redis DB (1),
+# served by `php artisan serve` on 127.0.0.1:8001 inside the dev container
+# (same pattern as CI, devops.md:1097) — the dev database and the nginx stack are never touched.
+# `E2ETestSeeder` still truncates + reseeds on every run (via global-setup), but only the e2e DB.
+test-e2e:
 	@set -e; \
 	DB_USER="$$(sed -n 's/^DB_USERNAME=//p' .env)"; \
 	EXISTS="$$($(DC) exec -T db psql -U "$$DB_USER" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='portfolio_e2e'" | tr -d '[:space:]')"; \
@@ -239,13 +254,10 @@ test-e2e: ## Run e2e tests against the dedicated e2e database (dev DB untouched)
 	$(DE) sh -c 'npx wait-on -t 30000 http://127.0.0.1:8001/up || (echo "e2e server failed:"; cat /tmp/e2e-serve.log; exit 1)'; \
 	$(DE) env DB_DATABASE=portfolio_e2e REDIS_DB=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:8001 npx playwright test
 
-# The Lighthouse budget + Core Web Vitals spot check (plan step 13.3,
-# architecture.md Performance Budget): runs the 6 canonical public routes
-# against the dedicated e2e database on 127.0.0.1:8002 (same isolation
-# pattern as test-e2e; the dev DB and the nginx stack are untouched).
-# Budget assertions are warn-level — see devops/lighthouse-config/README.md for
-# the gzip caveat of `php artisan serve`.
-lighthouse: ## Run the Lighthouse budget + CWV spot check on the public pages (dev DB untouched)
+# The Lighthouse budget + Core Web Vitals spot check
+# runs the 6 canonical public routes against the dedicated e2e database on 127.0.0.1:8002
+# (same isolation pattern as test-e2e; the dev DB and the nginx stack are untouched).
+lighthouse:
 	@set -e; \
 	DB_USER="$$(sed -n 's/^DB_USERNAME=//p' .env)"; \
 	EXISTS="$$($(DC) exec -T db psql -U "$$DB_USER" -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='portfolio_e2e'" | tr -d '[:space:]')"; \
@@ -262,17 +274,21 @@ lighthouse: ## Run the Lighthouse budget + CWV spot check on the public pages (d
 	$(DE) sh -c 'npx wait-on -t 30000 http://127.0.0.1:8002/up || (echo "lighthouse server failed:"; cat /tmp/lighthouse-serve.log; exit 1)'; \
 	$(DE) env LH_URLS="http://127.0.0.1:8002/,http://127.0.0.1:8002/blog,http://127.0.0.1:8002/blog/understanding-laravel-queues,http://127.0.0.1:8002/projects,http://127.0.0.1:8002/projects/portfolio-platform,http://127.0.0.1:8002/experience" npm run lighthouse
 
-coverage: ## Run all test suites with coverage (80% line coverage threshold, per testing spec)
+# Run all test suites with coverage (80% line coverage threshold, per testing spec)
+coverage:
 	$(DE) env XDEBUG_MODE=coverage php artisan test --coverage --min=80
 	$(DE) npx vitest run --coverage
 
-coverage-backend: ## Run backend tests with coverage (80% line coverage threshold)
+# Run backend tests with coverage (80% line coverage threshold)
+coverage-backend:
 	$(DE) env XDEBUG_MODE=coverage php artisan test --coverage --min=80
 
-coverage-frontend: ## Run frontend tests with coverage (80% line coverage threshold)
+# Run frontend tests with coverage (80% line coverage threshold)
+coverage-frontend:
 	$(DE) npx vitest run --coverage
 
-lint: ## Lint all code (mirrors the CI lint job: pint, biome, eslint, stylelint, spectral, commitlint)
+# Lint all code (mirrors the CI lint job: pint, biome, eslint, stylelint, spectral, commitlint)
+lint:
 	$(DE) ./vendor/bin/pint --test
 	$(DE) npx biome ci resources/js
 	$(DE) npx eslint resources/js
@@ -284,45 +300,59 @@ lint: ## Lint all code (mirrors the CI lint job: pint, biome, eslint, stylelint,
 		$(DE) npx commitlint --from main --to HEAD; \
 	fi
 
-lint\:css: ## Validate CSS in Vue <style> blocks (non-blocking)
+# Validate CSS in Vue <style> blocks (non-blocking)
+lint\:css:
 	$(DE) npx stylelint "resources/js/**/*.vue" || true
 
-spectral: ## Lint both OpenAPI specs with the project ruleset (.spectral.yaml)
+# Lint both OpenAPI specs with the project ruleset (.spectral.yaml)
+spectral:
 	$(DE) npx spectral lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
 	$(DE) npx spectral lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
 
-commitlint: ## Lint commit messages (conventional commits; current branch vs main)
+# Lint commit messages (conventional commits; current branch vs main)
+commitlint:
 	@MAIN="$$(git rev-parse --verify -q main 2>/dev/null)"; \
 	if [ -n "$$MAIN" ] && [ "$$MAIN" != "$$(git rev-parse HEAD)" ]; then \
 		$(DE) npx commitlint --from main --to HEAD; \
 	fi
 
-format: ## Auto-format code
+# Auto-format code
+format:
 	$(DE) ./vendor/bin/pint
 	$(DE) npx biome check --write --unsafe resources/js
 
-typecheck: ## TypeScript type check (includes API + Inertia type generation)
+# TypeScript type check (includes API + Inertia type generation)
+typecheck:
 	$(DE) npm run typecheck
 
-images: ## Prepare image assets: optimize/minify resources/images -> public/images + section favicons
+# Prepare image assets: optimize/minify resources/images -> public/images + section favicons
+images:
 	$(DE) node devops/images/prepare-images.mjs
 
-custom-icons: ## Regenerate the custom icon subset from resources/icons/custom/*.svg (add an SVG and run this — the file name becomes the icon id, e.g. messenger.svg -> custom:messenger)
+# Regenerate the custom icon subset from resources/icons/custom/*.svg
+# (add an SVG and run this — the file name becomes the icon id, e.g. messenger.svg -> custom:messenger)
+custom-icons:
 	$(DE) npm run icons:custom
 
-redis: ## Open an interactive redis-cli against the dev Redis (sessions/cache/rate limits)
+# Open an interactive redis-cli against the dev Redis (sessions/cache/rate limits)
+redis:
 	$(DC) exec redis redis-cli
 
-cache-clear: ## Clear the Redis cache (resets the feedback rate-limit counters for testing; sessions/queues survive)
+# Clear the Redis cache (resets the feedback rate-limit counters for testing; sessions/queues survive)
+cache-clear:
 	$(DE) php artisan cache:clear
 
-secrets-init: ## Generate production secrets and encrypt .env.prod.local (see secrets-management.md)
+# Generate production secrets and encrypt .env.prod.local
+secrets-init:
 	$(DE) ./devops/secrets/init.sh
 
-deploy: ## Deploy to production (usage: make deploy GIT_REF=<tag-or-commit>)
+# Deploy to production (usage: make deploy GIT_REF=<tag-or-commit>)
+deploy:
 	@[ -n "$(GIT_REF)" ] || (echo "ERROR: GIT_REF is required. Usage: make deploy GIT_REF=<tag-or-commit>" && exit 1)
 	ansible-playbook -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF)"
-	# On first deploy the playbook reads AGE_PRIVATE_KEY from the environment to provision /opt/portfolio/.env.prod (see secrets-management.md)
+	# On first deploy the playbook reads AGE_PRIVATE_KEY from the environment
+	# to provision /opt/portfolio/.env.prod (see secrets-management.md)
 
-rollback: ## Rollback deployed services (usage: make rollback [SERVICE=<name>])
+# Rollback deployed services (usage: make rollback [SERVICE=<name>])
+rollback:
 	ansible-playbook -i devops/deploy/hosts.yml devops/deploy/rollback.yml -e "service=$(or $(SERVICE),all)"
