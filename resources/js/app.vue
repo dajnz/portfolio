@@ -2,7 +2,7 @@
 import type { Page } from '@inertiajs/core';
 import { router } from '@inertiajs/vue3';
 import { useAnalytics } from '@shared-cross/Composables/useAnalytics';
-import { useFocusManagement } from '@shared-cross/Composables/useFocusManagement';
+import { useRouteAnnouncement } from '@shared-cross/Composables/useRouteAnnouncement';
 import { useAuthStore } from '@shared-cross/Stores/authStore';
 import { useLocaleStore } from '@shared-cross/Stores/localeStore';
 import { useThemeStore } from '@shared-cross/Stores/themeStore';
@@ -45,6 +45,13 @@ function hydrateFromPage(page: Page, theme: unknown = page.props.theme): void {
     themeStore.hydrate(theme);
     localeStore.hydrate(page.props.locale);
     authStore.hydrate(page.props.auth);
+
+    // `<html lang>` is server-rendered once by the Blade layout and is
+    // not part of the Inertia body swap, so it must be synced here on
+    // hydration and every visit (a11y 13.6 #3).
+    if (typeof document !== 'undefined') {
+        document.documentElement.lang = localeStore.locale;
+    }
 }
 
 // The effective theme at the initial mount. On a first visit the server
@@ -86,15 +93,24 @@ hydrateFromPage(props.page, resolveInitialTheme(props.page));
 // the event listeners when the root component unmounts.
 const analytics = useAnalytics();
 
-// useFocusManagement (accessibility.md:60-72) moves focus to the new
-// page's `<h1>` after every visit — layouts don't remount, so the
+// useRouteAnnouncement announces the new page's `<h1>` through the live
+// region in the template; focus stays at the document top so the skip
+// link remains the first tab stop. Layouts don't remount, so the
 // listener must live at the root.
-const focusManagement = useFocusManagement();
+const routeAnnouncement = useRouteAnnouncement();
 
 if (typeof window !== 'undefined') {
     showNotification(props.page);
 
-    router.on('start', () => toastStore.dismissAll());
+    router.on('start', (event) => {
+        // Prefetches fire `start` too; only a real navigation should
+        // dismiss the toast queue (a11y 13.6 adjacent fix).
+        if (event.detail.visit.prefetch) {
+            return;
+        }
+
+        toastStore.dismissAll();
+    });
     router.on('success', (event) => {
         hydrateFromPage(event.detail.page);
         showNotification(event.detail.page);
@@ -103,7 +119,7 @@ if (typeof window !== 'undefined') {
 
 onUnmounted(() => {
     analytics.cleanup();
-    focusManagement.cleanup();
+    routeAnnouncement.cleanup();
 });
 
 function reload(): void {
@@ -129,9 +145,30 @@ function reload(): void {
       {{ messages.common.retry }}
     </button>
   </main>
+  <p
+    class="app-announcement"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+    data-testid="route-announcement"
+  >
+    {{ routeAnnouncement.announcement }}
+  </p>
 </template>
 
 <style scoped>
+.app-announcement {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
 .app-error {
     align-items: center;
     display: flex;
