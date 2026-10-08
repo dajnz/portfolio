@@ -56,6 +56,24 @@ describe('PublicTagFilter', () => {
         ]);
     });
 
+    it('labels each remove button with the tag name and announces the removal', async () => {
+        const wrapper = mount(PublicTagFilter, {
+            props: {
+                modelValue: [{ id: 1, name: 'Laravel', type: 'tag' }],
+                fetch_url: '/api/blog-tags/search',
+            },
+        });
+
+        const remove = wrapper.get('[data-testid="tag-filter-pill-0-remove"]');
+        expect(remove.attributes('aria-label')).toBe('Remove Laravel');
+
+        await remove.trigger('click');
+
+        expect(wrapper.get('[data-testid="tag-filter-status"]').text()).toBe(
+            'Laravel filter removed',
+        );
+    });
+
     it('fetches suggestions after the debounce and filters out selected tags', async () => {
         const fetchMock = vi.mocked(fetch).mockResolvedValue(
             new Response(JSON.stringify(SUGGESTIONS), { status: 200 }),

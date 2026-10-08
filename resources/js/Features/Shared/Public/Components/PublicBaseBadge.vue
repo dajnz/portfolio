@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
+import { useI18n } from '@shared-cross/Composables/useI18n';
 import { computed } from 'vue';
 
 type BadgeVariant = 'default' | 'primary' | 'success' | 'warning' | 'danger';
@@ -11,6 +12,10 @@ const props = withDefaults(
         removable?: boolean;
         clickable?: boolean;
         icon?: string;
+        /** Accessible name of the remove button — callers pass the item
+         *  name so each removal is distinguishable; falls back to the
+         *  generic localized "Remove". */
+        remove_label?: string;
         test_id?: string;
     }>(),
     {
@@ -19,9 +24,12 @@ const props = withDefaults(
         removable: false,
         clickable: false,
         icon: undefined,
+        remove_label: undefined,
         test_id: 'base-badge',
     },
 );
+
+const { t } = useI18n();
 
 const emit = defineEmits<{
     remove: [];
@@ -73,7 +81,7 @@ function onKeydown(event: KeyboardEvent): void {
       v-if="props.removable"
       type="button"
       class="badge__remove"
-      :aria-label="'Remove'"
+      :aria-label="props.remove_label ?? t('common.remove')"
       :data-testid="`${props.test_id}-remove`"
       @click.stop="emit('remove')"
     >

@@ -52,6 +52,24 @@ const listboxId = useId();
 const debounceTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 let activeRequest: AbortController | null = null;
 
+// Removal announcement (a11y 13.6 #12): the remove button unmounts with
+// its pill, so the removal is announced through a live region instead.
+const REMOVAL_ANNOUNCEMENT_MS = 1500;
+const removalAnnouncement = ref('');
+let removalTimer: ReturnType<typeof setTimeout> | null = null;
+
+function announceRemoval(name: string): void {
+    removalAnnouncement.value = t('common.filter_removed', { name });
+
+    if (removalTimer !== null) {
+        clearTimeout(removalTimer);
+    }
+
+    removalTimer = setTimeout(() => {
+        removalAnnouncement.value = '';
+    }, REMOVAL_ANNOUNCEMENT_MS);
+}
+
 function tagType(tag: FilterTag | TagSuggestion): string {
     return tag.type ?? '';
 }
@@ -87,6 +105,7 @@ function removeTag(tag: FilterTag): void {
         'update:modelValue',
         props.modelValue.filter((item) => !(item.id === tag.id && tagType(item) === tagType(tag))),
     );
+    announceRemoval(tag.name);
 }
 
 function removeLastTag(): void {
@@ -205,6 +224,10 @@ function cleanup(): void {
         clearTimeout(debounceTimeout.value);
     }
 
+    if (removalTimer !== null) {
+        clearTimeout(removalTimer);
+    }
+
     activeRequest?.abort();
 }
 
@@ -235,6 +258,14 @@ onBeforeUnmount(() => {
     class="tag-filter"
     :data-testid="props.test_id"
   >
+    <p
+      class="sr-only"
+      role="status"
+      aria-live="polite"
+      :data-testid="`${props.test_id}-status`"
+    >
+      {{ removalAnnouncement }}
+    </p>
     <div class="tag-filter__pills">
       <!-- The icon is the row's FIRST child — it stays at the left
            edge even when pills are selected (user rework 2026-08-16;
@@ -250,6 +281,7 @@ onBeforeUnmount(() => {
         :key="`${tag.type ?? 'tag'}-${tag.id}`"
         variant="default"
         removable
+        :remove_label="t('common.remove_item', { item_name: tag.name })"
         :test_id="`${props.test_id}-pill-${index}`"
         @remove="removeTag(tag)"
       >

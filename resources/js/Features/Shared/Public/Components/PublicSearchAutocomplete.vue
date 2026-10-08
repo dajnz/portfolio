@@ -2,7 +2,7 @@
 import { Icon } from '@iconify/vue';
 import { router } from '@inertiajs/vue3';
 import { useI18n } from '@shared-cross/Composables/useI18n';
-import { onBeforeUnmount, ref, useId } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue';
 
 import PublicBaseSkeleton from './PublicBaseSkeleton.vue';
 
@@ -44,9 +44,9 @@ const highlighted = ref(-1);
 const results = ref<SearchResultItem[]>([]);
 
 const inputEl = ref<HTMLInputElement | null>(null);
+const rootEl = ref<HTMLElement | null>(null);
 const listboxId = useId();
 const debounceTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
-const closeTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 let activeRequest: AbortController | null = null;
 
 function resultLabel(item: SearchResultItem): string {
@@ -83,6 +83,22 @@ function resultUrl(item: SearchResultItem): string {
 function onInput(event: Event): void {
     query.value = (event.target as HTMLInputElement).value;
     highlighted.value = -1;
+
+    // An empty query has nothing to search — close the (stale-results)
+    // dropdown instead of fetching or showing a count (a11y 13.6 review).
+    if (query.value.trim() === '') {
+        if (debounceTimeout.value !== null) {
+            clearTimeout(debounceTimeout.value);
+            debounceTimeout.value = null;
+        }
+
+        activeRequest?.abort();
+        results.value = [];
+        isLoading.value = false;
+        hasError.value = false;
+        closeDropdown();
+        return;
+    }
 
     // The skeleton shows immediately on the first keystroke; the fetch
     // itself waits for the debounce (public-section-ui.md:490).
@@ -173,12 +189,33 @@ function closeDropdown(): void {
     isOpen.value = false;
     highlighted.value = -1;
 }
-function onBlur(): void {
-    // Delayed so a result's mousedown (prevented) does not race the close.
-    closeTimeout.value = setTimeout(() => {
+
+// Close on a pointer press OUTSIDE the control (the PublicTagFilter
+// pattern) rather than on input blur: a screen reader navigating into the
+// result list would blur the input and lose the list (a11y 13.6 #11).
+function onDocumentPointerDown(event: PointerEvent): void {
+    if (!isOpen.value || rootEl.value === null) {
+        return;
+    }
+
+    if (!rootEl.value.contains(event.target as Node)) {
         closeDropdown();
-    }, 150);
+    }
 }
+
+// The result count announcement (a11y 13.6 #10) — cleared while loading
+// or errored so those states are not double-announced.
+const announcement = computed(() => {
+    if (!isOpen.value || isLoading.value || hasError.value) {
+        return '';
+    }
+
+    if (results.value.length === 0) {
+        return t('common.no_matches');
+    }
+
+    return t('common.results_found', { count: results.value.length });
+});
 
 function retry(): void {
     isLoading.value = true;
@@ -191,18 +228,22 @@ function cleanup(): void {
         clearTimeout(debounceTimeout.value);
     }
 
-    if (closeTimeout.value !== null) {
-        clearTimeout(closeTimeout.value);
-    }
-
     activeRequest?.abort();
 }
 
-onBeforeUnmount(cleanup);
+onMounted(() => {
+    document.addEventListener('pointerdown', onDocumentPointerDown);
+});
+
+onBeforeUnmount(() => {
+    cleanup();
+    document.removeEventListener('pointerdown', onDocumentPointerDown);
+});
 </script>
 
 <template>
   <div
+    ref="rootEl"
     class="search-autocomplete"
     :data-testid="props.test_id"
   >
@@ -223,10 +264,16 @@ onBeforeUnmount(cleanup);
       :aria-activedescendant="isOpen && highlighted >= 0 ? `${listboxId}-option-${highlighted}` : undefined"
       :data-testid="`${props.test_id}-input`"
       @input="onInput"
-      @focus="isOpen = true"
-      @blur="onBlur"
       @keydown="onKeydown"
     >
+    <p
+      class="sr-only"
+      role="status"
+      aria-live="polite"
+      :data-testid="`${props.test_id}-status`"
+    >
+      {{ announcement }}
+    </p>
     <div
       v-if="isOpen"
       :id="listboxId"
