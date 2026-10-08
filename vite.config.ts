@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
+import { i18nKeyGate } from './devops/vite-plugins/i18n-key-gate.ts';
 import { pageJsBudgetWarnings } from './devops/vite-plugins/page-js-budget-warnings.ts';
 import { stripWoffFallbackFaces } from './devops/vite-plugins/strip-woff-fallback-faces.ts';
 import { defineConfig } from 'vitest/config';
@@ -35,6 +36,10 @@ export default defineConfig(({ isSsrBuild }) => ({
         }),
         vue(),
         tailwindcss(),
+        // Build-time i18n gate (i18n-and-theming.md:145-147, B9): fails the
+        // build when a literal t() key has no entry in either committed
+        // catalog and when EN/RU drift. Runs for both client and SSR builds.
+        i18nKeyGate(),
         // Build-time audits (devops/vite-plugins): per-page gzip budget
         // warnings and the woff-fallback stripping. Client builds only —
         // the SSR build writes a single server bundle under bootstrap/ssr

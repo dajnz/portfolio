@@ -49,6 +49,7 @@ return [
 
     'login' => [
         'title' => 'Вход',
+        'login_placeholder' => 'email или имя пользователя',
         'password' => 'Пароль',
         'remember_me' => 'Запомнить меня',
         'continue_with_github' => 'Продолжить с GitHub',
