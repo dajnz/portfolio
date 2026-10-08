@@ -109,7 +109,7 @@ function startGithubLogin(): void {
         name="login"
         :label="t('admin.profile.login')"
         type="text"
-        placeholder="email or username"
+        :placeholder="t('admin.login.login_placeholder')"
         autocomplete="username"
         :disabled="isSubmitting"
         :required="true"

@@ -305,6 +305,7 @@
             "enter_recovery_code": "Enter a recovery code from your backup list.",
             "enter_totp_code": "Enter the 6-digit code from your authenticator app, or use a recovery code.",
             "invalid_credentials": "Invalid credentials.",
+            "login_placeholder": "email or username",
             "or": "or",
             "password": "Password",
             "remember_me": "Remember Me",
