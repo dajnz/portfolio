@@ -53,6 +53,7 @@ return [
     'console_greeting' => 'Hey there! Welcome to my portfolio.',
 
     'copy_contact' => 'Copy contact',
+    'copied' => 'Copied!',
 
     'my_skills' => 'My Skills',
 ];
