@@ -68,6 +68,14 @@ onBeforeUnmount(() => {
     class="contacts-block"
     :data-testid="props.test_id"
   >
+    <p
+      class="sr-only"
+      role="status"
+      aria-live="polite"
+      :data-testid="`${props.test_id}-copy-status`"
+    >
+      {{ copiedId !== null ? t('landing.copied') : '' }}
+    </p>
     <PublicCenteredContainer size="content">
       <h2 class="section-title">
         {{ t('landing.get_in_touch') }}
