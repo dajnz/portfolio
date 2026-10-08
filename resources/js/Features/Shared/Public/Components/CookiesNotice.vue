@@ -65,7 +65,7 @@ onMounted(() => {
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: var(--z-sticky);
+    z-index: var(--z-notice);
     display: flex;
     align-items: center;
     justify-content: center;

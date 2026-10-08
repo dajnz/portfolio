@@ -281,6 +281,7 @@ pre code {
     --z-dropdown: 100;
     --z-sticky:   200;
     --z-header:   250;
+    --z-notice:   260; /* consent banner above the floating controls, below modals */
     --z-modal:    300;
     --z-toast:    400;
 
