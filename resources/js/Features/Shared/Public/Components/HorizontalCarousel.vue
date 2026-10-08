@@ -302,6 +302,7 @@ onBeforeUnmount(() => {
     class="carousel"
     :class="rootClass"
     :data-testid="props.test_id"
+    @keydown="onKeydown"
   >
     <div
       class="carousel__viewport"
@@ -312,9 +313,7 @@ onBeforeUnmount(() => {
         class="carousel__track"
         role="group"
         aria-roledescription="carousel"
-        tabindex="0"
         :data-testid="`${props.test_id}-track`"
-        @keydown="onKeydown"
         @pointerdown="onPointerDown"
         @pointerup="onPointerUp"
         @mouseenter="paused = true"

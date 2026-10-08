@@ -73,6 +73,7 @@ const {
   <PublicPageLayout
     :centered="false"
     :nav_items="navItems"
+    active_route="#about"
     :logo_text="aboutBlock?.name ?? ''"
     :console_greeting="greeting"
     :test_id="props.test_id"

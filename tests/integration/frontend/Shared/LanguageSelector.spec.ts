@@ -41,8 +41,9 @@ describe('LanguageSelector', () => {
         });
 
         expect(wrapper.get('[data-testid="language-selector-button"]').text()).toBe('RU');
+        // The current language is part of the accessible name (a11y 13.6 #5).
         expect(wrapper.get('[data-testid="language-selector-button"]').attributes('aria-label')).toBe(
-            'Switch language',
+            'Switch language: Русский',
         );
     });
 
@@ -61,7 +62,9 @@ describe('LanguageSelector', () => {
 
         expect(wrapper.find('[data-testid="language-selector-dropdown"]').exists()).toBe(true);
         expect(wrapper.get('[data-testid="language-selector-option-en"]').attributes('aria-selected')).toBe('true');
+        expect(wrapper.get('[data-testid="language-selector-option-en"]').attributes('aria-current')).toBe('true');
         expect(wrapper.get('[data-testid="language-selector-option-ru"]').attributes('aria-selected')).toBe('false');
+        expect(wrapper.get('[data-testid="language-selector-option-ru"]').attributes('aria-current')).toBeUndefined();
         expect(wrapper.get('[data-testid="language-selector-option-en"]').text()).toContain('English');
     });
 

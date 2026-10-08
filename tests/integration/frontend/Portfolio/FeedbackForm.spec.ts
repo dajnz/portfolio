@@ -180,6 +180,27 @@ describe('FeedbackForm', () => {
         expect(wrapper.find('[data-testid="landing-feedback-form-send-another"]').exists()).toBe(false);
     });
 
+    it('announces the success state as a status region and moves focus to it', async () => {
+        const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 201 });
+        vi.mocked(fetch).mockImplementation(fetchMock);
+
+        const wrapper = mount(FeedbackForm, {
+            props: FORM_PROPS as unknown as InstanceType<typeof FeedbackForm>['$props'],
+            attachTo: document.body,
+        });
+        await wrapper.get('[data-testid="landing-feedback-form-name"]').setValue('Alex');
+        await wrapper.get('[data-testid="landing-feedback-form"]').trigger('submit');
+        await flushPromises();
+
+        const success = wrapper.get('[data-testid="landing-feedback-form-success"]');
+        expect(success.attributes('role')).toBe('status');
+        expect(success.attributes('aria-live')).toBe('polite');
+        expect(success.attributes('tabindex')).toBe('-1');
+        expect(document.activeElement).toBe(success.element);
+
+        wrapper.unmount();
+    });
+
     it('renders the honeypot input off-screen with the randomized name and tabindex -1', () => {
         const wrapper = mountForm();
 

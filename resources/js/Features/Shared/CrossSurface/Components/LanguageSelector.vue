@@ -58,6 +58,16 @@ const resolvedOptions = computed(() =>
         : DEFAULT_SUPPORTED_LOCALES,
 );
 
+// The trigger carries the current language in its accessible name (the
+// visible "EN"/"RU" text is overridden by `aria-label`) so switching to
+// the selector announces the active language (a11y 13.6 #5).
+const activeNativeName = computed(
+    () =>
+        resolvedOptions.value.find((option) => option.code === resolvedLocale.value)?.native_name ??
+        resolvedLocale.value.toUpperCase(),
+);
+const triggerLabel = computed(() => `${t('nav.switch_language')}: ${activeNativeName.value}`);
+
 const isOpen = ref(false);
 const highlighted = ref(-1);
 const controlEl = ref<HTMLElement | null>(null);
@@ -178,7 +188,7 @@ onBeforeUnmount(() => {
       type="button"
       class="language-selector__button"
       :class="props.classes?.button"
-      :aria-label="t('nav.switch_language')"
+      :aria-label="triggerLabel"
       :aria-haspopup="'listbox'"
       :aria-expanded="isOpen"
       :data-testid="`${props.test_id}-button`"
@@ -205,6 +215,7 @@ onBeforeUnmount(() => {
         ]"
         role="option"
         :aria-selected="option.code === resolvedLocale"
+        :aria-current="option.code === resolvedLocale ? 'true' : undefined"
         :data-testid="`${props.test_id}-option-${option.code}`"
         @mousemove="highlighted = index"
         @click="selectLocale(option)"

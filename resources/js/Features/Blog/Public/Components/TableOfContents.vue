@@ -28,6 +28,12 @@ const { t } = useI18n();
 
 const activeId = ref('');
 const isMobileOpen = ref(false);
+// The mobile floating control is teleported to <body> so `position:
+// fixed` escapes the `container-type: inline-size` containing block of
+// the page's centered <main> (a11y 13.6 #19). Client-gated: Vue SSR does
+// not inline Teleport-to-<body> content, so rendering it only after mount
+// avoids a hydration mismatch.
+const mounted = ref(false);
 let observer: IntersectionObserver | null = null;
 
 function observe(): void {
@@ -70,7 +76,10 @@ function navigate(id: string): void {
     isMobileOpen.value = false;
 }
 
-onMounted(observe);
+onMounted(() => {
+    mounted.value = true;
+    observe();
+});
 onBeforeUnmount(cleanup);
 </script>
 
@@ -121,61 +130,67 @@ onBeforeUnmount(cleanup);
 
   <!-- The mobile variant: a floating button expanding into a panel
        with the same heading list — positioned LEFT of the GoTop button
-       (user rework 2026-08-16). -->
-  <div
-    class="toc-mobile"
-    :data-testid="`${props.test_id}-mobile`"
+       (user rework 2026-08-16). Teleported to <body> so `position:
+       fixed` is viewport-relative (a11y 13.6 #19). -->
+  <Teleport
+    v-if="mounted"
+    to="body"
   >
-    <PublicBaseButton
-      variant="icon-only"
-      icon="heroicons:list-bullet"
-      class="toc-mobile__toggle"
-      :aria-label="t('blog.table_of_contents')"
-      :aria-expanded="isMobileOpen ? 'true' : 'false'"
-      :aria-controls="`${props.test_id}-mobile-panel`"
-      :test_id="`${props.test_id}-mobile-toggle`"
-      @click="isMobileOpen = !isMobileOpen"
-    />
     <div
-      v-if="isMobileOpen"
-      :id="`${props.test_id}-mobile-panel`"
-      class="toc-mobile__panel"
-      data-state="mobile"
+      class="toc-mobile"
+      :data-testid="`${props.test_id}-mobile`"
     >
-      <h2 class="table-of-contents__title">
-        {{ t('blog.table_of_contents') }}
-      </h2>
-      <p
-        v-if="props.headings.length === 0"
-        class="table-of-contents__empty"
-        :data-testid="`${props.test_id}-mobile-empty`"
+      <PublicBaseButton
+        variant="icon-only"
+        icon="heroicons:list-bullet"
+        class="toc-mobile__toggle"
+        :aria-label="t('blog.table_of_contents')"
+        :aria-expanded="isMobileOpen ? 'true' : 'false'"
+        :aria-controls="`${props.test_id}-mobile-panel`"
+        :test_id="`${props.test_id}-mobile-toggle`"
+        @click="isMobileOpen = !isMobileOpen"
+      />
+      <div
+        v-if="isMobileOpen"
+        :id="`${props.test_id}-mobile-panel`"
+        class="toc-mobile__panel"
+        data-state="mobile"
       >
-        {{ t('blog.toc_empty') }}
-      </p>
-      <ul
-        v-else
-        class="table-of-contents__list"
-      >
-        <li
-          v-for="heading in props.headings"
-          :key="`mobile-${heading.id}`"
+        <h2 class="table-of-contents__title">
+          {{ t('blog.table_of_contents') }}
+        </h2>
+        <p
+          v-if="props.headings.length === 0"
+          class="table-of-contents__empty"
+          :data-testid="`${props.test_id}-mobile-empty`"
         >
-          <button
-            class="table-of-contents__link"
-            :class="{
-              'is-active': activeId === heading.id,
-              'table-of-contents__link--sub': heading.level === 3,
-            }"
-            type="button"
-            :data-testid="`${props.test_id}-mobile-link-${heading.id}`"
-            @click="navigate(heading.id)"
+          {{ t('blog.toc_empty') }}
+        </p>
+        <ul
+          v-else
+          class="table-of-contents__list"
+        >
+          <li
+            v-for="heading in props.headings"
+            :key="`mobile-${heading.id}`"
           >
-            {{ heading.text }}
-          </button>
-        </li>
-      </ul>
+            <button
+              class="table-of-contents__link"
+              :class="{
+                'is-active': activeId === heading.id,
+                'table-of-contents__link--sub': heading.level === 3,
+              }"
+              type="button"
+              :data-testid="`${props.test_id}-mobile-link-${heading.id}`"
+              @click="navigate(heading.id)"
+            >
+              {{ heading.text }}
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <style scoped>

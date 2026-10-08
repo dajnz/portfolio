@@ -7,7 +7,7 @@ import { useToast } from '@shared-cross/Composables/useToast';
 import PublicBaseButton from '@shared-public/PublicBaseButton.vue';
 import PublicBaseInput from '@shared-public/PublicBaseInput.vue';
 import PublicBaseTextarea from '@shared-public/PublicBaseTextarea.vue';
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 
 const props = withDefaults(
     defineProps<{
@@ -39,6 +39,7 @@ const honeypot = ref('');
 const submitting = ref(false);
 const succeeded = ref(false);
 const serverErrors = ref<Record<string, string>>({});
+const successEl = ref<HTMLElement | null>(null);
 
 // The success template arrives localized with the `{sender_name}`
 // placeholder (public-section-components.md:828) — interpolated here.
@@ -92,6 +93,10 @@ async function handleSubmit(): Promise<void> {
                 sender_name: senderName.value,
                 sender_email: senderEmail.value,
             });
+            // Move focus to the success state so screen readers announce
+            // the confirmation (a11y 13.6 #7).
+            await nextTick();
+            successEl.value?.focus();
             return;
         }
 
@@ -124,7 +129,11 @@ async function handleSubmit(): Promise<void> {
   >
     <div
       v-if="succeeded"
+      ref="successEl"
       class="feedback-form__success"
+      role="status"
+      aria-live="polite"
+      tabindex="-1"
       :data-testid="`${props.test_id}-success`"
     >
       <Icon

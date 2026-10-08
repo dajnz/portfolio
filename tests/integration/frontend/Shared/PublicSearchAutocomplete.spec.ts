@@ -201,6 +201,72 @@ describe('PublicSearchAutocomplete', () => {
         expect(wrapper.find('[data-testid="search-autocomplete-dropdown"]').exists()).toBe(false);
     });
 
+    it('does not open the dropdown on focus alone', async () => {
+        const wrapper = mount(PublicSearchAutocomplete, {
+            props: { fetch_url: '/api/search' },
+        });
+
+        await wrapper.get('[data-testid="search-autocomplete-input"]').trigger('focus');
+
+        expect(wrapper.find('[data-testid="search-autocomplete-dropdown"]').exists()).toBe(false);
+    });
+
+    it('keeps the dropdown open when the input loses focus inside the list', async () => {
+        vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(RESULTS), { status: 200 }));
+        const wrapper = mount(PublicSearchAutocomplete, {
+            props: { fetch_url: '/api/search' },
+        });
+
+        await wrapper.get('[data-testid="search-autocomplete-input"]').setValue('lar');
+        await vi.advanceTimersByTimeAsync(300);
+        await vi.waitFor(() => {
+            expect(wrapper.find('[data-testid="search-autocomplete-dropdown"]').exists()).toBe(true);
+        });
+
+        await wrapper.get('[data-testid="search-autocomplete-input"]').trigger('blur');
+
+        expect(wrapper.find('[data-testid="search-autocomplete-dropdown"]').exists()).toBe(true);
+    });
+
+    it('closes the dropdown and clears results when the query is emptied', async () => {
+        const fetchMock = vi.mocked(fetch).mockResolvedValue(
+            new Response(JSON.stringify(RESULTS), { status: 200 }),
+        );
+        const wrapper = mount(PublicSearchAutocomplete, {
+            props: { fetch_url: '/api/search' },
+        });
+
+        const input = wrapper.get('[data-testid="search-autocomplete-input"]');
+        await input.setValue('lar');
+        await vi.advanceTimersByTimeAsync(300);
+        await vi.waitFor(() => {
+            expect(wrapper.findAll('[data-testid^="search-autocomplete-result-"]')).toHaveLength(2);
+        });
+
+        await input.setValue('');
+        await vi.advanceTimersByTimeAsync(300);
+
+        expect(wrapper.find('[data-testid="search-autocomplete-dropdown"]').exists()).toBe(false);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('announces the result count through the live region', async () => {
+        vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(RESULTS), { status: 200 }));
+        const wrapper = mount(PublicSearchAutocomplete, {
+            props: { fetch_url: '/api/search' },
+        });
+
+        await wrapper.get('[data-testid="search-autocomplete-input"]').setValue('lar');
+        await vi.advanceTimersByTimeAsync(300);
+        await vi.waitFor(() => {
+            expect(wrapper.findAll('[data-testid^="search-autocomplete-result-"]')).toHaveLength(2);
+        });
+
+        expect(wrapper.get('[data-testid="search-autocomplete-status"]').text()).toBe(
+            '2 results found',
+        );
+    });
+
     it('renders custom result rows through the result slot', async () => {
         vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(RESULTS), { status: 200 }));
         const wrapper = mount(PublicSearchAutocomplete, {

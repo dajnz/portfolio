@@ -6,7 +6,7 @@ import ThemeSwitch from '@shared-cross/Components/ThemeSwitch.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useThemeStore } from '@shared-cross/Stores/themeStore';
 import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 interface NavItem {
     label: string;
@@ -56,8 +56,14 @@ const supportedLocales = computed(() => localeOptionsFromCodes(page.props?.suppo
 const visibleItems = computed(() => props.nav_items.filter((item) => item.condition !== false));
 
 // Mobile: the nav collapses into a hamburger-toggled panel below the
-// header (user request 2026-08-15); a link click closes it.
+// header (user request 2026-08-15); a link click closes it. The panel is
+// a DOM sibling of the header (NOT teleported) so the natural tab order
+// stays hamburger → panel links → main (a11y 13.6 #1); it sits outside
+// the header's backdrop root so its own backdrop-filter still blurs the
+// page content.
 const menuOpen = ref(false);
+const panelEl = ref<HTMLElement | null>(null);
+const hamburgerEl = ref<HTMLButtonElement | null>(null);
 
 function toggleMenu(): void {
     menuOpen.value = !menuOpen.value;
@@ -66,6 +72,44 @@ function toggleMenu(): void {
 function closeMenu(): void {
     menuOpen.value = false;
 }
+
+function handleKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && menuOpen.value) {
+        closeMenu();
+        hamburgerEl.value?.focus();
+    }
+}
+
+// Click-away dismissal (the admin mobile menu pattern, admin-section-
+// components.md): any pointer press outside the panel and its hamburger
+// closes it — including the header controls, so a header popup such as
+// the language dropdown never sits under the panel.
+function handlePointerDown(event: Event): void {
+    if (!menuOpen.value) {
+        return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof Node)) {
+        return;
+    }
+
+    if (panelEl.value?.contains(target) === true || hamburgerEl.value?.contains(target) === true) {
+        return;
+    }
+
+    closeMenu();
+}
+
+onMounted(() => {
+    window.addEventListener('keydown', handleKeydown);
+    window.addEventListener('pointerdown', handlePointerDown);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('keydown', handleKeydown);
+    window.removeEventListener('pointerdown', handlePointerDown);
+});
 
 function isActive(item: NavItem): boolean {
     return props.active_route !== undefined && item.url === props.active_route;
@@ -90,7 +134,7 @@ function isActive(item: NavItem): boolean {
         <img
           class="header__logo-image"
           :src="logoImage"
-          :alt="props.logo_text ?? ''"
+          :alt="props.logo_text || t('nav.home_link')"
           width="83"
           height="22"
           data-testid="public-header-logo-image"
@@ -128,10 +172,12 @@ function isActive(item: NavItem): boolean {
         </slot>
       </div>
       <button
+        ref="hamburgerEl"
         type="button"
         class="header__hamburger"
         :aria-label="t('nav.toggle_menu')"
         :aria-expanded="menuOpen"
+        aria-controls="public-mobile-menu"
         :data-testid="`${props.test_id}-hamburger`"
         @click="toggleMenu"
       >
@@ -143,36 +189,37 @@ function isActive(item: NavItem): boolean {
       </button>
     </nav>
   </header>
-  <!-- The mobile menu panel is TELEPORTED to <body>: inside the sticky
-       header its backdrop-filter would sit within the header's backdrop
-       root and could not blur the content below it (only its own
-       translucent bg would show). -->
-  <Teleport to="body">
-    <div
-      v-if="menuOpen"
-      class="header__mobile-menu"
-      :data-testid="`${props.test_id}-mobile-menu`"
-    >
-      <ul class="header__mobile-menu-list">
-        <li
-          v-for="item in visibleItems"
-          :key="item.url"
-          class="header__mobile-menu-item"
+  <!-- The mobile menu panel is a DOM sibling of the sticky header (NOT
+       teleported): it must follow the hamburger in tab order (a11y
+       13.6 #1), and as a non-descendant of the header it stays outside
+       the header's backdrop root, so its own backdrop-filter still
+       blurs the content below it. -->
+  <div
+    v-if="menuOpen"
+    id="public-mobile-menu"
+    ref="panelEl"
+    class="header__mobile-menu"
+    :data-testid="`${props.test_id}-mobile-menu`"
+  >
+    <ul class="header__mobile-menu-list">
+      <li
+        v-for="item in visibleItems"
+        :key="item.url"
+        class="header__mobile-menu-item"
+      >
+        <a
+          class="link--nav"
+          :class="{ 'is-active': isActive(item) }"
+          :href="item.url"
+          :aria-current="isActive(item) ? 'page' : undefined"
+          :data-testid="`public-header-nav-${item.url}`"
+          @click="closeMenu"
         >
-          <a
-            class="link--nav"
-            :class="{ 'is-active': isActive(item) }"
-            :href="item.url"
-            :aria-current="isActive(item) ? 'page' : undefined"
-            :data-testid="`public-header-nav-${item.url}`"
-            @click="closeMenu"
-          >
-            {{ item.label }}
-          </a>
-        </li>
-      </ul>
-    </div>
-  </Teleport>
+          {{ item.label }}
+        </a>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <style scoped>
