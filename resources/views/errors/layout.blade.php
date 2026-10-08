@@ -122,6 +122,23 @@
             border-radius: var(--radius-md);
         }
 
+        .skip-link {
+            position: absolute;
+            top: -100%;
+            left: var(--space-md);
+            z-index: 10;
+            padding: 0.5rem var(--space-md);
+            background: var(--color-accent);
+            color: #fff;
+            border-radius: var(--radius-md);
+            font-weight: var(--font-weight-semibold);
+            transition: top 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .skip-link:focus {
+            top: var(--space-md);
+        }
+
         .error-page {
             position: relative;
             overflow: hidden;
@@ -248,7 +265,8 @@
     </style>
 </head>
 <body>
-<main class="error-page" data-component="error-page" data-status="{{ $status }}" data-testid="error-page">
+<a class="skip-link" href="#main-content" data-testid="error-page-skip-link">{{ __('nav.skip_to_content') }}</a>
+<main id="main-content" class="error-page" data-component="error-page" data-status="{{ $status }}" data-testid="error-page">
     <div class="gradient-hero__yellow-blue" aria-hidden="true"></div>
     <div class="gradient-hero__red" aria-hidden="true"></div>
 

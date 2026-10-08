@@ -79,6 +79,14 @@ test.describe('public layout', () => {
         await expect(page.getByTestId('error-page')).toBeVisible();
         await expect(page.getByTestId('error-page-code')).toHaveText('404');
 
+        // The self-contained Blade error layout carries the same skip
+        // link as the Inertia layouts (a11y 13.6 #20).
+        await expect(page.getByTestId('error-page-skip-link')).toHaveAttribute(
+            'href',
+            '#main-content',
+        );
+        await expect(page.locator('#main-content')).toBeVisible();
+
         await expectPublicPageAxeClean(page, testInfo);
 
         // The home link resolves to the site root (the APP_URL origin —
