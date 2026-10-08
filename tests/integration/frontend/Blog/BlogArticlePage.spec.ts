@@ -102,7 +102,6 @@ function mountPage(props: Record<string, unknown> = {}) {
     return mount(BlogArticlePage, {
         props: { ...PAGE_PROPS, ...props } as unknown as InstanceType<typeof BlogArticlePage>['$props'],
         attachTo: document.body,
-        global: { stubs: { Teleport: true } },
     });
 }
 
@@ -201,6 +200,9 @@ describe('BlogArticlePage', () => {
         await flush();
 
         expect(scrollIntoView).toHaveBeenCalledTimes(1);
+        // Focus lands on the heading so screen readers announce it and the
+        // position is not lost when the panel closes.
+        expect(document.activeElement?.id).toBe('conclusion');
     });
 
     it('mounts the CodeBlock over the data-code-block marker with the copy button', async () => {
@@ -348,13 +350,22 @@ describe('BlogArticlePage', () => {
         );
         expect(toc.findAll('[data-testid^="blog-article-page-toc-link-"]')).toHaveLength(0);
 
-        // The mobile floating variant shows the same empty message.
-        const mobile = wrapper.get('[data-testid="blog-article-page-toc-mobile"]');
-        await mobile.get('[data-testid="blog-article-page-toc-mobile-toggle"]').trigger('click');
+        // The mobile floating variant shows the same empty message. It is
+        // teleported to <body> (fixed positioning out of the container-
+        // type main), so it is queried on the document.
+        const mobile = document.querySelector(
+            '[data-testid="blog-article-page-toc-mobile"]',
+        ) as HTMLElement;
+        (
+            mobile.querySelector(
+                '[data-testid="blog-article-page-toc-mobile-toggle"]',
+            ) as HTMLElement
+        ).click();
         await flush();
-        expect(mobile.get('[data-testid="blog-article-page-toc-mobile-empty"]').text()).toBe(
-            'No headings in this article.',
-        );
+        expect(
+            document.querySelector('[data-testid="blog-article-page-toc-mobile-empty"]')
+                ?.textContent,
+        ).toBe('No headings in this article.');
     });
 
     it('shows the localized type heading for title-less callouts', async () => {
@@ -377,19 +388,25 @@ describe('BlogArticlePage', () => {
     });
 
     it('renders the mobile TOC floating button with the same headings', async () => {
-        const wrapper = mountPage();
+        mountPage();
         await flush();
 
-        const mobile = wrapper.get('[data-testid="blog-article-page-toc-mobile"]');
-        const toggle = mobile.get('[data-testid="blog-article-page-toc-mobile-toggle"]');
-        expect(toggle.attributes('aria-expanded')).toBe('false');
+        const mobile = document.querySelector(
+            '[data-testid="blog-article-page-toc-mobile"]',
+        ) as HTMLElement;
+        const toggle = mobile.querySelector(
+            '[data-testid="blog-article-page-toc-mobile-toggle"]',
+        ) as HTMLElement;
+        expect(toggle.getAttribute('aria-expanded')).toBe('false');
 
-        await toggle.trigger('click');
+        toggle.click();
         await flush();
 
-        expect(toggle.attributes('aria-expanded')).toBe('true');
-        const mobileLinks = mobile.findAll('[data-testid^="blog-article-page-toc-mobile-link-"]');
+        expect(toggle.getAttribute('aria-expanded')).toBe('true');
+        const mobileLinks = mobile.querySelectorAll(
+            '[data-testid^="blog-article-page-toc-mobile-link-"]',
+        );
         expect(mobileLinks).toHaveLength(3);
-        expect(mobileLinks[0].text()).toBe('Introduction');
+        expect(mobileLinks[0].textContent).toBe('Introduction');
     });
 });

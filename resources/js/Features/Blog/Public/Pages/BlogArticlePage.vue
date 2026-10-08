@@ -5,6 +5,7 @@ import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
 import { useSeoUpdater } from '@shared-cross/Composables/useSeoUpdater';
 import type { components } from '@shared-cross/Types/inertia';
 import PublicPageLayout from '@shared-public/PublicPageLayout.vue';
+import { nextTick } from 'vue';
 import ArticleContent from '../Components/ArticleContent.vue';
 import RelatedPosts from '../Components/RelatedPosts.vue';
 import TableOfContents from '../Components/TableOfContents.vue';
@@ -48,9 +49,22 @@ function onTocNavigate(id: string): void {
         return;
     }
 
-    document.getElementById(id)?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
+    // Wait for the TOC panel to close, then move focus to the heading so
+    // the mobile/VoiceOver case does not lose focus (and scroll) when the
+    // teleported panel is removed — focusing also announces the heading.
+    void nextTick(() => {
+        const heading = document.getElementById(id);
+
+        if (heading === null) {
+            return;
+        }
+
+        heading.setAttribute('tabindex', '-1');
+        heading.focus({ preventScroll: true });
+        heading.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+        });
     });
 }
 </script>
