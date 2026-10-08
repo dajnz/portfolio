@@ -63,31 +63,66 @@ describe('PublicPageHeader', () => {
         expect(wrapper.get('nav').attributes('aria-label')).toBe('Main navigation');
     });
 
-    it('toggles the teleported mobile menu via the hamburger and closes it on a nav link click', async () => {
+    it('falls back to the Home label for the logo alt when no logo text is provided', () => {
+        const wrapper = mount(PublicPageHeader, {
+            props: { nav_items: [] },
+        });
+
+        expect(wrapper.get('[data-testid="public-header-logo-image"]').attributes('alt')).toBe(
+            'Home',
+        );
+    });
+
+    it('toggles the inline mobile menu and closes it on a nav link click', async () => {
         const wrapper = mount(PublicPageHeader, {
             props: { nav_items: NAV_ITEMS },
+            attachTo: document.body,
         });
 
         const hamburger = wrapper.get('[data-testid="public-header-hamburger"]');
         expect(hamburger.attributes('aria-expanded')).toBe('false');
+        expect(hamburger.attributes('aria-controls')).toBe('public-mobile-menu');
         expect(document.querySelector('[data-testid="public-header-mobile-menu"]')).toBeNull();
 
         await hamburger.trigger('click');
         expect(hamburger.attributes('aria-expanded')).toBe('true');
 
-        // The panel is teleported to <body> so its backdrop-filter blurs
-        // the page content (inside the header it would blur nothing).
+        // Inline, not teleported: it follows the header in DOM order so
+        // the natural tab order is hamburger → panel links (a11y 13.6 #1).
         const panel = document.querySelector('[data-testid="public-header-mobile-menu"]');
         expect(panel).not.toBeNull();
-        expect(panel?.parentElement?.tagName).toBe('BODY');
-        const links = panel?.querySelectorAll('a');
-        expect(links?.length).toBe(3);
+        expect(panel?.id).toBe('public-mobile-menu');
+        expect((panel?.previousElementSibling as HTMLElement | null)?.tagName).toBe('HEADER');
+        expect(panel?.querySelectorAll('a')).toHaveLength(3);
 
         (panel?.querySelector('[data-testid="public-header-nav-/blog"]') as HTMLElement | null)?.click();
         await wrapper.vm.$nextTick();
 
         expect(hamburger.attributes('aria-expanded')).toBe('false');
         expect(document.querySelector('[data-testid="public-header-mobile-menu"]')).toBeNull();
+
+        wrapper.unmount();
+    });
+
+    it('closes the mobile menu on Escape and returns focus to the hamburger', async () => {
+        const wrapper = mount(PublicPageHeader, {
+            props: { nav_items: NAV_ITEMS },
+            attachTo: document.body,
+        });
+
+        const hamburger = wrapper.get('[data-testid="public-header-hamburger"]');
+        await hamburger.trigger('click');
+        expect(hamburger.attributes('aria-expanded')).toBe('true');
+
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        await wrapper.vm.$nextTick();
+
+        expect(hamburger.attributes('aria-expanded')).toBe('false');
+        expect(document.activeElement?.getAttribute('data-testid')).toBe(
+            'public-header-hamburger',
+        );
+
+        wrapper.unmount();
     });
 
     it('renders the controls slot inside the header controls', () => {

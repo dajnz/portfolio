@@ -56,7 +56,7 @@ const logoLetter = computed(() =>
           v-if="hasLogo"
           class="mx-auto mb-3 h-16 w-16 rounded-xl"
           :src="resolvedLogoUrl"
-          alt=""
+          :alt="props.title ?? t('admin.section_title')"
           :data-testid="`${props.test_id}-logo`"
         >
         <span
