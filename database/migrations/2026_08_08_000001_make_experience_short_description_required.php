@@ -12,9 +12,8 @@ return new class () extends Migration {
      * `short_description` becomes the only required column of
      * `experience_timeline_item_translations` (the identity trio
      * position/company_name/company_country is all-or-none, but each
-     * stays nullable — content-management.md:654-659). PostgreSQL
-     * refuses NOT NULL over existing nulls, so they are backfilled
-     * first.
+     * stays nullable). PostgreSQL refuses NOT NULL over existing
+     * nulls, so they are backfilled first.
      */
     public function up(): void
     {

@@ -1,8 +1,7 @@
 {{--
-    Resume PDF template: `classic` (content-management.md:352-358) —
-    two columns (skills/contacts sidebar, experience/about main), dense
-    traditional resume layout. dompdf-rendered: table layout + system
-    fonts only.
+    Resume PDF template: `classic` — two columns (skills/contacts sidebar,
+    experience/about main), dense traditional resume layout. dompdf-rendered:
+    table layout + system fonts only.
 --}}
 @php
     $sections = $data['sections'];

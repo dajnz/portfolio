@@ -1,9 +1,8 @@
 {{--
-    Resume PDF template: `modern` (content-management.md:352-358) —
-    single column, accent color bar, generous whitespace. Receives the
-    assembled per-locale `data` (visible sections only) + `locale`.
-    dompdf-rendered: self-contained CSS only, system fonts (DejaVu —
-    Cyrillic-safe).
+    Resume PDF template: `modern` — single column, accent color bar,
+    generous whitespace. Receives the assembled per-locale `data` (visible
+    sections only) + `locale`. dompdf-rendered: self-contained CSS only,
+    system fonts (DejaVu — Cyrillic-safe).
 --}}
 @php
     $order = collect($data['sections'])
@@ -65,7 +64,7 @@
 <body>
     {{-- The visible sections render in their layout order — `$order` is
          the render sequence, not a visibility gate (the @if blocks below
-         skip empty sections, content-management.md:337-347). --}}
+         skip empty sections). --}}
     @foreach ($order as $section)
         @if ($section === 'header')
             <header>

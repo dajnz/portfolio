@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 @php use App\Features\Shared\Infra\Middleware\CspNonce; @endphp
 @php
-    // Server-side SEO meta (seo.md:47) — the Blade layout renders the
+    // Server-side SEO meta — the Blade layout renders the
     // controller-provided SeoProps during SSR; useSeoUpdater takes over on
     // client-side navigations. The meta tags carry `data-inertia` (empty
     // value) so Inertia's head manager treats them as managed and replaces
@@ -19,13 +19,12 @@
     $ogType = $seo['og_type'] ?? 'website';
     $canonicalUrl = $seo['canonical_url'] ?? null;
     $robots = $seo['robots'] ?? null;
-    // Article Open Graph metadata (seo.md:65) — only blog articles.
     $article = $seo['article'] ?? null;
     $jsonLd = $seo['json_ld'] ?? [];
-    // hreflang alternates (seo.md:246-256): locale-prefixed variants of
-    // the canonical (slashless) URL plus the `x-default` — derived from
-    // the shared `supported_locales` prop so the tags mirror what
-    // useSeoUpdater renders after client-side navigations.
+    // hreflang alternates: locale-prefixed variants of the canonical
+    // (slashless) URL plus the `x-default` — derived from the shared
+    // `supported_locales` prop so the tags mirror what useSeoUpdater
+    // renders after client-side navigations.
     $seoAlternates = [];
     if ($canonicalUrl !== null && $canonicalUrl !== '') {
         $canonicalPath = (string) parse_url($canonicalUrl, PHP_URL_PATH);
@@ -48,9 +47,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title inertia>{{ $seoTitle !== '' ? $seoTitle : config('app.name', 'Portfolio') }}</title>
     @php
-        // Section favicons (Makefile `images` pipeline): the admin area
-        // gets its own set, the public surface its own. (`$request` is
-        // not in scope in the Inertia SSR render — use the helper.)
+        // Section favicons: the admin area gets its own set, the public
+        // surface its own. (`$request` is not in scope in the Inertia SSR
+        // render — use the helper.)
         $isAdminSurface = str_starts_with((string) request()->path(), 'admin');
         $faviconBase = $isAdminSurface ? 'favicon-admin' : 'favicon-public';
         $isLanding = str_ends_with((string) ($page['component'] ?? ''), 'LandingPage');
@@ -62,11 +61,11 @@
         <link rel="alternate" type="application/rss+xml" href="{{ rtrim((string) config('app.url'), '/') }}/rss">
     @endif
     @if ($isLanding)
-        {{-- LCP preloads (step 13.3 performance record): the hero's
-             tech-stack-tiles.svg CSS background is the landing LCP and a
-             background image cannot carry fetchpriority — preloading
-             starts it at parse time instead of after the stylesheet;
-             the hero photo preloads when the about row has one. --}}
+        {{-- LCP preloads: the hero's tech-stack-tiles.svg CSS background is
+             the landing LCP and a background image cannot carry
+             fetchpriority — preloading starts it at parse time instead of
+             after the stylesheet; the hero photo preloads when the about
+             row has one. --}}
         <link rel="preload" as="image" href="/images/tech-stack-tiles.svg" fetchpriority="high">
         @if (($page['props']['about']['photo'] ?? null) !== null)
             <link rel="preload" as="image" href="{{ url('/assets/'.$page['props']['about']['photo']) }}" fetchpriority="high">

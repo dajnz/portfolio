@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('resume_config', function (Blueprint $table) {
@@ -25,9 +22,6 @@ return new class () extends Migration {
         DB::statement('alter table resume_config add constraint resume_config_mode_check check (mode in (\'auto\', \'manual\'))');
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('resume_config');

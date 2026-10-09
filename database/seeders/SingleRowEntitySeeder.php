@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 /**
- * Seeds the single-row configuration entities (database.md:617): the
- * `about_info` row (id = 1) with the demo landing profile — the persona,
- * bilingual `en`/`ru` translations and the demo photo — and the
- * `resume_config` row (id = 1, `mode = 'manual'`, the default `layout`
- * JSON). Must never touch the `admins` table.
+ * Seeds the single-row configuration entities: the `about_info` row
+ * (id = 1) with the demo landing profile — the persona, bilingual
+ * `en`/`ru` translations and the demo photo — and the `resume_config`
+ * row (id = 1, `mode = 'manual'`, the default `layout` JSON). Must never
+ * touch the `admins` table.
  *
  * The about state is refreshed on every run (same semantics as
  * SettingsSeeder) so the demo profile is deterministic: the row and its
@@ -28,7 +28,7 @@ use Throwable;
  */
 final class SingleRowEntitySeeder extends Seeder
 {
-    /** Demo persona (mockup + e2e demo data; user-approved 2026-09-07). */
+    /** Demo persona shared by the dev and e2e datasets. */
     private const ABOUT_TRANSLATIONS = [
         'en' => [
             'name' => 'Ivan Ivanov',

@@ -7,9 +7,6 @@ namespace Database\Factories;
 use App\Features\Portfolio\Infra\Models\ContactModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * Test factory for the `contacts` table (ADR-0029).
- */
 final class ContactModelFactory extends Factory
 {
     protected $model = ContactModel::class;

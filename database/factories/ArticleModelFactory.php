@@ -7,9 +7,6 @@ namespace Database\Factories;
 use App\Features\Blog\Infra\Models\ArticleModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * Test factory for `blog_articles` (ADR-0029).
- */
 final class ArticleModelFactory extends Factory
 {
     protected $model = ArticleModel::class;

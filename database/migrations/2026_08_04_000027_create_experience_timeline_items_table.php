@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('experience_timeline_items', function (Blueprint $table) {
@@ -31,9 +28,6 @@ return new class () extends Migration {
         DB::statement('alter table experience_timeline_items add constraint experience_timeline_items_project_reference_check check (project_id is null or external_project_name is null)');
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('experience_timeline_items');

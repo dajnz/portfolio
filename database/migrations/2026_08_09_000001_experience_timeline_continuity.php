@@ -9,14 +9,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     /**
-     * Timeline continuity (ADR-0024, user request 2026-08-09):
-     * - `position` becomes the second REQUIRED column of
-     *   `experience_timeline_item_translations` (after the ADR-0002
-     *   `short_description` — the position is mandatory per locale,
-     *   company name + country stay optional but all-or-none);
-     * - the `dates_check` constraint tightens from
-     *   `ended_at >= started_at` to `ended_at > started_at` — an item
-     *   must not end on or before the day it started.
+     * `position` becomes the second required column of
+     * `experience_timeline_item_translations` (the position is mandatory
+     * per locale, company name + country stay optional but all-or-none),
+     * and the `dates_check` constraint tightens from
+     * `ended_at >= started_at` to `ended_at > started_at` — an item must
+     * not end on or before the day it started.
      */
     public function up(): void
     {

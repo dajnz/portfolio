@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('about_info', function (Blueprint $table) {
@@ -31,9 +28,6 @@ return new class () extends Migration {
         DB::statement("alter table about_info add constraint about_info_work_type_check check (work_type in ('remote', 'hybrid', 'office'))");
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('about_info');

@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('backups', function (Blueprint $table) {
@@ -34,9 +31,6 @@ return new class () extends Migration {
         DB::statement('alter table backups add constraint backups_status_check check (status in (\'pending\', \'processing\', \'completed\', \'failed\'))');
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('backups');
