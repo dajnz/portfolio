@@ -231,6 +231,30 @@ describe('ContactsListPage', () => {
         );
     });
 
+    it('reorders contacts via the keyboard move buttons (accessibility.md:35-44)', async () => {
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="contacts-list-page-move-down-1"]').trigger('click');
+
+        expect(postMock).toHaveBeenCalledWith(
+            '/admin/contacts/reorder',
+            { ids: [2, 1] },
+            expect.any(Object),
+        );
+    });
+
+    it('disables the boundary move buttons with aria-disabled', () => {
+        const wrapper = mountPage();
+
+        const moveUp = wrapper.get('[data-testid="contacts-list-page-move-up-1"]');
+        const moveDown = wrapper.get('[data-testid="contacts-list-page-move-down-2"]');
+
+        expect(moveUp.attributes('disabled')).toBeDefined();
+        expect(moveUp.attributes('aria-disabled')).toBe('true');
+        expect(moveDown.attributes('disabled')).toBeDefined();
+        expect(moveDown.attributes('aria-disabled')).toBe('true');
+    });
+
     it('requests the sort_order ascending view when the server served the default', () => {
         mountPage({
             meta: { ...META, sort_column: 'id', sort_direction: 'desc' },

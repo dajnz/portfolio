@@ -387,6 +387,24 @@ describe('ProjectsListPage', () => {
         });
     });
 
+    it('reorders featured projects via the keyboard move buttons (accessibility.md:35-44)', async () => {
+        postMock.mockResolvedValue({});
+        const wrapper = mountPage({
+            featured_projects: [
+                PROJECTS[0],
+                { ...PROJECTS[1], is_featured: true, featured_sort_order: 2 },
+            ],
+        });
+
+        await wrapper
+            .get('[data-testid="projects-list-page-featured-item-1-move-down"]')
+            .trigger('click');
+
+        expect(postMock).toHaveBeenCalledWith('/admin/projects/reorder-featured', {
+            json: { ids: [2, 1] },
+        });
+    });
+
     it('searches via the autocomplete submit carrying the q param', async () => {
         const wrapper = mountPage();
         const search = wrapper.findComponent({ name: 'AdminSearchAutocomplete' });
