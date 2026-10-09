@@ -33,7 +33,7 @@ components:
                   description: |
                     Whether at least one published, non-trashed project
                     exists — the header nav's Projects-link condition
-                    (A10; the same signal the experience timeline page
+                    (ADR-0025; the same signal the experience timeline page
                     carries, v1.0.16).
                 seo:
                   $ref: './shared.yaml#/components/schemas/SeoProps'
@@ -58,7 +58,7 @@ components:
                     The visitor's reaction state — null when the
                     `social_reactions` feature flag is disabled (no
                     widget rendered, public-section-components.md:1273)
-                    or on the signed preview (B211).
+                    or on the signed preview (ADR-0004).
                   properties:
                     user_reaction:
                       type: string
@@ -72,7 +72,7 @@ components:
                   description: |
                     Whether at least one published, non-trashed project
                     exists — the header nav's Projects-link condition
-                    (A10).
+                    (ADR-0025).
                 seo:
                   $ref: './shared.yaml#/components/schemas/SeoProps'
 
@@ -137,7 +137,7 @@ components:
                         type: string
                       title:
                         type: string
-                  description: Published articles — the Related Articles multi-select options (B188 pattern).
+                  description: Published articles — the Related Articles multi-select options (ADR-0004 pattern).
                 preview_url:
                   type: string
                   nullable: true
@@ -210,7 +210,7 @@ components:
           type: string
           description: |
             The locale-resolved brief description — or the FTS search
-            excerpt (the `ts_headline()` `<mark>`-wrapped HTML, B16)
+            excerpt (the `ts_headline()` `<mark>`-wrapped HTML, ADR-0007)
             on the Inertia HTML variant when `?q=` is present. The
             JSON variant always returns the raw value.
         published_at:
@@ -272,7 +272,7 @@ components:
           description: |
             The article body rendered server-side by the shared content
             pipeline (safe-mode CommonMark + callouts + syntax
-            highlighting — content-management.md:466-481, B23). The
+            highlighting — content-management.md:466-481, ADR-0008). The
             public page renders it via v-html.
         short_description:
           type: string

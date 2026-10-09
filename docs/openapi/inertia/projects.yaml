@@ -309,7 +309,7 @@ components:
             Engineering detail items with per-locale title/description
             maps (the admin form edits them under LocaleTabs —
             `item.title.en` etc. in the mockup). Rows carry their id for
-            the reconcile-by-id convention (A2).
+            the reconcile-by-id convention (ADR-0005).
           items:
             $ref: '#/components/schemas/ProjectDetailItemEditData'
 
@@ -326,7 +326,7 @@ components:
           type: string
           nullable: true
           description: |
-            The stored preview image path (A7 — public URL is
+            The stored preview image path (ADR-0027 — public URL is
             `{APP_URL}/assets/{path}`); null when the project has no
             preview image (the Preview column shows a placeholder).
         is_published:
@@ -452,7 +452,7 @@ components:
       properties:
         id:
           type: integer
-          description: Existing row id on edit (reconcile-by-id, A2); absent on new rows.
+          description: Existing row id on edit (reconcile-by-id, ADR-0005); absent on new rows.
         icon:
           type: string
           nullable: true
