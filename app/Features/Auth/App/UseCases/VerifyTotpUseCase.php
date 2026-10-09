@@ -11,8 +11,8 @@ use App\Features\Auth\Domain\Exceptions\TotpLockedException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterface;
 use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Shared\App\BaseUseCase;
+use App\Features\Shared\App\Contracts\LoggerInterface;
 use DateTimeImmutable;
-use Illuminate\Support\Facades\Log;
 
 /**
  * TOTP + recovery-code verification with the per-account escalating
@@ -26,6 +26,7 @@ final class VerifyTotpUseCase extends BaseUseCase
     public function __construct(
         private readonly AdminTimedOtpRepositoryInterface $otpRepository,
         private readonly TotpService $totpService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -93,9 +94,9 @@ final class VerifyTotpUseCase extends BaseUseCase
 
             $context['lock_duration'] = $duration;
 
-            Log::error('TOTP lockout escalated (attempts '.$attempts.')', $context);
+            $this->logger->error('TOTP lockout escalated (attempts '.$attempts.')', $context);
         } else {
-            Log::warning('TOTP failure (attempts '.$attempts.')', $context);
+            $this->logger->warning('TOTP failure (attempts '.$attempts.')', $context);
         }
     }
 }

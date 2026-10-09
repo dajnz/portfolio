@@ -7,9 +7,9 @@ namespace App\Features\Auth\App\UseCases;
 use App\Features\Auth\Domain\Entities\Admin;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Shared\App\BaseUseCase;
+use App\Features\Shared\App\Contracts\LoggerInterface;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Password login flow (authentication.md:15-29): credential verification,
@@ -23,6 +23,7 @@ final class LoginUseCase extends BaseUseCase
 
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -36,7 +37,7 @@ final class LoginUseCase extends BaseUseCase
         $admin = $this->repository->findByLoginOrEmail($loginOrEmail);
 
         if ($admin === null || ! Hash::check($password, $admin->toPasswordHash())) {
-            Log::info('Failed login attempt', [
+            $this->logger->info('Failed login attempt', [
                 'ip' => request()->ip(),
                 'login_or_email' => $loginOrEmail,
             ]);
@@ -62,7 +63,7 @@ final class LoginUseCase extends BaseUseCase
         Auth::loginUsingId($admin->toId(), $remember);
         session(['session_version' => $admin->toSessionVersion()]);
 
-        Log::info('Successful login', [
+        $this->logger->info('Successful login', [
             'ip' => request()->ip(),
             'admin_id' => $admin->toId(),
         ]);

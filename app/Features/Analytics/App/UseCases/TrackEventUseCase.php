@@ -10,6 +10,7 @@ use App\Features\Analytics\Domain\Factories\AnalyticsEventFactory;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsEventRepositoryInterface;
 use App\Features\Analytics\Domain\ValueObjects\ClientIds;
 use App\Features\Analytics\Domain\ValueObjects\PageDetails;
+use App\Features\Shared\App\Contracts\LoggerInterface;
 use DateTimeImmutable;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
@@ -31,6 +32,7 @@ final class TrackEventUseCase
 {
     public function __construct(
         private readonly AnalyticsEventRepositoryInterface $repository,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -50,6 +52,7 @@ final class TrackEventUseCase
             return;
         }
 
+        $startedAt = hrtime(true);
         $ipHash = hash_hmac(
             'sha256',
             $ip,
@@ -72,6 +75,11 @@ final class TrackEventUseCase
         }
 
         $this->repository->insertBatch($entities);
+
+        $this->logger->channel('analytics')->info('Analytics batch ingested', [
+            'batch_size' => count($entities),
+            'duration_ms' => (int) round((hrtime(true) - $startedAt) / 1_000_000),
+        ]);
     }
 
     /**
