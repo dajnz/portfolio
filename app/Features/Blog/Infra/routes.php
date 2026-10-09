@@ -23,7 +23,8 @@ use Illuminate\Support\Facades\Config;
  * the signed preview route (excluded from auth, routes.md:155).
  */
 
-Route::get('/blog', [PublicBlogController::class, 'index']);
+Route::get('/blog', [PublicBlogController::class, 'index'])
+    ->middleware('validate_api_spec');
 Route::get('/blog/{article}', [PublicBlogController::class, 'show']);
 Route::get('/{locale}/blog', [PublicBlogController::class, 'index'])
     ->whereIn('locale', Config::get('portfolio.supported_locales', ['en', 'ru']));

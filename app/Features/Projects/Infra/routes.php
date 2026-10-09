@@ -20,7 +20,8 @@ use Illuminate\Support\Facades\Route;
  * invalid value.
  */
 
-Route::get('/projects', [PublicProjectController::class, 'index']);
+Route::get('/projects', [PublicProjectController::class, 'index'])
+    ->middleware('validate_api_spec');
 Route::get('/projects/{project}', [PublicProjectController::class, 'show']);
 Route::get('/{locale}/projects', [PublicProjectController::class, 'index'])
     ->whereIn('locale', config('portfolio.supported_locales', ['en', 'ru']));
