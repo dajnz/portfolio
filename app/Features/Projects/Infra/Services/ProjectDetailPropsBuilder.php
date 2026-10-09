@@ -82,7 +82,9 @@ final class ProjectDetailPropsBuilder
             'title' => $seo->title,
             'description' => $seo->description,
             'canonical_url' => $seo->canonicalUrl,
+            'og_url' => $seo->canonicalUrl,
             'og_type' => $seo->ogType,
+            'og_image' => $seo->ogImage,
             'json_ld' => $seo->jsonLd,
             'robots' => $seo->robots,
         ];

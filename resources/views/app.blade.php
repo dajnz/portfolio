@@ -19,6 +19,8 @@
     $ogType = $seo['og_type'] ?? 'website';
     $canonicalUrl = $seo['canonical_url'] ?? null;
     $robots = $seo['robots'] ?? null;
+    // Article Open Graph metadata (seo.md:65) — only blog articles.
+    $article = $seo['article'] ?? null;
     $jsonLd = $seo['json_ld'] ?? [];
     // hreflang alternates (seo.md:246-256): locale-prefixed variants of
     // the canonical (slashless) URL plus the `x-default` — derived from
@@ -93,6 +95,17 @@
     <meta name="twitter:image" content="{{ $ogImage }}" data-inertia="">
     @if ($ogUrl)
         <meta property="og:url" content="{{ $ogUrl }}" data-inertia="">
+    @endif
+    @if (!empty($article))
+        @if (!empty($article['published_time']))
+            <meta property="article:published_time" content="{{ $article['published_time'] }}" data-inertia="">
+        @endif
+        @if (!empty($article['author']))
+            <meta property="article:author" content="{{ $article['author'] }}" data-inertia="">
+        @endif
+        @foreach (($article['tags'] ?? []) as $articleTag)
+            <meta property="article:tag" content="{{ $articleTag }}" data-inertia="">
+        @endforeach
     @endif
     @if ($canonicalUrl)
         @foreach ($seoAlternates as $seoAlternate)

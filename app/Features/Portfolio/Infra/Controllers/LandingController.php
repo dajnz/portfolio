@@ -165,6 +165,7 @@ final class LandingController
             'title' => __('seo.title_landing', ['name' => $name]),
             'description' => $translation?->toShortPitch() ?? __('seo.description_landing'),
             'canonical_url' => $request->url(),
+            'og_url' => $request->url(),
             'og_type' => 'website',
             'og_image' => $this->aboutImageUrl($about),
             'json_ld' => $this->jsonLd($about, $contacts),

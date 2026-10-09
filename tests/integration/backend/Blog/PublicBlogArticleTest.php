@@ -57,9 +57,35 @@ describe('public blog article', function (): void {
                     && str_contains($html, 'style="color:#1e7a5b"'))
                 ->where('reactions', null)
                 ->where('seo.og_type', 'article')
+                ->where('seo.og_url', url('/blog/'.$article->slug))
+                ->where('seo.og_image', url('/assets/blog/cover.png'))
+                ->where('seo.article.tags', ['PHP'])
+                ->where('seo.article.published_time', fn (mixed $value) => is_string($value) && $value !== '')
                 ->where('seo.json_ld.0.@type', 'BlogPosting')
                 ->where('seo.json_ld.0.keywords', ['PHP'])
+                ->where('seo.json_ld.0.image', url('/assets/blog/cover.png'))
                 ->where('seo.json_ld.1.@type', 'BreadcrumbList'));
+    });
+
+    it('sets the BlogPosting publisher logo from the about photo (seo.md:141)', function (): void {
+        \App\Features\Portfolio\Infra\Models\AboutInfoModel::factory()->create([
+            'id' => 1,
+            'photo' => 'about/photo.jpg',
+        ]);
+
+        $article = $this->publicBlogArticle([], [
+            'en' => [
+                'title' => 'With Logo',
+                'short_description' => 'x',
+                'content' => 'Body text.',
+            ],
+        ]);
+
+        $this->get('/blog/'.$article->slug)
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('seo.json_ld.0.publisher.logo.@type', 'ImageObject')
+                ->where('seo.json_ld.0.publisher.logo.url', url('/assets/about/photo.jpg')));
     });
 
     it('strips raw HTML from the rendered content', function (): void {

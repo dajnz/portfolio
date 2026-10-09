@@ -112,6 +112,7 @@ describe('PublicProjectController', function (): void {
                 ->where('seo.title', 'Projects — ')
                 ->where('seo.description', 'Projects and case studies by .')
                 ->where('seo.canonical_url', url('/projects'))
+                ->where('seo.og_url', url('/projects'))
                 ->where('seo.og_type', 'website')
                 ->has('skill_tags', 0));
     });
@@ -350,6 +351,7 @@ describe('PublicProjectController', function (): void {
         $project = publicProject([
             'github_url' => 'https://github.com/example/gateway',
             'tech_tags_count' => 1,
+            'preview_image' => 'projects/cover.png',
         ]);
         $project->techTags()->attach([$php]);
 
@@ -358,7 +360,9 @@ describe('PublicProjectController', function (): void {
             ->assertInertia(fn (Assert $page) => $page
                 ->where('seo.title', 'Payments Gateway — ')
                 ->where('seo.canonical_url', url('/projects/'.$project->slug))
+                ->where('seo.og_url', url('/projects/'.$project->slug))
                 ->where('seo.og_type', 'article')
+                ->where('seo.og_image', url('/assets/projects/cover.png'))
                 ->where('seo.json_ld.0.@type', 'SoftwareSourceCode')
                 ->where('seo.json_ld.0.codeRepository', 'https://github.com/example/gateway')
                 ->where('seo.json_ld.0.programmingLanguage.0', 'PHP')

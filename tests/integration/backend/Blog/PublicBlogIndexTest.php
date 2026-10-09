@@ -138,6 +138,7 @@ describe('public blog index', function (): void {
             ->assertInertia(fn (Assert $page) => $page
                 ->where('seo.title', 'Blog — ')
                 ->where('seo.canonical_url', url('/blog'))
+                ->where('seo.og_url', url('/blog'))
                 ->where('seo.og_type', 'website'));
     });
 
