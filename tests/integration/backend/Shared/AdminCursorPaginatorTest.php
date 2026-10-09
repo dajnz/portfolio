@@ -328,7 +328,7 @@ describe('AdminCursorPaginator', function (): void {
             ->and($page->currentPage)->toBe(3);
     });
 
-    it('redirects to the last valid page when the requested page lies beyond it (B175)', function (): void {
+    it('redirects to the last valid page when the requested page lies beyond it (ADR-0024)', function (): void {
         $group = createCursorTestGroup();
         foreach (['Laravel', 'PHP', 'Vue.js', 'TypeScript', 'Go'] as $name) {
             createCursorTestSkill($group, $name, 5);
@@ -349,7 +349,7 @@ describe('AdminCursorPaginator', function (): void {
         }
     });
 
-    it('redirects to the page containing the cursor when the cursor page was emptied by deletes (B175)', function (): void {
+    it('redirects to the page containing the cursor when the cursor page was emptied by deletes (ADR-0024)', function (): void {
         $group = createCursorTestGroup();
         $ids = [];
         foreach (['Laravel', 'PHP', 'Vue.js', 'TypeScript', 'Go'] as $name) {
@@ -385,7 +385,7 @@ describe('AdminCursorPaginator', function (): void {
         }
     });
 
-    it('redirects to page 1 when a previous-page cursor request has nothing before it (B175)', function (): void {
+    it('redirects to page 1 when a previous-page cursor request has nothing before it (ADR-0024)', function (): void {
         $group = createCursorTestGroup();
         $ids = [];
         foreach (['Laravel', 'PHP', 'Vue.js', 'TypeScript', 'Go'] as $name) {
@@ -417,7 +417,7 @@ describe('AdminCursorPaginator', function (): void {
         }
     });
 
-    it('redirects to the previous page when the last page is emptied while the positioning cursor still exists (B175)', function (): void {
+    it('redirects to the previous page when the last page is emptied while the positioning cursor still exists (ADR-0024)', function (): void {
         $group = createCursorTestGroup();
         foreach (['Laravel', 'PHP', 'Vue.js', 'TypeScript'] as $name) {
             createCursorTestSkill($group, $name, 5);
@@ -656,7 +656,7 @@ describe('AdminCursorPaginator', function (): void {
             ->and(PaginationRequest::fromRequest(cursorRequest(['cursor' => ['id' => 5]]), [], 'id')->hasCursorParams())->toBeTrue();
     });
 
-    it('caches the total count per filter combination for 30 seconds, versioned per entity (B175)', function (): void {
+    it('caches the total count per filter combination for 30 seconds, versioned per entity (ADR-0024)', function (): void {
         $group = createCursorTestGroup();
         createCursorTestSkill($group, 'Laravel', 5);
         createCursorTestSkill($group, 'PHP', 5);
@@ -676,7 +676,7 @@ describe('AdminCursorPaginator', function (): void {
         expect($fresh->total)->toBe(3);
     });
 
-    it('bumps the per-entity version so writes invalidate the cached total immediately (B175)', function (): void {
+    it('bumps the per-entity version so writes invalidate the cached total immediately (ADR-0024)', function (): void {
         $group = createCursorTestGroup();
         createCursorTestSkill($group, 'Laravel', 5);
         createCursorTestSkill($group, 'PHP', 5);

@@ -13,11 +13,11 @@ use RuntimeException;
 use Throwable;
 
 /**
- * The restore execution (backup.md:393-408, A1): runs synchronously —
+ * The restore execution (backup.md:393-408, ADR-0018): runs synchronously —
  * the CLI (`backup:restore`) calls it directly, the queued
  * `RestoreBackupJob` executes it inside the worker (the HTTP-triggered
  * restore's async shell). The record transitions
- * `completed → processing` (B298), the workflow performs the 10 steps,
+ * `completed → processing` (ADR-0018), the workflow performs the 10 steps,
  * then the record re-completes with its archive stamp; on any failure
  * the record goes `failed` and the site STAYS in maintenance mode
  * (backup.md:397) until `admin:reset-maintenance` or the Settings page.

@@ -100,7 +100,7 @@ export function useAdminMenu(): AdminMenuApi {
                         icon: 'heroicons:archive-box',
                     },
                     {
-                        // B175: the profile page belongs in the main
+                        // ADR-0024: the profile page belongs in the main
                         // navigation (was header-only).
                         label: t('admin.nav.profile'),
                         route: '/admin/profile',

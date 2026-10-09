@@ -8,7 +8,7 @@ use App\Features\Projects\Infra\Models\ProjectModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Test factory for `projects` (B21).
+ * Test factory for `projects` (ADR-0029).
  */
 final class ProjectModelFactory extends Factory
 {

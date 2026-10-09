@@ -66,14 +66,14 @@ export interface UseProjectDetailPageApi {
  * project detail component contracts (public-section-components.md:
  * 1135-1205): the locale-keyed screenshot maps (`alt_text`, `title`,
  * `description`) resolved for the active locale with the en fallback,
- * RustFS paths to public `/assets/` URLs (A7), and the engineering
+ * RustFS paths to public `/assets/` URLs (ADR-0027), and the engineering
  * detail rows (already localized by the props builder). The wire's
  * `tech_writeup` carries only `{id, slug, title}` — enough for the
  * slim writeup card (the full ArticleCard contract ships with the blog
  * public pages in 9.4); the section hides when the writeup is null
  * (unlinked or the article was unpublished — content-management.md:133).
  * The `full_description`/`problem`/`solution` bodies arrive as
- * pipeline-rendered HTML and are injected via v-html (B23).
+ * pipeline-rendered HTML and are injected via v-html (ADR-0008).
  */
 export function useProjectDetailPage(props: {
     project?: WireProjectDetail | null;

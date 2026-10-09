@@ -7,7 +7,7 @@ namespace Tests\Support;
 use DateTimeImmutable;
 
 /**
- * Shared factory helpers for the analytics metric-group rows (B290):
+ * Shared factory helpers for the analytics metric-group rows (ADR-0017):
  * the canned `aggregateForSpan` group shape the report-rebuild tests
  * feed into the fake daily-metric repository.
  */

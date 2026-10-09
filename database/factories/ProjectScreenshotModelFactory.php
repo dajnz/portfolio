@@ -9,7 +9,7 @@ use App\Features\Projects\Infra\Models\ProjectScreenshotModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Test factory for `project_screenshots` (B21).
+ * Test factory for `project_screenshots` (ADR-0029).
  */
 final class ProjectScreenshotModelFactory extends Factory
 {

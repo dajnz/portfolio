@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Shared fixtures for the Resume test suites (step 10.1): the single-row
  * resume_config (default layout normalized to the validated order range
- * 0–4 — B177) and the resume PDF source data (about info, skills,
+ * 0–4 — ADR-0030) and the resume PDF source data (about info, skills,
  * contacts, a published experience item with a tech tag).
  */
 trait SeedsResumeData

@@ -5,7 +5,7 @@
      with language selector, image upload events, drag-resizable images
      (Tiptap's built-in ResizableNodeView — the size is an
      editor-session aid: markdown cannot carry the width without
-     breaking the public safe-mode pipeline, B231), GFM tables, links,
+     breaking the public safe-mode pipeline, ADR-0024), GFM tables, links,
      underline/strikethrough/subscript/superscript marks, and the
      5-group toolbar (block / inline / script / code+quote / media).
      The root owns the editor instance, the modelValue round trip, the
@@ -20,7 +20,7 @@
 /** The toolbar buttons the editor can expose — the `buttons` prop
  *  picks a subset (blog-only controls like image/table/callout are
  *  excluded by the projects config; the 2026-08-13 toolbar rework —
- *  B231 — reorganized the groups and added underline/strike/sub/sup/
+ *  ADR-0024 — reorganized the groups and added underline/strike/sub/sup/
  *  table/link). */
 export type TextEditorButton =
     | 'heading'
@@ -46,7 +46,7 @@ export type BlogOnlyEditorButton = 'image' | 'table' | 'callout';
 /** The projects-specific button subset — the Markdown fields keep the
  *  shared formatting but no blog-only controls: images go through the
  *  Media section (DropzoneUpload + screenshots gallery), tables and
- *  callouts are blog-only (B231). */
+ *  callouts are blog-only (ADR-0024). */
 export type ProjectEditorButton = Exclude<TextEditorButton, BlogOnlyEditorButton>;
 
 /** The blog config — every button the editor can expose. */
@@ -121,7 +121,7 @@ const props = withDefaults(
          *  instead of ad-hoc lists. */
         buttons?: TextEditorButton[];
         /** Selectable heading level (H1–H6 dropdown) instead of the
-         *  single H button — the blog article editor config (B231).
+         *  single H button — the blog article editor config (ADR-0024).
          *  Default `false` keeps the one-click heading button. */
         selectable_heading?: boolean;
         /** Minimum editor height (CSS length) — the WYSIWYG view
@@ -163,7 +163,7 @@ const popupRef = ref<InstanceType<typeof EditorConfigPopup> | null>(null);
 
 const placeholderText = computed(() => props.placeholder ?? t('admin.editor.placeholder'));
 
-// ── The shared config popup (B232) — the state machine in
+// ── The shared config popup (ADR-0024) — the state machine in
 //    useEditorPopup.ts: one popup at a time, fixed-anchored under the
 //    clicked toolbar button, closed by outside click (capture
 //    listener excluding the toolbar/popup), Escape or applying an
@@ -352,7 +352,7 @@ function onImageChange(event: Event): void {
             <!-- The placeholder hides as soon as the editor is focused
                (the cursor sits where the first line starts) and
                reappears on blur while the content is still empty
-               (B231 — the focus state also fixes the vertical
+               (ADR-0024 — the focus state also fixes the vertical
                alignment: the first content line's margin is zeroed
                via CSS, so both start at the same padding offset). -->
             <p
@@ -365,7 +365,7 @@ function onImageChange(event: Event): void {
           </template>
         </div>
 
-        <!-- ══ The shared config popup (B232) — one mode at a time,
+        <!-- ══ The shared config popup (ADR-0024) — one mode at a time,
            fixed-anchored under the clicked toolbar button. ══ -->
         <EditorConfigPopup
           v-if="popupMode !== null"
@@ -462,7 +462,7 @@ function onImageChange(event: Event): void {
 }
 
 /* The first content line starts exactly at the padding offset — the
-   same Y as the placeholder text (B231; the placeholder previously
+   same Y as the placeholder text (ADR-0024; the placeholder previously
    sat above the cursor line by the first paragraph's top margin). */
 .text-editor__content [contenteditable='true'] > :first-child {
     margin-top: 0;
@@ -498,7 +498,7 @@ function onImageChange(event: Event): void {
     color: #64748b;
 }
 
-/* GFM tables (B231 — the editor's table button). */
+/* GFM tables (ADR-0024 — the editor's table button). */
 .text-editor__content table {
     border-collapse: collapse;
     margin: 0.75rem 0;
@@ -608,7 +608,7 @@ function onImageChange(event: Event): void {
     margin: 0.25rem 0;
 }
 
-/* lowlight syntax theme for the editor's code blocks (B233 —
+/* lowlight syntax theme for the editor's code blocks (ADR-0024 —
    CodeBlockLowlight decorates tokens with `hljs-*` spans; without
    colors they all render as plain text). A compact slate palette
    matching the admin surface; the server-side public pipeline uses
@@ -718,11 +718,11 @@ function onImageChange(event: Event): void {
     color: #38bdf8;
 }
 
-/* The drag-resize handles of the image node view (B231 — Tiptap's
+/* The drag-resize handles of the image node view (ADR-0024 — Tiptap's
    built-in ResizableNodeView renders them as bare positioned divs;
    the corners get the grab affordance, visible on hover / while the
    image is selected / during a resize). The resized width is an
-   editor-session aid — the markdown round trip drops it (B231). */
+   editor-session aid — the markdown round trip drops it (ADR-0024). */
 .text-editor__content [data-resize-wrapper] {
     display: inline-block;
     max-width: 100%;

@@ -13,7 +13,7 @@ use App\Features\Portfolio\Infra\Services\ResumeModeReader;
  * (admin-section-ui.md:230-239) — all translations included, so the
  * LocaleTabs can render every supported locale — plus the current resume
  * mode for the resume summary line (Resume feature data, read in the
- * Infra layer per B11).
+ * Infra layer per ADR-0003).
  *
  * @return array{about: AboutInfo|null, resume_mode: string}
  */

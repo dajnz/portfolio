@@ -8,7 +8,7 @@ use App\Features\Experience\Infra\Models\TimelineItemModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Test factory for `experience_timeline_items` (B21).
+ * Test factory for `experience_timeline_items` (ADR-0029).
  */
 final class TimelineItemModelFactory extends Factory
 {

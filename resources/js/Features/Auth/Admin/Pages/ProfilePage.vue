@@ -52,7 +52,7 @@ const { t } = useI18n();
 const toast = useToast();
 const { post } = useJsonApi();
 
-// The `admins.name` mirrors the login (B56); the page contract does not
+// The `admins.name` mirrors the login (ADR-0013); the page contract does not
 // carry it, so the Name field is prefilled from the shared `auth.user`.
 const page = usePage<{ auth?: { user?: { name?: string } }; locale?: string }>();
 const adminName = computed(() => page.props?.auth?.user?.name ?? props.admin.login);

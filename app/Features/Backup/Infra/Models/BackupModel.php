@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Eloquent model for `backups` (database.md:567-587): one encrypted
  * archive row. The NOT NULL `path`/`size_bytes` placeholders of
- * pending rows are `''`/`0` (B299) — the entity maps them back to
+ * pending rows are `''`/`0` (ADR-0018) — the entity maps them back to
  * null. `deleted_at` soft-deletes the record; the RustFS archive
  * hard-delete is the use case's concern (backup.md:157,435).
  *

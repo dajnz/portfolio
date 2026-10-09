@@ -18,7 +18,7 @@ final class FakeArticleTagRepository implements ArticleTagRepositoryInterface
     /**
      * @param  string[]  $skillNames  The existing skill names (any locale).
      * @param  array<int, ArticleTag>  $tags  Tag id => stored tag.
-     * @param  string[]  $taken  Existing tag slugs (the A3 suffix probe).
+     * @param  string[]  $taken  Existing tag slugs (the ADR-0006 suffix probe).
      */
     public function __construct(
         public array $skillNames = [],

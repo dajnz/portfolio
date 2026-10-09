@@ -10,7 +10,7 @@ use League\CommonMark\Parser\InlineParserContext;
 use League\CommonMark\Node\Inline\Text;
 
 /**
- * The `<sup>…</sup>` inline parser of the content pipeline (B231) —
+ * The `<sup>…</sup>` inline parser of the content pipeline (ADR-0024) —
  * the {@see SubscriptInlineParser} twin for superscript.
  */
 final class SuperscriptInlineParser implements InlineParserInterface

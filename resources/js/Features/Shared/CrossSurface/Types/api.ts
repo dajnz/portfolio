@@ -314,7 +314,7 @@ export interface components {
             event_type: string;
             session_id: string;
             /**
-             * @description The public page kind the event happened on (B289): landing,
+             * @description The public page kind the event happened on (ADR-0017): landing,
              *     blog_index, blog_article, projects_index, project_detail,
              *     experience. Nullable for pages outside the tracked set.
              */

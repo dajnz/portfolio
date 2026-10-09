@@ -60,7 +60,7 @@ describe('Setting', function (): void {
             ->toThrow(InvalidArgumentException::class);
     });
 
-    it('enforces the per-name value domains (A8 bounds)', function (): void {
+    it('enforces the per-name value domains (ADR-0011 bounds)', function (): void {
         expect(fn () => new Setting(SettingName::ItemsPerPage, new SettingValue(SettingType::Integer, 0)))
             ->toThrow(InvalidArgumentException::class, "Setting 'items_per_page' must be at least 1.")
             ->and(fn () => new Setting(SettingName::BackupMaxCount, new SettingValue(SettingType::Integer, 0)))

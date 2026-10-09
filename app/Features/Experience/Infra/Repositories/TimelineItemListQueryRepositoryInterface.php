@@ -9,7 +9,7 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Infra-layer read contracts for the Experience feature (B11: query-
+ * Infra-layer read contracts for the Experience feature (ADR-0003: query-
  * builder reads live in the Infra layer — the domain repository
  * interface stays framework-free). Implemented by
  * {@see EloquentTimelineItemRepository}.
@@ -48,7 +48,7 @@ interface TimelineItemListQueryRepositoryInterface
 
     /**
      * Whether at least one published, non-trashed project exists — the
-     * header nav's Projects-link condition (A10; the experience wire
+     * header nav's Projects-link condition (ADR-0025; the experience wire
      * shape carries no other published-project signal).
      */
     public function hasPublishedProjects(): bool;

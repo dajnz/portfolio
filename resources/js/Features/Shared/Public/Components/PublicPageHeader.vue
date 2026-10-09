@@ -41,7 +41,7 @@ const logoImage = computed(() => `/images/logo-full-${themeStore.theme}.svg`);
 
 // Self-contained theme/locale controls (public-section-components.md:389):
 // the header renders ThemeSwitch + LanguageSelector internally unless the
-// host overrides them via the `controls` slot (B80 bridge). The page must
+// host overrides them via the `controls` slot (ADR-0023 bridge). The page must
 // be read REACTIVELY: `usePage().props` is the props object of the
 // current visit — capturing it once at setup keeps the stale visit's
 // locale forever (the component tree survives Inertia visits), which

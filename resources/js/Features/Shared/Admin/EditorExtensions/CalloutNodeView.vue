@@ -1,4 +1,4 @@
-<!-- The in-editor rendering of the callout node (B233 — 2026-08-14
+<!-- The in-editor rendering of the callout node (ADR-0024 — 2026-08-14
      review): a Vue NodeView (via `Callout.addNodeView`) so the block can
      show the translated type label + per-type icon (renderHTML cannot
      translate, CSS cannot localize), matching the public style-guide

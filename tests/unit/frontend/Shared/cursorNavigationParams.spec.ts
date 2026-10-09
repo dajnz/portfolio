@@ -18,7 +18,7 @@ describe('cursorNavigationParams', () => {
         });
     });
 
-    it('adds cursor[before]=1 for the previous-page cursor (B72)', () => {
+    it('adds cursor[before]=1 for the previous-page cursor (ADR-0010)', () => {
         expect(cursorNavigationParams({ cursor: { id: 2, sort_value: null } }, CURSORS)).toEqual({
             'cursor[id]': 2,
             'cursor[before]': 1,

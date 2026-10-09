@@ -2,7 +2,7 @@ import type { IconifyJSON } from '@iconify/types';
 import { addCollection } from '@iconify/vue';
 import { type Ref, ref } from 'vue';
 
-// Offline registration of the projects public pages' icon sets (B78: no
+// Offline registration of the projects public pages' icon sets (ADR-0023: no
 // runtime calls to the Iconify API). The tech-tag chips render devicon
 // glyphs and the card "Sources" buttons render the simple-icons GitHub
 // mark; heroicons are already registered at the app entries

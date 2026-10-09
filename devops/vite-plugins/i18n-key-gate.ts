@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import type { Plugin, ResolvedConfig } from 'vite';
 
 /**
- * Build-time `t()` key gate (i18n-and-theming.md:145-147, B9).
+ * Build-time `t()` key gate (i18n-and-theming.md:145-147, ADR-0009).
  *
  * Scans the TypeScript and Vue sources under `resources/js` for literal
  * `t('key')` / `$t('key')` calls and fails the build when a key is absent

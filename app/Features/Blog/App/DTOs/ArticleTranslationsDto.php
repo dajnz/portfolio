@@ -25,7 +25,7 @@ final readonly class ArticleTranslationsDto
     }
 
     /**
-     * The EN title — the slug regeneration source (A3, content-
+     * The EN title — the slug regeneration source (ADR-0006, content-
      * management.md:430 — the slug is generated from the default-locale
      * title only).
      */

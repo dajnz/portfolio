@@ -11,7 +11,7 @@ namespace App\Features\Projects\App\DTOs;
  * plus the cursor pagination params. The controller extracts the raw
  * query values; the paginator parsing happens in the infra
  * implementation (which rebuilds the HTTP request shape from `url` so
- * the B175 empty-page redirects keep targeting the real URL).
+ * the ADR-0024 empty-page redirects keep targeting the real URL).
  * Immutable.
  */
 final readonly class AdminProjectListQuery

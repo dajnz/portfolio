@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Mail;
 
 /**
  * The per-day metrics aggregation on real PostgreSQL (analytics.md:158-184,
- * B292): seeding `analytics_events` + `feedback` rows and running the
+ * ADR-0017): seeding `analytics_events` + `feedback` rows and running the
  * use case must produce exactly the catalog rows per day — the
  * weighted sum/samples pair, min/max, the per-dimension rows (CTA
  * targets, page URLs, `article:{id}`, `project:{id}`), the distinct-IP

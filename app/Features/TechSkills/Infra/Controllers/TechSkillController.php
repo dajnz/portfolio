@@ -23,7 +23,7 @@ use Inertia\ResponseFactory;
 /**
  * Skills admin surface (routes.md:67-71, admin-section-ui.md:293-302):
  * the consolidated skills list (groups with their skills) + skill CRUD +
- * the A4 `{ "skills": [...] }` reorder that also persists cross-group
+ * the ADR-0005 `{ "skills": [...] }` reorder that also persists cross-group
  * moves. One action → one use case; the list props are mapped from the
  * hydrated entities here.
  */

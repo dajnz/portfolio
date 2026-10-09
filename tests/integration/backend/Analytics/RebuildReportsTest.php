@@ -16,7 +16,7 @@ use App\Features\Portfolio\Infra\Models\FeedbackModel;
 use DateTimeImmutable;
 
 /**
- * The report rebuild on real PostgreSQL (analytics.md:186-212, B290):
+ * The report rebuild on real PostgreSQL (analytics.md:186-212, ADR-0017):
  * `rebuild()` produces the full span matrix from the stored daily
  * metrics (calendar bucketing incl. the week/year boundaries, the
  * weighted aggregation, the whole-time `all` rows); the full-rebuild

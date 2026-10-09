@@ -18,7 +18,7 @@ uses(InteractsWithAdmin::class);
 beforeEach(function (): void {
     $this->seed(SettingsSeeder::class);
 
-    // The B174 continuity rules make the timeline state matter — items
+    // The ADR-0024 continuity rules make the timeline state matter — items
     // left behind by a previous test in this file (LazilyRefreshDatabase
     // refreshes once per file) would act as predecessors/successors and
     // reject otherwise-valid dates. Each test starts with an empty
@@ -29,7 +29,7 @@ beforeEach(function (): void {
 /**
  * `position`/`company_name` are required per active locale; the shared
  * payload used by the store/update tests. There is no `is_current` flag
- * (B174) — a null `ended_at` marks the ongoing position.
+ * (ADR-0024) — a null `ended_at` marks the ongoing position.
  *
  * @return array<string, mixed>
  */
@@ -315,7 +315,7 @@ describe('AdminExperienceController', function (): void {
             ->assertSessionHasErrors(['company_name.en', 'company_name.ru']);
 
         // Position alone (company pair empty) passes — the company is
-        // optional since B174.
+        // optional since ADR-0024.
         $this->post('/admin/experience', experiencePayload([
             'company_name' => ['en' => '', 'ru' => null],
             'company_country' => ['en' => null, 'ru' => null],
@@ -361,7 +361,7 @@ describe('AdminExperienceController', function (): void {
             ->assertSessionHasErrors('started_at');
     });
 
-    it('rejects an item starting on the same day as an ongoing item (B175)', function (): void {
+    it('rejects an item starting on the same day as an ongoing item (ADR-0024)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         // The reported bug: an ongoing "2026-03-01 — Present" item let a
@@ -584,7 +584,7 @@ describe('AdminExperienceController', function (): void {
             ->and(DB::table('experience_timeline_item_translations')->where('item_id', $item->id)->exists())->toBeFalse();
     });
 
-    it('invalidates the sitemap cache on published-item saves and deletes (B64)', function (): void {
+    it('invalidates the sitemap cache on published-item saves and deletes (ADR-0022)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $cache = static function (): bool {
@@ -595,7 +595,7 @@ describe('AdminExperienceController', function (): void {
         };
 
         // Saving a published item invalidates. Explicit, non-overlapping
-        // periods — the B174 continuity rules reject same-period items.
+        // periods — the ADR-0024 continuity rules reject same-period items.
         $prime();
         $item = translatedItem(['is_published' => true, 'started_at' => '2020-01-01', 'ended_at' => '2021-06-30']);
         expect($cache())->toBeFalse();

@@ -13,7 +13,7 @@ use ValueError;
 
 /**
  * The reworked `analytics_reports` row entity (database.md:531-548,
- * B290): per-metric aggregates over the daily metrics for one span —
+ * ADR-0017): per-metric aggregates over the daily metrics for one span —
  * ordered period bounds, finite value, dimension within the
  * varchar(500) column — plus the `fromRow()` row materialization.
  */

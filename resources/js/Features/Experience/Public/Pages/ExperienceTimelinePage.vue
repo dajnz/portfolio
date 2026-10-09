@@ -1,4 +1,4 @@
-<!-- ExperienceTimelinePage (public-section-ui.md:103-141, public-section-components.md:1011-1091, mockup experience.html) — the public career timeline: page title, the alternating Timeline with the tag-union chips and the period on the opposite side, the TagPopupModal ("+N" overflow) and the ExperienceDetailModal (achievements + all tags + project reference), the infinite-scroll Load More (cursor reload per B158 replace semantics), and the empty/error states via PublicEmptyState. The nav follows A10 with the `has_projects` signal (user decision 2026-08-15 — the wire contract was extended with the prop). -->
+<!-- ExperienceTimelinePage (public-section-ui.md:103-141, public-section-components.md:1011-1091, mockup experience.html) — the public career timeline: page title, the alternating Timeline with the tag-union chips and the period on the opposite side, the TagPopupModal ("+N" overflow) and the ExperienceDetailModal (achievements + all tags + project reference), the infinite-scroll Load More (cursor reload per ADR-0010 replace semantics), and the empty/error states via PublicEmptyState. The nav follows ADR-0025 with the `has_projects` signal (user decision 2026-08-15 — the wire contract was extended with the prop). -->
 <script setup lang="ts">
 import ExperienceDetailModal from '@experience-public/ExperienceDetailModal.vue';
 import TagPopupModal from '@experience-public/TagPopupModal.vue';
@@ -19,7 +19,7 @@ type ExperienceProps = NonNullable<components['schemas']['ExperienceTimelinePage
 
 // Per-property types (not the whole `ExperienceProps` alias): the SFC
 // compiler's runtime prop resolution cannot expand the indexed-access
-// `NonNullable<...['props']>` type (the B107 landing placeholder used
+// `NonNullable<...['props']>` type (the ADR-0029 landing placeholder used
 // the same form).
 const props = withDefaults(
     defineProps<{

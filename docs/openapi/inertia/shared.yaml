@@ -107,7 +107,7 @@ components:
           type: integer
         name:
           type: string
-          description: Display name (mirrors the login — B56).
+          description: Display name (mirrors the login — ADR-0013).
         login:
           type: string
         email:
@@ -118,7 +118,7 @@ components:
           type: boolean
         is_oauth_primary:
           type: boolean
-          description: 'Computed: (github_id IS NOT NULL) && (password IS NULL) — B27/B35.'
+          description: 'Computed: (github_id IS NOT NULL) && (password IS NULL) — ADR-0013.'
 
     SeoProps:
       type: object

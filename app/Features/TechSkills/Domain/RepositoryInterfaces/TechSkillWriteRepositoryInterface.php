@@ -46,7 +46,7 @@ interface TechSkillWriteRepositoryInterface
 
     /**
      * Applies the zero-indexed positions of the `{ "ids": [...] }`
-     * payload (A4) — group IDs in the new drag order.
+     * payload (ADR-0005) — group IDs in the new drag order.
      *
      * @param  int[]  $ids
      */
@@ -57,7 +57,7 @@ interface TechSkillWriteRepositoryInterface
     public function deleteSkill(int $id): void;
 
     /**
-     * Applies the A4 skills reorder payload `{ "skills": [{ "id",
+     * Applies the ADR-0005 skills reorder payload `{ "skills": [{ "id",
      * "skill_group_id" }] }` (drag order): each skill's array position
      * becomes `sort_order` and the submitted `skill_group_id` becomes its
      * new group (cross-group moves included).

@@ -46,7 +46,7 @@ interface EncryptionKeyRepositoryInterface
 
     /**
      * The stored key whose raw value equals `$rawKey`, null when no
-     * such key exists. The DR import (backup.md:417, B311) checks this
+     * such key exists. The DR import (backup.md:417, ADR-0019) checks this
      * first and reuses the existing key instead of importing a
      * duplicate. The ciphertext is non-deterministic (Crypt salts per
      * row), so the match decrypts and compares in PHP.

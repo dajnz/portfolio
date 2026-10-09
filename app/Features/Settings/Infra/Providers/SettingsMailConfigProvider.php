@@ -16,7 +16,7 @@ use Throwable;
 /**
  * Merges the DB mail settings into `config('mail.*')` at boot so queued
  * mailables and HTTP requests always see the admin-configured values, and
- * registers the `api` mail transport (B125): mail is delivered via a
+ * registers the `api` mail transport (ADR-0016): mail is delivered via a
  * 3rd-party REST API — a single bearer token + custom endpoint.
  *
  * The default mailer switches to `api` only when a DB `mail_api_endpoint`

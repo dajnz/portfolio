@@ -32,11 +32,11 @@ use function substr;
  * (backup.md:503-506): when false, `create()` skips encryption entirely
  * and `validate()`/`readManifest()` accept any key (an unencrypted
  * archive reads with any password). The produced archive follows the
- * B18 filename convention `backup-{Y-m-d-His}-k{id}.zip` — the key id
+ * ADR-0018 filename convention `backup-{Y-m-d-His}-k{id}.zip` — the key id
  * suffix is passed by the caller (the workflow owns the key record's
  * id); the optional `$filename` lets the create workflow force the
  * exact name the pending `backups` row carries, so the record, the
- * RustFS object key and the offline artifact always agree (B302).
+ * RustFS object key and the offline artifact always agree (ADR-0018).
  *
  * Failures (unopenable archive, wrong key, corrupt manifest) throw a
  * `RuntimeException` — the DR import's "invalid key or corrupted

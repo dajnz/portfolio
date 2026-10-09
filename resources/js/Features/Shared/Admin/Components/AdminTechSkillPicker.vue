@@ -221,13 +221,13 @@ function cleanup(): void {
 }
 
 // A click outside the picker closes the dropdown AND clears the typed
-// query (B174) — the picked tags stay, only the search text is reset.
+// query (ADR-0024) — the picked tags stay, only the search text is reset.
 // The listener runs in the CAPTURE phase — before any element's own
 // click handler — so the check always sees the click target still
 // attached: adding a skill re-filters the suggestions and removes the
 // clicked row before the click finishes bubbling, and a bubble-phase
 // check would see the detached row as an outside click, closing the
-// dropdown after every added tag (B175).
+// dropdown after every added tag (ADR-0024).
 function onDocumentClick(event: MouseEvent): void {
     if (rootEl.value !== null && rootEl.value.contains(event.target as Node) === false) {
         isOpen.value = false;

@@ -2,7 +2,7 @@
  * The blog form's state composable (2026-08-14 user request — the
  * BlogFormPage complex-component split): owns the reactive form (the
  * per-locale maps + slug + lead image + unified tags + related ids +
- * toggles), the A3 slug auto-generation, the save round trip (POST /
+ * toggles), the ADR-0006 slug auto-generation, the save round trip (POST /
  * PUT with the guard suppression and the per-locale error toasts) and
  * the /api/upload flows (lead image + the editor's inline image).
  * `useUnsavedChanges` guards the form against accidental navigation.
@@ -164,7 +164,7 @@ export function useArticleForm(options: UseArticleFormOptions): UseArticleFormAp
 
         // Auto-generate the slug from the EN title while the field is
         // still untouched (create mode). Once edited, the manual
-        // override wins (A3 — the backend keeps a submitted slug that
+        // override wins (ADR-0006 — the backend keeps a submitted slug that
         // differs from the stored one and regenerates the auto value
         // with a suffix).
         if (locale === 'en' && !slugTouched.value) {

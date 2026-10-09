@@ -15,7 +15,7 @@ use Tests\Support\Fakes\FakeAnalyticsReportDataReader;
 use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 
 /**
- * The dashboard Inertia props (analytics.md:223-227, B293, 11.3.4):
+ * The dashboard Inertia props (analytics.md:223-227, ADR-0017, 11.3.4):
  * the whole-time blocks per tab (overview/blog/projects), the default
  * chart series (`page_views`, day/week/month/cumulative) and the
  * default rankings (time-on-page top/bottom 10). Block keys are the

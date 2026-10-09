@@ -71,7 +71,7 @@ function resultMeta(item: SearchResultItem): string | null {
 }
 
 // ISO timestamp meta values (published_at) render as `dd.mm.yyyy` — the
-// admin's date convention (B175, same formatter as the experience
+// admin's date convention (ADR-0024, same formatter as the experience
 // list) — instead of the raw timestamp. Non-date strings pass through.
 function formatMetaValue(value: string): string {
     const [datePart] = value.split('T');

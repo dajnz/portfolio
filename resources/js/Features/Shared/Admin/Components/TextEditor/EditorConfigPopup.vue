@@ -1,4 +1,4 @@
-<!-- EditorConfigPopup — the TextEditor's shared config popup (B232):
+<!-- EditorConfigPopup — the TextEditor's shared config popup (ADR-0024):
      ONE popup at a time, fixed-anchored under the clicked toolbar
      button (the parent passes the viewport position). Five variants:
      the heading levels (Paragraph + H1–H6 with the active level
@@ -75,7 +75,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-// ── The table-size grid (B232) — destructured so the template gets
+// ── The table-size grid (ADR-0024) — destructured so the template gets
 //    top-level unwrapped refs; declared BEFORE the mode watcher below
 //    (the immediate watch callback touches it). ──
 const {
@@ -302,7 +302,7 @@ function applyLink(): void {
       </div>
     </template>
     <template v-else>
-      <!-- The table-size grid (B232): hover highlights the top-left
+      <!-- The table-size grid (ADR-0024): hover highlights the top-left
            region up to the hovered cell; the label shows the live
            rows × cols; click inserts and closes. -->
       <div

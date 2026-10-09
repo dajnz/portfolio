@@ -138,7 +138,7 @@ describe('TextEditor', () => {
 
     it('exposes the per-surface button configs', () => {
         // The projects config keeps the shared formatting but drops the
-        // blog-only controls (image upload, tables, callouts — B231).
+        // blog-only controls (image upload, tables, callouts — ADR-0024).
         expect(PROJECT_EDITOR_BUTTONS).toEqual([
             'heading',
             'bullet-list',
@@ -163,7 +163,7 @@ describe('TextEditor', () => {
         ]);
     });
 
-    it('renders the new B231 toolbar controls (underline/strike/sub/sup/table/link)', () => {
+    it('renders the new ADR-0024 toolbar controls (underline/strike/sub/sup/table/link)', () => {
         const wrapper = mountEditor();
 
         expect(wrapper.get('[data-testid="text-editor-underline"]').attributes('aria-label')).toBe(
@@ -494,7 +494,7 @@ describe('TextEditor', () => {
         consoleWarn.mockRestore();
     });
 
-    it('hides the placeholder on focus and restores it on blur while empty (B231)', async () => {
+    it('hides the placeholder on focus and restores it on blur while empty (ADR-0024)', async () => {
         const wrapper = mountEditor();
         await waitForEditable(wrapper);
         const editable = wrapper.get('[contenteditable="true"]');

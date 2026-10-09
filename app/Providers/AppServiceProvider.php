@@ -301,7 +301,7 @@ class AppServiceProvider extends ServiceProvider
             SitemapService::class,
         );
 
-        // The content pipeline (B23) is a singleton: the underlying
+        // The content pipeline (ADR-0008) is a singleton: the underlying
         // highlighter registers all 185 languages on construction, so
         // the graph is built once per process, not per request. The
         // app layer consumes it via the app-layer contract.
@@ -348,13 +348,13 @@ class AppServiceProvider extends ServiceProvider
         // The Backup feature's repositories + workflow services. The
         // storage surfaces: `Filesystem` (the contract) resolves to the
         // private `backups` disk (its only consumer — the archives live
-        // there); the transfers are per-bucket instances (B301) — the
+        // there); the transfers are per-bucket instances (ADR-0018) — the
         // assets one is the named `backup.assets-transfer` binding, the
         // interface binds the backups bucket. The workflows consume
         // only app-layer contracts: the per-table readers/exporters/
         // writers arrive as ready bundles from `BackupTableFactory`
-        // (B306) and the config-derived values via the `BackupSources`
-        // DTO. The Shared cross-feature surfaces (B306) sit in front
+        // (ADR-0018) and the config-derived values via the `BackupSources`
+        // DTO. The Shared cross-feature surfaces (ADR-0018) sit in front
         // of the Settings feature.
         $this->app->bind(
             BackupRepositoryInterface::class,
@@ -417,7 +417,7 @@ class AppServiceProvider extends ServiceProvider
             fn ($app): \Illuminate\Contracts\Filesystem\Filesystem => $app['filesystem']->disk('rustfs'),
         );
 
-        // The Shared cross-feature surfaces (B306): settings reads and
+        // The Shared cross-feature surfaces (ADR-0018): settings reads and
         // the maintenance toggle for non-Settings features, and the
         // restore's cache flush.
         $this->app->bind(

@@ -11,7 +11,7 @@ use League\CommonMark\Util\HtmlElement;
 use League\CommonMark\Xml\XmlNodeRendererInterface;
 
 /**
- * Renders {@see Subscript} as `<sub>` (B231).
+ * Renders {@see Subscript} as `<sub>` (ADR-0024).
  */
 final class SubscriptRenderer implements NodeRendererInterface, XmlNodeRendererInterface
 {

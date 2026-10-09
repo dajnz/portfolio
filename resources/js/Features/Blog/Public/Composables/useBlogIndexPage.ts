@@ -62,12 +62,12 @@ const VIEW_MODE_COOKIE_MAX_AGE = 31536000;
  * 9.2/9.3: "Load More" reloads with the opaque `next_cursor`
  * (`replace: true` — history.replaceState per
  * public-section-ui.md:329-342) and the client REPLACES its items
- * with the reconstructed superset response (B158); a failed request
+ * with the reconstructed superset response (ADR-0010); a failed request
  * flips the inline error banner, `retry()` restarts from the initial
  * batch. Filter changes reload from the beginning — the cursor resets
  * because the reloaded URL carries no `cursor` param
- * (public-section-ui.md:156). The A10 nav mirrors the other public
- * pages: the Projects link is conditional on `has_projects` (B268).
+ * (public-section-ui.md:156). The ADR-0025 nav mirrors the other public
+ * pages: the Projects link is conditional on `has_projects` (ADR-0004).
  */
 export function useBlogIndexPage(props: {
     articles?: WireArticleCard[];
@@ -266,7 +266,7 @@ function initialQueryParam(name: string): string {
  * carries every selected skill, so the visible batch always resolves
  * the names. On an empty batch (a no-results reload) unresolvable
  * skill pills are omitted — the URL still applies the filter
- * server-side (B269).
+ * server-side (ADR-0025).
  */
 function initialSelectedTags(tags: WireTag[], articles: WireArticleCard[]): SelectedTagView[] {
     if (typeof window === 'undefined') {

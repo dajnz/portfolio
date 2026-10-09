@@ -14,7 +14,7 @@ use Illuminate\Foundation\Http\FormRequest;
  * and `content` (min 50) are required per active locale. The slug is
  * shape-validated here (kebab-case regex, max 200) — the DB-dependent
  * checks live in the store/update use cases via
- * `ArticleDraftValidator` (the A3 auto-generated value skips the
+ * `ArticleDraftValidator` (the ADR-0006 auto-generated value skips the
  * uniqueness rejection because the use case re-resolves it server-side
  * with a numeric collision suffix; a MANUAL override that collides is
  * rejected there, content-management.md:441-452).

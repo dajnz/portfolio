@@ -17,7 +17,7 @@ use InvalidArgumentException;
  * Immutable — the entity's state transitions replace the instance:
  * `withCompletedAt()` stamps the completion/failure moment,
  * `withoutCompletedAt()` clears it when a completed backup starts
- * re-processing (B298).
+ * re-processing (ADR-0018).
  */
 final class BackupTimings
 {
@@ -61,7 +61,7 @@ final class BackupTimings
 
     /**
      * Clears the completion stamp — the re-processing start of a
-     * completed backup (B298).
+     * completed backup (ADR-0018).
      */
     public function withoutCompletedAt(): self
     {

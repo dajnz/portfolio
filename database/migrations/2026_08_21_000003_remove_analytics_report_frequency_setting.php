@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 return new class () extends Migration {
     /**
-     * Removes the `analytics_report_frequency` settings row (B291,
+     * Removes the `analytics_report_frequency` settings row (ADR-0017,
      * step 11.3.1): the periodic report cadence setting died with the
      * old report pipeline — daily metrics are always generated, so no
      * frequency setting exists anymore (the `SettingsSeeder` stops

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Analytics\Domain\Enums;
 
 /**
- * The metric catalog (analytics.md:172-178, B290) — the full set of
+ * The metric catalog (analytics.md:172-178, ADR-0017) — the full set of
  * names stored in `analytics_daily_metrics.metric` and
  * `analytics_reports.metric`. Aggregation rules per metric kind:
  * count/sum → `SUM`, min → `MIN`, max → `MAX`, avg-able

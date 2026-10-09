@@ -7,7 +7,7 @@ namespace App\Features\Shared\Infra\Markdown;
 use League\CommonMark\Node\Inline\AbstractInline;
 
 /**
- * The subscript inline node of the content pipeline (B231) — the
+ * The subscript inline node of the content pipeline (ADR-0024) — the
  * `<sub>…</sub>` HTML form the admin editor's subscript button
  * serializes to (CommonMark has no native subscript syntax). The
  * parser claims the full tag pair BEFORE the core HtmlInline parser

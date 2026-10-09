@@ -18,7 +18,7 @@ describe('AdminDatePicker', () => {
         document.body.innerHTML = '';
     });
 
-    it('always displays the value in the RU dd.mm.yyyy format (B175)', () => {
+    it('always displays the value in the RU dd.mm.yyyy format (ADR-0024)', () => {
         const wrapper = mountPicker({ modelValue: '2023-01-15' });
 
         expect(wrapper.get('[data-testid="date-value"]').text()).toBe('15.01.2023');
@@ -34,7 +34,7 @@ describe('AdminDatePicker', () => {
         expect(set.find('[data-testid="date-clear"]').exists()).toBe(true);
     });
 
-    it('shows the month name with its 1-based number in the heading (B175)', async () => {
+    it('shows the month name with its 1-based number in the heading (ADR-0024)', async () => {
         const wrapper = mountPicker({ modelValue: '2026-04-10' });
 
         await wrapper.get('[data-testid="date-field"]').trigger('click');
@@ -103,7 +103,7 @@ describe('AdminDatePicker', () => {
         expect(wrapper.find('[data-testid="date-calendar"]').exists()).toBe(false);
     });
 
-    it('opens the year grid from the heading and picks a year (B175)', async () => {
+    it('opens the year grid from the heading and picks a year (ADR-0024)', async () => {
         const wrapper = mountPicker({ modelValue: '2026-04-10' });
 
         await wrapper.get('[data-testid="date-field"]').trigger('click');
@@ -126,7 +126,7 @@ describe('AdminDatePicker', () => {
         expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['2020-04-10']);
     });
 
-    it('shifts the decade with the prev/next buttons in the year grid (B175)', async () => {
+    it('shifts the decade with the prev/next buttons in the year grid (ADR-0024)', async () => {
         const wrapper = mountPicker({ modelValue: '2026-04-10' });
 
         await wrapper.get('[data-testid="date-field"]').trigger('click');
@@ -142,7 +142,7 @@ describe('AdminDatePicker', () => {
         expect(wrapper.find('[data-testid="date-year-2029"]').exists()).toBe(true);
     });
 
-    it('keeps the calendar open when a year click removes the button mid-dispatch (B175)', async () => {
+    it('keeps the calendar open when a year click removes the button mid-dispatch (ADR-0024)', async () => {
         const wrapper = mountPicker({ modelValue: '2026-04-10' });
 
         await wrapper.get('[data-testid="date-field"]').trigger('click');

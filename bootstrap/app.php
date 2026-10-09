@@ -72,7 +72,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // The `theme` and `locale` cookies are set client-side by the
         // frontend (`document.cookie`, i18n-and-theming.md:177,184-190) and
         // read back by `ThemeMiddleware`/`SetLocaleMiddleware` — Laravel's
-        // cookie encryption would make them unreadable (B73).
+        // cookie encryption would make them unreadable (ADR-0026).
         $middleware->encryptCookies(except: ['theme', 'locale']);
 
         // The `api` group already contains `throttle:api` and

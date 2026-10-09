@@ -13,7 +13,7 @@ components:
               properties:
                 github_login_available:
                   type: boolean
-                  description: Whether the "Continue with GitHub" button is shown — the github_oauth feature flag is ON and at least one admin account is linked with GitHub (B127).
+                  description: Whether the "Continue with GitHub" button is shown — the github_oauth feature flag is ON and at least one admin account is linked with GitHub (ADR-0013).
                 loginPage:
                   type: boolean
                   const: true

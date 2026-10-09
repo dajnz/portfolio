@@ -95,10 +95,10 @@ services:
         HOST_UID: ${HOST_UID:-1000}
         HOST_GID: ${HOST_GID:-1000}
     # Run as the host user (the `portfolio` user in the image / host user /
-    # php-fpm pool user, B42) — the queue worker logs info events to the
+    # php-fpm pool user, ADR-0027) — the queue worker logs info events to the
     # shared bind-mounted storage/logs; running as root created root-owned
     # daily log files that php-fpm (the host uid) could not append to
-    # (500s on login — B171).
+    # (500s on login — ADR-0027).
     user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     command: php artisan queue:work --tries=3
     volumes:
@@ -122,7 +122,7 @@ services:
       args:
         HOST_UID: ${HOST_UID:-1000}
         HOST_GID: ${HOST_GID:-1000}
-    # Same uid rationale as the queue service (B171): scheduled commands
+    # Same uid rationale as the queue service (ADR-0027): scheduled commands
     # (backup:create etc.) log info events to the shared storage/logs.
     user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     command: php artisan schedule:work

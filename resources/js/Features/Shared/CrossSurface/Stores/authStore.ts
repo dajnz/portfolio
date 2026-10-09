@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
 /**
- * The authenticated admin's shared props shape (B3, auth.yaml contract):
+ * The authenticated admin's shared props shape (ADR-0004, auth.yaml contract):
  * `{ id, name, email, login, github_linked, totp_enabled, is_oauth_primary }`.
  */
 export interface AdminUser {

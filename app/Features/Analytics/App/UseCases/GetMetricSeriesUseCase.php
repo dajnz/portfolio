@@ -10,7 +10,7 @@ use App\Features\Analytics\Domain\Enums\MetricSpan;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
 
 /**
- * The chart series payload (analytics.md:225, B292, 11.3.4) for
+ * The chart series payload (analytics.md:225, ADR-0017, 11.3.4) for
  * `GET /admin/analytics/series?metric=&span=`: the last 90
  * dimension-NULL rows of the span, chronological with `period_start`
  * date labels; `span=all` returns the cumulative running total over

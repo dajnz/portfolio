@@ -16,7 +16,7 @@ use DateTimeImmutable;
 
 /**
  * The "Create Backup Now" entry point (backup.md:376,460): creates the
- * `pending` `backups` row (the archive's final filename — B18's
+ * `pending` `backups` row (the archive's final filename — ADR-0018's
  * `-k{id}` suffix from the active key) and dispatches the create job
  * via the {@see BackupJobDispatcherInterface}, so the admin UI returns
  * immediately and the row is polled via `GET /admin/backups/{backup}/status`.

@@ -128,7 +128,7 @@ describe('ExperienceFormPage', () => {
     it('prefills the dates and shared fields', () => {
         const wrapper = mountPage();
 
-        // AdminDatePicker displays dd.mm.yyyy (B175) — the ISO model
+        // AdminDatePicker displays dd.mm.yyyy (ADR-0024) — the ISO model
         // value stays internal.
         expect(wrapper.get('[data-testid="experience-form-page-started-at-value"]').text()).toBe(
             '15.01.2023',
@@ -140,7 +140,7 @@ describe('ExperienceFormPage', () => {
             (wrapper.get('[data-testid="experience-form-page-published"]').element as HTMLInputElement)
                 .checked,
         ).toBe(true);
-        // No "Current" checkbox anymore (B174) — an empty end date IS the
+        // No "Current" checkbox anymore (ADR-0024) — an empty end date IS the
         // ongoing marker.
         expect(wrapper.find('[data-testid="experience-form-page-current"]').exists()).toBe(false);
     });
@@ -255,7 +255,7 @@ describe('ExperienceFormPage', () => {
             .get('[data-testid="experience-form-page-short-description-en"]')
             .setValue('Built core services.');
 
-        // The date comes from the calendar picker (B175 — no manual
+        // The date comes from the calendar picker (ADR-0024 — no manual
         // editing): open the started-at picker and click the 15th of the
         // currently shown month.
         await wrapper.get('[data-testid="experience-form-page-started-at-field"]').trigger('click');
@@ -370,7 +370,7 @@ describe('ExperienceFormPage', () => {
         );
     });
 
-    it('keeps the back link, locale tabs and save button in the sticky bar (no cancel — B175)', () => {
+    it('keeps the back link, locale tabs and save button in the sticky bar (no cancel — ADR-0024)', () => {
         const wrapper = mountPage();
 
         const bar = wrapper.get('[data-testid="experience-form-page-sticky-bar"]');

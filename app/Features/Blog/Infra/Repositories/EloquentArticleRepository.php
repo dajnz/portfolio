@@ -390,7 +390,7 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
 
     /**
      * The row being replaced on update — needed for the old-slug
-     * record (B6).
+     * record (ADR-0006).
      */
     private function existingRow(Article $article): ?ArticleModel
     {
@@ -597,7 +597,7 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
     }
 
     /**
-     * Records a slug change in `old_slugs` (B6) — the upsert
+     * Records a slug change in `old_slugs` (ADR-0006) — the upsert
      * semantics of database.md:451: a slug reverting to a previously
      * recorded value re-points the existing row instead of violating
      * the `(old_slug, entity_type)` unique constraint.

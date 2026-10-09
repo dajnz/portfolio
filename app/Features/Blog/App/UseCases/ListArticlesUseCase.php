@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Config;
  * filtered query comes from the list query repository, the pagination
  * facts from the paginator), with the filter bar — title/content
  * search (`?q=`), the separate article-tag / skill-tag AND-intersects
- * (`?article_tags=` / `?skill_tags=` per routes.md:204-205, B2), the
+ * (`?article_tags=` / `?skill_tags=` per routes.md:204-205, ADR-0004), the
  * published status (`?published=1|0`) and the publication year
  * (`?year=YYYY`) — plus the trashed view (`?trashed=1`). The raw list
  * rows are converted to the item DTOs (with their tag chips and
@@ -145,7 +145,7 @@ final class ListArticlesUseCase
     }
 
     /**
-     * The 30 s count cache is per filter combination (B72) — every
+     * The 30 s count cache is per filter combination (ADR-0010) — every
      * filter changes the counted set.
      */
     private function countCacheKey(AdminArticleListQueryDto $query): string

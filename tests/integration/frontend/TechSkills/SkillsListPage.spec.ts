@@ -392,7 +392,7 @@ describe('SkillsListPage', () => {
         expect(wrapper.find('[data-testid="skills-list-page-skill-1-name"]').exists()).toBe(true);
 
         // Capture-phase pointerdown outside the edited row closes the
-        // editor without saving (the blur-save was removed — B135 rework).
+        // editor without saving (the blur-save was removed — ADR-0024 rework).
         wrapper
             .get('[data-testid="skills-list-page-add-group"]')
             .element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
@@ -515,7 +515,7 @@ describe('SkillsListPage', () => {
         );
     });
 
-    it('offers devicon icons in the new-skill icon picker (B133 regression)', async () => {
+    it('offers devicon icons in the new-skill icon picker (ADR-0023 regression)', async () => {
         const wrapper = mountPage();
 
         await wrapper.get('[data-testid="skills-list-page-group-1-add-skill"]').trigger('click');
@@ -594,7 +594,7 @@ describe('SkillsListPage', () => {
         );
     });
 
-    it('posts the flattened A4 payload after a within-group drag', async () => {
+    it('posts the flattened ADR-0005 payload after a within-group drag', async () => {
         const wrapper = mountPage();
 
         const sortables = wrapper.findAllComponents({ name: 'SortableList' });
@@ -617,7 +617,7 @@ describe('SkillsListPage', () => {
         );
     });
 
-    it('moves a skill between groups on a cross-list drop (A4)', async () => {
+    it('moves a skill between groups on a cross-list drop (ADR-0005)', async () => {
         const wrapper = mountPage();
 
         const sortables = wrapper.findAllComponents({ name: 'SortableList' });
@@ -661,7 +661,7 @@ describe('SkillsListPage', () => {
         );
     });
 
-    it('cancels inline editing on the Escape shortcut (B19)', async () => {
+    it('cancels inline editing on the Escape shortcut (ADR-0024)', async () => {
         const wrapper = mountPage();
 
         await wrapper.get('[data-testid="skills-list-page-skill-1"]').trigger('click');

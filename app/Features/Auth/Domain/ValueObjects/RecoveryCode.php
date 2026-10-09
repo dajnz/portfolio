@@ -8,7 +8,7 @@ use InvalidArgumentException;
 use LogicException;
 
 /**
- * Single TOTP recovery code (A5): `XXXX-XXXX-XXXX` (12 chars) drawn from
+ * Single TOTP recovery code (ADR-0014): `XXXX-XXXX-XXXX` (12 chars) drawn from
  * an unambiguous alphabet (no 0/O/1/I/L), stored bcrypt-hashed as
  * `{ "hash": string, "used": bool }`.
  *

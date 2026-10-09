@@ -15,7 +15,7 @@ use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
 use DateTimeImmutable;
 
 /**
- * The report rebuild (analytics.md:186-212, B290): deletes all
+ * The report rebuild (analytics.md:186-212, ADR-0017): deletes all
  * `analytics_reports` rows and rebuilds every span
  * (day/week/month/year/all — `all` = one whole-time row per
  * metric+dimension) from `analytics_daily_metrics` via the daily-metric

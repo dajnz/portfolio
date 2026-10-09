@@ -1,4 +1,4 @@
-<!-- AboutEditPage (admin-section-components.md:766-807, admin-section-ui.md:235-251, about.html) — the about edit form: LocaleTabs-bound translatable fields (name/title/short_pitch per B102), a Photo card (DropzoneUpload + per-locale alt texts) and a Work & location settings card (three two-column rows: location [locale-tab-bound, label carries the [en]/[ru] suffix] + timezone / show location + relocation / work type + availability), plus the resume summary link. PUT /admin/about (id=1 single row). -->
+<!-- AboutEditPage (admin-section-components.md:766-807, admin-section-ui.md:235-251, about.html) — the about edit form: LocaleTabs-bound translatable fields (name/title/short_pitch per ADR-0009), a Photo card (DropzoneUpload + per-locale alt texts) and a Work & location settings card (three two-column rows: location [locale-tab-bound, label carries the [en]/[ru] suffix] + timezone / show location + relocation / work type + availability), plus the resume summary link. PUT /admin/about (id=1 single row). -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';

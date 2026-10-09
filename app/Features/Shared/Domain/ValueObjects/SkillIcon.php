@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 /**
  * Value object: a tech skill icon (`skills.icon`) in the `devicon:*`
- * format (B48 — e.g. `devicon:laravel`). Immutable; the format invariant
+ * format (ADR-0002 — e.g. `devicon:laravel`). Immutable; the format invariant
  * lives here, not in the consuming entities.
  */
 final readonly class SkillIcon

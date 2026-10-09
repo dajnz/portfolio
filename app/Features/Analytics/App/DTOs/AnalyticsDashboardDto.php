@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Analytics\App\DTOs;
 
 /**
- * The whole-time dashboard props (analytics.md:223-227, B293, 11.3.4)
+ * The whole-time dashboard props (analytics.md:223-227, ADR-0017, 11.3.4)
  * for `GET /admin/analytics`: the per-tab metric blocks, the default
  * chart series and the default rankings. The controller maps it onto
  * the Inertia page props; the block keys are the stable identifiers

@@ -69,7 +69,7 @@ describe('ContactController', function (): void {
             ->and(ContactTranslationModel::query()->where('locale', 'ru')->first()->name)->toBe('Гитхаб');
     });
 
-    it('reflects a stored contact in the paginated total immediately (B175)', function (): void {
+    it('reflects a stored contact in the paginated total immediately (ADR-0024)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         // Warm the 30 s count cache with a list request over a full page
@@ -128,7 +128,7 @@ describe('ContactController', function (): void {
             ->and(ContactTranslationModel::query()->count())->toBe(0);
     });
 
-    it('reorders contacts by the zero-indexed payload positions (A4)', function (): void {
+    it('reorders contacts by the zero-indexed payload positions (ADR-0005)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $a = ContactModel::factory()->create(['sort_order' => 0]);

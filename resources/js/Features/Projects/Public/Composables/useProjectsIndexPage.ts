@@ -14,7 +14,7 @@ export type ViewMode = 'grid' | 'list';
 // template reads is guaranteed present (the wire type marks all fields
 // optional). Locale-keyed maps (`preview_image_alt`, screenshot
 // `alt_text`) are resolved for the active locale (en fallback, matching
-// the props builder) and RustFS paths gain the `/assets/` prefix (A7).
+// the props builder) and RustFS paths gain the `/assets/` prefix (ADR-0027).
 export interface TechTagView {
     id: number;
     name: string;
@@ -84,7 +84,7 @@ const VIEW_MODE_COOKIE_MAX_AGE = 31536000;
  * infinite-scroll machinery mirroring 9.2: "Load More" reloads with the
  * opaque `next_cursor` (`replace: true` — history.replaceState per
  * public-section-ui.md:329-342) and the client REPLACES its items with
- * the reconstructed superset response (B158); a failed request flips
+ * the reconstructed superset response (ADR-0010); a failed request flips
  * the inline error banner, `retry()` restarts from the initial batch.
  * Filter changes reload from the beginning — the cursor resets because
  * the reloaded URL carries no `cursor` param (public-section-ui.md:156).
@@ -305,7 +305,7 @@ function initialViewMode(): ViewMode {
 /**
  * Resolves one wire card row into the component view: locale-keyed
  * maps to strings (en fallback — the props builder's convention) and
- * RustFS paths to public `/assets/` URLs (A7). `screenshots` is null
+ * RustFS paths to public `/assets/` URLs (ADR-0027). `screenshots` is null
  * when the wire sent none — the card falls back to the static preview
  * image (public-section-components.md:716).
  */

@@ -41,7 +41,7 @@ return [
 
         /*
         |--------------------------------------------------------------------------
-        | Mail API Mailer (B125)
+        | Mail API Mailer (ADR-0016)
         |--------------------------------------------------------------------------
         |
         | The portfolio's mail transport: a 3rd-party REST API with a single

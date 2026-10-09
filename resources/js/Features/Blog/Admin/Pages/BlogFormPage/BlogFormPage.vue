@@ -98,9 +98,9 @@ const relatedTooltip = computed(() =>
       class="mx-auto max-w-6xl"
       :data-testid="props.test_id"
     >
-      <!-- Sticky header controls (B174): back link / locale tabs /
+      <!-- Sticky header controls (ADR-0024): back link / locale tabs /
            preview + save (no Cancel — the back link replaces it, the
-           B175 convention), spread with space-between. -->
+           ADR-0024 convention), spread with space-between. -->
       <AdminStickyActionBar :test_id="`${props.test_id}-sticky-bar`">
         <AdminBaseButton
           tag="a"

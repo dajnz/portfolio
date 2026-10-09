@@ -417,7 +417,7 @@ describe('LandingPage', () => {
         expect(writeTextMock).toHaveBeenLastCalledWith('@alex_dev');
     });
 
-    it('builds the public nav per A10: anchors always, projects conditional', async () => {
+    it('builds the public nav per ADR-0025: anchors always, projects conditional', async () => {
         const wrapper = mountPage();
         await flush();
 

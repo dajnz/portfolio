@@ -21,23 +21,23 @@ interface TimelineItemRepositoryInterface
 
     /**
      * The chronologically preceding item (greatest `started_at` strictly
-     * below `$startedAt`, non-trashed) — the continuity anchor of B174.
+     * below `$startedAt`, non-trashed) — the continuity anchor of ADR-0024.
      * `$ignoreId` excludes the item being stored/updated itself.
      */
     public function predecessorFor(DateTimeImmutable $startedAt, ?int $ignoreId = null): ?TimelineItem;
 
     /**
      * The chronologically following item (smallest `started_at` strictly
-     * above `$startedAt`, non-trashed) — the continuity anchor of B174.
+     * above `$startedAt`, non-trashed) — the continuity anchor of ADR-0024.
      * `$ignoreId` excludes the item being stored/updated itself.
      */
     public function successorFor(DateTimeImmutable $startedAt, ?int $ignoreId = null): ?TimelineItem;
 
     /**
-     * Closes an ongoing item's period (B174: adding a newer item
+     * Closes an ongoing item's period (ADR-0024: adding a newer item
      * auto-fills its predecessor's `ended_at` with the new item's
      * `started_at`). An instance update so the model's `saved` event
-     * (sitemap invalidation, B64) fires for published items.
+     * (sitemap invalidation, ADR-0022) fires for published items.
      */
     public function setEndedAt(int $id, DateTimeImmutable $endedAt): void;
 

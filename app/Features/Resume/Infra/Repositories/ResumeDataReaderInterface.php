@@ -7,7 +7,7 @@ namespace App\Features\Resume\Infra\Repositories;
 /**
  * Query-builder reads of the resume PDF's source data
  * (content-management.md:377-385) inside the Resume Infra layer
- * (B11 — no cross-feature class imports). The `skills` source comes from
+ * (ADR-0003 — no cross-feature class imports). The `skills` source comes from
  * the Shared `TechSkillReadRepositoryInterface` (architecture.md:224);
  * about info, contacts and experience items are read here, locale-resolved
  * with the `en` fallback (content-management.md:419).

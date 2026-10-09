@@ -14,7 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**
- * Skill group admin surface (routes.md:72-75): group CRUD + the A4
+ * Skill group admin surface (routes.md:72-75): group CRUD + the ADR-0005
  * `{ "ids": [...] }` reorder. One action → one use case.
  */
 final class TechSkillGroupController

@@ -12,6 +12,12 @@ runtime support.
 
 ### Changed
 
+- **Decision references migrated to ADRs (v1.0.6 REST, v1.0.27 inertia):**
+  description-only change. Inline implementation-plan assumption IDs
+  (`A*`/`B*`/`C*`) in the spec descriptions are replaced with the
+  corresponding `docs/adr/ADR-XXXX` references. No schema or wire-shape
+  changes.
+
 - **`POST /api/upload` image processing described (v1.0.5 REST, step 12.5):**
   JPEG/PNG/WebP/AVIF uploads are now converted to WebP before storage — EXIF
   auto-orientation, downscale to the `image_max_dimension` setting
@@ -45,9 +51,9 @@ runtime support.
 
 - **`AboutEditPageProps` timezone picker options (v1.0.25, user request 2026-09-04):** the about edit page now receives the full `timezones` array (`DateTimeZone::listIdentifiers()` — the same IANA set the `timezone` validation rule accepts, sorted alphabetically) so the admin form can render a searchable timezone dropdown instead of the free-text input; option labels with the current UTC offset ("Europe/Moscow (UTC+3)") are formatted client-side. `portfolio.yaml` schema change; no REST schema changes.
 
-- **Analytics dashboard props rework + `series`/`rankings` endpoints (v1.0.21, step 11.3.4, B290/B293):** the `AnalyticsDashboardPageProps` no longer carry the periodic `reports` array — the dashboard now loads the whole-time **blocks** per tab (`overview_blocks`/`blog_blocks`/`projects_blocks` — `{key, value, min?, max?}`, the keys are stable identifiers the frontend maps to i18n labels AND to the fetch parameters; the mapping is documented on the `AnalyticsBlock` schema), the **default chart** (`default_chart` — `page_views` at day/week/month + the cumulative `all`, B292) and the **default rankings** (`default_rankings` — time-on-page top/bottom 10 with the joined per-page min/max). Two new JSON operations serve the block interactions: `analyticsMetricSeries` (`GET /admin/analytics/series?metric=&span=` — chronological `period_start` points, 90-row cap, `span=all` = the cumulative running total; the optional `dimension` parameter selects one `cta_clicks` target — the CTA multi-chart series, required for `cta_clicks` and rejected for other metrics) and `analyticsMetricRankings` (`GET /admin/analytics/rankings?metric=&variant=&scope=` — top/bottom/liked/disliked 10 lists of the `span='all'` dimension rows; `scope=page|article|project` disambiguates the `views`/`unique_visitors` dimension families, liked/disliked pair with `reactions_likes`/`reactions_dislikes`, rows join the EN titles and the min/max; both answer 422 on unknown/ill-paired parameters). The `analyticsGenerateReports` description now states the full rebuild (`RebuildReportsJob` with `recomputeMetrics = true`). The `generate-reports` path is also stitched into the root spec for the first time (an 11.1 omission). `info.version` bumped to `1.0.21` in `inertia.yaml`.
+- **Analytics dashboard props rework + `series`/`rankings` endpoints (v1.0.21, step 11.3.4, ADR-0017):** the `AnalyticsDashboardPageProps` no longer carry the periodic `reports` array — the dashboard now loads the whole-time **blocks** per tab (`overview_blocks`/`blog_blocks`/`projects_blocks` — `{key, value, min?, max?}`, the keys are stable identifiers the frontend maps to i18n labels AND to the fetch parameters; the mapping is documented on the `AnalyticsBlock` schema), the **default chart** (`default_chart` — `page_views` at day/week/month + the cumulative `all`, ADR-0017) and the **default rankings** (`default_rankings` — time-on-page top/bottom 10 with the joined per-page min/max). Two new JSON operations serve the block interactions: `analyticsMetricSeries` (`GET /admin/analytics/series?metric=&span=` — chronological `period_start` points, 90-row cap, `span=all` = the cumulative running total; the optional `dimension` parameter selects one `cta_clicks` target — the CTA multi-chart series, required for `cta_clicks` and rejected for other metrics) and `analyticsMetricRankings` (`GET /admin/analytics/rankings?metric=&variant=&scope=` — top/bottom/liked/disliked 10 lists of the `span='all'` dimension rows; `scope=page|article|project` disambiguates the `views`/`unique_visitors` dimension families, liked/disliked pair with `reactions_likes`/`reactions_dislikes`, rows join the EN titles and the min/max; both answer 422 on unknown/ill-paired parameters). The `analyticsGenerateReports` description now states the full rebuild (`RebuildReportsJob` with `recomputeMetrics = true`). The `generate-reports` path is also stitched into the root spec for the first time (an 11.1 omission). `info.version` bumped to `1.0.21` in `inertia.yaml`.
 
-- **`AnalyticsEvent` page context (v1.0.4 REST, step 11.1, B289):** the
+- **`AnalyticsEvent` page context (v1.0.4 REST, step 11.1, ADR-0017):** the
   tracked events now carry `page_type` (the public page kind — landing,
   blog_index, blog_article, projects_index, project_detail, experience;
   nullable) and `page_entity_id` (the entity id of the entity pages,
@@ -56,9 +62,9 @@ runtime support.
   ingestion caps: `page_type` ≤ 50 chars, `page_entity_id` integer ≥ 1.
   `info.version` bumped to `1.0.4` in `openapi.yaml`.
 
-- **`analyticsGenerateReports` operation (v1.0.20, step 11.1, B220):** the
+- **`analyticsGenerateReports` operation (v1.0.20, step 11.1, ADR-0022):** the
   dashboard "Generate Now" button needs a backend endpoint that bypasses
-  the scheduler's period boundary check (A9) — routes.md documents none,
+  the scheduler's period boundary check (ADR-0017) — routes.md documents none,
   so `POST /admin/analytics/generate-reports` is added as a gap-fill:
   it dispatches `AggregateAnalyticsReportsJob` for the current period
   and answers `202` with `{"dispatched": true}` (the job runs async; the
@@ -76,7 +82,7 @@ runtime support.
   prop is documented as the `ResumeLayout` schema (template enum +
   the five `ResumeSectionConfig` entries with `visible` + `order`
   0–4). The counts come from query-builder reads in the Resume Infra
-  layer (the B11 cross-feature pattern). `info.version` bumped to
+  layer (the ADR-0003 cross-feature pattern). `info.version` bumped to
   `1.0.19` in `inertia.yaml`.
 
 - **`AboutEditPageProps.resume_mode` (v1.0.18, step 10.1):** the About
@@ -84,20 +90,20 @@ runtime support.
   (`auto`/`manual`) — the resume summary line's mode label
   (admin-section-components.md:793-794, about.html
   `data-dynamic="resume.mode"`), owned by the Resume feature. The value
-  comes from a query-builder read in the Portfolio Infra layer (the B11
+  comes from a query-builder read in the Portfolio Infra layer (the ADR-0003
   cross-feature pattern). `info.version` bumped to `1.0.18` in
   `inertia.yaml`.
 
-- **Blog public pages contract completion (v1.0.17 inertia + v1.0.3 REST, step 9.4, B268):** the public blog surface gains the fields the frontend contracts and the mockup require but the committed schemas lacked: `ArticleCardData.skill_tags` + `ArticleCardData.lead_image_alt` (per-locale map, nullable — the card's `<img>` alt), `ArticleDetailData.skill_tags` (the linked TechSkillTag chips, `{id, name, icon}` — new `SkillTagData` schema, the projects.yaml shape), and `has_projects` on both `BlogIndexPageProps` and `BlogArticlePageProps` (the A10 nav Projects-link condition — the v1.0.16 experience precedent). The REST `ArticleItem` gains the matching `lead_image_alt` (its `skill_tags` was already documented — a latent 8.2 under-delivery the step now fixes in the mapping). The backend `ArticleCardDto` carries `skillTags`/`leadImageAlt`, the public card selects gain `a.lead_image_alt`, and the list/related-card hydration uses the existing `skillTagsFor()` batch read. `info.version` bumped to `1.0.17` in `inertia.yaml` and `1.0.3` in `openapi.yaml`.
+- **Blog public pages contract completion (v1.0.17 inertia + v1.0.3 REST, step 9.4, ADR-0004):** the public blog surface gains the fields the frontend contracts and the mockup require but the committed schemas lacked: `ArticleCardData.skill_tags` + `ArticleCardData.lead_image_alt` (per-locale map, nullable — the card's `<img>` alt), `ArticleDetailData.skill_tags` (the linked TechSkillTag chips, `{id, name, icon}` — new `SkillTagData` schema, the projects.yaml shape), and `has_projects` on both `BlogIndexPageProps` and `BlogArticlePageProps` (the ADR-0025 nav Projects-link condition — the v1.0.16 experience precedent). The REST `ArticleItem` gains the matching `lead_image_alt` (its `skill_tags` was already documented — a latent 8.2 under-delivery the step now fixes in the mapping). The backend `ArticleCardDto` carries `skillTags`/`leadImageAlt`, the public card selects gain `a.lead_image_alt`, and the list/related-card hydration uses the existing `skillTagsFor()` batch read. `info.version` bumped to `1.0.17` in `inertia.yaml` and `1.0.3` in `openapi.yaml`.
 
 - **`projectSortDirection` query parameter + `projectSort` enum narrowed (v1.0.2, step 9.3 rework):** the projects list sort lost the `complexity` strategy (the "most complex" dropdown option was removed per the 2026-08-16 user decision) — `?sort=` now accepts `date` only — and gained the `?direction=asc|desc` parameter (default `desc`; `asc` = "newest last") on the `GET /projects` JSON variant (`listProjectsJson`). The backend's keyset cursor mirrors the direction (the strict seek and the `id` tiebreaker invert for `asc`). `info.version` bumped to `1.0.2` in `openapi.yaml`.
 
 - **`ExperienceTimelinePageProps.has_projects` (v1.0.16, step 9.2):**
   the public experience timeline page now carries whether at least one
   published, non-trashed project exists — the header nav's Projects-link
-  condition (A10; the committed page schema carried no published-project
+  condition (ADR-0025; the committed page schema carried no published-project
   signal, a gap-fill per user decision 2026-08-15). The value comes from
-  a query-builder read in `PublicExperienceController` (the B11
+  a query-builder read in `PublicExperienceController` (the ADR-0003
   cross-feature pattern). `info.version` bumped to `1.0.16` in
   `inertia.yaml`.
 
@@ -144,13 +150,13 @@ runtime support.
   public article page serves the body rendered server-side by the
   shared content pipeline (safe-mode CommonMark + callouts + syntax
   highlighting with the `data-code-block`/`data-callout-type` markers,
-  content-management.md:466-481, B23) — the raw Markdown is no longer
+  content-management.md:466-481, ADR-0008) — the raw Markdown is no longer
   exposed. The page additionally carries the pre-increment
   `article_views` counter (content-management.md:217) and the reaction
   state (`{user_reaction, likes, dislikes}`) is now nullable: `null`
   when the `social_reactions` feature flag is disabled (no widget
   rendered, public-section-components.md:1273) or on the signed
-  preview (B211). `info.version` bumped to `1.0.13` in `inertia.yaml`.
+  preview (ADR-0004). `info.version` bumped to `1.0.13` in `inertia.yaml`.
 
 ### Added
 
@@ -166,7 +172,7 @@ runtime support.
   `BlogFormPageProps.preview_url` (v1.0.12, step 8.1):** the form page
   now receives the tag picker options (all article tags), the
   published articles (`{id, slug, title}`) of the Related Articles
-  multi-select (B188 pattern — only published articles can be linked,
+  multi-select (ADR-0004 pattern — only published articles can be linked,
   content-management.md:243) and the signed 1-hour preview URL
   (routes.md:155 — `URL::temporarySignedRoute` on the `blog.preview`
   route; null on the create form). `info.version` bumped to `1.0.12`
@@ -217,7 +223,7 @@ runtime support.
   Solution sections (public-section-ui.md:194-195) — the committed
   contract did not carry them. Both are nullable Markdown strings,
   rendered via the shared content pipeline (content-management.md:131,
-  B23). `info.version` bumped to `1.0.10` in `inertia.yaml`.
+  ADR-0008). `info.version` bumped to `1.0.10` in `inertia.yaml`.
 
 - **`ProjectFormPageProps.preview_url` (v1.0.10, step 7.1):** the form
   page now receives the signed 1-hour temporary preview URL (routes.md:
@@ -244,7 +250,7 @@ runtime support.
   `ProjectDetailData` (the public shape keeps locale-resolved strings).
   `detail_items` now reference the new `ProjectDetailItemEditData` schema
   with per-locale title/description maps + the reconcile-by-id `id` field
-  (A2). `info.version` bumped to `1.0.10` in `inertia.yaml`.
+  (ADR-0005). `info.version` bumped to `1.0.10` in `inertia.yaml`.
 
 - **`TimelineItemEditData` per-locale maps (v1.0.9, step 6.2):** the
   translatable form fields (`position`, `company_name`, `company_country`,
@@ -274,7 +280,7 @@ runtime support.
 
 ### Changed
 
-- **`LoginPageProps.github_oauth_enabled` → `github_login_available` (v1.0.6, step 4.3, B127):**
+- **`LoginPageProps.github_oauth_enabled` → `github_login_available` (v1.0.6, step 4.3, ADR-0013):**
   the login page's GitHub button is now shown only when the `github_oauth`
   feature flag is ON **and** at least one admin account is linked with GitHub
   (`admins.github_id` set) — the OAuth login flow can only fail otherwise.
@@ -284,7 +290,7 @@ runtime support.
 
 - **Landing props `console_greeting` + `has_more` + `feedback_honeypot_name` (v1.0.5, step 4.1):**
   (1) new `console_greeting` object added to `LandingPageProps` (per
-  `public-section-components.md:578-590` + B80 — the data arrives with
+  `public-section-components.md:578-590` + ADR-0023 — the data arrives with
   the landing page): `greeting` (localized static text), `name` and
   `position` (locale-resolved about values), `contacts` as
   `{label, value}` pairs; the public layout renders `ConsoleGreeting`
@@ -324,7 +330,7 @@ runtime support.
 
 - **Inertia shared props (v1.0.2):** `InertiaSharedProps` documents the
   `request_id` UUID prop (per `error-handling.md:266-273`); `AdminUser`
-  documents `name` and `is_oauth_primary` (per B3/B27/B35). Both additions
+  documents `name` and `is_oauth_primary` (per ADR-0004/ADR-0013). Both additions
   are optional properties — the required-set is unchanged. `info.version`
   bumped to `1.0.2` in `inertia.yaml` (openapi.yaml unaffected).
 

@@ -21,7 +21,7 @@ export interface BlogListCursors {
 // `useBlogRows`, the delete flows in `useBlogDeletes`. The unified tag
 // filter splits into the backend's two CSV params (`article_tags` for
 // `type: "tag"` options, `skill_tags` for `type: "skill"` — routes.md:
-// 204-205, B2), the year filter is the dropdown string form of the
+// 204-205, ADR-0004), the year filter is the dropdown string form of the
 // backend's `?year=YYYY`.
 export function useBlogFilters() {
     // Filter state — initialized from the URL query (SSR-safe; the admin

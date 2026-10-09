@@ -15,7 +15,7 @@ use InvalidArgumentException;
  * context describes the departing page (the frontend fires it on
  * navigation start, before the arriving page's context is set) — the
  * seconds feed the overall `avg_time_on_page` and the per-article
- * average read time (B287/B289).
+ * average read time (ADR-0017).
  */
 final class TimeOnPageEvent extends AnalyticsEvent
 {

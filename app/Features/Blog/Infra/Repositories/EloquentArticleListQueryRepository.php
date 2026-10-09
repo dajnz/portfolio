@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Config;
 
 /**
  * Eloquent implementation of {@see ArticleListQueryRepositoryInterface}
- * (the admin list-query contract — B109) and
+ * (the admin list-query contract — ADR-0001) and
  * {@see PublicArticleReadRepositoryInterface} (the public read model —
  * step 8.2).
  *
@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Config;
  * (`coalesce(pl.*, pe.*)` with the `en` fallback — content-management.md:
  * 415) over `blog_articles`, extended with the `article_views` count,
  * the separate article-tag / skill-tag AND-intersects
- * (`?article_tags=` / `?skill_tags=` — routes.md:204-205, B2), the
+ * (`?article_tags=` / `?skill_tags=` — routes.md:204-205, ADR-0004), the
  * title/content search, the published status and the publication-year
  * filter. Tag chips, skill tags and related rows are assembled per
  * page from supplemental queries. The admin list pagination itself
@@ -414,7 +414,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
      * plainto_tsquery filter over the locale-resolved vector, the
      * ts_rank column (the ORDER BY + keyset seek reference it) and
      * the `ts_headline` snippet column (the `<mark>`-wrapped excerpt
-     * of the Inertia HTML results — B16).
+     * of the Inertia HTML results — ADR-0007).
      */
     private function applyFtsSearch(QueryBuilder $query, string $locale, string $search): FtsQueryBuilder
     {
@@ -533,7 +533,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
     /**
      * The `?article_tags=` AND/intersection filter: articles whose
      * article-tag set contains ALL of the submitted tag ids
-     * (routes.md:204-205, B2).
+     * (routes.md:204-205, ADR-0004).
      *
      * @param  int[]  $tagIds
      */

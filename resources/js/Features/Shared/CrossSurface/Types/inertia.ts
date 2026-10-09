@@ -672,7 +672,7 @@ export interface paths {
         };
         /**
          * Analytics dashboard
-         * @description The admin analytics dashboard (analytics.md:223-227, B293): the
+         * @description The admin analytics dashboard (analytics.md:223-227, ADR-0017): the
          *     whole-time metric blocks per tab (overview/blog/projects), the
          *     default chart series (`page_views`, four spans) and the default
          *     rankings (time-on-page top/bottom 10) as Inertia props. Chart
@@ -698,7 +698,7 @@ export interface paths {
         /**
          * Analytics metric series
          * @description The chart points of one metric at one span (analytics.md:225,
-         *     B292, 11.3.4) — chronological `period_start` labels, the last
+         *     ADR-0017, 11.3.4) — chronological `period_start` labels, the last
          *     90 rows; `span=all` returns the cumulative running total (of
          *     the dimension-NULL day rows — or of the selected target's day
          *     rows when `dimension` is given). The `dimension` parameter
@@ -723,7 +723,7 @@ export interface paths {
         };
         /**
          * Analytics metric rankings
-         * @description The top/bottom/liked/disliked 10 lists (analytics.md:226, B293,
+         * @description The top/bottom/liked/disliked 10 lists (analytics.md:226, ADR-0017,
          *     11.3.4): the `span='all'` dimension rows of the metric ordered
          *     by value. `scope` selects the dimension family (`page` — the
          *     time-on-page URLs; `article`/`project` — the entity keys of the
@@ -754,7 +754,7 @@ export interface paths {
         /**
          * Generate analytics reports now
          * @description The dashboard "Generate Now" button (analytics.md:204-212,
-         *     B290): dispatches the full rebuild — `RebuildReportsJob` with
+         *     ADR-0017): dispatches the full rebuild — `RebuildReportsJob` with
          *     `recomputeMetrics = true` (recompute the metrics for the
          *     still-present event window + the full feedback history, then
          *     rebuild every report span). The job runs async (202); the
@@ -939,13 +939,13 @@ export interface components {
         };
         AdminUser: {
             id?: number;
-            /** @description Display name (mirrors the login — B56). */
+            /** @description Display name (mirrors the login — ADR-0013). */
             name?: string;
             login?: string;
             email?: string;
             github_linked?: boolean;
             totp_enabled?: boolean;
-            /** @description Computed: (github_id IS NOT NULL) && (password IS NULL) — B27/B35. */
+            /** @description Computed: (github_id IS NOT NULL) && (password IS NULL) — ADR-0013. */
             is_oauth_primary?: boolean;
         };
         AboutData: {
@@ -1096,7 +1096,7 @@ export interface components {
                 contacts?: components["schemas"]["ContactData"][];
                 /**
                  * @description ConsoleGreeting data (public-section-components.md:578-590,
-                 *     B80): greeting text (localized), the developer name and
+                 *     ADR-0023): greeting text (localized), the developer name and
                  *     position (locale-resolved about values) and the contacts
                  *     as label/value pairs. Rendered by the public layout only
                  *     when passed and the `console_greeting` flag is enabled.
@@ -1211,7 +1211,7 @@ export interface components {
             slug?: string;
             /**
              * @description The locale-resolved brief description — or the FTS search
-             *     excerpt (the `ts_headline()` `<mark>`-wrapped HTML, B16)
+             *     excerpt (the `ts_headline()` `<mark>`-wrapped HTML, ADR-0007)
              *     on the Inertia HTML variant when `?q=` is present. The
              *     JSON variant always returns the raw value.
              */
@@ -1249,7 +1249,7 @@ export interface components {
                 /**
                  * @description Whether at least one published, non-trashed project
                  *     exists — the header nav's Projects-link condition
-                 *     (A10; the same signal the experience timeline page
+                 *     (ADR-0025; the same signal the experience timeline page
                  *     carries, v1.0.16).
                  */
                 has_projects?: boolean;
@@ -1263,7 +1263,7 @@ export interface components {
             /**
              * @description The article body rendered server-side by the shared content
              *     pipeline (safe-mode CommonMark + callouts + syntax
-             *     highlighting — content-management.md:466-481, B23). The
+             *     highlighting — content-management.md:466-481, ADR-0008). The
              *     public page renders it via v-html.
              */
             content_html?: string;
@@ -1302,7 +1302,7 @@ export interface components {
                  * @description The visitor's reaction state — null when the
                  *     `social_reactions` feature flag is disabled (no
                  *     widget rendered, public-section-components.md:1273)
-                 *     or on the signed preview (B211).
+                 *     or on the signed preview (ADR-0004).
                  */
                 reactions?: {
                     user_reaction?: string | null;
@@ -1312,7 +1312,7 @@ export interface components {
                 /**
                  * @description Whether at least one published, non-trashed project
                  *     exists — the header nav's Projects-link condition
-                 *     (A10).
+                 *     (ADR-0025).
                  */
                 has_projects?: boolean;
                 seo?: components["schemas"]["SeoProps"];
@@ -1392,7 +1392,7 @@ export interface components {
                 article?: components["schemas"]["ArticleEditData"];
                 /** @description All article tags — the tag picker options. */
                 tags?: components["schemas"]["TagData"][];
-                /** @description Published articles — the Related Articles multi-select options (B188 pattern). */
+                /** @description Published articles — the Related Articles multi-select options (ADR-0004 pattern). */
                 articles?: {
                     id?: number;
                     slug?: string;
@@ -1541,7 +1541,7 @@ export interface components {
             title?: string;
             slug?: string;
             /**
-             * @description The stored preview image path (A7 — public URL is
+             * @description The stored preview image path (ADR-0027 — public URL is
              *     `{APP_URL}/assets/{path}`); null when the project has no
              *     preview image (the Preview column shows a placeholder).
              */
@@ -1577,7 +1577,7 @@ export interface components {
             };
         };
         ProjectDetailItemEditData: {
-            /** @description Existing row id on edit (reconcile-by-id, A2); absent on new rows. */
+            /** @description Existing row id on edit (reconcile-by-id, ADR-0005); absent on new rows. */
             id?: number;
             /** @description Iconify identifier from the curated engineering set, e.g. `heroicons:shield-check`. */
             icon?: string | null;
@@ -1631,7 +1631,7 @@ export interface components {
              * @description Engineering detail items with per-locale title/description
              *     maps (the admin form edits them under LocaleTabs —
              *     `item.title.en` etc. in the mockup). Rows carry their id for
-             *     the reconcile-by-id convention (A2).
+             *     the reconcile-by-id convention (ADR-0005).
              */
             detail_items?: components["schemas"]["ProjectDetailItemEditData"][];
         };
@@ -1722,7 +1722,7 @@ export interface components {
                 items?: components["schemas"]["TimelineItemCardData"][];
                 has_more?: boolean;
                 next_cursor?: string | null;
-                /** @description Whether at least one published, non-trashed project exists — the header nav's Projects-link condition (A10). */
+                /** @description Whether at least one published, non-trashed project exists — the header nav's Projects-link condition (ADR-0025). */
                 has_projects?: boolean;
                 seo?: components["schemas"]["SeoProps"];
             };
@@ -1815,7 +1815,7 @@ export interface components {
             /** @constant */
             component?: "Auth/Admin/Pages/LoginPage";
             props?: {
-                /** @description Whether the "Continue with GitHub" button is shown — the github_oauth feature flag is ON and at least one admin account is linked with GitHub (B127). */
+                /** @description Whether the "Continue with GitHub" button is shown — the github_oauth feature flag is ON and at least one admin account is linked with GitHub (ADR-0013). */
                 github_login_available?: boolean;
                 /** @constant */
                 loginPage?: true;
@@ -1960,7 +1960,7 @@ export interface components {
         /**
          * @description The chart points of one metric at one span: chronological
          *     `period_start` date labels (the `span=all` response is the
-         *     cumulative running total over the day rows, B292). For
+         *     cumulative running total over the day rows, ADR-0017). For
          *     `metric=cta_clicks` the caller passes a `dimension` (one of the
          *     seven targets) and receives that target's series — the per-target
          *     day rows, cumulative at `span=all` (the CTA multi-chart is seven
@@ -1974,7 +1974,7 @@ export interface components {
          * @description The default chart (total visits): the `page_views` series at
          *     the four span options — daily/weekly/monthly points
          *     (chronological, `period_start` date labels, up to 90) and the
-         *     cumulative running total for `all` (B292). The frontend renders
+         *     cumulative running total for `all` (ADR-0017). The frontend renders
          *     the `day` series initially and fetches on span change.
          */
         AnalyticsDefaultChart: {
@@ -2050,7 +2050,7 @@ export interface components {
             value: number;
         };
         /**
-         * @description The top/bottom/liked/disliked lists (B293): the `span='all'`
+         * @description The top/bottom/liked/disliked lists (ADR-0017): the `span='all'`
          *     dimension rows of the metric, capped at 10. The row shape
          *     follows the `scope` — pages carry the URL + avg/min/max,
          *     articles and projects the EN title + the metric value (the

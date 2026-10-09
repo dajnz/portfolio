@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
  * the locale's Snowball dictionary (`config('portfolio.fts.locales')`,
  * fallback `english` — database.md:629-647) and invalidates the
  * `sitemap:xml` cache (seo.md:219 — translation edits change the
- * entity's lastmod, B65).
+ * entity's lastmod, ADR-0022).
  *
  * @property int $project_id
  * @property string $locale

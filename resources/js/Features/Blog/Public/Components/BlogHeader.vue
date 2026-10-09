@@ -46,7 +46,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 // The year dropdown's "All" option — the component's modelValue is
-// string-typed, so the null state travels as the '' sentinel (B269).
+// string-typed, so the null state travels as the '' sentinel (ADR-0025).
 const YEAR_ALL = '';
 
 const yearOptions = computed(() => [
@@ -65,7 +65,7 @@ const showYearFilter = computed(() => props.available_years.length > 1);
 // only the search row and a toggle button; expanding reveals the tag
 // filter and the year dropdown (each on its own full-width row). The
 // state is purely visual — desktop always shows all rows (the
-// projects B267 pattern, user request 2026-08-16).
+// projects ADR-0025 pattern, user request 2026-08-16).
 const filtersExpanded = ref(true);
 
 function toggleFilters(): void {
@@ -257,7 +257,7 @@ function onViewModeChange(mode: HeaderViewMode): void {
     display: none;
 }
 
-/* Small screens (the B267 projects precedent, B269): the grid/list
+/* Small screens (the ADR-0025 projects precedent): the grid/list
    switch is hidden (grid and list render identically on mobile), the
    filters toggle appears at the right of the search box, and the tag
    filter + year dropdown stack on their own full-width rows. The

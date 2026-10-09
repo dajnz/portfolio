@@ -101,7 +101,7 @@ describe('TechSkillGroupController', function (): void {
             ->and(SkillModel::query()->count())->toBe(0);
     });
 
-    it('reorders groups by the zero-indexed payload positions (A4)', function (): void {
+    it('reorders groups by the zero-indexed payload positions (ADR-0005)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $a = SkillGroupModel::factory()->create(['sort_order' => 0]);

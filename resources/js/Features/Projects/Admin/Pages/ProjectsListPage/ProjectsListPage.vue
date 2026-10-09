@@ -1,4 +1,4 @@
-<!-- ProjectsListPage (admin-section-ui.md:327-346, admin-section-components.md:957-991, projects.html) — the cursor-paginated projects management list: the page orchestrator wiring the composables (useProjectFilters — URL-synced filters; useProjectRows — row data, selection, bulk + quick actions; useProjectDeletes — the delete/restore dialog flow) into the template: the filters bar (ProjectFiltersBar), the selectable DataTable with the inline quick actions (feature star, tag chips + inline single-select picker, publish/unpublish), the BulkActionBar per view (publish/unpublish/delete vs restore/force-delete), the featured-projects reorder section (ProjectFeaturedReorder) and ConfirmationDialog deletes. Quick actions talk to the JSON endpoints (B180 — `{data}` row responses) via useJsonApi with optimistic updates + revert; bulk + reorder refetch/rollback the server props; single deletes/restores are Inertia visits (server flash toasts). -->
+<!-- ProjectsListPage (admin-section-ui.md:327-346, admin-section-components.md:957-991, projects.html) — the cursor-paginated projects management list: the page orchestrator wiring the composables (useProjectFilters — URL-synced filters; useProjectRows — row data, selection, bulk + quick actions; useProjectDeletes — the delete/restore dialog flow) into the template: the filters bar (ProjectFiltersBar), the selectable DataTable with the inline quick actions (feature star, tag chips + inline single-select picker, publish/unpublish), the BulkActionBar per view (publish/unpublish/delete vs restore/force-delete), the featured-projects reorder section (ProjectFeaturedReorder) and ConfirmationDialog deletes. Quick actions talk to the JSON endpoints (ADR-0004 — `{data}` row responses) via useJsonApi with optimistic updates + revert; bulk + reorder refetch/rollback the server props; single deletes/restores are Inertia visits (server flash toasts). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { router, usePage } from '@inertiajs/vue3';
@@ -370,7 +370,7 @@ function previewUrl(row: ProjectRow): string {
 
       <!-- Featured projects reorder — SortableList in a separate
            section (drag reorder → POST /admin/projects/reorder-featured
-           with the zero-indexed {ids}, A4). Only in the live view. -->
+           with the zero-indexed {ids}, ADR-0005). Only in the live view. -->
       <ProjectFeaturedReorder
         v-if="isLiveView && featuredRows.length > 0"
         :items="featuredRows as unknown as FeaturedRow[]"

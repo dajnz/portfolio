@@ -10,7 +10,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Raw `analytics_events` are kept for 90 days from event creation (see
-    | analytics.md). Note (B37): the 90-day cutoff is a fixed constant in
+    | analytics.md). Note (ADR-0012): the 90-day cutoff is a fixed constant in
     | the pruning pipeline (`PruneEventsUseCase`) — this key is
     | informational only.
     |

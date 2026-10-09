@@ -18,15 +18,15 @@ use Illuminate\Validation\Validator;
  * required per active locale; the Markdown content fields are
  * optional. The slug rules: kebab-case regex, max 200, unique across
  * ALL projects incl. trashed (soft-deleted entities occupy their slug,
- * B29) with the current project ignored on update — EXCEPT the
+ * ADR-0006) with the current project ignored on update — EXCEPT the
  * auto-generated value: a submitted slug equal to the naive generation
  * of the EN title (or to the stored slug on update) skips the
  * uniqueness rejection — the use case re-resolves it server-side with
- * a numeric collision suffix (A3, content-management.md:441-452). A
+ * a numeric collision suffix (ADR-0006, content-management.md:441-452). A
  * manual override that collides is rejected here.
  *
  * Nested arrays: `screenshots` (RustFS `image` path, per-locale
- * `alt_text`/`title`/`description` maps — reconciled by id per A2) and
+ * `alt_text`/`title`/`description` maps — reconciled by id per ADR-0005) and
  * `detail_items` (engineering Iconify `icon` in the `set:name` format —
  * membership is constrained by the strict icon manifests and the
  * restricted picker, the format invariant lives in
@@ -189,7 +189,7 @@ final class StoreProjectRequest extends FormRequest
     }
 
     /**
-     * A3: the submitted slug is "auto-generated" when it equals the
+     * ADR-0006: the submitted slug is "auto-generated" when it equals the
      * naive generation of the EN title (the client regenerates the
      * slug on every EN-title save — content-management.md:431) or the
      * currently stored slug on update (the regeneration trigger).

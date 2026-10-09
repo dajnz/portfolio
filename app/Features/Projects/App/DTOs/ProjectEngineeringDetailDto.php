@@ -7,7 +7,7 @@ namespace App\Features\Projects\App\DTOs;
 /**
  * An engineering detail of a project (content-management.md:160): the
  * Iconify `icon` in the `set:name` form, the per-locale
- * title/description maps and the reconcile-by-id marker (A2). Immutable.
+ * title/description maps and the reconcile-by-id marker (ADR-0005). Immutable.
  */
 final readonly class ProjectEngineeringDetailDto
 {

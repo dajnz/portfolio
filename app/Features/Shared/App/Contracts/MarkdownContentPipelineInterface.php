@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Shared\App\Contracts;
 
 /**
- * The shared content pipeline (B23, content-management.md:466-481):
+ * The shared content pipeline (ADR-0008, content-management.md:466-481):
  * the app-layer contract of the safe-mode CommonMark + callouts +
  * server-side highlighting renderer. The Infra implementation
  * ({@see \App\Features\Shared\Infra\Services\MarkdownContentPipeline})
@@ -16,7 +16,7 @@ interface MarkdownContentPipelineInterface
 {
     /**
      * The rendered article body, cached under
-     * `article:html:{id}:{locale}:{content-hash}` (B270) — the key
+     * `article:html:{id}:{locale}:{content-hash}` (ADR-0008) — the key
      * embeds a hash of the markdown, so ANY content change rotates
      * the key (self-invalidating by content, including saves landing
      * within the same `updated_at` second — the 8.2 stamp scheme

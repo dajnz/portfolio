@@ -7,7 +7,7 @@ namespace App\Features\Shared\App\Services;
 use MessageFormatter;
 
 /**
- * ICU MessageFormat formatter (i18n-and-theming.md:31, B28).
+ * ICU MessageFormat formatter (i18n-and-theming.md:31, ADR-0009).
  *
  * Wraps PHP's `\MessageFormatter::format()` (an intl dependency — hence an
  * app-layer service, not a domain class) so controllers, use cases and

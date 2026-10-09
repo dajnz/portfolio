@@ -11,7 +11,7 @@ use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInt
  * The article-tags autocomplete (`GET /api/tags/search`, routes.md:
  * 196): case-insensitive name contains-match over ALL article tags
  * (the article-tags-only source of the admin tag form and the blog
- * filter), ordered by name ascending, capped at 20 results (A11).
+ * filter), ordered by name ascending, capped at 20 results (ADR-0007).
  */
 final class SearchArticleTagsUseCase
 {

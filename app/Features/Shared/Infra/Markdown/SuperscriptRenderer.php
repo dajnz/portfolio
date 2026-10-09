@@ -11,7 +11,7 @@ use League\CommonMark\Util\HtmlElement;
 use League\CommonMark\Xml\XmlNodeRendererInterface;
 
 /**
- * Renders {@see Superscript} as `<sup>` (B231).
+ * Renders {@see Superscript} as `<sup>` (ADR-0024).
  */
 final class SuperscriptRenderer implements NodeRendererInterface, XmlNodeRendererInterface
 {

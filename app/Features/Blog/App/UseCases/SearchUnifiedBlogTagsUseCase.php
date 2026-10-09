@@ -16,7 +16,7 @@ use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInter
  * tech skills (`type: "skill"`) — the `type` discriminator keeps the
  * independent id spaces unambiguous when the filter URL is built
  * (`?article_tags=` vs `?skill_tags=`). Each source is ordered by
- * name ascending; the merged result is capped at 20 (A11).
+ * name ascending; the merged result is capped at 20 (ADR-0007).
  */
 final class SearchUnifiedBlogTagsUseCase
 {

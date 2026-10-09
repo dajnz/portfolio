@@ -8,8 +8,8 @@ use App\Features\Analytics\Infra\Models\AnalyticsEventModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Test factory for `analytics_events` (B21). The `ip_address` is an
- * opaque keyed HMAC digest (B4) — tests pass explicit values where the
+ * Test factory for `analytics_events` (ADR-0029). The `ip_address` is an
+ * opaque keyed HMAC digest (ADR-0017) — tests pass explicit values where the
  * anonymity invariants matter.
  */
 final class AnalyticsEventModelFactory extends Factory

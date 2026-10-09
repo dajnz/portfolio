@@ -1,4 +1,4 @@
-<!-- AdminDatePicker (admin-section-components.md, B175) — calendar date
+<!-- AdminDatePicker (admin-section-components.md, ADR-0024) — calendar date
      picker for admin forms. The field is a READ-ONLY display of the
      value in the RU format `dd.mm.yyyy` (no locale switching — the user
      requested the RU format no matter the selected locale) with a clear
@@ -52,14 +52,14 @@ const viewDate = ref(selectedDate() ?? new Date());
 const focusedDay = ref<Date | null>(selectedDate() ?? null);
 const rootEl = ref<HTMLElement | null>(null);
 // The calendar panel's level: the day grid or the year grid. The heading
-// click toggles between them (B175: years must be pickable, not only
+// click toggles between them (ADR-0024: years must be pickable, not only
 // months/days).
 const viewMode = ref<ViewMode>('days');
 
 const displayValue = computed(() => toDisplay(props.modelValue));
 
 const labelText = computed(() => props.label ?? '');
-// "April (4) 2026" — the 1-based month number next to the name (B175).
+// "April (4) 2026" — the 1-based month number next to the name (ADR-0024).
 const monthTitle = computed(
     () =>
         `${MONTH_LABEL.format(viewDate.value)} (${viewDate.value.getMonth() + 1}) ${YEAR_LABEL.format(viewDate.value)}`,
@@ -316,7 +316,7 @@ function onYearsKeydown(event: KeyboardEvent): void {
 // re-renders the grid and removes the clicked button before the click
 // finishes bubbling, and a bubble-phase check would see the detached
 // target as an outside click, closing the calendar right after the year
-// was picked (B175).
+// was picked (ADR-0024).
 function onDocumentClick(event: MouseEvent): void {
     if (
         isOpen.value &&
@@ -416,7 +416,7 @@ onBeforeUnmount(() => {
               aria-hidden="true"
             />
           </button>
-          <!-- The heading toggles the year grid (B175): clicking it opens
+          <!-- The heading toggles the year grid (ADR-0024): clicking it opens
                the years for picking, clicking again returns to the day
                grid. -->
           <button

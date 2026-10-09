@@ -15,7 +15,7 @@ use Tests\Support\Fakes\FakeCountCacheInvalidator;
 /**
  * The tag↔skill name cross-check (content-management.md:595,695 —
  * enforced on the article-tag side only, case-insensitive, ANY locale
- * of the submitted names) and the A3 slug resolution of the tag
+ * of the submitted names) and the ADR-0006 slug resolution of the tag
  * store flow.
  */
 describe('StoreTagUseCase', function (): void {
@@ -68,7 +68,7 @@ describe('StoreTagUseCase', function (): void {
             ->and($countCache->invalidated)->toBe(['tags']);
     });
 
-    it('keeps a manual slug override as-is (A3)', function (): void {
+    it('keeps a manual slug override as-is (ADR-0006)', function (): void {
         $repository = new FakeArticleTagRepository(skillNames: []);
         $useCase = new StoreTagUseCase(
             $repository,
@@ -84,7 +84,7 @@ describe('StoreTagUseCase', function (): void {
         expect($tag->toSlug())->toBe('my-manual-slug');
     });
 
-    it('appends a numeric collision suffix to the auto-generated slug (A3)', function (): void {
+    it('appends a numeric collision suffix to the auto-generated slug (ADR-0006)', function (): void {
         $repository = new FakeArticleTagRepository(skillNames: [], taken: ['laravel', 'laravel-2']);
         $useCase = new StoreTagUseCase(
             $repository,

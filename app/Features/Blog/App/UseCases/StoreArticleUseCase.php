@@ -17,7 +17,7 @@ use DateTimeImmutable;
 
 /**
  * Creates an article (content-management.md:191-274): the resolved
- * slug (A3 — auto-generated from the EN title with a collision suffix,
+ * slug (ADR-0006 — auto-generated from the EN title with a collision suffix,
  * or the manual override kept as-is — the override's uniqueness and
  * the related-link targets are checked by {@see ArticleDraftValidator}
  * first), the shared fields, the per-locale translations (title +

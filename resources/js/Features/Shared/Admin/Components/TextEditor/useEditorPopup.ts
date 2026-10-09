@@ -1,5 +1,5 @@
 /**
- * The TextEditor's shared config-popup state machine (B232 — the
+ * The TextEditor's shared config-popup state machine (ADR-0024 — the
  * single non-wrapping toolbar row; every option-bearing control opens
  * the popup anchored under the clicked button). One popup at a time.
  *

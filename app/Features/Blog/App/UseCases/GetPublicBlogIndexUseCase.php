@@ -23,10 +23,10 @@ use Illuminate\Support\Facades\Config;
  * content-management.md:194-205): published, non-trashed articles
  * ordered `published_at DESC, id DESC` with infinite scroll via the
  * opaque composite cursor, the `?article_tags=` / `?skill_tags=`
- * AND-intersects (B2), the `?year=` filter and the FTS `?q=` search
+ * AND-intersects (ADR-0004), the `?year=` filter and the FTS `?q=` search
  * (plainto_tsquery + ts_rank — the search takes over the ordering
  * per database.md:651-660, with the `ts_headline` snippet on the
- * HTML variant — B16).
+ * HTML variant — ADR-0007).
  *
  * Every request returns a superset of earlier positions (seo.md:305):
  * the initial batch unconditionally, then all batches up to and
@@ -69,7 +69,7 @@ final class GetPublicBlogIndexUseCase
     /**
      * The JSON dual-response variant (routes.md:199-212) — length-aware
      * pagination, the prefix autocomplete search, the tag intersects
-     * and the year filter; raw field values without highlights (B16).
+     * and the year filter; raw field values without highlights (ADR-0007).
      */
     public function jsonPage(PublicBlogListQuery $query): PaginatedPublicBlogListDto
     {

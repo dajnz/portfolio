@@ -2,7 +2,7 @@
  * Callout Tiptap node (admin-section-components.md:237) — renders as a
  * bordered block and round-trips through the `> [!TYPE]` GitHub-style
  * blockquote marker (the format the public content pipeline renders per
- * B23). Parsing uses a custom marked tokenizer so the marker syntax
+ * ADR-0008). Parsing uses a custom marked tokenizer so the marker syntax
  * survives markdown parse → editor → serialize without loss.
  *
  * The markdown contract lives in TOP-LEVEL extension fields

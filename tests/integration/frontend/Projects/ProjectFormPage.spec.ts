@@ -266,7 +266,7 @@ describe('ProjectFormPage', () => {
             'my-new-project',
         );
 
-        // Manual edits win over the auto-generation (A3).
+        // Manual edits win over the auto-generation (ADR-0006).
         await wrapper.get('[data-testid="project-form-page-slug"]').setValue('custom-slug');
         await wrapper.get('[data-testid="project-form-page-title-en"]').setValue('Another Title');
         await nextTick();

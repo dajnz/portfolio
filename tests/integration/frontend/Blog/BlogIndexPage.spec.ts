@@ -195,8 +195,8 @@ describe('BlogIndexPage', () => {
         const blogNav = wrapper.get('[data-testid="public-header-nav-/blog"]');
         expect(blogNav.classes()).toContain('is-active');
         expect(blogNav.attributes('aria-current')).toBe('page');
-        // A10: the Projects link renders only when a published project
-        // exists (the `has_projects` signal, B268).
+        // ADR-0025: the Projects link renders only when a published project
+        // exists (the `has_projects` signal, ADR-0004).
         expect(wrapper.find('[data-testid="public-header-nav-/projects"]').exists()).toBe(true);
     });
 
@@ -406,7 +406,7 @@ describe('BlogIndexPage', () => {
         await flush();
 
         // Both pills hydrate: the article tag from the `tags` prop, the
-        // skill pill from the batch card's skill_tags (B269).
+        // skill pill from the batch card's skill_tags (ADR-0025).
         const articlePill = wrapper.get('[data-testid="blog-page-header-tags-pill-0"]');
         expect(articlePill.text()).toContain('Vue');
         const skillPill = wrapper.get('[data-testid="blog-page-header-tags-pill-1"]');

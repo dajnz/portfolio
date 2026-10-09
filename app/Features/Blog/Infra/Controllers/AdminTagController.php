@@ -155,7 +155,7 @@ final class AdminTagController
     /**
      * `GET /api/tags/search` (routes.md:196, features/blog.yaml#
      * searchTags): the article-tags autocomplete — `{id, name, slug}`
-     * rows, name ascending, capped at 20 (A11).
+     * rows, name ascending, capped at 20 (ADR-0007).
      */
     public function search(Request $request): JsonResponse
     {
@@ -181,7 +181,7 @@ final class AdminTagController
      * searchUnifiedBlogTags): the unified autocomplete of the blog
      * filter — article tags and tech skills with the `type`
      * discriminator (`tag` | `skill`), name ascending, capped at 20
-     * (A11, content-management.md:198-200).
+     * (ADR-0007, content-management.md:198-200).
      */
     public function searchUnified(Request $request): JsonResponse
     {

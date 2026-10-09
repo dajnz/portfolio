@@ -8,7 +8,7 @@ use RuntimeException;
 
 /**
  * The project's slug is occupied by another non-trashed project — the
- * restore uniqueness re-check (B29, content-management.md:901).
+ * restore uniqueness re-check (ADR-0006, content-management.md:901).
  * Surfaced as a validation error on the `slug` field by the controller.
  */
 final class ProjectSlugOccupiedException extends RuntimeException

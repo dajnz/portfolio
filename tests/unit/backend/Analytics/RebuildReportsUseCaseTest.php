@@ -16,7 +16,7 @@ use Tests\Support\Fakes\FakeAnalyticsReportDataReader;
 use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 
 /**
- * The report rebuild (analytics.md:186-212, B290): every span
+ * The report rebuild (analytics.md:186-212, ADR-0017): every span
  * (day/week/month/year/all) rebuilt from the aggregated metric groups
  * — the per-metric-kind value derivation (weighted
  * `SUM(value)/SUM(samples)` for the avg-able metrics, plain MIN/MAX

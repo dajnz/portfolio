@@ -36,7 +36,7 @@ export default defineConfig(({ isSsrBuild }) => ({
         }),
         vue(),
         tailwindcss(),
-        // Build-time i18n gate (i18n-and-theming.md:145-147, B9): fails the
+        // Build-time i18n gate (i18n-and-theming.md:145-147, ADR-0009): fails the
         // build when a literal t() key has no entry in either committed
         // catalog and when EN/RU drift. Runs for both client and SSR builds.
         i18nKeyGate(),

@@ -11,7 +11,7 @@ use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
  * card rows, the encoded cursor position for "Load More" (null when
  * the final batch is incomplete — the exhaustion signal), the tag
  * filter options, the distinct publication years, the published-
- * projects signal (the A10 nav condition — B268) and the SEO data.
+ * projects signal (the ADR-0025 nav condition — ADR-0004) and the SEO data.
  * Immutable.
  */
 final readonly class PublicBlogListDto

@@ -32,7 +32,7 @@ interface ArticleListQueryRepositoryInterface
      * bar applied — search over the per-locale title/content
      * (`?q=`), the article-tag AND-intersect (`?article_tags=`), the
      * skill-tag AND-intersect (`?skill_tags=` — separate params per
-     * routes.md:204-205, B2), the published status (`?published=`),
+     * routes.md:204-205, ADR-0004), the published status (`?published=`),
      * the publication year (`?year=YYYY`) and the trashed view. The
      * cursor pagination (order, seek, count) is applied by the shared
      * paginator.
@@ -110,7 +110,7 @@ interface ArticleListQueryRepositoryInterface
 
     /**
      * The published, non-trashed articles as the Related Articles
-     * picker options (B188-style), locale-resolved titles with the
+     * picker options (ADR-0004-style), locale-resolved titles with the
      * `en` fallback, newest first — the current article excluded
      * (it cannot link to itself, content-management.md:687).
      *
@@ -142,7 +142,7 @@ interface ArticleListQueryRepositoryInterface
      * The public blog index rows (step 8.2 — content-management.md:
      * 194-205, public-section-ui.md:209-238): published, non-trashed
      * articles ordered `published_at DESC, id DESC` with the
-     * `?article_tags=` / `?skill_tags=` AND-intersects (B2) and the
+     * `?article_tags=` / `?skill_tags=` AND-intersects (ADR-0004) and the
      * `?year=` publication-year filter. The FTS `?q=` search
      * (`plainto_tsquery` + `ts_rank(..., 32)` via the shared
      * {@see \App\Features\Shared\Infra\Search\FtsQueryBuilder}) takes
@@ -168,7 +168,7 @@ interface ArticleListQueryRepositoryInterface
     /**
      * The JSON dual-response variant of `GET /blog`
      * (routes.md:199-212): length-aware rows (page/per_page) with the
-     * raw field values — no highlights (B16). The search uses the
+     * raw field values — no highlights (ADR-0007). The search uses the
      * PREFIX autocomplete form of the shared FtsQueryBuilder (the last
      * word becomes a prefix — public-section-ui.md:443, database.md:
      * 662-675).

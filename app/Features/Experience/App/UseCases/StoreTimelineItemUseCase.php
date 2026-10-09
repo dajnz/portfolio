@@ -20,7 +20,7 @@ use DateTimeImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Creates a timeline item (B174): the {@see WorkPeriod} (a null
+ * Creates a timeline item (ADR-0024): the {@see WorkPeriod} (a null
  * `ended_at` = ongoing — the form no longer sends an `is_current`
  * flag), the {@see RelatedProject} (null when no project reference),
  * the {@see SortOrder}, the tech tags resolved from their IDs, and the

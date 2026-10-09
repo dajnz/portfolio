@@ -60,7 +60,7 @@ export default defineConfig({
         // login.spec runs in its own project AFTER the mutation specs:
         // its fresh-context credential logins regenerate the Laravel
         // session and thereby invalidate the shared `.auth/admin.json`
-        // storage state server-side (B88) — any parallel admin worker
+        // storage state server-side (ADR-0029) — any parallel admin worker
         // would be redirected to the login page mid-test.
         {
             name: 'admin-auth',

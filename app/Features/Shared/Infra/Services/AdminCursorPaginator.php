@@ -30,7 +30,7 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
  * - `?cursor[id]=<id>&cursor[sort_value]=<val>` — the page following
  *   the cursor item in the sort order (next navigation); adding
  *   `&cursor[before]=1` requests the preceding page (previous
- *   navigation, per B72).
+ *   navigation, per ADR-0010).
  * - `?sort_column=` / `?sort_direction=` — active sort (default
  *   `id` / `desc` per admin-section-ui.md:185), whitelist-validated.
  *
@@ -38,7 +38,7 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
  * 30 s (admin-section-ui.md:149); the count is only used for the
  * page-number widget. The cache is versioned per entity — a write
  * (`AdminCursorPaginator::invalidateCountCache($entity)`) bumps the
- * version so the next list request re-counts immediately (B175: adding
+ * version so the next list request re-counts immediately (ADR-0024: adding
  * or deleting items must update the paginator without a reload).
  * An incoming cursor whose shape mismatches the active sort falls back
  * to a page-1 request with a warning log (admin-section-ui.md:196).
@@ -59,7 +59,7 @@ final class AdminCursorPaginator
      *                                        beyond the id column (which is always allowed).
      * @param  string  $idColumn  Primary-key column, qualified (`projects.id`) when the query joins.
      * @param  string|null  $defaultSortColumn  Sort column used when the request carries no
-     *                                          `sort_column` (default: the id column, B72).
+     *                                          `sort_column` (default: the id column, ADR-0010).
      */
     public function __construct(
         private readonly CursorDecoder $cursorDecoder = new CursorDecoder(),
@@ -73,7 +73,7 @@ final class AdminCursorPaginator
      * Bumps the per-entity count-cache version — every write to a
      * paginated entity (store/update/destroy/restore/force) must call
      * this so the cached total reflects the change immediately
-     * (B175: without it the paginator stayed stale for up to 30 s and
+     * (ADR-0024: without it the paginator stayed stale for up to 30 s and
      * new pages / shrunk page counts appeared only after a reload).
      */
     public static function invalidateCountCache(string $entity): void
@@ -117,7 +117,7 @@ final class AdminCursorPaginator
 
                 if ($page->items === [] && $page->total > 0) {
                     // The cursor now points past the last remaining item
-                    // (its page was emptied by deletes, B175). Redirect
+                    // (its page was emptied by deletes, ADR-0024). Redirect
                     // to the page that still has content — the page
                     // containing the cursor (the one preceding the
                     // empty page; page 1 for an empty previous-page
@@ -141,7 +141,7 @@ final class AdminCursorPaginator
         $cursor = $this->positionCursorForPage($query, $pagination->page, $perPage, $pagination->sorting);
 
         if ($cursor === null) {
-            // The requested page lies beyond the last one (B175: e.g.
+            // The requested page lies beyond the last one (ADR-0024: e.g.
             // the only item of the last page was deleted). Redirect to
             // the last valid page — filters preserved — instead of
             // rendering an empty page the user cannot navigate away
@@ -162,7 +162,7 @@ final class AdminCursorPaginator
             // The requested page was emptied by deletes — the
             // positioning cursor (the previous page's last item) still
             // exists, so the beyond-range check above cannot fire
-            // (B175: deleting the last item of the last page must not
+            // (ADR-0024: deleting the last item of the last page must not
             // strand the user on an empty page). Redirect to the
             // previous page.
             $this->redirectToPage($request, max(1, $pagination->page - 1));
@@ -197,7 +197,7 @@ final class AdminCursorPaginator
     /**
      * Total matching rows; the count is cached per filter combination
      * (30 s TTL) when a cache key is provided, versioned per entity
-     * (B175 — {@see self::invalidateCountCache()}).
+     * (ADR-0024 — {@see self::invalidateCountCache()}).
      *
      * @param  EloquentBuilder<Model>|QueryBuilder  $query
      */

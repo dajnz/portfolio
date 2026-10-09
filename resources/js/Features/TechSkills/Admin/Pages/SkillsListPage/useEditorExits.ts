@@ -3,7 +3,7 @@ import { onBeforeUnmount, onMounted, type Ref } from 'vue';
 
 // SkillsListPage — editor exit model (SkillsListPage.vue is the
 // orchestrator). Editors exit only via click-outside, Escape, or Cancel;
-// there is no blur-save (B135/B140 — the blur fires while the next
+// there is no blur-save (ADR-0024 — the blur fires while the next
 // control still holds focus and saved half-edited drafts). The group
 // editor exits on a click outside the group header, the skill editor on a
 // click outside the row. Capture-phase `pointerdown` runs BEFORE the

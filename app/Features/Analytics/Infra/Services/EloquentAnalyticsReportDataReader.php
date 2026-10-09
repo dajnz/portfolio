@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Eloquent-backed implementation of the cross-feature analytics data
- * reader (B11/B292): query-builder access inside the feature's Infra
+ * reader (ADR-0003/ADR-0017): query-builder access inside the feature's Infra
  * layer, no Portfolio class imports. The `feedback` rows are never
  * pruned, so the `feedback_submissions` metric can be rebuilt for the
  * full history. The half-open range mirrors the event repository

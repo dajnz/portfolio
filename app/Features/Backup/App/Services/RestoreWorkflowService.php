@@ -25,14 +25,14 @@ use function sprintf;
  * maintenance mode on → archive download from the `backups` bucket →
  * validate + extract → the data plane (`DatabaseRestoreService`:
  * child-first truncate incl. the analytics wipe, `feature_flags`
- * never touched per B17, per-table JSONL import) → assets mirror
+ * never touched per ADR-0018, per-table JSONL import) → assets mirror
  * (upload + delete-extras) → cache/sitemap refresh → post-restore log
  * + lift maintenance → staging cleanup. On failure the site STAYS in
  * maintenance mode (backup.md:397) — the admin lifts it via the
  * Settings page or `admin:reset-maintenance`.
  *
  * Every collaborator is an app-layer contract (including the logger) —
- * no infra or framework classes are named here (B306). The entity's
+ * no infra or framework classes are named here (ADR-0018). The entity's
  * `completed → processing` transition and the completion re-stamp are
  * the caller's concern (the restore use case); this service performs
  * the restore itself.

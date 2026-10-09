@@ -12,7 +12,7 @@ use Tests\Support\Fakes\FakeAnalyticsDailyMetricRepository;
 use Tests\Support\Fakes\FakeAnalyticsReportDataReader;
 
 /**
- * The email digest payload (analytics.md:214-219, B294, 11.3.5): the
+ * The email digest payload (analytics.md:214-219, ADR-0017, 11.3.5): the
  * previous day's key metrics — page views, unique visitors, feedback
  * submissions — and the top article by views (the `views` rows with an
  * `article:{id}` dimension), picked with its EN title from the reader.

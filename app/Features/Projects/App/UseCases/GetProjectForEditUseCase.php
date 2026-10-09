@@ -21,7 +21,7 @@ use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInter
  * articles of the tech-writeup select (admin-section-ui.md:356) and
  * the signed 1-hour preview URL (routes.md:151 — the preview button
  * opens it in a new tab; null on the create form). Trashed projects
- * reach the form too (restore happens from the form's own view, B29).
+ * reach the form too (restore happens from the form's own view, ADR-0006).
  */
 final class GetProjectForEditUseCase
 {

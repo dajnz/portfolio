@@ -38,9 +38,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * blog index (public-section-ui.md:209-238): published articles
  * ordered by `published_at` with infinite scroll via the opaque
  * composite cursor (the shared {@see PublicCursorCodec}), the
- * `?article_tags=` / `?skill_tags=` AND/intersect filters (B2), the
+ * `?article_tags=` / `?skill_tags=` AND/intersect filters (ADR-0004), the
  * `?year=` filter and the FTS `?q=` search — the Inertia HTML variant
- * carries the `ts_headline()` `<mark>` snippets (B16). The JSON
+ * carries the `ts_headline()` `<mark>` snippets (ADR-0007). The JSON
  * dual-response variant (`Accept: application/json` — the search
  * autocomplete, routes.md:199-212) returns the length-aware
  * `BlogIndexResponse` with raw values and the prefix search form.
@@ -48,14 +48,14 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * `GET /blog/{article:slug}` — the detail page (routes.md:28,56)
  * with the SEO props + JSON-LD (BlogPosting + BreadcrumbList), the
  * queued view-counter job (content-management.md:214-218), the
- * feature-flagged reactions and the old-slug 301 resolution (B5/B6):
+ * feature-flagged reactions and the old-slug 301 resolution (ADR-0006):
  * main table → `old_slugs` → 301 to the current canonical URL
  * (locale prefix preserved). The route param is read BY NAME from
- * the request (B178 — Laravel 13 splices route params positionally).
+ * the request (ADR-0030 — Laravel 13 splices route params positionally).
  *
  * `POST /api/blog/{article}/reaction` — the reaction toggle
  * (feature-flagged, routes.md:190): the server generates the
- * fingerprint (keyed HMAC of ip|user_agent, B4), the use case
+ * fingerprint (keyed HMAC of ip|user_agent, ADR-0017), the use case
  * upserts/undoes, and the response carries the updated state.
  *
  * The controller only translates the HTTP request into app-layer
@@ -158,7 +158,7 @@ final class PublicBlogController
     /**
      * The JSON dual-response variant (routes.md:199-212) — length-aware
      * pagination, the tag intersects, the year filter and the prefix
-     * autocomplete search; raw field values without highlights (B16).
+     * autocomplete search; raw field values without highlights (ADR-0007).
      */
     private function autocompleteJson(Request $request): JsonResponse
     {
@@ -200,8 +200,8 @@ final class PublicBlogController
     /**
      * The `ArticleCardData` wire shape of a card — the snippet
      * substitutes the `short_description` in the HTML variant's search
-     * results (B16); the JSON variant returns the raw value. The
-     * `skill_tags` and `lead_image_alt` fields (B268) feed the card's
+     * results (ADR-0007); the JSON variant returns the raw value. The
+     * `skill_tags` and `lead_image_alt` fields (ADR-0004) feed the card's
      * linked TechSkillTag chips and the `<img>` alt.
      *
      * @return array<string, mixed>
@@ -311,7 +311,7 @@ final class PublicBlogController
 
     /**
      * The keyed-HMAC visitor fingerprint (content-management.md:212,
-     * B4): `hash_hmac('sha256', ip.'|'.user_agent, key)`.
+     * ADR-0017): `hash_hmac('sha256', ip.'|'.user_agent, key)`.
      */
     private function fingerprint(Request $request): string
     {

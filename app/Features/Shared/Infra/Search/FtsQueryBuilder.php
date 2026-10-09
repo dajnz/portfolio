@@ -7,7 +7,7 @@ namespace App\Features\Shared\Infra\Search;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
- * The shared PostgreSQL full-text search expression builder (B16,
+ * The shared PostgreSQL full-text search expression builder (ADR-0007,
  * database.md:603-695) — the safe SQL fragments used by the public
  * blog/project list queries: `search()` (plainto_tsquery + ts_rank
  * with the 32 normalization, no setweight), `headline()` (ts_headline
@@ -142,7 +142,7 @@ final class FtsQueryBuilder
     /**
      * Selects the highlighted snippet as an aliased column (the
      * Inertia HTML search results carry it — the JSON variant returns
-     * raw values, B16).
+     * raw values, ADR-0007).
      */
     public function selectHeadline(QueryBuilder $query, string $contentExpression, string $alias = 'fts_snippet'): self
     {

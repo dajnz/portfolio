@@ -15,7 +15,7 @@ use InvalidArgumentException;
  * (database.md:167-189, content-management.md:105-110): localized display
  * names ({@see ContactTranslation} value objects) plus the
  * non-translatable value/icon/url and its position in the reorderable
- * list (`sort_order`, zero-indexed per A4). Invariants are enforced by
+ * list (`sort_order`, zero-indexed per ADR-0005). Invariants are enforced by
  * the shared value objects ({@see ContactIcon}, {@see SortOrder}).
  */
 final class Contact extends BaseEntity

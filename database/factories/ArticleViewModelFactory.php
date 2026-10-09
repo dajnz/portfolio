@@ -9,7 +9,7 @@ use App\Features\Blog\Infra\Models\ArticleViewModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Test factory for `article_views` (B21 — the counter table).
+ * Test factory for `article_views` (ADR-0029 — the counter table).
  */
 final class ArticleViewModelFactory extends Factory
 {

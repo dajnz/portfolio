@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Crypt;
 
 /**
- * Test factory for `backup_encryption_keys` (B21). `key_value` is
+ * Test factory for `backup_encryption_keys` (ADR-0029). `key_value` is
  * stored encrypted at rest (Crypt) — the factory encrypts a fixed
  * 44-char base64 key so the mapper's round-trip works in tests.
  */

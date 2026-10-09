@@ -15,15 +15,15 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
  * the app layer). Runs after the request rules pass, before the
  * aggregate is built:
  *
- * - a MANUAL slug override (A3: not the naive auto-generation, not the
+ * - a MANUAL slug override (ADR-0006: not the naive auto-generation, not the
  *   stored slug) must not collide with another article (soft-deleted
- *   included — B29; the auto-generated values are re-resolved with a
+ *   included — ADR-0006; the auto-generated values are re-resolved with a
  *   collision suffix by {@see ArticleSlugService}, so they never reach
  *   this check);
  * - each submitted related-article id must target a published article
  *   (content-management.md:687) unless it is ALREADY linked to the
  *   article — links created while the target was published are
- *   preserved on re-save even after an unpublish (B230), and the
+ *   preserved on re-save even after an unpublish (ADR-0024), and the
  *   article cannot link to itself.
  */
 final class ArticleDraftValidator

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
  * Admin settings routes (routes.md:137-139), gated by the Auth middleware
- * chain (aliases land in step 2.3 per B50).
+ * chain (aliases land in step 2.3 per ADR-0015).
  */
 
 Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function (): void {

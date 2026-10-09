@@ -38,7 +38,7 @@ export interface ArticleDetailView {
     /** The visitor's reaction state — null when the `social_reactions`
      *  feature flag is off (no widget rendered — the ArticleContent
      *  contract's `article.reactions`, public-section-components.md:
-     *  1268-1290) or on the signed preview (B211). */
+     *  1268-1290) or on the signed preview (ADR-0004). */
     reactions: WireReactions;
 }
 
@@ -68,13 +68,13 @@ export interface UseBlogArticlePageApi {
  * (docs/openapi/inertia/blog.yaml — `ArticleDetailData`) onto the
  * article page component contracts (public-section-components.md:
  * 1244-1341): the locale-resolved `lead_image_alt`, RustFS paths to
- * public `/assets/` URLs (A7), the related cards (the full
+ * public `/assets/` URLs (ADR-0027), the related cards (the full
  * `ArticleCardData` — the detail's wire carries them), and the
  * `headings` the TableOfContents consumes — extracted from
  * `content_html` via DOMParser, `<h2 id>`/`<h3 id>` only (the
  * contract: the extractor scans the rendered HTML and drops h4+).
  * The reactions wire block (`null` when the `social_reactions` flag
- * is off — no widget, B211) is passed through untouched.
+ * is off — no widget, ADR-0004) is passed through untouched.
  */
 export function useBlogArticlePage(props: {
     article?: WireArticleDetail | null;

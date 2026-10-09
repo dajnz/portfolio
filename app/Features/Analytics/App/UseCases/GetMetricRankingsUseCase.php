@@ -11,7 +11,7 @@ use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepository
 
 /**
  * The top/bottom/liked/disliked ranking payload (analytics.md:226,
- * B293, 11.3.4) for `GET /admin/analytics/rankings?metric=&variant=
+ * ADR-0017, 11.3.4) for `GET /admin/analytics/rankings?metric=&variant=
  * &scope=`: the `span = 'all'` dimension rows of the metric, capped at
  * 10. The `top`/`bottom` variants order by value desc/asc; the
  * `liked`/`disliked` variants rank the reactions metrics desc (the

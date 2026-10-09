@@ -101,7 +101,7 @@ function backupExtractCleanup(string $destDir): void
 }
 
 describe('ZipBackupArchive', function (): void {
-    it('creates an AES-256 encrypted archive with the B18 filename', function (): void {
+    it('creates an AES-256 encrypted archive with the ADR-0018 filename', function (): void {
         [$dir, $zipPath] = backupArchiveFixture(keyId: 3);
 
         try {

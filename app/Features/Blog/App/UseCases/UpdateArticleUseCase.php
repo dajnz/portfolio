@@ -18,7 +18,7 @@ use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use DateTimeImmutable;
 
 /**
- * Updates an article: the slug is re-resolved per A3 — a submitted
+ * Updates an article: the slug is re-resolved per ADR-0006 — a submitted
  * slug equal to the stored one (or to the naive auto-generation of the
  * EN title) is regenerated server-side with a numeric collision
  * suffix, a differing submission is a manual override kept as-is (its
@@ -29,7 +29,7 @@ use DateTimeImmutable;
  * `published_at` is immutable after the first publish (database.md:
  * 341): a first form-publish runs {@see Article::publish()} (invariants
  * asserted), an unpublish keeps the timestamp. A slug change records
- * the old slug in `old_slugs` (B6). The obsolete lead image (replaced
+ * the old slug in `old_slugs` (ADR-0006). The obsolete lead image (replaced
  * or removed) is deleted via the shared asset cleaner after the save —
  * the repository stays persistence-only. A save touching a published
  * article (or unpublishing one) changes the sitemap — the cache is

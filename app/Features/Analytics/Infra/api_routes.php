@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
  * /api/analytics/track` is public — no session/CSRF middleware
  * (routes.md:184) — and rate-limited via `throttle:analytics`
  * (60/min/IP, analytics.md:52). Accepts an array of events and returns
- * 204 No Content (B24: bot-UA batches are discarded with the same 204).
+ * 204 No Content (ADR-0017: bot-UA batches are discarded with the same 204).
  */
 
 Route::post('/analytics/track', [AnalyticsController::class, 'track'])

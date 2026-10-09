@@ -1,7 +1,9 @@
 AGENTS.md
+docs/adr
 docs/detailed-spec
 docs/mockups
 docs/plans
+docs/plans/archive
 docs/spot-checks
 
 *.log

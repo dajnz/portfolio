@@ -29,13 +29,13 @@ use Inertia\ResponseFactory;
  * null when the final batch is incomplete — the exhaustion signal. The
  * JSON dual-response variant (`Accept: application/json` — the
  * autocomplete) returns the length-aware `ProjectsIndexResponse` with
- * raw values, no highlights (B16).
+ * raw values, no highlights (ADR-0007).
  *
  * `GET /projects/{project:slug}` — the detail page (routes.md:26,54)
  * with SEO props + JSON-LD (seo.md:150-188: SoftwareSourceCode +
  * BreadcrumbList), the tech-writeup link gated by the article's current
  * publication state (content-management.md:133), and the old-slug 301
- * resolution (B5/B6): main table → `old_slugs` → 301 to the current
+ * resolution (ADR-0006): main table → `old_slugs` → 301 to the current
  * canonical URL (locale prefix preserved).
  *
  * The controller only translates the HTTP request into app-layer DTOs
@@ -108,7 +108,7 @@ final class PublicProjectController
      * The JSON dual-response variant (routes.md:199-212) — length-aware
      * pagination (page/per_page), FTS search, tag intersect and the
      * date sort with the direction variant; raw field values without
-     * highlights (B16).
+     * highlights (ADR-0007).
      */
     private function autocompleteJson(Request $request): JsonResponse
     {

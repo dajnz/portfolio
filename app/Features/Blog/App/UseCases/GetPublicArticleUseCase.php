@@ -27,9 +27,9 @@ use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInter
  * pre-increment view counter (content-management.md:217) and the
  * reaction state — `null` when the `social_reactions` feature flag
  * is disabled or no fingerprint was supplied (the signed preview —
- * zeroed widget, B211).
+ * zeroed widget, ADR-0004).
  *
- * Old-slug 301 resolution (B5/B6) lives here too (`currentSlugFor()`).
+ * Old-slug 301 resolution (ADR-0006) lives here too (`currentSlugFor()`).
  */
 final class GetPublicArticleUseCase
 {
@@ -72,7 +72,7 @@ final class GetPublicArticleUseCase
 
     /**
      * The current slug mapped from an old-slug record — the 301 target
-     * of the public detail controller (B5/B6, content-management.md:
+     * of the public detail controller (ADR-0006, content-management.md:
      * 454-464). Null when the slug is not recorded (a trashed
      * article's history resolves to nothing).
      */

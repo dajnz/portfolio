@@ -3,7 +3,7 @@ import { router } from '@inertiajs/vue3';
 import { randomUuid } from '../Utils/randomUuid';
 
 /**
- * The public page kinds reported with every event (B289) — the backend
+ * The public page kinds reported with every event (ADR-0017) — the backend
  * attributes events to entities (blog article / project detail) from
  * this context, no URL matching.
  */
@@ -26,7 +26,7 @@ export interface AnalyticsEvent {
 
 export interface AnalyticsTracker {
     track: (eventType: string, metadata?: Record<string, unknown>) => void;
-    /** The page context for every event fired from now on (B289). */
+    /** The page context for every event fired from now on (ADR-0017). */
     setPageContext: (type: PageType | null, entityId?: number | null) => void;
     /**
      * Fires the page view for the just-mounted page and restarts the
@@ -108,7 +108,7 @@ export function useAnalytics(): AnalyticsTracker {
             session_id: sessionId,
         });
 
-        // B25 safety net: drop the newest events once the buffered batch
+        // ADR-0017 safety net: drop the newest events once the buffered batch
         // exceeds 45 KB so it never hits the backend's 50 KB payload cap.
         let bytes = 0;
         let dropFrom = -1;
@@ -150,7 +150,7 @@ export function useAnalytics(): AnalyticsTracker {
                 keepalive: useKeepalive,
             });
         } catch {
-            // The endpoint is implemented in step 11.1 (B33); failed
+            // The endpoint is implemented in step 11.1 (ADR-0017); failed
             // deliveries are dropped silently — never break the app for
             // analytics.
         }

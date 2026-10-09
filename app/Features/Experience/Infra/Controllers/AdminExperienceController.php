@@ -137,7 +137,7 @@ final class AdminExperienceController
     /**
      * Spread-ready payload for the store/update use cases — extracted
      * so both actions share one input mapping. There is no `is_current`
-     * flag (B174): an empty `ended_at` is the ongoing marker, the
+     * flag (ADR-0024): an empty `ended_at` is the ongoing marker, the
      * continuity rules live in the use cases.
      *
      * @return array<string, mixed>

@@ -1,4 +1,4 @@
-<!-- ArticleCard (public-section-components.md:800-816, mockup blog.html + blog-article.html) — the blog article preview card shared by the blog index (default variant) and the article page's related section (compact variant — no image). The card is a container with a stretched Inertia `<Link>` overlay to `/blog/{slug}` (a DOM sibling of the card's own filter-chip links — nested anchors would be invalid HTML); the lead image renders with the resolved per-locale alt (placeholder icon when absent — the `empty_image` state), the search results' `short_description` may carry the FTS `<mark>` snippet (B16 — server-sanitized, rendered via v-html), the meta row shows the localized date + reading time, the article tags render as accent badges and the skill tags as linked TechSkillTag chips (`/blog?skill_tags={id}`), capped at 3 with a "+N" overflow chip (the B264 projects convention, mockup parity). Hover prefetches the article page data after the 100 ms linger (architecture.md:1264-1271 — `router.prefetch` is a genuine cache-warming fetch, no navigation; the B262 hazard does not apply). -->
+<!-- ArticleCard (public-section-components.md:800-816, mockup blog.html + blog-article.html) — the blog article preview card shared by the blog index (default variant) and the article page's related section (compact variant — no image). The card is a container with a stretched Inertia `<Link>` overlay to `/blog/{slug}` (a DOM sibling of the card's own filter-chip links — nested anchors would be invalid HTML); the lead image renders with the resolved per-locale alt (placeholder icon when absent — the `empty_image` state), the search results' `short_description` may carry the FTS `<mark>` snippet (ADR-0007 — server-sanitized, rendered via v-html), the meta row shows the localized date + reading time, the article tags render as accent badges and the skill tags as linked TechSkillTag chips (`/blog?skill_tags={id}`), capped at 3 with a "+N" overflow chip (the ADR-0025 projects convention, mockup parity). Hover prefetches the article page data after the 100 ms linger (architecture.md:1264-1271 — `router.prefetch` is a genuine cache-warming fetch, no navigation; the ADR-0025 hazard does not apply). -->
 <script setup lang="ts">
 import { type ArticleCardView, formatArticleDate } from '@blog-shared/Composables/useArticleCards';
 import { Icon } from '@iconify/vue';
@@ -57,7 +57,7 @@ const metaDate = computed(() =>
 // mouseenter and fires `router.prefetch` after the linger — a genuine
 // cache-warming page-data fetch with no navigation. An in-flight
 // prefetch cannot be cancelled (Inertia has no public abort for it —
-// the B75 `onCancelToken` bridge belongs to visits); leaving early
+// the ADR-0026 `onCancelToken` bridge belongs to visits); leaving early
 // only cancels the pending timer.
 const prefetchTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 
@@ -140,7 +140,7 @@ function onLeave(): void {
         :data-testid="`${props.test_id}-placeholder`"
       >
         <!-- The large, faint photo icon on the tinted surface — the
-             projects card's placeholder look (B266). -->
+             projects card's placeholder look (ADR-0025). -->
         <Icon
           class="article-card__placeholder-icon"
           icon="heroicons:photo"
@@ -152,7 +152,7 @@ function onLeave(): void {
       <h2 class="card__title article-card__title">
         {{ props.article.title }}
       </h2>
-      <!-- The FTS snippet may carry `<mark>` tags (B16) — the server
+      <!-- The FTS snippet may carry `<mark>` tags (ADR-0007) — the server
            sanitizes everything else (ArticleCardDto::sanitizeSnippet),
            so only the highlight survives; eslint accepts the v-html by
            design (the ProjectDetailPage precedent). -->
@@ -246,7 +246,7 @@ function onLeave(): void {
 }
 
 /* The no-image placeholder: the tinted surface + dashed frame + faint
-   photo icon of the projects card (B264/B266 look). */
+   photo icon of the projects card (ADR-0025 look). */
 .article-card__image--placeholder {
     display: flex;
     align-items: center;

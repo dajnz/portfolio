@@ -102,7 +102,7 @@ final class ListProjectsUseCase
     }
 
     /**
-     * The 30 s count cache is per filter combination (B72) — every
+     * The 30 s count cache is per filter combination (ADR-0010) — every
      * filter changes the counted set.
      */
     private function countCacheKey(AdminProjectListQuery $query): string

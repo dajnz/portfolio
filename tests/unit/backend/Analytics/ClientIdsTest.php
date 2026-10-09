@@ -8,7 +8,7 @@ use App\Features\Analytics\Domain\ValueObjects\ClientIds;
 use InvalidArgumentException;
 
 /**
- * The client identifiers VO (B289): the session id, the anonymized IP
+ * The client identifiers VO (ADR-0017): the session id, the anonymized IP
  * hash and the User-Agent — the validation moved out of the event
  * base.
  */

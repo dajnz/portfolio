@@ -12,7 +12,7 @@ use App\Features\Blog\Domain\Entities\ArticleReaction;
  * `(article_id, fingerprint)` pair, upsert semantics — a different
  * reaction type updates the row, the same type deletes it (undo).
  * Consumed by the public reactions endpoint (step 8.2); the
- * fingerprint is server-generated (keyed HMAC of ip|user_agent, B4).
+ * fingerprint is server-generated (keyed HMAC of ip|user_agent, ADR-0017).
  */
 interface ArticleReactionRepositoryInterface
 {

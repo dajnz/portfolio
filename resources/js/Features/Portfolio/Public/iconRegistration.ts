@@ -2,7 +2,7 @@ import type { IconifyJSON } from '@iconify/types';
 import { addCollection } from '@iconify/vue';
 import { type Ref, ref } from 'vue';
 
-// Offline registration of the public landing's icon sets (B78: no runtime
+// Offline registration of the public landing's icon sets (ADR-0023: no runtime
 // calls to the Iconify API). devicon (skill icons) and simple-icons
 // (contact brand icons) ship to the app only through this lazy dynamic
 // import — the full JSONs (~5 MB each raw) would blow the landing page's

@@ -41,7 +41,7 @@ const props = withDefaults(
 
 // The chip renders devicon glyphs; the icon must not hit the DOM before
 // the offline subset is registered, or the Iconify runtime falls back to
-// its remote API (blocked by CSP `connect-src 'self'` — B78 self-hosted
+// its remote API (blocked by CSP `connect-src 'self'` — ADR-0023 self-hosted
 // stance, observed as console violations under the real CSP). The glyph
 // pops in once the shared registration resolves.
 ensureDeviconIcons();

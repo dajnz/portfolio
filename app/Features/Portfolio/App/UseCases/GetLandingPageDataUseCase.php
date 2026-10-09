@@ -16,7 +16,7 @@ use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInter
 /**
  * Assembles every landing-page data slice (public-section-ui.md:56-101):
  * the about block, the grouped skills (via the shared tech-skill read
- * model), the featured projects (via the shared project read model, B11)
+ * model), the featured projects (via the shared project read model, ADR-0003)
  * and the contacts. Returns domain entities — the controller maps them
  * to the page props.
  */

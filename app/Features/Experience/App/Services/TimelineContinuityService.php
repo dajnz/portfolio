@@ -9,7 +9,7 @@ use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryIn
 use DateTimeImmutable;
 
 /**
- * The B174 timeline-continuity rules (the "continuous career" model),
+ * The ADR-0024 timeline-continuity rules (the "continuous career" model),
  * extracted from the duplicated private logic of the store/update use
  * cases: an item's period must not overlap its chronological
  * predecessor or successor (next `started_at` >= previous `ended_at`),
@@ -17,7 +17,7 @@ use DateTimeImmutable;
  * an ongoing predecessor, that predecessor's `ended_at` is auto-filled
  * with the new item's `started_at` (it was never explicitly closed).
  *
- * A domain requirement, living in the App layer per the B28 precedent
+ * A domain requirement, living in the App layer per the ADR-0009 precedent
  * (services belong to `App/`, not `Domain/` — the rules stay pure
  * domain logic over the repository interface; only the exception
  * messages resolve translations).
