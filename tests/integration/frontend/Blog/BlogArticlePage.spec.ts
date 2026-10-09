@@ -220,6 +220,13 @@ describe('BlogArticlePage', () => {
         expect(codeBlock.get('[data-testid="blog-article-page-content-code-0-copy"]').text()).toBe(
             'Copied!',
         );
+
+        // The copy state change is announced via a polite status region
+        // (accessibility.md dynamic regions).
+        const status = codeBlock.get('[data-testid="blog-article-page-content-code-0-copy-status"]');
+        expect(status.attributes('role')).toBe('status');
+        expect(status.attributes('aria-live')).toBe('polite');
+        expect(status.text()).toBe('Copied!');
     });
 
     it('mounts the CalloutBlock over the data-callout-type marker with the type styling', async () => {
@@ -408,5 +415,27 @@ describe('BlogArticlePage', () => {
         );
         expect(mobileLinks).toHaveLength(3);
         expect(mobileLinks[0].textContent).toBe('Introduction');
+    });
+
+    it('closes the mobile TOC on Escape and refocuses the toggle', async () => {
+        mountPage();
+        await flush();
+
+        const mobile = document.querySelector(
+            '[data-testid="blog-article-page-toc-mobile"]',
+        ) as HTMLElement;
+        const toggle = mobile.querySelector(
+            '[data-testid="blog-article-page-toc-mobile-toggle"]',
+        ) as HTMLElement;
+
+        toggle.click();
+        await flush();
+        expect(toggle.getAttribute('aria-expanded')).toBe('true');
+
+        mobile.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+        await flush();
+
+        expect(toggle.getAttribute('aria-expanded')).toBe('false');
+        expect(document.activeElement).toBe(toggle);
     });
 });

@@ -68,6 +68,12 @@ async function copy(): Promise<void> {
       >
         {{ copied ? t('blog.copied') : t('blog.copy_code') }}
       </button>
+      <span
+        class="visually-hidden"
+        role="status"
+        aria-live="polite"
+        :data-testid="`${props.test_id}-copy-status`"
+      >{{ copied ? t('blog.copied') : '' }}</span>
     </div>
     <!-- eslint-disable vue/no-v-html -->
     <pre v-html="props.code_html" />
