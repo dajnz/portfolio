@@ -11,7 +11,7 @@ use Illuminate\Validation\Validator;
 
 /**
  * The `GET /admin/analytics/rankings` validator (analytics.md:226,
- * B293, 11.3.4): the metric must be a known catalog name, the variant
+ * ADR-0017, 11.3.4): the metric must be a known catalog name, the variant
  * one of top/bottom/liked/disliked and the scope one of
  * page/article/project. The (metric, scope) pairs are the ranking
  * surface of the catalog — the count/avg metrics with dimension rows

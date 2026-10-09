@@ -11,7 +11,7 @@ use DateTimeImmutable;
 
 /**
  * Persistence for `analytics_daily_metrics` (database.md:513-529,
- * B290): the long-term per-day aggregate store, written by the daily
+ * ADR-0017): the long-term per-day aggregate store, written by the daily
  * aggregation (11.3.2) and read by the report rebuild (11.3.3) and
  * the email digest (11.3.5). Rows are upserted per
  * `(metric, date, dimension)` — the storage is append-only-ish and

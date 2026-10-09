@@ -74,7 +74,7 @@ function confirmUnlink(): void {
     >
       <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-white">
         <!-- Inline octocat mark (mockup sprite) — simple-icons is not
-             registered until step 7.2 (B78). -->
+             registered until step 7.2 (ADR-0023). -->
         <svg
           viewBox="0 0 24 24"
           class="w-5 h-5"

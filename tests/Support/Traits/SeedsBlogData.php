@@ -18,7 +18,7 @@ use App\Features\Shared\Infra\Persistence\PublicCursorCodec;
  * published fully-translated article, the translated tag, the seeded
  * skill and the opaque-cursor encoder used by the infinite-scroll
  * assertions (the same codec the controller uses — the per-file
- * helper convention per B216).
+ * helper convention per ADR-0029).
  */
 trait SeedsBlogData
 {

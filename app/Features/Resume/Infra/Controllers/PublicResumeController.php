@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * PDF directly (no Inertia page): the manual upload in `manual` mode, the
  * generated `about/resume_{locale}_{hash}.pdf` in `auto` mode
  * (content-management.md:387-405). The `?locale=` query parameter
- * overrides the locale cookie for this request only (A6 — the admin
+ * overrides the locale cookie for this request only (ADR-0020 — the admin
  * "Download preview" button depends on it); the generated PDF's content
  * is rendered in that locale.
  */

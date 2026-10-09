@@ -12,7 +12,7 @@ use RuntimeException;
 use Throwable;
 
 /**
- * The queued async restore (A1): the HTTP-triggered restore dispatches
+ * The queued async restore (ADR-0018): the HTTP-triggered restore dispatches
  * this job, which executes the synchronous `RestoreBackupUseCase`
  * inside the worker — the UI polls
  * `GET /admin/backups/{backup}/status` (~2 s) until the record

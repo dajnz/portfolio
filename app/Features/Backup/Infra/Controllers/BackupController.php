@@ -31,7 +31,7 @@ use Throwable;
  * The admin backup surface (routes.md:143-149,173): the list page,
  * create/dispatch, delete, restore-submit, DR upload, download stream
  * and the status polling endpoint. All actions run behind the admin
- * auth chain; the restore is async (A1) — the controller only
+ * auth chain; the restore is async (ADR-0018) — the controller only
  * dispatches `RestoreBackupJob`, the UI polls the status endpoint.
  */
 final class BackupController
@@ -69,7 +69,7 @@ final class BackupController
     {
         $this->createCase->create();
 
-        // B311 — the async create only STARTS here: the flash announces
+        // ADR-0019 — the async create only STARTS here: the flash announces
         // the start, the UI fires the "Backup created." toast when its
         // status poll observes the completed record.
         return back()->with('notification', ['type' => 'success', 'message' => __('admin.toasts.backup_creation_started')]);

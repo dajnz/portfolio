@@ -57,13 +57,13 @@ export interface UseExperienceTimelinePageApi {
  * (docs/openapi/inertia/experience.yaml) onto the timeline component
  * contracts (public-section-components.md:1011-1091): the resolved item
  * views (with the localized period, `YYYY – YYYY` / `YYYY – Present`
- * per the mockup), the public nav items per A10 (anchors point at the
+ * per the mockup), the public nav items per ADR-0025 (anchors point at the
  * landing page; the Projects link is conditional on the `has_projects`
  * prop — the only published-project signal the wire carries), and the
  * infinite-scroll machinery: "Load More" reloads with the opaque
  * `next_cursor` (`replace: true` → history.replaceState per
  * public-section-ui.md:329-342) and the client REPLACES its items with
- * the reconstructed superset response (B158 — the props are the list
+ * the reconstructed superset response (ADR-0010 — the props are the list
  * state, nothing is appended locally); a failed request flips the
  * `loadError` state rendered as the inline error banner, `retry()`
  * restarts from the initial batch.
@@ -110,7 +110,7 @@ export function useExperienceTimelinePage(props: {
         // network failure flips the inline error banner (the URL keeps
         // its pre-visit state, so a retry serves the initial batch);
         // HTTP error responses swap in the backend-rendered ErrorPage
-        // (B70), nothing to fix inline.
+        // (ADR-0015), nothing to fix inline.
         router.reload({
             data: { cursor },
             replace: true,

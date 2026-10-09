@@ -9,7 +9,7 @@ use App\Features\Blog\Infra\Models\ArticleReactionModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Test factory for `article_reactions` (B21).
+ * Test factory for `article_reactions` (ADR-0029).
  */
 final class ArticleReactionModelFactory extends Factory
 {

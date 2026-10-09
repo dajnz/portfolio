@@ -254,7 +254,7 @@ describe('AdminBlogController', function (): void {
             ]);
 
         // With the RU locale cookie the row resolves the RU title
-        // (B73 — unencrypted cookie; getJson needs withCredentials to
+        // (ADR-0026 — unencrypted cookie; getJson needs withCredentials to
         // carry cookies at all).
         $this->withCredentials()
             ->withUnencryptedCookie('locale', 'ru')
@@ -343,7 +343,7 @@ describe('AdminBlogController', function (): void {
         ]))->assertSessionHasErrors(['related_articles.0']);
     });
 
-    it('preserves an existing link to an unpublished article on update but rejects NEW unpublished targets (B230)', function (): void {
+    it('preserves an existing link to an unpublished article on update but rejects NEW unpublished targets (ADR-0024)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $article = blogItem(['slug' => 'linked-article', 'is_published' => true, 'published_at' => now()]);

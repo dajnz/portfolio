@@ -11,7 +11,7 @@ import { type ComputedRef, computed, onUnmounted, type Ref, reactive, ref } from
  * chart/rankings fetch state for the JSON endpoints (`series` /
  * `rankings`, openapi/inertia/analytics.yaml). Lives in the Analytics
  * feature (not the Shared/CrossSurface tracker — `useAnalytics` there
- * owns public-site event tracking, B74).
+ * owns public-site event tracking, ADR-0026).
  *
  * The props are read through the props object (reactive — `useLandingPage`
  * precedent) so a later Inertia visit with fresh blocks re-computes the

@@ -7,7 +7,7 @@ namespace App\Features\Shared\Domain\RepositoryInterfaces;
 use App\Features\Shared\Domain\Entities\FeaturedProject;
 
 /**
- * Read-only access to projects for cross-feature consumers (B11): the
+ * Read-only access to projects for cross-feature consumers (ADR-0003): the
  * landing page reads featured projects and the published-project count
  * via this interface — the write side and the full read side belong to
  * the Projects feature (7.1).

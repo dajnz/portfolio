@@ -9,7 +9,7 @@ use DomainException;
 /**
  * The slug is occupied by a non-trashed article — the restore flow
  * re-checks uniqueness against active rows (soft-deleted entities
- * occupy their slug, B29); surfaced as a `slug` validation error.
+ * occupy their slug, ADR-0006); surfaced as a `slug` validation error.
  */
 final class ArticleSlugOccupiedException extends DomainException
 {

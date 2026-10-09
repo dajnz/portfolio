@@ -21,7 +21,7 @@ beforeEach(function (): void {
 
 /**
  * Creates a PUBLISHED fully translated article (helper names are
- * file-scoped per B216).
+ * file-scoped per ADR-0029).
  */
 function feedArticle(array $attributes = [], array $translations = []): ArticleModel
 {

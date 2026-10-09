@@ -12,7 +12,7 @@ use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
  * locale-resolved list/detail/feed reads served by the public
  * controllers. Lives in the DOMAIN layer because it is framework-free
  * — raw query rows (plain objects), domain entities and domain value
- * objects only, no Laravel types in the signatures (the B109/B11
+ * objects only, no Laravel types in the signatures (the ADR-0001/ADR-0003
  * read-model pattern — the same split as the shared
  * `ProjectReadRepositoryInterface`). The Eloquent implementation
  * lives in the Infra layer.
@@ -25,7 +25,7 @@ interface PublicArticleReadRepositoryInterface
      * The public blog index rows (content-management.md:194-205,
      * public-section-ui.md:209-238): published, non-trashed articles
      * ordered `published_at DESC, id DESC` with the `?article_tags=`
-     * / `?skill_tags=` AND-intersects (B2) and the `?year=`
+     * / `?skill_tags=` AND-intersects (ADR-0004) and the `?year=`
      * publication-year filter. The FTS `?q=` search (`plainto_tsquery`
      * + `ts_rank(..., 32)` via the shared
      * {@see \App\Features\Shared\Infra\Search\FtsQueryBuilder}) takes
@@ -51,7 +51,7 @@ interface PublicArticleReadRepositoryInterface
     /**
      * The JSON dual-response variant of `GET /blog`
      * (routes.md:199-212): length-aware rows (page/per_page) with the
-     * raw field values — no highlights (B16). The search uses the
+     * raw field values — no highlights (ADR-0007). The search uses the
      * PREFIX autocomplete form of the shared FtsQueryBuilder (the last
      * word becomes a prefix — public-section-ui.md:443, database.md:
      * 662-675).
@@ -132,9 +132,9 @@ interface PublicArticleReadRepositoryInterface
 
     /**
      * Whether at least one published, non-trashed project exists —
-     * the public pages' header nav Projects-link condition (A10;
+     * the public pages' header nav Projects-link condition (ADR-0025;
      * the v1.0.16 experience `has_projects` precedent). A
-     * query-builder read in the Infra layer (the B11 cross-feature
+     * query-builder read in the Infra layer (the ADR-0003 cross-feature
      * pattern — the projects table is not part of the Blog feature).
      */
     public function hasPublishedProjects(): bool;

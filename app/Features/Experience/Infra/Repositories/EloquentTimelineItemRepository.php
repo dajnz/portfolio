@@ -23,13 +23,13 @@ use Illuminate\Support\Facades\DB;
  * contracts ({@see TimelineItemListQueryRepositoryInterface}).
  *
  * Writes go through a transaction with the translation sync and the
- * tech-tag pivot sync (A2-style reconciliation by `sync`). The
+ * tech-tag pivot sync (ADR-0005-style reconciliation by `sync`). The
  * translation rows are derived from the entity's locale projections —
  * the entity is the single source of truth for its localized state —
  * and reconciled against the ACTIVE locales only (rows of locales
  * disabled in the settings are preserved untouched per
  * content-management.md:419). Project reads use query-builder joins —
- * no cross-feature class imports (B11).
+ * no cross-feature class imports (ADR-0003).
  */
 final class EloquentTimelineItemRepository implements
     TimelineItemRepositoryInterface,
@@ -60,7 +60,7 @@ final class EloquentTimelineItemRepository implements
             ->whereNull('deleted_at')
             ->when($ignoreId !== null, fn (Builder $query): Builder => $query->where('id', '!=', $ignoreId))
             ->where(function (Builder $query) use ($startedAt, $ignoreId): void {
-                // (started_at, id) tuple ordering (B175): items sharing
+                // (started_at, id) tuple ordering (ADR-0024): items sharing
                 // the start date chain by id — a NEW item (ignoreId
                 // null) follows every same-start item (it will hold the
                 // max id); an update excludes itself.
@@ -116,7 +116,7 @@ final class EloquentTimelineItemRepository implements
     public function delete(int $id): void
     {
         // Instance delete — the model's `deleted` event (sitemap
-        // invalidation, B64) fires only for instance-based deletes.
+        // invalidation, ADR-0022) fires only for instance-based deletes.
         TimelineItemModel::query()->find($id)?->delete();
     }
 
@@ -126,7 +126,7 @@ final class EloquentTimelineItemRepository implements
 
         if ($model !== null) {
             // Instance restore — `restore()` saves the model, firing
-            // the `saved` event (sitemap invalidation, B64).
+            // the `saved` event (sitemap invalidation, ADR-0022).
             $model->restore();
         }
     }

@@ -24,7 +24,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  * `URL::temporarySignedRoute`), verified here. Renders the PUBLIC
  * article page, bypassing the `is_published` scope: the shared
  * content pipeline HTML, the SEO props with the `noindex` directive
- * and a null reactions widget (B211 — step 8.2 replaced the raw-data
+ * and a null reactions widget (ADR-0004 — step 8.2 replaced the raw-data
  * preview with the full public surface).
  */
 final class PreviewController

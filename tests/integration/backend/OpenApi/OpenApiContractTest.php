@@ -181,7 +181,7 @@ it('validates the trackEvents responses against the spec', function (): void {
         ['event_type' => 'page_view', 'session_id' => 'contract-session'],
     ], $browserHeaders));
 
-    // 422: an invalid event item rejects the whole batch (B30).
+    // 422: an invalid event item rejects the whole batch (ADR-0017).
     $this->assertConformsToSpec('trackEvents', 1, $this->postJson('/api/analytics/track', [
         ['event_type' => str_repeat('x', 101), 'session_id' => 'contract-session'],
     ], $browserHeaders));

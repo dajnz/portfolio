@@ -11,7 +11,7 @@ use Tests\Support\Fakes\FakeCountCacheInvalidator;
 use Tests\Support\Fakes\FakeSitemapInvalidator;
 
 /**
- * The restore slug-uniqueness re-check (B29, content-management.md:901)
+ * The restore slug-uniqueness re-check (ADR-0006, content-management.md:901)
  * — single and bulk, with the batched reads (one slugs read + one
  * occupied-subset read). The conflict state cannot arise through the
  * HTTP surface (the DB unique index covers trashed rows — soft-deleted

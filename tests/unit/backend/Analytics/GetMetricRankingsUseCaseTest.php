@@ -13,7 +13,7 @@ use Tests\Support\Fakes\FakeAnalyticsReportDataReader;
 use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 
 /**
- * The top/bottom/liked/disliked rankings (analytics.md:226, B293,
+ * The top/bottom/liked/disliked rankings (analytics.md:226, ADR-0017,
  * 11.3.4): the `span = 'all'` dimension rows capped at 10, joined with
  * the min/max metrics (time/read/completion) and the EN titles of the
  * article/project dimensions — `GET /admin/analytics/rankings?metric=

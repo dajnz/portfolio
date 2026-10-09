@@ -9,7 +9,7 @@ use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
 use DateTimeImmutable;
 
 /**
- * Raw event storage. Events are write-mostly (B287): one repository
+ * Raw event storage. Events are write-mostly (ADR-0017): one repository
  * for all typed event classes — the type is carried by the entity
  * itself, so per-type repositories would be empty shells. The period
  * read materializes the stored rows back into the typed entities (the
@@ -28,7 +28,7 @@ interface AnalyticsEventRepositoryInterface
      */
     public function eventsBetween(ReportPeriod $period): array;
 
-    /** Deletes events older than the cutoff (90-day retention, B37). */
+    /** Deletes events older than the cutoff (90-day retention, ADR-0012). */
     public function deleteOlderThan(DateTimeImmutable $cutoff): int;
 
     /** Deletes every stored event (the `analytics:wipe` reset). */

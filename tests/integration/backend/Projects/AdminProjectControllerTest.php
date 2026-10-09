@@ -543,7 +543,7 @@ describe('AdminProjectController', function (): void {
             ->assertSessionHasErrors('tech_writeup_article_id');
     });
 
-    it('appends a numeric suffix to an auto-generated slug collision (A3)', function (): void {
+    it('appends a numeric suffix to an auto-generated slug collision (ADR-0006)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         projectItem(['slug' => 'payments-gateway']);
@@ -558,7 +558,7 @@ describe('AdminProjectController', function (): void {
         expect(ProjectModel::query()->orderByDesc('id')->first()->slug)->toBe('payments-gateway-3');
     });
 
-    it('keeps a manual slug override as-is (A3)', function (): void {
+    it('keeps a manual slug override as-is (ADR-0006)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $this->post('/admin/projects', projectPayload([
@@ -643,7 +643,7 @@ describe('AdminProjectController', function (): void {
                 ->where('project.detail_items.0.description.en', 'Full suite.'));
     });
 
-    it('applies the reordered engineering detail sort_order on update (A2 — regression)', function (): void {
+    it('applies the reordered engineering detail sort_order on update (ADR-0005 — regression)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         [$project, $first, $second] = projectWithDetailItemPair();
@@ -677,7 +677,7 @@ describe('AdminProjectController', function (): void {
         expect($order)->toBe([$second->id, $first->id]);
     });
 
-    it('replaces rather than duplicates the engineering detail translations on reorder (A2 — regression)', function (): void {
+    it('replaces rather than duplicates the engineering detail translations on reorder (ADR-0005 — regression)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         [$project, $first, $second] = projectWithDetailItemPair();
@@ -707,7 +707,7 @@ describe('AdminProjectController', function (): void {
         expect(DB::table('project_detail_item_translations')->count())->toBe(4);
     });
 
-    it('updates the shared fields and keeps published_at immutable (A2)', function (): void {
+    it('updates the shared fields and keeps published_at immutable (ADR-0005)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $project = projectItem(['is_published' => true, 'published_at' => now()]);
@@ -724,7 +724,7 @@ describe('AdminProjectController', function (): void {
             ->and($fresh->published_at->equalTo($project->published_at))->toBeTrue();
     });
 
-    it('reconciles the tech tags on update (A2)', function (): void {
+    it('reconciles the tech tags on update (ADR-0005)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $php = projectSkillId('PHP');
@@ -749,7 +749,7 @@ describe('AdminProjectController', function (): void {
             ->and($fresh->tech_tags_count)->toBe(1);
     });
 
-    it('reconciles the screenshots on update (A2)', function (): void {
+    it('reconciles the screenshots on update (ADR-0005)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $project = projectItem();
@@ -808,7 +808,7 @@ describe('AdminProjectController', function (): void {
             ->and($shot->fresh()->image_path)->toBe('projects/new.png');
     });
 
-    it('regenerates the slug from the changed EN title when the submitted slug matches the stored one (A3)', function (): void {
+    it('regenerates the slug from the changed EN title when the submitted slug matches the stored one (ADR-0006)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $project = projectItem(['slug' => 'payments-gateway']);
@@ -825,7 +825,7 @@ describe('AdminProjectController', function (): void {
         expect(DB::table('old_slugs')->where('old_slug', 'payments-gateway')->where('entity_type', 'project')->exists())->toBeTrue();
     });
 
-    it('treats a changed submitted slug as a manual override (A3)', function (): void {
+    it('treats a changed submitted slug as a manual override (ADR-0006)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $project = projectItem(['slug' => 'payments-gateway']);
@@ -1017,7 +1017,7 @@ describe('AdminProjectController', function (): void {
         expect(ProjectModel::withTrashed()->count())->toBe(0);
     });
 
-    it('invalidates the sitemap cache on published saves and form edits (B64)', function (): void {
+    it('invalidates the sitemap cache on published saves and form edits (ADR-0022)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $cache = static function (): bool {
@@ -1043,7 +1043,7 @@ describe('AdminProjectController', function (): void {
         expect($cache())->toBeFalse();
     });
 
-    it('invalidates the sitemap cache on unpublishes (B64)', function (): void {
+    it('invalidates the sitemap cache on unpublishes (ADR-0022)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $prime = static function (): void {
@@ -1057,7 +1057,7 @@ describe('AdminProjectController', function (): void {
         expect(Cache::has('sitemap:xml'))->toBeFalse();
     });
 
-    it('invalidates the sitemap cache on deletes (B64)', function (): void {
+    it('invalidates the sitemap cache on deletes (ADR-0022)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $prime = static function (): void {

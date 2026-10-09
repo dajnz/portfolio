@@ -9,7 +9,7 @@ use App\Features\Analytics\Domain\ValueObjects\PageDetails;
 use InvalidArgumentException;
 
 /**
- * The page context VO (B289): the page type, entity id and URL, with
+ * The page context VO (ADR-0017): the page type, entity id and URL, with
  * the typed entity-id accessors used by the reports.
  */
 describe('PageDetails', function (): void {

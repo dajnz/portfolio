@@ -38,7 +38,7 @@ final class EloquentContactTranslationRepository
 
     /**
      * Upserts the given translations and removes rows of the contact
-     * whose locales are absent from the set (A2-style reconciliation).
+     * whose locales are absent from the set (ADR-0005-style reconciliation).
      *
      * @param  ContactTranslation[]  $translations
      */

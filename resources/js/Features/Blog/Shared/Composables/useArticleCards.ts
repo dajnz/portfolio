@@ -19,11 +19,11 @@ export interface ArticleSkillTagView {
 
 /** The resolved view shape of an article card — every field the
  *  templates read is guaranteed present (the wire type marks all
- *  fields optional). RustFS paths gain the `/assets/` prefix (A7),
+ *  fields optional). RustFS paths gain the `/assets/` prefix (ADR-0027),
  *  the per-locale `lead_image_alt` map resolves for the active locale
  *  (en fallback — the props builder's convention) and the
  *  `short_description` may carry the FTS `<mark>` snippet HTML on
- *  search results (B16 — sanitized server-side; the card renders it
+ *  search results (ADR-0007 — sanitized server-side; the card renders it
  *  via v-html). */
 export interface ArticleCardView {
     id: number;
@@ -77,7 +77,7 @@ function localeText(map: Record<string, string> | null | undefined, locale: stri
 /**
  * The article card/meta date per the mockup ("Jan 15, 2026" /
  * "15 янв. 2026 г." — blog-article.html) via `Intl.DateTimeFormat`:
- * the B266 numeric `dd.mm.yyyy` decision applies to the compact
+ * the ADR-0025 numeric `dd.mm.yyyy` decision applies to the compact
  * autocomplete rows only (PublicSearchAutocomplete's `publishedMeta`).
  * An unparseable value renders '' (the caller hides the meta).
  */

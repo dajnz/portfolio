@@ -2,7 +2,7 @@ import { onBeforeUnmount, onMounted } from 'vue';
 
 /**
  * Window event name dispatched by the Escape shortcut for inline
- * "cancel editing" handlers (accessibility.md:50, B19). Components with
+ * "cancel editing" handlers (accessibility.md:50, ADR-0024). Components with
  * inline editing (e.g. the Skills page rows) listen for it to abort an
  * in-progress edit; open modals are left alone — they close themselves.
  */
@@ -40,7 +40,7 @@ function focusSearchInput(): void {
 }
 
 /**
- * Admin keyboard shortcuts (accessibility.md:48-53, B19):
+ * Admin keyboard shortcuts (accessibility.md:48-53, ADR-0024):
  *
  * - `Ctrl+Enter` — submit the form containing the focused element.
  * - `Escape` — close the open modal (handled by the modal itself) or

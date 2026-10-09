@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
  * (features/blog.yaml#TagRequest): the shared slug and the per-locale
  * `name` map with AT LEAST ONE locale (`minProperties: 1` — the
  * frontend posts the current locale only). The tag↔skill name
- * cross-check is the use case's repository probe (B130/B132),
+ * cross-check is the use case's repository probe (ADR-0002),
  * surfacing a `name` validation error.
  */
 final class StoreTagApiRequest extends FormRequest
@@ -48,7 +48,7 @@ final class StoreTagApiRequest extends FormRequest
     }
 
     /**
-     * A3: a slug equal to the naive generation of the EN name skips
+     * ADR-0006: a slug equal to the naive generation of the EN name skips
      * the uniqueness rejection (the use case re-resolves it with a
      * collision suffix).
      */

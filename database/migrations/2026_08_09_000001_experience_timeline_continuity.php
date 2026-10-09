@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     /**
-     * Timeline continuity (B174, user request 2026-08-09):
+     * Timeline continuity (ADR-0024, user request 2026-08-09):
      * - `position` becomes the second REQUIRED column of
-     *   `experience_timeline_item_translations` (after the B162
+     *   `experience_timeline_item_translations` (after the ADR-0002
      *   `short_description` — the position is mandatory per locale,
      *   company name + country stay optional but all-or-none);
      * - the `dates_check` constraint tightens from

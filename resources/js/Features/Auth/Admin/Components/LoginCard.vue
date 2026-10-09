@@ -98,7 +98,7 @@ const logoLetter = computed(() =>
           <template #icon>
             <!-- Inline octocat mark (mockup sprite) — simple-icons is not
                  registered until step 7.2, and the self-hosted stance bans
-                 runtime Iconify fetches (B78). -->
+                 runtime Iconify fetches (ADR-0023). -->
             <svg
               viewBox="0 0 24 24"
               class="w-5 h-5"

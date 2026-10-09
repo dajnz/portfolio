@@ -9,7 +9,7 @@ use App\Features\Analytics\Infra\Models\AnalyticsEventModel;
 /**
  * `POST /api/analytics/track` ingestion (analytics.md:129-152,
  * routes.md:184,189,240,364): batch caps + payload size, the bot-UA
- * discard (B24), keyed HMAC IP hashing (B4) and the 60/min/IP rate
+ * discard, keyed HMAC IP hashing (ADR-0017) and the 60/min/IP rate
  * limit. Real browsers always send a User-Agent, so the test client
  * must pass one explicitly — a missing header is treated as a bot
  * signal and the batch is discarded.

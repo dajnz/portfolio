@@ -1,4 +1,4 @@
-<!-- ContactsListPage (admin-section-components.md:864-880, admin-section-ui.md:304-308, contacts.html) — reorderable contacts list: SortableList drag-to-reorder (POST /admin/contacts/reorder per A4), inline editing with AdminIconPicker (brands) + locale-tabbed names, include-in-resume checkbox, cursor pagination. -->
+<!-- ContactsListPage (admin-section-components.md:864-880, admin-section-ui.md:304-308, contacts.html) — reorderable contacts list: SortableList drag-to-reorder (POST /admin/contacts/reorder per ADR-0005), inline editing with AdminIconPicker (brands) + locale-tabbed names, include-in-resume checkbox, cursor pagination. -->
 <script setup lang="ts">
 import type { IconifyJSON } from '@iconify/types';
 import { addCollection, Icon } from '@iconify/vue';
@@ -98,7 +98,7 @@ function emptyDraft(): DraftContact {
 }
 
 // The contact icon cells render `simple-icons:*` names via the Iconify
-// `Icon` component — the collection must be registered offline (B78: no
+// `Icon` component — the collection must be registered offline (ADR-0023: no
 // runtime calls to the Iconify API) or the component fetches it on
 // demand. Started at module scope so the import runs before the first
 // render (the contact rows are the first simple-icons consumers); the
@@ -135,7 +135,7 @@ watch(
 );
 
 // The reorderable list must render in display order: the backend defaults
-// to id desc (B103), so the page requests `sort_order` asc — normalizing
+// to id desc (ADR-0010), so the page requests `sort_order` asc — normalizing
 // the first render when the controller served the default.
 if (
     props.meta !== undefined &&
@@ -372,7 +372,7 @@ function isEditing(rowId: number): boolean {
         {{ t('admin.contacts.title') }}
       </h1>
 
-      <!-- Sticky header controls (B174): the Add Contact button stays
+      <!-- Sticky header controls (ADR-0024): the Add Contact button stays
            visible while scrolling. -->
       <AdminStickyActionBar :test_id="`${props.test_id}-sticky-bar`">
         <AdminBaseButton

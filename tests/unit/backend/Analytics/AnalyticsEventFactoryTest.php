@@ -19,7 +19,7 @@ use DateTimeImmutable;
 use Tests\Support\AnalyticsEventFixture;
 
 /**
- * The metadata parser (B287/B289): every stored row shape materializes
+ * The metadata parser (ADR-0017): every stored row shape materializes
  * into its typed entity; unknown event types and malformed payloads
  * yield null (skipped by the reads, rejected by the ingestion). An
  * unknown page type is tolerated (null) — the page context is

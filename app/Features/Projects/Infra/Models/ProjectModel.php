@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * only: the fillable columns, the relations, the casts and the sitemap
  * invalidation events. The `sitemap:xml` cache is invalidated whenever
  * a published project is saved or deleted (seo.md:219 — wired here per
- * B64): a save that leaves the project published, or flips
+ * ADR-0022): a save that leaves the project published, or flips
  * `is_published` (an unpublish must drop the sitemap entry too), and a
  * delete of a published project. The `deleted_at` timestamp is
  * soft-delete bookkeeping — the featured projects read model (Shared)

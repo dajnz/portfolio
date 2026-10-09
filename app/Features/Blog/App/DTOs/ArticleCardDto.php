@@ -10,10 +10,10 @@ use DateTimeImmutable;
 /**
  * An article card of the public blog index — the `ArticleCardData`
  * wire shape (blog.yaml#ArticleCardData). `snippet` carries the
- * `ts_headline()` search excerpt (the `<mark>`-wrapped HTML — B16)
+ * `ts_headline()` search excerpt (the `<mark>`-wrapped HTML — ADR-0007)
  * when the request searched; the controller substitutes it for the
  * `short_description` in the HTML variant (the JSON variant returns
- * raw values). The `skillTags`/`leadImageAlt` fields (B268) feed the
+ * raw values). The `skillTags`/`leadImageAlt` fields (ADR-0004) feed the
  * card's linked TechSkillTag chips and the `<img>` alt; the hydrating
  * use cases batch-fill them via the read repository's `skillTagsFor()`
  * and the row's `lead_image_alt` column. Immutable.

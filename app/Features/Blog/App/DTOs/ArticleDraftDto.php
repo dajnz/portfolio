@@ -8,7 +8,7 @@ namespace App\Features\Blog\App\DTOs;
  * The article data as submitted by the store/update forms
  * (content-management.md:675-688) — the whole payload of the
  * `StoreArticleUseCase`/`UpdateArticleUseCase`. `submittedSlug` is the
- * raw form value; the server re-resolves it per A3 (the auto-generated
+ * raw form value; the server re-resolves it per ADR-0006 (the auto-generated
  * case regenerates with a numeric collision suffix, manual overrides
  * are kept as-is). Composed of the granular data DTOs. Immutable.
  */

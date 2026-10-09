@@ -16,17 +16,17 @@ use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use DateTimeImmutable;
 
 /**
- * Updates a project: the slug is re-resolved per A3 — a submitted slug
+ * Updates a project: the slug is re-resolved per ADR-0006 — a submitted slug
  * equal to the stored one (or to the naive auto-generation of the EN
  * title) is regenerated server-side with a numeric collision suffix, a
  * differing submission is a manual override kept as-is; the rest of
  * the payload replaces the aggregate parts via the repository's
- * reconcile (A2). The publication state is derived from the EXISTING
+ * reconcile (ADR-0005). The publication state is derived from the EXISTING
  * aggregate — `published_at` is immutable after the first publish
  * (database.md:210): a first form-publish runs
  * {@see Project::publish()} (invariants asserted), an unpublish keeps
  * the timestamp. A slug change records the old slug in `old_slugs`
- * (B6). The obsolete screenshot files (replaced/removed gallery rows)
+ * (ADR-0006). The obsolete screenshot files (replaced/removed gallery rows)
  * are deleted via the shared asset cleaner after the save — the
  * repository stays persistence-only. The repository persists the
  * aggregate — transaction included — in one call.
@@ -77,7 +77,7 @@ final class UpdateProjectUseCase
     }
 
     /**
-     * The RustFS files made obsolete by the screenshot reconcile (A2):
+     * The RustFS files made obsolete by the screenshot reconcile (ADR-0005):
      * the images of gallery rows removed from the submitted set and
      * the replaced images of rows whose path changed
      * (content-management.md:813-819).

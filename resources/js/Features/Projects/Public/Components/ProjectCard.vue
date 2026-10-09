@@ -36,7 +36,7 @@ const { t } = useI18n();
 const analytics = useAnalytics();
 // The Sources GitHub glyph comes from the lazily-registered simple-icons
 // subset — rendering before registration would trigger the Iconify
-// runtime's remote fallback (blocked by CSP, B78).
+// runtime's remote fallback (blocked by CSP, ADR-0023).
 const projectsIconsReady = useProjectsIconsReady();
 
 const visibleTags = computed(() => props.project?.tech_tags.slice(0, props.tags_limit) ?? []);

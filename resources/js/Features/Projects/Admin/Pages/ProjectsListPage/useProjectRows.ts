@@ -7,7 +7,7 @@ import { computed, type Ref, ref, watch } from 'vue';
 // is the orchestrator). Owns the server-seeded working copies (rows +
 // featured rows), the row selection, the bulk-action dispatch and the
 // inline quick actions (feature star, publish/unpublish — optimistic with
-// revert, B180). The filter state lives in `useProjectFilters`; bulk
+// revert, ADR-0004). The filter state lives in `useProjectFilters`; bulk
 // deletes are delegated to the injected `requestBulkDelete` (the delete
 // flows live in `useProjectDeletes`).
 export interface ProjectRow {
@@ -137,7 +137,7 @@ export function useProjectRows(options: {
         }
     }
 
-    // ── Inline quick actions (B180 — JSON endpoints, optimistic + revert) ──
+    // ── Inline quick actions (ADR-0004 — JSON endpoints, optimistic + revert) ──
 
     function replaceRow(updated: ProjectRow): void {
         const index = rows.value.findIndex((row) => row.id === updated.id);

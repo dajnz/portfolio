@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\DB;
  * Eloquent-backed write repository for the TechSkills feature, over the
  * shared read-side models (database.md:130-134). Group writes go through
  * a transaction with the name sync; both reorders apply the
- * zero-indexed positions with a single batched update (A4,
+ * zero-indexed positions with a single batched update (ADR-0005,
  * content-management.md:155 style) — no per-row queries. Skills are
  * hydrated with their group context ({@see SkillGroupVo}) and attached
  * to their group via the domain's {@see TechSkillGroup::addSkill()}.
@@ -162,7 +162,7 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
     }
 
     /**
-     * Batched single-update sort-order write (A4): the CASE operands are
+     * Batched single-update sort-order write (ADR-0005): the CASE operands are
      * validated integers interpolated directly into the expression
      * (DB::raw carries no bindings).
      *
@@ -187,7 +187,7 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
 
     /**
      * Upserts the given names and removes rows of the group whose
-     * locales are absent from the set (A2-style reconciliation).
+     * locales are absent from the set (ADR-0005-style reconciliation).
      *
      * @param  TechSkillGroupName[]  $groupNames
      */

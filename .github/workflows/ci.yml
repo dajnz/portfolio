@@ -124,11 +124,11 @@ jobs:
       - run: npm ci
       - run: npx vitest run --coverage
 
-  # Non-blocking per assumption B31 (flipped to blocking in step 13.2) —
+  # Non-blocking per assumption ADR-0029 (flipped to blocking in step 13.2) —
   # depends on steps 3.1/3.6 (SSR build + Playwright harness).
   test-e2e:
     runs-on: ubuntu-latest
-    # The e2e suite is stable and blocking since step 13.2 (closes B31).
+    # The e2e suite is stable and blocking since step 13.2 (closes ADR-0029).
     services:
       postgres:
         image: postgres:18-alpine

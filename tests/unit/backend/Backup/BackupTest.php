@@ -15,7 +15,7 @@ use InvalidArgumentException;
  * The `backups` row entity (backup.md:132-159, database.md:567-587):
  * the lifecycle state machine — `pending → processing → completed`,
  * `pending | processing → failed`, plus `completed → processing` for
- * the restore of an existing backup (A1) — and the per-status shape
+ * the restore of an existing backup (ADR-0018) — and the per-status shape
  * invariants (archive stamp on completion, failure time on fail,
  * neither while pending/processing, backup.yaml:55-67).
  */

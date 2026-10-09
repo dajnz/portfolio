@@ -1,7 +1,7 @@
 import { type PageType, useAnalytics } from './useAnalytics';
 
 /**
- * Declares the current page's analytics context (B289) and fires the
+ * Declares the current page's analytics context (ADR-0017) and fires the
  * page view (analytics.md:48): called from a public page's setup, so
  * the `page_view` fires exactly once per page MOUNT — the initial
  * load included (the router's `finish` event does not fire for it)

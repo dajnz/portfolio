@@ -23,7 +23,7 @@ use function min;
  * when no active key exists (backup.md:548, the show-once modal).
  * The backup list is small (retention-bounded) — the pagination
  * slices the repository's `listActive()` in memory. Settings reads go
- * through the Shared `SettingsReadRepositoryInterface` (B306).
+ * through the Shared `SettingsReadRepositoryInterface` (ADR-0018).
  */
 final class GetBackupListUseCase
 {

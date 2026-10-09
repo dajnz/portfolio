@@ -16,7 +16,7 @@ use App\Features\Shared\App\DTOs\PaginationResultDto;
  * Eloquent builders or HTTP requests — the query is supplied as a
  * factory callable (invoked by the implementation) and the request
  * shape is rebuilt from the passed URL (so the paginator's empty-page
- * redirects keep targeting the real URL, B175).
+ * redirects keep targeting the real URL, ADR-0024).
  */
 interface AdminListPaginatorInterface
 {

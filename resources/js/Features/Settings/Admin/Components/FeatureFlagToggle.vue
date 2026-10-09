@@ -1,4 +1,4 @@
-<!-- FeatureFlagToggle (admin-section-components.md:1295-1322, settings.html) — a feature-flag row: flag name + optional hint + enabled/disabled AdminBaseToggle (the small primary toggle from the style-guide, mockup wins per B79 — not the large maintenance AdminBaseSwitch). Emits `toggle` with `{key, is_enabled}` so the page can PATCH /admin/settings/feature-flags. -->
+<!-- FeatureFlagToggle (admin-section-components.md:1295-1322, settings.html) — a feature-flag row: flag name + optional hint + enabled/disabled AdminBaseToggle (the small primary toggle from the style-guide, mockup wins per ADR-0025 — not the large maintenance AdminBaseSwitch). Emits `toggle` with `{key, is_enabled}` so the page can PATCH /admin/settings/feature-flags. -->
 <script setup lang="ts">
 import AdminBaseToggle from '@shared-admin/AdminBaseToggle.vue';
 

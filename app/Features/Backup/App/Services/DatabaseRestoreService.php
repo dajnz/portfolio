@@ -13,12 +13,12 @@ use function sprintf;
 
 /**
  * The restore's data plane (backup.md:401-402): truncates every
- * included table child-first (incl. the analytics wipe — B302;
- * `feature_flags` is never in the order, B17) and imports each
+ * included table child-first (incl. the analytics wipe — ADR-0018;
+ * `feature_flags` is never in the order, ADR-0018) and imports each
  * table's JSONL file back with the original IDs (the `settings`
  * writer already upserts by key). Split off the restore workflow so
  * the transport/orchestration steps (archive, assets, maintenance)
- * stay in `RestoreWorkflowService` (B306).
+ * stay in `RestoreWorkflowService` (ADR-0018).
  */
 final class DatabaseRestoreService
 {

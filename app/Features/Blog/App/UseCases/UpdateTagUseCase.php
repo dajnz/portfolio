@@ -14,12 +14,12 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
- * Updates an article tag: the slug is re-resolved per A3 (a submitted
+ * Updates an article tag: the slug is re-resolved per ADR-0006 (a submitted
  * slug equal to the stored one, or to the naive auto-generation of the
  * EN name, is regenerated server-side with a collision suffix; a
  * differing submission is a manual override kept as-is) and the
  * tag↔skill name cross-check runs for every submitted locale name with
- * the tag itself ignored (B130/B132).
+ * the tag itself ignored (ADR-0002).
  */
 final class UpdateTagUseCase
 {

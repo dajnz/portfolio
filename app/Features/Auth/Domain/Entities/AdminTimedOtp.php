@@ -158,7 +158,7 @@ final class AdminTimedOtp
         return $this->findRecoveryCode($code, false) !== null;
     }
 
-    /** Whether the input matches a consumed recovery code (B26 — counts as a failed attempt). */
+    /** Whether the input matches a consumed recovery code (ADR-0014 — counts as a failed attempt). */
     public function isRecoveryCodeUsed(string $code): bool
     {
         return $this->findRecoveryCode($code, true) !== null;

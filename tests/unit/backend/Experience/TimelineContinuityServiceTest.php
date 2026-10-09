@@ -123,7 +123,7 @@ describe('TimelineContinuityService', function (): void {
         expect($repository->endedAtWrites)->toBeEmpty();
     });
 
-    it('chains same-start items by id for a new item (B175 tuple ordering)', function (): void {
+    it('chains same-start items by id for a new item (ADR-0024 tuple ordering)', function (): void {
         [, $service] = continuityService([
             continuityItem(1, '2020-01-01', '2020-01-15'),
             continuityItem(2, '2020-01-01', '2020-02-15'),

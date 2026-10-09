@@ -9,7 +9,7 @@ namespace App\Features\Analytics\Domain\Enums;
  * fires `cta_click_github`/`cta_click_demo`/`cta_click_cv`/
  * `cta_click_feedback`/`cta_click_projects` without payload metadata —
  * the target IS the event type (the report counts CTA clicks from the
- * type, not from metadata; B287). The language/theme switches are
+ * type, not from metadata; ADR-0017). The language/theme switches are
  * separate event types with their own properties.
  */
 enum CallToActionTarget: string

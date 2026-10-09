@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     /**
      * The per-day aggregated metrics store (database.md:513-529,
-     * analytics.md:158-180, B290): one row per `(metric, date,
+     * analytics.md:158-180, ADR-0017): one row per `(metric, date,
      * dimension)` — NULL dimension = global metric, otherwise the
      * entity key (page URL, `article:{id}`, `project:{id}`, CTA
      * target). `value` + `samples` keep the weighted sum/samples

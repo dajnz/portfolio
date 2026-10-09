@@ -19,7 +19,7 @@ describe('DashboardController', function (): void {
         $this->get('/admin')->assertRedirect('/admin/login');
     });
 
-    it('renders the stats per B32', function (): void {
+    it('renders the stats per ADR-0017', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $publishedId = DB::table('blog_articles')->insertGetId([

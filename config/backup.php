@@ -69,7 +69,7 @@ return [
     | `resume_config_translations` are included on top of the spec's
     | literal listing — the resume layout/about texts/custom PDF path are
     | admin-created portfolio content and the resume PDF lives in the
-    | `about/` assets (plan assumption B303). The excluded tables above
+    | `about/` assets (ADR-0018). The excluded tables above
     | are never archived.
     |
     */
@@ -114,7 +114,7 @@ return [
     |
     | The keyset-pagination columns of the export reader per table
     | (backup.md:379): `id` by default; the `settings` table's key is
-    | `key` (B301) and the translation/pivot tables that have no `id`
+    | `key` (ADR-0018) and the translation/pivot tables that have no `id`
     | column use their composite primary key — the reader's row-value
     | comparison keeps the keyset stable under duplicate first-column
     | values.
@@ -147,9 +147,9 @@ return [
     |
     | Child/referencing tables first, then parents (backup.md:401) —
     | the reverse of the database.md migration order. `feature_flags` is
-    | never truncated (B17); the analytics tables are wiped (truncated)
+    | never truncated (ADR-0018); the analytics tables are wiped (truncated)
     | during restore per backup.md:401 — including `analytics_daily_metrics`
-    | (plan assumption B302: the 11.3 rework's per-day metrics would
+    | (ADR-0018: the 11.3 rework's per-day metrics would
     | otherwise survive the wipe and mix stale pre-restore numbers into
     | the rebuilt reports).
     |

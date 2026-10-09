@@ -1,6 +1,6 @@
 <!-- BlogFormMetaSidebar — the blog form's right panel (the two-panel
      layout's meta sidebar, blog-form.html): the locale-tabbed Title /
-     Short Description, the shared Slug (the A3 auto-generation hint),
+     Short Description, the shared Slug (the ADR-0006 auto-generation hint),
      the Lead Image dropzone with per-locale alt text, the unified tag
      picker, the Related Articles multi-select, the Featured/Published
      toggles and the read-only published_at block. A presentational

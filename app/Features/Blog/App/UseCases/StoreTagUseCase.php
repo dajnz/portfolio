@@ -14,12 +14,12 @@ use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
  * Creates an article tag (content-management.md:690-695): the slug is
- * resolved per A3 (auto-generated from the EN name with a collision
+ * resolved per ADR-0006 (auto-generated from the EN name with a collision
  * suffix, or the manual override kept as-is) and the tag↔skill name
  * cross-check runs for every submitted locale name — a name matching
  * an existing skill (case-insensitive, any locale) throws
  * {@see DuplicateArticleTagNameException}, surfaced as a `name`
- * validation error by the controller (B130/B132). Shared by the admin
+ * validation error by the controller (ADR-0002). Shared by the admin
  * form (`POST /admin/tags`) and the inline API creation
  * (`POST /api/tags`).
  */

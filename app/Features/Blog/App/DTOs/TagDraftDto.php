@@ -7,7 +7,7 @@ namespace App\Features\Blog\App\DTOs;
 /**
  * The tag data as submitted by the store/update forms and the inline
  * API creation (content-management.md:690-695, features/blog.yaml#
- * TagRequest): the raw slug value (re-resolved per A3 by the use
+ * TagRequest): the raw slug value (re-resolved per ADR-0006 by the use
  * case) and the per-locale names. Immutable.
  */
 final readonly class TagDraftDto

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Crypt;
  * Inserts every predefined settings key (database.md) with its default
  * value. The type of each key is fixed by `SettingName` — the seeder only
  * supplies values. Idempotent: re-running refreshes values.
- * `mail_api_token` is stored encrypted like any other write path (B125).
+ * `mail_api_token` is stored encrypted like any other write path (ADR-0016).
  */
 class SettingsSeeder extends Seeder
 {

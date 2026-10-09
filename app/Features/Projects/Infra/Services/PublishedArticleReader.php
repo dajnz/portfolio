@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
  * Article" select (admin-section-ui.md:356): a query-builder read over
  * the Blog feature's tables — the Blog feature is not built yet, and
  * cross-feature reads live in the consuming feature's Infra layer
- * (B11). Only published, non-trashed articles qualify
+ * (ADR-0003). Only published, non-trashed articles qualify
  * (content-management.md:159); the title resolves the current admin
  * locale with the `en` fallback; newest first.
  */

@@ -18,12 +18,12 @@ use App\Features\Blog\Domain\Exceptions\RelatedArticleAlreadyLinkedException;
  * related-article attach/detach (both pair rows in one transaction,
  * 409 on duplicates) and skill-tag attach/detach (409 on duplicates).
  *
- * Slug support: `takenSlugs()` serves the A3 collision-suffix
+ * Slug support: `takenSlugs()` serves the ADR-0006 collision-suffix
  * resolution (content-management.md:441-452 — including trashed rows,
- * B29), `slugsOccupiedByActive()` serves the restore uniqueness
- * re-check (B29) in batch, `publishedIdsOf()` the use cases' sitemap
+ * ADR-0006), `slugsOccupiedByActive()` serves the restore uniqueness
+ * re-check (ADR-0006) in batch, `publishedIdsOf()` the use cases' sitemap
  * invalidation input and `currentSlugForOld()` the public old-slug
- * 301 (B5/B6). The repository upserts `old_slugs` rows when
+ * 301 (ADR-0006). The repository upserts `old_slugs` rows when
  * a slug changes (database.md:451) and on force-delete
  * (content-management.md:905). The `sitemap:xml` invalidation is NOT
  * a repository concern — the write use cases orchestrate it via the
@@ -59,7 +59,7 @@ interface ArticleRepositoryInterface
 
     /**
      * Existing slug values matching the base prefix (soft-deleted
-     * included) — the input of the A3 numeric collision-suffix
+     * included) — the input of the ADR-0006 numeric collision-suffix
      * resolution (content-management.md:441-452).
      *
      * @return string[]
@@ -68,7 +68,7 @@ interface ArticleRepositoryInterface
 
     /**
      * The slugs of the given articles (soft-deleted included) — the
-     * batch input of the restore uniqueness re-check (B29).
+     * batch input of the restore uniqueness re-check (ADR-0006).
      *
      * @param  int[]  $ids
      * @return array<int, string>  Keyed by article id.
@@ -78,7 +78,7 @@ interface ArticleRepositoryInterface
     /**
      * The subset of the given slugs occupied by NON-trashed articles —
      * soft-deleted entities occupy their slug, so the restore check is
-     * against active rows only (B29, content-management.md:901).
+     * against active rows only (ADR-0006, content-management.md:901).
      *
      * @param  string[]  $slugs
      * @return string[]
@@ -100,7 +100,7 @@ interface ArticleRepositoryInterface
      * The `related_articles` ids of the article — both directions of
      * the pairs, deduplicated (database.md:453-463). The input of the
      * linkability re-check on save: an id ALREADY linked is preserved
-     * even when its target got unpublished (B230).
+     * even when its target got unpublished (ADR-0024).
      *
      * @return int[]
      */
@@ -131,7 +131,7 @@ interface ArticleRepositoryInterface
      * `article_tag_pivot` / `article_skill_pivot` syncs and the
      * `related_articles` reconcile (the bidirectional pairs of the
      * removed/added ids). A slug change records the old slug in
-     * `old_slugs` (B6).
+     * `old_slugs` (ADR-0006).
      */
     public function save(Article $article): void;
 
@@ -165,7 +165,7 @@ interface ArticleRepositoryInterface
     /**
      * Sets `is_published`; `published_at` is auto-set to `now()` on
      * the FIRST publish only (immutable thereafter — database.md:341).
-     * A single sitemap invalidation covers the whole batch (B64).
+     * A single sitemap invalidation covers the whole batch (ADR-0022).
      *
      * @param  int[]  $ids
      */

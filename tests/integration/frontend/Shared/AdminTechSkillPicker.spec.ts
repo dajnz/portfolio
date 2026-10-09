@@ -123,7 +123,7 @@ describe('AdminTechSkillPicker', () => {
         expect(wrapper.get('[data-testid="tech-skill-picker-suggestion-0"]').text()).toContain('Laravel');
     });
 
-    it('closes the dropdown and clears the query on an outside click (B174)', async () => {
+    it('closes the dropdown and clears the query on an outside click (ADR-0024)', async () => {
         vi.mocked(fetch).mockResolvedValue(
             new Response(JSON.stringify([SKILLS[0]]), { status: 200 }),
         );
@@ -181,7 +181,7 @@ describe('AdminTechSkillPicker', () => {
         wrapper.unmount();
     });
 
-    it('keeps the dropdown open when adding a skill detaches the suggestion row mid-dispatch (B175)', async () => {
+    it('keeps the dropdown open when adding a skill detaches the suggestion row mid-dispatch (ADR-0024)', async () => {
         const wrapper = mountPickerWithParent();
         await openSuggestions(wrapper);
 

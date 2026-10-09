@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\File;
 
 /**
  * `lang:export` (step 2.6) — PHP catalogs → committed
- * `resources/js/lang/{locale}.json` (i18n-and-theming.md:42, B9).
+ * `resources/js/lang/{locale}.json` (i18n-and-theming.md:42, ADR-0009).
  */
 describe('ExportLangCommand', function (): void {
     it('exports every locale from lang/ to a JSON file keyed by group', function (): void {

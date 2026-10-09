@@ -10,7 +10,7 @@ use Illuminate\Validation\Rule;
 
 /**
  * `POST /admin/experience` / `PUT /admin/experience/{item}`
- * (content-management.md:650-668, B174): the non-translatable fields
+ * (content-management.md:650-668, ADR-0024): the non-translatable fields
  * plus the per-locale translatable ones. `short_description` and
  * `position` are required per active locale; the company pair (name +
  * country) is optional but all-or-none per locale. `short_description`
@@ -18,7 +18,7 @@ use Illuminate\Validation\Rule;
  * (not the raw input).
  *
  * Cross-field rules: `ended_at` must be strictly AFTER `started_at`
- * (a same-day end is invalid, B174), and `project_id` /
+ * (a same-day end is invalid, ADR-0024), and `project_id` /
  * `external_project_name` are mutually exclusive. There is no
  * `is_current` flag anymore — an empty `ended_at` IS the ongoing
  * marker, and the timeline-continuity rules (overlap protection, only
@@ -115,7 +115,7 @@ final class StoreExperienceRequest extends FormRequest
 
     /**
      * The company pair (company name + country) is all-or-none per
-     * locale (B174 — position is mandatory on its own; the pair is
+     * locale (ADR-0024 — position is mandatory on its own; the pair is
      * optional, but a lone company name or a lone country is
      * meaningless).
      *

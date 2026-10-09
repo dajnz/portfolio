@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Bus;
  * `AggregateDailyMetricsUseCase::defaultDateRange()`) and dispatches
  * the queued aggregation job. The job does the work; the command does
  * not block the scheduler. Registered in `routes/console.php` at
- * `0 2 * * *` (dailyAt 02:00), superseding B22's old every-4-hours
+ * `0 2 * * *` (dailyAt 02:00), superseding ADR-0012's old every-4-hours
  * analytics cadence.
  */
 final class GenerateDailyMetricsCommand extends Command

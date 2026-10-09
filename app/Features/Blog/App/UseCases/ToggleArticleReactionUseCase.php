@@ -16,7 +16,7 @@ use DateTimeImmutable;
 /**
  * The reactions endpoint (routes.md:190, content-management.md:
  * 207-212): one reaction per server-generated fingerprint per article
- * (keyed HMAC of ip|user_agent — B4; the client can never spoof a
+ * (keyed HMAC of ip|user_agent — ADR-0017; the client can never spoof a
  * different identity). Toggling: a first reaction inserts, the same
  * reaction again undoes (deletes the row), the opposite reaction
  * switches the type. The totals are reported after the mutation.

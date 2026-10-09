@@ -22,7 +22,7 @@ use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
 use DateTimeImmutable;
 
 /**
- * The per-day metrics aggregation (analytics.md:158-180, B292): the
+ * The per-day metrics aggregation (analytics.md:158-180, ADR-0017): the
  * 11.1 event-aggregation logic reworked per day over a date range.
  * For every day of the range it computes the full metric catalog from
  * that day's events (typed entities via `eventsBetween`) and the
@@ -142,8 +142,8 @@ final class AggregateDailyMetricsUseCase
     /**
      * The single-pass accumulation of the day's events (the 11.1
      * `OverallReport`/`BlogReport`/`ProjectsReport::accumulate()`
-     * logic combined — B292). CTA targets come from the event types
-     * (B287): `CallToActionClickEvent`→its target,
+     * logic combined — ADR-0017). CTA targets come from the event types
+     * (ADR-0017): `CallToActionClickEvent`→its target,
      * `LanguageSwitchEvent`→`language`, `ThemeSwitchEvent`→`theme`.
      *
      * @param list<AnalyticsEvent> $events
@@ -195,7 +195,7 @@ final class AggregateDailyMetricsUseCase
             // admin section are ignored, so admin browsing can never
             // pollute the global metrics even if the client-side guard
             // regresses. `page_type: null` events on PUBLIC urls
-            // (legacy rows without the page context, B289) are kept.
+            // (legacy rows without the page context, ADR-0017) are kept.
             if ($this->isAdminPageUrl($event->toPageUrl())) {
                 continue;
             }

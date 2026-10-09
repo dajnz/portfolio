@@ -14,7 +14,7 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Queued analytics digest mail (analytics.md:214-219, architecture.md:
- * 172, B294): a simple HTML table with the previous day's key metrics
+ * 172, ADR-0017): a simple HTML table with the previous day's key metrics
  * (page views, unique visitors, feedback submissions) and the top
  * article by views, sent when `analytics_email_enabled` is on and a
  * recipient is configured. The mailable is queued (ShouldQueue) —

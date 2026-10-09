@@ -34,7 +34,7 @@ final class ListTimelineItemsUseCase
         $this->paginator = new AdminCursorPaginator(
             cursorDecoder: $cursorDecoder,
             allowedSortColumns: ['started_at'],
-            // B175: the admin list defaults to date desc (no unsorted
+            // ADR-0024: the admin list defaults to date desc (no unsorted
             // state — the dates header cycles only asc/desc).
             defaultSortColumn: 'started_at',
         );
@@ -57,7 +57,7 @@ final class ListTimelineItemsUseCase
     }
 
     /**
-     * The 30 s count cache is per filter combination (B72) — the
+     * The 30 s count cache is per filter combination (ADR-0010) — the
      * trashed toggle and the search term both change the counted set.
      */
     private function countCacheKey(bool $trashed, string $search): string

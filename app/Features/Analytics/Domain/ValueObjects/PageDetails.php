@@ -8,7 +8,7 @@ use App\Features\Analytics\Domain\Enums\PageType;
 use InvalidArgumentException;
 
 /**
- * The page context of an analytics event (B289): which public page the
+ * The page context of an analytics event (ADR-0017): which public page the
  * event happened on (the type), which entity that page showed (the id
  * — only for the entity pages) and the page URL. The URL moved out of
  * `AnalyticsEvent` into this VO. The typed entity-id accessors

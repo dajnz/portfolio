@@ -14,7 +14,7 @@ use DateTimeImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Eloquent-backed `analytics_daily_metrics` storage (B290). Writes go
+ * Eloquent-backed `analytics_daily_metrics` storage (ADR-0017). Writes go
  * through the query builder — `Eloquent\Builder::upsert` does not
  * apply the model's casts, so the rows are prepared by the mapper
  * (dates as `Y-m-d` strings, floats/ints as scalars) and upserted on

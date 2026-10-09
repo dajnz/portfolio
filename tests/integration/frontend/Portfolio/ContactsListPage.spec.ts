@@ -215,7 +215,7 @@ describe('ContactsListPage', () => {
         expect(deleteMock).toHaveBeenCalledWith('/admin/contacts/2', expect.any(Object));
     });
 
-    it('posts the reorder payload with the dragged order (A4)', async () => {
+    it('posts the reorder payload with the dragged order (ADR-0005)', async () => {
         const wrapper = mountPage();
 
         const sortable = wrapper.findComponent({ name: 'SortableList' });
@@ -273,7 +273,7 @@ describe('ContactsListPage', () => {
         expect(getMock).not.toHaveBeenCalled();
     });
 
-    it('navigates to the previous page with the before cursor flag (B72)', async () => {
+    it('navigates to the previous page with the before cursor flag (ADR-0010)', async () => {
         const wrapper = mountPage();
 
         const pagination = wrapper.findComponent({ name: 'PaginationControls' });

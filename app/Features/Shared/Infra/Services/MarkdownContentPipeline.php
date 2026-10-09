@@ -37,7 +37,7 @@ use League\CommonMark\Util\HtmlFilter;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * The shared content pipeline (B23, content-management.md:466-481):
+ * The shared content pipeline (ADR-0008, content-management.md:466-481):
  * Markdown → safe HTML for every admin-authored body. CommonMark runs
  * in safe mode (`HtmlInput::ESCAPE` + `allow_unsafe_links: false` —
  * raw HTML is escaped, so an article can never inject `<script>` or
@@ -47,7 +47,7 @@ use Illuminate\Support\Facades\Cache;
  * headings carry the anchor ids the TableOfContents scans for.
  *
  * The article variant is cached in Redis under
- * `article:html:{id}:{locale}:{content-hash}` (B270 — the content
+ * `article:html:{id}:{locale}:{content-hash}` (ADR-0008 — the content
  * hash rotates the key on every content change; the 8.2
  * `updated_at`-stamp scheme collided for saves within the same
  * second). Reused by any feature rendering Markdown content (Blog
@@ -71,7 +71,7 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
             'max_nesting_level' => 100,
         ]);
         $environment->addExtension(new CommonMarkCoreExtension());
-        // The editor's markdown surface extensions (B231 — the admin
+        // The editor's markdown surface extensions (ADR-0024 — the admin
         // editor buttons serialize to these syntaxes; without the
         // matching parsers they would render literally or escape to
         // visible tags):
@@ -111,7 +111,7 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
 
     /**
      * The rendered article body, cached under
-     * `article:html:{id}:{locale}:{content-hash}` (B270) — the key
+     * `article:html:{id}:{locale}:{content-hash}` (ADR-0008) — the key
      * embeds a hash of the markdown, so ANY content change rotates
      * the key: self-invalidating by content. The 8.2 stamp scheme
      * (`updated_at` seconds) collided when two saves landed within

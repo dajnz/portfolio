@@ -11,7 +11,7 @@ use DateTimeImmutable;
 use Illuminate\Support\Facades\Mail;
 
 /**
- * The daily digest email (analytics.md:214-222, B294, 11.3.5): queues
+ * The daily digest email (analytics.md:214-222, ADR-0017, 11.3.5): queues
  * `SendAnalyticsReportMail` for the day when the analytics email
  * setting is enabled with a recipient set — otherwise the digest is
  * skipped silently. The decision lives here (not in the aggregation

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Eloquent-backed contact repository. Writes go through a transaction
  * with the translation sync; `reorder()` applies the zero-indexed
- * positions with a single batched update (A4, content-management.md:155
+ * positions with a single batched update (ADR-0005, content-management.md:155
  * style) — no per-row queries.
  */
 final class EloquentContactRepository implements ContactRepositoryInterface, ContactListQueryRepositoryInterface

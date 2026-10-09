@@ -8,7 +8,7 @@ use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterfac
 
 /**
  * Reorders contacts to the zero-indexed positions of the submitted
- * `{ "ids": [...] }` payload (A4); the repository applies the writes
+ * `{ "ids": [...] }` payload (ADR-0005); the repository applies the writes
  * atomically.
  */
 final class ReorderContactsUseCase

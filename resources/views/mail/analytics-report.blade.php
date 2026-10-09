@@ -1,5 +1,5 @@
 <!doctype html>
-{{-- Queued analytics digest mail (analytics.md:214-219, B294, 11.3.5):
+{{-- Queued analytics digest mail (analytics.md:214-219, ADR-0017, 11.3.5):
      a simple HTML table with the previous day's key metrics and the
      top article by views. All values are aggregated numbers and
      translated labels — no user-controlled markup. --}}

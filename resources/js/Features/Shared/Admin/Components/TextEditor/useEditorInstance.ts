@@ -81,7 +81,7 @@ export interface UseEditorInstanceApi {
 
 // The subscript/superscript marks serialize to `<sub>`/`<sup>` HTML
 // (CommonMark has no native syntax) — the public content pipeline
-// claims those tag pairs as structured nodes (B231), so the round
+// claims those tag pairs as structured nodes (ADR-0024), so the round
 // trip survives the safe-mode renderer.
 const SubscriptWithMarkdown = Subscript.extend({
     renderMarkdown: (node, helpers) => `<sub>${helpers.renderChildren(node)}</sub>`,
@@ -217,7 +217,7 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
                   onSelectionUpdate: ({ editor: instance }) => refreshState(instance),
                   onFocus: () => options.onFocus(),
                   onBlur: () => {
-                      // The popup is NOT closed here (B232): focusing
+                      // The popup is NOT closed here (ADR-0024): focusing
                       // the popup's own input (e.g. the link URL field)
                       // blurs the editor first, which would instantly
                       // close the just-opened popup. The outside-click

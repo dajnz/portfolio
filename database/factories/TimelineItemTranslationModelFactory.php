@@ -9,7 +9,7 @@ use App\Features\Experience\Infra\Models\TimelineItemTranslationModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Test factory for `experience_timeline_item_translations` (B21, both
+ * Test factory for `experience_timeline_item_translations` (ADR-0029, both
  * locales covered via the `forLocale()` state).
  */
 final class TimelineItemTranslationModelFactory extends Factory

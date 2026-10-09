@@ -32,7 +32,7 @@ use TypeError;
  * reports, the event itself is still valid.
  *
  * The plain CTA clicks are identified by their `cta_click_{target}`
- * type suffix (B287 — the frontend sends no payload for them); the
+ * type suffix (ADR-0017 — the frontend sends no payload for them); the
  * language/theme switches (also `cta_click_*` types) resolve first
  * through the match below.
  */

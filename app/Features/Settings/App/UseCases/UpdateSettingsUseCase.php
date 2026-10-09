@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
  * `mail_api_token` is the only secret in the table — it is encrypted at
  * rest here (the admin form is the plaintext entry point) and decrypted
  * by `SettingsMailConfigProvider` when read. An empty submission keeps
- * the stored value (B49, moved to the token per B125).
+ * the stored value (ADR-0016).
  */
 final class UpdateSettingsUseCase
 {

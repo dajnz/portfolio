@@ -177,7 +177,7 @@ function onKeydown(event: KeyboardEvent): void {
 // click handler — so the check always sees the click target still
 // attached: a click handler may re-render and remove the target before
 // the click finishes bubbling, which a bubble-phase check would
-// misread as an outside click (B175).
+// misread as an outside click (ADR-0024).
 function onDocumentClick(event: MouseEvent): void {
     if (
         isOpen.value &&
@@ -293,7 +293,7 @@ function onBlur(): void {
            sibling of the wrapper would attach to an arbitrary ancestor
            up the layout (the panel then renders near the page footer).
            The surface/border/shadow come from the shared
-           `admin-autocomplete-panel` utility (B175). -->
+           `admin-autocomplete-panel` utility (ADR-0024). -->
       <div
         v-if="isOpen"
         :id="listboxId"

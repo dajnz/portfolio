@@ -7,8 +7,8 @@ namespace App\Features\Portfolio\Infra\Services;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Dashboard stat cards (admin-section-ui.md:224-228, B32). Query-builder
- * reads inside the Portfolio Infra layer (B11 — the consuming feature
+ * Dashboard stat cards (admin-section-ui.md:224-228, ADR-0017). Query-builder
+ * reads inside the Portfolio Infra layer (ADR-0003 — the consuming feature
  * must not import Blog/Projects classes):
  *
  * - count cards (projects/articles) exclude trashed rows;

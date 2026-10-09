@@ -10,7 +10,7 @@ use App\Features\Shared\Infra\Models\SkillGroupModel;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The B11 shared project read model consumed by the landing page.
+ * The ADR-0003 shared project read model consumed by the landing page.
  */
 function createProject(string $slug, array $attributes = []): int
 {

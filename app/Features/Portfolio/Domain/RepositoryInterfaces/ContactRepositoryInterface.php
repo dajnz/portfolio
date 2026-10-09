@@ -27,7 +27,7 @@ interface ContactRepositoryInterface
     public function delete(int $id): void;
 
     /**
-     * Reorders contacts to the given zero-indexed positions (A4: the
+     * Reorders contacts to the given zero-indexed positions (ADR-0005: the
      * array index becomes `sort_order`), atomically.
      *
      * @param  int[]  $ids  Contact IDs in drag order.

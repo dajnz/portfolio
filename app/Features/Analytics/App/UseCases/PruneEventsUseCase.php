@@ -10,7 +10,7 @@ use DateTimeImmutable;
 /**
  * The 90-day raw-event retention safety net (analytics.md:245-247):
  * deletes `analytics_events` rows older than the cutoff. Runs via the
- * monthly `analytics:prune-events` command only (B37 — the fixed cutoff
+ * monthly `analytics:prune-events` command only (ADR-0012 — the fixed cutoff
  * constant lives here); events may age up to ~120 days before the
  * monthly sweep removes them.
  */

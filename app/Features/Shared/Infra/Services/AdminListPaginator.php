@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 /**
  * The framework-backed {@see AdminListPaginatorInterface}: invokes the
  * query factory, rebuilds the HTTP request shape from the passed URL
- * (so the paginator's B175 empty-page redirects keep targeting the
+ * (so the paginator's ADR-0024 empty-page redirects keep targeting the
  * real URL) and maps the paginator's page into the app-layer DTOs.
  */
 final class AdminListPaginator implements AdminListPaginatorInterface

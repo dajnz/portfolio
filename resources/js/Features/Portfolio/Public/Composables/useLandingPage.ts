@@ -127,7 +127,7 @@ const AVAILABILITY_VARIANTS: Record<string, AvailabilityVariant> = {
  * (public-section-components.md:889-1007): AboutBlock data + CTA links,
  * SkillsBlock groups (with per-skill proficiency labels), the featured
  * project cards, the ContactsBlock links + FeedbackForm props, plus the
- * public nav items (A10) and the dns-prefetch hosts for external links
+ * public nav items (ADR-0025) and the dns-prefetch hosts for external links
  * (architecture.md:1271). Pure derivation — the components fire their
  * own analytics (AboutBlock cta_click_github/cv, FeedbackForm
  * cta_click_feedback).

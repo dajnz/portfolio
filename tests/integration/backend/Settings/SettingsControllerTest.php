@@ -140,7 +140,7 @@ describe('SettingsController', function (): void {
             ->assertSessionHasErrors('settings.bogus_key');
     });
 
-    it('applies numeric bounds per A8 — per-page and backup settings need min:1', function (): void {
+    it('applies numeric bounds per ADR-0011 — per-page and backup settings need min:1', function (): void {
         $this->put('/admin/settings', [
             'settings' => ['items_per_page' => 0],
         ])->assertRedirect()

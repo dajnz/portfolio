@@ -12,7 +12,7 @@ use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Eloquent-backed read model for featured projects (B11) — consumed by
+ * Eloquent-backed read model for featured projects (ADR-0003) — consumed by
  * the landing page. Mirrors the TechSkill read pattern: two queries per
  * method (projects + their tech tags separately), locale-resolved
  * translations with an `en` fallback. The Projects feature (7.1) owns

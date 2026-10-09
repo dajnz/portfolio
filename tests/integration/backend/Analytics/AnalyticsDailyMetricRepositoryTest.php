@@ -11,7 +11,7 @@ use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsDailyMetricRepos
 use DateTimeImmutable;
 
 /**
- * `analytics_daily_metrics` persistence (database.md:513-529, B290)
+ * `analytics_daily_metrics` persistence (database.md:513-529, ADR-0017)
  * on real PostgreSQL: the (metric, date, dimension) upsert round-trip
  * — incl. the NULL dimension row (NULLS NOT DISTINCT unique key) —
  * the ranged reads and the date-scoped delete.

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Config;
  * index/detail (with their locale-prefixed variants — the `{locale}`
  * parameter is constrained to the supported locales so
  * `SetLocaleFromPathMiddleware` never sees an invalid value; the
- * `{article}` detail parameter carries the RAW slug — B5: the
+ * `{article}` detail parameter carries the RAW slug — ADR-0006: the
  * old-slug 301 lookup happens in the controller, implicit model
  * binding cannot do the fallback), the RSS feed, the admin section
  * (gated by the Auth middleware chain — `auth` + `auth.session_version`

@@ -64,7 +64,7 @@ final class GetResumeForEditUseCase
      * The documented default layout (content-management.md:337-347)
      * normalized to the validated `order` range 0–4 — the example's
      * 1–5 sequence would fail the request's own `between:0,4` rule
-     * (B275).
+     * (ADR-0020).
      *
      * @return array<string, mixed>
      */

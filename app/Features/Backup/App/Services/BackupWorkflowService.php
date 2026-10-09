@@ -41,7 +41,7 @@ use function sprintf;
  *
  * The workflow consumes only app-layer contracts: the per-table
  * readers/exporters arrive as ready {@see BackupTableExport} bundles
- * (B306) and the config-derived values via the {@see BackupSources}
+ * (ADR-0018) and the config-derived values via the {@see BackupSources}
  * DTO — no infra classes are named or instantiated here.
  */
 final class BackupWorkflowService

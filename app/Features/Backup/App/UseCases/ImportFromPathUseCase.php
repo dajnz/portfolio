@@ -32,9 +32,9 @@ use function is_readable;
  * the key only when no match exists (`is_active = false` — it serves
  * this backup only, never future creations; the naming convention
  * lives on `EncryptionKey::forImport()`), uploads the archive to the
- * `backups` bucket under the B18 `backup-import-...-k{id}--{name}.zip`
+ * `backups` bucket under the ADR-0018 `backup-import-...-k{id}--{name}.zip`
  * name and creates the `completed` `backups` record from the manifest.
- * The caller passes the returned entity to the restore flow (B298).
+ * The caller passes the returned entity to the restore flow (ADR-0018).
  */
 final class ImportFromPathUseCase
 {

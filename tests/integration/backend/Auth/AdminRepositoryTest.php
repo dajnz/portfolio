@@ -105,7 +105,7 @@ describe('EloquentAdminRepository', function (): void {
             ->and($repository->githubIdTakenByOther('12345', (int) $other->id))->toBeFalse();
     });
 
-    it('reports whether any admin is linked with github (B127)', function (): void {
+    it('reports whether any admin is linked with github (ADR-0013)', function (): void {
         $repository = app(AdminRepositoryInterface::class);
 
         expect($repository->hasGithubLinkedAdmin())->toBeFalse();

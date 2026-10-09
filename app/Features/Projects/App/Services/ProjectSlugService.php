@@ -8,14 +8,14 @@ use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface
 use App\Features\Shared\Domain\ValueObjects\Slug;
 
 /**
- * The project slug resolution (content-management.md:424-464, A3):
+ * The project slug resolution (content-management.md:424-464, ADR-0006):
  * slugs are auto-generated from the EN title (via the shared
  * {@see Slug} — English and Russian input both work, Cyrillic is
  * transliterated) and editable in the form. The server distinguishes
  * the auto-generated value from a manual override and re-resolves it:
  *
  * - submitted == the naive auto-generation of the EN title (or == the
- *   currently STORED slug on update — A3's regeneration trigger) →
+ *   currently STORED slug on update — ADR-0006's regeneration trigger) →
  *   regenerate server-side, appending a numeric collision suffix when
  *   the base slug is taken (`my-post`, `my-post-2`, `my-post-3` …);
  * - submitted != either → a manual override, kept as-is (the request
@@ -23,7 +23,7 @@ use App\Features\Shared\Domain\ValueObjects\Slug;
  *   md:452).
  *
  * The suffix query covers ALL projects including trashed ones — soft-
- * deleted entities occupy their slug (B29). The persistence lookup is
+ * deleted entities occupy their slug (ADR-0006). The persistence lookup is
  * the repository's `takenSlugs()` — no framework or DB dependency
  * lives in this service.
  */

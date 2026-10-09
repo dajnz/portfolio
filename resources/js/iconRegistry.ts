@@ -16,7 +16,7 @@ addCollection(heroicons as IconifyJSON);
 
 // The lucide subset covers only the two icons the TextEditor's
 // subscript/superscript buttons need (heroicons has no sub/superscript
-// glyphs; B231) — the generated subset keeps the bundle flat while
+// glyphs; ADR-0024) — the generated subset keeps the bundle flat while
 // staying offline.
 addCollection(lucide as IconifyJSON);
 

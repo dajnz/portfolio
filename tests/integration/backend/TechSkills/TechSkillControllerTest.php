@@ -188,7 +188,7 @@ describe('TechSkillController', function (): void {
         expect(SkillModel::query()->count())->toBe(0);
     });
 
-    it('reorders skills per the A4 payload and persists cross-group moves', function (): void {
+    it('reorders skills per the ADR-0005 payload and persists cross-group moves', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $g1 = SkillGroupModel::factory()->create();

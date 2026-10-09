@@ -9,7 +9,7 @@ use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
 
 /**
- * Persistence for `analytics_reports` (database.md:531-548, B290):
+ * Persistence for `analytics_reports` (database.md:531-548, ADR-0017):
  * per-metric aggregates over the daily metrics, pre-computed for every
  * supported span and fully rebuilt on every metrics generation — the
  * read shapes power the dashboard: whole-time blocks
@@ -96,7 +96,7 @@ interface AnalyticsReportRepositoryInterface
 
     /**
      * The cumulative running total of the metric's day rows — the
-     * "whole time" chart source (analytics.md:199, B292): every
+     * "whole time" chart source (analytics.md:199, ADR-0017): every
      * `span = 'day'` row in chronological order, each carrying the
      * running total of its value (a pure fold over the day rows — no
      * window functions). A null `$dimension` folds the dimension-NULL

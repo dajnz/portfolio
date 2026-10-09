@@ -1,7 +1,7 @@
 <!-- ProjectFeaturedReorder — the featured-projects reorder section of
      the projects list: a SortableList over the featured rows; the drag
      end emits the zero-indexed id order. The page orchestrator POSTs
-     it to /admin/projects/reorder-featured (A4) and rolls the list
+     it to /admin/projects/reorder-featured (ADR-0005) and rolls the list
      back on failure. -->
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';

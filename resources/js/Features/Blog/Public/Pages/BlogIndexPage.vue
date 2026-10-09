@@ -1,4 +1,4 @@
-<!-- BlogIndexPage (public-section-ui.md:209-238, public-section-components.md:1209-1239, mockup blog.html) — the public blog index: the BlogHeader toolbar (dual-response search autocomplete, the unified tag filter with the article/skill `type` discriminator, the conditional year filter, the grid/list toggle persisted in the `blog_view_mode` cookie), the ArticleCard grid/list, the infinite-scroll Load More (cursor reload per B158 replace semantics) and the three empty/error states via PublicEmptyState. The nav follows A10 — the Projects link is conditional on `has_projects` (B268). -->
+<!-- BlogIndexPage (public-section-ui.md:209-238, public-section-components.md:1209-1239, mockup blog.html) — the public blog index: the BlogHeader toolbar (dual-response search autocomplete, the unified tag filter with the article/skill `type` discriminator, the conditional year filter, the grid/list toggle persisted in the `blog_view_mode` cookie), the ArticleCard grid/list, the infinite-scroll Load More (cursor reload per ADR-0010 replace semantics) and the three empty/error states via PublicEmptyState. The nav follows ADR-0025 — the Projects link is conditional on `has_projects` (ADR-0004). -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
@@ -224,7 +224,7 @@ function onViewModeChange(mode: 'grid' | 'list'): void {
 
 /* Small screens: the card reverts to the stacked grid look — the
    `blog_view_mode` cookie may still hold `list`, and the grid and list
-   render identically below 768px (the B267 projects precedent). */
+   render identically below 768px (the ADR-0025 projects precedent). */
 @media (width < 768px) {
     .blog-grid--list .article-card {
         display: block;

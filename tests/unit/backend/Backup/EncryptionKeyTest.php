@@ -84,7 +84,7 @@ describe('EncryptionKey', function (): void {
             ->and(strlen($key->toName()))->toBe(21);
 
         // The same raw key always yields the same name — no timestamp or
-        // randomness in it (B311): the reuse check relies on the stable
+        // randomness in it (ADR-0019): the reuse check relies on the stable
         // mapping, and re-imports of the same key never collide.
         expect(EncryptionKey::forImport($rawKey, new DateTimeImmutable('2026-08-25 09:00:00'))->toName())
             ->toBe($expectedName);

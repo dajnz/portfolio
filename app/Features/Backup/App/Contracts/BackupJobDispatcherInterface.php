@@ -6,7 +6,7 @@ namespace App\Features\Backup\App\Contracts;
 
 /**
  * The queued backup job surface: dispatches the create/restore work
- * the admin endpoints trigger (backup.md:376, A1). An abstraction over
+ * the admin endpoints trigger (backup.md:376, ADR-0018). An abstraction over
  * the infra `CreateBackupJob`/`RestoreBackupJob` so the app-layer use
  * cases never name the queue classes.
  */

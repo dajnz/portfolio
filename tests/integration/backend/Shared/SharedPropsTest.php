@@ -46,7 +46,7 @@ describe('SharedProps', function (): void {
                 ->where('settings.theme', 'dark'));
     });
 
-    it('exposes the authenticated admin under auth.user per B3', function (): void {
+    it('exposes the authenticated admin under auth.user per ADR-0004', function (): void {
         $this->seed(\Database\Seeders\SettingsSeeder::class);
         $admin = $this->createAdmin();
         $this->loginAsAdmin($admin);

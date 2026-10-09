@@ -3,7 +3,7 @@
  * toolbar/popup can trigger (marks, lists, block formatting, the
  * callout wrap/lift, tables, images, links) plus the click handlers
  * that combine commands with the popup state machine (the code-block
- * and callout button state machines — B232 — and the popup apply
+ * and callout button state machines — ADR-0024 — and the popup apply
  * handlers). The active link URL for the popup's prefilled input.
  * The parent (TextEditor.vue) owns the editor instance, the popup
  * state and the mode; this composable translates UI events into
@@ -130,7 +130,7 @@ export function useEditorCommands(options: UseEditorCommandsOptions): UseEditorC
             .run();
     }
 
-    // The callout toggle (B231 — the Tiptap 3 `toggleNode` fallback to
+    // The callout toggle (ADR-0024 — the Tiptap 3 `toggleNode` fallback to
     // `setNode` refuses non-text-block nodes with the "Currently
     // 'setNode()' only supports text block nodes" warning): a WRAP for
     // activation (the paragraph becomes callout[paragraph]) and a LIFT
@@ -190,7 +190,7 @@ export function useEditorCommands(options: UseEditorCommandsOptions): UseEditorC
         toggleMark(type);
     }
 
-    // The code-block button state machine (B232): an inactive block is
+    // The code-block button state machine (ADR-0024): an inactive block is
     // toggled on AND the language popup opens; an active block reopens
     // the popup; a second click while the popup is open toggles the
     // block off. Same rule for the callout button + type popup. Both

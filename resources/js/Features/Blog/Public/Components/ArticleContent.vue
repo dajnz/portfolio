@@ -1,6 +1,6 @@
-<!-- ArticleContent (public-section-components.md:1268-1290, mockup blog-article.html) — the article's reading column: title, "Published: {date} · {n} min read" meta, the article-tag badges + linked skill chips, the pipeline-rendered body (v-html) and the stats row (views + the feature-flagged ArticleReactions — rendered only when `article.reactions` is non-null, B211).
+<!-- ArticleContent (public-section-components.md:1268-1290, mockup blog-article.html) — the article's reading column: title, "Published: {date} · {n} min read" meta, the article-tag badges + linked skill chips, the pipeline-rendered body (v-html) and the stats row (views + the feature-flagged ArticleReactions — rendered only when `article.reactions` is non-null, ADR-0004).
 
-The body is the server-rendered safe-mode Markdown HTML (B23): code blocks arrive as `<pre data-code-block data-language data-raw>` (highlight.php tokens — no-JS functional, B217) and callouts as `<aside data-callout-type>`. After mounting, the progressive-enhancement pass mounts real CodeBlock/CalloutBlock components in place of those markers (B269) — the copy buttons and the per-type callout icons; the pass re-runs whenever `content_html` changes (article navigation) after removing the previous mounts.
+The body is the server-rendered safe-mode Markdown HTML (ADR-0008): code blocks arrive as `<pre data-code-block data-language data-raw>` (highlight.php tokens — no-JS functional, ADR-0008) and callouts as `<aside data-callout-type>`. After mounting, the progressive-enhancement pass mounts real CodeBlock/CalloutBlock components in place of those markers (ADR-0025) — the copy buttons and the per-type callout icons; the pass re-runs whenever `content_html` changes (article navigation) after removing the previous mounts.
 
 The scroll tracker fires the `article_read` analytics event once at 75%+ scroll depth (useReadingProgress, analytics.md:40). -->
 <script setup lang="ts">
@@ -228,7 +228,7 @@ onBeforeUnmount(cleanupMounts);
         />
       </div>
 
-      <!-- The pipeline-rendered body (B23): safe-mode CommonMark +
+      <!-- The pipeline-rendered body (ADR-0008): safe-mode CommonMark +
            callouts + server-highlighted code; the enhancer mounts the
            CodeBlock/CalloutBlock components over the markers after
            mount (public-section-components.md:1281-1289). -->

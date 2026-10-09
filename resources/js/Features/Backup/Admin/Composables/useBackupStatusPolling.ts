@@ -16,7 +16,7 @@ export interface BackupPollingHandle {
 export interface BackupPollingOptions {
     /** The backup record whose status endpoint is polled. */
     id: number;
-    /** Restore-mode semantics (backup.md:598, A1): a terminal
+    /** Restore-mode semantics (backup.md:598, ADR-0018): a terminal
      *  `completed` counts only after the restore actually ran — either a
      *  non-terminal status was observed (the record re-completes after
      *  its restore) or the record's `completed_at` stamp CHANGED between
@@ -27,7 +27,7 @@ export interface BackupPollingOptions {
      *  `pending → processing → completed/failed` and stop silently on a
      *  404. */
     restore?: boolean;
-    /** Poll interval in milliseconds (~2 s per A1). */
+    /** Poll interval in milliseconds (~2 s per ADR-0018). */
     intervalMs?: number;
     /** Hard cap on poll attempts (stops silently at the cap). */
     maxTicks?: number;
@@ -42,7 +42,7 @@ const DEFAULT_INTERVAL_MS = 2000;
 const DEFAULT_MAX_TICKS = 150;
 
 /**
- * The restore/create progress polling loop (backup.md:598, A1 —
+ * The restore/create progress polling loop (backup.md:598, ADR-0018 —
  * SSE is an explicit non-goal, `GET /admin/backups/{backup}/status` is
  * polled at ~2 s while the site is in maintenance mode). Plain fetch
  * with same-origin credentials: the endpoint sits behind the admin auth

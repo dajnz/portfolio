@@ -37,7 +37,7 @@ final class LoginController
 
         return $inertia->render('Auth/Admin/Pages/LoginPage', [
             // The GitHub button is shown only when the flag is ON AND at
-            // least one admin account is linked (B127) — the OAuth login
+            // least one admin account is linked (ADR-0013) — the OAuth login
             // flow can only fail otherwise.
             'github_login_available' => $this->flags->isEnabled(FeatureFlagName::GithubOauth)
                 && $this->admins->hasGithubLinkedAdmin(),

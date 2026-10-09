@@ -15,7 +15,7 @@ use DateTimeImmutable;
 
 /**
  * Creates a project (content-management.md:135-162): the resolved slug
- * (A3 — auto-generated from the EN title with a collision suffix, or
+ * (ADR-0006 — auto-generated from the EN title with a collision suffix, or
  * the manual override kept as-is), the shared fields, the per-locale
  * translations (title + brief description required per ACTIVE locale),
  * the preview picture, the screenshot gallery and the engineering

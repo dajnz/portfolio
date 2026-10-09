@@ -1,6 +1,6 @@
-<!-- EditorToolbar — the TextEditor's sticky button row (the B231
+<!-- EditorToolbar — the TextEditor's sticky button row (the ADR-0024
      five-group toolbar: block / inline / script / code / media + the
-     raw-mode toggle last, B232 single non-wrapping row with the
+     raw-mode toggle last, ADR-0024 single non-wrapping row with the
      thin-scrollbar). A presentational component: every button emits a
      click event (with the native MouseEvent where the parent needs it
      for popup anchoring); the parent (TextEditor.vue) owns the editor
@@ -93,7 +93,7 @@ const hasLinkButton = computed(() => props.buttons.includes('link'));
   >
     <template v-if="!props.state.isRawMode">
       <!-- ══ Group 1: block — heading (the H1–H6 popup on the blog
-           config, single H toggle elsewhere) + lists (B231/B232) ══ -->
+           config, single H toggle elsewhere) + lists (ADR-0024) ══ -->
       <template v-if="props.buttons.includes('heading')">
         <button
           v-if="props.selectable_heading"
@@ -167,7 +167,7 @@ const hasLinkButton = computed(() => props.buttons.includes('link'));
       </button>
 
       <!-- ══ Group 2: inline — bold / italic / underline /
-         strikethrough (B231) ══ -->
+         strikethrough (ADR-0024) ══ -->
       <template v-if="hasInlineButtons && hasBlockButtons">
         <div class="w-px h-5 shrink-0 bg-slate-200 dark:bg-slate-700 mx-1" />
       </template>
@@ -241,7 +241,7 @@ const hasLinkButton = computed(() => props.buttons.includes('link'));
         />
       </button>
 
-      <!-- ══ Group 3: script — subscript / superscript (B231) ══ -->
+      <!-- ══ Group 3: script — subscript / superscript (ADR-0024) ══ -->
       <template v-if="hasScriptButtons && hasInlineButtons">
         <div class="w-px h-5 shrink-0 bg-slate-200 dark:bg-slate-700 mx-1" />
       </template>
@@ -287,7 +287,7 @@ const hasLinkButton = computed(() => props.buttons.includes('link'));
       </button>
 
       <!-- ══ Group 4: code — inline code + block code (+ language
-         selector) + quote/cite (B231) ══ -->
+         selector) + quote/cite (ADR-0024) ══ -->
       <template v-if="hasCodeButtons && hasScriptButtons">
         <div class="w-px h-5 shrink-0 bg-slate-200 dark:bg-slate-700 mx-1" />
       </template>
@@ -350,7 +350,7 @@ const hasLinkButton = computed(() => props.buttons.includes('link'));
       </button>
 
       <!-- ══ Group 5: media — image / table / callout / link
-         (B231) ══ -->
+         (ADR-0024) ══ -->
       <template v-if="hasMediaButtons && hasCodeButtons">
         <div class="w-px h-5 shrink-0 bg-slate-200 dark:bg-slate-700 mx-1" />
       </template>

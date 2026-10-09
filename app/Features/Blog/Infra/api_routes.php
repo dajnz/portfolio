@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
  * Blog API routes (routes.md:190-197): the inline tag creation
  * (`POST /api/tags` — features/blog.yaml#createTag; auth required:
  * the session stack (`encrypt_cookies` + `start_session`) plus the
- * auth chain per routes.md:184,288-290 (B68)) and the step-8.2
+ * auth chain per routes.md:184,288-290 (ADR-0015)) and the step-8.2
  * public endpoints — the article-tags autocomplete, the unified
  * tag/skill autocomplete and the feature-flagged reaction toggle.
  */

@@ -27,7 +27,7 @@ const analytics = useAnalytics();
 // The CTA icons (e.g. the simple-icons GitHub mark) must not render
 // before the landing's lazy pack registration resolved — the Iconify
 // runtime would otherwise fall back to its remote API (blocked by CSP
-// `connect-src 'self'`, B78 self-hosted stance).
+// `connect-src 'self'`, ADR-0023 self-hosted stance).
 const publicIconsReady = usePublicIconsReady();
 
 function ctaKey(url: string): string {

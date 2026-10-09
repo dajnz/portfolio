@@ -13,7 +13,7 @@ use InvalidArgumentException;
  * The `article_read` event (analytics.md:25): the read-progress
  * trigger fired once per reader past the scroll threshold — the
  * article id and the completion percentage. The frontend sends no
- * seconds (B287): the per-article average read time is derived from
+ * seconds (ADR-0017): the per-article average read time is derived from
  * `time_on_page` events on the article page instead.
  */
 final class ArticleReadEvent extends AnalyticsEvent

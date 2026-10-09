@@ -121,7 +121,7 @@ describe('SettingsPage', () => {
         ).toBe(true);
     });
 
-    it('applies the A8 numeric bounds via the min attributes', () => {
+    it('applies the ADR-0011 numeric bounds via the min attributes', () => {
         const wrapper = mountPage();
 
         expect(wrapper.get('[data-testid="settings-page-trash-days"]').attributes('min')).toBe('0');

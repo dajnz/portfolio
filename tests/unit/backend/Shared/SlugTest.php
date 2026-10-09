@@ -10,7 +10,7 @@ use InvalidArgumentException;
 /**
  * The shared slug VO (content-management.md:424-464): the kebab-case
  * invariant and the EN/RU slug generation (Cyrillic transliterated to
- * latin — the A3 auto-generation works for Russian titles too).
+ * latin — the ADR-0006 auto-generation works for Russian titles too).
  */
 describe('Slug', function (): void {
     it('accepts valid kebab-case values', function (): void {

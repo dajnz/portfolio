@@ -19,13 +19,13 @@ use TypeError;
 /**
  * Ingests one validated batch of analytics events (analytics.md:129-152).
  * Batches from known crawlers or without a User-Agent are silently
- * discarded (B24) — nothing is stored, the endpoint still answers 204.
+ * discarded (ADR-0017) — nothing is stored, the endpoint still answers 204.
  * Each event is parsed into its typed entity (the client identifiers
  * and the page context are built as their VOs); an event the domain
  * cannot materialize (unknown event type or malformed payload)
- * rejects the entire batch with a 422 (B30, B287 — everything stored
+ * rejects the entire batch with a 422 (ADR-0017 — everything stored
  * is typed and parseable). The client IP is stored only as a keyed
- * HMAC-SHA256 digest (B4); the User-Agent is kept as-is for browser
+ * HMAC-SHA256 digest (ADR-0017); the User-Agent is kept as-is for browser
  * breakdowns.
  */
 final class TrackEventUseCase

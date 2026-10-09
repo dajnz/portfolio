@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 /*
  * Projects routes (routes.md:25-26,53-54,81-101,156). The public index
  * (with its locale-prefixed variant) and detail are public — the
- * `{project}` parameter carries the RAW slug (B5: the old-slug 301
+ * `{project}` parameter carries the RAW slug (ADR-0006: the old-slug 301
  * lookup happens in the controller, implicit model binding cannot do
  * the fallback); the admin section is gated by the Auth middleware
  * chain (`auth` + `auth.session_version` + `admin`); the preview route

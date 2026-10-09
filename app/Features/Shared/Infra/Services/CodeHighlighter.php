@@ -80,7 +80,7 @@ final class CodeHighlighter
      * wrapper with the language + raw-code attributes (the CodeBlock
      * mount markers) around the inline-colored token spans. Language-
      * less fences (the editor's "none" option) fall back to
-     * auto-detection (B270 — the public blocks were plain otherwise;
+     * auto-detection (ADR-0008 — the public blocks were plain otherwise;
      * the default autodetect subset covers the common web languages).
      */
     public function highlight(string $code, string $language): string

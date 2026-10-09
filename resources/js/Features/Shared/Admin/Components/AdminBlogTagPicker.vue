@@ -212,12 +212,12 @@ function cleanup(): void {
 }
 
 // A click outside the picker closes the dropdown AND clears the typed
-// query (the B174 convention of the tech-skills picker) — the picked
+// query (the ADR-0024 convention of the tech-skills picker) — the picked
 // pills stay, only the search text is reset. The listener runs in the
 // CAPTURE phase — before any element's own click handler — so the
 // check always sees the click target still attached: adding a tag
 // re-filters the suggestions and removes the clicked row before the
-// click finishes bubbling (B175).
+// click finishes bubbling (ADR-0024).
 function onDocumentClick(event: MouseEvent): void {
     if (rootEl.value !== null && rootEl.value.contains(event.target as Node) === false) {
         isOpen.value = false;

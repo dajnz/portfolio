@@ -149,7 +149,7 @@ describe('ExperienceTimelinePage', () => {
         expect(wrapper.get('[data-testid="public-header-nav-/#contacts"]').attributes('href')).toBe('/#contacts');
     });
 
-    it('hides the Projects nav link when no published projects exist (A10)', async () => {
+    it('hides the Projects nav link when no published projects exist (ADR-0025)', async () => {
         const wrapper = mountPage({ has_projects: false });
         await flush();
 

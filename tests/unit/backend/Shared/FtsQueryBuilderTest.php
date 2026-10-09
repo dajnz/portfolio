@@ -12,7 +12,7 @@ use Illuminate\Database\Query\Processors\PostgresProcessor;
 use Mockery;
 
 /**
- * The shared FTS expression builder (B16, database.md:651-695): the
+ * The shared FTS expression builder (ADR-0007, database.md:651-695): the
  * safe parameterized fragments of the public blog/project search —
  * plainto_tsquery + ts_rank, the ts_headline snippet and the prefix
  * autocomplete form with the empty-tsquery CASE guard.

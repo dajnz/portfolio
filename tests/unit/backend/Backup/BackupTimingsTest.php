@@ -13,7 +13,7 @@ use InvalidArgumentException;
  * moment plus the nullable completion/failure and deletion stamps —
  * neither may precede the creation time. The entity's state
  * transitions swap immutable instances via `withCompletedAt()` /
- * `withoutCompletedAt()` (B298).
+ * `withoutCompletedAt()` (ADR-0018).
  */
 describe('BackupTimings', function (): void {
     it('exposes the timestamps', function (): void {

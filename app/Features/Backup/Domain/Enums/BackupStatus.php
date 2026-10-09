@@ -9,7 +9,7 @@ namespace App\Features\Backup\Domain\Enums;
  * `pending` → `processing` → `completed` when the job finishes, or
  * `pending | processing` → `failed` on error. Downloads are only
  * available on `completed`; deletion is blocked while `processing`.
- * The same lifecycle tracks async restores (A1) — the restore job
+ * The same lifecycle tracks async restores (ADR-0018) — the restore job
  * marks the record `processing` and finishes it `completed`/`failed`.
  */
 enum BackupStatus: string

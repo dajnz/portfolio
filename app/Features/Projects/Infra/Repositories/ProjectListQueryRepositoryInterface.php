@@ -45,7 +45,7 @@ interface ProjectListQueryRepositoryInterface
 
     /**
      * The single admin list row of a project — the quick actions'
-     * response shape (B180, content-management.md:162) — or null when
+     * response shape (ADR-0004, content-management.md:162) — or null when
      * the project does not exist.
      *
      * @return object|null

@@ -26,7 +26,7 @@ uses(InteractsWithAdmin::class);
 
 /**
  * The admin analytics dashboard (analytics.md:223-227, routes.md:136-
- * 139, B290/B293, 11.3.4): the Inertia props (whole-time blocks per
+ * 139, ADR-0017, 11.3.4): the Inertia props (whole-time blocks per
  * tab + the default chart + default rankings), the `series`/`rankings`
  * JSON endpoints with their 422 validation, the `generate-reports`
  * full-rebuild dispatch (202) and the guest redirect.

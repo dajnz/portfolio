@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Mail;
 /**
  * Stores a valid feedback submission (content-management.md:267-273):
  * the IP + User-Agent identifiers are computed server-side as keyed
- * HMAC-SHA256 digests (B4 — the raw values never leave the request), and
+ * HMAC-SHA256 digests (ADR-0017 — the raw values never leave the request), and
  * the queued admin notification mail is dispatched when the
  * `email_on_feedback` setting is on (default on).
  */

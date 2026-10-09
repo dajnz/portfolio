@@ -11,7 +11,7 @@ use App\Features\Analytics\Domain\Enums\MetricSpan;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
 
 /**
- * The admin analytics dashboard props (analytics.md:223-227, B293,
+ * The admin analytics dashboard props (analytics.md:223-227, ADR-0017,
  * 11.3.4) for `GET /admin/analytics`: the whole-time metric blocks per
  * tab (overview/blog/projects — `{key, value, min?, max?}`, keys are
  * the stable identifiers the frontend maps to i18n labels and to the

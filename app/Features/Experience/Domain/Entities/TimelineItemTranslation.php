@@ -17,7 +17,7 @@ use InvalidArgumentException;
  * Invariants:
  * - `short_description` is mandatory — it is the only required column
  *   (content-management.md:659, the DB column is NOT NULL);
- * - `position` is mandatory too (B174 — the DB column is NOT NULL);
+ * - `position` is mandatory too (ADR-0024 — the DB column is NOT NULL);
  * - the company pair is all-or-none: when any of company name / company
  *   country is set, both must be set (an empty country string is
  *   normalized to null);

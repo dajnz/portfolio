@@ -24,11 +24,11 @@ use function sprintf;
  * State transitions (backup.md:153-157):
  * - `pending → processing` — the create/restore job picked up the record;
  * - `processing → completed` — the archive is uploaded (create) or the
- *   restore finished (A1); the archive path and the content summary
+ *   restore finished (ADR-0018); the archive path and the content summary
  *   are stamped on the entity;
  * - `pending | processing → failed` — an error occurred;
  * - `completed → processing` — an existing backup being re-restored
- *   (A1: the restore job mirrors the create lifecycle on the same
+ *   (ADR-0018: the restore job mirrors the create lifecycle on the same
  *   record, which the UI polls via `GET /admin/backups/{backup}/status`).
  *
  * `completed_at` is set when the record completes **or** fails
@@ -175,7 +175,7 @@ final class Backup extends BaseEntity
 
     /**
      * `pending → processing` for a fresh backup, `completed → processing`
-     * when an existing backup is re-restored (A1). Clears the previous
+     * when an existing backup is re-restored (ADR-0018). Clears the previous
      * completion stamp on re-processing.
      */
     public function startProcessing(): void

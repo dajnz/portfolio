@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     /**
      * The frontend now sends the page context with every analytics
-     * event (B289): the page type and the entity id (blog article /
+     * event (ADR-0017): the page type and the entity id (blog article /
      * project detail) the event happened on — replacing the backend
      * URL matching for the blog/projects report attribution. The
      * columns are nullable: pages without an entity (landing, lists,

@@ -6,7 +6,7 @@
  * tailwind-preset.js` (the committed visual-reference authority — the
  * mockup file itself is CommonJS and cannot be imported from this ESM
  * config, which is a `"type": "module"` project; same copy-mirroring
- * approach as `resources/css/public-tokens.css`, see B83). Keep the two
+ * approach as `resources/css/public-tokens.css`, see ADR-0023). Keep the two
  * in sync.
  *
  * Note: Tailwind 4 no longer supports v3-style `darkMode: 'class'` from

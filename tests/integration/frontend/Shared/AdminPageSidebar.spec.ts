@@ -76,7 +76,7 @@ describe('AdminPageSidebar', () => {
         expect(dashboard.attributes('href')).toBe('/admin');
     });
 
-    it('highlights the dashboard item only on the exact /admin route (B175)', () => {
+    it('highlights the dashboard item only on the exact /admin route (ADR-0024)', () => {
         const active = mountSidebar({ dashboard: DASHBOARD, active_route: '/admin' });
         expect(active.get('[data-testid="admin-sidebar-dashboard"]').classes()).toContain(
             'bg-sidebar-active',

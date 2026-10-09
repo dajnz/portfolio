@@ -12,7 +12,7 @@ use Illuminate\Cache\Repository;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * The shared content pipeline (B23, content-management.md:466-481):
+ * The shared content pipeline (ADR-0008, content-management.md:466-481):
  * safe-mode CommonMark (raw HTML escaped, unsafe links blocked), the
  * `> [!TYPE]` callouts, the server-highlighted code blocks with the
  * `data-code-block` markers and the heading anchor ids — plus the
@@ -28,7 +28,7 @@ describe('MarkdownContentPipeline', function (): void {
             ->not->toContain('<img src=x');
     });
 
-    it('renders the B231 editor marks: strikethrough, underline, sub and sup', function (): void {
+    it('renders the ADR-0024 editor marks: strikethrough, underline, sub and sup', function (): void {
         $html = pipeline()->render(
             '~~struck~~ ++underlined++ <sub>down</sub> <sup>up</sup>'.PHP_EOL
         );
@@ -100,7 +100,7 @@ describe('MarkdownContentPipeline', function (): void {
             ->and($html)->toContain('<code>');
     });
 
-    it('B270: auto-detects the language of language-less fences', function (): void {
+    it('ADR-0008: auto-detects the language of language-less fences', function (): void {
         $html = pipeline()->render('```'.PHP_EOL.'const answer = 42;'.PHP_EOL.'```');
 
         expect($html)->toContain('data-language="javascript"')
@@ -183,7 +183,7 @@ describe('MarkdownContentPipeline', function (): void {
             ->and($first)->toContain('<h1 id="hello">Hello</h1>');
     });
 
-    it('B270-regression: a content change within the same second never serves the old render', function (): void {
+    it('ADR-0008-regression: a content change within the same second never serves the old render', function (): void {
         // The 8.2 `updated_at`-stamp key collided when two saves
         // landed in the same second — the second render hit the first
         // save's cached HTML. The content hash in the key rotates

@@ -1,4 +1,4 @@
-<!-- SettingsPage (admin-section-components.md:1263-1322, admin-section-ui.md:431-441, settings.html) — tabbed settings form: General (Site Status / Languages / Content settings / Pagination / Data Retention), Mail (API Connection with the B20/B125 Test Connection probe + Notifications), Feature Flags (FeatureFlagToggle rows, PATCH endpoint), Analytics (Reports). Each form tab submits a grouped `{ settings: { key: value } }` payload to PUT /admin/settings. -->
+<!-- SettingsPage (admin-section-components.md:1263-1322, admin-section-ui.md:431-441, settings.html) — tabbed settings form: General (Site Status / Languages / Content settings / Pagination / Data Retention), Mail (API Connection with the ADR-0016 Test Connection probe + Notifications), Feature Flags (FeatureFlagToggle rows, PATCH endpoint), Analytics (Reports). Each form tab submits a grouped `{ settings: { key: value } }` payload to PUT /admin/settings. -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import FeatureFlagToggle, {
@@ -565,7 +565,7 @@ async function testMail(): Promise<void> {
         </template>
 
         <template v-else-if="activeTab === 'mail'">
-          <!-- ══ API Connection (B125) ══ -->
+          <!-- ══ API Connection (ADR-0016) ══ -->
           <fieldset class="space-y-4">
             <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
               {{ t('admin.settings.api_connection') }}

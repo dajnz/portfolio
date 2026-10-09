@@ -16,7 +16,7 @@ use Illuminate\Support\ServiceProvider;
  * table-based (the shared data contract — the same tables the resume's
  * query-builder reads touch) rather than per-model-class: the source
  * models belong to other features and must not import Resume classes
- * (B11). Eloquent dispatches string events (`eloquent.saved: Class`)
+ * (ADR-0003). Eloquent dispatches string events (`eloquent.saved: Class`)
  * unless a model declares `dispatchesEvents`, hence the wildcard
  * patterns. Batched query-builder writes (reorders) fire no model events
  * — their `updated_at` bumps rotate the content hash instead (see the

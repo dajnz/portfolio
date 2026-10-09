@@ -6,7 +6,7 @@ export interface Cursor {
 export type CursorNavigationPayload = { cursor: Cursor } | { page: number };
 
 /**
- * Builds the query params for a cursor-pagination navigation (B72): a
+ * Builds the query params for a cursor-pagination navigation (ADR-0010): a
  * `page` jump produces `?page=N`; a cursor navigation produces
  * `cursor[id]` + `cursor[sort_value]` (when present), plus
  * `cursor[before]=1` when the cursor equals the list's `cursors.first`

@@ -18,18 +18,18 @@ use App\Features\Projects\Domain\Exceptions\ProjectTagAlreadyAttachedException;
  * tag attach/detach with the persisted `tech_tags_count` maintained by
  * the pivot model's Eloquent events.
  *
- * Slug support: `takenSlugs()` serves the A3 collision-suffix
+ * Slug support: `takenSlugs()` serves the ADR-0006 collision-suffix
  * resolution (content-management.md:441-452 — including trashed rows,
- * B29), `slugsOfProjects()`/`slugsOccupiedByActive()` serve the
- * restore uniqueness re-check (B29) in batch, and `currentSlugForOld()`
- * the public old-slug 301 (B5/B6). The repository upserts `old_slugs`
+ * ADR-0006), `slugsOfProjects()`/`slugsOccupiedByActive()` serve the
+ * restore uniqueness re-check (ADR-0006) in batch, and `currentSlugForOld()`
+ * the public old-slug 301 (ADR-0006). The repository upserts `old_slugs`
  * rows when a slug changes (database.md:451) and on force-delete
  * (content-management.md:905). Deletes are instance-based so the
- * sitemap invalidation events fire (B64); bulk operations run in
+ * sitemap invalidation events fire (ADR-0022); bulk operations run in
  * batched queries with a single invalidation;
  * `forceDelete()` cleans the project's RustFS files (preview image +
  * screenshots — content-management.md:822-828, wired in the model per
- * B66).
+ * ADR-0012).
  */
 interface ProjectRepositoryInterface
 {
@@ -60,7 +60,7 @@ interface ProjectRepositoryInterface
 
     /**
      * The slugs of the given projects (soft-deleted included) — the
-     * batch input of the restore uniqueness re-check (B29).
+     * batch input of the restore uniqueness re-check (ADR-0006).
      *
      * @param  int[]  $ids
      * @return array<int, string>  Keyed by project id.
@@ -70,7 +70,7 @@ interface ProjectRepositoryInterface
     /**
      * The subset of the given slugs occupied by NON-trashed projects —
      * soft-deleted entities occupy their slug, so the restore check is
-     * against active rows only (B29, content-management.md:901).
+     * against active rows only (ADR-0006, content-management.md:901).
      *
      * @param  string[]  $slugs
      * @return string[]
@@ -79,7 +79,7 @@ interface ProjectRepositoryInterface
 
     /**
      * Existing slug values matching the base prefix (soft-deleted
-     * included) — the input of the A3 numeric collision-suffix
+     * included) — the input of the ADR-0006 numeric collision-suffix
      * resolution (content-management.md:441-452).
      *
      * @return string[]
@@ -107,11 +107,11 @@ interface ProjectRepositoryInterface
     /**
      * Inserts or updates the aggregate in one transaction: the base
      * row, the translation sync (upsert by locale, active-locale
-     * reconciliation), the screenshot reconcile (A2 — rows with IDs
+     * reconciliation), the screenshot reconcile (ADR-0005 — rows with IDs
      * updated, new rows created, absent rows deleted with their RustFS
      * files), the detail-item reconcile (same, no files) and the
      * tech-tag pivot sync (so the `tech_tags_count` stays consistent).
-     * A slug change records the old slug in `old_slugs` (B6).
+     * A slug change records the old slug in `old_slugs` (ADR-0006).
      */
     public function save(Project $project): void;
 
@@ -144,7 +144,7 @@ interface ProjectRepositoryInterface
     /**
      * Sets `is_published`; `published_at` is auto-set to `now()` on
      * the FIRST publish only (immutable thereafter — database.md:210).
-     * A single sitemap invalidation covers the whole batch (B64).
+     * A single sitemap invalidation covers the whole batch (ADR-0022).
      *
      * @param  int[]  $ids
      */

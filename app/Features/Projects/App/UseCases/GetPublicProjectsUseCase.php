@@ -85,7 +85,7 @@ final class GetPublicProjectsUseCase
     /**
      * The JSON dual-response variant (routes.md:199-212) — length-aware
      * pagination, FTS search, tag intersect and the date sort with the
-     * direction variant; raw field values without highlights (B16).
+     * direction variant; raw field values without highlights (ADR-0007).
      */
     public function jsonPage(ProjectListQuery $query): PaginatedProjectListDto
     {

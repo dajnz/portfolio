@@ -12,7 +12,7 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * `analytics_reports` persistence (database.md:531-548, B290) on real
+ * `analytics_reports` persistence (database.md:531-548, ADR-0017) on real
  * PostgreSQL: the (metric, span, dimension, period_start, period_end)
  * upsert — incl. the NULL dimension rows (NULLS NOT DISTINCT unique
  * key) — and the dashboard read shapes: whole-time blocks, last-N

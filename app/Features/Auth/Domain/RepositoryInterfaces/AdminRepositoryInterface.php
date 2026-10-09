@@ -22,7 +22,7 @@ interface AdminRepositoryInterface
 
     /**
      * Whether any admin account is linked with GitHub (`github_id` set).
-     * The login page's GitHub button requires it (B127) — without a
+     * The login page's GitHub button requires it (ADR-0013) — without a
      * linked account the OAuth login flow can only fail.
      */
     public function hasGithubLinkedAdmin(): bool;

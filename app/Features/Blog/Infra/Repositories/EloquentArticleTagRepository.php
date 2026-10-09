@@ -16,9 +16,9 @@ use Illuminate\Support\Facades\DB;
 /**
  * Eloquent-backed repository for the article tags: entity-based CRUD
  * over `article_tags` (hard deletes — the `article_tag_pivot` rows
- * cascade), the A3 slug-collision probe and the tag↔skill name
+ * cascade), the ADR-0006 slug-collision probe and the tag↔skill name
  * cross-check (the case-insensitive probe against `skills` — content-
- * management.md:695, B130/B132). The tag translation rows are synced
+ * management.md:695, ADR-0002). The tag translation rows are synced
  * batched (the query-builder writes bypass the model events — none are
  * needed here); ACTIVE-locale rows absent from the entity are deleted
  * (rows of disabled locales preserved — content-management.md:419).

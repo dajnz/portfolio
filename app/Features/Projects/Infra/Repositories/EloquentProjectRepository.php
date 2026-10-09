@@ -36,8 +36,8 @@ use Illuminate\Support\Facades\DB;
  * the translation sync (batched delete + insert with the locale
  * `search_vector`s rebuilt in one statement — the per-row `saved`
  * events are replaced by the equivalent batch), the screenshot
- * reconcile (A2 — upsert by id, batch insert, deleted absent rows),
- * the detail-item reconcile (A2, translations batched) and the
+ * reconcile (ADR-0005 — upsert by id, batch insert, deleted absent rows),
+ * the detail-item reconcile (ADR-0005, translations batched) and the
  * tech-tag pivot sync (batch insert + the persisted `tech_tags_count`
  * adjusted explicitly — the same explicit-decrement pattern as
  * `detachTag()`). No query runs in a loop.
@@ -49,7 +49,7 @@ use Illuminate\Support\Facades\DB;
  * The bulk lifecycle ops (delete/restore/force-delete/publication)
  * run as batched queries with a single sitemap invalidation — the
  * per-instance `saved`/`deleted` events fire on the single-item paths
- * only (B64).
+ * only (ADR-0022).
  */
 final class EloquentProjectRepository implements ProjectRepositoryInterface
 {
@@ -198,7 +198,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
             // events, which used to invalidate the sitemap on EVERY
             // save (seo.md:219 — translation changes are reflected in
             // lastmod); the batch keeps that unconditional
-            // invalidation once (B64).
+            // invalidation once (ADR-0022).
             app(SitemapService::class)->invalidate();
         });
     }
@@ -206,7 +206,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     public function delete(int $id): void
     {
         // Instance delete — the model's `deleted` event (sitemap
-        // invalidation, B64) fires only for instance-based deletes.
+        // invalidation, ADR-0022) fires only for instance-based deletes.
         ProjectModel::query()->find($id)?->delete();
     }
 
@@ -223,7 +223,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
 
         if ($model !== null) {
             // Instance restore — `restore()` saves the model, firing
-            // the `saved` event (sitemap invalidation, B64).
+            // the `saved` event (sitemap invalidation, ADR-0022).
             $model->restore();
         }
     }
@@ -383,7 +383,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
 
     /**
      * The row being replaced on update — needed for the old-slug
-     * record (B6).
+     * record (ADR-0006).
      */
     private function existingRow(Project $project): ?ProjectModel
     {
@@ -471,7 +471,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     }
 
     /**
-     * The screenshot reconcile (A2): rows with an existing id are
+     * The screenshot reconcile (ADR-0005): rows with an existing id are
      * upserted, new entries are inserted in one batch, and DB rows
      * absent from the submitted set are deleted — all in batched
      * queries. The obsolete RustFS files are NOT this repository's
@@ -480,7 +480,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     private function syncScreenshots(int $projectId, Project $project): void
     {
         // The pre-existing id set, captured BEFORE the upserts — the
-        // A2 cleanup must only touch rows that existed before this
+        // ADR-0005 cleanup must only touch rows that existed before this
         // sync (new rows carry id 0 and receive fresh ids; comparing
         // the submitted ids against the DB would delete them).
         $preExistingIds = $this->screenshotIdsOf($projectId);
@@ -556,7 +556,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     }
 
     /**
-     * The detail-item reconcile (A2): rows with an existing id are
+     * The detail-item reconcile (ADR-0005): rows with an existing id are
      * upserted, new entries are inserted (their fresh ids drive the
      * translation rows), the per-locale translation rows are replaced
      * in two batched queries, and DB rows absent from the submitted
@@ -768,7 +768,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     }
 
     /**
-     * The single-statement `featured_sort_order` reorder (A4): each id
+     * The single-statement `featured_sort_order` reorder (ADR-0005): each id
      * is written as its zero-indexed position in the submitted array.
      *
      * @param  int[]  $ids
@@ -785,7 +785,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     }
 
     /**
-     * Records a slug change in `old_slugs` (B6) — the upsert
+     * Records a slug change in `old_slugs` (ADR-0006) — the upsert
      * semantics of database.md:451: a slug reverting to a previously
      * recorded value re-points the existing row instead of violating
      * the `(old_slug, entity_type)` unique constraint.

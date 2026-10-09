@@ -65,7 +65,7 @@ describe('DataTable', () => {
         expect(wrapper.text()).toContain('Actions');
     });
 
-    it('cycles a sortable column through asc and desc only (B175)', async () => {
+    it('cycles a sortable column through asc and desc only (ADR-0024)', async () => {
         const wrapper = mountTable();
         const header = wrapper.get('th button');
 

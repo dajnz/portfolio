@@ -115,7 +115,7 @@ function onSortClick(column: ColumnDefinition): void {
     } else if (props.sort_direction === 'asc') {
         emit('update:sort_direction', 'desc');
     } else {
-        // B175: no unsorted state — a sortable column cycles only
+        // ADR-0024: no unsorted state — a sortable column cycles only
         // asc → desc → asc (the user dropped the third state).
         emit('update:sort_direction', 'asc');
     }

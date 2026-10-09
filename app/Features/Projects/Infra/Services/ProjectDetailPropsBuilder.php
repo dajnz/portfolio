@@ -14,7 +14,7 @@ use App\Features\Projects\App\DTOs\TechWriteupLinkDto;
  * (`ProjectDetailData` + `SeoProps` — projects.yaml, shared.yaml) from
  * the app-layer data DTOs: the per-locale maps are resolved for the
  * request locale (with the `en` fallback), the pipeline-rendered
- * bodies (B23) are passed through as-is and the nested media rows are
+ * bodies (ADR-0008) are passed through as-is and the nested media rows are
  * mapped into the documented shapes. Shared by the public detail and
  * the signed preview controllers.
  */

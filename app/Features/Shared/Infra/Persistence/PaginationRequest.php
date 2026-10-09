@@ -34,7 +34,7 @@ final readonly class PaginationRequest
      * @param  string[]  $allowedSortColumns  Columns the `sort_column` request param may select
      *                                        beyond the id column (which is always allowed).
      * @param  string|null  $defaultSortColumn  Sort column used when the request carries no
-     *                                          `sort_column` (default: the id column, B72).
+     *                                          `sort_column` (default: the id column, ADR-0010).
      */
     public static function fromRequest(Request $request, array $allowedSortColumns, string $idColumn, ?string $defaultSortColumn = null): self
     {

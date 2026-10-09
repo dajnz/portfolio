@@ -8,7 +8,7 @@ use App\Features\Analytics\Infra\Models\AnalyticsReportModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Test factory for `analytics_reports` (B21). The default is a
+ * Test factory for `analytics_reports` (ADR-0029). The default is a
  * whole-time global block row (`span = 'all'`, dimension NULL) — pass
  * explicit values for series/ranking rows.
  */

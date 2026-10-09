@@ -7,8 +7,8 @@ namespace App\Features\Analytics\Domain\ValueObjects;
 use InvalidArgumentException;
 
 /**
- * The client identifiers carried by every analytics event (B289):
- * the session id, the anonymized IP hash (keyed HMAC-SHA256, B4) and
+ * The client identifiers carried by every analytics event (ADR-0017):
+ * the session id, the anonymized IP hash (keyed HMAC-SHA256, ADR-0017) and
  * the User-Agent. The validation of these properties lives here (they
  * moved out of `AnalyticsEvent`).
  */

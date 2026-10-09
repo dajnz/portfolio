@@ -13,7 +13,7 @@ use InvalidArgumentException;
 /**
  * A visitor reaction to an article (database.md:406-420): the
  * server-generated keyed-HMAC fingerprint (`hash_hmac('sha256',
- * ip.'|'.user_agent, key)` — content-management.md:212, B4), the
+ * ip.'|'.user_agent, key)` — content-management.md:212, ADR-0017), the
  * reaction type (`like`/`dislike` CHECK) and the first-reaction
  * timestamp (upsert semantics — `created_at` only, no `updated_at`).
  * One reaction per `(article_id, fingerprint)` pair.

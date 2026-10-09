@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * `POST /admin/settings/test-mail` — the Mail tab's "Test Connection"
- * probe (B20/B125). Accepts the current Mail-tab values as a grouped
+ * probe (ADR-0016). Accepts the current Mail-tab values as a grouped
  * `{ settings: { ... } }` payload; only the five mail keys are allowed
  * (the probe never persists anything).
  */

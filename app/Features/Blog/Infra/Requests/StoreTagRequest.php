@@ -13,10 +13,10 @@ use Illuminate\Support\Str;
  * `POST /admin/tags` / `PUT /admin/tags/{tag}` (content-management.md:
  * 690-695): the shared slug (kebab-case regex, max 100, unique across
  * `article_tags` with the current tag ignored on update — except the
- * auto-generated value, resolved server-side per A3) and the per-locale
+ * auto-generated value, resolved server-side per ADR-0006) and the per-locale
  * `name` (required per ACTIVE locale, max 100). The tag↔skill name
  * cross-check does NOT run here — it is the store/update use cases'
- * repository probe (B130/B132), surfacing a `name` validation error.
+ * repository probe (ADR-0002), surfacing a `name` validation error.
  */
 final class StoreTagRequest extends FormRequest
 {
@@ -78,7 +78,7 @@ final class StoreTagRequest extends FormRequest
     }
 
     /**
-     * A3: the submitted slug is "auto-generated" when it equals the
+     * ADR-0006: the submitted slug is "auto-generated" when it equals the
      * naive generation of the EN name or the currently stored slug on
      * update — such values skip the uniqueness rejection (the use
      * case re-resolves them with a collision suffix).

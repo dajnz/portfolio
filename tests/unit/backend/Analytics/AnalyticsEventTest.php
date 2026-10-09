@@ -10,7 +10,7 @@ use DateTimeImmutable;
 use Tests\Support\AnalyticsEventFixture;
 
 /**
- * The shared event state (B289): the client identifiers and the page
+ * The shared event state (ADR-0017): the client identifiers and the page
  * context are carried as their VOs (their validation lives there) —
  * the base exposes the delegating getters and the event-type identity.
  */

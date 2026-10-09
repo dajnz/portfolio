@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
  * NULL dimension rows, which PostgreSQL treats as distinct by default
  * and would let duplicate global rows through (the `NULLS NOT
  * DISTINCT` unique constraints below prevent that) — and the removed
- * `analytics_report_frequency` setting (B291).
+ * `analytics_report_frequency` setting (ADR-0017).
  */
 describe('Analytics schema', function (): void {
     it('rejects an analytics_reports span outside the CHECK list', function (): void {
@@ -85,7 +85,7 @@ describe('Analytics schema', function (): void {
         expect(DB::table('analytics_daily_metrics')->count())->toBe(2);
     });
 
-    it('no longer seeds the analytics_report_frequency setting (B291)', function (): void {
+    it('no longer seeds the analytics_report_frequency setting (ADR-0017)', function (): void {
         $this->seed(\Database\Seeders\SettingsSeeder::class);
 
         expect(DB::table('settings')->where('key', 'analytics_report_frequency')->exists())->toBeFalse();

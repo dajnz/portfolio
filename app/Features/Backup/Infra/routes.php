@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 /*
  * Admin backup routes (routes.md:143-151,173), gated by the Auth
  * middleware chain. The restore/upload flows dispatch the async
- * `RestoreBackupJob` (A1) — the UI polls the status endpoint.
+ * `RestoreBackupJob` (ADR-0018) — the UI polls the status endpoint.
  */
 
 Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function (): void {

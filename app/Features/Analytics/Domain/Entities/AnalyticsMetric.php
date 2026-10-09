@@ -10,7 +10,7 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * One row of `analytics_daily_metrics` (database.md:513-529, B290):
+ * One row of `analytics_daily_metrics` (database.md:513-529, ADR-0017):
  * the per-day aggregate of a metric for one dimension — NULL dimension
  * = global, otherwise the entity key (page URL, `article:{id}`,
  * `project:{id}`, CTA target). `value` + `samples` store the weighted

@@ -20,7 +20,7 @@ use Inertia\ResponseFactory;
  * `GET /` and `GET /{locale}` (routes.md:22,50) — the landing page
  * (public-section-ui.md:56-101): about block, skills, featured projects,
  * contacts, SEO props (seo.md:33-118: Person + WebSite JSON-LD) and the
- * console greeting data (B80). The `{locale}` path constraint
+ * console greeting data (ADR-0023). The `{locale}` path constraint
  * (`en|ru`) is enforced at route registration.
  */
 final class LandingController

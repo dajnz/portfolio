@@ -19,7 +19,7 @@ use DateTimeImmutable;
  * backoff (authentication.md:210-237). Failed attempts atomically increment
  * `totp_failed_attempts`; the lock tiers are evaluated from the resulting
  * count by `AdminTimedOtp::lockExpiryFor()`. Recovery-code misses count as
- * failed TOTP attempts (B26).
+ * failed TOTP attempts (ADR-0014).
  */
 final class VerifyTotpUseCase extends BaseUseCase
 {

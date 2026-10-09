@@ -7,7 +7,7 @@ namespace App\Features\TechSkills\Infra\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * `POST /admin/skills/reorder` — the A4 skills payload
+ * `POST /admin/skills/reorder` — the ADR-0005 skills payload
  * `{ "skills": [{ "id", "skill_group_id" }] }`: skill IDs in the new
  * drag order, each carrying its (possibly new) group. The zero-indexed
  * array position becomes `sort_order` and the group assignment is

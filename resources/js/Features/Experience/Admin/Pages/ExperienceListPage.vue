@@ -1,4 +1,4 @@
-<!-- ExperienceListPage (admin-section-ui.md:355-361, admin-section-components.md:1055-1069, experience.html) — cursor-paginated experience management list: search by content (q), "Show trashed" toggle, sortable Dates column (started_at asc/desc — B72 sort params), DataTable with selectable rows + trashed styling (per the component tree; no bulk bar — routes.md defines no bulk endpoints for experience, user-approved 2026-08-08), per-row Edit / Restore / Delete / Delete Permanently actions, ConfirmationDialog deletes and the shared empty/no-results states. -->
+<!-- ExperienceListPage (admin-section-ui.md:355-361, admin-section-components.md:1055-1069, experience.html) — cursor-paginated experience management list: search by content (q), "Show trashed" toggle, sortable Dates column (started_at asc/desc — ADR-0010 sort params), DataTable with selectable rows + trashed styling (per the component tree; no bulk bar — routes.md defines no bulk endpoints for experience, user-approved 2026-08-08), per-row Edit / Restore / Delete / Delete Permanently actions, ConfirmationDialog deletes and the shared empty/no-results states. -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseBadge from '@shared-admin/AdminBaseBadge.vue';
@@ -100,7 +100,7 @@ const rows = computed<Array<Record<string, unknown>>>(() =>
 
 // Trashed rows are styled muted/italic (the trashed view lists only
 // soft-deleted items). No selection checkboxes — the list has no bulk
-// operations (B168, B172).
+// operations (ADR-0024).
 const trashedIds = computed<Array<number | string>>(() =>
     showTrashed.value ? props.items.map((item) => item.id) : [],
 );
@@ -206,7 +206,7 @@ function openCreate(): void {
     router.visit('/admin/experience/create');
 }
 
-// Row click switches to the edit form (B172 — the dedicated Edit button
+// Row click switches to the edit form (ADR-0024 — the dedicated Edit button
 // was dropped). Trashed rows are NOT editable (the backend's edit lookup
 // excludes soft-deleted items — a trashed row click would 404), so the
 // navigation only applies to the live view; the actions controls stop
@@ -279,7 +279,7 @@ function formatDate(iso: string): string {
     return `${day}.${month}.${year}`;
 }
 
-// Full dates (dd.mm.yyyy, B175) — the year-month form is for the public
+// Full dates (dd.mm.yyyy, ADR-0024) — the year-month form is for the public
 // timeline cards only.
 function formatDates(row: TimelineItemRow): string {
     const started = formatDate(row.started_at);
@@ -307,7 +307,7 @@ function formatDates(row: TimelineItemRow): string {
         {{ t('admin.experience.title') }}
       </h1>
 
-      <!-- Sticky filter/action bar (B174/B175): the search, the Show
+      <!-- Sticky filter/action bar (ADR-0024): the search, the Show
            trashed toggle and the Add Experience button share ONE line —
            no wrapping between the search and its checkbox. -->
       <AdminStickyActionBar :test_id="`${props.test_id}-sticky-bar`">
@@ -419,7 +419,7 @@ function formatDates(row: TimelineItemRow): string {
         </template>
         <template #row-actions="{ row }">
           <!-- @click.stop — the actions must not bubble into the row's
-               edit-navigation click handler (B172). -->
+               edit-navigation click handler (ADR-0024). -->
           <div
             class="flex items-center justify-end gap-1"
             @click.stop

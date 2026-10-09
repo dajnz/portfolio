@@ -10,7 +10,7 @@ use League\CommonMark\Parser\InlineParserContext;
 use League\CommonMark\Node\Inline\Text;
 
 /**
- * The `<sub>…</sub>` inline parser of the content pipeline (B231).
+ * The `<sub>…</sub>` inline parser of the content pipeline (ADR-0024).
  * Registered above the core HtmlInline parser (priority 10 vs 0), so
  * the tag pair becomes a structured {@see Subscript} node instead of
  * an escaped HtmlInline. The inner content is plain escaped text —

@@ -29,9 +29,9 @@ use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface
  *
  * Project references (locale-resolved titles/slugs + the project's
  * tech tags) come from query-builder reads inside the Experience Infra
- * (B11); the per-card tag union is assembled by the controller from the
+ * (ADR-0003); the per-card tag union is assembled by the controller from the
  * item's own {@see TimelineItem::toTechTags()} and the project's tags.
- * The page-level flags ride along: `has_projects` (the A10 nav
+ * The page-level flags ride along: `has_projects` (the ADR-0025 nav
  * condition) and the about-info name for the SEO title (seo.md:43) —
  * both query-builder reads inside the same Infra repository, so the
  * controller stays query-free.

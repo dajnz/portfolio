@@ -12,7 +12,7 @@ use DateTimeImmutable;
 /**
  * In-memory timeline-item repository fake for unit tests. Implements
  * the continuity lookups with the same `(started_at, id)` tuple
- * semantics as the Eloquent repository (B175): a new item (no
+ * semantics as the Eloquent repository (ADR-0024): a new item (no
  * `$ignoreId`) follows every same-start item (it will hold the max id);
  * an update excludes itself.
  */

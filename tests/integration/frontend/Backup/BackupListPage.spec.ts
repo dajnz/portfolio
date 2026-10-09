@@ -459,7 +459,7 @@ describe('BackupListPage', () => {
 
         // The redirect lands (worker-lag: the row still completed) — the
         // page polls the submitted record; processing → completed fires
-        // the B36 success toast.
+        // the ADR-0018 success toast.
         const options = routerMock.post.mock.calls[0][2] as { onSuccess: () => void };
         fetchMock.mockImplementation((url: string) => {
             if (url.includes('/status')) {

@@ -16,7 +16,7 @@ export HOST_GID = $(shell id -g)
 # runs a one-off MinIO mc container on the compose network, using the RustFS
 # credentials from the project .env (same approach as the CI e2e job).
 # Pinned on quay.io: MinIO removed the `minio/mc` Docker Hub repository
-# (pulls now fail with "access denied" — B335).
+# (pulls now fail with "access denied" — ADR-0027).
 MC = quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
 
 # The `portfolio` bucket gets a public-read ("download") policy — public asset

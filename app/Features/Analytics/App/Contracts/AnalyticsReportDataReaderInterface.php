@@ -8,7 +8,7 @@ use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
 use DateTimeImmutable;
 
 /**
- * The cross-feature data the analytics pipeline needs (B11/B292): the
+ * The cross-feature data the analytics pipeline needs (ADR-0003/ADR-0017): the
  * feedback submission timestamps (the `feedback_submissions` metric —
  * feedback rows are never pruned, so the metric can be rebuilt for the
  * full history) and the EN titles of the ranking dimensions (11.3.4 —

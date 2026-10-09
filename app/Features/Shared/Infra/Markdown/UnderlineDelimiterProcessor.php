@@ -10,7 +10,7 @@ use League\CommonMark\Node\Inline\AbstractStringContainer;
 
 /**
  * The `++text++` underline delimiter processor of the content pipeline
- * (B231) — the same scheme as the strike processor, with the `+`
+ * (ADR-0024) — the same scheme as the strike processor, with the `+`
  * delimiter and a minimum run of 2. Runs of other lengths stay
  * literal (no pairing), so "C++" and friends are never consumed.
  */

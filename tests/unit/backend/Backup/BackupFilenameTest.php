@@ -41,7 +41,7 @@ describe('BackupFilename', function (): void {
             ->toBe('backup-import-2026-07-09-020000-k3--disaster-key-a1b2c3d4.zip');
     });
 
-    it('keeps the timestamp-second precision of the B18 convention', function (): void {
+    it('keeps the timestamp-second precision of the ADR-0018 convention', function (): void {
         $createdAt = new DateTimeImmutable('2026-07-09 02:00:59');
 
         expect(BackupFilename::for($createdAt, 1, 'initial-key'))

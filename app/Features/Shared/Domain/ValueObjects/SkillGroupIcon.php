@@ -8,7 +8,7 @@ use InvalidArgumentException;
 
 /**
  * Value object: a skill group icon (`skill_groups.icon`) in the
- * `heroicons:*` format (B48 — e.g. `heroicons:server`). Immutable; the
+ * `heroicons:*` format (ADR-0002 — e.g. `heroicons:server`). Immutable; the
  * format invariant lives here, not in the consuming entities.
  */
 final readonly class SkillGroupIcon

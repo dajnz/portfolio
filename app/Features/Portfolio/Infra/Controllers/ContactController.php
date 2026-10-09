@@ -20,7 +20,7 @@ use Inertia\ResponseFactory;
 
 /**
  * Contacts admin surface (routes.md:76-80, admin-section-ui.md:304-308):
- * cursor-paginated reorderable list + CRUD + the A4 `{ids}` reorder.
+ * cursor-paginated reorderable list + CRUD + the ADR-0005 `{ids}` reorder.
  * One action → one use case; the list props are mapped from the
  * paginator page here.
  */

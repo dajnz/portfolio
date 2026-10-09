@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Bus;
 /**
  * The queue-backed job dispatcher behind the
  * `BackupJobDispatcherInterface`: dispatches `CreateBackupJob`
- * (backup.md:376) and `RestoreBackupJob` (A1's async restore shell).
+ * (backup.md:376) and `RestoreBackupJob` (ADR-0018's async restore shell).
  */
 final class QueueBackupJobDispatcher implements BackupJobDispatcherInterface
 {
