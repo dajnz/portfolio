@@ -24,6 +24,7 @@ final readonly class BlogSeoDto
 {
     /**
      * @param  array<int, array<string, mixed>>  $jsonLd
+     * @param  array{published_time: ?string, author: ?string, tags: array<int, string>}|null  $article
      */
     public function __construct(
         public string $title,
@@ -33,6 +34,7 @@ final readonly class BlogSeoDto
         public ?string $ogImage = null,
         public array $jsonLd = [],
         public ?string $robots = null,
+        public ?array $article = null,
     ) {
     }
 
@@ -69,16 +71,35 @@ final readonly class BlogSeoDto
         array $skillNames,
         ?DateTimeImmutable $publishedAt,
         ?DateTimeImmutable $updatedAt,
+        ?string $sitePhotoPath = null,
     ): self {
         $canonical = self::baseUrl().'/blog/'.$slug;
+        $imageUrl = $leadImagePath === null ? null : self::assetUrl($leadImagePath);
+        $logoUrl = $sitePhotoPath === null ? null : self::assetUrl($sitePhotoPath);
 
         return new self(
             title: __('seo.title_blog_article', ['article_title' => $title, 'name' => $siteName]),
             description: $description,
             canonicalUrl: $canonical,
             ogType: 'article',
-            ogImage: $leadImagePath === null ? null : self::assetUrl($leadImagePath),
-            jsonLd: self::jsonLd($title, $description, $canonical, $siteName, $tagNames, $skillNames, $publishedAt, $updatedAt),
+            ogImage: $imageUrl,
+            jsonLd: self::jsonLd(
+                $title,
+                $description,
+                $canonical,
+                $siteName,
+                $tagNames,
+                $skillNames,
+                $publishedAt,
+                $updatedAt,
+                $imageUrl,
+                $logoUrl,
+            ),
+            article: [
+                'published_time' => $publishedAt?->format('c'),
+                'author' => $siteName === '' ? null : $siteName,
+                'tags' => array_values(array_unique(array_merge($tagNames, $skillNames))),
+            ],
         );
     }
 
@@ -96,7 +117,21 @@ final readonly class BlogSeoDto
         array $skillNames,
         ?DateTimeImmutable $publishedAt,
         ?DateTimeImmutable $updatedAt,
+        ?string $imageUrl,
+        ?string $logoUrl,
     ): array {
+        $publisher = [
+            '@type' => 'Organization',
+            'name' => $siteName,
+        ];
+
+        if ($logoUrl !== null) {
+            $publisher['logo'] = [
+                '@type' => 'ImageObject',
+                'url' => $logoUrl,
+            ];
+        }
+
         $posting = [
             '@context' => 'https://schema.org',
             '@type' => 'BlogPosting',
@@ -108,12 +143,13 @@ final readonly class BlogSeoDto
                 '@type' => 'Person',
                 'name' => $siteName,
             ],
-            'publisher' => [
-                '@type' => 'Organization',
-                'name' => $siteName,
-            ],
+            'publisher' => $publisher,
             'keywords' => array_values(array_unique(array_merge($tagNames, $skillNames))),
         ];
+
+        if ($imageUrl !== null) {
+            $posting['image'] = $imageUrl;
+        }
 
         if ($publishedAt !== null) {
             $posting['datePublished'] = $publishedAt->format('c');

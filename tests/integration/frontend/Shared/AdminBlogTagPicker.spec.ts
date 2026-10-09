@@ -170,17 +170,22 @@ describe('AdminBlogTagPicker', () => {
     });
 
     it('shows the error state and retries', async () => {
-        vi.mocked(fetch)
-            .mockResolvedValueOnce(new Response('nope', { status: 500 }))
-            .mockResolvedValueOnce(new Response(JSON.stringify({ data: TAGS }), { status: 200 }));
+        // The GET retry policy (error-handling.md:149-160) retries 5xx
+        // responses twice (1 s + 2 s) — keep the mock failing until the
+        // manual retry button flips it to success.
+        const fetchMock = vi
+            .mocked(fetch)
+            .mockResolvedValue(new Response('nope', { status: 500 }));
         const wrapper = mountTagPicker();
 
         await wrapper.get('[data-testid="blog-tag-picker-input"]').setValue('lar');
-        await vi.advanceTimersByTimeAsync(300);
+        await vi.advanceTimersByTimeAsync(300 + 1000 + 2000);
 
-        await vi.waitFor(() => {
-            expect(wrapper.text()).toContain('Could not load tags.');
-        });
+        expect(wrapper.text()).toContain('Could not load tags.');
+
+        fetchMock.mockResolvedValue(
+            new Response(JSON.stringify({ data: TAGS }), { status: 200 }),
+        );
 
         await wrapper.get('[data-testid="blog-tag-picker-retry"]').trigger('click');
 

@@ -346,6 +346,65 @@ describe('ProjectFormPage', () => {
         ]);
     });
 
+    it('reorders screenshots via the keyboard move buttons (accessibility.md:35-44)', async () => {
+        putMock.mockResolvedValue({});
+        const wrapper = mountForm({
+            project: {
+                ...PROJECT,
+                screenshots: [
+                    PROJECT.screenshots[0],
+                    {
+                        id: 4,
+                        image_path: 'projects/shot2.png',
+                        alt_text: { en: 'Detail', ru: 'Деталь' },
+                        title: { en: 'Detail', ru: 'Деталь' },
+                        description: { en: 'The detail view.', ru: 'Детальный вид.' },
+                    },
+                ],
+            },
+        });
+
+        await wrapper
+            .get('[data-testid="project-form-page-screenshot-0-move-down"]')
+            .trigger('click');
+        await nextTick();
+
+        await wrapper.get('[data-testid="project-form-page-form"]').trigger('submit');
+
+        const payload = putMock.mock.calls[0][1] as Record<string, unknown>;
+        expect((payload.screenshots as Array<{ id: number }>).map((row) => row.id)).toEqual([4, 3]);
+    });
+
+    it('reorders engineering detail items via the keyboard move buttons (accessibility.md:35-44)', async () => {
+        putMock.mockResolvedValue({});
+        const wrapper = mountForm({
+            project: {
+                ...PROJECT,
+                detail_items: [
+                    PROJECT.detail_items[0],
+                    {
+                        id: 6,
+                        icon: 'heroicons:cpu-chip',
+                        title: { en: 'Caching', ru: 'Кэширование' },
+                        description: { en: 'Redis responses.', ru: 'Ответы Redis.' },
+                    },
+                ],
+            },
+        });
+
+        await wrapper
+            .get('[data-testid="project-form-page-engineering-details-item-0-move-down"]')
+            .trigger('click');
+        await nextTick();
+
+        await wrapper.get('[data-testid="project-form-page-form"]').trigger('submit');
+
+        const payload = putMock.mock.calls[0][1] as Record<string, unknown>;
+        expect((payload.detail_items as Array<{ id: number }>).map((row) => row.id)).toEqual([
+            6, 5,
+        ]);
+    });
+
     it('renders the tech-writeup select with the published articles', () => {
         const wrapper = mountForm();
         const dropdown = wrapper.findComponent({ name: 'AdminBaseDropdown' });

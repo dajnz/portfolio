@@ -115,6 +115,7 @@ describe('PublicExperienceController', function (): void {
                 ->where('seo.title', 'Experience — ')
                 ->where('seo.description', 'Professional experience and career timeline.')
                 ->where('seo.canonical_url', url('/experience'))
+                ->where('seo.og_url', url('/experience'))
                 ->where('seo.og_type', 'website'));
     });
 

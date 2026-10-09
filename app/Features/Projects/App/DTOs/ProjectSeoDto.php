@@ -23,6 +23,7 @@ final readonly class ProjectSeoDto
         public string $description,
         public string $canonicalUrl,
         public string $ogType,
+        public ?string $ogImage = null,
         public array $jsonLd = [],
         public ?string $robots = null,
     ) {
@@ -56,6 +57,7 @@ final readonly class ProjectSeoDto
             description: self::localeText($project->translations->briefDescriptions, $locale),
             canonicalUrl: self::baseUrl().'/projects/'.$project->slug,
             ogType: 'article',
+            ogImage: self::imageUrl($project),
             jsonLd: self::jsonLd($project, $locale),
         );
     }
@@ -75,8 +77,21 @@ final readonly class ProjectSeoDto
             description: self::localeText($project->translations->briefDescriptions, $locale),
             canonicalUrl: self::baseUrl().'/projects/'.$project->slug,
             ogType: 'article',
+            ogImage: self::imageUrl($project),
             robots: 'noindex',
         );
+    }
+
+    /**
+     * The absolute `og:image` URL of the project's preview image
+     * (seo.md:37) — `null` when no preview is set (the frontend falls
+     * back to the default OG image).
+     */
+    private static function imageUrl(ProjectDataDto $project): ?string
+    {
+        $path = $project->preview?->url;
+
+        return $path === null || $path === '' ? null : self::baseUrl().'/assets/'.$path;
     }
 
     /**

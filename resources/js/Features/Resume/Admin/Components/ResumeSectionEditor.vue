@@ -3,6 +3,7 @@
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminBaseCheckbox from '@shared-admin/AdminBaseCheckbox.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useReorder } from '@shared-cross/Composables/useReorder';
 import { computed, ref } from 'vue';
 
 import {
@@ -41,6 +42,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { move, canMoveUp: canMoveIndexUp, canMoveDown: canMoveIndexDown } = useReorder();
 
 // Visible sections first (sorted by order), then the hidden ones — the
 // fixed five-section set, so the full list is the two groups in order.
@@ -86,13 +88,11 @@ function indexOfVisible(id: ResumeSectionKey): number {
 }
 
 function canMoveUp(id: ResumeSectionKey): boolean {
-    return indexOfVisible(id) > 0;
+    return canMoveIndexUp(indexOfVisible(id));
 }
 
 function canMoveDown(id: ResumeSectionKey): boolean {
-    const index = indexOfVisible(id);
-
-    return index !== -1 && index < visibleRows.value.length - 1;
+    return canMoveIndexDown(indexOfVisible(id), visibleRows.value.length);
 }
 
 function moveVisibleRow(id: ResumeSectionKey, direction: -1 | 1): SectionRow[] {
@@ -103,16 +103,7 @@ function moveVisibleRow(id: ResumeSectionKey, direction: -1 | 1): SectionRow[] {
         return list;
     }
 
-    const target = index + direction;
-
-    if (target < 0 || target >= list.length) {
-        return list;
-    }
-
-    const [moved] = list.splice(index, 1);
-    list.splice(target, 0, moved);
-
-    return list;
+    return move(list, index, direction) ?? list;
 }
 
 function moveUp(id: ResumeSectionKey): void {

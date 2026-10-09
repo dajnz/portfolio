@@ -13,6 +13,7 @@ use App\Features\Shared\Infra\Exceptions\ErrorResponseFactory;
 use App\Features\Shared\Infra\Middleware\CheckMaintenanceModeMiddleware;
 use App\Features\Shared\Infra\Middleware\CspNonceMiddleware;
 use App\Features\Shared\Infra\Middleware\HandleInertiaRequests;
+use App\Features\Shared\Infra\Middleware\LogAdminMutationsMiddleware;
 use App\Features\Shared\Infra\Middleware\LogContextMiddleware;
 use App\Features\Shared\Infra\Middleware\RateLimitWithFingerprintMiddleware;
 use App\Features\Shared\Infra\Middleware\SetLocaleFromPathMiddleware;
@@ -64,6 +65,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 SetLocaleFromPathMiddleware::class,
                 ThemeMiddleware::class,
                 HandleInertiaRequests::class,
+                LogAdminMutationsMiddleware::class,
             ],
         );
 

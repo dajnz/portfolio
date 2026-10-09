@@ -39,6 +39,7 @@ final class LogContextMiddleware
 
     public function handle(Request $request, Closure $next): Response
     {
+        $startedAt = hrtime(true);
         $requestId = (string) Str::uuid();
         $request->attributes->set('request_id', $requestId);
 
@@ -53,6 +54,13 @@ final class LogContextMiddleware
 
         $response = $next($request);
         $response->headers->set('X-Request-ID', $requestId);
+
+        // The request duration is added to the log context once the
+        // response is generated (kernel terminate) so terminating hooks
+        // and later entries carry it (error-handling.md:285).
+        Log::withContext([
+            'duration_ms' => (int) round((hrtime(true) - $startedAt) / 1_000_000),
+        ]);
 
         return $response;
     }

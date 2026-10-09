@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/vue3';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useReorder } from '@shared-cross/Composables/useReorder';
 import type { SkillGroupData } from '@techskills-admin/SkillGroupCard.vue';
 import { computed, type Ref, reactive, ref } from 'vue';
 
@@ -26,6 +27,7 @@ export function useSkillItems(groups: Ref<SkillGroupData[]>, persistSkillOrder: 
     }>(emptyNewSkill());
 
     const { t } = useI18n();
+    const { move } = useReorder();
 
     // The localized proficiency-level options for the dropdowns
     // (`skills.proficiency.{1-5}` — the domain's `toProficiencyLabelKey()`
@@ -228,14 +230,12 @@ export function useSkillItems(groups: Ref<SkillGroupData[]>, persistSkillOrder: 
         }
 
         const index = group.skills.findIndex((row) => row.id === skillId);
-        const target = index + direction;
+        const next = move(group.skills, index, direction);
 
-        if (index < 0 || target < 0 || target >= group.skills.length) {
+        if (next === null) {
             return;
         }
 
-        const next = [...group.skills];
-        [next[index], next[target]] = [next[target], next[index]];
         group.skills = next;
 
         persistSkillOrder();

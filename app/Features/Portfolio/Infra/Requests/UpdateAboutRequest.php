@@ -41,7 +41,8 @@ final class UpdateAboutRequest extends FormRequest
             $rules["name.$locale"] = ['required', 'string', 'max:255'];
             $rules["title.$locale"] = ['required', 'string', 'max:200'];
             $rules["short_pitch.$locale"] = ['required', 'string', 'max:500'];
-            $rules["location.$locale"] = ['nullable', 'string', 'max:100'];
+            $rules["location.$locale"] = ['required', 'string', 'max:100'];
+            $rules["photo_alt.$locale"] = ['nullable', 'string', 'max:500'];
         }
 
         return $rules;

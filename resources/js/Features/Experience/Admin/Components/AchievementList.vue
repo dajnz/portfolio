@@ -3,6 +3,7 @@
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import SortableList from '@shared-cross/Components/SortableList.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useReorder } from '@shared-cross/Composables/useReorder';
 import type { AchievementRow } from '../Types/achievement';
 
 import AchievementItem from './AchievementItem.vue';
@@ -29,6 +30,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { move: moveItems } = useReorder();
 
 function setDescription(index: number, value: string): void {
     const next = [...props.modelValue];
@@ -50,20 +52,12 @@ function removeAt(index: number): void {
 }
 
 function move(index: number, direction: -1 | 1): void {
-    const target = index + direction;
+    const next = moveItems(props.modelValue, index, direction);
 
-    if (target < 0 || target >= props.modelValue.length) {
+    if (next === null) {
         return;
     }
 
-    const next = [...props.modelValue];
-    const [moved] = next.splice(index, 1);
-
-    if (moved === undefined) {
-        return;
-    }
-
-    next.splice(target, 0, moved);
     emit('update:modelValue', next);
 }
 </script>

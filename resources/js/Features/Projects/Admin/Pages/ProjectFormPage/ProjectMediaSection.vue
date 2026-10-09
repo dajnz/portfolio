@@ -14,6 +14,7 @@ import DropzoneUpload, { type UploadedFile } from '@shared-admin/DropzoneUpload.
 import SortableList from '@shared-cross/Components/SortableList.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
+import { useReorder } from '@shared-cross/Composables/useReorder';
 import { useToast } from '@shared-cross/Composables/useToast';
 import { SUPPORTED_LOCALES } from '@shared-cross/Stores/localeStore';
 import { randomUuid } from '@shared-cross/Utils/randomUuid';
@@ -57,6 +58,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const toast = useToast();
 const { post: jsonPost } = useJsonApi();
+const { move, canMoveUp, canMoveDown } = useReorder();
 
 const isUploading = ref(false);
 
@@ -178,6 +180,23 @@ function removeScreenshot(index: number): void {
         'update:screenshots',
         props.screenshots.filter((_, rowIndex) => rowIndex !== index),
     );
+}
+
+// Keyboard alternative to drag reordering (accessibility.md:35-44).
+function moveScreenshot(index: number, direction: -1 | 1): void {
+    const next = move(props.screenshots, index, direction);
+
+    if (next === null) {
+        return;
+    }
+
+    emit('update:screenshots', next);
+}
+
+function screenshotLabel(row: ScreenshotRow): string {
+    const title = row.title[props.locale]?.trim();
+
+    return title !== undefined && title !== '' ? title : t('admin.projects.screenshot_untitled');
 }
 
 function emptyLocaleMap(): Record<string, string> {
@@ -351,6 +370,29 @@ function onScreenshotHeaderClick(uid: string): void {
                       : t('admin.projects.screenshot_untitled')
                   }}
                 </span>
+                <span
+                  class="flex shrink-0 items-center gap-1"
+                  @click.stop
+                >
+                  <AdminBaseButton
+                    variant="icon-only"
+                    icon="heroicons:chevron-up"
+                    :disabled="props.disabled || !canMoveUp(index)"
+                    :aria-disabled="props.disabled || !canMoveUp(index)"
+                    :aria-label="t('common.move_item_up', { item_name: screenshotLabel(item as unknown as ScreenshotRow) })"
+                    :test_id="`${props.test_id}-screenshot-${index}-move-up`"
+                    @click="moveScreenshot(index, -1)"
+                  />
+                  <AdminBaseButton
+                    variant="icon-only"
+                    icon="heroicons:chevron-down"
+                    :disabled="props.disabled || !canMoveDown(index, props.screenshots.length)"
+                    :aria-disabled="props.disabled || !canMoveDown(index, props.screenshots.length)"
+                    :aria-label="t('common.move_item_down', { item_name: screenshotLabel(item as unknown as ScreenshotRow) })"
+                    :test_id="`${props.test_id}-screenshot-${index}-move-down`"
+                    @click="moveScreenshot(index, 1)"
+                  />
+                </span>
                 <button
                   type="button"
                   class="select-none inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-danger-50 hover:text-danger-600 dark:hover:bg-danger-950 dark:hover:text-danger-400"
@@ -398,6 +440,29 @@ function onScreenshotHeaderClick(uid: string): void {
                   </span>
                   <span class="flex-1 text-xs text-slate-400 dark:text-slate-500">
                     {{ t('admin.projects.click_to_collapse') }}
+                  </span>
+                  <span
+                    class="flex shrink-0 items-center gap-1"
+                    @click.stop
+                  >
+                    <AdminBaseButton
+                      variant="icon-only"
+                      icon="heroicons:chevron-up"
+                      :disabled="props.disabled || index === 0"
+                      :aria-disabled="props.disabled || index === 0"
+                      :aria-label="t('common.move_item_up', { item_name: screenshotLabel(item as unknown as ScreenshotRow) })"
+                      :test_id="`${props.test_id}-screenshot-${index}-move-up-expanded`"
+                      @click="moveScreenshot(index, -1)"
+                    />
+                    <AdminBaseButton
+                      variant="icon-only"
+                      icon="heroicons:chevron-down"
+                      :disabled="props.disabled || index === props.screenshots.length - 1"
+                      :aria-disabled="props.disabled || index === props.screenshots.length - 1"
+                      :aria-label="t('common.move_item_down', { item_name: screenshotLabel(item as unknown as ScreenshotRow) })"
+                      :test_id="`${props.test_id}-screenshot-${index}-move-down-expanded`"
+                      @click="moveScreenshot(index, 1)"
+                    />
                   </span>
                   <button
                     type="button"

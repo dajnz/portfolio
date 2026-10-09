@@ -34,6 +34,7 @@ const isMobileOpen = ref(false);
 // not inline Teleport-to-<body> content, so rendering it only after mount
 // avoids a hydration mismatch.
 const mounted = ref(false);
+const mobileEl = ref<HTMLElement | null>(null);
 let observer: IntersectionObserver | null = null;
 
 function observe(): void {
@@ -74,6 +75,17 @@ function cleanup(): void {
 function navigate(id: string): void {
     emit('navigate', id);
     isMobileOpen.value = false;
+}
+
+// Escape closes the mobile panel and returns focus to its toggle
+// (accessibility.md keyboard navigation).
+function closeMobile(): void {
+    if (!isMobileOpen.value) {
+        return;
+    }
+
+    isMobileOpen.value = false;
+    mobileEl.value?.querySelector<HTMLElement>('button')?.focus();
 }
 
 onMounted(() => {
@@ -137,8 +149,10 @@ onBeforeUnmount(cleanup);
     to="body"
   >
     <div
+      ref="mobileEl"
       class="toc-mobile"
       :data-testid="`${props.test_id}-mobile`"
+      @keydown.escape="closeMobile"
     >
       <PublicBaseButton
         variant="icon-only"

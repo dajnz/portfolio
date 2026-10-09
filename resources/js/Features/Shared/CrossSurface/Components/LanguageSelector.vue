@@ -176,6 +176,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div
+    v-if="resolvedOptions.length > 1"
     ref="controlEl"
     class="language-selector"
     :data-testid="props.test_id"

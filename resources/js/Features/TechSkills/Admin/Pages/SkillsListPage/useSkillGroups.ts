@@ -1,5 +1,6 @@
 import { router } from '@inertiajs/vue3';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useReorder } from '@shared-cross/Composables/useReorder';
 import { useToast } from '@shared-cross/Composables/useToast';
 import { SUPPORTED_LOCALES } from '@shared-cross/Stores/localeStore';
 import { localesWithErrors } from '@shared-cross/Utils/localeErrors';
@@ -23,6 +24,7 @@ export function useSkillGroups(groups: Ref<SkillGroupData[]>, persistGroupOrder:
 
     const { t } = useI18n();
     const toast = useToast();
+    const { move } = useReorder();
 
     // Locales whose required name translation is empty — the tab gets the
     // warning marker before the save round-trip.
@@ -136,14 +138,12 @@ export function useSkillGroups(groups: Ref<SkillGroupData[]>, persistGroupOrder:
 
     function moveGroup(id: number, direction: -1 | 1): void {
         const index = groups.value.findIndex((group) => group.id === id);
-        const target = index + direction;
+        const next = move(groups.value, index, direction);
 
-        if (index < 0 || target < 0 || target >= groups.value.length) {
+        if (next === null) {
             return;
         }
 
-        const next = [...groups.value];
-        [next[index], next[target]] = [next[target], next[index]];
         groups.value = next;
 
         persistGroupOrder();

@@ -300,8 +300,10 @@ final class PublicBlogController
             'title' => $seo->title,
             'description' => $seo->description,
             'canonical_url' => $seo->canonicalUrl,
+            'og_url' => $seo->canonicalUrl,
             'og_type' => $seo->ogType,
             'og_image' => $seo->ogImage,
+            'article' => $seo->article,
             'json_ld' => $seo->jsonLd,
             'robots' => $seo->robots,
         ];

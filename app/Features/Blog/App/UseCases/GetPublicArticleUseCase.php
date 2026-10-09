@@ -130,6 +130,7 @@ final class GetPublicArticleUseCase
                 ),
                 publishedAt: $article->toPublishedAt(),
                 updatedAt: $article->toUpdatedAt(),
+                sitePhotoPath: $this->about->findSitePhotoPath(),
             ),
             hasProjects: $this->listQuery->hasPublishedProjects(),
         );

@@ -81,6 +81,7 @@ use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
 use App\Features\Shared\App\Contracts\CacheClearerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
+use App\Features\Shared\App\Contracts\LoggerInterface;
 use App\Features\Shared\App\Contracts\MaintenanceModeInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
@@ -90,6 +91,7 @@ use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterfa
 use App\Features\Shared\Domain\RepositoryInterfaces\PublishedArticleReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\SettingsReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
+use App\Features\Shared\Infra\Logging\LaravelLogger;
 use App\Features\Shared\Infra\Repositories\EloquentAboutInfoReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentProjectReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentPublishedArticleReadRepository;
@@ -308,6 +310,17 @@ class AppServiceProvider extends ServiceProvider
             MarkdownContentPipeline::class,
         );
 
+        // The app-layer logger contract: app-layer services log through
+        // it instead of the framework `Log` facade; the Infra adapter
+        // wraps the framework logging stack (`channel()` scopes to a
+        // named channel).
+        $this->app->bind(
+            LoggerInterface::class,
+            fn ($app): LaravelLogger => new LaravelLogger(
+                $app->make(\Illuminate\Log\LogManager::class),
+            ),
+        );
+
         // The public blog read model (step 8.2): the DOMAIN contract
         // is implemented by the same Eloquent repository that serves
         // the admin list-query contract — the app layer depends on
@@ -439,6 +452,7 @@ class AppServiceProvider extends ServiceProvider
                 estimator: $app->make(StorageEstimatorInterface::class),
                 sources: $backupSources(),
                 tables: $app->make(BackupTableFactory::class)->exportTables(),
+                logger: $app->make(LoggerInterface::class),
             ),
         );
 
@@ -462,7 +476,7 @@ class AppServiceProvider extends ServiceProvider
                 maintenance: $app->make(MaintenanceModeInterface::class),
                 sitemap: $app->make(SitemapInvalidatorInterface::class),
                 cacheClearer: $app->make(CacheClearerInterface::class),
-                logger: $app->make(\Psr\Log\LoggerInterface::class),
+                logger: $app->make(LoggerInterface::class),
                 sources: $backupSources(),
             ),
         );

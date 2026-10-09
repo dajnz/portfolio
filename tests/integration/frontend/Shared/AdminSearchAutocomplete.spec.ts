@@ -206,18 +206,23 @@ describe('AdminSearchAutocomplete', () => {
     });
 
     it('shows the error state on a failed fetch and retries', async () => {
-        vi.mocked(fetch)
-            .mockResolvedValueOnce(new Response('nope', { status: 500 }))
-            .mockResolvedValueOnce(new Response(JSON.stringify(RESULTS), { status: 200 }));
+        // The GET retry policy (error-handling.md:149-160) retries 5xx
+        // responses twice (1 s + 2 s) — keep the mock failing until the
+        // manual retry button flips it to success.
+        const fetchMock = vi
+            .mocked(fetch)
+            .mockResolvedValue(new Response('nope', { status: 500 }));
 
         const wrapper = mountSearchAutocomplete();
 
         await wrapper.get('[data-testid="search-autocomplete-input"]').setValue('lar');
-        await vi.advanceTimersByTimeAsync(300);
+        await vi.advanceTimersByTimeAsync(300 + 1000 + 2000);
 
-        await vi.waitFor(() => {
-            expect(wrapper.text()).toContain('Search unavailable.');
-        });
+        expect(wrapper.text()).toContain('Search unavailable.');
+
+        fetchMock.mockResolvedValue(
+            new Response(JSON.stringify(RESULTS), { status: 200 }),
+        );
 
         await wrapper.get('[data-testid="search-autocomplete-retry"]').trigger('click');
 

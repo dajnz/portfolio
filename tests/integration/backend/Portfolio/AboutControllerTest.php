@@ -118,6 +118,21 @@ describe('AboutController', function (): void {
             ->assertSessionHasErrors(['name.en', 'availability_status', 'work_type']);
     });
 
+    it('requires a per-locale location and bounds the photo alt text', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $this->put('/admin/about', [
+            'name' => ['en' => 'Alex', 'ru' => 'Алекс'],
+            'title' => ['en' => 'Dev', 'ru' => 'Разработчик'],
+            'short_pitch' => ['en' => 'Pitch.', 'ru' => 'Описание.'],
+            'timezone' => 'Europe/Berlin',
+            'availability_status' => 'available',
+            'work_type' => 'remote',
+            'photo_alt' => ['en' => str_repeat('a', 501)],
+        ])->assertRedirect()
+            ->assertSessionHasErrors(['location.en', 'location.ru', 'photo_alt.en']);
+    });
+
     it('rejects a non-timezone value', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 

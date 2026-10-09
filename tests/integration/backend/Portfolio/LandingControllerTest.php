@@ -55,6 +55,7 @@ describe('LandingController', function (): void {
                 ->where('contacts.0.url', 'https://github.com/alex')
                 ->where('seo.title', 'Alex Kovalev — Full-Stack Developer')
                 ->where('seo.description', 'I build fast web apps.')
+                ->where('seo.og_url', url('/'))
                 ->where('seo.og_type', 'website')
                 ->has('seo.json_ld', 2)
                 ->where('seo.json_ld.0.@type', 'Person')

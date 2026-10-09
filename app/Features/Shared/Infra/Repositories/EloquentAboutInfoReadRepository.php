@@ -27,4 +27,11 @@ final class EloquentAboutInfoReadRepository implements AboutInfoReadRepositoryIn
             ->where('a.id', 1)
             ->value(DB::raw('coalesce(at.name, en.name, \'\')'));
     }
+
+    public function findSitePhotoPath(): ?string
+    {
+        $path = DB::table('about_info')->where('id', 1)->value('photo');
+
+        return $path === null ? null : (string) $path;
+    }
 }

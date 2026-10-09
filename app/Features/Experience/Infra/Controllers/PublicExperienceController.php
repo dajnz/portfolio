@@ -157,6 +157,7 @@ final class PublicExperienceController
             'title' => __('seo.title_experience', ['name' => $aboutName]),
             'description' => __('seo.description_experience'),
             'canonical_url' => url('/experience'),
+            'og_url' => url('/experience'),
             'og_type' => 'website',
         ];
     }

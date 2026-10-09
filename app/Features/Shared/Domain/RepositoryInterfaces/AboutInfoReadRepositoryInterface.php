@@ -17,4 +17,11 @@ interface AboutInfoReadRepositoryInterface
      * an empty string when no about row exists).
      */
     public function findSiteName(string $locale): string;
+
+    /**
+     * The stored RustFS path of the admin's profile photo (the
+     * BlogPosting `publisher.logo`, seo.md:141), or `null` when no
+     * photo is set.
+     */
+    public function findSitePhotoPath(): ?string;
 }

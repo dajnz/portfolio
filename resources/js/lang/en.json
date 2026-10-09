@@ -762,6 +762,7 @@
         "featured_projects": "Featured Projects",
         "feedback_email": "Email",
         "feedback_error": "Could not send your message. Please try again.",
+        "feedback_errors_summary": "Please correct the following {count, plural, one {# error} other {# errors}}:",
         "feedback_invalid_email": "Please enter a valid email address.",
         "feedback_message": "Message",
         "feedback_name": "Name",

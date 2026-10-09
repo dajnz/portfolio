@@ -1064,6 +1064,19 @@ export interface components {
             json_ld?: {
                 [key: string]: unknown;
             }[];
+            /**
+             * @description Blog-article Open Graph metadata (seo.md:65) — present only for
+             *     article detail pages; rendered as `article:published_time`,
+             *     `article:author` and one `article:tag` per tag/skill.
+             */
+            article?: {
+                /** @description ISO 8601 publication time. */
+                published_time?: string | null;
+                /** @description The site owner's display name. */
+                author?: string | null;
+                /** @description Article tags plus attached skills. */
+                tags?: string[];
+            } | null;
         };
         LandingPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */

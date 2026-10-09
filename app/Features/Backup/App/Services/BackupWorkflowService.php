@@ -16,6 +16,7 @@ use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use App\Features\Backup\Domain\ValueObjects\BackupContentSummary;
 use App\Features\Backup\Domain\ValueObjects\Manifest;
 use App\Features\Backup\Domain\ValueObjects\ManifestAsset;
+use App\Features\Shared\App\Contracts\LoggerInterface;
 use DateTimeImmutable;
 use RuntimeException;
 
@@ -58,11 +59,15 @@ final class BackupWorkflowService
         private readonly StorageEstimatorInterface $estimator,
         private readonly BackupSources $sources,
         private readonly array $tables,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
     public function execute(Backup $backup, string $rawKey, ?int $keyId = null): void
     {
+        $startedAt = hrtime(true);
+        $this->logger->info('Backup started', ['archive_name' => $backup->toFilename()]);
+
         $runDir = StagingDirectory::create($this->sources->stagingPath);
 
         try {
@@ -84,6 +89,12 @@ final class BackupWorkflowService
             ));
 
             $this->backupRepo->save($backup);
+
+            $this->logger->info('Backup finished', [
+                'archive_name' => $remotePath,
+                'size' => (int) filesize($archivePath),
+                'duration_ms' => (int) round((hrtime(true) - $startedAt) / 1_000_000),
+            ]);
         } finally {
             StagingDirectory::remove($runDir);
         }

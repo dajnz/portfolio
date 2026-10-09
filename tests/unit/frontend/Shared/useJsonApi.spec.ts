@@ -118,4 +118,23 @@ describe('useJsonApi', () => {
         const { post } = useJsonApi();
         await expect(post('/admin/contacts')).rejects.toThrow('Request failed with status 500');
     });
+
+    it('retries GET requests twice on 5xx with an exponential backoff', async () => {
+        vi.useFakeTimers();
+        const fetchMock = vi
+            .fn()
+            .mockResolvedValueOnce({ ok: false, status: 500 } as Response)
+            .mockResolvedValueOnce({ ok: false, status: 503 } as Response)
+            .mockResolvedValueOnce(jsonResponse({ data: [] }));
+        vi.mocked(fetch).mockImplementation(fetchMock);
+
+        const { get } = useJsonApi();
+        const pending = get<{ data: unknown[] }>('/admin/analytics/series');
+
+        await vi.runAllTimersAsync();
+        await expect(pending).resolves.toEqual({ data: [] });
+
+        expect(fetchMock).toHaveBeenCalledTimes(3);
+        vi.useRealTimers();
+    });
 });

@@ -4,6 +4,7 @@ import { Icon } from '@iconify/vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import SortableList from '@shared-cross/Components/SortableList.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useReorder } from '@shared-cross/Composables/useReorder';
 import { onMounted, ref, watch } from 'vue';
 
 import type { EngineeringDetailRow } from './EngineeringDetailItem.vue';
@@ -36,6 +37,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { move, canMoveUp, canMoveDown } = useReorder();
 
 const expandedUids = ref<Set<string>>(new Set());
 let knownUids = new Set<string>();
@@ -104,6 +106,17 @@ function onHeaderClick(uid: string): void {
 
 function removeAt(index: number): void {
     emit('remove', index);
+}
+
+// Keyboard alternative to drag reordering (accessibility.md:35-44).
+function moveItem(index: number, direction: -1 | 1): void {
+    const next = move(props.modelValue, index, direction);
+
+    if (next === null) {
+        return;
+    }
+
+    emit('update:modelValue', next);
 }
 
 function fieldError(index: number, field: 'icon' | 'title' | 'description'): string | null {
@@ -206,6 +219,29 @@ function compactTitle(row: EngineeringDetailRow): string {
             >
               {{ compactTitle(item as unknown as EngineeringDetailRow) }}
             </span>
+            <span
+              class="flex shrink-0 items-center gap-1"
+              @click.stop
+            >
+              <AdminBaseButton
+                variant="icon-only"
+                icon="heroicons:chevron-up"
+                :disabled="props.disabled || !canMoveUp(index)"
+                :aria-disabled="props.disabled || !canMoveUp(index)"
+                :aria-label="t('common.move_item_up', { item_name: compactTitle(item as unknown as EngineeringDetailRow) })"
+                :test_id="`${props.test_id}-item-${index}-move-up`"
+                @click="moveItem(index, -1)"
+              />
+              <AdminBaseButton
+                variant="icon-only"
+                icon="heroicons:chevron-down"
+                :disabled="props.disabled || !canMoveDown(index, props.modelValue.length)"
+                :aria-disabled="props.disabled || !canMoveDown(index, props.modelValue.length)"
+                :aria-label="t('common.move_item_down', { item_name: compactTitle(item as unknown as EngineeringDetailRow) })"
+                :test_id="`${props.test_id}-item-${index}-move-down`"
+                @click="moveItem(index, 1)"
+              />
+            </span>
             <button
               type="button"
               class="select-none inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-danger-50 hover:text-danger-600 dark:hover:bg-danger-950 dark:hover:text-danger-400"
@@ -250,6 +286,29 @@ function compactTitle(row: EngineeringDetailRow): string {
               </span>
               <span class="flex-1 text-xs text-slate-400 dark:text-slate-500">
                 {{ t('admin.projects.click_to_collapse') }}
+              </span>
+              <span
+                class="flex shrink-0 items-center gap-1"
+                @click.stop
+              >
+                <AdminBaseButton
+                  variant="icon-only"
+                  icon="heroicons:chevron-up"
+                  :disabled="props.disabled || index === 0"
+                  :aria-disabled="props.disabled || index === 0"
+                  :aria-label="t('common.move_item_up', { item_name: compactTitle(item as unknown as EngineeringDetailRow) })"
+                  :test_id="`${props.test_id}-item-${index}-move-up-expanded`"
+                  @click="moveItem(index, -1)"
+                />
+                <AdminBaseButton
+                  variant="icon-only"
+                  icon="heroicons:chevron-down"
+                  :disabled="props.disabled || index === props.modelValue.length - 1"
+                  :aria-disabled="props.disabled || index === props.modelValue.length - 1"
+                  :aria-label="t('common.move_item_down', { item_name: compactTitle(item as unknown as EngineeringDetailRow) })"
+                  :test_id="`${props.test_id}-item-${index}-move-down-expanded`"
+                  @click="moveItem(index, 1)"
+                />
               </span>
               <button
                 type="button"

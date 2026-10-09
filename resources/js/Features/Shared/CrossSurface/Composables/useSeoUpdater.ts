@@ -135,6 +135,24 @@ function headChildren(seo: SeoProps | null, supportedLocales: string[]): VNode[]
         nodes.push(h('meta', { name: 'robots', content: seo.robots }));
     }
 
+    // Blog-article Open Graph metadata (seo.md:65).
+    if (seo.article !== undefined && seo.article !== null) {
+        if (seo.article.published_time) {
+            nodes.push(
+                h('meta', {
+                    property: 'article:published_time',
+                    content: seo.article.published_time,
+                }),
+            );
+        }
+        if (seo.article.author) {
+            nodes.push(h('meta', { property: 'article:author', content: seo.article.author }));
+        }
+        for (const tag of seo.article.tags ?? []) {
+            nodes.push(h('meta', { property: 'article:tag', content: tag }));
+        }
+    }
+
     return nodes;
 }
 

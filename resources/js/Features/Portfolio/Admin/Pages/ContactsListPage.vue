@@ -16,6 +16,7 @@ import PaginationControls from '@shared-admin/PaginationControls.vue';
 import SortableList from '@shared-cross/Components/SortableList.vue';
 import { useAdminMenu } from '@shared-cross/Composables/useAdminMenu';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useReorder } from '@shared-cross/Composables/useReorder';
 import { useToast } from '@shared-cross/Composables/useToast';
 import { SUPPORTED_LOCALES } from '@shared-cross/Stores/localeStore';
 import {
@@ -72,6 +73,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const { menuGroups } = useAdminMenu();
+const { move, canMoveUp, canMoveDown } = useReorder();
 const toast = useToast();
 const page = usePage<{ locale?: string; supported_locales?: string[] }>();
 
@@ -303,6 +305,20 @@ function reorder(items: Array<Record<string, unknown>>): void {
             },
         },
     );
+}
+
+// Keyboard alternative to drag reordering (accessibility.md:35-44):
+// move the row by one position and persist the new order optimistically
+// (the server rollback path is shared with drag).
+function moveContact(index: number, direction: -1 | 1): void {
+    const next = move(rows.value, index, direction);
+
+    if (next === null) {
+        return;
+    }
+
+    rows.value = next;
+    reorder(next);
 }
 
 function navigate(payload: CursorNavigationPayload): void {
@@ -565,6 +581,29 @@ function isEditing(rowId: number): boolean {
                     :label="t('admin.contacts.include_in_resume')"
                     :test_id="`${props.test_id}-resume-${Number(item.id)}`"
                     @update:model-value="toggleResume(item as unknown as ContactRow, $event)"
+                  />
+                </span>
+                <span
+                  class="flex shrink-0 items-center gap-1"
+                  @click.stop
+                >
+                  <AdminBaseButton
+                    variant="icon-only"
+                    icon="heroicons:chevron-up"
+                    :disabled="!canMoveUp(index)"
+                    :aria-disabled="!canMoveUp(index)"
+                    :aria-label="t('common.move_item_up', { item_name: (item.name as string) ?? '' })"
+                    :test_id="`${props.test_id}-move-up-${Number(item.id)}`"
+                    @click="moveContact(index, -1)"
+                  />
+                  <AdminBaseButton
+                    variant="icon-only"
+                    icon="heroicons:chevron-down"
+                    :disabled="!canMoveDown(index, rows.length)"
+                    :aria-disabled="!canMoveDown(index, rows.length)"
+                    :aria-label="t('common.move_item_down', { item_name: (item.name as string) ?? '' })"
+                    :test_id="`${props.test_id}-move-down-${Number(item.id)}`"
+                    @click="moveContact(index, 1)"
                   />
                 </span>
                 <span @click.stop>

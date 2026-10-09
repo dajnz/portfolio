@@ -13,7 +13,7 @@ use App\Features\Backup\Domain\ValueObjects\Manifest;
 use App\Features\Shared\App\Contracts\CacheClearerInterface;
 use App\Features\Shared\App\Contracts\MaintenanceModeInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
-use Psr\Log\LoggerInterface;
+use App\Features\Shared\App\Contracts\LoggerInterface;
 
 use function basename;
 use function file_exists;
@@ -31,7 +31,7 @@ use function sprintf;
  * maintenance mode (backup.md:397) — the admin lifts it via the
  * Settings page or `admin:reset-maintenance`.
  *
- * Every collaborator is an app-layer contract (or the PSR logger) —
+ * Every collaborator is an app-layer contract (including the logger) —
  * no infra or framework classes are named here (B306). The entity's
  * `completed → processing` transition and the completion re-stamp are
  * the caller's concern (the restore use case); this service performs
