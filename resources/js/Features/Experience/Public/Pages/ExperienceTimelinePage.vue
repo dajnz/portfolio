@@ -1,4 +1,3 @@
-<!-- ExperienceTimelinePage (public-section-ui.md:103-141, public-section-components.md:1011-1091, mockup experience.html) — the public career timeline: page title, the alternating Timeline with the tag-union chips and the period on the opposite side, the TagPopupModal ("+N" overflow) and the ExperienceDetailModal (achievements + all tags + project reference), the infinite-scroll Load More (cursor reload per ADR-0010 replace semantics), and the empty/error states via PublicEmptyState. The nav follows ADR-0025 with the `has_projects` signal (user decision 2026-08-15 — the wire contract was extended with the prop). -->
 <script setup lang="ts">
 import ExperienceDetailModal from '@experience-public/ExperienceDetailModal.vue';
 import TagPopupModal from '@experience-public/TagPopupModal.vue';
@@ -19,8 +18,7 @@ type ExperienceProps = NonNullable<components['schemas']['ExperienceTimelinePage
 
 // Per-property types (not the whole `ExperienceProps` alias): the SFC
 // compiler's runtime prop resolution cannot expand the indexed-access
-// `NonNullable<...['props']>` type (the ADR-0029 landing placeholder used
-// the same form).
+// `NonNullable<...['props']>` type.
 const props = withDefaults(
     defineProps<{
         items?: ExperienceProps['items'];
@@ -119,8 +117,8 @@ function openDetailModal(itemId: number): void {
 
 <style scoped>
 /* The title spans the same content width as the timeline below it
-   (`--layout-content`, user rework 2026-08-15 — the header/footer
-   width), centered inside the layout's xl main container. */
+   (`--layout-content` — the header/footer width), centered inside the
+   layout's xl main container. */
 .page-title {
     font-family: var(--font-display);
     font-size: var(--font-size-4xl);

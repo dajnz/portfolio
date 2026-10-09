@@ -58,8 +58,8 @@ function resultLabel(item: SearchResultItem): string {
 // The publication meta of a result row: the localized "published:"
 // label (`common.published`) plus the numeric "dd.mm.yyyy" date — the
 // numeric form carries no month names, only the label needs the
-// catalog (user rework 2026-08-16). An empty string hides the meta
-// when the raw value is missing or unparseable.
+// catalog. An empty string hides the meta when the raw value is missing
+// or unparseable.
 function publishedMeta(item: SearchResultItem): string {
     const value = item.published_at;
     const date = typeof value === 'string' ? new Date(value) : null;
@@ -85,7 +85,7 @@ function onInput(event: Event): void {
     highlighted.value = -1;
 
     // An empty query has nothing to search — close the (stale-results)
-    // dropdown instead of fetching or showing a count (a11y 13.6 review).
+    // dropdown instead of fetching or showing a count.
     if (query.value.trim() === '') {
         if (debounceTimeout.value !== null) {
             clearTimeout(debounceTimeout.value);
@@ -101,7 +101,7 @@ function onInput(event: Event): void {
     }
 
     // The skeleton shows immediately on the first keystroke; the fetch
-    // itself waits for the debounce (public-section-ui.md:490).
+    // itself waits for the debounce.
     isLoading.value = true;
     hasError.value = false;
     isOpen.value = true;
@@ -192,7 +192,7 @@ function closeDropdown(): void {
 
 // Close on a pointer press OUTSIDE the control (the PublicTagFilter
 // pattern) rather than on input blur: a screen reader navigating into the
-// result list would blur the input and lose the list (a11y 13.6 #11).
+// result list would blur the input and lose the list.
 function onDocumentPointerDown(event: PointerEvent): void {
     if (!isOpen.value || rootEl.value === null) {
         return;
@@ -203,8 +203,8 @@ function onDocumentPointerDown(event: PointerEvent): void {
     }
 }
 
-// The result count announcement (a11y 13.6 #10) — cleared while loading
-// or errored so those states are not double-announced.
+// The result count announcement — cleared while loading or errored so
+// those states are not double-announced.
 const announcement = computed(() => {
     if (!isOpen.value || isLoading.value || hasError.value) {
         return '';
@@ -410,8 +410,7 @@ onBeforeUnmount(() => {
 }
 
 /* The result row is a flex line: the title takes the available width
-   (ellipsized) and the publication meta sits flush right (user rework
-   2026-08-16 — the raw date used to wrap under the title). */
+   (ellipsized) and the publication meta sits flush right. */
 .search-autocomplete__result {
     display: flex;
     align-items: center;

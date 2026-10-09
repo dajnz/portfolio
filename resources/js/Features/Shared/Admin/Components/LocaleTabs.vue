@@ -1,4 +1,3 @@
-<!-- LocaleTabs (admin-section-components.md:521-535) — locale switcher for translatable forms. -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 
@@ -12,7 +11,7 @@ const props = withDefaults(
         modelValue: string;
         locales?: LocaleOption[];
         /** Locales whose required translations are incomplete — their tab
-         *  gets a warning marker (4.2 rework, user request). */
+         *  gets a warning marker. */
         warned_locales?: string[];
         test_id?: string;
     }>(),

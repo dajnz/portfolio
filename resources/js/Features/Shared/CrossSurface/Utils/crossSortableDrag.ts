@@ -1,10 +1,10 @@
-// Cross-list drag-and-drop coordination for SortableList (step 5.2).
-// A skill drag started in one group's list must be accepted by another
-// group's list and leave the SOURCE list untouched on `dragend` — the
-// native DnD events fire on both lists (drop on the target, dragend on
-// the source), so the two SortableList instances share this tiny module
-// state instead of private component state. Plain module singletons —
-// no reactivity needed; the components read/write it imperatively.
+// Cross-list drag-and-drop coordination for SortableList. A skill drag
+// started in one group's list must be accepted by another group's list
+// and leave the SOURCE list untouched on `dragend` — the native DnD
+// events fire on both lists (drop on the target, dragend on the source),
+// so the two SortableList instances share this tiny module state instead
+// of private component state. Plain module singletons — no reactivity
+// needed; the components read/write it imperatively.
 export interface CrossSortableState {
     /** `list_id` of the list the drag started in (null when inactive). */
     sourceListId: string | null;
@@ -46,13 +46,13 @@ export function resetCrossDrag(): void {
     state = { sourceListId: null, crossScope: null, item: null, handled: false };
 }
 
-// Cross-list PREVIEW cleanup registry (5.2 rework): while a foreign-list
-// drag hovers a list, the list inserts the dragged item as a live
-// preview. The browser's `dragleave` only reliably fires on the element
-// the cursor LEAVES — hovering several lists in sequence (empty groups
-// between the source and the drop target) left stale previews behind.
-// Every list registers its preview cleanup here; a NEW dragstart and the
-// SOURCE's dragend clear ALL previews, so nothing can outlive the drag.
+// Cross-list PREVIEW cleanup registry: while a foreign-list drag hovers a
+// list, the list inserts the dragged item as a live preview. The
+// browser's `dragleave` only reliably fires on the element the cursor
+// LEAVES — hovering several lists in sequence (empty groups between the
+// source and the drop target) left stale previews behind. Every list
+// registers its preview cleanup here; a NEW dragstart and the SOURCE's
+// dragend clear ALL previews, so nothing can outlive the drag.
 type PreviewCleanup = () => void;
 
 const previewCleanups = new Set<PreviewCleanup>();

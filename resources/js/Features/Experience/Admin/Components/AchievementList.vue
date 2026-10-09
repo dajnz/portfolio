@@ -1,4 +1,3 @@
-<!-- AchievementList (admin-section-components.md:1102-1109, experience-form.html) — the dynamic achievements editor: SortableList of AchievementItem rows (drag reorder + keyboard move up/down alternatives per accessibility.md:37-44) with an "Add Achievement" button. Emits the reordered/modified list via `update:modelValue`; `add`/`remove` per the contract. The description is per-locale (the active LocaleTabs locale is passed down). -->
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import SortableList from '@shared-cross/Components/SortableList.vue';

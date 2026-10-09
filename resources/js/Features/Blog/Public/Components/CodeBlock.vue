@@ -1,4 +1,4 @@
-<!-- CodeBlock (public-section-components.md:1343-1357, mockup blog-article.html) — a syntax-highlighted code block with a copy-to-clipboard button. The server-side pipeline already rendered the highlighted tokens (scrivo/highlight.php, ADR-0008) — this component only adds the language header + the copy button around the static HTML (the public page never re-highlights client-side). `code_html` is the pipeline's `<code>…</code>` fragment (the `data-code-block` element's inner HTML); the copy action reads `raw_code` (the attribute's plain text). States: idle ("Copy") / copied ("Copied!" for 2s — `blog.copied`). Emits `copied` after a successful copy. -->
+<!-- CodeBlock — a syntax-highlighted code block with a copy-to-clipboard button. The server-side pipeline already rendered the highlighted tokens (scrivo/highlight.php) — this component only adds the language header + the copy button around the static HTML (the public page never re-highlights client-side). `code_html` is the pipeline's `<code>…</code>` fragment (the `data-code-block` element's inner HTML); the copy action reads `raw_code` (the attribute's plain text). States: idle ("Copy") / copied ("Copied!" for 2s — `blog.copied`). Emits `copied` after a successful copy. -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { ref } from 'vue';
@@ -89,10 +89,9 @@ async function copy(): Promise<void> {
     background: var(--color-bg-secondary);
 }
 
-/* User rework 2026-08-16: the radii live on the header (rounded TOP
-   corners) and the pre (square top, rounded BOTTOM corners) — the
-   block itself no longer clips (overflow: hidden rounded the pre's
-   bottom too). */
+/* The radii live on the header (rounded TOP corners) and the pre (square
+   top, rounded BOTTOM corners) — the block itself does not clip
+   (overflow: hidden would round the pre's bottom too). */
 .code-block__header {
     display: flex;
     align-items: center;
@@ -142,8 +141,7 @@ async function copy(): Promise<void> {
     /* The tokens' global `pre` rule (public-tokens.css) paints
        --color-bg-tertiary + a border — the block's own
        --color-bg-secondary must show through and the outer border
-       belongs to the block only (user rework 2026-08-16: the text
-       band differed from the block background). */
+       belongs to the block only. */
     background: transparent;
     border: none;
     font-family: var(--font-mono);

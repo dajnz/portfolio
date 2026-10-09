@@ -1,4 +1,3 @@
-<!-- ProjectSearchCombobox (admin-section-components.md:1120-1139, experience-form.html) — searchable combobox linking an experience item to either a portfolio project or an external project name. Typing filters the `projects` list by title; selecting sets `project_id`; confirming a value with no matching project sets `external_project_name`; clearing resets both. A selected portfolio project shows the "Portfolio project" badge; the `data-state` attribute mirrors the contract's states (empty / portfolio_project / external_project). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -177,7 +176,7 @@ function onKeydown(event: KeyboardEvent): void {
 // click handler — so the check always sees the click target still
 // attached: a click handler may re-render and remove the target before
 // the click finishes bubbling, which a bubble-phase check would
-// misread as an outside click (ADR-0024).
+// misread as an outside click.
 function onDocumentClick(event: MouseEvent): void {
     if (
         isOpen.value &&
@@ -293,7 +292,7 @@ function onBlur(): void {
            sibling of the wrapper would attach to an arbitrary ancestor
            up the layout (the panel then renders near the page footer).
            The surface/border/shadow come from the shared
-           `admin-autocomplete-panel` utility (ADR-0024). -->
+           `admin-autocomplete-panel` utility. -->
       <div
         v-if="isOpen"
         :id="listboxId"

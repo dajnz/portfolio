@@ -2,9 +2,7 @@ import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 // SkillsListPage — shared delete-confirmation flow (SkillsListPage.vue is
-// the orchestrator). Both groups and skills delete through one
-// ConfirmationDialog; the target is captured on the request and deleted
-// on confirm.
+// the orchestrator): one ConfirmationDialog serves both groups and skills.
 export interface DeleteTarget {
     type: 'group' | 'skill';
     id: number;

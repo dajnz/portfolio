@@ -1,15 +1,3 @@
-<!-- EditorConfigPopup — the TextEditor's shared config popup (ADR-0024):
-     ONE popup at a time, fixed-anchored under the clicked toolbar
-     button (the parent passes the viewport position). Five variants:
-     the heading levels (Paragraph + H1–H6 with the active level
-     checkmarked), the link URL row (input prefilled from the active
-     link + Apply/Remove, Enter applies), the code language list (none
-     + 17, the thin-scrollbar list), the callout type list (4 types —
-     switching only, the [!] toolbar button owns the toggle-off) and
-     the interactive 6×6 table-size grid (hover highlights the
-     top-left region, the live rows × cols label follows; arrow keys
-     move the hover and Enter inserts — the grid's OWN keydown
-     listener, since it owns the hover state). -->
 <script lang="ts">
 export const CODE_LANGUAGES: Array<{ value: string; label: string }> = [
     { value: '', label: 'none' },
@@ -75,9 +63,9 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-// ── The table-size grid (ADR-0024) — destructured so the template gets
-//    top-level unwrapped refs; declared BEFORE the mode watcher below
-//    (the immediate watch callback touches it). ──
+// The table-size grid — destructured so the template gets top-level
+// unwrapped refs; declared BEFORE the mode watcher below (the immediate
+// watch callback touches it).
 const {
     size: tableGridSize,
     hover: tableHover,
@@ -302,9 +290,9 @@ function applyLink(): void {
       </div>
     </template>
     <template v-else>
-      <!-- The table-size grid (ADR-0024): hover highlights the top-left
-           region up to the hovered cell; the label shows the live
-           rows × cols; click inserts and closes. -->
+      <!-- The table-size grid: hover highlights the top-left region up
+           to the hovered cell; the label shows the live rows × cols;
+           click inserts and closes. -->
       <div
         class="p-3"
         role="grid"

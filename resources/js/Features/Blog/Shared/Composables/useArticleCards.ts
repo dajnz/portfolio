@@ -19,12 +19,12 @@ export interface ArticleSkillTagView {
 
 /** The resolved view shape of an article card — every field the
  *  templates read is guaranteed present (the wire type marks all
- *  fields optional). RustFS paths gain the `/assets/` prefix (ADR-0027),
- *  the per-locale `lead_image_alt` map resolves for the active locale
+ *  fields optional). RustFS paths gain the `/assets/` prefix, the
+ *  per-locale `lead_image_alt` map resolves for the active locale
  *  (en fallback — the props builder's convention) and the
  *  `short_description` may carry the FTS `<mark>` snippet HTML on
- *  search results (ADR-0007 — sanitized server-side; the card renders it
- *  via v-html). */
+ *  search results (sanitized server-side; the card renders it via
+ *  v-html). */
 export interface ArticleCardView {
     id: number;
     title: string;
@@ -40,10 +40,9 @@ export interface ArticleCardView {
 }
 
 /**
- * Maps one wire card row (`ArticleCardData`, blog.yaml — shared by
- * the blog index articles and the article page's related cards) onto
- * the ArticleCard component view (public-section-components.md:
- * 800-816).
+ * Maps one wire card row (`ArticleCardData` — shared by the blog index
+ * articles and the article page's related cards) onto the ArticleCard
+ * component view.
  */
 export function toArticleCardView(card: WireArticleCard, locale: string): ArticleCardView {
     return {
@@ -75,11 +74,11 @@ function localeText(map: Record<string, string> | null | undefined, locale: stri
 }
 
 /**
- * The article card/meta date per the mockup ("Jan 15, 2026" /
- * "15 янв. 2026 г." — blog-article.html) via `Intl.DateTimeFormat`:
- * the ADR-0025 numeric `dd.mm.yyyy` decision applies to the compact
- * autocomplete rows only (PublicSearchAutocomplete's `publishedMeta`).
- * An unparseable value renders '' (the caller hides the meta).
+ * The article card/meta date ("Jan 15, 2026" / "15 янв. 2026 г.") via
+ * `Intl.DateTimeFormat`: the numeric `dd.mm.yyyy` format applies to the
+ * compact autocomplete rows only (PublicSearchAutocomplete's
+ * `publishedMeta`). An unparseable value renders '' (the caller hides
+ * the meta).
  */
 export function formatArticleDate(value: string | null, locale: string): string {
     if (value === null) {

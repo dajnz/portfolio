@@ -1,4 +1,3 @@
-<!-- EngineeringDetailsList (admin-section-components.md:1040-1053, project-form.html; screenshots-style rework, user request 2026-08-12) — the dynamic engineering-detail items editor of the project form: SortableList of EngineeringDetailItem rows, collapsed by default (compact row = dnd knob + icon + title; a click expands), expanded mode with a small header (knob + "Click to collapse" + right-aligned delete) and the edit fields below — dragging is only convenient from the compact rows when the descriptions are large. The sticky header (Expand all / Collapse all) pins below the form's sticky action bar. New rows (appended by the page's `add`) open expanded; a save round-trip re-creates the uids but keeps the same row count, so nothing expands on refresh. Emits the modified list via `update:modelValue`, `remove` with the index and `reorder` with the reordered array per the contract. The full server-side error map is passed down: per-row field errors (`detail_items.{index}.icon|title|description`) surface under the exact inputs. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
@@ -108,7 +107,7 @@ function removeAt(index: number): void {
     emit('remove', index);
 }
 
-// Keyboard alternative to drag reordering (accessibility.md:35-44).
+// Keyboard alternative to drag reordering.
 function moveItem(index: number, direction: -1 | 1): void {
     const next = move(props.modelValue, index, direction);
 
@@ -270,7 +269,6 @@ function compactTitle(row: EngineeringDetailRow): string {
               </svg>
             </button>
           </div>
-          <!-- Expanded — the edit fields under a small header -->
           <div v-else>
             <div
               class="flex cursor-pointer items-center gap-2 border-b border-slate-100 px-3 py-1.5 dark:border-slate-700"

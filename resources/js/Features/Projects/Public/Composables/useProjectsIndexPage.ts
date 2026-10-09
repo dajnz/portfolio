@@ -14,7 +14,7 @@ export type ViewMode = 'grid' | 'list';
 // template reads is guaranteed present (the wire type marks all fields
 // optional). Locale-keyed maps (`preview_image_alt`, screenshot
 // `alt_text`) are resolved for the active locale (en fallback, matching
-// the props builder) and RustFS paths gain the `/assets/` prefix (ADR-0027).
+// the props builder) and RustFS paths gain the `/assets/` prefix.
 export interface TechTagView {
     id: number;
     name: string;
@@ -73,21 +73,17 @@ export const PROJECTS_VIEW_MODE_COOKIE = 'projects_view_mode';
 const VIEW_MODE_COOKIE_MAX_AGE = 31536000;
 
 /**
- * Maps the committed ProjectsIndexPageProps wire shape
- * (docs/openapi/inertia/projects.yaml) onto the projects index component
- * contracts (public-section-components.md:1094-1132): the resolved card
- * views (localized alt texts, `/assets/` URLs), the URL-synced filter
- * state (`?q=`, `?tags=`, `?sort=date` + `?direction=asc|desc` — the
- * only remaining strategy after the 2026-08-16 user decision removed
- * the complexity sort), the grid/list view mode persisted in the
- * `projects_view_mode` cookie (architecture.md:204), and the
- * infinite-scroll machinery mirroring 9.2: "Load More" reloads with the
- * opaque `next_cursor` (`replace: true` — history.replaceState per
- * public-section-ui.md:329-342) and the client REPLACES its items with
- * the reconstructed superset response (ADR-0010); a failed request flips
+ * Maps the committed ProjectsIndexPageProps wire shape onto the projects
+ * index component contracts: the resolved card views (localized alt
+ * texts, `/assets/` URLs), the URL-synced filter state (`?q=`, `?tags=`,
+ * `?sort=date` + `?direction=asc|desc`), the grid/list view mode
+ * persisted in the `projects_view_mode` cookie, and the infinite-scroll
+ * machinery: "Load More" reloads with the opaque `next_cursor`
+ * (`replace: true` — history.replaceState) and the client replaces its
+ * items with the reconstructed superset response; a failed request flips
  * the inline error banner, `retry()` restarts from the initial batch.
  * Filter changes reload from the beginning — the cursor resets because
- * the reloaded URL carries no `cursor` param (public-section-ui.md:156).
+ * the reloaded URL carries no `cursor` param.
  */
 export function useProjectsIndexPage(props: {
     projects?: WireProject[];
@@ -120,9 +116,6 @@ export function useProjectsIndexPage(props: {
 
     // URL-synced filter state (SSR-safe: initialized from the current
     // query string; preserved across Inertia visits via preserveState).
-    // The sort carries the `?direction=asc|desc` variant — "Newest
-    // last" (user rework 2026-08-16; the complexity strategy was
-    // removed from the backend + OpenAPI contract).
     const searchQuery = ref(initialQueryParam('q'));
     const selectedTags = ref<SelectedTagView[]>(initialSelectedTags(props.skill_tags ?? []));
     const sortColumn = ref<SortColumn>('date');
@@ -168,7 +161,7 @@ export function useProjectsIndexPage(props: {
 
     function setViewMode(mode: ViewMode): void {
         viewMode.value = mode;
-        // biome-ignore lint/suspicious/noDocumentCookie: the spec-mandated `projects_view_mode` cookie (architecture.md:204), same pattern as useTheme/useI18n
+        // biome-ignore lint/suspicious/noDocumentCookie: the `projects_view_mode` cookie, same pattern as useTheme/useI18n
         document.cookie = `${PROJECTS_VIEW_MODE_COOKIE}=${mode};path=/;max-age=${VIEW_MODE_COOKIE_MAX_AGE};SameSite=Lax`;
     }
 
@@ -305,9 +298,9 @@ function initialViewMode(): ViewMode {
 /**
  * Resolves one wire card row into the component view: locale-keyed
  * maps to strings (en fallback — the props builder's convention) and
- * RustFS paths to public `/assets/` URLs (ADR-0027). `screenshots` is null
+ * RustFS paths to public `/assets/` URLs. `screenshots` is null
  * when the wire sent none — the card falls back to the static preview
- * image (public-section-components.md:716).
+ * image.
  */
 function toProjectCardView(project: WireProject, locale: string): ProjectCardView {
     const wireScreenshots = project.screenshots ?? [];

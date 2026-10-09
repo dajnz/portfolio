@@ -1,4 +1,3 @@
-<!-- FeedbackDetailPage (admin-section-components.md:1184-1211, admin-section-ui.md:410-416, feedback-detail.html) — full feedback message: auto mark-as-read on mount (useAutoMarkRead), Forward (mailto: best-effort + PATCH forwarded), Delete (confirmation + redirect to list). -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseBadge from '@shared-admin/AdminBaseBadge.vue';
@@ -48,8 +47,8 @@ const isForwarding = ref(false);
 const forwarded = ref(item?.is_forwarded ?? false);
 
 // Mark-as-read fires automatically on page open; failure shows a toast
-// and the badge stays as-is (admin-section-ui.md:119,412). `isRead`
-// flips the badge once the JSON PATCH succeeds.
+// and the badge stays as-is. `isRead` flips the badge once the JSON PATCH
+// succeeds.
 const autoMarkRead = item === undefined ? null : useAutoMarkRead(item.id);
 
 const isRead = computed(() => item?.is_read === true || autoMarkRead?.isRead.value === true);
@@ -73,8 +72,8 @@ function formatDate(value: string): string {
 }
 
 function forward(): void {
-    // mailto: opens regardless of the PATCH result (best-effort per
-    // feedback-detail.html:218-226); a failed PATCH shows a toast.
+    // mailto: opens regardless of the PATCH result (best-effort); a
+    // failed PATCH shows a toast.
     window.location.href = `mailto:${encodeURIComponent(item?.sender_email ?? '')}?subject=${encodeURIComponent(`Re: ${t('admin.feedback.from', { email: item?.sender_email ?? '' })}`)}`;
 
     if (forwarded.value) {
@@ -104,9 +103,9 @@ function confirmDelete(): void {
 
     isDeleting.value = true;
 
-    // The controller redirects to the list on success (4.2 deviation —
-    // `redirect()->back()` would land on the now-404 detail URL); the
-    // server flash renders the success toast.
+    // The controller redirects to the list on success — `redirect()->back()`
+    // would land on the now-404 detail URL; the server flash renders the
+    // success toast.
     router.delete(`/admin/feedback/${item?.id ?? 0}`, {
         onFinish: () => {
             isDeleting.value = false;

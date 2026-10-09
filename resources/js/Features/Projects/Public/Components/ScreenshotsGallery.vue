@@ -1,4 +1,4 @@
-<!-- ScreenshotsGallery (public-section-components.md:1162-1192, mockup project-detail.html) — the project detail screenshot carousel: HorizontalCarousel of figures (image + title + description caption), a click on a slide opens ProjectLightbox at that index, arrows/dots never do (their clicks are stopped inside HorizontalCarousel). The lightbox is code-split: a skeleton overlay covers the clicked slide while the chunk is fetched, then the lightbox mounts (the contract's `defineAsyncComponent` hint is implemented as a manual dynamic import + `<component :is>` so the gallery can hold the chunk-loading state for the `lightbox_opening` skeleton — same code splitting, testable). The section is hidden entirely when `screenshots` is empty. -->
+<!-- The lightbox is code-split via a manual dynamic import + `<component :is>` (rather than `defineAsyncComponent`) so the gallery can hold the chunk-loading state and show the skeleton overlay. -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import HorizontalCarousel from '@shared-public/HorizontalCarousel.vue';
@@ -29,8 +29,7 @@ let triggerElement: HTMLElement | null = null;
 async function openLightbox(index: number, trigger: HTMLElement): Promise<void> {
     if (lightboxComponent === null) {
         lightboxChunkLoading.value = true;
-        // Code-split chunk: fetched only on the first open
-        // (public-section-components.md:1191).
+        // The lightbox chunk is fetched only on the first open.
         const module = await import('./ProjectLightbox.vue');
         lightboxComponent = module.default;
         lightboxChunkLoading.value = false;
@@ -172,11 +171,9 @@ function onNavigate(index: number): void {
 }
 </style>
 
-<!-- The framed carousel viewport (mockup project-detail.html
-     `.gallery__viewport`) lives inside the shared HorizontalCarousel —
-     the BEM-prefixed selectors mirror the mockup, styled from a plain
-     (non-scoped) block instead of `:deep()` (stylelint rejects it;
-     the TextEditor precedent). -->
+<!-- The framed carousel viewport lives inside the shared
+     HorizontalCarousel — styled from a plain (non-scoped) block instead
+     of `:deep()` (stylelint rejects it; the TextEditor precedent). -->
 <style>
 .gallery .carousel__viewport {
     border-radius: var(--radius-lg);

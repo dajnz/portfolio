@@ -1,4 +1,3 @@
-<!-- AboutEditPage (admin-section-components.md:766-807, admin-section-ui.md:235-251, about.html) — the about edit form: LocaleTabs-bound translatable fields (name/title/short_pitch per ADR-0009), a Photo card (DropzoneUpload + per-locale alt texts) and a Work & location settings card (three two-column rows: location [locale-tab-bound, label carries the [en]/[ru] suffix] + timezone / show location + relocation / work type + availability), plus the resume summary link. PUT /admin/about (id=1 single row). -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
@@ -79,9 +78,9 @@ const isUploading = ref(false);
 const isSaving = ref(false);
 const errors = ref<Record<string, string>>({});
 
-// Sticky-bar "stuck" detection (user request 2026-08-07): while the bar
-// is pinned below the header its bottom border + edge fades show; at its
-// natural position neither does. rAF-throttled scroll listener.
+// Sticky-bar "stuck" detection: while the bar is pinned below the header
+// its bottom border + edge fades show; at its natural position neither
+// does. rAF-throttled scroll listener.
 const actionBarEl = ref<HTMLElement | null>(null);
 const isBarStuck = ref(false);
 let scrollTicking = false;
@@ -110,8 +109,7 @@ onBeforeUnmount(() => {
 });
 
 // The per-locale editing tabs only offer the ACTIVE locales (the
-// shared `supported_locales` prop — disabled locales are not editable,
-// 5.2 rework).
+// shared `supported_locales` prop — disabled locales are not editable).
 const locales = computed(() => localeOptionsFromCodes(page.props?.supported_locales));
 
 // The timezone dropdown's option set — each identifier is labelled with
@@ -309,8 +307,8 @@ function cancel(): void {
         :data-testid="`${props.test_id}-form`"
         @submit.prevent="save"
       >
-        <!-- Sticky glass action bar (user request 2026-08-07): locale tabs
-             + save/cancel always available while scrolling. Sticks a few
+        <!-- Sticky glass action bar: locale tabs + save/cancel always
+             available while scrolling. Sticks a few
              px below the fixed admin header (h-16); the negative margins
              span the main column's padding. The bottom border and the
              edge fades appear only while stuck. -->
@@ -351,7 +349,6 @@ function cancel(): void {
           </div>
         </div>
 
-        <!-- Translatable fields (locale-tabbed) -->
         <div class="mb-6 space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary">
           <AdminBaseInput
             :model-value="localeValue(activeLocale, form.name)"
@@ -489,7 +486,7 @@ function cancel(): void {
         </div>
 
         <!-- Resume summary line — the mode label from the Resume feature
-             (resume_mode prop, step 10.1; admin-section-components.md:793). -->
+             (resume_mode prop). -->
         <div class="mb-6 flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary">
           <p class="text-sm text-slate-600 dark:text-slate-400">
             {{ t('admin.nav.resume') }}

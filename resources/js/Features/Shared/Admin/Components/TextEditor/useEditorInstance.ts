@@ -1,15 +1,14 @@
 /**
- * The TextEditor's Tiptap instance composable: owns the editor
- * lifecycle (creation with the feature extensions, the onUpdate /
- * onSelectionUpdate / onFocus / onBlur wiring, the editable and
- * content syncs, destruction), the ACTIVE-STATE tracking (the pressed
- * marks/blocks the toolbar renders, refreshed on every editor update
- * and selection change), the placeholder emptiness (`isDocumentEmpty`
- * — only a doc with a single empty paragraph is "empty", so a freshly
- * inserted empty table / callout / code block keeps the placeholder
- * hidden) and the raw/WYSIWYG mode switch (the raw textarea is the
- * modelValue source of truth while visible; switching back re-parses
- * it into the editor — user request 2026-08-12).
+ * The TextEditor's Tiptap instance composable: owns the editor lifecycle
+ * (creation with the feature extensions, the onUpdate / onSelectionUpdate /
+ * onFocus / onBlur wiring, the editable and content syncs, destruction),
+ * the active-state tracking (the pressed marks/blocks the toolbar renders,
+ * refreshed on every editor update and selection change), the placeholder
+ * emptiness (`isDocumentEmpty` — only a doc with a single empty paragraph is
+ * "empty", so a freshly inserted empty table / callout / code block keeps the
+ * placeholder hidden) and the raw/WYSIWYG mode switch (the raw textarea is the
+ * modelValue source of truth while visible; switching back re-parses it into
+ * the editor).
  */
 import type { Editor as CoreEditor } from '@tiptap/core';
 import { isNodeEmpty } from '@tiptap/core';
@@ -81,8 +80,8 @@ export interface UseEditorInstanceApi {
 
 // The subscript/superscript marks serialize to `<sub>`/`<sup>` HTML
 // (CommonMark has no native syntax) — the public content pipeline
-// claims those tag pairs as structured nodes (ADR-0024), so the round
-// trip survives the safe-mode renderer.
+// claims those tag pairs as structured nodes, so the round trip
+// survives the safe-mode renderer.
 const SubscriptWithMarkdown = Subscript.extend({
     renderMarkdown: (node, helpers) => `<sub>${helpers.renderChildren(node)}</sub>`,
 });
@@ -96,9 +95,9 @@ const lowlight = createLowlight(common);
 // The placeholder must show ONLY when the document holds nothing at
 // all — Tiptap's `editor.isEmpty` (via `isNodeEmpty`) recurses into
 // children, so a freshly inserted empty table / callout / code block
-// still counts as "empty" and the placeholder reappears on blur
-// (2026-08-14 review find). The doc is truly empty only when it
-// contains a single empty paragraph (or no blocks at all).
+// still counts as "empty" and the placeholder reappears on blur.
+// The doc is truly empty only when it contains a single empty
+// paragraph (or no blocks at all).
 function isDocumentEmpty(instance: CoreEditor): boolean {
     const doc = instance.state.doc;
 
@@ -217,8 +216,8 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
                   onSelectionUpdate: ({ editor: instance }) => refreshState(instance),
                   onFocus: () => options.onFocus(),
                   onBlur: () => {
-                      // The popup is NOT closed here (ADR-0024): focusing
-                      // the popup's own input (e.g. the link URL field)
+                      // The popup is NOT closed here: focusing the
+                      // popup's own input (e.g. the link URL field)
                       // blurs the editor first, which would instantly
                       // close the just-opened popup. The outside-click
                       // capture listener covers clicks away from the
@@ -262,7 +261,6 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
         { immediate: true },
     );
 
-    // Raw (markdown) / rendered (WYSIWYG) switch.
     function toggleMode(): void {
         options.onBeforeModeSwitch();
 

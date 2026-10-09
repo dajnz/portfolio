@@ -1,4 +1,6 @@
-<!-- AdminPageLayout (admin-section-components.md:438-501) — root layout for all admin Inertia pages except Login. Owns the mobile-menu open state (`mobileMenuOpen`, page-local, never persisted — ADR-0024): the header hamburger toggles it, the sidebar reports `close-mobile` on nav-item activation, and the layout closes it on Escape (focus back to the hamburger) and on every Inertia navigation start. -->
+<!-- Root layout for admin pages: owns the page-local mobile-menu open state
+     (toggled by the header hamburger, closed on Escape, nav-item activation
+     and every Inertia navigation start). -->
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
 import { useAdminShortcuts } from '@shared-cross/Composables/useAdminShortcuts';
@@ -81,7 +83,7 @@ const { t } = useI18n();
 
 // Every admin page shows the Dashboard link at the top of the sidebar —
 // the pages don't pass a `dashboard` prop; the layout supplies the
-// default (ADR-0024: it was previously passed only by the profile page).
+// default.
 const dashboardItem = computed<DashboardItem>(() => ({
     label: t('admin.nav.dashboard'),
     route: '/admin',
@@ -107,7 +109,7 @@ const expandedGroups = computed<string[]>({
     },
 });
 
-// Mobile menu state (ADR-0024): below lg the sidebar renders as the full-width
+// Mobile menu state: below lg the sidebar renders as the full-width
 // panel under the header while this flag is true. Closed by the hamburger,
 // nav-item clicks (via the sidebar's close-mobile), Escape, and navigation.
 const mobileMenuOpen = ref(false);
@@ -125,7 +127,7 @@ function handleKeydown(event: KeyboardEvent): void {
     }
 }
 
-// Click-away dismissal (user request 2026-09-05): while the mobile panel is
+// Click-away dismissal: while the mobile panel is
 // open, any pointer press OUTSIDE it closes it — including the header
 // controls (theme/language/identity) — so a header popup like the language
 // dropdown can never be overlapped by the panel. The hamburger is excluded

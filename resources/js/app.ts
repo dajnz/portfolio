@@ -9,8 +9,8 @@ import AppRoot from '@/app.vue';
 import '@/iconRegistry';
 
 // Inertia page names resolve to `<name>.vue` or — for directory-based
-// complex pages (5.2 rework — SkillsListPage) — to `<dir>/<name>.vue`.
-// `resolvePageComponent` tries each candidate in order.
+// complex pages — to `<dir>/<name>.vue`. `resolvePageComponent` tries
+// each candidate in order.
 function resolvePage(name: string) {
     const lastName = name.split('/').pop() ?? name;
 
@@ -30,8 +30,8 @@ createInertiaApp({
             .use(createPinia())
             .mount(el);
     },
-    // Page titles are fully localized server-side (`__('seo.title_*')` per
-    // seo.md:33-45); an empty title keeps the Blade `<title inertia>`
-    // default (config('app.name')).
+    // Page titles are fully localized server-side (`__('seo.title_*')`);
+    // an empty title keeps the Blade `<title inertia>` default
+    // (config('app.name')).
     title: (title) => (title.trim() ? title : ''),
 });

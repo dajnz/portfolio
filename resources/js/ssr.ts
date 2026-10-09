@@ -9,10 +9,9 @@ import AppRoot from '@/app.vue';
 import '@/iconRegistry';
 
 // Inertia SSR entry — built by `vite build --ssr` into
-// `bootstrap/ssr/ssr.js` (devops.md:1243). The server listens on port
-// 3000 (devops.md:225) unless INERTIA_SSR_PORT overrides it.
-// Page resolution mirrors app.ts: `<name>.vue` or `<dir>/<name>.vue`
-// for directory-based complex pages (5.2 rework).
+// `bootstrap/ssr/ssr.js`. The server listens on port 3000 unless
+// INERTIA_SSR_PORT overrides it. Page resolution mirrors app.ts:
+// `<name>.vue` or `<dir>/<name>.vue` for directory-based complex pages.
 function resolvePage(name: string) {
     const lastName = name.split('/').pop() ?? name;
 

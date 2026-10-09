@@ -16,9 +16,9 @@ export interface JsonApi {
     del: <T>(url: string, payload?: JsonRequestPayload) => Promise<T>;
 }
 
-// Non-critical read retries (error-handling.md:149-160): GET requests
-// are retried twice on a 5xx with an exponential backoff — mutations and
-// uploads are never retried automatically.
+// Non-critical read retries: GET requests are retried twice on a 5xx
+// with an exponential backoff — mutations and uploads are never retried
+// automatically.
 const GET_RETRY_DELAYS_MS = [1000, 2000];
 
 function wait(ms: number): Promise<void> {
@@ -28,14 +28,11 @@ function wait(ms: number): Promise<void> {
 }
 
 /**
- * Shared JSON API client (4.2 rework, user-approved): a fetch wrapper for
- * the admin's JSON endpoints — the XSRF-TOKEN cookie header satisfies the
- * CSRF middleware (mirroring the scaffold's axios defaults) and every
- * request asks for JSON. Throws on non-OK responses; callers keep their
- * own error handling (toasts, AbortError rethrows). Unifies the
- * duplicated fetch helpers: ProfilePage's `jsonPost`, AboutEditPage's
- * `fetchWithXsrf`, FeedbackDetailPage's `jsonFetch` and
- * `useAutoMarkRead`'s `jsonPatch`, plus the search pickers' GETs.
+ * Shared JSON API client: a fetch wrapper for the admin's JSON endpoints —
+ * the XSRF-TOKEN cookie header satisfies the CSRF middleware (mirroring
+ * the scaffold's axios defaults) and every request asks for JSON. Throws
+ * on non-OK responses; callers keep their own error handling (toasts,
+ * AbortError rethrows).
  */
 export function useJsonApi(): JsonApi {
     async function request<T>(

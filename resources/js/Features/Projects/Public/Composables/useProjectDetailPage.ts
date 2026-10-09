@@ -61,19 +61,15 @@ export interface UseProjectDetailPageApi {
 }
 
 /**
- * Maps the committed ProjectDetailPageProps wire shape
- * (docs/openapi/inertia/projects.yaml — `ProjectDetailData`) onto the
- * project detail component contracts (public-section-components.md:
- * 1135-1205): the locale-keyed screenshot maps (`alt_text`, `title`,
- * `description`) resolved for the active locale with the en fallback,
- * RustFS paths to public `/assets/` URLs (ADR-0027), and the engineering
- * detail rows (already localized by the props builder). The wire's
- * `tech_writeup` carries only `{id, slug, title}` — enough for the
- * slim writeup card (the full ArticleCard contract ships with the blog
- * public pages in 9.4); the section hides when the writeup is null
- * (unlinked or the article was unpublished — content-management.md:133).
- * The `full_description`/`problem`/`solution` bodies arrive as
- * pipeline-rendered HTML and are injected via v-html (ADR-0008).
+ * Maps the committed ProjectDetailPageProps wire shape onto the
+ * project detail component contracts: the locale-keyed screenshot maps
+ * (`alt_text`, `title`, `description`) resolved for the active locale
+ * with the en fallback, RustFS paths to public `/assets/` URLs, and the
+ * engineering detail rows (already localized by the props builder). The
+ * wire's `tech_writeup` carries only `{id, slug, title}`, and the
+ * section hides when it is null (unlinked or the article was
+ * unpublished). The `full_description`/`problem`/`solution` bodies
+ * arrive as pipeline-rendered HTML and are injected via v-html.
  */
 export function useProjectDetailPage(props: {
     project?: WireProjectDetail | null;
@@ -83,8 +79,7 @@ export function useProjectDetailPage(props: {
     const page = usePage<{ url?: string }>();
     // The nav's active link: the section root — `/projects/{slug}` (and
     // its locale-prefixed form) maps to `/projects` so the header's
-    // exact-match comparison highlights the Projects link (the mockup
-    // shows it `aria-current="page"` on the detail page).
+    // exact-match comparison highlights the Projects link.
     const activeRoute = computed(() => {
         const path = normalizeRoute(page.url ?? '');
 

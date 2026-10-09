@@ -1,7 +1,3 @@
-<!-- ProjectBasicSection — the Basic card of the project form: the shared
-     slug field (outside the locale tabs, after the content it is
-     generated from). Emits the raw value; the page orchestrator
-     slugifies and marks the field touched. -->
 <script setup lang="ts">
 import AdminBaseCard from '@shared-admin/AdminBaseCard.vue';
 import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';

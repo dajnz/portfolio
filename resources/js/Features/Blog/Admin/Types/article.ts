@@ -1,11 +1,3 @@
-/**
- * Blog admin wire types (docs/openapi/inertia/blog.yaml): the
- * `BlogListPageProps` row shape, the `BlogFormPageProps` edit shape
- * and the shared `TagData` / `meta` structures of the four admin
- * pages. The public pages (9.4) use their own DTO types from the
- * generated `inertia.ts` — these stay admin-only.
- */
-
 export interface UnifiedTagChip {
     id: number;
     name: string;

@@ -1,4 +1,3 @@
-// admin-section-components.md:587-621 — AdminTechSkillPicker
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -25,8 +24,7 @@ const props = withDefaults(
         singleSelect?: boolean;
         disabled?: boolean;
         /** Fixed container width (CSS length) — the controls row stops
-         *  reflowing when pills are added (the projects filter uses
-         *  500px; user request 2026-08-12). Capped at the available
+         *  reflowing when pills are added. Capped at the available
          *  width (`max-width: 100%`) so narrow screens shrink it
          *  instead of overflowing. */
         width?: string;
@@ -221,13 +219,13 @@ function cleanup(): void {
 }
 
 // A click outside the picker closes the dropdown AND clears the typed
-// query (ADR-0024) — the picked tags stay, only the search text is reset.
-// The listener runs in the CAPTURE phase — before any element's own
-// click handler — so the check always sees the click target still
-// attached: adding a skill re-filters the suggestions and removes the
-// clicked row before the click finishes bubbling, and a bubble-phase
-// check would see the detached row as an outside click, closing the
-// dropdown after every added tag (ADR-0024).
+// query — the picked tags stay, only the search text is reset. The
+// listener runs in the CAPTURE phase — before any element's own click
+// handler — so the check always sees the click target still attached:
+// adding a skill re-filters the suggestions and removes the clicked row
+// before the click finishes bubbling, and a bubble-phase check would see
+// the detached row as an outside click, closing the dropdown after every
+// added tag.
 function onDocumentClick(event: MouseEvent): void {
     if (rootEl.value !== null && rootEl.value.contains(event.target as Node) === false) {
         isOpen.value = false;

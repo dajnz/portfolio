@@ -12,7 +12,7 @@ export interface AutoMarkReadApi {
 }
 
 /**
- * Admin feedback mark-as-read (admin-section-ui.md:119,412): fires
+ * Admin feedback mark-as-read: fires
  * `PATCH /admin/feedback/{feedback}/read` automatically on page open.
  * On failure a toast ("Could not mark as read") appears and the page
  * keeps rendering with the current read/unread badge.
@@ -37,7 +37,7 @@ export function useAutoMarkRead(feedbackId: number): AutoMarkReadApi {
         }
     }
 
-    // Fires automatically on page open; SSR never triggers the request.
+    // SSR-safe: the request is only dispatched in the browser.
     if (typeof window !== 'undefined') {
         void markRead();
     }

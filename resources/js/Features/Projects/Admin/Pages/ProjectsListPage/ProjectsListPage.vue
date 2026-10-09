@@ -1,4 +1,3 @@
-<!-- ProjectsListPage (admin-section-ui.md:327-346, admin-section-components.md:957-991, projects.html) — the cursor-paginated projects management list: the page orchestrator wiring the composables (useProjectFilters — URL-synced filters; useProjectRows — row data, selection, bulk + quick actions; useProjectDeletes — the delete/restore dialog flow) into the template: the filters bar (ProjectFiltersBar), the selectable DataTable with the inline quick actions (feature star, tag chips + inline single-select picker, publish/unpublish), the BulkActionBar per view (publish/unpublish/delete vs restore/force-delete), the featured-projects reorder section (ProjectFeaturedReorder) and ConfirmationDialog deletes. Quick actions talk to the JSON endpoints (ADR-0004 — `{data}` row responses) via useJsonApi with optimistic updates + revert; bulk + reorder refetch/rollback the server props; single deletes/restores are Inertia visits (server flash toasts). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { router, usePage } from '@inertiajs/vue3';
@@ -58,7 +57,6 @@ const { t } = useI18n();
 const page = usePage<{ locale?: string; supported_locales?: string[] }>();
 const { menuGroups } = useAdminMenu();
 
-// ── Composable wiring ──
 const {
     featuredOnly,
     filterTags,
@@ -208,7 +206,6 @@ function previewUrl(row: ProjectRow): string {
         />
       </template>
 
-      <!-- Table view variant -->
       <template v-else>
         <DataTable
           :columns="columns"
@@ -265,8 +262,7 @@ function previewUrl(row: ProjectRow): string {
           </template>
           <template #cell-tech_tags="{ row }">
             <!-- Static chips only (icons + one-line ellipsis) — tag
-                 editing lives on the form page (user request
-                 2026-08-12). -->
+                 editing lives on the form page. -->
             <TechTagList
               :tags="(row.tech_tags as TechTag[])"
               :test_id="`${props.test_id}-tags-${String(row.id)}`"
@@ -306,7 +302,7 @@ function previewUrl(row: ProjectRow): string {
               <!-- The published cell is an active control (like the
                    feature star): a state-styled button whose label is
                    the action — Publish on drafts, Unpublish on live
-                   projects (user request 2026-08-12). -->
+                   projects. -->
               <AdminBaseButton
                 v-else
                 type="button"
@@ -370,7 +366,7 @@ function previewUrl(row: ProjectRow): string {
 
       <!-- Featured projects reorder — SortableList in a separate
            section (drag reorder → POST /admin/projects/reorder-featured
-           with the zero-indexed {ids}, ADR-0005). Only in the live view. -->
+           with the zero-indexed {ids}). Only in the live view. -->
       <ProjectFeaturedReorder
         v-if="isLiveView && featuredRows.length > 0"
         :items="featuredRows as unknown as FeaturedRow[]"

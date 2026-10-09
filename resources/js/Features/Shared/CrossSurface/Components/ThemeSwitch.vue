@@ -1,4 +1,3 @@
-<!-- ThemeSwitch (public-section-components.md:477-490, admin-section-components.md:408-410) — styling-agnostic theme toggle used in both surfaces via the `classes` prop. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -25,10 +24,9 @@ const props = withDefaults(
 const { theme, toggle } = useTheme();
 const { t } = useI18n();
 
-// Icon shows the mode the switch switches TO (mockup convention): the
-// light state displays the moon, the dark state displays the sun — the
-// `icon_light`/`icon_dark` class keys follow the CURRENT state, matching
-// the spec's state-driven naming.
+// Icon shows the mode the switch switches TO: the light state displays
+// the moon, the dark state displays the sun — the `icon_light`/`icon_dark`
+// class keys follow the CURRENT state.
 const isDark = computed(() => theme.value === 'dark');
 const ariaLabel = computed(() =>
     isDark.value ? t('nav.switch_to_light_mode') : t('nav.switch_to_dark_mode'),

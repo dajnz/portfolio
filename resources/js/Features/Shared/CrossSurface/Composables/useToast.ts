@@ -10,10 +10,10 @@ export interface UseToastApi {
 }
 
 /**
- * Global toast API (error-handling.md:83-101) — thin accessor over the
- * `toastStore` queue. The toast containers (PublicBaseToastContainer /
- * AdminBaseToast) render the `toasts` array at layout level; session
- * `notification` flashes are picked up at the app root.
+ * Global toast API — thin accessor over the `toastStore` queue. The
+ * toast containers (PublicBaseToastContainer / AdminBaseToast) render
+ * the `toasts` array at layout level; session `notification` flashes
+ * are picked up at the app root.
  */
 export function useToast(): UseToastApi {
     const store = useToastStore();

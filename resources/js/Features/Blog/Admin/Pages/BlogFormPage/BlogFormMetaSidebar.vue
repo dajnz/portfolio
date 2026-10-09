@@ -1,12 +1,12 @@
 <!-- BlogFormMetaSidebar — the blog form's right panel (the two-panel
-     layout's meta sidebar, blog-form.html): the locale-tabbed Title /
-     Short Description, the shared Slug (the ADR-0006 auto-generation hint),
-     the Lead Image dropzone with per-locale alt text, the unified tag
-     picker, the Related Articles multi-select, the Featured/Published
-     toggles and the read-only published_at block. A presentational
-     component: the fields bind their model values as props and emit
-     raw updates; the page orchestrator (BlogFormPage + useArticleForm)
-     owns the state, the slug generation and the uploads. -->
+     layout's meta sidebar): the locale-tabbed Title / Short Description,
+     the shared Slug (the auto-generation hint), the Lead Image dropzone
+     with per-locale alt text, the unified tag picker, the Related
+     Articles multi-select, the Featured/Published toggles and the
+     read-only published_at block. A presentational component: the fields
+     bind their model values as props and emit raw updates; the page
+     orchestrator (BlogFormPage + useArticleForm) owns the state, the
+     slug generation and the uploads. -->
 <script setup lang="ts">
 import type { ArticleOption } from '@blog/Admin/Types/article';
 import AdminBaseCard from '@shared-admin/AdminBaseCard.vue';
@@ -105,7 +105,7 @@ function onRelatedArticlesChange(value: string | string[]): void {
 // (`related_articles.0`, `tags.2`, `skill_tags.0` — Laravel's dotted
 // index keys), while the field's `error` prop binds the bare key.
 // Fall back to the first `field.N` entry so nested errors are
-// actually visible (the silent-save-failure report, 2026-08-13).
+// actually visible.
 function nestedFieldError(field: string): string | null {
     return (
         props.errors[field] ??

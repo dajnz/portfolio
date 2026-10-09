@@ -3,15 +3,14 @@ import { onBeforeUnmount, onMounted, type Ref } from 'vue';
 
 // SkillsListPage — editor exit model (SkillsListPage.vue is the
 // orchestrator). Editors exit only via click-outside, Escape, or Cancel;
-// there is no blur-save (ADR-0024 — the blur fires while the next
-// control still holds focus and saved half-edited drafts). The group
-// editor exits on a click outside the group header, the skill editor on a
-// click outside the row. Capture-phase `pointerdown` runs BEFORE the
-// click handlers, so a click that opens a new editor (Create Group,
-// Add Skill, another row) first closes the previous one and the click
-// then opens its target — no double-state races. The icon picker's panel
-// is teleported to <body>, so each editor's containment includes its
-// panel.
+// there is no blur-save (the blur fires while the next control still holds
+// focus and would save half-edited drafts). The group editor exits on a
+// click outside the group header, the skill editor on a click outside the
+// row. Capture-phase `pointerdown` runs BEFORE the click handlers, so a
+// click that opens a new editor (Create Group, Add Skill, another row)
+// first closes the previous one and the click then opens its target — no
+// double-state races. The icon picker's panel is teleported to <body>, so
+// each editor's containment includes its panel.
 export interface EditorExitsOptions {
     editingGroupId: Ref<number | 'new' | null>;
     editingSkill: Ref<{ groupId: number; skillId: number | 'new' } | null>;

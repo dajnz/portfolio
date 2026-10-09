@@ -1,4 +1,3 @@
-// admin-section-components.md:61-63 — mirrors PublicRadioGroup
 <script setup lang="ts">
 import { computed, useId } from 'vue';
 

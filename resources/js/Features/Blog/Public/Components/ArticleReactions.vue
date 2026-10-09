@@ -1,4 +1,4 @@
-<!-- ArticleReactions (public-section-components.md:1292-1310, mockup blog-article.html) — the like/dislike widget of the article page, rendered only when the `social_reactions` feature flag is on (the page's `reactions` prop is null otherwise, ADR-0004). The widget owns its POST (ADR-0025): clicking a button posts `{reaction: "like"|"dislike"}` to `/api/blog/{article}/reaction` (the JSON client's XSRF header) and updates its counts + highlighted state from the response — submitting the SAME reaction again undoes it (the response's `reaction: null`); while the request is in flight both buttons disable; a failure shows the error toast and keeps the counts. `aria-pressed` reflects the visitor's current reaction; the `react` emit carries the contract's `{reaction}` shape for the page (the analytics `article_reaction` event fires here — analytics.md:40). -->
+<!-- ArticleReactions — the like/dislike widget of the article page, rendered only when the `social_reactions` feature flag is on (the page's `reactions` prop is null otherwise). The widget owns its POST: clicking a button posts `{reaction: "like"|"dislike"}` to `/api/blog/{article}/reaction` (the JSON client's XSRF header) and updates its counts + highlighted state from the response — submitting the SAME reaction again undoes it (the response's `reaction: null`); while the request is in flight both buttons disable; a failure shows the error toast and keeps the counts. `aria-pressed` reflects the visitor's current reaction; the `react` emit carries the `{reaction}` shape for the page (the analytics `article_reaction` event fires here). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useAnalytics } from '@shared-cross/Composables/useAnalytics';
@@ -54,8 +54,7 @@ async function react(reaction: ReactionValue): Promise<void> {
         return;
     }
 
-    // The undo rule: clicking the visitor's current reaction removes it
-    // (content-management.md:208-210).
+    // The undo rule: clicking the visitor's current reaction removes it.
     const next = current.value === reaction ? null : reaction;
 
     isSubmitting.value = true;
@@ -77,8 +76,7 @@ async function react(reaction: ReactionValue): Promise<void> {
             });
         }
     } catch {
-        // Counts unchanged; the toast carries the failure
-        // (public-section-components.md:1308).
+        // Counts unchanged; the toast carries the failure.
         toast.show(t('blog.reaction_error'), { variant: 'error' });
     } finally {
         isSubmitting.value = false;

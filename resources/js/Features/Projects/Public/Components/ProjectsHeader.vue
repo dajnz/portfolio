@@ -1,4 +1,3 @@
-<!-- ProjectsHeader (public-section-components.md:1110-1132, mockup projects.html) — the projects index toolbar: the dual-response search autocomplete (Enter with no highlighted result submits the term as a full `?q=` load — public-section-ui.md:487), the PublicTagFilter over skills (AND/intersect, autocomplete via /api/skills/search), the sort dropdown and the grid/list toggle. Per the 2026-08-16 user decision the dropdown offers the two wire-supported sorts ("Newest first" / "Newest last" — the complexity strategy was removed from the backend + OpenAPI contract; `sort_direction` travels as `?direction=asc|desc`), and its "Sort by" label is visually hidden so the trigger aligns with the tag filter's input. Filter changes emit `filter-changed` (batched in one tick) — the page resets the scroll cursor and reloads; view-mode changes only emit `update:view_mode` (the cookie persists them client-side, architecture.md:204). -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import PublicBaseButton from '@shared-public/PublicBaseButton.vue';
@@ -65,8 +64,7 @@ const selectedSort = computed(() => `${props.sort_column}:${props.sort_direction
 // The mobile filter-collapse state: on small screens the toolbar shows
 // only the search row and a toggle button; expanding reveals the tag
 // filter and the sort dropdown (each on its own full-width row). The
-// state is purely visual — desktop always shows all rows (user request
-// 2026-08-16).
+// state is purely visual — desktop always shows all rows.
 const filtersExpanded = ref(true);
 
 function toggleFilters(): void {
@@ -110,10 +108,9 @@ function onViewModeChange(mode: HeaderViewMode): void {
     <!-- Row 1: the search box spanning the full width + the mobile-only
          filters toggle + the grid/list toggle. Row 2: the tag filter
          and the sort dropdown — side by side on desktop, stacked on
-         their own full-width rows on small screens (user rework
-         2026-08-16). The toolbar is sticky below the page header so
-         the filters stay reachable while scrolling a long project
-         list. -->
+         their own full-width rows on small screens. The toolbar is
+         sticky below the page header so the filters stay reachable
+         while scrolling a long project list. -->
     <div class="projects-toolbar__row">
       <PublicSearchAutocomplete
         class="projects-toolbar__search"
@@ -189,14 +186,12 @@ function onViewModeChange(mode: HeaderViewMode): void {
    On wide screens it widens by `--space-xl` (32px) per side so the
    cards' hover shadows never peek past its edges, while the equal
    inline padding keeps the filters' content width exactly at
-   `--layout-content` (user rework 2026-08-16). The widening is gated
-   behind `min-width: 1064px` — the shell caps at `--layout-content`
-   (1000px) and the layout's own padding is 24px per side, so the
-   widened box (1000 + 2×32 = 1064px) fits the viewport EXACTLY from
-   1064px up and never overflows; below that the negative margins would
-   stick out of the viewport and cause a horizontal scrollbar (bugfix
-   2026-08-16: the previous unconditional widening overflowed between
-   ~768px and ~1063px). The media query measures the layout viewport
+   `--layout-content`. The widening is gated behind `min-width: 1064px`
+   — the shell caps at `--layout-content` (1000px) and the layout's own
+   padding is 24px per side, so the widened box (1000 + 2×32 = 1064px)
+   fits the viewport exactly from 1064px up and never overflows; below
+   that the negative margins would stick out of the viewport and cause a
+   horizontal scrollbar. The media query measures the layout viewport
    (clientWidth), so scrollbar widths never matter. */
 .projects-toolbar {
     position: sticky;
@@ -278,7 +273,7 @@ function onViewModeChange(mode: HeaderViewMode): void {
     display: none;
 }
 
-/* Small screens (user request 2026-08-16): the grid/list switch is
+/* Small screens: the grid/list switch is
    hidden (grid is the only sensible mode), the filters toggle appears
    at the right of the search box, and the tag filter + sort dropdown
    stack on their own full-width rows. The collapsed state hides the

@@ -4,29 +4,27 @@ import type { components } from '@shared-cross/Types/inertia';
 import { type ComputedRef, computed, onUnmounted, type Ref, reactive, ref } from 'vue';
 
 /**
- * Analytics dashboard data wiring (admin-section-components.md:1295-1334,
- * admin-section-ui.md:441-452, analytics.md:221-232) — maps the Inertia
- * props (the whole-time metric blocks per tab, typed
- * `AnalyticsBlock`) into per-tab clickable block view models and owns the
- * chart/rankings fetch state for the JSON endpoints (`series` /
- * `rankings`, openapi/inertia/analytics.yaml). Lives in the Analytics
+ * Analytics dashboard data wiring — maps the Inertia props (the
+ * whole-time metric blocks per tab, typed `AnalyticsBlock`) into per-tab
+ * clickable block view models and owns the chart/rankings fetch state for
+ * the JSON endpoints (`series` / `rankings`). Lives in the Analytics
  * feature (not the Shared/CrossSurface tracker — `useAnalytics` there
- * owns public-site event tracking, ADR-0026).
+ * owns public-site event tracking).
  *
  * The props are read through the props object (reactive — `useLandingPage`
  * precedent) so a later Inertia visit with fresh blocks re-computes the
  * views. The block-key → endpoint mapping is hard-coded here per the
- * OpenAPI `AnalyticsBlock` schema description (11.3.4 decision): the page
- * looks a clicked block up via `blockConfigFor(tab, key)` and calls the
- * matching fetch helper (`fetchSeries` for chart metrics — the CTA clicks
- * block uses `fetchMultiSeries` for its six per-target series —
- * `fetchRankings` for the ranking metrics). Every fetch family aborts the
- * previous request of its kind via AbortController (the last request
- * wins), exposes its own loading/error refs and ignores aborted
- * responses. Selecting a block (or aborting via `abortFetches`) cancels
- * every in-flight request and clears the detail-area error/loading refs
- * so a stale response can never overwrite state seeded later — even when
- * the new selection fetches nothing (default-seed clicks, tab switches).
+ * OpenAPI `AnalyticsBlock` schema description: the page looks a clicked
+ * block up via `blockConfigFor(tab, key)` and calls the matching fetch
+ * helper (`fetchSeries` for chart metrics — the CTA clicks block uses
+ * `fetchMultiSeries` for its six per-target series — `fetchRankings` for
+ * the ranking metrics). Every fetch family aborts the previous request of
+ * its kind via AbortController (the last request wins), exposes its own
+ * loading/error refs and ignores aborted responses. Selecting a block (or
+ * aborting via `abortFetches`) cancels every in-flight request and clears
+ * the detail-area error/loading refs so a stale response can never
+ * overwrite state seeded later — even when the new selection fetches
+ * nothing (default-seed clicks, tab switches).
  */
 export type AnalyticsTab = 'overview' | 'blog' | 'projects';
 export type AnalyticsSpan = 'day' | 'week' | 'month' | 'all';
@@ -41,8 +39,7 @@ export type AnalyticsSeriesResponse = components['schemas']['AnalyticsSeriesResp
 export type AnalyticsRankingResponse = components['schemas']['AnalyticsRankingResponse'];
 
 /** A renderable text segment — the duration numbers are bold, the
- *  `min.`/`sec.` unit labels dull (analytics.md/admin-section-ui.md —
- *  user request 2026-08-22). */
+ *  `min.`/`sec.` unit labels dull. */
 export interface RichTextPart {
     text: string;
     bold: boolean;
@@ -61,8 +58,7 @@ export interface BlockView {
     selected: boolean;
 }
 
-/** What a block click fetches (openapi/inertia/analytics.yaml — the
- *  `AnalyticsBlock` schema table). */
+/** What a block click fetches (the `AnalyticsBlock` schema table). */
 export interface BlockConfig {
     kind: BlockKind;
     metric: string;
@@ -183,8 +179,8 @@ const BLOCK_PROP_KEYS: Record<AnalyticsTab, keyof AnalyticsDashboardProps> = {
     projects: 'projects_blocks',
 };
 
-/** The hard-coded block-key → endpoint map (openapi/inertia/analytics.yaml
- *  — the `AnalyticsBlock` schema description table, 11.3.4). */
+/** The hard-coded block-key → endpoint map (the `AnalyticsBlock` schema
+ *  description table). */
 const BLOCK_CONFIGS: Record<AnalyticsTab, Record<string, BlockConfig>> = {
     overview: {
         total_visits: { kind: 'chart', metric: 'page_views' },

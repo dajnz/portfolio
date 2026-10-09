@@ -1,4 +1,3 @@
-// admin-section-components.md:623-645 — AdminBlogTagPicker
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
@@ -31,10 +30,9 @@ const props = withDefaults(
         placeholder?: string;
         disabled?: boolean;
         /** Fixed container width (CSS length) — the filters row stops
-         *  reflowing when pills are added (the blog list filter uses
-         *  500px, the projects picker convention). Capped at the
-         *  available width (`max-width: 100%`) so narrow screens
-         *  shrink it instead of overflowing. */
+         *  reflowing when pills are added. Capped at the available
+         *  width (`max-width: 100%`) so narrow screens shrink it
+         *  instead of overflowing. */
         width?: string;
         test_id?: string;
     }>(),
@@ -212,12 +210,12 @@ function cleanup(): void {
 }
 
 // A click outside the picker closes the dropdown AND clears the typed
-// query (the ADR-0024 convention of the tech-skills picker) — the picked
-// pills stay, only the search text is reset. The listener runs in the
-// CAPTURE phase — before any element's own click handler — so the
-// check always sees the click target still attached: adding a tag
-// re-filters the suggestions and removes the clicked row before the
-// click finishes bubbling (ADR-0024).
+// query (the tech-skills picker convention) — the picked pills stay,
+// only the search text is reset. The listener runs in the CAPTURE
+// phase — before any element's own click handler — so the check always
+// sees the click target still attached: adding a tag re-filters the
+// suggestions and removes the clicked row before the click finishes
+// bubbling.
 function onDocumentClick(event: MouseEvent): void {
     if (rootEl.value !== null && rootEl.value.contains(event.target as Node) === false) {
         isOpen.value = false;

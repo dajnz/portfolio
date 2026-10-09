@@ -1,4 +1,3 @@
-<!-- DropzoneUpload (admin-section-components.md:166-193) — drag-and-drop file upload targeting /api/upload. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';

@@ -214,13 +214,13 @@ function stopAutoAdvance(): void {
  * Native guard for the arrow/dot buttons: the Vue `@click.stop`
  * handlers are unreliable in the built app — clicking "next"/"prev"
  * on a project card navigated to the project detail page instead of
- * changing the slide (the event reached the card's Inertia Link;
- * reproduced on the served build). The guard is a bubble-phase native
- * listener on the carousel root: it fires ONLY when the click was not
- * already stopped at the button (so the slide change runs exactly
- * once — the Vue handler wins when it works), and it stops the event
- * before it reaches any link ancestor. Clicks on the slide content
- * (the card navigation itself) are untouched.
+ * changing the slide (the event reached the card's Inertia Link). The
+ * guard is a bubble-phase native listener on the carousel root: it
+ * fires ONLY when the click was not already stopped at the button (so
+ * the slide change runs exactly once — the Vue handler wins when it
+ * works), and it stops the event before it reaches any link ancestor.
+ * Clicks on the slide content (the card navigation itself) are
+ * untouched.
  */
 function onRootClick(event: MouseEvent): void {
     if (rootEl.value === null) {
@@ -448,9 +448,6 @@ onBeforeUnmount(() => {
     cursor: default;
 }
 
-/* Arrows appear on hover/focus only (the project card carousel —
-   public-section-components.md:696: "Arrows appear only on card hover
-   (opacity transition)"). */
 .carousel--hover-arrows .carousel__arrow {
     opacity: 0;
 }
@@ -473,9 +470,6 @@ onBeforeUnmount(() => {
     height: 1.25em;
 }
 
-/* The dots are 1.5× the original size (12px, was 8px) with a clear
-   gap above the carousel (user rework 2026-08-16 — they used to sit
-   4px from the viewport edge). */
 .carousel__dots {
     display: flex;
     justify-content: center;
@@ -499,10 +493,9 @@ onBeforeUnmount(() => {
     background: var(--color-accent);
 }
 
-/* Compact dots for the project cards (user rework 2026-08-16): 9px
-   circles with an equal 8px gap above and below — the card previews
-   are small, so the detail-gallery sizing (12px, 16px top gap) reads
-   heavy there. */
+/* Compact dots for the project cards: 9px circles with an equal 8px gap
+   above and below — the card previews are small, so the detail-gallery
+   sizing (12px, 16px top gap) reads heavy there. */
 .carousel--compact-dots .carousel__dots {
     gap: 8px;
     padding: 8px 0;

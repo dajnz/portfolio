@@ -1,4 +1,3 @@
-<!-- FeedbackForm (public-section-components.md:818-852, public-section-ui.md:423-435; success state reworked 2026-08-14) — the landing contact form. Five local states (no global store): idle / submitting / success / error_validation / error_network. Submits JSON to `/api/feedback` (public, no CSRF — api_routes.php); a 422 is parsed directly from the response body (error-handling.md:147) into inline field errors; network/5xx failures show the persistent error toast. The honeypot field (authentication.md:333-351) carries the session-derived randomized name and is always submitted empty. Success replaces the whole form (heading included) with a centered success icon + the confirmation message and fires `cta_click_feedback`. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useAnalytics } from '@shared-cross/Composables/useAnalytics';
@@ -43,15 +42,15 @@ const successEl = ref<HTMLElement | null>(null);
 const formEl = ref<HTMLFormElement | null>(null);
 const summaryEl = ref<HTMLElement | null>(null);
 
-// The validation summary (accessibility.md:116,138): shown above the
-// form on a 422, announcing the error count; focus moves to it when
-// several fields failed, or directly to the single invalid field.
+// The validation summary: shown above the form on a 422, announcing the
+// error count; focus moves to it when several fields failed, or directly
+// to the single invalid field.
 const errorMessages = computed(() =>
     Object.values(serverErrors.value).filter((message) => message !== ''),
 );
 
 // The success template arrives localized with the `{sender_name}`
-// placeholder (public-section-components.md:828) — interpolated here.
+// placeholder — interpolated here.
 const successMessage = computed(() =>
     props.success_title.replace('{sender_name}', senderName.value),
 );
@@ -84,8 +83,8 @@ async function handleSubmit(): Promise<void> {
         // the body) and always parses JSON on success. The public
         // feedback endpoint returns 201 with an EMPTY body, and the 422
         // envelope (`{message, errors}`) must be read from the response
-        // body to render the inline field errors (error-handling.md:147)
-        // — the composable's contract fits neither.
+        // body to render the inline field errors — the composable's
+        // contract fits neither.
         const response = await fetch(props.action_url, {
             method: 'POST',
             headers: {
@@ -103,7 +102,7 @@ async function handleSubmit(): Promise<void> {
                 sender_email: senderEmail.value,
             });
             // Move focus to the success state so screen readers announce
-            // the confirmation (a11y 13.6 #7).
+            // the confirmation.
             await nextTick();
             successEl.value?.focus();
             return;
@@ -175,9 +174,9 @@ async function handleSubmit(): Promise<void> {
         {{ t('landing.send_feedback') }}
       </h3>
 
-      <!-- Validation summary (accessibility.md:116): only when several
-           fields failed, so the messages shown inline are not repeated.
-           A single failure focuses its field directly instead. -->
+      <!-- Validation summary: only when several fields failed, so the
+           messages shown inline are not repeated. A single failure
+           focuses its field directly instead. -->
       <p
         v-if="errorMessages.length > 1"
         ref="summaryEl"

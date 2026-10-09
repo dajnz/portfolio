@@ -1,4 +1,4 @@
-<!-- RestoreForm (admin-section-components.md:1511-1524, backups.html) — the same-instance restore: the completed-backup dropdown, the destructive warning, the current-password confirmation and the indeterminate ProgressBar driven by the parent's status polling. -->
+<!-- RestoreForm — the same-instance restore: the completed-backup dropdown, the destructive warning, the current-password confirmation and the indeterminate ProgressBar driven by the parent's status polling. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';

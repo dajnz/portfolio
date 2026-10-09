@@ -1,4 +1,3 @@
-<!-- AdminBaseDropdown (admin-section-components.md:67-71) — same contract as PublicBaseDropdown, Tailwind-styled. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -25,15 +24,13 @@ const props = withDefaults(
         required?: boolean;
         disabled?: boolean;
         /** Fixed trigger width (CSS length) — the trigger keeps the
-         *  width regardless of the selected option's label (the
-         *  projects status filter uses 150px; user request
-         *  2026-08-12). */
+         *  width regardless of the selected option's label. */
         width?: string;
         /** Native tooltip of the trigger button — the multi-select
          *  blog form's Related Articles field shows the full
          *  alphabetical list of the linked article names when the
-         *  truncated trigger label cannot (user request 2026-08-13;
-         *  newlines render as line breaks in native tooltips). */
+         *  truncated trigger label cannot (newlines render as line
+         *  breaks in native tooltips). */
         title?: string;
         test_id?: string;
     }>(),

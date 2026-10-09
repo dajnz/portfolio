@@ -1,4 +1,3 @@
-// PaginationControls (admin-section-components.md:484-519 + admin-section-ui.md:124-210) — cursor-based page widget for admin lists; prev/next emit cursors, page numbers emit page.
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';

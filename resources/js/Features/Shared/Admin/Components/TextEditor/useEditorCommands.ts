@@ -3,7 +3,7 @@
  * toolbar/popup can trigger (marks, lists, block formatting, the
  * callout wrap/lift, tables, images, links) plus the click handlers
  * that combine commands with the popup state machine (the code-block
- * and callout button state machines — ADR-0024 — and the popup apply
+ * and callout button state machines, and the popup apply
  * handlers). The active link URL for the popup's prefilled input.
  * The parent (TextEditor.vue) owns the editor instance, the popup
  * state and the mode; this composable translates UI events into
@@ -130,9 +130,9 @@ export function useEditorCommands(options: UseEditorCommandsOptions): UseEditorC
             .run();
     }
 
-    // The callout toggle (ADR-0024 — the Tiptap 3 `toggleNode` fallback to
+    // The callout toggle: the Tiptap 3 `toggleNode` fallback to
     // `setNode` refuses non-text-block nodes with the "Currently
-    // 'setNode()' only supports text block nodes" warning): a WRAP for
+    // 'setNode()' only supports text block nodes" warning — a WRAP for
     // activation (the paragraph becomes callout[paragraph]) and a LIFT
     // for deactivation; switching the type on an active callout
     // updates the attribute in place instead of nesting.
@@ -162,15 +162,13 @@ export function useEditorCommands(options: UseEditorCommandsOptions): UseEditorC
         options.editor()?.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
     }
 
-    // The parent's side of the image contract (admin-section-components.md:
-    // 262-264): the parent uploads the emitted File and calls back with
-    // the RustFS path — `insertImage` inserts it at the cursor and
-    // serializes to the `![alt](url)` Markdown.
+    // The parent's side of the image contract: the parent uploads the
+    // emitted File and calls back with the RustFS path — `insertImage`
+    // inserts it at the cursor and serializes to the `![alt](url)`
+    // Markdown.
     function insertImage(url: string): void {
         options.editor()?.chain().focus().setImage({ src: url }).run();
     }
-
-    // ── The toolbar click handlers ──
 
     function onHeadingClick(event: MouseEvent): void {
         if (options.selectableHeading()) {
@@ -190,14 +188,13 @@ export function useEditorCommands(options: UseEditorCommandsOptions): UseEditorC
         toggleMark(type);
     }
 
-    // The code-block button state machine (ADR-0024): an inactive block is
+    // The code-block button state machine: an inactive block is
     // toggled on AND the language popup opens; an active block reopens
     // the popup; a second click while the popup is open toggles the
     // block off. Same rule for the callout button + type popup. Both
     // forward the click event to the popup toggle — WITHOUT it the
     // fixed popup keeps its default (8, 52) anchor and lands at the
-    // viewport top-left instead of under the button (2026-08-14
-    // review find).
+    // viewport top-left instead of under the button.
     function onCodeBlockClick(event: MouseEvent): void {
         if (options.state.isCodeBlockActive) {
             if (options.popup.mode.value === 'language') {
@@ -235,8 +232,6 @@ export function useEditorCommands(options: UseEditorCommandsOptions): UseEditorC
     function onLinkClick(event: MouseEvent): void {
         options.popup.toggle('link', event);
     }
-
-    // ── The popup apply handlers ──
 
     function applyHeading(value: string): void {
         setHeading(value);

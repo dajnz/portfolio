@@ -1,4 +1,3 @@
-<!-- StatsCards (admin-section-components.md:687-698) — dashboard stat cards: label, value, optional trend per card; skeleton loading and per-card error states. -->
 <script setup lang="ts">
 import AdminBaseSkeleton from '@shared-admin/AdminBaseSkeleton.vue';
 import AdminEmptyState from '@shared-admin/AdminEmptyState.vue';
@@ -7,7 +6,7 @@ import { computed } from 'vue';
 
 export interface StatCardData {
     label: string;
-    /** Absent value renders the per-card error state (mockup dashboard.md:298-300). */
+    /** Absent value renders the per-card error state. */
     value?: number | string;
     trend?: string;
     isLoading: boolean;
@@ -32,8 +31,8 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 // Tailwind's JIT cannot generate dynamic `xl:grid-cols-N` utilities; the
-// default 4-column layout uses the mockup classes verbatim, other column
-// counts fall back to the 2-column layout at xl (dashboard.md:293).
+// default 4-column layout uses the fixed classes, other column counts
+// fall back to the 2-column layout at xl.
 const wideGridClass = computed(() => (props.columns === 4 ? 'xl:grid-cols-4' : ''));
 </script>
 

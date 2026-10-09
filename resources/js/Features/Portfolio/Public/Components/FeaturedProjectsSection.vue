@@ -1,4 +1,13 @@
-<!-- FeaturedProjectsSection (public-section-components.md:981-992) — the compact featured-project cards grid and the conditional "View all projects" link. The section hides entirely when no published projects exist. The cards are the PORTFOLIO-owned `FeaturedProjectCard` (static preview image / placeholder — user decision 2026-08-15: the shared Projects `ProjectCard` is for the projects list/detail surfaces, not the landing). NOTE: no hover prefetch here — `usePrefetch().onHover` calls `router.visit`, which NAVIGATES on a 100 ms hover linger (ADR-0025), so the wiring stays out until a real prefetch mechanism exists. Tech-tag chips link to `/projects?tags={id}` only while more published projects exist than featured (9.1 decision — otherwise they'd lead to a stale, tag-filtered list). -->
+<!-- The compact featured-project cards grid and the conditional "View all
+     projects" link. The section hides entirely when no published projects
+     exist. The cards are the portfolio-owned `FeaturedProjectCard` (the
+     shared Projects `ProjectCard` is for the projects list/detail surfaces,
+     not the landing). NOTE: no hover prefetch here —
+     `usePrefetch().onHover` calls `router.visit`, which NAVIGATES on a
+     100 ms hover linger, so the wiring stays out until a real prefetch
+     mechanism exists. Tech-tag chips link to `/projects?tags={id}` only
+     while more published projects exist than featured (otherwise they'd
+     lead to a stale, tag-filtered list). -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 
@@ -100,8 +109,8 @@ const skeletonCards = [0, 1, 2];
 
 <style scoped>
 .featured-projects {
-    /* Top padding halved (user rework 2026-08-14) — the section
-   heading no longer floats 4rem below the previous block. */
+    /* Halved top padding — keeps the section heading from floating
+   4rem below the previous block. */
     padding: var(--space-xl) 0 var(--space-3xl);
 }
 
@@ -117,7 +126,7 @@ const skeletonCards = [0, 1, 2];
 /* 3 cards per row on large content widths, 2 on medium, 1 on mobile.
    Container queries measure the content container (PublicCenteredContainer
    hosts the query) — the breakpoints follow --layout-content, so changing
-   it later keeps the 3/2/1 behavior (user rework 2026-08-14). */
+   it later keeps the 3/2/1 behavior. */
 .featured-projects__grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -141,8 +150,6 @@ const skeletonCards = [0, 1, 2];
     text-align: center;
 }
 
-/* The 9.1 skeleton: a card-shaped image slot + text/pill lines with
-   the shared shimmer. */
 .project-card--skeleton {
     display: flex;
     flex-direction: column;

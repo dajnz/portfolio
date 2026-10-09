@@ -1,8 +1,3 @@
-<!-- TechTagList (projects list, user requests 2026-08-12) — the static
-     tech-tag chips of the projects table and grid cards: devicon icon +
-     name, read-only. Shows at most `max_visible` chips (default 3 — the
-     projects table shows 3 tags by default, user request round 4); the
-     remaining tags collapse into a "+N" ellipsis chip. -->
 <script setup lang="ts">
 import AdminBaseBadge from '@shared-admin/AdminBaseBadge.vue';
 import { computed } from 'vue';

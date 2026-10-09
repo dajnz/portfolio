@@ -1,4 +1,3 @@
-<!-- AdminEmptyState (admin-section-components.md:105-109) — same contract as PublicEmptyState, Tailwind-styled. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { computed } from 'vue';

@@ -56,9 +56,8 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 // The year filter's explicit "All years" option (value '') — selecting
-// it after a year was picked resets the filter (user request
-// 2026-08-13); without the option the dropdown could never return to
-// the unfiltered state.
+// it after a year was picked resets the filter; without the option the
+// dropdown could never return to the unfiltered state.
 const yearOptions = computed(() => [
     { value: '', label: t('admin.lists.all_years') },
     ...props.years.map((year) => ({ value: String(year), label: String(year) })),

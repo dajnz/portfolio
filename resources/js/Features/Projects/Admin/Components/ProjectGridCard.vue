@@ -1,10 +1,3 @@
-<!-- ProjectGridCard (projects.html — the grid view variant of the
-     projects list) — one project card: preview image (or placeholder),
-     title, tech-tag chips (icons + one-line ellipsis), the
-     publish/unpublish toggle button (the card click opens the edit
-     form — no dedicated edit button, user request 2026-08-12) and the
-     quick actions (feature star, delete — trashed view: restore /
-     delete permanently). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import TechTagList from '@projects-admin/TechTagList.vue';
@@ -114,8 +107,7 @@ function previewUrl(row: GridProjectRow): string {
           </AdminBaseBadge>
         </template>
         <!-- The publish/unpublish toggle replaces the state badge on
-             live cards (user request 2026-08-12) — same button as the
-             table's published column. -->
+             live cards — same button as the table's published column. -->
         <AdminBaseButton
           v-else
           type="button"

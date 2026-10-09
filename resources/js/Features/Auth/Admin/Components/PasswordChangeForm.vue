@@ -1,4 +1,4 @@
-<!-- PasswordChangeForm (admin-section-components.md:1486-1513) — password change card of the profile page. Hidden (with an info notice) when the admin's primary login is GitHub OAuth. Emits the password fields; the page merges them with the profile fields for `PUT /admin/profile`. -->
+<!-- PasswordChangeForm — password change card of the profile page. Hidden (with an info notice) when the admin's primary login is GitHub OAuth. Emits the password fields; the page merges them with the profile fields for `PUT /admin/profile`. -->
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
@@ -48,7 +48,7 @@ function submitForm(): void {
     });
 }
 
-// Cleared by the page after a successful change (spec state: success).
+// Cleared by the page after a successful change.
 function reset(): void {
     currentPassword.value = '';
     newPassword.value = '';

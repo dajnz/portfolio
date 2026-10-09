@@ -1,4 +1,3 @@
-<!-- EngineeringDetailItem (admin-section-components.md:1054-1066, project-form.html) — one engineering-detail row of the project form: the engineering icon picker (required per item), the per-locale title input (max 200) and description textarea, the SortableList drag handle and the remove button. Emits deep `update:modelValue` on any field change and `remove`. -->
 <script setup lang="ts">
 import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
 import AdminBaseTextarea from '@shared-admin/AdminBaseTextarea.vue';
@@ -18,9 +17,7 @@ const props = withDefaults(
         modelValue: EngineeringDetailRow;
         locale: string;
         /** Per-field validation errors (`icon`, `title`, `description`)
-         *  of THIS row — shown under the matching input (user request
-         *  2026-08-12: the missing-translation errors must be visible
-         *  on the exact fields). */
+         *  of THIS row — shown under the matching input. */
         icon_error?: string | null;
         title_error?: string | null;
         description_error?: string | null;
@@ -63,8 +60,8 @@ function setDescription(value: string): void {
 
 <template>
   <!-- The outer border + the drag knob and the delete button live on the
-       list's collapsed/expanded wrapper (user request 2026-08-12 — only
-       ONE knob and ONE "x", both in the list's headers). -->
+       list's collapsed/expanded wrapper — only ONE knob and ONE "x",
+       both in the list's headers. -->
   <div
     class="p-4"
     :data-testid="props.test_id"

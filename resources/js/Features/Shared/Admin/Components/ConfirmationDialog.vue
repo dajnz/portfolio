@@ -1,4 +1,3 @@
-<!-- ConfirmationDialog (admin-section-components.md:138-164) — destructive-action confirmation on AdminBaseModal. -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { ref, watch } from 'vue';
@@ -76,8 +75,7 @@ watch(
     @update:model-value="emit('update:modelValue', $event)"
   >
     <!-- The whole body block is omitted when there is nothing to show —
-         the title-only delete dialogs must not render an empty box
-         (5.2 rework). -->
+         a title-only delete dialog must not render an empty box. -->
     <div
       v-if="props.message || $slots.body || props.require_password"
       class="space-y-4"

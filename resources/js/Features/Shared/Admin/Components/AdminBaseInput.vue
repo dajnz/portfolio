@@ -1,4 +1,3 @@
-// admin-section-components.md:27-29 — mirrors PublicBaseInput
 <script setup lang="ts">
 import { computed, ref, useId } from 'vue';
 
@@ -67,8 +66,7 @@ function onInput(event: Event): void {
     emit('update:modelValue', (event.target as HTMLInputElement).value);
 }
 
-// Exposed so auth pages can auto-focus the single-field forms
-// (admin-section-components.md:1568).
+// Exposed so auth pages can auto-focus the single-field forms.
 defineExpose({
     focus: (): void => {
         inputEl.value?.focus();

@@ -52,8 +52,8 @@ const listboxId = useId();
 const debounceTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 let activeRequest: AbortController | null = null;
 
-// Removal announcement (a11y 13.6 #12): the remove button unmounts with
-// its pill, so the removal is announced through a live region instead.
+// Removal announcement: the remove button unmounts with its pill, so the
+// removal is announced through a live region instead.
 const REMOVAL_ANNOUNCEMENT_MS = 1500;
 const removalAnnouncement = ref('');
 let removalTimer: ReturnType<typeof setTimeout> | null = null;
@@ -231,10 +231,9 @@ function cleanup(): void {
     activeRequest?.abort();
 }
 
-// A click anywhere outside the control closes the suggestion popup (the
-// dropdown stayed open forever before — user rework 2026-08-16). Clicks
-// on suggestions use `@mousedown.prevent`, so selecting one never races
-// the document listener (the same pattern as PublicBaseDropdown).
+// A click anywhere outside the control closes the suggestion popup.
+// Clicks on suggestions use `@mousedown.prevent`, so selecting one never
+// races the document listener (the same pattern as PublicBaseDropdown).
 function onDocumentClick(event: MouseEvent): void {
     if (isOpen.value && rootEl.value !== null && !rootEl.value.contains(event.target as Node)) {
         isOpen.value = false;
@@ -268,9 +267,7 @@ onBeforeUnmount(() => {
     </p>
     <div class="tag-filter__pills">
       <!-- The icon is the row's FIRST child — it stays at the left
-           edge even when pills are selected (user rework 2026-08-16;
-           it used to live inside the input-wrap and slid after the
-           pills). -->
+           edge even when pills are selected. -->
       <Icon
         class="tag-filter__input-icon"
         icon="heroicons:tag"
@@ -388,9 +385,8 @@ onBeforeUnmount(() => {
 
 /* The pill row keeps the exact height of a single input
    (`--input-height` — the same height as the search box and the sort
-   dropdown; user rework 2026-08-16): the pills stay on one line and
-   overflow horizontally (hidden scrollbar) instead of wrapping the
-   control taller. */
+   dropdown): the pills stay on one line and overflow horizontally
+   (hidden scrollbar) instead of wrapping the control taller. */
 .tag-filter__pills {
     display: flex;
     flex-wrap: nowrap;
@@ -424,7 +420,7 @@ onBeforeUnmount(() => {
 }
 
 /* The icon sits at the row's start as a static flex item (no absolute
-   positioning — it stays before the pills, user rework 2026-08-16). */
+   positioning — it stays before the pills). */
 .tag-filter__input-icon {
     flex-shrink: 0;
     width: 1.1em;

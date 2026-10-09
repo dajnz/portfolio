@@ -1,4 +1,4 @@
-<!-- SocialAccounts (admin-section-components.md:1515-1532) — linked-accounts card of the profile page. GitHub is the only provider; unlink requires confirmation. -->
+<!-- SocialAccounts — linked-accounts card of the profile page. GitHub is the only provider; unlink requires confirmation. -->
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import ConfirmationDialog from '@shared-admin/ConfirmationDialog.vue';
@@ -73,8 +73,7 @@ function confirmUnlink(): void {
       :data-testid="`${props.test_id}-account-${account.provider}`"
     >
       <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-900 text-white">
-        <!-- Inline octocat mark (mockup sprite) — simple-icons is not
-             registered until step 7.2 (ADR-0023). -->
+        <!-- Inline octocat mark — simple-icons is not registered. -->
         <svg
           viewBox="0 0 24 24"
           class="w-5 h-5"

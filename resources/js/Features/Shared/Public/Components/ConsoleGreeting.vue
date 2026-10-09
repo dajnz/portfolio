@@ -1,7 +1,7 @@
 <script lang="ts">
-// Side-effect only — renders no visible DOM (public-section-components.md:
-// 588). `render: () => null` avoids the dev-mode "missing template or
-// render function" warning that a template-less SFC emits.
+// Side-effect only — renders no visible DOM. `render: () => null` avoids
+// the dev-mode "missing template or render function" warning that a
+// template-less SFC emits.
 export default {
     render: () => null,
 };
@@ -40,8 +40,8 @@ interface PageProps extends InertiaPageProps {
 }
 
 // Active in development, or in production when the `console_greeting`
-// feature flag is enabled (public-section-components.md:578-590). The
-// flag comes from the shared props (feature_flags table, default off).
+// feature flag is enabled. The flag comes from the shared props
+// (feature_flags table, default off).
 function isActive(): boolean {
     const flags = usePage<PageProps>().props.featureFlags ?? {};
 

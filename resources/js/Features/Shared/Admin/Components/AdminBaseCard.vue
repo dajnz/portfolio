@@ -1,4 +1,3 @@
-// admin-section-components.md:93-95 — mirrors PublicBaseCard
 <script setup lang="ts">
 import { computed } from 'vue';
 

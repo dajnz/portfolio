@@ -5,17 +5,17 @@ import { useAnalytics } from './useAnalytics';
 
 /**
  * `theme` cookie semantics mirror the SSR blocking inline script in
- * `resources/views/app.blade.php` (i18n-and-theming.md:179-190) — the
- * toggle must write the same cookie so the next SSR request agrees.
+ * `resources/views/app.blade.php` — the toggle must write the same
+ * cookie so the next SSR request agrees.
  */
 const THEME_COOKIE = 'theme';
 const THEME_COOKIE_MAX_AGE = 31536000;
 
 /**
- * Theme toggle handling (i18n-and-theming.md:197-198): toggles the
- * `dark` class on `<html>`, writes the `theme` cookie, fires the
- * `cta_click_theme` analytics event, and keeps the themeStore in sync.
- * No Inertia reload — the cookie alone guarantees the next SSR render.
+ * Theme toggle handling: toggles the `dark` class on `<html>`, writes
+ * the `theme` cookie, fires the `cta_click_theme` analytics event, and
+ * keeps the themeStore in sync. No Inertia reload — the cookie alone
+ * guarantees the next SSR render.
  */
 export function useTheme(): {
     theme: Ref<Theme>;
@@ -38,7 +38,7 @@ export function useTheme(): {
             return;
         }
 
-        // biome-ignore lint/suspicious/noDocumentCookie: spec-mandated `theme` cookie (i18n-and-theming.md:175-198)
+        // biome-ignore lint/suspicious/noDocumentCookie: spec-mandated `theme` cookie
         document.cookie = `${THEME_COOKIE}=${theme};path=/;max-age=${THEME_COOKIE_MAX_AGE};SameSite=Lax`;
     }
 

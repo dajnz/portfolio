@@ -20,10 +20,6 @@ export interface ShowToastOptions {
     dismissible?: boolean;
 }
 
-/**
- * Auto-dismiss defaults per error-handling.md:76-81 (success 5 s, error
- * manual, warning 8 s, info 5 s).
- */
 export const DEFAULT_TOAST_DURATIONS: Record<ToastVariant, number | null> = {
     success: 5000,
     error: null,
@@ -32,8 +28,8 @@ export const DEFAULT_TOAST_DURATIONS: Record<ToastVariant, number | null> = {
 };
 
 /**
- * In-memory toast queue (architecture.md:193, error-handling.md:83-101).
- * Cleared on page navigation (wired at the app root); never persisted.
+ * In-memory toast queue. Cleared on page navigation (wired at the app
+ * root); never persisted.
  */
 export const useToastStore = defineStore('toast', () => {
     const toasts = ref<Toast[]>([]);

@@ -39,28 +39,27 @@ const { t } = useI18n();
 const themeStore = useThemeStore();
 const logoImage = computed(() => `/images/logo-full-${themeStore.theme}.svg`);
 
-// Self-contained theme/locale controls (public-section-components.md:389):
-// the header renders ThemeSwitch + LanguageSelector internally unless the
-// host overrides them via the `controls` slot (ADR-0023 bridge). The page must
-// be read REACTIVELY: `usePage().props` is the props object of the
-// current visit — capturing it once at setup keeps the stale visit's
-// locale forever (the component tree survives Inertia visits), which
-// breaks the language switch after the first change.
+// Self-contained theme/locale controls: the header renders ThemeSwitch +
+// LanguageSelector internally unless the host overrides them via the
+// `controls` slot. The page must be read REACTIVELY: `usePage().props` is
+// the props object of the current visit — capturing it once at setup
+// keeps the stale visit's locale forever (the component tree survives
+// Inertia visits), which breaks the language switch after the first
+// change.
 const page = usePage<{ locale?: string; supported_locales?: string[] }>();
 const activeLocale = computed(() => page.props?.locale ?? 'en');
 
 // The public selector also respects the `supported_locales` setting
-// (disabled locales are not offered, 5.2 rework).
+// (disabled locales are not offered).
 const supportedLocales = computed(() => localeOptionsFromCodes(page.props?.supported_locales));
 
 const visibleItems = computed(() => props.nav_items.filter((item) => item.condition !== false));
 
 // Mobile: the nav collapses into a hamburger-toggled panel below the
-// header (user request 2026-08-15); a link click closes it. The panel is
-// a DOM sibling of the header (NOT teleported) so the natural tab order
-// stays hamburger → panel links → main (a11y 13.6 #1); it sits outside
-// the header's backdrop root so its own backdrop-filter still blurs the
-// page content.
+// header; a link click closes it. The panel is a DOM sibling of the
+// header (NOT teleported) so the natural tab order stays hamburger →
+// panel links → main; it sits outside the header's backdrop root so its
+// own backdrop-filter still blurs the page content.
 const menuOpen = ref(false);
 const panelEl = ref<HTMLElement | null>(null);
 const hamburgerEl = ref<HTMLButtonElement | null>(null);
@@ -80,10 +79,10 @@ function handleKeydown(event: KeyboardEvent): void {
     }
 }
 
-// Click-away dismissal (the admin mobile menu pattern, admin-section-
-// components.md): any pointer press outside the panel and its hamburger
-// closes it — including the header controls, so a header popup such as
-// the language dropdown never sits under the panel.
+// Click-away dismissal (the admin mobile menu pattern): any pointer press
+// outside the panel and its hamburger closes it — including the header
+// controls, so a header popup such as the language dropdown never sits
+// under the panel.
 function handlePointerDown(event: Event): void {
     if (!menuOpen.value) {
         return;
@@ -190,10 +189,9 @@ function isActive(item: NavItem): boolean {
     </nav>
   </header>
   <!-- The mobile menu panel is a DOM sibling of the sticky header (NOT
-       teleported): it must follow the hamburger in tab order (a11y
-       13.6 #1), and as a non-descendant of the header it stays outside
-       the header's backdrop root, so its own backdrop-filter still
-       blurs the content below it. -->
+       teleported): it must follow the hamburger in tab order, and as a
+       non-descendant of the header it stays outside the header's backdrop
+       root, so its own backdrop-filter still blurs the content below it. -->
   <div
     v-if="menuOpen"
     id="public-mobile-menu"
@@ -243,8 +241,7 @@ function isActive(item: NavItem): boolean {
     gap: var(--space-lg);
     width: 100%;
 
-    /* The header content follows the landing content width token
-       (user request 2026-08-15). */
+    /* The header content follows the landing content width token. */
     max-width: var(--layout-content);
     margin: 0 auto;
 }
@@ -310,7 +307,7 @@ function isActive(item: NavItem): boolean {
 }
 
 /* Mobile: only logo + controls + hamburger in the bar; the inline menu
-   hides and the teleported glass panel (below) takes over. */
+   hides and the glass panel (below) takes over. */
 @media (width <= 768px) {
     .header__hamburger {
         display: inline-flex;
@@ -320,11 +317,11 @@ function isActive(item: NavItem): boolean {
         display: none;
     }
 
-    /* User rework 2026-08-16: on mobile the language+theme group sits
-       flush against the hamburger — right-aligned (the nav's
-       space-between would otherwise center it) with the SAME gap
-       between the hamburger and the group as inside the group
-       (space-md), so the three buttons read as one unit. */
+    /* On mobile the language+theme group sits flush against the
+       hamburger — right-aligned (the nav's space-between would otherwise
+       center it) with the SAME gap between the hamburger and the group
+       as inside the group (space-md), so the three buttons read as one
+       unit. */
     .header__nav {
         gap: var(--space-md);
     }
@@ -334,10 +331,10 @@ function isActive(item: NavItem): boolean {
     }
 }
 
-/* The teleported panel — fixed below the sticky header (its top edge
-   aligns with the header's bottom edge). Teleported to <body> so the
-   backdrop-filter blurs the page content: inside the header it would sit
-   in the header's backdrop root and blur nothing below it. */
+/* The panel — fixed below the sticky header (its top edge aligns with
+   the header's bottom edge). As a non-descendant of the header it stays
+   outside the header's backdrop root, so its own backdrop-filter blurs
+   the page content: inside the header it would blur nothing below it. */
 .header__mobile-menu {
     position: fixed;
     top: var(--header-height);

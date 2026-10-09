@@ -1,4 +1,4 @@
-<!-- BackupStats (admin-section-components.md:1461-1477, backups.html) — the stats card: total count + size, the encryption state ("Active (k{id})" / "Inactive"), the last backup stamp and the Create Backup Now action. -->
+<!-- BackupStats — the stats card: total count + size, the encryption state ("Active (k{id})" / "Inactive"), the last backup stamp and the Create Backup Now action. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';

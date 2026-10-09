@@ -1,4 +1,3 @@
-<!-- SkillGroup (public-section-components.md:958-967) — one skill group's card: header (icon + name) + the SkillItem list. Renders `SkillItem` children internally; the parent does not render the group when it has no skills. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 

@@ -3,7 +3,7 @@ import { router } from '@inertiajs/vue3';
 import { randomUuid } from '../Utils/randomUuid';
 
 /**
- * The public page kinds reported with every event (ADR-0017) — the backend
+ * The public page kinds reported with every event — the backend
  * attributes events to entities (blog article / project detail) from
  * this context, no URL matching.
  */
@@ -26,7 +26,7 @@ export interface AnalyticsEvent {
 
 export interface AnalyticsTracker {
     track: (eventType: string, metadata?: Record<string, unknown>) => void;
-    /** The page context for every event fired from now on (ADR-0017). */
+    /** Page context applied to every event fired from now on. */
     setPageContext: (type: PageType | null, entityId?: number | null) => void;
     /**
      * Fires the page view for the just-mounted page and restarts the
@@ -55,16 +55,15 @@ let pageContext: { type: PageType | null; entityId: number | null } = {
 // from many sites (the app root, the layout's LanguageSelector, every
 // public page's `usePageTracking`, the CTA components). Each instance
 // would register its own router listeners + flush interval and fire
-// its own copy of every event — the observed N× event duplication
-// (a single blog visit recorded 8 page_views). The singleton shares
-// one buffer, one interval and one listener set.
+// its own copy of every event. The singleton shares one buffer, one
+// interval and one listener set.
 let instance: AnalyticsTracker | null = null;
 
 /**
- * Session-scoped analytics tracker (analytics.md:45-114). Registered
- * exactly once as a module-level singleton; components fire events
- * through `track()`. On the SSR side (no `window`) it degrades to a
- * no-op so the server render never touches browser storage.
+ * Session-scoped analytics tracker. Registered exactly once as a
+ * module-level singleton; components fire events through `track()`. On
+ * the SSR side (no `window`) it degrades to a no-op so the server
+ * render never touches browser storage.
  */
 export function useAnalytics(): AnalyticsTracker {
     if (typeof window === 'undefined') {
@@ -90,11 +89,10 @@ export function useAnalytics(): AnalyticsTracker {
     }
 
     function track(eventType: string, metadata: Record<string, unknown> = {}): void {
-        // Tracking is [Public]-only (analytics.md:3,38) — the admin
-        // section must never emit events (the backend drops any strays
-        // at aggregation, AggregateDailyMetricsUseCase). The URL is
-        // read here so the departing page's `time_on_page` is judged
-        // by its own path.
+        // Tracking is [Public]-only — the admin section must never emit
+        // events (the backend drops any strays at aggregation,
+        // AggregateDailyMetricsUseCase). The URL is read here so the
+        // departing page's `time_on_page` is judged by its own path.
         if (window.location.pathname.startsWith('/admin')) {
             return;
         }
@@ -108,7 +106,7 @@ export function useAnalytics(): AnalyticsTracker {
             session_id: sessionId,
         });
 
-        // ADR-0017 safety net: drop the newest events once the buffered batch
+        // Safety net: drop the newest events once the buffered batch
         // exceeds 45 KB so it never hits the backend's 50 KB payload cap.
         let bytes = 0;
         let dropFrom = -1;
@@ -150,9 +148,8 @@ export function useAnalytics(): AnalyticsTracker {
                 keepalive: useKeepalive,
             });
         } catch {
-            // The endpoint is implemented in step 11.1 (ADR-0017); failed
-            // deliveries are dropped silently — never break the app for
-            // analytics.
+            // Failed deliveries are dropped silently — never break the
+            // app for analytics.
         }
     }
 

@@ -3,9 +3,8 @@ import { getCurrentScope, onScopeDispose, type Ref, ref } from 'vue';
 import { useAnalytics } from './useAnalytics';
 
 /**
- * Read-progress threshold — the plan's 76% trigger (spec wording "75%+"
- * scroll depth, analytics.md:40 — 0.76 is the first integer crossing of
- * 75%).
+ * Read-progress threshold — 0.76 is the first integer crossing of 75%
+ * scroll depth.
  */
 export const ARTICLE_READ_THRESHOLD = 0.76;
 
@@ -16,10 +15,9 @@ export interface ReadingProgress {
 }
 
 /**
- * Scroll-position tracker for article pages (analytics.md:25,40 and
- * public-section-components.md:1290): emits the `article_read` analytics
- * event exactly once when the reader reaches the threshold scroll depth,
- * with `{ article_id, percentage_completed }` metadata.
+ * Scroll-position tracker for article pages: emits the `article_read`
+ * analytics event exactly once when the reader reaches the threshold
+ * scroll depth, with `{ article_id, percentage_completed }` metadata.
  *
  * Performance: the `scroll` listener is passive (never blocks scrolling)
  * and the measurement is coalesced to one `requestAnimationFrame` — the

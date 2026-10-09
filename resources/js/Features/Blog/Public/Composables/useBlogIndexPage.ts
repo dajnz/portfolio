@@ -11,9 +11,8 @@ export type ViewMode = 'grid' | 'list';
 
 /** A selected tag pill — the `type` discriminator keeps the article
  *  tag and skill id spaces unambiguous (`?article_tags=` vs
- *  `?skill_tags=`, content-management.md:200). Optional (the shared
- *  PublicTagFilter's model type) — a missing type means an article
- *  tag. */
+ *  `?skill_tags=`). Optional (the shared PublicTagFilter's model type)
+ *  — a missing type means an article tag. */
 export interface SelectedTagView {
     id: number;
     name: string;
@@ -51,23 +50,19 @@ export const BLOG_VIEW_MODE_COOKIE = 'blog_view_mode';
 const VIEW_MODE_COOKIE_MAX_AGE = 31536000;
 
 /**
- * Maps the committed BlogIndexPageProps wire shape
- * (docs/openapi/inertia/blog.yaml) onto the blog index component
- * contracts (public-section-components.md:1209-1239): the resolved
- * card views, the URL-synced filter state (`?q=`, `?article_tags=` +
- * `?skill_tags=` — the AND/intersect split per tag type, `?year=`),
- * the grid/list view mode persisted in the `blog_view_mode` cookie
- * (architecture.md:204 — client-side write + read, the backend has
- * no view-mode prop), and the infinite-scroll machinery mirroring
- * 9.2/9.3: "Load More" reloads with the opaque `next_cursor`
- * (`replace: true` — history.replaceState per
- * public-section-ui.md:329-342) and the client REPLACES its items
- * with the reconstructed superset response (ADR-0010); a failed request
- * flips the inline error banner, `retry()` restarts from the initial
- * batch. Filter changes reload from the beginning — the cursor resets
- * because the reloaded URL carries no `cursor` param
- * (public-section-ui.md:156). The ADR-0025 nav mirrors the other public
- * pages: the Projects link is conditional on `has_projects` (ADR-0004).
+ * Maps the blog index wire props onto the page's view contracts: the
+ * resolved card views, the URL-synced filter state (`?q=`,
+ * `?article_tags=` + `?skill_tags=` — the AND/intersect split per tag
+ * type, `?year=`), the grid/list view mode persisted in the
+ * `blog_view_mode` cookie (client-side write + read; the backend has no
+ * view-mode prop), and the infinite-scroll machinery: "Load More"
+ * reloads with the opaque `next_cursor` (`replace: true` —
+ * history.replaceState) and the client replaces its items with the
+ * reconstructed superset response; a failed request flips the inline
+ * error banner, `retry()` restarts from the initial batch. Filter
+ * changes reload from the beginning because the reloaded URL carries no
+ * `cursor` param. The nav's Projects link is conditional on
+ * `has_projects`.
  */
 export function useBlogIndexPage(props: {
     articles?: WireArticleCard[];
@@ -89,7 +84,7 @@ export function useBlogIndexPage(props: {
     );
 
     // The year filter options — the wire sends integers, the header
-    // contract declares strings (public-section-components.md:1223).
+    // contract declares strings.
     const availableYears = computed<string[]>(() =>
         (props.years ?? []).map((year) => String(year)),
     );
@@ -161,7 +156,7 @@ export function useBlogIndexPage(props: {
 
     function setViewMode(mode: ViewMode): void {
         viewMode.value = mode;
-        // biome-ignore lint/suspicious/noDocumentCookie: the spec-mandated `blog_view_mode` cookie (architecture.md:204), same pattern as useTheme/useI18n
+        // biome-ignore lint/suspicious/noDocumentCookie: the `blog_view_mode` cookie, same pattern as useTheme/useI18n
         document.cookie = `${BLOG_VIEW_MODE_COOKIE}=${mode};path=/;max-age=${VIEW_MODE_COOKIE_MAX_AGE};SameSite=Lax`;
     }
 
@@ -266,7 +261,7 @@ function initialQueryParam(name: string): string {
  * carries every selected skill, so the visible batch always resolves
  * the names. On an empty batch (a no-results reload) unresolvable
  * skill pills are omitted — the URL still applies the filter
- * server-side (ADR-0025).
+ * server-side.
  */
 function initialSelectedTags(tags: WireTag[], articles: WireArticleCard[]): SelectedTagView[] {
     if (typeof window === 'undefined') {

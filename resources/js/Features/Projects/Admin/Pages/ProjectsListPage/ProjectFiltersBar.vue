@@ -1,8 +1,3 @@
-<!-- ProjectFiltersBar — the sticky filters bar of the projects list
-     (view toggle + search + New Project in the upper row; tag filter,
-     published status, Featured-only and Show-trashed in the lower row).
-     Pure value+emit contract — the page orchestrator applies the
-     filters. -->
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminBaseCheckbox from '@shared-admin/AdminBaseCheckbox.vue';

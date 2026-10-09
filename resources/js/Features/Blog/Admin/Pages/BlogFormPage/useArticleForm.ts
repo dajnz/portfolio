@@ -1,13 +1,3 @@
-/**
- * The blog form's state composable (2026-08-14 user request — the
- * BlogFormPage complex-component split): owns the reactive form (the
- * per-locale maps + slug + lead image + unified tags + related ids +
- * toggles), the ADR-0006 slug auto-generation, the save round trip (POST /
- * PUT with the guard suppression and the per-locale error toasts) and
- * the /api/upload flows (lead image + the editor's inline image).
- * `useUnsavedChanges` guards the form against accidental navigation.
- */
-
 import type { ArticleEditData } from '@blog/Admin/Types/article';
 import { router } from '@inertiajs/vue3';
 
@@ -28,7 +18,7 @@ export interface BlogFormValues {
     lead_image: string | null;
     lead_image_alt: Record<string, string>;
     // The unified picker pills — split into `tags` / `skill_tags` at
-    // submit (admin-section-components.md:680, the form-mode rule).
+    // submit.
     tags: Array<{ id: number; name: string; type: 'tag' | 'skill' }>;
     related_article_ids: number[];
     is_featured: boolean;
@@ -164,9 +154,9 @@ export function useArticleForm(options: UseArticleFormOptions): UseArticleFormAp
 
         // Auto-generate the slug from the EN title while the field is
         // still untouched (create mode). Once edited, the manual
-        // override wins (ADR-0006 — the backend keeps a submitted slug that
-        // differs from the stored one and regenerates the auto value
-        // with a suffix).
+        // override wins (the backend keeps a submitted slug that differs
+        // from the stored one and regenerates the auto value with a
+        // suffix).
         if (locale === 'en' && !slugTouched.value) {
             form.slug = slugify(value);
         }
@@ -189,7 +179,7 @@ export function useArticleForm(options: UseArticleFormOptions): UseArticleFormAp
     // (`related_articles.0`, `tags.2`, `skill_tags.0` — Laravel's
     // dotted index keys), while the field's `error` prop binds the bare
     // key. Fall back to the first `field.N` entry so nested errors are
-    // actually visible (the silent-save-failure report, 2026-08-13).
+    // actually visible.
     function nestedFieldError(field: string): string | null {
         return (
             errors.value[field] ??

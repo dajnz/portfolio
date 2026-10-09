@@ -1,4 +1,6 @@
-<!-- AdminPageHeader (admin-section-components.md:344-406, admin-section-ui.md:58-75) — full-width top bar (content spans the whole header, not the centred container — mockup profile.html): logo left, controls + admin identity right. The `controls` slot defaults to the shared ThemeSwitch + LanguageSelector (ADR-0023 bridge) with the Tailwind classes from `theme_props`/`language_classes`. Responsive (breakpoint `lg`, ADR-0024): below lg the identity group (avatar letter + name → profile) and the Logout button are hidden and a hamburger renders as the rightmost control — right of the language selector — toggling the full-width mobile menu (`toggle-mobile-menu`, aria-expanded/aria-controls="admin-mobile-menu"). The admin name/avatar letter fall back to the shared `auth.user` prop so every admin page shows the identity without per-page props (4.2 rework, user request). -->
+<!-- Full-width top bar: below lg the identity/logout are hidden and a
+     hamburger toggles the mobile menu; the admin name/avatar fall back to
+     the shared `auth.user` prop. -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import LanguageSelector from '@shared-cross/Components/LanguageSelector.vue';
@@ -55,7 +57,7 @@ const page = usePage<{ auth?: { user?: { name?: string } } }>();
 const themeStore = useThemeStore();
 const logoImage = computed(() => `/images/logo-full-${themeStore.theme}.svg`);
 
-// `admins.name` mirrors the login (ADR-0013) and is shared on every page as
+// The admin name mirrors the login and is shared on every page as
 // `auth.user` — the explicit prop only overrides it.
 const resolvedAdminName = computed(() => props.admin_name ?? page.props?.auth?.user?.name ?? '');
 
@@ -77,8 +79,8 @@ function handleLogout(): void {
     class="sticky top-0 z-overlay bg-white dark:bg-surface-dark border-b border-slate-200 dark:border-slate-700"
     :data-testid="props.test_id"
   >
-    <!-- The header content spans the FULL header width (mockup profile.html
-         header) — only the main content column is block-centred. -->
+    <!-- The header content spans the FULL header width — only the main
+         content column is block-centred. -->
     <div class="flex items-center justify-between h-16 px-4 sm:px-6">
       <a
         class="flex items-center"
@@ -92,8 +94,6 @@ function handleLogout(): void {
           :data-testid="`${props.test_id}-logo-image`"
         >
       </a>
-      <!-- Right cluster order: controls, hamburger (mobile only), identity +
-           logout (lg+ only — the divider lives on the identity group). -->
       <div class="flex items-center gap-2 sm:gap-3">
         <div class="flex items-center gap-3">
           <slot name="controls">

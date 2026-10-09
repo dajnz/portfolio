@@ -1,4 +1,3 @@
-<!-- TimelineItem (public-section-components.md:1051-1063, mockup experience.html) — one timeline row: the dot on the central rail, the card on the item's side (alternating left/right by index — `side` prop, `timeline__item--left/--right` states), the period opposite the card on desktop (inside the card above the position on mobile per the mockup). The card click and the Details button emit `show-details`; the "+N" overflow button emits `show-tags`. `is_current` items get the distinct dot modifier (`.timeline-item--current`). -->
 <script setup lang="ts">
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -140,8 +139,8 @@ function onCardClick(event: MouseEvent): void {
     margin-bottom: var(--space-xl);
 
     /* Desktop: card column + central rail column + opposite period column.
-       Mobile (mockup): single column — the rail moves to the left edge
-       (user decision 2026-08-15) and the period stays inside the card. */
+       Mobile: single column — the rail moves to the left edge and the
+       period stays inside the card. */
     --timeline-rail: 48px;
     --timeline-gap: var(--space-xl);
 }
@@ -150,10 +149,9 @@ function onCardClick(event: MouseEvent): void {
     margin-bottom: 0;
 }
 
-/* The dot — centered on the rail (desktop: 50%; mobile: the mockup's
-   left-rail offset — rail center 7px, the +7px cancels the centering
-   shift, exactly as in experience.html) and vertically centered on the
-   item (user rework 2026-08-15 — the item's middle, not its top). */
+/* The dot — centered on the rail (desktop: 50%; mobile: the left-rail
+   offset — rail center 7px, the +7px cancels the centering shift) and
+   vertically centered on the item (the item's middle, not its top). */
 .timeline-item::before {
     content: '';
     position: absolute;
@@ -198,11 +196,10 @@ function onCardClick(event: MouseEvent): void {
     margin: 0 0 var(--space-xs);
 }
 
-/* The company + country line below the position (user rework
-   2026-08-15 — the card heading carries the position only, the company
-   pair sits under it in the muted style, matching the modal headings).
-   Its bottom margin doubles the old heading↔description gap
-   (space-sm = 2 × space-xs). */
+/* The company + country line below the position (the card heading carries
+   the position only, the company pair sits under it in the muted style,
+   matching the modal headings). Its bottom margin is the
+   heading↔description gap (space-sm = 2 × space-xs). */
 .timeline-item__company {
     font-size: var(--font-size-sm);
     font-weight: var(--font-medium);
@@ -244,10 +241,9 @@ function onCardClick(event: MouseEvent): void {
     margin-top: var(--space-sm);
 }
 
-/* Desktop: the two-column alternation (public-section-ui.md:103-136) —
-   the card in the outer column, the period moved out of the card into
-   the opposite column, hugging the rail and vertically centered on the
-   item (user rework 2026-08-15 — aligned with the item's middle and
+/* Desktop: the two-column alternation — the card in the outer column, the
+   period moved out of the card into the opposite column, hugging the rail
+   and vertically centered on the item (aligned with the item's middle and
    its dot, not the card's first row). */
 @media (width >= 768px) {
     .timeline-item {

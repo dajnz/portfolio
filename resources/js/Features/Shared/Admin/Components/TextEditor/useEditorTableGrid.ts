@@ -1,7 +1,7 @@
 /**
- * The table-size picker grid state (ADR-0024 — Google Docs / Notion
- * style): the 6×6 cells, the hovered region grows from the top-left
- * corner, a live `rows × cols` label follows (initial 3×3), arrow keys
+ * The table-size picker grid state (Google Docs / Notion style): the
+ * 6×6 cells, the hovered region grows from the top-left corner, a live
+ * `rows × cols` label follows (initial 3×3), arrow keys
  * move the hover, Enter inserts. Owned by EditorConfigPopup (the
  * popup registers its own keydown listener for the table mode).
  */

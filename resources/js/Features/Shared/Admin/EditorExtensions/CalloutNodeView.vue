@@ -1,11 +1,6 @@
-<!-- The in-editor rendering of the callout node (ADR-0024 — 2026-08-14
-     review): a Vue NodeView (via `Callout.addNodeView`) so the block can
-     show the translated type label + per-type icon (renderHTML cannot
-     translate, CSS cannot localize), matching the public style-guide
-     callout shape — full border radius, 4px left border, uppercase
-     icon+label title row (style-guide.html #callouts). The wrapper keeps
-     the `data-callout` marker (tests + copy/paste parseHTML), the
-     markdown round trip stays in `Callout.ts`. -->
+<!-- The in-editor callout rendering: a Vue NodeView (via
+     `Callout.addNodeView`) so the block can show a translated type label +
+     per-type icon — renderHTML cannot translate and CSS cannot localize. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';

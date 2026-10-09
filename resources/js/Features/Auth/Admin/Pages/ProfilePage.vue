@@ -1,4 +1,4 @@
-<!-- ProfilePage (admin-section-components.md:1445-1484, admin-section-ui.md) — admin profile: credentials form, password change, linked GitHub account, TOTP 2FA. Wrapped in AdminPageLayout. -->
+<!-- ProfilePage — admin profile: credentials form, password change, linked GitHub account, TOTP 2FA. Wrapped in AdminPageLayout. -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
@@ -52,8 +52,8 @@ const { t } = useI18n();
 const toast = useToast();
 const { post } = useJsonApi();
 
-// The `admins.name` mirrors the login (ADR-0013); the page contract does not
-// carry it, so the Name field is prefilled from the shared `auth.user`.
+// The `admins.name` mirrors the login; the page contract does not carry
+// it, so the Name field is prefilled from the shared `auth.user`.
 const page = usePage<{ auth?: { user?: { name?: string } }; locale?: string }>();
 const adminName = computed(() => page.props?.auth?.user?.name ?? props.admin.login);
 
@@ -87,7 +87,7 @@ const socialAccounts = computed<SocialAccount[]>(() => [
         provider_name: t('admin.profile.github'),
         is_linked: props.admin.github_linked,
         // The backend does not expose the link date; the row falls back
-        // to a generic "Linked" label (admin-section-components.md:1515-1532).
+        // to a generic "Linked" label.
         linked_at: null,
     },
 ]);

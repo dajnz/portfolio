@@ -1,4 +1,3 @@
-<!-- Timeline (public-section-components.md:1039-1049, mockup experience.html) — the vertical rail with the bottom-50px mask fade (only the line dissolves; the last item's dot stays visible), alternating TimelineItems (newest first — index 0 left, index 1 right), the skeleton state (3-4 alternating item skeletons), and the empty state (renders PublicEmptyState). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -21,8 +20,7 @@ const props = withDefaults(
 );
 
 // The page owns the modals — the item events bubble through Timeline
-// (the contract's "Outputs: None" is a spec gap: TimelineItem's
-// show-details/show-tags must reach the page).
+// (TimelineItem's show-details/show-tags must reach the page).
 const emit = defineEmits<{
     'show-details': [itemId: number];
     'show-tags': [itemId: number];
@@ -105,20 +103,18 @@ const skeletonItems = [0, 1, 2, 3];
 </template>
 
 <style scoped>
-/* The shell hosts the rail cap (user rework 2026-08-15) and carries the
-   content width: the timeline now spans the full `--layout-content`
-   (1000px — the header/footer width) instead of the mockup's 760px. */
+/* The shell hosts the rail cap and carries the content width: the timeline
+   spans the full `--layout-content` (1000px — the header/footer width). */
 .timeline-shell {
     position: relative;
     max-width: var(--layout-content);
     margin: 0 auto var(--space-2xl);
 }
 
-/* The rail (mockup experience.html, desktop variant): the bottom ~50 px
-   fade to transparent via a mask gradient so the rail's end dissolves
-   into the page background instead of a hard edge. Dots are unaffected
-   (they live on .timeline-item::before). Mobile moves the rail to the
-   left edge (user decision 2026-08-15 — the mockup's single column). */
+/* The rail (desktop variant): the bottom ~50 px fade to transparent via a
+   mask gradient so the rail's end dissolves into the page background
+   instead of a hard edge. Dots are unaffected (they live on
+   .timeline-item::before). Mobile moves the rail to the left edge. */
 .timeline {
     position: relative;
     list-style: none;
@@ -138,10 +134,10 @@ const skeletonItems = [0, 1, 2, 3];
     mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 50px), transparent 100%);
 }
 
-/* The semantic cap for the rail's top end (user rework 2026-08-15): a
-   briefcase badge centered on the rail's start — the career-timeline
-   marker. Positioned on the shell so it follows the rail (left edge on
-   mobile, center on desktop) without being a list item. */
+/* The semantic cap for the rail's top end: a briefcase badge centered on
+   the rail's start — the career-timeline marker. Positioned on the shell so
+   it follows the rail (left edge on mobile, center on desktop) without
+   being a list item. */
 .timeline__cap {
     position: absolute;
     top: 4px;
@@ -160,9 +156,9 @@ const skeletonItems = [0, 1, 2, 3];
     box-shadow: var(--shadow-sm);
 }
 
-/* Desktop: the centered line with the items alternating on both sides
-   (public-section-ui.md:103-136). The mobile rail-offset padding is
-   dropped so the cards span their full column. */
+/* Desktop: the centered line with the items alternating on both sides.
+   The mobile rail-offset padding is dropped so the cards span their full
+   column. */
 @media (width >= 768px) {
     .timeline {
         padding: 0;

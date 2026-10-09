@@ -1,4 +1,3 @@
-<!-- FeaturedProjectCard (Portfolio feature — NOT the shared Projects ProjectCard) — the landing's compact featured-project card (mockup index.html:587-623). Always renders a STATIC preview image or the same no-image placeholder as the projects index cards (large faint photo icon on the tinted surface — user request 2026-08-16) when the project has no preview (no carousel, no action buttons — the landing wire carries neither screenshots nor URLs). The card look comes from the global `.card` pattern (resources/css/app.css — the mockup's pages.css); tech-tag chips link to `/projects?tags={id}` only when `tags_linked` (more published projects than featured — 9.1 decision) and render after the feature's lazy icon registration. The card is a container with a stretched anchor overlay to `/projects/{slug}` (a DOM sibling of the card's own filter-chip links — nested anchors would be invalid HTML); the overlay keeps the whole card clickable. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
@@ -51,8 +50,8 @@ const iconsReady = usePublicIconsReady();
       aria-hidden="true"
       :data-testid="`${props.test_id}-placeholder`"
     >
-      <!-- The projects index placeholder (user request 2026-08-16):
-           the large faint photo icon, no text label. -->
+      <!-- Same placeholder as the projects index: the large faint photo
+           icon, no text label. -->
       <Icon
         class="project-card__placeholder-icon"
         icon="heroicons:photo"
@@ -103,17 +102,16 @@ const iconsReady = usePublicIconsReady();
     z-index: 2;
 }
 
-/* The image IS the `.card__image` slot (9.1 markup): the global class
-   supplies the 16/9 frame, this crops non-16:9 uploads. */
+/* The image IS the `.card__image` slot: the global class supplies the
+   16/9 frame, this crops non-16:9 uploads. */
 .project-card__image {
     object-fit: cover;
 }
 
 /* The placeholder image slot: the global `.card__image` supplies the
-   aspect ratio, radius and background — this swaps the fill for the
-   same look as the projects index placeholder (tinted surface with a
-   dashed inner frame + the large faint photo icon; user request
-   2026-08-16). */
+   aspect ratio, radius and background — this swaps the fill for the same
+   look as the projects index placeholder (tinted surface with a dashed
+   inner frame + the large faint photo icon). */
 .project-card__image--placeholder {
     background:
         linear-gradient(135deg, var(--color-bg-tertiary) 25%, transparent 25%) 0 0 / 16px 16px,

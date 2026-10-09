@@ -1,4 +1,3 @@
-<!-- ExperienceDetailModal (public-section-components.md:1078-1090, mockup experience.html) — a single PublicBaseModal showing the full details of the selected timeline item: the period, the achievements list (each with the optional inline "read the writeup" link), all tech tags, and the project reference. Opened via `show-details` (Details button or card click). Heading split per the user rework 2026-08-15 (same as the tag popup): the position is the modal title, the company renders below it in a muted style. -->
 <script setup lang="ts">
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';

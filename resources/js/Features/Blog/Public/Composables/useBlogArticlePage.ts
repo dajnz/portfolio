@@ -36,14 +36,13 @@ export interface ArticleDetailView {
     related: ArticleCardView[];
     views_count: number;
     /** The visitor's reaction state — null when the `social_reactions`
-     *  feature flag is off (no widget rendered — the ArticleContent
-     *  contract's `article.reactions`, public-section-components.md:
-     *  1268-1290) or on the signed preview (ADR-0004). */
+     *  feature flag is off (no widget rendered) or on the signed
+     *  preview. */
     reactions: WireReactions;
 }
 
-/** A TableOfContents entry — h2/h3 only (public-section-components.md:
- *  1312-1326; h4+ is silently dropped by the extractor). */
+/** A TableOfContents entry — h2/h3 only; h4+ is silently dropped by the
+ *  extractor. */
 export interface ArticleHeading {
     id: string;
     text: string;
@@ -64,17 +63,13 @@ export interface UseBlogArticlePageApi {
 }
 
 /**
- * Maps the committed BlogArticlePageProps wire shape
- * (docs/openapi/inertia/blog.yaml — `ArticleDetailData`) onto the
- * article page component contracts (public-section-components.md:
- * 1244-1341): the locale-resolved `lead_image_alt`, RustFS paths to
- * public `/assets/` URLs (ADR-0027), the related cards (the full
- * `ArticleCardData` — the detail's wire carries them), and the
- * `headings` the TableOfContents consumes — extracted from
- * `content_html` via DOMParser, `<h2 id>`/`<h3 id>` only (the
- * contract: the extractor scans the rendered HTML and drops h4+).
- * The reactions wire block (`null` when the `social_reactions` flag
- * is off — no widget, ADR-0004) is passed through untouched.
+ * Maps the wire article detail onto the page's view contracts: the
+ * locale-resolved `lead_image_alt`, RustFS paths to public `/assets/`
+ * URLs, the related cards, and the `headings` the TableOfContents
+ * consumes — extracted from `content_html` via DOMParser,
+ * `<h2 id>`/`<h3 id>` only (h4+ dropped). The reactions wire block
+ * (null when the `social_reactions` flag is off — no widget) is passed
+ * through untouched.
  */
 export function useBlogArticlePage(props: {
     article?: WireArticleDetail | null;
@@ -167,10 +162,9 @@ function localeText(map: Record<string, string> | undefined, locale: string): st
 }
 
 /**
- * The TOC headings — `<h2 id>`/`<h3 id>` only (the contract's
- * extractor rule; h4+ silently dropped). DOMParser over the
- * server-rendered HTML is SSR-safe and independent of the v-html
- * mount timing.
+ * The TOC headings — `<h2 id>`/`<h3 id>` only; h4+ silently dropped.
+ * DOMParser over the server-rendered HTML is SSR-safe and independent
+ * of the v-html mount timing.
  */
 function extractHeadings(contentHtml: string): ArticleHeading[] {
     if (contentHtml === '' || typeof DOMParser === 'undefined') {

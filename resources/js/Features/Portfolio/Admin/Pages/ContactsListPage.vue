@@ -1,4 +1,3 @@
-<!-- ContactsListPage (admin-section-components.md:864-880, admin-section-ui.md:304-308, contacts.html) — reorderable contacts list: SortableList drag-to-reorder (POST /admin/contacts/reorder per ADR-0005), inline editing with AdminIconPicker (brands) + locale-tabbed names, include-in-resume checkbox, cursor pagination. -->
 <script setup lang="ts">
 import type { IconifyJSON } from '@iconify/types';
 import { addCollection, Icon } from '@iconify/vue';
@@ -31,8 +30,8 @@ import { computed, reactive, ref, watch } from 'vue';
 export interface ContactRow extends Record<string, unknown> {
     id: number;
     name: string;
-    /** Per-locale names (server mapping, 4.2 deviation) — required to PUT
-     *  the include-in-resume toggle back (name is required per locale). */
+    /** Per-locale names — required to PUT the include-in-resume toggle back
+     *  (name is required per locale). */
     names?: Record<string, string>;
     value: string;
     icon: string | null;
@@ -98,8 +97,8 @@ function emptyDraft(): DraftContact {
 }
 
 // The contact icon cells render `simple-icons:*` names via the Iconify
-// `Icon` component — the collection must be registered offline (ADR-0023: no
-// runtime calls to the Iconify API) or the component fetches it on
+// `Icon` component — the collection must be registered offline (no runtime
+// calls to the Iconify API) or the component fetches it on
 // demand. Started at module scope so the import runs before the first
 // render (the contact rows are the first simple-icons consumers); the
 // picker's own set loading is separate.
@@ -135,8 +134,8 @@ watch(
 );
 
 // The reorderable list must render in display order: the backend defaults
-// to id desc (ADR-0010), so the page requests `sort_order` asc — normalizing
-// the first render when the controller served the default.
+// to id desc, so the page requests `sort_order` asc — normalizing the
+// first render when the controller served the default.
 if (
     props.meta !== undefined &&
     (props.meta.sort_column !== 'sort_order' || props.meta.sort_direction !== 'asc')
@@ -149,8 +148,7 @@ if (
 }
 
 // The per-locale editing tabs only offer the ACTIVE locales (the
-// shared `supported_locales` prop — disabled locales are not editable,
-// 5.2 rework).
+// shared `supported_locales` prop — disabled locales are not editable).
 const locales = computed(() => localeOptionsFromCodes(page.props?.supported_locales));
 
 const hasRows = computed(() => rows.value.length > 0);
@@ -307,9 +305,9 @@ function reorder(items: Array<Record<string, unknown>>): void {
     );
 }
 
-// Keyboard alternative to drag reordering (accessibility.md:35-44):
-// move the row by one position and persist the new order optimistically
-// (the server rollback path is shared with drag).
+// Keyboard alternative to drag reordering: move the row by one position
+// and persist the new order optimistically (the server rollback path is
+// shared with drag).
 function moveContact(index: number, direction: -1 | 1): void {
     const next = move(rows.value, index, direction);
 
@@ -372,8 +370,8 @@ function isEditing(rowId: number): boolean {
         {{ t('admin.contacts.title') }}
       </h1>
 
-      <!-- Sticky header controls (ADR-0024): the Add Contact button stays
-           visible while scrolling. -->
+      <!-- Sticky header controls: the Add Contact button stays visible
+           while scrolling. -->
       <AdminStickyActionBar :test_id="`${props.test_id}-sticky-bar`">
         <AdminBaseButton
           variant="primary"
@@ -387,8 +385,6 @@ function isEditing(rowId: number): boolean {
       </AdminStickyActionBar>
 
       <template v-if="hasRows || editingId === 'new'">
-        <!-- New-contact editor row at the top of the list (mockup
-             contacts.html:184: "opens a new empty contact row at the top"). -->
         <div
           v-if="editingId === 'new'"
           class="mb-3 flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"

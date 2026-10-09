@@ -1,4 +1,3 @@
-<!-- ProjectLightbox (public-section-components.md:734-797, mockup project-detail.html) — full-screen screenshot lightbox for the project detail page, teleported to <body>. Scrim click / close button / Escape dismiss it; prev/next cycle without wrapping (first/last disable their buttons), Home/End jump to the bounds, Tab is trapped, and a horizontal swipe on the image area changes slides (same 30 px threshold as HorizontalCarousel). The current image renders lazily under a skeleton until `load` (a broken-image placeholder with the alt text replaces it on `error`); the caption below shows the localized title + description. The active thumbnail is scrolled into view on change; on close, focus returns to the element that opened the lightbox (the gallery's clicked slide). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -258,7 +257,7 @@ onBeforeUnmount(() => {
                transitions with a directional fade+slide (out-in — the
                old slide leaves first, then the new one enters). The
                skeleton is part of the slide so the swap is never a
-               sharp cut (user rework 2026-08-16). -->
+               sharp cut. -->
           <Transition
             :name="`lightbox-slide-${slideDirection}`"
             mode="out-in"
@@ -572,7 +571,7 @@ onBeforeUnmount(() => {
     opacity: 0;
 }
 
-/* The slide change transition (user rework 2026-08-16): a directional
+/* The slide change transition: a directional
    fade + short horizontal slide, so prev/next never cut abruptly. The
    leave runs first (out-in), then the new slide enters from the
    opposite side. */

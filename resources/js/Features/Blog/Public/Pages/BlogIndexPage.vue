@@ -1,4 +1,4 @@
-<!-- BlogIndexPage (public-section-ui.md:209-238, public-section-components.md:1209-1239, mockup blog.html) — the public blog index: the BlogHeader toolbar (dual-response search autocomplete, the unified tag filter with the article/skill `type` discriminator, the conditional year filter, the grid/list toggle persisted in the `blog_view_mode` cookie), the ArticleCard grid/list, the infinite-scroll Load More (cursor reload per ADR-0010 replace semantics) and the three empty/error states via PublicEmptyState. The nav follows ADR-0025 — the Projects link is conditional on `has_projects` (ADR-0004). -->
+<!-- BlogIndexPage — the public blog index: the BlogHeader toolbar (dual-response search autocomplete, the unified tag filter with the article/skill `type` discriminator, the conditional year filter, the grid/list toggle persisted in the `blog_view_mode` cookie), the ArticleCard grid/list, the infinite-scroll Load More (cursor reload with replace semantics) and the three empty/error states via PublicEmptyState. The nav's Projects link is conditional on `has_projects`. -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
@@ -16,7 +16,7 @@ type BlogProps = NonNullable<components['schemas']['BlogIndexPageProps']['props'
 
 // Per-property types (not the whole `BlogProps` alias): the SFC
 // compiler's runtime prop resolution cannot expand the indexed-access
-// `NonNullable<...['props']>` type (the 9.2 page used the same form).
+// `NonNullable<...['props']>` type.
 const props = withDefaults(
     defineProps<{
         articles?: BlogProps['articles'];
@@ -165,7 +165,7 @@ function onViewModeChange(mode: 'grid' | 'list'): void {
 <style scoped>
 /* The title spans the same content width as the list below it
    (`--layout-content`, the header/footer width), centered inside the
-   layout's xl main container (the 9.2 convention). */
+   layout's xl main container. */
 .page-title {
     font-family: var(--font-display);
     font-size: var(--font-size-4xl);
@@ -177,16 +177,15 @@ function onViewModeChange(mode: 'grid' | 'list'): void {
 }
 
 /* The whole page content spans `--layout-content` (1000px — the
-   header/footer width; user decision 2026-08-15), centered inside the
-   layout's xl main container; the bottom margin clears the footer
-   (the 9.2 Timeline shell convention). */
+   header/footer width), centered inside the layout's xl main container;
+   the bottom margin clears the footer. */
 .blog-shell {
     max-width: var(--layout-content);
     margin: 0 auto var(--space-2xl);
 }
 
-/* The grid per the mockup (blog.html): `auto-fill` cards of at least
-   300px; the list mode is a single column. */
+/* The grid: `auto-fill` cards of at least 300px; the list mode is a
+   single column. */
 .blog-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -199,12 +198,11 @@ function onViewModeChange(mode: 'grid' | 'list'): void {
 </style>
 
 <!-- The list-mode card layout crosses the component boundary (the card
-     internals belong to ArticleCard) — the BEM classes are public and
-     the selectors mirror the mockup's list layout, so a plain
-     (non-scoped) block is used instead of `:deep()` (the
-     projects-grid--list precedent). List mode: 2 columns — the
-     preview image on the left, the content (title / description /
-     meta / tags rows) on the right (user rework 2026-08-16). -->
+     internals belong to ArticleCard) — the BEM classes are public, so a
+     plain (non-scoped) block is used instead of `:deep()` (the
+     projects-grid--list precedent). List mode: 2 columns — the preview
+     image on the left, the content (title / description / meta / tags
+     rows) on the right. -->
 <style>
 .blog-grid--list .article-card {
     display: grid;
@@ -224,7 +222,7 @@ function onViewModeChange(mode: 'grid' | 'list'): void {
 
 /* Small screens: the card reverts to the stacked grid look — the
    `blog_view_mode` cookie may still hold `list`, and the grid and list
-   render identically below 768px (the ADR-0025 projects precedent). */
+   render identically below 768px (the projects precedent). */
 @media (width < 768px) {
     .blog-grid--list .article-card {
         display: block;

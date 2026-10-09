@@ -1,4 +1,3 @@
-<!-- TagPopupModal (public-section-components.md:1065-1076) — a single PublicBaseModal showing ALL tech tags of the selected timeline item (opened via the "+N" overflow button, `show-tags` emit). Heading split per the user rework 2026-08-15: the position is the modal title, the company renders below it in a muted style (a long "position @ company" title pushed the close button out of the header); a section label ("All tags") explains the list. -->
 <script setup lang="ts">
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';

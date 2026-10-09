@@ -1,4 +1,4 @@
-<!-- SettingsPage (admin-section-components.md:1263-1322, admin-section-ui.md:431-441, settings.html) — tabbed settings form: General (Site Status / Languages / Content settings / Pagination / Data Retention), Mail (API Connection with the ADR-0016 Test Connection probe + Notifications), Feature Flags (FeatureFlagToggle rows, PATCH endpoint), Analytics (Reports). Each form tab submits a grouped `{ settings: { key: value } }` payload to PUT /admin/settings. -->
+<!-- SettingsPage — tabbed settings form: General (Site Status / Languages / Content settings / Pagination / Data Retention), Mail (API Connection with the Test Connection probe + Notifications), Feature Flags (FeatureFlagToggle rows, PATCH endpoint), Analytics (Reports). Each form tab submits a grouped `{ settings: { key: value } }` payload to PUT /admin/settings. -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import FeatureFlagToggle, {
@@ -197,7 +197,7 @@ const flagHints = computed<Record<string, string>>(() =>
 
 // The header language selector mirrors the form's supported locales
 // live: unchecking a locale immediately narrows the selector to the
-// remaining ones (user request 2026-08-07).
+// remaining ones.
 const headerLocales = computed<Array<{ code: string; native_name: string }>>(() =>
     SUPPORTED_LOCALES.filter((code) => form.supported_locales.includes(code)).map((code) => ({
         code,
@@ -415,7 +415,6 @@ async function testMail(): Promise<void> {
         @submit.prevent="save"
       >
         <template v-if="activeTab === 'general'">
-          <!-- ══ Site Status ══ -->
           <fieldset class="space-y-4">
             <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
               {{ t('admin.settings.site_status') }}
@@ -449,7 +448,6 @@ async function testMail(): Promise<void> {
             </div>
           </fieldset>
 
-          <!-- ══ Languages ══ -->
           <fieldset class="space-y-3">
             <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
               {{ t('admin.settings.languages') }}
@@ -472,7 +470,6 @@ async function testMail(): Promise<void> {
             </div>
           </fieldset>
 
-          <!-- ══ Content settings ══ -->
           <fieldset class="space-y-4">
             <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
               {{ t('admin.settings.content_settings') }}
@@ -489,7 +486,6 @@ async function testMail(): Promise<void> {
             />
           </fieldset>
 
-          <!-- ══ Pagination ══ -->
           <fieldset class="space-y-4">
             <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
               {{ t('admin.settings.pagination') }}
@@ -530,7 +526,6 @@ async function testMail(): Promise<void> {
             </div>
           </fieldset>
 
-          <!-- ══ Data Retention ══ -->
           <fieldset class="space-y-4">
             <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
               {{ t('admin.settings.data_retention') }}
@@ -565,7 +560,6 @@ async function testMail(): Promise<void> {
         </template>
 
         <template v-else-if="activeTab === 'mail'">
-          <!-- ══ API Connection (ADR-0016) ══ -->
           <fieldset class="space-y-4">
             <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
               {{ t('admin.settings.api_connection') }}
@@ -612,7 +606,6 @@ async function testMail(): Promise<void> {
             </AdminBaseButton>
           </fieldset>
 
-          <!-- ══ Notifications ══ -->
           <fieldset class="space-y-3">
             <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
               {{ t('admin.settings.notifications') }}
@@ -626,7 +619,6 @@ async function testMail(): Promise<void> {
         </template>
 
         <template v-else>
-          <!-- ══ Reports ══ -->
           <fieldset class="space-y-4">
             <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
               {{ t('admin.settings.reports') }}
@@ -658,7 +650,7 @@ async function testMail(): Promise<void> {
         </div>
       </form>
 
-      <!-- ══ Feature Flags tab — separate PATCH endpoint, no Save ══ -->
+      <!-- Feature Flags tab — separate PATCH endpoint, no Save. -->
       <div
         v-else
         class="space-y-2 rounded-lg border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"

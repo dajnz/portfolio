@@ -1,16 +1,5 @@
-<!-- AdminDatePicker (admin-section-components.md, ADR-0024) — calendar date
-     picker for admin forms. The field is a READ-ONLY display of the
-     value in the RU format `dd.mm.yyyy` (no locale switching — the user
-     requested the RU format no matter the selected locale) with a clear
-     (x) button when a value is set; clicking anywhere on the field opens
-     the calendar popup for picking. Manual digit entry is NOT possible —
-     the server-side `date`/`after` rules never see hand-typed garbage.
-     The `modelValue` stays ISO (`YYYY-MM-DD`, `''` = empty — ongoing).
-     Calendar: Monday-first week grid, prev/next month navigation, the
-     selected day highlighted, today outlined; Escape closes, Arrow keys
-     move the focus, Enter picks. The month+year heading opens a decade
-     year grid (prev/next then shift the decade); picking a year returns
-     to the day grid. -->
+<!-- Calendar date picker: a read-only `dd.mm.yyyy` display whose
+     `modelValue` stays ISO; the calendar popup handles all picking. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -52,14 +41,14 @@ const viewDate = ref(selectedDate() ?? new Date());
 const focusedDay = ref<Date | null>(selectedDate() ?? null);
 const rootEl = ref<HTMLElement | null>(null);
 // The calendar panel's level: the day grid or the year grid. The heading
-// click toggles between them (ADR-0024: years must be pickable, not only
+// click toggles between them (years must be pickable, not only
 // months/days).
 const viewMode = ref<ViewMode>('days');
 
 const displayValue = computed(() => toDisplay(props.modelValue));
 
 const labelText = computed(() => props.label ?? '');
-// "April (4) 2026" — the 1-based month number next to the name (ADR-0024).
+// "April (4) 2026" — the 1-based month number next to the name.
 const monthTitle = computed(
     () =>
         `${MONTH_LABEL.format(viewDate.value)} (${viewDate.value.getMonth() + 1}) ${YEAR_LABEL.format(viewDate.value)}`,
@@ -316,7 +305,7 @@ function onYearsKeydown(event: KeyboardEvent): void {
 // re-renders the grid and removes the clicked button before the click
 // finishes bubbling, and a bubble-phase check would see the detached
 // target as an outside click, closing the calendar right after the year
-// was picked (ADR-0024).
+// was picked.
 function onDocumentClick(event: MouseEvent): void {
     if (
         isOpen.value &&
@@ -416,9 +405,8 @@ onBeforeUnmount(() => {
               aria-hidden="true"
             />
           </button>
-          <!-- The heading toggles the year grid (ADR-0024): clicking it opens
-               the years for picking, clicking again returns to the day
-               grid. -->
+          <!-- The heading toggles the year grid: clicking it opens the
+               years for picking, clicking again returns to the day grid. -->
           <button
             type="button"
             class="px-2 py-1 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"

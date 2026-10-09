@@ -1,4 +1,4 @@
-<!-- LoginPage (admin-section-components.md:1535-1558) — standalone auth page (no AdminPageLayout per authentication.md:7). POSTs to /admin/login; validation errors surface inline (login.html states table). -->
+<!-- LoginPage — standalone auth page (no AdminPageLayout). POSTs to /admin/login; validation errors surface inline. -->
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
@@ -76,7 +76,7 @@ function startGithubLogin(): void {
 
     // The whole card enters the loading state until the browser leaves
     // for GitHub's OAuth page — prevents double-clicks from firing
-    // multiple redirects (user request 2026-08-07).
+    // multiple redirects.
     isSubmitting.value = true;
     window.location.href = '/admin/login/github';
 }
@@ -158,6 +158,6 @@ function startGithubLogin(): void {
       />
     </template>
   </LoginCard>
-  <!-- Login errors + redirect flashes surface here as toasts (login.html). -->
+  <!-- Login errors + redirect flashes surface here as toasts. -->
   <AdminBaseToast />
 </template>

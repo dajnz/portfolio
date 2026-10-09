@@ -1,18 +1,17 @@
 /**
- * The TextEditor's shared config-popup state machine (ADR-0024 — the
- * single non-wrapping toolbar row; every option-bearing control opens
- * the popup anchored under the clicked button). One popup at a time.
+ * The TextEditor's shared config-popup state machine: one popup at a time,
+ * opened by every option-bearing toolbar control (the toolbar is a single
+ * non-wrapping row).
  *
  * The popup is `position: fixed`, anchored to the CLICKED BUTTON's
  * viewport rect at open time — the sticky toolbar keeps the buttons
  * visible while the editor box scrolls, so a wrapper-relative popup
- * would land off-screen above the content (2026-08-14 review find).
- * An outside click closes the popup — but NOT clicks on the toolbar
- * (its buttons manage the popup themselves: same-button toggles it,
- * another button switches it) nor on the popup itself; capture phase,
- * so the check runs before any element's own handler. `Escape` closes
- * it. The table grid's arrow/Enter keys are the popup's own listener
- * (it owns the grid state) — see EditorConfigPopup.
+ * would land off-screen above the content. An outside click closes the
+ * popup — but NOT clicks on the toolbar (its buttons manage the popup
+ * themselves: same-button toggles it, another button switches it) nor on
+ * the popup itself; capture phase, so the check runs before any element's
+ * own handler. `Escape` closes it. The table grid's arrow/Enter keys are
+ * the popup's own listener (it owns the grid state) — see EditorConfigPopup.
  */
 import { type ComputedRef, computed, onBeforeUnmount, onMounted, type Ref, ref } from 'vue';
 

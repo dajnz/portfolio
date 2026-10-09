@@ -22,8 +22,8 @@ const props = withDefaults(
     },
 );
 
-// Deterministic pseudo-random widths for text lines (public-section-
-// components.md:278) — computed by index so SSR and client renders match.
+// Deterministic pseudo-random widths for text lines — computed by index
+// so SSR and client renders match.
 const TEXT_WIDTHS = ['40%', '60%', '75%', '50%', '90%'];
 
 const lines = computed(() =>

@@ -1,4 +1,3 @@
-<!-- EngineeringDetailItem (public-section-components.md:1194-1204, mockup project-detail.html) — one engineering detail row of the project detail page: icon (Iconify id from the curated engineering set, or null — the icon column hides) + title + description. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 

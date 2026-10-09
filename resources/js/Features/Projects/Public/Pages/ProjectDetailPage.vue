@@ -1,4 +1,3 @@
-<!-- ProjectDetailPage (public-section-ui.md:177-207, public-section-components.md:1135-1205, mockup project-detail.html) — the public project detail: the title, the ScreenshotsGallery with the lazy ProjectLightbox, the overview/problem/solution bodies (pipeline-rendered Markdown — injected as HTML, ADR-0008), the tech-stack chips (linked to the blog skill filter), the Engineering Details grid and — at the bottom (user rework 2026-08-16) — a two-column block: the slim tech-writeup card (shown only while the linked article is published — the wire's `tech_writeup` is null otherwise, content-management.md:133) in the first column and the labeled Sources/Live Demo links in the second; each side falls back to a single column when the other is absent, and the whole block hides when neither exists. The "back to projects" button was removed per user request (the sticky main nav covers it). The whole content column renders as a card-like panel on the page background (public-section-ui.md:207). SEO props + JSON-LD (SoftwareSourceCode + BreadcrumbList) come from the backend and are synced via useSeoUpdater (seo.md:150-188). -->
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
@@ -19,7 +18,7 @@ type DetailProps = NonNullable<components['schemas']['ProjectDetailPageProps']['
 
 // Per-property types (not the whole `DetailProps` alias): the SFC
 // compiler's runtime prop resolution cannot expand the indexed-access
-// `NonNullable<...['props']>` type (the 9.2 page used the same form).
+// `NonNullable<...['props']>` type.
 const props = withDefaults(
     defineProps<{
         project?: DetailProps['project'];
@@ -44,7 +43,7 @@ const { navItems, activeRoute, project } = useProjectDetailPage(props);
 
 // The Sources GitHub glyph comes from the lazily-registered simple-icons
 // subset — rendering before registration would trigger the Iconify
-// runtime's remote fallback (blocked by CSP, ADR-0023).
+// runtime's remote fallback (blocked by CSP).
 const projectsIconsReady = useProjectsIconsReady();
 
 // The bottom block's two-column condition — extracted so the class
@@ -95,7 +94,7 @@ function onDemoClick(): void {
         />
 
         <!-- The bodies are the shared content pipeline's safe-mode
-             CommonMark HTML (ADR-0008) — server-sanitized; the eslint
+             CommonMark HTML — server-sanitized; the eslint
              vue/no-v-html warnings are accepted by design (the
              TOTPSetup precedent). A `div` (not a `p`): the pipeline
              emits block-level elements (headings, lists) that must not
@@ -181,11 +180,10 @@ function onDemoClick(): void {
           </ul>
         </section>
 
-        <!-- The bottom two-column block (user rework 2026-08-16): the
-             tech writeup card in the first column, the labeled
-             Sources/Live Demo row in the second; each side becomes a
-             single column when the other is absent and the block hides
-             entirely when neither exists. -->
+        <!-- The bottom two-column block: the tech writeup card in the
+             first column, the labeled Sources/Live Demo row in the
+             second; each side becomes a single column when the other is
+             absent and the block hides entirely when neither exists. -->
         <div
           v-if="project.tech_writeup !== null || project.github_url || project.live_demo_url"
           class="project-detail__bottom"
@@ -260,19 +258,16 @@ function onDemoClick(): void {
 
 <style scoped>
 /* The content column spans `--layout-content` (1000px — the
-   header/footer width; user decision 2026-08-15), centered inside the
-   layout's xl main container. The top margin restores the gap the
-   removed "back to projects" button used to provide between the sticky
-   header and the panel (user rework 2026-08-16); the bottom margin
-   keeps a proper gap between the content panel's bottom edge and the
-   footer. */
+   header/footer width), centered inside the layout's xl main container.
+   The top margin sets the gap between the sticky header and the panel;
+   the bottom margin keeps a proper gap between the content panel's
+   bottom edge and the footer. */
 .project-detail {
     max-width: var(--layout-content);
     margin: var(--space-xl) auto var(--space-2xl);
 }
 
-/* The content column is a card-like panel on the page background
-   (public-section-ui.md:207). */
+/* The content column is a card-like panel on the page background. */
 .project-detail__panel {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -308,7 +303,7 @@ function onDemoClick(): void {
    styles (headings, lists, links, ...) must live in the plain block
    below: v-html content never receives the Vue scope attribute, so
    scoped selectors like `.markdown-body h2[data-v-…]` can never match
-   them (user rework 2026-08-16). The `*` CSS reset
+   them. The `*` CSS reset
    (public-tokens.css) strips list markers, margins, heading sizes and
    link styles, so every element the pipeline can emit is re-styled
    here. */
@@ -329,7 +324,7 @@ function onDemoClick(): void {
 }
 
 /* The bottom block: the tech writeup card and the labeled links row.
-   Two columns when both sides exist (the user rework 2026-08-16), a
+   Two columns when both sides exist, a
    single column otherwise; the block is hidden entirely when neither
    side has content (the template's v-if). */
 .project-detail__bottom {
@@ -345,7 +340,7 @@ function onDemoClick(): void {
     grid-template-columns: 1fr 1fr;
 }
 
-/* Small screens (user request 2026-08-16): the writeup card and the
+/* Small screens: the writeup card and the
    links row stack one below another, each taking the full width. */
 @media (width < 768px) {
     .project-detail__bottom--two-col {

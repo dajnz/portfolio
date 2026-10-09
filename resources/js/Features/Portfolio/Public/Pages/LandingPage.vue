@@ -1,4 +1,3 @@
-<!-- LandingPage (public-section-ui.md:56-101, public-section-components.md:889-1007) — replaces the step-4.1 placeholder (ADR-0029): AboutBlock + SkillsBlock (masonry) + FeaturedProjectsSection + ContactsBlock (lazy-loaded feedback section per architecture.md's Lazy-Loading Rules), laid out on PublicPageLayout(centered: false) so every section spans full width with its own background. Wiring: nav items per ADR-0025, SEO updater (seo.md:47), dns-prefetch for external links (architecture.md:1271) and the eager offline registration of the devicon/simple-icons sets (ADR-0023). -->
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import AboutBlock from '@portfolio-public/AboutBlock.vue';
@@ -17,7 +16,7 @@ type LandingProps = NonNullable<components['schemas']['LandingPageProps']['props
 
 // Per-property types (not the whole `LandingProps` alias): the SFC
 // compiler's runtime prop resolution cannot expand the indexed-access
-// `NonNullable<...['props']>` type (ADR-0029 placeholder used the same form).
+// `NonNullable<...['props']>` type.
 const props = withDefaults(
     defineProps<{
         about?: LandingProps['about'];
@@ -48,8 +47,8 @@ const props = withDefaults(
 // parsed as a deprecated filter by the Vue template compiler.)
 const greeting = (props.console_greeting ?? null) as ConsoleGreetingData | null;
 
-// The feedback section is dynamically imported (architecture.md:
-// "Feedback form | Dynamic import() | When the user scrolls into view").
+// The feedback section is dynamically imported (loaded when the user
+// scrolls into view).
 const ContactsBlock = defineAsyncComponent(() => import('@portfolio-public/ContactsBlock.vue'));
 
 ensurePublicIcons();

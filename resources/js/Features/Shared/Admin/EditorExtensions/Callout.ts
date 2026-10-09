@@ -1,19 +1,17 @@
 /**
- * Callout Tiptap node (admin-section-components.md:237) — renders as a
- * bordered block and round-trips through the `> [!TYPE]` GitHub-style
- * blockquote marker (the format the public content pipeline renders per
- * ADR-0008). Parsing uses a custom marked tokenizer so the marker syntax
- * survives markdown parse → editor → serialize without loss.
+ * Callout Tiptap node — renders as a bordered block and round-trips through
+ * the `> [!TYPE]` GitHub-style blockquote marker (the format the public
+ * content pipeline renders). Parsing uses a custom marked tokenizer so the
+ * marker syntax survives markdown parse → editor → serialize without loss.
  *
  * The markdown contract lives in TOP-LEVEL extension fields
  * (`markdownTokenName`, `markdownTokenizer`, `parseMarkdown`,
  * `renderMarkdown` — declared natively on Tiptap's `NodeConfig`):
  * @tiptap/markdown's `registerExtension` reads them via
  * `getExtensionField` (MarkdownManager.registerExtension), while the
- * nested `markdown: { ... }` object is a type-only artifact of a local
- * augmentation that never reached the runtime serializer — a
+ * nested `markdown: { ... }` object is a type-only artifact — a
  * nested-only config silently drops the node from BOTH serialize and
- * parse (2026-08-14 review find; the augmentation was removed).
+ * parse.
  */
 
 import type { MarkdownToken, MarkdownTokenizer } from '@tiptap/core';
@@ -38,10 +36,9 @@ export const CALLOUT_CLASSES: Record<CalloutType, string> = {
         'border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300',
 };
 
-/** The style-guide callout frame (style-guide.html #callouts): full
- *  `--radius-md` border radius (0.625rem), 4px left border, `--space-md
- *  var(--space-lg)` padding (1rem 1.5rem) and `--space-lg` block margin
- *  — shared by the NodeView and `renderHTML`. */
+/** The callout frame: full `--radius-md` border radius (0.625rem), 4px
+ *  left border, `--space-md var(--space-lg)` padding (1rem 1.5rem) and
+ *  `--space-lg` block margin — shared by the NodeView and `renderHTML`. */
 export const CALLOUT_FRAME_CLASSES = 'my-6 rounded-[0.625rem] border-l-4 px-6 py-4';
 
 const CALLOUT_MARKER = /^[ \t]*>[ \t]*\[!(WARNING|TIP|IMPORTANT|TRADEOFF)\][ \t]*$/i;

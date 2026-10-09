@@ -1,4 +1,3 @@
-// admin-section-components.md:39-41 — mirrors PublicBaseCheckbox
 <script setup lang="ts">
 import { computed, useId } from 'vue';
 

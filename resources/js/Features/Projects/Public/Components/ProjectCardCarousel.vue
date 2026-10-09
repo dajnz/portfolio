@@ -1,4 +1,3 @@
-<!-- ProjectCardCarousel (public-section-components.md:679-701, mockup projects.html) — the inline screenshot carousel inside ProjectCard. The whole card is one link, so the carousel stays non-interactive as far as navigation goes: arrows appear on hover only (opacity transition), dots are always visible for 2+ images, auto-advance every 5 s pauses while the card is hovered or focused (HorizontalCarousel's pointer/focus pause) — and every control click is stopped at the source so the card's link never receives it. A single screenshot renders as a static image (no arrows/dots/auto-advance); zero screenshots → the colored placeholder rect (same as ProjectCard.empty_image). -->
 <script setup lang="ts">
 import HorizontalCarousel from '@shared-public/HorizontalCarousel.vue';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';

@@ -1,4 +1,3 @@
-<!-- ContactsBlock (public-section-components.md:994-1007, user rework 2026-08-14) — the contact links column (single column, left) next to the FeedbackForm; the pair is centered inside the content container. Each contact row carries a small copy-to-clipboard button (copies the contact url, or the value when url is null). On small screens the columns stack with contacts above the form. The block hides when no contact links exist. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -153,8 +152,8 @@ onBeforeUnmount(() => {
 .contacts-block {
     background: var(--color-bg-secondary);
 
-    /* Top padding halved (user rework 2026-08-14) — the section
-   heading no longer floats 4rem below the previous block. */
+    /* Halved top padding — keeps the section heading from floating
+   4rem below the previous block. */
     padding: var(--space-xl) 0 var(--space-3xl);
 }
 
@@ -168,14 +167,13 @@ onBeforeUnmount(() => {
 }
 
 /* Two-column layout: contact links (single column) on the left, the
-   feedback form on the right (public-section-ui.md:83-95). Fixed-ish
-   columns + justify-content: center keep the pair centered inside the
-   content container instead of hugging its left edge. */
+   feedback form on the right. Fixed-ish columns + justify-content: center
+   keep the pair centered inside the content container instead of hugging
+   its left edge. */
 .contacts-block__grid {
     display: grid;
 
-    /* The contact column is ~40px narrower than the cards' natural width
-       (user request 2026-08-15). */
+    /* The contact column is ~40px narrower than the cards' natural width. */
     grid-template-columns: minmax(300px, 380px) minmax(0, 400px);
     gap: var(--space-2xl);
     align-items: start;
@@ -188,8 +186,8 @@ onBeforeUnmount(() => {
     gap: var(--space-md);
 }
 
-/* The card look lives on the ROW now — the copy button sits INSIDE the
-   card, next to the link area (user rework 2026-08-14). */
+/* The card look lives on the ROW — the copy button sits INSIDE the card,
+   next to the link area. */
 .contact-row {
     display: flex;
     align-items: center;
@@ -215,7 +213,7 @@ onBeforeUnmount(() => {
 }
 
 /* The copy button is intentionally quiet — tertiary icon, no surface —
-   and gains presence on hover (user request 2026-08-15). */
+   and gains presence on hover. */
 .contact-row__copy {
     flex-shrink: 0;
     width: 36px;
@@ -238,8 +236,6 @@ onBeforeUnmount(() => {
     text-decoration: none;
 }
 
-/* Icon <-> name gap doubled (2 x the old --space-sm), name <-> value gap
-   enlarged too (user rework 2026-08-14). */
 .contact-link__icon {
     width: 1.65em;
     height: 1.65em;

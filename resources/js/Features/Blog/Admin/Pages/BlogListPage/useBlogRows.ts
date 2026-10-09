@@ -12,7 +12,7 @@ import { computed, type Ref, ref, watch } from 'vue';
 // `useBlogFilters`; bulk deletes are delegated to the injected
 // `requestBulkDelete` (the delete flows live in `useBlogDeletes`). The
 // Related column is a static count — per-row related management lives on
-// the form page only (user request 2026-08-13).
+// the form page only.
 export function useBlogRows(options: {
     articles: () => ArticleTableRow[];
     showTrashed: Ref<boolean>;
@@ -122,8 +122,6 @@ export function useBlogRows(options: {
             toast.show(t('admin.toasts.failed_to_save'), { variant: 'error' });
         }
     }
-
-    // ── Inline quick actions (JSON endpoints, optimistic + revert) ──
 
     function replaceRow(updated: ArticleTableRow): void {
         const index = rows.value.findIndex((row) => row.id === updated.id);
