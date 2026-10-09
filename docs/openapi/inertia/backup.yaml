@@ -96,7 +96,7 @@ paths:
         Returns the current status of a backup record. Used by the admin UI
         to poll restore progress via `GET /admin/backups/{backup}/status`
         while the site is in maintenance mode. SSE is an explicit non-goal
-        (see architecture.md) — polling is the mechanism.
+        — polling is the mechanism.
       operationId: backupStatus
       security:
         - cookieAuth: []

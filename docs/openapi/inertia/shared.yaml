@@ -23,7 +23,7 @@ components:
           items:
             type: string
             enum: [en, ru]
-          description: Active locales from the `supported_locales` setting — the language selector and the per-locale editing tabs only offer these (disabled locales are neither editable nor deleted, 5.2 rework).
+          description: Active locales from the `supported_locales` setting — the language selector and the per-locale editing tabs only offer these (disabled locales are neither editable nor deleted).
         theme:
           type: string
           enum: [light, dark]
@@ -98,7 +98,7 @@ components:
         request_id:
           type: string
           format: uuid
-          description: UUID request identifier for error reporting (error-handling.md:266-273).
+          description: UUID request identifier for error reporting.
 
     AdminUser:
       type: object
@@ -124,11 +124,11 @@ components:
       type: object
       required: [title, description]
       description: |
-        Per-page SEO props passed by every public page controller (seo.md:18-31).
-        Field names follow the Inertia snake_case convention (the seo.md
-        TypeScript interface is camelCase — this schema is the committed
-        contract). The Blade root layout renders these into `<title>`/`<meta>`
-        during SSR; `useSeoUpdater` syncs them on client-side navigations.
+        Per-page SEO props passed by every public page controller. Field
+        names follow the Inertia snake_case convention (this schema is the
+        committed contract). The Blade root layout renders these into
+        `<title>`/`<meta>` during SSR; `useSeoUpdater` syncs them on
+        client-side navigations.
       properties:
         title:
           type: string
@@ -170,16 +170,16 @@ components:
             type: object
             additionalProperties: true
           description: |
-            JSON-LD structured data blocks (seo.md:82-188), localized
-            server-side. Rendered into `application/ld+json` script tags
-            carrying the CSP nonce by the Blade layout on SSR and replaced
-            by `useSeoUpdater` on client-side navigations.
+            JSON-LD structured data blocks, localized server-side.
+            Rendered into `application/ld+json` script tags carrying the
+            CSP nonce by the Blade layout on SSR and replaced by
+            `useSeoUpdater` on client-side navigations.
         article:
           type: object
           nullable: true
           description: |
-            Blog-article Open Graph metadata (seo.md:65) — present only for
-            article detail pages; rendered as `article:published_time`,
+            Blog-article Open Graph metadata — present only for article
+            detail pages; rendered as `article:published_time`,
             `article:author` and one `article:tag` per tag/skill.
           properties:
             published_time:

@@ -633,8 +633,6 @@ export interface paths {
          *       sets `totp_enabled = true`, increments `session_version`, and
          *       returns `{ data: { recovery_codes: [...] } }` (10 single-use
          *       codes displayed once).
-         *
-         *     See [authentication.md](authentication.md#totp-2fa) for the full flow.
          */
         post: operations["enableTotp"];
         delete?: never;
@@ -672,12 +670,11 @@ export interface paths {
         };
         /**
          * Analytics dashboard
-         * @description The admin analytics dashboard (analytics.md:223-227, ADR-0017): the
-         *     whole-time metric blocks per tab (overview/blog/projects), the
-         *     default chart series (`page_views`, four spans) and the default
-         *     rankings (time-on-page top/bottom 10) as Inertia props. Chart
-         *     and ranking data for other blocks load from the
-         *     `series`/`rankings` endpoints on click (11.3.4).
+         * @description The admin analytics dashboard (ADR-0017): the whole-time metric
+         *     blocks per tab (overview/blog/projects), the default chart series
+         *     (`page_views`, four spans) and the default rankings (time-on-page
+         *     top/bottom 10) as Inertia props. Chart and ranking data for other
+         *     blocks load from the `series`/`rankings` endpoints on click.
          */
         get: operations["analyticsDashboardPage"];
         put?: never;
@@ -697,13 +694,13 @@ export interface paths {
         };
         /**
          * Analytics metric series
-         * @description The chart points of one metric at one span (analytics.md:225,
-         *     ADR-0017, 11.3.4) — chronological `period_start` labels, the last
-         *     90 rows; `span=all` returns the cumulative running total (of
-         *     the dimension-NULL day rows — or of the selected target's day
-         *     rows when `dimension` is given). The `dimension` parameter
-         *     selects one `cta_clicks` target (the CTA multi-chart series —
-         *     required for `cta_clicks`, rejected for every other metric).
+         * @description The chart points of one metric at one span (ADR-0017) —
+         *     chronological `period_start` labels, the last 90 rows; `span=all`
+         *     returns the cumulative running total (of the dimension-NULL day
+         *     rows — or of the selected target's day rows when `dimension` is
+         *     given). The `dimension` parameter selects one `cta_clicks` target
+         *     (the CTA multi-chart series — required for `cta_clicks`, rejected
+         *     for every other metric).
          */
         get: operations["analyticsMetricSeries"];
         put?: never;
@@ -723,9 +720,9 @@ export interface paths {
         };
         /**
          * Analytics metric rankings
-         * @description The top/bottom/liked/disliked 10 lists (analytics.md:226, ADR-0017,
-         *     11.3.4): the `span='all'` dimension rows of the metric ordered
-         *     by value. `scope` selects the dimension family (`page` — the
+         * @description The top/bottom/liked/disliked 10 lists (ADR-0017): the
+         *     `span='all'` dimension rows of the metric ordered by value.
+         *     `scope` selects the dimension family (`page` — the
          *     time-on-page URLs; `article`/`project` — the entity keys of the
          *     `views`/`unique_visitors` metrics, which span both). The
          *     liked/disliked variants rank the reactions metrics (most liked
@@ -753,8 +750,8 @@ export interface paths {
         put?: never;
         /**
          * Generate analytics reports now
-         * @description The dashboard "Generate Now" button (analytics.md:204-212,
-         *     ADR-0017): dispatches the full rebuild — `RebuildReportsJob` with
+         * @description The dashboard "Generate Now" button (ADR-0017): dispatches the
+         *     full rebuild — `RebuildReportsJob` with
          *     `recomputeMetrics = true` (recompute the metrics for the
          *     still-present event window + the full feedback history, then
          *     rebuild every report span). The job runs async (202); the
@@ -840,7 +837,7 @@ export interface paths {
          * @description Returns the current status of a backup record. Used by the admin UI
          *     to poll restore progress via `GET /admin/backups/{backup}/status`
          *     while the site is in maintenance mode. SSE is an explicit non-goal
-         *     (see architecture.md) — polling is the mechanism.
+         *     — polling is the mechanism.
          */
         get: operations["backupStatus"];
         put?: never;
@@ -871,7 +868,7 @@ export interface components {
              * @enum {string}
              */
             locale: "en" | "ru";
-            /** @description Active locales from the `supported_locales` setting — the language selector and the per-locale editing tabs only offer these (disabled locales are neither editable nor deleted, 5.2 rework). */
+            /** @description Active locales from the `supported_locales` setting — the language selector and the per-locale editing tabs only offer these (disabled locales are neither editable nor deleted). */
             supported_locales?: ("en" | "ru")[];
             /**
              * @description Current theme from ThemeMiddleware.
@@ -921,7 +918,7 @@ export interface components {
             };
             /**
              * Format: uuid
-             * @description UUID request identifier for error reporting (error-handling.md:266-273).
+             * @description UUID request identifier for error reporting.
              */
             request_id?: string;
         };
@@ -1023,11 +1020,11 @@ export interface components {
             url?: string | null;
         };
         /**
-         * @description Per-page SEO props passed by every public page controller (seo.md:18-31).
-         *     Field names follow the Inertia snake_case convention (the seo.md
-         *     TypeScript interface is camelCase — this schema is the committed
-         *     contract). The Blade root layout renders these into `<title>`/`<meta>`
-         *     during SSR; `useSeoUpdater` syncs them on client-side navigations.
+         * @description Per-page SEO props passed by every public page controller. Field
+         *     names follow the Inertia snake_case convention (this schema is the
+         *     committed contract). The Blade root layout renders these into
+         *     `<title>`/`<meta>` during SSR; `useSeoUpdater` syncs them on
+         *     client-side navigations.
          */
         SeoProps: {
             /** @description <title> — already localized server-side (`__("seo.title_*")`). */
@@ -1056,17 +1053,17 @@ export interface components {
             /** @description Reserved for future paginated content; 404s are Blade views with a hard-coded noindex. */
             robots?: string;
             /**
-             * @description JSON-LD structured data blocks (seo.md:82-188), localized
-             *     server-side. Rendered into `application/ld+json` script tags
-             *     carrying the CSP nonce by the Blade layout on SSR and replaced
-             *     by `useSeoUpdater` on client-side navigations.
+             * @description JSON-LD structured data blocks, localized server-side.
+             *     Rendered into `application/ld+json` script tags carrying the
+             *     CSP nonce by the Blade layout on SSR and replaced by
+             *     `useSeoUpdater` on client-side navigations.
              */
             json_ld?: {
                 [key: string]: unknown;
             }[];
             /**
-             * @description Blog-article Open Graph metadata (seo.md:65) — present only for
-             *     article detail pages; rendered as `article:published_time`,
+             * @description Blog-article Open Graph metadata — present only for article
+             *     detail pages; rendered as `article:published_time`,
              *     `article:author` and one `article:tag` per tag/skill.
              */
             article?: {
@@ -1087,19 +1084,17 @@ export interface components {
                 featured_projects?: components["schemas"]["FeaturedProjectData"][];
                 /**
                  * @description Whether more published projects exist beyond the featured
-                 *     ones on the page — controls the "View all projects" link
-                 *     (public-section-components.md:981-985,
-                 *     content-management.md:116-120).
+                 *     ones on the page — controls the "View all projects" link.
                  */
                 has_more?: boolean;
                 experience_items?: components["schemas"]["TimelineItemData"][];
                 contacts?: components["schemas"]["ContactData"][];
                 /**
-                 * @description ConsoleGreeting data (public-section-components.md:578-590,
-                 *     ADR-0023): greeting text (localized), the developer name and
-                 *     position (locale-resolved about values) and the contacts
-                 *     as label/value pairs. Rendered by the public layout only
-                 *     when passed and the `console_greeting` flag is enabled.
+                 * @description ConsoleGreeting data (ADR-0023): greeting text (localized),
+                 *     the developer name and position (locale-resolved about
+                 *     values) and the contacts as label/value pairs. Rendered by
+                 *     the public layout only when passed and the
+                 *     `console_greeting` flag is enabled.
                  */
                 console_greeting?: {
                     greeting?: string;
@@ -1112,10 +1107,9 @@ export interface components {
                 };
                 /**
                  * @description The randomized honeypot field name for the feedback form,
-                 *     derived from the session ID via keyed HMAC-SHA256
-                 *     (authentication.md:345-351) and embedded in the page HTML
-                 *     on render. Null when no session is active (the check is
-                 *     then skipped server-side).
+                 *     derived from the session ID via keyed HMAC-SHA256 and
+                 *     embedded in the page HTML on render. Null when no session
+                 *     is active (the check is then skipped server-side).
                  */
                 feedback_honeypot_name?: string | null;
                 seo?: components["schemas"]["SeoProps"];
@@ -1148,7 +1142,7 @@ export interface components {
                  */
                 timezones?: string[];
                 /**
-                 * @description Current resume generation mode (Resume feature) — the resume summary line's mode label (admin-section-components.md:793-794).
+                 * @description Current resume generation mode (Resume feature) — the resume summary line's mode label.
                  * @enum {string}
                  */
                 resume_mode?: "auto" | "manual";
@@ -1233,7 +1227,7 @@ export interface components {
             /**
              * @description The attached tech skills via `article_skill_pivot` —
              *     rendered as linked TechSkillTag chips
-             *     (`/blog?skill_tags={id}`, public-section-components.md:812).
+             *     (`/blog?skill_tags={id}`).
              */
             skill_tags?: components["schemas"]["SkillTagData"][];
         };
@@ -1250,7 +1244,7 @@ export interface components {
                  * @description Whether at least one published, non-trashed project
                  *     exists — the header nav's Projects-link condition
                  *     (ADR-0025; the same signal the experience timeline page
-                 *     carries, v1.0.16).
+                 *     carries).
                  */
                 has_projects?: boolean;
                 seo?: components["schemas"]["SeoProps"];
@@ -1263,8 +1257,8 @@ export interface components {
             /**
              * @description The article body rendered server-side by the shared content
              *     pipeline (safe-mode CommonMark + callouts + syntax
-             *     highlighting — content-management.md:466-481, ADR-0008). The
-             *     public page renders it via v-html.
+             *     highlighting — ADR-0008). The public page renders it via
+             *     v-html.
              */
             content_html?: string;
             short_description?: string;
@@ -1280,16 +1274,14 @@ export interface components {
             /**
              * @description The attached tech skills via `article_skill_pivot` —
              *     rendered as linked TechSkillTag chips
-             *     (`/blog?skill_tags={id}`, public-section-components.md:
-             *     1278); the SEO keywords also cover them (seo.md:145-147).
+             *     (`/blog?skill_tags={id}`); the SEO keywords also cover them.
              */
             skill_tags?: components["schemas"]["SkillTagData"][];
             related?: components["schemas"]["ArticleCardData"][];
             /**
-             * @description The pre-increment `article_views` counter
-             *     (content-management.md:217 — the page renders before the
-             *     queued increment job completes, a difference of 1 is
-             *     acceptable).
+             * @description The pre-increment `article_views` counter (the page renders
+             *     before the queued increment job completes, a difference of 1
+             *     is acceptable).
              */
             views_count?: number;
         };
@@ -1301,8 +1293,7 @@ export interface components {
                 /**
                  * @description The visitor's reaction state — null when the
                  *     `social_reactions` feature flag is disabled (no
-                 *     widget rendered, public-section-components.md:1273)
-                 *     or on the signed preview (ADR-0004).
+                 *     widget rendered) or on the signed preview (ADR-0004).
                  */
                 reactions?: {
                     user_reaction?: string | null;
@@ -1337,8 +1328,7 @@ export interface components {
              * @description The number of related articles (the bidirectional
              *     `related_articles` rows of the article) — the static
              *     Related column of the admin table; per-row related
-             *     management lives on the form page only (user request
-             *     2026-08-13).
+             *     management lives on the form page only.
              */
             related_count?: number;
             /** Format: date-time */
@@ -1362,8 +1352,7 @@ export interface components {
                 tags?: components["schemas"]["TagData"][];
                 /**
                  * @description Distinct publication years of the published, non-trashed
-                 *     articles, newest first — the year filter options
-                 *     (admin-section-ui.md:390).
+                 *     articles, newest first — the year filter options.
                  */
                 years?: number[];
             };
@@ -1497,9 +1486,9 @@ export interface components {
             title?: string;
             slug?: string;
             full_description?: string | null;
-            /** @description Markdown — rendered via the shared content pipeline (content-management.md:131). */
+            /** @description Markdown — rendered via the shared content pipeline. */
             problem?: string | null;
-            /** @description Markdown — rendered via the shared content pipeline (content-management.md:131). */
+            /** @description Markdown — rendered via the shared content pipeline. */
             solution?: string | null;
             brief_description?: string;
             /** Format: date-time */
@@ -1518,8 +1507,8 @@ export interface components {
             /**
              * @description The linked tech-writeup article, resolved against the current
              *     publication state — present only while the article is
-             *     published (content-management.md:133); null when no link is
-             *     set or the article is unpublished/trashed. The stored
+             *     published; null when no link is set or the article is
+             *     unpublished/trashed. The stored
              *     `tech_writeup_article_id` is preserved in the DB either way.
              */
             tech_writeup?: {
@@ -1553,7 +1542,7 @@ export interface components {
             /**
              * @description The project's tech tags (icon + name) — the Tags column
              *     renders them as removable chips and the "+" button adds
-             *     more (admin-section-ui.md:343).
+             *     more.
              */
             tech_tags?: components["schemas"]["schemas-SkillTagData"][];
             /** Format: date-time */
@@ -1569,8 +1558,8 @@ export interface components {
                 /**
                  * @description The featured projects of the live view, ordered by
                  *     `featured_sort_order` — the admin reorders them via
-                 *     the list page's SortableList section
-                 *     (admin-section-ui.md:338). Empty in the trashed view.
+                 *     the list page's SortableList section. Empty in the
+                 *     trashed view.
                  */
                 featured_projects?: components["schemas"]["ProjectTableRowData"][];
                 meta?: components["schemas"]["PaginationMeta"];
@@ -1630,8 +1619,8 @@ export interface components {
             /**
              * @description Engineering detail items with per-locale title/description
              *     maps (the admin form edits them under LocaleTabs —
-             *     `item.title.en` etc. in the mockup). Rows carry their id for
-             *     the reconcile-by-id convention (ADR-0005).
+             *     `item.title.en` etc.). Rows carry their id for the
+             *     reconcile-by-id convention (ADR-0005).
              */
             detail_items?: components["schemas"]["ProjectDetailItemEditData"][];
         };
@@ -1649,17 +1638,15 @@ export interface components {
                 skills?: components["schemas"]["schemas-SkillTagData"][];
                 /**
                  * @description The published blog articles the "Tech Writeup Article"
-                 *     select offers (admin-section-ui.md:356) — only
-                 *     published articles can be linked
-                 *     (content-management.md:159). Empty when no article
-                 *     is published yet.
+                 *     select offers — only published articles can be linked.
+                 *     Empty when no article is published yet.
                  */
                 articles?: components["schemas"]["PublishedArticleData"][];
                 /**
                  * @description Signed 1-hour temporary preview URL
-                 *     (`/admin/preview/projects/{project}`, routes.md:151) —
-                 *     the preview button opens it in a new tab; null on the
-                 *     create form (no project exists yet).
+                 *     (`/admin/preview/projects/{project}`) — the preview
+                 *     button opens it in a new tab; null on the create form
+                 *     (no project exists yet).
                  */
                 preview_url?: string | null;
             };
@@ -1838,7 +1825,7 @@ export interface components {
                     email?: string;
                     github_linked?: boolean;
                     totp_enabled?: boolean;
-                    /** @description Count of unused recovery codes (0 when TOTP is disabled). Rendered by the TOTPSetup component (admin-section-components.md:1477-1489). */
+                    /** @description Count of unused recovery codes (0 when TOTP is disabled). Rendered by the TOTPSetup component. */
                     recovery_codes_remaining?: number;
                     session_version?: number;
                 };
@@ -1870,7 +1857,7 @@ export interface components {
                 [key: string]: string[];
             };
         };
-        /** @description A resume layout section's visibility + order (order range 0–4 per the request validation, content-management.md:369). */
+        /** @description A resume layout section's visibility + order (order range 0–4 per the request validation). */
         ResumeSectionConfig: {
             /** @description Whether the section renders in the auto-generated PDF. */
             visible: boolean;
@@ -1914,10 +1901,9 @@ export interface components {
             };
         };
         /**
-         * @description A whole-time metric block (`span = 'all'` of the report rows,
-         *     analytics.md:223). The `key` is the stable identifier the
-         *     frontend maps to an i18n label AND to the series/rankings
-         *     parameters on click (11.3.4 decision — the hard-coded map):
+         * @description A whole-time metric block (`span = 'all'` of the report rows).
+         *     The `key` is the stable identifier the frontend maps to an i18n
+         *     label AND to the series/rankings parameters on click:
          *
          *     | key (tab) | metric source | click → |
          *     |---|---|---|

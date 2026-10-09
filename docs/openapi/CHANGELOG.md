@@ -12,6 +12,13 @@ runtime support.
 
 ### Changed
 
+- **Description references cleaned (v1.0.7 REST, v1.0.28 inertia):**
+  description-only change. Implementation-history narration (dates, step
+  numbers, "was removed" / "user request" phrasing) and stale
+  detailed-spec / mockup file references are removed from the spec
+  descriptions. `ADR-XXXX` decision references are kept. No schema or
+  wire-shape changes.
+
 - **Decision references migrated to ADRs (v1.0.6 REST, v1.0.27 inertia):**
   description-only change. Inline implementation-plan assumption IDs
   (`A*`/`B*`/`C*`) in the spec descriptions are replaced with the

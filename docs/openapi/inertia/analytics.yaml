@@ -32,10 +32,9 @@ components:
     AnalyticsBlock:
       type: object
       description: |
-        A whole-time metric block (`span = 'all'` of the report rows,
-        analytics.md:223). The `key` is the stable identifier the
-        frontend maps to an i18n label AND to the series/rankings
-        parameters on click (11.3.4 decision — the hard-coded map):
+        A whole-time metric block (`span = 'all'` of the report rows).
+        The `key` is the stable identifier the frontend maps to an i18n
+        label AND to the series/rankings parameters on click:
 
         | key (tab) | metric source | click → |
         |---|---|---|
@@ -242,12 +241,11 @@ paths:
       tags: [Admin]
       summary: Analytics dashboard
       description: |
-        The admin analytics dashboard (analytics.md:223-227, ADR-0017): the
-        whole-time metric blocks per tab (overview/blog/projects), the
-        default chart series (`page_views`, four spans) and the default
-        rankings (time-on-page top/bottom 10) as Inertia props. Chart
-        and ranking data for other blocks load from the
-        `series`/`rankings` endpoints on click (11.3.4).
+        The admin analytics dashboard (ADR-0017): the whole-time metric
+        blocks per tab (overview/blog/projects), the default chart series
+        (`page_views`, four spans) and the default rankings (time-on-page
+        top/bottom 10) as Inertia props. Chart and ranking data for other
+        blocks load from the `series`/`rankings` endpoints on click.
       operationId: analyticsDashboardPage
       responses:
         '200':
@@ -268,13 +266,13 @@ paths:
       tags: [Admin]
       summary: Analytics metric series
       description: |
-        The chart points of one metric at one span (analytics.md:225,
-        ADR-0017, 11.3.4) — chronological `period_start` labels, the last
-        90 rows; `span=all` returns the cumulative running total (of
-        the dimension-NULL day rows — or of the selected target's day
-        rows when `dimension` is given). The `dimension` parameter
-        selects one `cta_clicks` target (the CTA multi-chart series —
-        required for `cta_clicks`, rejected for every other metric).
+        The chart points of one metric at one span (ADR-0017) —
+        chronological `period_start` labels, the last 90 rows; `span=all`
+        returns the cumulative running total (of the dimension-NULL day
+        rows — or of the selected target's day rows when `dimension` is
+        given). The `dimension` parameter selects one `cta_clicks` target
+        (the CTA multi-chart series — required for `cta_clicks`, rejected
+        for every other metric).
       operationId: analyticsMetricSeries
       parameters:
         - name: metric
@@ -321,9 +319,9 @@ paths:
       tags: [Admin]
       summary: Analytics metric rankings
       description: |
-        The top/bottom/liked/disliked 10 lists (analytics.md:226, ADR-0017,
-        11.3.4): the `span='all'` dimension rows of the metric ordered
-        by value. `scope` selects the dimension family (`page` — the
+        The top/bottom/liked/disliked 10 lists (ADR-0017): the
+        `span='all'` dimension rows of the metric ordered by value.
+        `scope` selects the dimension family (`page` — the
         time-on-page URLs; `article`/`project` — the entity keys of the
         `views`/`unique_visitors` metrics, which span both). The
         liked/disliked variants rank the reactions metrics (most liked
@@ -375,8 +373,8 @@ paths:
       tags: [Admin]
       summary: Generate analytics reports now
       description: |
-        The dashboard "Generate Now" button (analytics.md:204-212,
-        ADR-0017): dispatches the full rebuild — `RebuildReportsJob` with
+        The dashboard "Generate Now" button (ADR-0017): dispatches the
+        full rebuild — `RebuildReportsJob` with
         `recomputeMetrics = true` (recompute the metrics for the
         still-present event window + the full feedback history, then
         rebuild every report span). The job runs async (202); the
