@@ -201,6 +201,63 @@ describe('FeedbackForm', () => {
         wrapper.unmount();
     });
 
+    it('shows a validation summary with role=alert and focuses it when several fields fail', async () => {
+        const fetchMock = vi.fn().mockResolvedValue({
+            ok: false,
+            status: 422,
+            json: async () => ({
+                errors: {
+                    sender_name: ['The sender name field is required.'],
+                    message: ['The message field is required.'],
+                },
+            }),
+        });
+        vi.mocked(fetch).mockImplementation(fetchMock);
+
+        const wrapper = mount(FeedbackForm, {
+            props: FORM_PROPS as unknown as InstanceType<typeof FeedbackForm>['$props'],
+            attachTo: document.body,
+        });
+        await wrapper.get('[data-testid="landing-feedback-form"]').trigger('submit');
+        await flushPromises();
+
+        const summary = wrapper.get('[data-testid="landing-feedback-form-summary"]');
+        expect(summary.attributes('role')).toBe('alert');
+        expect(summary.attributes('tabindex')).toBe('-1');
+        expect(summary.text()).toContain('2');
+        // The summary is a count only — the field messages are not repeated.
+        expect(summary.text()).not.toContain('field is required');
+        expect(document.activeElement).toBe(summary.element);
+
+        wrapper.unmount();
+    });
+
+    it('focuses the single invalid field instead of the summary', async () => {
+        const fetchMock = vi.fn().mockResolvedValue({
+            ok: false,
+            status: 422,
+            json: async () => ({
+                errors: { sender_name: ['The sender name field is required.'] },
+            }),
+        });
+        vi.mocked(fetch).mockImplementation(fetchMock);
+
+        const wrapper = mount(FeedbackForm, {
+            props: FORM_PROPS as unknown as InstanceType<typeof FeedbackForm>['$props'],
+            attachTo: document.body,
+        });
+        await wrapper.get('[data-testid="landing-feedback-form"]').trigger('submit');
+        await flushPromises();
+
+        const name = wrapper.get('[data-testid="landing-feedback-form-name"]');
+        expect(document.activeElement).toBe(name.element);
+        // A single failure uses the inline message only — no summary
+        // repeating the same text.
+        expect(wrapper.find('[data-testid="landing-feedback-form-summary"]').exists()).toBe(false);
+
+        wrapper.unmount();
+    });
+
     it('renders the honeypot input off-screen with the randomized name and tabindex -1', () => {
         const wrapper = mountForm();
 

@@ -40,6 +40,15 @@ const submitting = ref(false);
 const succeeded = ref(false);
 const serverErrors = ref<Record<string, string>>({});
 const successEl = ref<HTMLElement | null>(null);
+const formEl = ref<HTMLFormElement | null>(null);
+const summaryEl = ref<HTMLElement | null>(null);
+
+// The validation summary (accessibility.md:116,138): shown above the
+// form on a 422, announcing the error count; focus moves to it when
+// several fields failed, or directly to the single invalid field.
+const errorMessages = computed(() =>
+    Object.values(serverErrors.value).filter((message) => message !== ''),
+);
 
 // The success template arrives localized with the `{sender_name}`
 // placeholder (public-section-components.md:828) — interpolated here.
@@ -108,6 +117,20 @@ async function handleSubmit(): Promise<void> {
                     Array.isArray(error) ? (error[0] ?? '') : error,
                 ]),
             );
+
+            // Re-enable the fields before moving focus — a disabled input
+            // cannot receive it.
+            submitting.value = false;
+            await nextTick();
+
+            const invalid = formEl.value?.querySelector<HTMLElement>('[aria-invalid="true"]');
+
+            if (errorMessages.value.length === 1 && invalid) {
+                invalid.focus();
+            } else {
+                summaryEl.value?.focus();
+            }
+
             return;
         }
 
@@ -122,6 +145,7 @@ async function handleSubmit(): Promise<void> {
 
 <template>
   <form
+    ref="formEl"
     class="feedback-form"
     novalidate
     :data-testid="props.test_id"
@@ -150,6 +174,20 @@ async function handleSubmit(): Promise<void> {
       <h3 class="feedback-form__title">
         {{ t('landing.send_feedback') }}
       </h3>
+
+      <!-- Validation summary (accessibility.md:116): only when several
+           fields failed, so the messages shown inline are not repeated.
+           A single failure focuses its field directly instead. -->
+      <p
+        v-if="errorMessages.length > 1"
+        ref="summaryEl"
+        class="feedback-form__summary"
+        role="alert"
+        tabindex="-1"
+        :data-testid="`${props.test_id}-summary`"
+      >
+        {{ t('landing.feedback_errors_summary', { count: errorMessages.length }) }}
+      </p>
 
       <div class="feedback-form__fields">
         <PublicBaseInput
@@ -225,6 +263,22 @@ async function handleSubmit(): Promise<void> {
     font-weight: var(--font-bold);
     color: var(--color-text-primary);
     margin: 0 0 var(--space-lg);
+}
+
+.feedback-form__summary {
+    margin: 0 0 var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-error-border);
+    border-radius: var(--radius-md);
+    background: var(--color-error-bg);
+    color: var(--color-error);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-semibold);
+}
+
+.feedback-form__summary:focus-visible {
+    outline: var(--focus-ring-width) solid var(--focus-ring-color);
+    outline-offset: var(--focus-ring-offset);
 }
 
 .feedback-form__fields {

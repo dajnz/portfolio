@@ -762,6 +762,7 @@
         "featured_projects": "Избранные проекты",
         "feedback_email": "Email",
         "feedback_error": "Не удалось отправить сообщение. Попробуйте ещё раз.",
+        "feedback_errors_summary": "Исправьте следующие ошибки ({count}):",
         "feedback_invalid_email": "Введите корректный email-адрес.",
         "feedback_message": "Сообщение",
         "feedback_name": "Имя",
