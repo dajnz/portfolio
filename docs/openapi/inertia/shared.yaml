@@ -174,6 +174,28 @@ components:
             server-side. Rendered into `application/ld+json` script tags
             carrying the CSP nonce by the Blade layout on SSR and replaced
             by `useSeoUpdater` on client-side navigations.
+        article:
+          type: object
+          nullable: true
+          description: |
+            Blog-article Open Graph metadata (seo.md:65) — present only for
+            article detail pages; rendered as `article:published_time`,
+            `article:author` and one `article:tag` per tag/skill.
+          properties:
+            published_time:
+              type: string
+              nullable: true
+              description: ISO 8601 publication time.
+            author:
+              type: string
+              nullable: true
+              description: The site owner's display name.
+            tags:
+              type: array
+              items:
+                type: string
+              description: Article tags plus attached skills.
+          additionalProperties: false
 
     InertiaPage:
       type: object
