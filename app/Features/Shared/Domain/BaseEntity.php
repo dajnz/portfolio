@@ -5,11 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Shared\Domain;
 
 /**
- * Base class for domain entities.
- *
- * Every entity has a numeric identity and support identity-based equality
- * comparison. Entities reused by 2+ features live under
- * `Shared/Domain/Entities/`.
+ * Entities compare equal when they share the same concrete class and
+ * identity (`toId()`).
  */
 abstract class BaseEntity
 {

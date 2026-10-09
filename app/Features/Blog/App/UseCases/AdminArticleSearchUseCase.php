@@ -10,11 +10,10 @@ use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
 use App\Features\Shared\App\Services\PaginationBuilder;
 
 /**
- * The JSON autocomplete variant of `GET /admin/blog`
- * (admin-section-ui.md:539-572): ILIKE title search over all locales,
- * unpublished articles included, length-aware pagination — the raw
- * rows are converted to the item DTOs and the pagination facts are
- * built by the app-layer pagination service here.
+ * The JSON autocomplete variant of `GET /admin/blog`: ILIKE title
+ * search over all locales, unpublished articles included, length-aware
+ * pagination — the raw rows are converted to the item DTOs and the
+ * pagination facts are built by the app-layer pagination service here.
  */
 final class AdminArticleSearchUseCase
 {

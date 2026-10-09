@@ -10,13 +10,12 @@ use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 
 /**
- * The unified blog-tag autocomplete (`GET /api/blog-tags/search`,
- * routes.md:197, content-management.md:198-200): case-insensitive
- * name contains-match over BOTH article tags (`type: "tag"`) and
- * tech skills (`type: "skill"`) — the `type` discriminator keeps the
- * independent id spaces unambiguous when the filter URL is built
- * (`?article_tags=` vs `?skill_tags=`). Each source is ordered by
- * name ascending; the merged result is capped at 20 (ADR-0007).
+ * The unified blog-tag autocomplete (`GET /api/blog-tags/search`):
+ * case-insensitive name contains-match over BOTH article tags
+ * (`type: "tag"`) and tech skills (`type: "skill"`) — the `type`
+ * discriminator keeps the independent id spaces unambiguous when the
+ * filter URL is built (`?article_tags=` vs `?skill_tags=`). Each source
+ * is ordered by name ascending; the merged result is capped at 20.
  */
 final class SearchUnifiedBlogTagsUseCase
 {

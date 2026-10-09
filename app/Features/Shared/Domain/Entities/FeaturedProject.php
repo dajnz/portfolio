@@ -9,8 +9,7 @@ use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 use InvalidArgumentException;
 
 /**
- * Read-model of a published + featured project for the landing page
- * (content-management.md:116-120, contract `FeaturedProjectData`): the
+ * Read-model of a published + featured project for the landing page: the
  * locale-resolved title/brief description, the slug (kebab-case), the
  * preview image as a {@see StoredPicture} and the tech tags.
  */

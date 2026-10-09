@@ -6,11 +6,10 @@ namespace App\Features\Shared\Domain\RepositoryInterfaces;
 
 /**
  * Read-only access to published blog articles for cross-feature
- * consumers: the tech-writeup link of the public project detail
- * (content-management.md:133 — the link renders only while the linked
- * article is published; the stored reference is preserved so the link
- * reappears on re-publish). The write side and the full read side
- * belong to the Blog feature (8.x).
+ * consumers: the tech-writeup link of the public project detail. The link
+ * renders only while the linked article is published; the stored
+ * reference is preserved so the link reappears on re-publish. The write
+ * side and the full read side belong to the Blog feature.
  */
 interface PublishedArticleReadRepositoryInterface
 {

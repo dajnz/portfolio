@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Shared\App\DTOs;
 
 /**
- * The RSS channel data (seo.md:233-238): the localized channel
- * title/description, the site link and the 20 most recent published
- * articles. Immutable.
+ * The RSS channel data: the localized channel title/description, the site
+ * link and the 20 most recent published articles.
  */
 final readonly class RssFeedDto
 {

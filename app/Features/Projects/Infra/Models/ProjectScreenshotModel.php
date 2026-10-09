@@ -10,10 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `project_screenshots` (database.md:261-273): the
- * RustFS image path plus the per-locale jsonb `alt_text` / `title` /
- * `description` maps and the gallery `sort_order`.
- *
  * @property int $id
  * @property int $project_id
  * @property string $image_path

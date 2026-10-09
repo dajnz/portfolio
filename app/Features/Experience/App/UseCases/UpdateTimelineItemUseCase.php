@@ -21,12 +21,11 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Updates a timeline item — same shape as {@see StoreTimelineItemUseCase}
- * (incl. the ADR-0024 continuity rules via {@see TimelineContinuityService},
- * the item's own row excluded from the predecessor/successor lookups)
- * with the item's identity. Translations are upserted for the active
- * locales only; rows of locales disabled in the settings are preserved
- * untouched (content-management.md:419), the tech-tag pivot is re-synced
- * from the submitted IDs (ADR-0005-style reconciliation by the sync itself).
+ * (incl. the continuity rules via {@see TimelineContinuityService}, the
+ * item's own row excluded from the predecessor/successor lookups) with the
+ * item's identity. Translations are upserted for the active locales only;
+ * rows of locales disabled in the settings are preserved untouched, and
+ * the tech-tag pivot is re-synced from the submitted IDs.
  */
 final class UpdateTimelineItemUseCase
 {

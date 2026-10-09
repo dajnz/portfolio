@@ -8,7 +8,7 @@ use App\Features\Portfolio\Domain\RepositoryInterfaces\FeedbackRepositoryInterfa
 
 /**
  * Marks a feedback submission as read (fires automatically on the
- * detail-page mount via `useAutoMarkRead` — admin-section-ui.md:410-416).
+ * detail-page mount via `useAutoMarkRead`).
  */
 final class MarkFeedbackReadUseCase
 {

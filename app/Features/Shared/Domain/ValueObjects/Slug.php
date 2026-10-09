@@ -7,15 +7,14 @@ namespace App\Features\Shared\Domain\ValueObjects;
 use InvalidArgumentException;
 
 /**
- * Value object: a kebab-case slug (`my-post`, `my-post-2`) shared by
- * every slugged content entity (projects, blog articles, article tags —
- * content-management.md:424-464). Immutable; the format invariant lives
- * here, not in the consuming entities.
+ * A kebab-case slug (`my-post`, `my-post-2`) shared by every slugged
+ * content entity. The format invariant lives here, not in the consuming
+ * entities.
  *
  * `generate()` slugifies an arbitrary string into a valid slug: Latin
- * letters/digits are kept, Cyrillic input is transliterated to latin
- * (so Russian titles produce usable slugs) and every other character
- * sequence collapses into a single hyphen.
+ * letters/digits are kept, Cyrillic input is transliterated to latin (so
+ * Russian titles produce usable slugs) and every other character sequence
+ * collapses into a single hyphen.
  */
 final readonly class Slug
 {

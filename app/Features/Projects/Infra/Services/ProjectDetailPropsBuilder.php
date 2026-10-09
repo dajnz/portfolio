@@ -11,12 +11,11 @@ use App\Features\Projects\App\DTOs\TechWriteupLinkDto;
 
 /**
  * Prepares the wire props of the public project detail page
- * (`ProjectDetailData` + `SeoProps` — projects.yaml, shared.yaml) from
- * the app-layer data DTOs: the per-locale maps are resolved for the
- * request locale (with the `en` fallback), the pipeline-rendered
- * bodies (ADR-0008) are passed through as-is and the nested media rows are
- * mapped into the documented shapes. Shared by the public detail and
- * the signed preview controllers.
+ * (`ProjectDetailData` + `SeoProps`) from the app-layer data DTOs: the
+ * per-locale maps are resolved for the request locale (with the `en`
+ * fallback), the pipeline-rendered bodies are passed through as-is and
+ * the nested media rows are mapped into the documented shapes. Shared
+ * by the public detail and the signed preview controllers.
  */
 final class ProjectDetailPropsBuilder
 {

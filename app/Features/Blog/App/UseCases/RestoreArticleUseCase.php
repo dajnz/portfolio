@@ -13,10 +13,10 @@ use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
  * Restores soft-deleted articles (single + bulk). The slug uniqueness
  * is re-checked against NON-trashed articles — soft-deleted entities
  * occupy their slug, so a restored article must not collide with an
- * active one (ADR-0006, content-management.md:901). The checks are batched:
- * one read for the articles' slugs and one for the occupied subset.
- * A restored published article re-enters the sitemap — the cache is
- * invalidated here (the app layer owns the invalidation decisions).
+ * active one. The checks are batched: one read for the articles' slugs
+ * and one for the occupied subset. A restored published article
+ * re-enters the sitemap — the cache is invalidated here (the app layer
+ * owns the invalidation decisions).
  */
 final class RestoreArticleUseCase
 {

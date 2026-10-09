@@ -14,14 +14,14 @@ use function is_resource;
 use function stream_copy_to_stream;
 
 /**
- * The batch object transfer over one RustFS disk (backup.md:353-372):
- * `downloadBatch()` pulls the given object keys into their local paths
- * (asset staging before zipping; the archive download for restore) and
- * `uploadBatch()` pushes the given local files to their object keys
- * (the created archive; the restored assets mirror) — each transfer
- * streamed, so memory stays bounded on large objects. The disk is
- * injected per bucket (the assets disk for the portfolio bucket, the
- * backups disk for the `backups` bucket — backup.md:474-475).
+ * The batch object transfer over one RustFS disk: `downloadBatch()`
+ * pulls the given object keys into their local paths (asset staging
+ * before zipping; the archive download for restore) and `uploadBatch()`
+ * pushes the given local files to their object keys (the created
+ * archive; the restored assets mirror) — each transfer streamed, so
+ * memory stays bounded on large objects. The disk is injected per bucket
+ * (the assets disk for the portfolio bucket, the backups disk for the
+ * `backups` bucket).
  */
 final class RustFsBatchTransfer implements StorageBatchTransferable
 {

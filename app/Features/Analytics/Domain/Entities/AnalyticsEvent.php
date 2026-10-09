@@ -10,11 +10,10 @@ use App\Features\Shared\Domain\BaseEntity;
 use DateTimeImmutable;
 
 /**
- * Base class for the typed analytics events (database.md:486-505,
- * analytics.md:11-41, ADR-0017): the shared storage fields — the client
- * identifiers (`ClientIds`: session id, anonymized IP hash, User-Agent
- * — validated by the VO) and the page context (`PageDetails`: page
- * type, entity id, page URL — validated by the VO) — plus the
+ * Base class for the typed analytics events: the shared storage fields —
+ * the client identifiers (`ClientIds`: session id, anonymized IP hash,
+ * User-Agent — validated by the VO) and the page context (`PageDetails`:
+ * page type, entity id, page URL — validated by the VO) — plus the
  * event-type identity. Every concrete event type knows its own
  * semantic payload — the opaque `metadata` blob is modelled as
  * concrete properties on the subclasses, which validate their own
@@ -84,8 +83,6 @@ abstract class AnalyticsEvent extends BaseEntity
 
     /**
      * The event's own payload as stored in the `metadata` jsonb column.
-     *
-     * @return array
-     * */
+     */
     abstract public function toEventSpecificData(): array;
 }

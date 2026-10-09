@@ -10,16 +10,16 @@ use Illuminate\Support\Facades\DB;
 use function count;
 
 /**
- * The query-builder batch writer (backup.md:272-285, 402): accumulates
- * the given rows and bulk-inserts them in chunks of 500 (one INSERT
- * statement per chunk). The `settings` variant (constructed with the
- * `upsertKey` of `key`) uses `upsert` by key instead — restore replaces
- * the settings row set via upsert-by-key (backup.md:402,441-444).
+ * The query-builder batch writer: accumulates the given rows and
+ * bulk-inserts them in chunks of 500 (one INSERT statement per chunk).
+ * The `settings` variant (constructed with the `upsertKey` of `key`) uses
+ * `upsert` by key instead — restore replaces the settings row set via
+ * upsert-by-key.
  */
 final class LaravelDbTableBatchWriter implements DbTableBatchWritable
 {
     /**
-     * Rows per INSERT statement (backup.md:281).
+     * Rows per INSERT statement.
      */
     private const CHUNK_SIZE = 500;
 

@@ -10,11 +10,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * `locale.path` middleware alias — runs on locale-prefixed routes
- * (`/en/...`, `/ru/...`) after `SetLocaleMiddleware` (i18n-and-theming.md:29).
- * The `{locale}` route parameter overrides the cookie-resolved locale; the
- * route parameter is constrained to `en|ru` at route registration, so an
- * invalid value can never reach this middleware. The `Content-Language`
- * header is rewritten to reflect the actually-served locale.
+ * (`/en/...`, `/ru/...`) after `SetLocaleMiddleware`. The `{locale}` route
+ * parameter overrides the cookie-resolved locale; the route parameter is
+ * constrained to `en|ru` at route registration, so an invalid value can never
+ * reach this middleware. The `Content-Language` header is rewritten to reflect
+ * the actually-served locale.
  */
 final class SetLocaleFromPathMiddleware
 {

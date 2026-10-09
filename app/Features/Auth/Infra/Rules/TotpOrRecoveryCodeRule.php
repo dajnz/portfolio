@@ -9,9 +9,9 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 /**
- * Accepts either a 6-digit TOTP code or a recovery code up to 64 chars
- * (content-management.md:717). The format rule itself lives on the
- * `AdminTimedOtp` entity — this rule is only the request-validation entry.
+ * Accepts either a 6-digit TOTP code or a recovery code up to 64 chars.
+ * The format rule itself lives on the `AdminTimedOtp` entity — this rule is
+ * only the request-validation entry.
  */
 final class TotpOrRecoveryCodeRule implements ValidationRule
 {

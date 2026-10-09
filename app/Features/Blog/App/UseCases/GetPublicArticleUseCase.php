@@ -19,17 +19,15 @@ use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 
 /**
- * The public blog article detail (public-section-ui.md:240-297,
- * blog.yaml#BlogArticlePageProps): the published aggregate resolved
- * by slug, with the body rendered through the shared content pipeline
+ * The public blog article detail: the published aggregate resolved by
+ * slug, with the body rendered through the shared content pipeline
  * (the Redis-cached `article:html:{id}:{locale}:{updated_at}` HTML),
  * the resolved article tags, the published related cards, the
- * pre-increment view counter (content-management.md:217) and the
- * reaction state — `null` when the `social_reactions` feature flag
- * is disabled or no fingerprint was supplied (the signed preview —
- * zeroed widget, ADR-0004).
+ * pre-increment view counter and the reaction state — `null` when the
+ * `social_reactions` feature flag is disabled or no fingerprint was
+ * supplied (the signed preview — zeroed widget).
  *
- * Old-slug 301 resolution (ADR-0006) lives here too (`currentSlugFor()`).
+ * Old-slug 301 resolution lives here too (`currentSlugFor()`).
  */
 final class GetPublicArticleUseCase
 {
@@ -53,9 +51,8 @@ final class GetPublicArticleUseCase
     }
 
     /**
-     * The signed preview variant (routes.md:155): resolves by raw id
-     * (the route parameter is an integer), bypassing the
-     * `is_published` scope.
+     * The signed preview variant: resolves by raw id (the route
+     * parameter is an integer), bypassing the `is_published` scope.
      *
      * @throws ArticleNotFoundException
      */
@@ -72,9 +69,8 @@ final class GetPublicArticleUseCase
 
     /**
      * The current slug mapped from an old-slug record — the 301 target
-     * of the public detail controller (ADR-0006, content-management.md:
-     * 454-464). Null when the slug is not recorded (a trashed
-     * article's history resolves to nothing).
+     * of the public detail controller. Null when the slug is not
+     * recorded (a trashed article's history resolves to nothing).
      */
     public function currentSlugFor(string $slug): ?string
     {
@@ -138,9 +134,8 @@ final class GetPublicArticleUseCase
 
     /**
      * The reaction state: `null` when the flag is off or the
-     * fingerprint is missing (the widget is not rendered —
-     * public-section-components.md:1273); otherwise the visitor's
-     * current reaction plus the totals.
+     * fingerprint is missing (the widget is not rendered); otherwise
+     * the visitor's current reaction plus the totals.
      *
      * @return array{user_reaction: string|null, likes: int, dislikes: int}|null
      */

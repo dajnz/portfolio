@@ -16,8 +16,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Eloquent-backed contact repository. Writes go through a transaction
  * with the translation sync; `reorder()` applies the zero-indexed
- * positions with a single batched update (ADR-0005, content-management.md:155
- * style) — no per-row queries.
+ * positions with a single batched update — no per-row queries.
  */
 final class EloquentContactRepository implements ContactRepositoryInterface, ContactListQueryRepositoryInterface
 {
@@ -76,8 +75,8 @@ final class EloquentContactRepository implements ContactRepositoryInterface, Con
             // operands are validated integers interpolated directly into
             // the expression (DB::raw carries no bindings). `updated_at`
             // is bumped explicitly — query-builder writes fire no model
-            // events, and the resume PDF content hash (content-
-            // management.md:393) rotates on every source change.
+            // events, and the resume PDF content hash rotates on every
+            // source change.
             $cases = [];
             foreach ($ids as $position => $id) {
                 $cases[] = sprintf('WHEN %d THEN %d', $id, $position);

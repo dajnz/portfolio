@@ -13,10 +13,10 @@ use App\Features\Shared\App\BaseUseCase;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Regenerates the 10 recovery codes (authentication.md:203): requires the
- * current password, replaces the stored hashed set (invalidating the old
- * codes). Failed regeneration attempts are NOT tracked by the TOTP backoff
- * counter — this is re-authentication, not a brute-force surface.
+ * Regenerates the 10 recovery codes: requires the current password,
+ * replaces the stored hashed set (invalidating the old codes). Failed
+ * regeneration attempts are NOT tracked by the TOTP backoff counter — this
+ * is re-authentication, not a brute-force surface.
  */
 final class RegenerateRecoveryCodesUseCase extends BaseUseCase
 {

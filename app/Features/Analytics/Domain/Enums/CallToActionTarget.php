@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Features\Analytics\Domain\Enums;
 
 /**
- * The five plain CTA click targets (analytics.md:19-22): the frontend
- * fires `cta_click_github`/`cta_click_demo`/`cta_click_cv`/
+ * The five plain CTA click targets: the frontend fires
+ * `cta_click_github`/`cta_click_demo`/`cta_click_cv`/
  * `cta_click_feedback`/`cta_click_projects` without payload metadata —
  * the target IS the event type (the report counts CTA clicks from the
- * type, not from metadata; ADR-0017). The language/theme switches are
- * separate event types with their own properties.
+ * type, not from metadata). The language/theme switches are separate
+ * event types with their own properties.
  */
 enum CallToActionTarget: string
 {

@@ -7,10 +7,10 @@ namespace App\Features\Shared\Domain\ValueObjects;
 use InvalidArgumentException;
 
 /**
- * Value object: a `blog_articles` row reference (e.g. a project's
- * `tech_writeup_article_id`). The reference is application-level — no
- * FK (database.md:201) — but the value itself is typed so domain
- * aggregates don't depend on raw integers. Immutable.
+ * A `blog_articles` row reference (e.g. a project's
+ * `tech_writeup_article_id`). The reference is application-level — no FK —
+ * but the value itself is typed so domain aggregates don't depend on raw
+ * integers.
  */
 final readonly class BlogArticleId
 {

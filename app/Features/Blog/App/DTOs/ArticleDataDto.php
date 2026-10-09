@@ -14,7 +14,7 @@ use DateTimeImmutable;
  * maps), the lead image, the state flags and the resolved tag sets —
  * the tag DTOs CARRY the pivot ids (the `{id, slug, name}` options,
  * the `{id, name, icon}` skills, the `{id, title}` related rows), so
- * no separate id arrays are needed (content-management.md:243).
+ * no separate id arrays are needed.
  * Returned by the read use cases; the controllers prepare their own
  * output shapes from it. Immutable.
  */

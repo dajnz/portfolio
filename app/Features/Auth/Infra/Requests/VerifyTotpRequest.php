@@ -7,10 +7,6 @@ namespace App\Features\Auth\Infra\Requests;
 use App\Features\Auth\Infra\Rules\TotpOrRecoveryCodeRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-/**
- * `POST /admin/login/totp` and `POST /admin/profile/github-link/totp`
- * (content-management.md:713-717).
- */
 final class VerifyTotpRequest extends FormRequest
 {
     /** @return array<string, mixed> */

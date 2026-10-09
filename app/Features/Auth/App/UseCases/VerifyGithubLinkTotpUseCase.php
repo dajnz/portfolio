@@ -14,10 +14,10 @@ use App\Features\Shared\App\BaseUseCase;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * GitHub-link TOTP re-authentication (authentication.md:162-177): resolves
- * the pending link data from the session, verifies the code (backoff by
- * `VerifyTotpUseCase`) and completes the link. A lockout or invalid pending
- * state clears the `github_link.*` keys first.
+ * GitHub-link TOTP re-authentication: resolves the pending link data from
+ * the session, verifies the code (backoff by `VerifyTotpUseCase`) and
+ * completes the link. A lockout or invalid pending state clears the
+ * `github_link.*` keys first.
  */
 final class VerifyGithubLinkTotpUseCase extends BaseUseCase
 {

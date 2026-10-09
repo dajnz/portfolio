@@ -11,12 +11,11 @@ use Intervention\Image\ImageManager;
 use Intervention\Image\Interfaces\ImageInterface;
 
 /**
- * WebP conversion pipeline for uploaded images (content-management.md
- * "Image Processing"). Decodes the file (the GD driver applies the EXIF
- * auto-orientation while decoding), scales the image down so its largest
- * side does not exceed the configured limit, and encodes a metadata-free
- * WebP at 85% quality — GD's WebP encoder writes no EXIF/IPTC/XMP, so
- * re-encoding strips all embedded metadata.
+ * WebP conversion pipeline for uploaded images. Decodes the file (the GD
+ * driver applies the EXIF auto-orientation while decoding), scales the image
+ * down so its largest side does not exceed the configured limit, and encodes a
+ * metadata-free WebP at 85% quality — GD's WebP encoder writes no EXIF/IPTC/XMP,
+ * so re-encoding strips all embedded metadata.
  */
 final class UploadedImageProcessor
 {

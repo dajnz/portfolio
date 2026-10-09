@@ -29,16 +29,14 @@ use Illuminate\Support\Carbon;
  * the translation sync (batched delete + insert with the per-locale
  * `reading_time_minutes` computed via the domain {@see ReadingTime}
  * and the `search_vector`s rebuilt in one statement — the per-row
- * `saved` events are replaced by the equivalent batch,
- * database.md:627-645), the `article_tag_pivot` / `article_skill_pivot`
- * syncs (batched inserts + deletes) and the `related_articles`
- * reconcile (the bidirectional pairs of the removed/added ids — the
- * pair rows are deleted/inserted in pairs per database.md:453-463).
- * No query runs in a loop.
+ * `saved` events are replaced by the equivalent batch), the
+ * `article_tag_pivot` / `article_skill_pivot` syncs (batched inserts +
+ * deletes) and the `related_articles` reconcile (the bidirectional
+ * pairs of the removed/added ids — the pair rows are deleted/inserted
+ * in pairs). No query runs in a loop.
  *
  * The translation sync preserves rows of locales disabled in the
- * settings (content-management.md:419); every ACTIVE-locale row absent
- * from the entity is deleted.
+ * settings; every ACTIVE-locale row absent from the entity is deleted.
  *
  * The bulk lifecycle ops (delete/restore/force-delete/publication)
  * run as batched queries; the `sitemap:xml` invalidation is NOT this
@@ -94,7 +92,7 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
         // The pattern is bound as a parameter (no SQL injection); the
         // LIKE metacharacters of the base are escaped so a slug
         // containing `%`/`_` cannot widen the prefix match (defensive —
-        // slugs are validated kebab-case, content-management.md:436).
+        // slugs are validated kebab-case).
         $pattern = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $base).'%';
 
         return ArticleModel::withTrashed()
@@ -226,9 +224,9 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
         $model = ArticleModel::withTrashed()->find($id);
 
         if ($model !== null) {
-            // An `old_slugs` record preserves the slug history
-            // (content-management.md:905); the RustFS file deletion is
-            // orchestrated by the use case via the asset cleaner.
+            // An `old_slugs` record preserves the slug history; the
+            // RustFS file deletion is orchestrated by the use case via
+            // the asset cleaner.
             $this->recordOldSlug($model->slug, (int) $model->id);
             $model->forceDelete();
         }
@@ -259,8 +257,8 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
 
         if ($published) {
             // `published_at` is auto-set on the FIRST publish only and
-            // immutable thereafter (database.md:341) — the coalesce
-            // keeps an already-set value untouched.
+            // immutable thereafter — the coalesce keeps an already-set
+            // value untouched.
             $query->update([
                 'is_published' => true,
                 'published_at' => DB::raw('coalesce(published_at, now())'),
@@ -354,7 +352,7 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
 
     /**
      * The `related_articles` ids of the article — both directions of
-     * the pairs, deduplicated (database.md:453-463).
+     * the pairs, deduplicated.
      *
      * @return int[]
      */
@@ -390,7 +388,7 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
 
     /**
      * The row being replaced on update — needed for the old-slug
-     * record (ADR-0006).
+     * record.
      */
     private function existingRow(Article $article): ?ArticleModel
     {
@@ -403,9 +401,8 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
 
     /**
      * The base-row data; `published_at` is auto-set on the FIRST
-     * publish only and immutable thereafter (database.md:341) — the
-     * form-save path applies the same rule as the publish quick
-     * action.
+     * publish only and immutable thereafter — the form-save path
+     * applies the same rule as the publish quick action.
      *
      * @return array<string, mixed>
      */
@@ -424,12 +421,11 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
      * Reconciles the article's translation rows from the entity's
      * locale projections: the rows of the entity's locales are replaced
      * wholesale and ACTIVE-locale rows absent from the set are deleted
-     * (rows of locales disabled in the settings are preserved untouched
-     * — content-management.md:419) in ONE delete; the insert is ONE
-     * batch (with the `reading_time_minutes` computed here — the
-     * domain formula); the `search_vector`s are rebuilt in ONE
-     * statement (the equivalent of the per-row `saved` event of the
-     * model).
+     * (rows of locales disabled in the settings are preserved untouched)
+     * in ONE delete; the insert is ONE batch (with the
+     * `reading_time_minutes` computed here — the domain formula); the
+     * `search_vector`s are rebuilt in ONE statement (the equivalent of
+     * the per-row `saved` event of the model).
      */
     private function syncTranslations(int $articleId, Article $article): void
     {
@@ -462,8 +458,8 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
 
     /**
      * Rebuilds the `search_vector` of the article's translation rows
-     * per the locale dictionary (database.md:627-645) — the batch
-     * equivalent of the `ArticleTranslationModel` `saved` event.
+     * per the locale dictionary — the batch equivalent of the
+     * `ArticleTranslationModel` `saved` event.
      */
     private function rebuildSearchVectors(int $articleId): void
     {
@@ -539,8 +535,7 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
     /**
      * The `related_articles` reconcile: the pairs of the removed ids
      * are deleted in ONE batched query (both directions) and the pairs
-     * of the added ids are inserted in ONE batch (both rows each —
-     * database.md:453-463).
+     * of the added ids are inserted in ONE batch (both rows each).
      *
      * @param  int[]  $relatedArticleIds
      */
@@ -576,8 +571,7 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
 
     /**
      * The `old_slugs` rows of the given articles — the slug history
-     * preservation of the bulk force-delete (content-management.md:
-     * 905).
+     * preservation of the bulk force-delete.
      *
      * @param  int[]  $ids
      * @return array<int, array{old_slug: string, entity_type: string, entity_id: int}>
@@ -597,10 +591,10 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
     }
 
     /**
-     * Records a slug change in `old_slugs` (ADR-0006) — the upsert
-     * semantics of database.md:451: a slug reverting to a previously
-     * recorded value re-points the existing row instead of violating
-     * the `(old_slug, entity_type)` unique constraint.
+     * Records a slug change in `old_slugs` — the upsert semantics: a
+     * slug reverting to a previously recorded value re-points the
+     * existing row instead of violating the `(old_slug, entity_type)`
+     * unique constraint.
      */
     private function recordOldSlug(string $oldSlug, int $articleId): void
     {

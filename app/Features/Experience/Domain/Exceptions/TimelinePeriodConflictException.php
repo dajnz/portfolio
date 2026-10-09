@@ -7,11 +7,10 @@ namespace App\Features\Experience\Domain\Exceptions;
 use DomainException;
 
 /**
- * TimelinePeriodConflictException: the submitted period breaks the
- * timeline-continuity rules (ADR-0024) — it overlaps its predecessor or
- * successor, or only-the-last-item-can-be-ongoing is violated. Carries
- * the form field the error should surface on; the controller maps it to
- * a `ValidationException` (the DuplicateSkillNameException pattern).
+ * Thrown when the submitted period breaks the timeline-continuity rules —
+ * it overlaps its predecessor or successor, or only-the-last-item-can-be-
+ * ongoing is violated. Carries the form field the error should surface on;
+ * the controller maps it to a `ValidationException`.
  */
 final class TimelinePeriodConflictException extends DomainException
 {

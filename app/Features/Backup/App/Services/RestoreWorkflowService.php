@@ -21,18 +21,17 @@ use function in_array;
 use function sprintf;
 
 /**
- * The restore pipeline (backup.md:393-408) — the 10-step workflow:
- * maintenance mode on → archive download from the `backups` bucket →
- * validate + extract → the data plane (`DatabaseRestoreService`:
- * child-first truncate incl. the analytics wipe, `feature_flags`
- * never touched per ADR-0018, per-table JSONL import) → assets mirror
- * (upload + delete-extras) → cache/sitemap refresh → post-restore log
- * + lift maintenance → staging cleanup. On failure the site STAYS in
- * maintenance mode (backup.md:397) — the admin lifts it via the
- * Settings page or `admin:reset-maintenance`.
+ * The restore pipeline — the 10-step workflow: maintenance mode on →
+ * archive download from the `backups` bucket → validate + extract → the
+ * data plane (`DatabaseRestoreService`: child-first truncate incl. the
+ * analytics wipe, `feature_flags` never touched, per-table JSONL import)
+ * → assets mirror (upload + delete-extras) → cache/sitemap refresh →
+ * post-restore log + lift maintenance → staging cleanup. On failure the
+ * site STAYS in maintenance mode — the admin lifts it via the Settings
+ * page or `admin:reset-maintenance`.
  *
  * Every collaborator is an app-layer contract (including the logger) —
- * no infra or framework classes are named here (ADR-0018). The entity's
+ * no infra or framework classes are named here. The entity's
  * `completed → processing` transition and the completion re-stamp are
  * the caller's concern (the restore use case); this service performs
  * the restore itself.
@@ -85,8 +84,8 @@ final class RestoreWorkflowService
     }
 
     /**
-     * Step 2: download the archive object into the staging run
-     * (backup.md:398). The object key is the record's RustFS path.
+     * Step 2: download the archive object into the staging run. The
+     * object key is the record's RustFS path.
      */
     private function downloadArchive(Backup $backup, string $runDir): string
     {
@@ -99,10 +98,10 @@ final class RestoreWorkflowService
     }
 
     /**
-     * Step 7: mirror the extracted assets onto the portfolio bucket
-     * (backup.md:403-405,451-454): every archive asset is uploaded
-     * (overwriting), then every live object absent from the manifest is
-     * deleted — the exact point-in-time mirror.
+     * Step 7: mirror the extracted assets onto the portfolio bucket:
+     * every archive asset is uploaded (overwriting), then every live
+     * object absent from the manifest is deleted — the exact
+     * point-in-time mirror.
      */
     private function mirrorAssets(string $extractDir, Manifest $manifest): void
     {

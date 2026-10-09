@@ -8,9 +8,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * The reaction toggle payload (`POST /api/blog/{article}/reaction`,
- * features/blog.yaml#ReactionRequest): the `reaction` type must be
- * `like` or `dislike` (422 otherwise).
+ * The reaction toggle payload (`POST /api/blog/{article}/reaction`):
+ * the `reaction` type must be `like` or `dislike` (422 otherwise).
  */
 final class StoreReactionRequest extends FormRequest
 {

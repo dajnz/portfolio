@@ -11,12 +11,12 @@ use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInter
 use Illuminate\Support\Facades\URL;
 
 /**
- * The RSS feed data (seo.md:233-238): the 20 most recent published
- * articles with the localized titles/descriptions, the canonical
- * links, the site name as the author, the category names (article
- * tags + attached skills — each as a separate `<category>`) and the
- * lead-image enclosure. The channel title/link come from the SEO
- * index keys and the app URL; the XML itself is built by the shared
+ * The RSS feed data: the 20 most recent published articles with the
+ * localized titles/descriptions, the canonical links, the site name as
+ * the author, the category names (article tags + attached skills —
+ * each as a separate `<category>`) and the lead-image enclosure. The
+ * channel title/link come from the SEO index keys and the app URL;
+ * the XML itself is built by the shared
  * {@see \App\Features\Shared\App\Services\RssXmlBuilder}.
  */
 final class GetRssFeedUseCase

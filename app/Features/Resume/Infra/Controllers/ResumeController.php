@@ -15,12 +15,10 @@ use Inertia\Response;
 use Inertia\ResponseFactory;
 
 /**
- * `GET/PUT /admin/resume` (routes.md:134-135, admin-section-ui.md:248-296)
- * and `POST /api/resume/regenerate` (routes.md:194). The controller only
- * wires requests to use cases and maps their results to the page props
- * (resume.yaml contract: `mode`, `layout`, `custom_resume_file`,
- * `about_texts`) — the defaults for an absent config row come from the
- * use case.
+ * `GET/PUT /admin/resume` and `POST /api/resume/regenerate`. The
+ * controller only wires requests to use cases and maps their results to
+ * the page props (`mode`, `layout`, `custom_resume_file`, `about_texts`)
+ * — the defaults for an absent config row come from the use case.
  */
 final class ResumeController
 {

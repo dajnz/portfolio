@@ -26,13 +26,12 @@ use Inertia\Response;
 use Inertia\ResponseFactory;
 
 /**
- * Experience admin surface (routes.md:102-109): the cursor-paginated
- * list with date sort / content search / trashed view, the create/edit
- * forms (per-locale maps for the translatable fields — the
- * LocaleTabs convention, mockup `data-dynamic` keys), and the CRUD +
- * soft-delete lifecycle. One action → one use case; the props are
- * mapped from the hydrated entities here (the per-locale maps come
- * straight from the entity's locale projections).
+ * Experience admin surface: the cursor-paginated list with date sort /
+ * content search / trashed view, the create/edit forms (per-locale maps
+ * for the translatable fields — the LocaleTabs convention, `data-dynamic`
+ * keys), and the CRUD + soft-delete lifecycle. One action → one use case;
+ * the props are mapped from the hydrated entities here (the per-locale
+ * maps come straight from the entity's locale projections).
  */
 final class AdminExperienceController
 {
@@ -116,9 +115,6 @@ final class AdminExperienceController
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
-    /**
-     * @return Response
-     */
     private function formPage(ResponseFactory $inertia, ?int $itemId): Response
     {
         $locale = app()->getLocale();
@@ -135,10 +131,9 @@ final class AdminExperienceController
     }
 
     /**
-     * Spread-ready payload for the store/update use cases — extracted
-     * so both actions share one input mapping. There is no `is_current`
-     * flag (ADR-0024): an empty `ended_at` is the ongoing marker, the
-     * continuity rules live in the use cases.
+     * Spread-ready payload for the store/update use cases — extracted so
+     * both actions share one input mapping. An empty `ended_at` is the
+     * ongoing marker; the continuity rules live in the use cases.
      *
      * @return array<string, mixed>
      */

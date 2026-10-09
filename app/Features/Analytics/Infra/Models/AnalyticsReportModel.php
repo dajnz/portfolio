@@ -10,10 +10,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `analytics_reports` (database.md:531-548). The
- * reworked per-metric aggregate store — `created_at` only, no
- * `updated_at`; `span` is one of day|week|month|year|all (CHECK
- * constrained), `dimension` NULL for block/chart series rows.
+ * Eloquent model for `analytics_reports`. The per-metric aggregate
+ * store — `created_at` only, no `updated_at`; `span` is one of
+ * day|week|month|year|all (CHECK constrained), `dimension` NULL for
+ * block/chart series rows.
  *
  * @property int $id
  * @property string $metric

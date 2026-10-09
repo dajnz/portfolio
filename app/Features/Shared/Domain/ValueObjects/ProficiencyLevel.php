@@ -7,10 +7,9 @@ namespace App\Features\Shared\Domain\ValueObjects;
 use InvalidArgumentException;
 
 /**
- * Value object: the 1–5 proficiency scale of a tech skill
- * (content-management.md:593, mirrored by the `skills_proficiency_check`
- * DB CHECK constraint). Immutable; the range invariant lives here, not
- * in the consuming entities.
+ * The 1–5 proficiency scale of a tech skill, mirrored by the
+ * `skills_proficiency_check` DB CHECK constraint. The range invariant
+ * lives here, not in the consuming entities.
  */
 final readonly class ProficiencyLevel
 {

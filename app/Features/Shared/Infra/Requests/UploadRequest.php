@@ -9,11 +9,10 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 /**
- * `POST /api/upload` validation (content-management.md:779-784): images
- * (`blog`/`projects`/`about`) accept jpeg/png/gif/webp/avif up to 3072 KB;
- * `about` also accepts PDF up to 5120 KB (resume upload). The per-MIME size
- * cap for `about` is enforced in `after()` because a single rule cannot
- * express "3 MB for images, 5 MB for PDFs".
+ * `POST /api/upload` validation: images (`blog`/`projects`/`about`) accept
+ * jpeg/png/gif/webp/avif up to 3072 KB; `about` also accepts PDF up to 5120 KB
+ * (resume upload). The per-MIME size cap for `about` is enforced in `after()`
+ * because a single rule cannot express "3 MB for images, 5 MB for PDFs".
  */
 final class UploadRequest extends FormRequest
 {

@@ -19,10 +19,9 @@ use Inertia\Response;
 use Inertia\ResponseFactory;
 
 /**
- * Contacts admin surface (routes.md:76-80, admin-section-ui.md:304-308):
- * cursor-paginated reorderable list + CRUD + the ADR-0005 `{ids}` reorder.
- * One action → one use case; the list props are mapped from the
- * paginator page here.
+ * Contacts admin surface: cursor-paginated reorderable list + CRUD + the
+ * `{ids}` reorder. One action → one use case; the list props are mapped
+ * from the paginator page here.
  */
 final class ContactController
 {
@@ -104,8 +103,7 @@ final class ContactController
             'id' => $model->id,
             'name' => $this->nameFor($model, $locale),
             // Per-locale names map — the inline include-in-resume toggle
-            // PUTs the full map back (StoreContactRequest requires every
-            // active locale's name, content-management.md:609).
+            // PUTs the full map back (every active locale's name is required).
             'names' => $model->translations->pluck('name', 'locale')->all(),
             'value' => $model->value,
             'icon' => $model->icon,

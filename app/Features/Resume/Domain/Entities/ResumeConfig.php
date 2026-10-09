@@ -10,16 +10,14 @@ use InvalidArgumentException;
 
 /**
  * The single-row resume generation configuration (`resume_config`, id = 1
- * enforced at the application level — database.md:104-116): generation
- * mode, the layout JSON (template + section visibility/ordering per
- * content-management.md:335-347) and the manual-upload path. Localized
- * content lives in {@see ResumeConfigTranslation} value objects; the
- * `updated_at` stamp feeds the PDF content hash
- * (content-management.md:393). Invariants are enforced by construction:
- * the mode is one of `auto`|`manual` (the varchar + CHECK column domain),
- * the layout shape (template set, exactly the five sections, each with a
- * boolean `visible` and an integer `order` 0–4) matches the request
- * validation table (content-management.md:360-375).
+ * enforced at the application level): generation mode, the layout JSON
+ * (template + section visibility/ordering) and the manual-upload path.
+ * Localized content lives in {@see ResumeConfigTranslation} value objects;
+ * the `updated_at` stamp feeds the PDF content hash. Invariants are
+ * enforced by construction: the mode is one of `auto`|`manual` (the
+ * varchar + CHECK column domain), the layout shape (template set, exactly
+ * the five sections, each with a boolean `visible` and an integer `order`
+ * 0–4) matches the request validation rules.
  *
  * State changes go through the mutation methods; the repository persists
  * the entity afterwards.
@@ -63,8 +61,7 @@ final class ResumeConfig extends BaseEntity
     }
 
     /**
-     * `auto` = the PDF is generated from the structured portfolio data
-     * (content-management.md:330).
+     * `auto` = the PDF is generated from the structured portfolio data.
      */
     public function isAuto(): bool
     {
@@ -73,7 +70,7 @@ final class ResumeConfig extends BaseEntity
 
     /**
      * `manual` = the uploaded file (`custom_resume_file`) is served
-     * directly (content-management.md:330,403-405).
+     * directly.
      */
     public function isManual(): bool
     {
@@ -113,7 +110,7 @@ final class ResumeConfig extends BaseEntity
 
     /**
      * The custom "About Me" text for the locale (null = fall back to the
-     * about-info `short_pitch` at assembly time — content-management.md:382).
+     * about-info `short_pitch` at assembly time).
      */
     public function aboutTextFor(string $locale): ?string
     {

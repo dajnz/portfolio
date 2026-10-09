@@ -11,8 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent model for `article_tags` (database.md:366-375) — DB-table
- * code only.
+ * Eloquent model for `article_tags` — DB-table code only.
  *
  * @property int $id
  * @property string $slug

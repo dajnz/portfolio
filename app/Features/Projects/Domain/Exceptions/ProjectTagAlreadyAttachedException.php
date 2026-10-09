@@ -7,9 +7,8 @@ namespace App\Features\Projects\Domain\Exceptions;
 use RuntimeException;
 
 /**
- * The tech tag is already attached to the project
- * (content-management.md:160) — surfaced as a 409 Conflict by the
- * controller.
+ * The tech tag is already attached to the project — surfaced as a 409
+ * Conflict by the controller.
  */
 final class ProjectTagAlreadyAttachedException extends RuntimeException
 {

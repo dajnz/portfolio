@@ -14,14 +14,14 @@ use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use DateTimeImmutable;
 
 /**
- * Creates a project (content-management.md:135-162): the resolved slug
- * (ADR-0006 — auto-generated from the EN title with a collision suffix, or
- * the manual override kept as-is), the shared fields, the per-locale
- * translations (title + brief description required per ACTIVE locale),
- * the preview picture, the screenshot gallery and the engineering
- * detail items, the tech-tag pivot, the featured state and the
- * optional tech-writeup link. A form-save with `is_published` set
- * publishes the fresh aggregate ({@see \App\Features\Projects\Domain\Entities\Project::publish()}
+ * Creates a project: the resolved slug (auto-generated from the EN
+ * title with a collision suffix, or the manual override kept as-is),
+ * the shared fields, the per-locale translations (title + brief
+ * description required per ACTIVE locale), the preview picture, the
+ * screenshot gallery and the engineering detail items, the tech-tag
+ * pivot, the featured state and the optional tech-writeup link. A
+ * form-save with `is_published` set publishes the fresh aggregate
+ * ({@see \App\Features\Projects\Domain\Entities\Project::publish()}
  * asserts the publication invariants). The repository persists the
  * aggregate in one transaction.
  */

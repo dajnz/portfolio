@@ -7,11 +7,10 @@ namespace App\Features\Shared\App\DTOs;
 use DateTimeImmutable;
 
 /**
- * A single item of the RSS feed (seo.md:233-238): title, the
- * canonical link, the description, the publication date, the author
- * (the site name), the category names (article tags + attached
- * skills — each as a separate `<category>`) and the optional lead
- * image enclosure. Immutable.
+ * A single item of the RSS feed: title, the canonical link, the
+ * description, the publication date, the author (the site name), the
+ * category names (article tags + attached skills — each as a separate
+ * `<category>`) and the optional lead image enclosure.
  */
 final readonly class RssItemDto
 {

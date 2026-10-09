@@ -8,8 +8,7 @@ use App\Features\Portfolio\Domain\RepositoryInterfaces\FeedbackRepositoryInterfa
 
 /**
  * Marks a feedback submission as forwarded (best-effort: the admin UI
- * opens the `mailto:` link even when this call fails —
- * admin-section-ui.md:121).
+ * opens the `mailto:` link even when this call fails).
  */
 final class MarkFeedbackForwardedUseCase
 {

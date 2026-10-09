@@ -8,15 +8,14 @@ use App\Features\Projects\Infra\Controllers\PublicProjectController;
 use Illuminate\Support\Facades\Route;
 
 /*
- * Projects routes (routes.md:25-26,53-54,81-101,156). The public index
- * (with its locale-prefixed variant) and detail are public — the
- * `{project}` parameter carries the RAW slug (ADR-0006: the old-slug 301
- * lookup happens in the controller, implicit model binding cannot do
- * the fallback); the admin section is gated by the Auth middleware
- * chain (`auth` + `auth.session_version` + `admin`); the preview route
- * is excluded from auth and relies on the signed URL
- * (routes.md:58-60). The `{locale}` route parameter is constrained to
- * the supported locales so `SetLocaleFromPathMiddleware` never sees an
+ * Projects routes. The public index (with its locale-prefixed variant)
+ * and detail are public — the `{project}` parameter carries the RAW
+ * slug (the old-slug 301 lookup happens in the controller, implicit
+ * model binding cannot do the fallback); the admin section is gated by
+ * the Auth middleware chain (`auth` + `auth.session_version` +
+ * `admin`); the preview route is excluded from auth and relies on the
+ * signed URL. The `{locale}` route parameter is constrained to the
+ * supported locales so `SetLocaleFromPathMiddleware` never sees an
  * invalid value.
  */
 

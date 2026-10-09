@@ -13,18 +13,17 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 
 /**
- * Eloquent model for `blog_article_translations` (database.md:351-364).
+ * Eloquent model for `blog_article_translations`.
  *
  * The `saving` event recomputes `reading_time_minutes` from the
- * content (`ceil(word_count / 200)` — content-management.md:472, via
- * the domain {@see ReadingTime}); the `saved` event rebuilds the
- * locale's `search_vector` from
+ * content (`ceil(word_count / 200)`, via the domain
+ * {@see ReadingTime}); the `saved` event rebuilds the locale's
+ * `search_vector` from
  * `title || ' ' || short_description || ' ' || content` via the
  * locale's Snowball dictionary (`Config::get('portfolio.fts.locales')`,
- * fallback `english` — database.md:627-645). The `sitemap:xml`
- * invalidation is NOT a model concern — the write use cases
- * orchestrate it via the shared `SitemapInvalidatorInterface`
- * (seo.md:219).
+ * fallback `english`). The `sitemap:xml` invalidation is NOT a model
+ * concern — the write use cases orchestrate it via the shared
+ * `SitemapInvalidatorInterface`.
  *
  * @property int $article_id
  * @property string $locale

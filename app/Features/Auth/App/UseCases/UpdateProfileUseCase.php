@@ -13,11 +13,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Profile update incl. password change (content-management.md:719-727,
- * authentication.md:283). The current-password check happens here — the
- * request only shapes input. On a password change the session version is
- * bumped (invalidating all other sessions) and the current session is
- * re-authenticated under the new version — `Auth::loginUsingId()`
+ * Profile update incl. password change. The current-password check happens
+ * here — the request only shapes input. On a password change the session
+ * version is bumped (invalidating all other sessions) and the current
+ * session is re-authenticated under the new version — `Auth::loginUsingId()`
  * regenerates the session first, then `bumpAndSync()` writes the version
  * into the fresh session.
  */

@@ -8,9 +8,8 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
- * Attaches a tech skill tag via `article_skill_pivot`
- * (content-management.md:253) — a duplicate attachment surfaces as a
- * 409 via the domain exception.
+ * Attaches a tech skill tag via `article_skill_pivot` — a duplicate
+ * attachment surfaces as a 409 via the domain exception.
  */
 final class AttachArticleSkillUseCase
 {

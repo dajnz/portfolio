@@ -12,8 +12,8 @@ use Illuminate\Support\Facades\File;
  *
  * Reads every `lang/{locale}/*.php` file and writes
  * `resources/js/lang/{locale}.json` keyed by group name, preserving ICU
- * MessageFormat syntax as-is (i18n-and-theming.md:42, ADR-0009). The JSON files
- * are committed — the frontend build consumes only them.
+ * MessageFormat syntax as-is. The JSON files are committed — the frontend
+ * build consumes only them.
  */
 class ExportLangCommand extends Command
 {

@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Features\Shared\Infra\Persistence;
 
 /**
- * The result of an admin list pagination request — the spec-shaped
- * response documented in admin-section-ui.md:169-181: the raw items of
- * the current page, the (cached) total used by the page-number widget,
- * the current page number, the active sort, and the boundary cursors
- * for previous/next navigation. `items` holds raw models/rows; the
- * consuming controllers map them into their page props.
+ * The result of an admin list pagination request: the raw items of the current
+ * page, the (cached) total used by the page-number widget, the current page
+ * number, the active sort, and the boundary cursors for previous/next
+ * navigation. `items` holds raw models/rows; the consuming controllers map
+ * them into their page props.
  */
 final readonly class CursorPage
 {
@@ -28,8 +27,8 @@ final readonly class CursorPage
     }
 
     /**
-     * Empty page for a request that lies beyond the last page: no
-     * items, no boundary cursors (admin-section-ui.md:151-161).
+     * Empty page for a request that lies beyond the last page: no items, no
+     * boundary cursors.
      */
     public static function empty(int $total, int $perPage, int $currentPage, SortSpec $sorting): self
     {

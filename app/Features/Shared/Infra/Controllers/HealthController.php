@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 /**
- * Health endpoints (devops.md:815-824). Both routes are registered outside
- * the `web` middleware group (no auth, no session, no locale, no CSP).
- * `/up` only confirms the process is alive; `/up/health` probes DB, Redis
- * and RustFS and caches its result for 5 seconds in the application cache.
+ * Health endpoints. Both routes are registered outside the `web` middleware
+ * group (no auth, no session, no locale, no CSP). `/up` only confirms the
+ * process is alive; `/up/health` probes DB, Redis and RustFS and caches its
+ * result for 5 seconds in the application cache.
  */
 final class HealthController
 {

@@ -15,10 +15,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 /**
- * The admin experience list (admin-section-ui.md:355-359): cursor-
- * paginated via the shared paginator (step 2.8), sortable by date
- * (`?sort_column=started_at`, forward/reverse — `id` stays the
- * fallback), searchable by content (ILIKE over the per-locale
+ * The admin experience list: cursor-paginated via the shared paginator,
+ * sortable by date (`?sort_column=started_at`, forward/reverse — `id`
+ * stays the fallback), searchable by content (ILIKE over the per-locale
  * position/company/short-description — no FTS at admin list scale) and
  * toggled to the trash via `?trashed=1` (only soft-deleted items).
  */
@@ -34,8 +33,8 @@ final class ListTimelineItemsUseCase
         $this->paginator = new AdminCursorPaginator(
             cursorDecoder: $cursorDecoder,
             allowedSortColumns: ['started_at'],
-            // ADR-0024: the admin list defaults to date desc (no unsorted
-            // state — the dates header cycles only asc/desc).
+            // The admin list defaults to date desc (no unsorted state —
+            // the dates header cycles only asc/desc).
             defaultSortColumn: 'started_at',
         );
     }
@@ -57,8 +56,8 @@ final class ListTimelineItemsUseCase
     }
 
     /**
-     * The 30 s count cache is per filter combination (ADR-0010) — the
-     * trashed toggle and the search term both change the counted set.
+     * The 30 s count cache is per filter combination — the trashed toggle
+     * and the search term both change the counted set.
      */
     private function countCacheKey(bool $trashed, string $search): string
     {
@@ -80,9 +79,8 @@ final class ListTimelineItemsUseCase
     }
 
     /**
-     * Content search — ILIKE over the per-locale text columns
-     * (content-management.md:185). Returns the normalized search term
-     * for the count-cache key.
+     * Content search — ILIKE over the per-locale text columns. Returns
+     * the normalized search term for the count-cache key.
      *
      * @param  Builder<TimelineItem>  $query
      */

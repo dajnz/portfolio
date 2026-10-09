@@ -6,8 +6,8 @@ namespace App\Features\Analytics\Domain\Enums;
 
 /**
  * The like/dislike reaction values carried by `article_reaction`
- * events (analytics.md:26) — distinct from the Blog feature's stored
- * reaction rows (no cross-feature imports).
+ * events — distinct from the Blog feature's stored reaction rows (no
+ * cross-feature imports).
  */
 enum SocialReaction: string
 {

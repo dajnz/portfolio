@@ -7,9 +7,9 @@ namespace App\Features\Portfolio\Infra\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * `POST /admin/contacts/reorder` — the ADR-0005 payload `{ "ids": [...] }`:
- * contact IDs in the new drag order; the zero-indexed array position
- * becomes `sort_order`.
+ * `POST /admin/contacts/reorder` payload `{ "ids": [...] }`: contact IDs
+ * in the new drag order; the zero-indexed array position becomes
+ * `sort_order`.
  */
 final class ReorderContactsRequest extends FormRequest
 {

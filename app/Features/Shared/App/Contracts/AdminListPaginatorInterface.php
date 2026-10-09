@@ -8,15 +8,14 @@ use App\Features\Shared\App\DTOs\PaginationQuery;
 use App\Features\Shared\App\DTOs\PaginationResultDto;
 
 /**
- * The app-layer abstraction over the shared admin cursor pagination
- * (admin-section-ui.md:124-210, step 2.8): paginates a filtered query
- * with the requested page/cursor/sort and returns the raw rows plus
- * the pagination facts. The implementation lives on the infra layer
- * (it drives the framework paginator); the app layer never touches
- * Eloquent builders or HTTP requests — the query is supplied as a
- * factory callable (invoked by the implementation) and the request
- * shape is rebuilt from the passed URL (so the paginator's empty-page
- * redirects keep targeting the real URL, ADR-0024).
+ * The app-layer abstraction over the shared admin cursor pagination:
+ * paginates a filtered query with the requested page/cursor/sort and
+ * returns the raw rows plus the pagination facts. The implementation lives
+ * on the infra layer (it drives the framework paginator); the app layer
+ * never touches Eloquent builders or HTTP requests — the query is supplied
+ * as a factory callable (invoked by the implementation) and the request
+ * shape is rebuilt from the passed URL, so the paginator's empty-page
+ * redirects keep targeting the real URL.
  */
 interface AdminListPaginatorInterface
 {

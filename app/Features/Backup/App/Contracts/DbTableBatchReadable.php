@@ -7,10 +7,10 @@ namespace App\Features\Backup\App\Contracts;
 use Generator;
 
 /**
- * Batch reads of one DB table (backup.md:166-170): yields every row
- * as an array keyed by column name, in batches of `$batchSize` — the
- * JSONL export source. Implemented by `LaravelDbTableBatchReader`
- * (query builder) in the Infra layer.
+ * Batch reads of one DB table: yields every row as an array keyed by
+ * column name, in batches of `$batchSize` — the JSONL export source.
+ * Implemented by `LaravelDbTableBatchReader` (query builder) in the
+ * Infra layer.
  */
 interface DbTableBatchReadable
 {

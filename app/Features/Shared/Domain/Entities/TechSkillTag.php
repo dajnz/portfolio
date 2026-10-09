@@ -11,8 +11,7 @@ use InvalidArgumentException;
 /**
  * Light read-model representation of a tech skill (the `skills` row) as
  * attached to an aggregate via a pivot table — `experience_item_tech_tags`
- * (experience timeline cards, content-management.md:174) and
- * `project_tech_tags` (project cards, the landing's featured projects).
+ * (experience timeline cards) and `project_tech_tags` (project cards).
  * Carries only the identity, the display name and the icon
  * (`devicon:*` — the same invariant as {@see TechSkill}, enforced by
  * the shared {@see SkillIcon} value object). The caller builds the icon

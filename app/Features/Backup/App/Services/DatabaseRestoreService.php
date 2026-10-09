@@ -12,13 +12,12 @@ use function file_exists;
 use function sprintf;
 
 /**
- * The restore's data plane (backup.md:401-402): truncates every
- * included table child-first (incl. the analytics wipe — ADR-0018;
- * `feature_flags` is never in the order, ADR-0018) and imports each
- * table's JSONL file back with the original IDs (the `settings`
- * writer already upserts by key). Split off the restore workflow so
- * the transport/orchestration steps (archive, assets, maintenance)
- * stay in `RestoreWorkflowService` (ADR-0018).
+ * The restore's data plane: truncates every included table child-first
+ * (incl. the analytics wipe; `feature_flags` is never in the order) and
+ * imports each table's JSONL file back with the original IDs (the
+ * `settings` writer already upserts by key). Split off the restore
+ * workflow so the transport/orchestration steps (archive, assets,
+ * maintenance) stay in `RestoreWorkflowService`.
  */
 final class DatabaseRestoreService
 {
@@ -40,10 +39,10 @@ final class DatabaseRestoreService
     }
 
     /**
-     * Step 6: import every table's JSONL file back (backup.md:402) —
-     * original IDs preserved, the `settings` table upserts by key.
-     * A table file absent from the archive (a backup created before
-     * the table existed) restores as empty.
+     * Step 6: import every table's JSONL file back — original IDs
+     * preserved, the `settings` table upserts by key. A table file
+     * absent from the archive (a backup created before the table
+     * existed) restores as empty.
      */
     private function importTables(string $extractDir): void
     {

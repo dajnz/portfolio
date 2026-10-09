@@ -15,8 +15,8 @@ use Symfony\Component\Mime\MessageConverter;
 use Throwable;
 
 /**
- * The mail transport for the 3rd-party REST API approach (ADR-0016,
- * Mailgun/Mailchimp-style): a single bearer token + custom API endpoint.
+ * The mail transport for the 3rd-party REST API approach
+ * (Mailgun/Mailchimp-style): a single bearer token + custom API endpoint.
  *
  * The message is serialized into a generic JSON payload
  * `{from, to, subject, html, text}` and POSTed to the configured

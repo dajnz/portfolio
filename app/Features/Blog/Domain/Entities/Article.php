@@ -13,8 +13,7 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * A blog article (database.md:330-364, content-management.md:191-274):
- * the unique kebab-case slug, the optional lead image
+ * A blog article: the unique kebab-case slug, the optional lead image
  * ({@see StoredPicture} — the RustFS path + per-locale alt labels),
  * the featured flag, the publication state ({@see PublishedState} —
  * `published_at` immutable after the first publish) and the aggregate
@@ -23,7 +22,7 @@ use InvalidArgumentException;
  * of the `article_tag_pivot`, the tech-skill ids of the
  * `article_skill_pivot` and the bidirectional `related_articles`
  * pairs (stored as the ids of the related articles — the pair rows
- * are the repository's concern, database.md:453-463).
+ * are the repository's concern).
  *
  * Invariants are delegated to the embedded value objects: the slug
  * rules to {@see Slug}, the picture rules to {@see StoredPicture},
@@ -39,9 +38,9 @@ use InvalidArgumentException;
  * a possible re-publish. The embedded value objects stay immutable.
  *
  * Localized state is projected per property: `titleFor($locale)` etc.
- * resolve the requested locale with an `en` fallback
- * (content-management.md:415), the `*ByLocale()` maps expose every
- * stored locale for the admin LocaleTabs.
+ * resolve the requested locale with an `en` fallback, the
+ * `*ByLocale()` maps expose every stored locale for the admin
+ * LocaleTabs.
  */
 final class Article extends BaseEntity
 {
@@ -118,9 +117,8 @@ final class Article extends BaseEntity
     /**
      * The last save stamp of the base row — the `updated_at` column.
      * Read-only metadata: the app layer uses it for the cached-content
-     * key (`article:html:{id}:{locale}:{updated_at}`,
-     * content-management.md:479) and the SEO `dateModified`; the
-     * domain never mutates it.
+     * key (`article:html:{id}:{locale}:{updated_at}`) and the SEO
+     * `dateModified`; the domain never mutates it.
      */
     public function toUpdatedAt(): ?DateTimeImmutable
     {
@@ -162,8 +160,7 @@ final class Article extends BaseEntity
     /**
      * The locales with a stored translation row — the exact set the
      * persistence layer reconciles against the active locales (rows of
-     * disabled locales are preserved untouched, content-management.md:
-     * 419).
+     * disabled locales are preserved untouched).
      *
      * @return string[]
      */
@@ -189,8 +186,7 @@ final class Article extends BaseEntity
 
     /**
      * The stored reading time of the locale's translation row
-     * (recomputed on every save — content-management.md:472), with the
-     * `en` fallback.
+     * (recomputed on every save), with the `en` fallback.
      */
     public function readingTimeFor(string $locale): int
     {
@@ -230,7 +226,7 @@ final class Article extends BaseEntity
      * short description AND actual Markdown content; the article is
      * not published yet) and the publication state is replaced with
      * the published one. `published_at` is set only on the FIRST
-     * publish and immutable thereafter (database.md:341).
+     * publish and immutable thereafter.
      */
     public function publish(DateTimeImmutable $now): void
     {
@@ -254,7 +250,7 @@ final class Article extends BaseEntity
 
     /**
      * Unpublishes the article, preserving `published_at` — the value
-     * is immutable after the first publish (database.md:341).
+     * is immutable after the first publish.
      */
     public function unpublish(): void
     {
@@ -276,7 +272,7 @@ final class Article extends BaseEntity
 
     /**
      * Translation for the given locale, falling back to `en` when the
-     * requested one is missing (content-management.md:415).
+     * requested one is missing.
      */
     private function translationFor(string $locale): ?ArticleTranslation
     {

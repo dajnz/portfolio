@@ -9,11 +9,10 @@ use App\Features\Portfolio\Domain\RepositoryInterfaces\AboutInfoRepositoryInterf
 use App\Features\Portfolio\Infra\Services\ResumeModeReader;
 
 /**
- * Reads the single-row about entity for the admin edit form
- * (admin-section-ui.md:230-239) — all translations included, so the
- * LocaleTabs can render every supported locale — plus the current resume
- * mode for the resume summary line (Resume feature data, read in the
- * Infra layer per ADR-0003).
+ * Reads the single-row about entity for the admin edit form — all
+ * translations included, so the LocaleTabs can render every supported
+ * locale — plus the current resume mode for the resume summary line
+ * (Resume feature data, read in the Infra layer).
  *
  * @return array{about: AboutInfo|null, resume_mode: string}
  */

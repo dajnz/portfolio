@@ -28,11 +28,11 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Throwable;
 
 /**
- * The admin backup surface (routes.md:143-149,173): the list page,
- * create/dispatch, delete, restore-submit, DR upload, download stream
- * and the status polling endpoint. All actions run behind the admin
- * auth chain; the restore is async (ADR-0018) — the controller only
- * dispatches `RestoreBackupJob`, the UI polls the status endpoint.
+ * The admin backup surface: the list page, create/dispatch, delete,
+ * restore-submit, DR upload, download stream and the status polling
+ * endpoint. All actions run behind the admin auth chain; the restore is
+ * async — the controller only dispatches `RestoreBackupJob`, the UI
+ * polls the status endpoint.
  */
 final class BackupController
 {
@@ -69,8 +69,8 @@ final class BackupController
     {
         $this->createCase->create();
 
-        // ADR-0019 — the async create only STARTS here: the flash announces
-        // the start, the UI fires the "Backup created." toast when its
+        // The async create only STARTS here: the flash announces the
+        // start, the UI fires the "Backup created." toast when its
         // status poll observes the completed record.
         return back()->with('notification', ['type' => 'success', 'message' => __('admin.toasts.backup_creation_started')]);
     }
@@ -181,8 +181,7 @@ final class BackupController
     }
 
     /**
-     * The wire shape of one list row (openapi/inertia/backup.yaml
-     * `BackupEntryData`).
+     * The wire shape of one list row.
      *
      * @return array<string, mixed>
      */

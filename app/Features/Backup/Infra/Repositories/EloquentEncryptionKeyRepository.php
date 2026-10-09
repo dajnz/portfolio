@@ -10,10 +10,9 @@ use App\Features\Backup\Infra\Mappers\BackupEncryptionKeyMapper;
 use App\Features\Backup\Infra\Models\BackupEncryptionKeyModel;
 
 /**
- * Eloquent-backed `backup_encryption_keys` storage (database.md:550-565).
- * The raw key is encrypted at rest (Crypt, under APP_KEY) at the
- * persistence boundary — the mapper encrypts on write and decrypts on
- * read (backup.md:495-497).
+ * Eloquent-backed `backup_encryption_keys` storage. The raw key is
+ * encrypted at rest (Crypt, under APP_KEY) at the persistence boundary —
+ * the mapper encrypts on write and decrypts on read.
  */
 final class EloquentEncryptionKeyRepository implements EncryptionKeyRepositoryInterface
 {

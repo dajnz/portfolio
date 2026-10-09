@@ -8,7 +8,7 @@ use DomainException;
 
 /**
  * The skill tag is already attached to the article — surfaced as a
- * 409 by the attach route (content-management.md:253).
+ * 409 by the attach route.
  */
 final class ArticleSkillAlreadyAttachedException extends DomainException
 {

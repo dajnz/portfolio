@@ -20,12 +20,9 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Eloquent-backed write repository for the TechSkills feature, over the
- * shared read-side models (database.md:130-134). Group writes go through
- * a transaction with the name sync; both reorders apply the
- * zero-indexed positions with a single batched update (ADR-0005,
- * content-management.md:155 style) — no per-row queries. Skills are
- * hydrated with their group context ({@see SkillGroupVo}) and attached
- * to their group via the domain's {@see TechSkillGroup::addSkill()}.
+ * shared read-side models. Group writes go through a transaction with
+ * the name sync; both reorders apply the zero-indexed positions with a
+ * single batched update — no per-row queries.
  */
 final class EloquentTechSkillWriteRepository implements TechSkillWriteRepositoryInterface
 {
@@ -149,8 +146,8 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
             // operands are validated integers interpolated directly into
             // the expression (DB::raw carries no bindings). `updated_at`
             // is bumped explicitly — query-builder writes fire no model
-            // events, and the resume PDF content hash (content-
-            // management.md:393) rotates on every source change.
+            // events, and the resume PDF content hash rotates on every
+            // source change.
             DB::table('skills')
                 ->whereIn('id', $ids)
                 ->update([
@@ -162,7 +159,7 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
     }
 
     /**
-     * Batched single-update sort-order write (ADR-0005): the CASE operands are
+     * Batched single-update sort-order write: the CASE operands are
      * validated integers interpolated directly into the expression
      * (DB::raw carries no bindings).
      *
@@ -187,7 +184,7 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
 
     /**
      * Upserts the given names and removes rows of the group whose
-     * locales are absent from the set (ADR-0005-style reconciliation).
+     * locales are absent from the set.
      *
      * @param  TechSkillGroupName[]  $groupNames
      */
@@ -199,7 +196,7 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
         }
 
         // Only ACTIVE locales are reconciled — translations of locales
-        // disabled in the settings are preserved untouched (5.2 rework).
+        // disabled in the settings are preserved untouched.
         SkillGroupTranslationModel::query()
             ->where('skill_group_id', $groupId)
             ->whereIn('locale', $this->locales->activeLocales())
@@ -226,8 +223,6 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
     }
 
     /**
-     * Skills ordered for the group-scoped admin list.
-     *
      * @return EloquentBuilder<SkillModel>
      */
     private function skillsQuery(): EloquentBuilder

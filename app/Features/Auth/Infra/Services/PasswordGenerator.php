@@ -12,7 +12,7 @@ use RuntimeException;
  * Generates random 24-char admin passwords that satisfy the password rules
  * (12+ chars, mixed case, digits) and are not known-compromised. The
  * `uncompromised()` check queries the HaveIBeenPwned API — retried up to
- * 10 times on failure (authentication.md:387-389).
+ * 10 times on failure.
  */
 final class PasswordGenerator
 {

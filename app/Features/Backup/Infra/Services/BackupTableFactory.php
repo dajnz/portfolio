@@ -13,12 +13,11 @@ use App\Features\Backup\Infra\Serialization\LaravelDbTableBatchWriter;
 use function config;
 
 /**
- * Builds the per-table workflow bundles (ADR-0018) from
- * `config('backup.tables')` + `config('backup.table_keys')`: the
- * creation pipeline's readers (keyset columns wired per table, ADR-0018)
- * + JSONL exporters, and the restore pipeline's importers + batch
- * writers (the `settings` variant upserts by key, ADR-0018). The app
- * layer receives the ready instances — it never constructs or names
+ * Builds the per-table workflow bundles from `config('backup.tables')` +
+ * `config('backup.table_keys')`: the creation pipeline's readers (keyset
+ * columns wired per table) + JSONL exporters, and the restore pipeline's
+ * importers + batch writers (the `settings` variant upserts by key). The
+ * app layer receives the ready instances — it never constructs or names
  * the infra classes.
  */
 final class BackupTableFactory

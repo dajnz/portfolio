@@ -19,11 +19,9 @@ use Inertia\Response;
 use Inertia\ResponseFactory;
 
 /**
- * `GET/PUT /admin/about` (routes.md:65-66) — the about edit form
- * (admin-section-ui.md:230-239). The page props carry per-locale maps
- * for the translatable fields (name/title/short_pitch/location) so the
- * LocaleTabs can render every supported locale (mockup `data-dynamic`
- * keys, e.g. `about.name.en`).
+ * `GET/PUT /admin/about` — the about edit form. The page props carry
+ * per-locale maps for the translatable fields (name/title/short_pitch/
+ * location) so the LocaleTabs can render every supported locale.
  */
 final class AboutController
 {

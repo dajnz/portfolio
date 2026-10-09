@@ -10,10 +10,9 @@ use Illuminate\Support\Facades\Log;
  * Parses and validates the structured admin cursor params
  * (`?cursor[id]=&cursor[sort_value]=`) against the active sort.
  *
- * A cursor whose shape does not match the sort — per the cursor-reset
- * rule (admin-section-ui.md:196) — is rejected gracefully: a warning is
- * logged and null is returned, which the paginator treats as a page-1
- * request. Note that a composite cursor is opaque: only id-sort vs
+ * A cursor whose shape does not match the sort is rejected gracefully: a
+ * warning is logged and null is returned, which the paginator treats as a
+ * page-1 request. Note that a composite cursor is opaque: only id-sort vs
  * composite-shape mismatches are detectable statelessly.
  */
 final class CursorDecoder

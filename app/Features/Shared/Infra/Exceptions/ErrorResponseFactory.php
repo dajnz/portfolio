@@ -18,25 +18,24 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 /**
- * The exception → response mapping (error-handling.md:53-68,175-179),
- * wired as the single `render` callback in `bootstrap/app.php`:
+ * The exception → response mapping, wired as the single `render` callback in
+ * `bootstrap/app.php`:
  *
  * - API / JSON-expecting requests get the `{ "message": ... }` envelope
  *   (per-status messages from the `errors` locale group; `ValidationException`
  *   falls through to Laravel's default `{ message, errors }` shape).
  * - Inertia requests (`X-Inertia`) get the `Shared/CrossSurface/Pages/ErrorPage`
- *   Inertia response with `{ status, message, request_id }` props
- *   (`docs/openapi/inertia/shared.yaml#InertiaErrorProps`). `ValidationException`
- *   and `AuthenticationException` fall through — the defaults (redirect back
- *   with errors / redirect to login) are the Inertia form contract.
+ *   Inertia response with `{ status, message, request_id }` props.
+ *   `ValidationException` and `AuthenticationException` fall through — the
+ *   defaults (redirect back with errors / redirect to login) are the Inertia
+ *   form contract.
  * - Everything else returns `null`, so the framework renders the Blade
  *   `errors/{status}` views (`resources/views/errors/`).
  *
- * `ValidationException`/`AuthenticationException` are checked before the
- * mapping because Laravel's `prepareException()` has already converted
+ * `ValidationException`/`AuthenticationException` are checked before the mapping
+ * because Laravel's `prepareException()` has already converted
  * `ModelNotFoundException`/`AuthorizationException`/`TokenMismatchException`
- * into `HttpException` instances (the original is preserved via
- * `getPrevious()`).
+ * into `HttpException` instances (the original is preserved via `getPrevious()`).
  */
 final class ErrorResponseFactory
 {

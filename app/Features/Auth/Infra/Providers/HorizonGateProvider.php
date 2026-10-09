@@ -11,8 +11,8 @@ use Laravel\Horizon\Horizon;
 /**
  * Opens the Horizon gate. Access control is delegated to the middleware
  * chain configured in `config/horizon.php` (`auth` + `auth.session_version`
- * + `admin`, routes.md:252) — the built-in default gate would 403
- * everywhere outside `local` even for a fully authenticated admin.
+ * + `admin`) — the built-in default gate would 403 everywhere outside
+ * `local` even for a fully authenticated admin.
  */
 final class HorizonGateProvider extends ServiceProvider
 {

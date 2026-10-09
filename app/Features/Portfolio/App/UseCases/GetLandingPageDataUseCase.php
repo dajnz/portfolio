@@ -14,11 +14,10 @@ use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterfa
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 
 /**
- * Assembles every landing-page data slice (public-section-ui.md:56-101):
- * the about block, the grouped skills (via the shared tech-skill read
- * model), the featured projects (via the shared project read model, ADR-0003)
- * and the contacts. Returns domain entities — the controller maps them
- * to the page props.
+ * Assembles every landing-page data slice: the about block, the grouped
+ * skills (via the shared tech-skill read model), the featured projects
+ * (via the shared project read model) and the contacts. Returns domain
+ * entities — the controller maps them to the page props.
  */
 final class GetLandingPageDataUseCase
 {

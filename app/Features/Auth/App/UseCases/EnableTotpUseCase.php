@@ -16,8 +16,8 @@ use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Shared\App\BaseUseCase;
 
 /**
- * TOTP enrollment (authentication.md:197-199) via the dual-purpose
- * `POST /admin/profile/totp-enable` endpoint:
+ * TOTP enrollment via the dual-purpose `POST /admin/profile/totp-enable`
+ * endpoint:
  *
  * - `start()` — generates a secret, holds it in the session
  *   (`totp_enroll.pending_secret`) and returns the QR + manual key.

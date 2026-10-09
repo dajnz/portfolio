@@ -12,22 +12,18 @@ use Illuminate\Support\Facades\DB;
 use stdClass;
 
 /**
- * Builds and caches `/sitemap.xml` (seo.md:206-231). The XML string is
- * cached in Redis under `sitemap:xml` with a 24-hour TTL; the cache is
- * invalidated by the feature WRITE USE CASES via the shared
- * {@see SitemapInvalidatorInterface} (the invalidation decisions live
- * in the app layer — neither the Eloquent models nor the repositories
- * orchestrate them). Only published, non-trashed entities are
- * included.
+ * Builds and caches `/sitemap.xml`. The XML string is cached in Redis under
+ * `sitemap:xml` with a 24-hour TTL; the cache is invalidated by the feature
+ * WRITE USE CASES via the shared {@see SitemapInvalidatorInterface} (the
+ * invalidation decisions live in the app layer — neither the Eloquent models
+ * nor the repositories orchestrate them). Only published, non-trashed entities
+ * are included.
  *
- * lastmod: `base.updated_at`. seo.md:229 asks for
- * `GREATEST(base.updated_at, MAX(translation.updated_at))`, but the
- * translation tables carry no timestamps (database.md is authoritative) —
- * lastmod reflects base-table edits only (see plan §2 note in step 2.4).
+ * lastmod: `base.updated_at`. The translation tables carry no timestamps, so
+ * lastmod reflects base-table edits only.
  *
- * hreflang: each entry lists the locale-prefixed alternates for every
- * enabled locale plus the `x-default` canonical URL. Disabled locales are
- * omitted (i18n-and-theming.md:21).
+ * hreflang: each entry lists the locale-prefixed alternates for every enabled
+ * locale plus the `x-default` canonical URL. Disabled locales are omitted.
  */
 final class SitemapService implements SitemapInvalidatorInterface
 {

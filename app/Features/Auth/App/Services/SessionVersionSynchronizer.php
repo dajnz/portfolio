@@ -8,12 +8,11 @@ use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * App-layer service: increments `admins.session_version` and keeps the
- * current session in sync.
+ * Increments `admins.session_version` and keeps the current session in sync.
  *
  * Sensitive actions (password change, GitHub link/unlink, TOTP toggles)
  * bump the version to force-logout all OTHER sessions; the current session
- * is re-stored under the new version so it survives (authentication.md:158).
+ * is re-stored under the new version so it survives.
  *
  * `bumpAndReauthenticate()` additionally re-authenticates the current
  * session via `Auth::loginUsingId()` — required after password changes and
@@ -32,7 +31,6 @@ final class SessionVersionSynchronizer
     ) {
     }
 
-    /** Increments the version and stores it into the current session. */
     public function bumpAndSync(int $adminId): void
     {
         $version = $this->repository->incrementSessionVersion($adminId);
@@ -40,7 +38,6 @@ final class SessionVersionSynchronizer
         session(['session_version' => $version]);
     }
 
-    /** Bumps the version and re-authenticates the current session under it. */
     public function bumpAndReauthenticate(int $adminId): void
     {
         $version = $this->repository->incrementSessionVersion($adminId);

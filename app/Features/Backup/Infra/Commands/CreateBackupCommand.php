@@ -8,10 +8,10 @@ use App\Features\Backup\App\UseCases\CreateBackupUseCase;
 use Illuminate\Console\Command;
 
 /**
- * `backup:create` (backup.md:460): the thin scheduler entry point —
- * creates the `pending` `backups` row and dispatches `CreateBackupJob`
- * (the queued worker does the work; the command does not block the
- * scheduler). Scheduled daily at 02:00 (`routes/console.php`).
+ * `backup:create`: the thin scheduler entry point — creates the
+ * `pending` `backups` row and dispatches `CreateBackupJob` (the queued
+ * worker does the work; the command does not block the scheduler).
+ * Scheduled daily at 02:00 (`routes/console.php`).
  */
 final class CreateBackupCommand extends Command
 {

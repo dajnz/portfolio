@@ -14,12 +14,12 @@ use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 /**
- * Eloquent-backed `analytics_reports` storage (ADR-0017). Writes go
- * through the query builder (the model's casts do not apply there —
- * the mapper prepares the rows: dates as `Y-m-d` strings, floats as
- * scalars) and upsert on the `(metric, span, dimension, period_start,
- * period_end)` unique key (NULLS NOT DISTINCT). Reads materialize the
- * rows through the entity's `fromRow()`.
+ * Eloquent-backed `analytics_reports` storage. Writes go through the
+ * query builder (the model's casts do not apply there — the mapper
+ * prepares the rows: dates as `Y-m-d` strings, floats as scalars) and
+ * upsert on the `(metric, span, dimension, period_start, period_end)`
+ * unique key (NULLS NOT DISTINCT). Reads materialize the rows through
+ * the entity's `fromRow()`.
  */
 final class EloquentAnalyticsReportRepository implements AnalyticsReportRepositoryInterface
 {

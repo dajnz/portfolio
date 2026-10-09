@@ -8,13 +8,12 @@ use Illuminate\Cache\RedisStore;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Clears every `resume:pdf:*` Redis key (content-management.md:400-401) —
- * the invalidation primitive for the resume PDF cache. The keys always
- * live in the dedicated `redis` store (the spec pins them to Redis): the
- * phpredis client prefixes raw commands with the connection prefix, so
- * the pattern scan must carry the cache-store prefix, and the matched
- * names must be stripped back to the store-level key before deletion
- * (the client re-applies its prefix to `del` arguments).
+ * Clears every `resume:pdf:*` Redis key — the invalidation primitive for
+ * the resume PDF cache. The keys always live in the dedicated `redis`
+ * store: the phpredis client prefixes raw commands with the connection
+ * prefix, so the pattern scan must carry the cache-store prefix, and the
+ * matched names must be stripped back to the store-level key before
+ * deletion (the client re-applies its prefix to `del` arguments).
  */
 final class ResumePdfCacheInvalidator
 {

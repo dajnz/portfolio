@@ -10,11 +10,10 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * `auth.session_version` middleware alias (authentication.md:309,331):
- * compares the version stored in the session at login against the admin's
- * current `session_version`. A mismatch means a sensitive action (password
- * change, TOTP toggle, GitHub link) happened elsewhere — this session is
- * force-logged-out.
+ * `auth.session_version` middleware alias: compares the version stored in
+ * the session at login against the admin's current `session_version`. A
+ * mismatch means a sensitive action (password change, TOTP toggle, GitHub
+ * link) happened elsewhere — this session is force-logged-out.
  */
 final class RequireSessionVersion
 {

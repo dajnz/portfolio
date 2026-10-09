@@ -7,9 +7,9 @@ namespace App\Features\Shared\Domain\ValueObjects;
 use InvalidArgumentException;
 
 /**
- * Value object: a tech skill icon (`skills.icon`) in the `devicon:*`
- * format (ADR-0002 — e.g. `devicon:laravel`). Immutable; the format invariant
- * lives here, not in the consuming entities.
+ * A tech skill icon (`skills.icon`) in the `devicon:*` format (e.g.
+ * `devicon:laravel`). The format invariant lives here, not in the
+ * consuming entities.
  */
 final readonly class SkillIcon
 {

@@ -9,11 +9,10 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * `trailing_slash` middleware alias (seo.md:287-297) — 301-redirects any
- * URI ending in `/` to the slashless version, preserving the query string.
- * Skips the root path `/`. Runs right after `log_context` so the redirect
- * is logged, and before any state-setting middleware (csp, maintenance,
- * locale, theme).
+ * `trailing_slash` middleware alias — 301-redirects any URI ending in `/`
+ * to the slashless version, preserving the query string. Skips the root path
+ * `/`. Runs right after `log_context` so the redirect is logged, and before
+ * any state-setting middleware (csp, maintenance, locale, theme).
  */
 final class TrailingSlashRedirectMiddleware
 {

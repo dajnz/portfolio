@@ -16,12 +16,11 @@ use Illuminate\Support\Facades\DB;
 /**
  * Eloquent-backed repository for the article tags: entity-based CRUD
  * over `article_tags` (hard deletes — the `article_tag_pivot` rows
- * cascade), the ADR-0006 slug-collision probe and the tag↔skill name
- * cross-check (the case-insensitive probe against `skills` — content-
- * management.md:695, ADR-0002). The tag translation rows are synced
- * batched (the query-builder writes bypass the model events — none are
- * needed here); ACTIVE-locale rows absent from the entity are deleted
- * (rows of disabled locales preserved — content-management.md:419).
+ * cascade), the slug-collision probe and the tag↔skill name
+ * cross-check (the case-insensitive probe against `skills`). The tag
+ * translation rows are synced batched (the query-builder writes bypass
+ * the model events — none are needed here); ACTIVE-locale rows absent
+ * from the entity are deleted (rows of disabled locales preserved).
  */
 final class EloquentArticleTagRepository implements ArticleTagRepositoryInterface
 {
@@ -53,9 +52,8 @@ final class EloquentArticleTagRepository implements ArticleTagRepositoryInterfac
     /**
      * Whether ANY of the given tag names matches an existing skill
      * name (case-insensitive, any locale) — the article-tag side of
-     * the tag↔skill cross-check (content-management.md:595,695). One
-     * parametrized query for the whole batch (no raw user input, no
-     * per-name round trips).
+     * the tag↔skill cross-check. One parametrized query for the whole
+     * batch (no raw user input, no per-name round trips).
      *
      * @param  string[]  $names
      */

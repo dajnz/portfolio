@@ -6,12 +6,6 @@ namespace App\Features\Projects\App\DTOs;
 
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 
-/**
- * The public projects list result: the locale-resolved list items,
- * the per-project tech tags and screenshot paths (fetched once for the
- * final row set), the `next_cursor` for the infinite scroll (null =
- * exhaustion), the tag-filter options and the SEO data. Immutable.
- */
 final readonly class ProjectListDto
 {
     /**

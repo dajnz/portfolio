@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `article_tag_translations` (database.md:377-384).
+ * Eloquent model for `article_tag_translations`.
  *
  * @property int $article_tag_id
  * @property string $locale

@@ -7,14 +7,13 @@ namespace App\Features\Shared\Infra\Persistence;
 use DateTimeInterface;
 
 /**
- * A cursor position in the admin list result set: the item id plus the
- * active sort column's value (`null` when sorting by the id column
- * itself). Immutable and comparable; the seek-comparison logic lives in
- * the query layer (SortSpec).
+ * A cursor position in the admin list result set: the item id plus the active
+ * sort column's value (`null` when sorting by the id column itself). Immutable
+ * and comparable; the seek-comparison logic lives in the query layer
+ * (SortSpec).
  *
  * Carried in the admin list request as `?cursor[id]=&cursor[sort_value]=`
- * and exposed in the page response under `cursors.first` / `cursors.last`
- * (admin-section-ui.md:169-181).
+ * and exposed in the page response under `cursors.first` / `cursors.last`.
  */
 final readonly class Cursor
 {

@@ -11,7 +11,7 @@ use League\CommonMark\Util\HtmlElement;
 use League\CommonMark\Xml\XmlNodeRendererInterface;
 
 /**
- * Renders the {@see Underline} node as `<u>` (ADR-0024).
+ * Renders the {@see Underline} node as `<u>`.
  */
 final class UnderlineRenderer implements NodeRendererInterface, XmlNodeRendererInterface
 {

@@ -12,10 +12,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Password login flow (authentication.md:15-29): credential verification,
- * the half-auth TOTP state (`totp.pending_*`, 5-minute expiry), and full
- * session authentication. `Auth::login()` is never called before TOTP
- * verification succeeds.
+ * Password login flow: credential verification, the half-auth TOTP state
+ * (`totp.pending_*`, 5-minute expiry), and full session authentication.
+ * `Auth::login()` is never called before TOTP verification succeeds.
  */
 final class LoginUseCase extends BaseUseCase
 {
@@ -27,11 +26,6 @@ final class LoginUseCase extends BaseUseCase
     ) {
     }
 
-    /**
-     * Verifies credentials and returns the matching admin, or null.
-     *
-     * @param  string  $loginOrEmail  login or email
-     */
     public function attempt(string $loginOrEmail, string $password): ?Admin
     {
         $admin = $this->repository->findByLoginOrEmail($loginOrEmail);

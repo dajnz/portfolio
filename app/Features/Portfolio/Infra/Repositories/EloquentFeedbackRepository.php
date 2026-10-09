@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 /**
  * Eloquent-backed feedback repository. Flag writes (`markRead`,
  * `markForwarded`) touch only the flag column — the message content is
- * immutable (database.md:462-480).
+ * immutable.
  */
 final class EloquentFeedbackRepository implements FeedbackRepositoryInterface, FeedbackListQueryRepositoryInterface
 {

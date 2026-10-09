@@ -10,14 +10,14 @@ use App\Features\Analytics\Domain\Enums\MetricSpan;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
 
 /**
- * The chart series payload (analytics.md:225, ADR-0017, 11.3.4) for
+ * The chart series payload for
  * `GET /admin/analytics/series?metric=&span=`: the last 90
  * dimension-NULL rows of the span, chronological with `period_start`
  * date labels; `span=all` returns the cumulative running total over
  * the day rows (the "whole time" chart source). The optional dimension
  * reads the per-target `cta_clicks` rows — folded into the cumulative
  * at `span=all` (the CTA multi-chart fetches one per-target series for
- * every span, incl. whole-time, 11.3.7).
+ * every span, incl. whole-time).
  */
 final class GetMetricSeriesUseCase
 {

@@ -9,7 +9,6 @@ namespace App\Features\Shared\App\DTOs;
  * `?page=` value, the raw `?cursor[...]` params and the optional
  * `?sort_column=`/`?sort_direction=` overrides. Parsing and
  * whitelist-validation happen in the infra paginator implementation.
- * Immutable.
  */
 final readonly class PaginationQuery
 {

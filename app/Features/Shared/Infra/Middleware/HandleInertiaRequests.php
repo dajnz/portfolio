@@ -18,11 +18,10 @@ use Throwable;
 use Tighten\Ziggy\Ziggy;
 
 /**
- * Inertia shared props (docs/openapi/inertia/shared.yaml + error-handling.md:
- * 266-273). Runs after the `locale` / `locale.path` / `theme` middlewares
- * in the `web` group and reads their resolved values from the request
- * attributes. DB-backed props (feature flags, settings) degrade to their
- * defaults when the tables are unavailable.
+ * Inertia shared props. Runs after the `locale` / `locale.path` / `theme`
+ * middlewares in the `web` group and reads their resolved values from the
+ * request attributes. DB-backed props (feature flags, settings) degrade to
+ * their defaults when the tables are unavailable.
  */
 final class HandleInertiaRequests extends Middleware
 {
@@ -38,10 +37,9 @@ final class HandleInertiaRequests extends Middleware
     {
         return array_merge(parent::share($request), [
             'locale' => app()->getLocale(),
-            // The active locales (the `supported_locales` setting) — the
-            // language selector and the per-locale editing tabs only show
-            // these; disabled locales are not editable nor deleted
-            // (5.2 rework).
+            // Only active locales (the `supported_locales` setting) are shown
+            // in the language selector and per-locale editing tabs; disabled
+            // locales are neither editable nor deleted.
             'supported_locales' => $this->locales->activeLocales(),
             'theme' => $request->attributes->get('theme', 'light'),
             'auth' => [

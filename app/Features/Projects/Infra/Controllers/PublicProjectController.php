@@ -19,23 +19,20 @@ use Inertia\Response;
 use Inertia\ResponseFactory;
 
 /**
- * `GET /projects` and `GET /{locale}/projects` (routes.md:25-26,53-54)
- * — the public projects index (public-section-ui.md:142-175):
- * published projects ordered by date with the `?direction=asc|desc`
- * variant (the complexity sort was removed per the 2026-08-16 user
- * decision) and infinite scroll via the opaque composite cursor (the
- * shared {@see PublicCursorCodec}), the `?tags=` AND/intersect and the
- * FTS `?q=` search (which takes over the ordering). `next_cursor` is
- * null when the final batch is incomplete — the exhaustion signal. The
- * JSON dual-response variant (`Accept: application/json` — the
- * autocomplete) returns the length-aware `ProjectsIndexResponse` with
- * raw values, no highlights (ADR-0007).
+ * `GET /projects` and `GET /{locale}/projects` — the public projects
+ * index: published projects ordered by date with the
+ * `?direction=asc|desc` variant and infinite scroll via the opaque
+ * composite cursor (the shared {@see PublicCursorCodec}), the `?tags=`
+ * AND/intersect and the FTS `?q=` search (which takes over the
+ * ordering). `next_cursor` is null when the final batch is incomplete —
+ * the exhaustion signal. The JSON dual-response variant
+ * (`Accept: application/json` — the autocomplete) returns the
+ * length-aware `ProjectsIndexResponse` with raw values, no highlights.
  *
- * `GET /projects/{project:slug}` — the detail page (routes.md:26,54)
- * with SEO props + JSON-LD (seo.md:150-188: SoftwareSourceCode +
- * BreadcrumbList), the tech-writeup link gated by the article's current
- * publication state (content-management.md:133), and the old-slug 301
- * resolution (ADR-0006): main table → `old_slugs` → 301 to the current
+ * `GET /projects/{project:slug}` — the detail page with SEO props +
+ * JSON-LD (SoftwareSourceCode + BreadcrumbList), the tech-writeup link
+ * gated by the article's current publication state, and the old-slug
+ * 301 resolution: main table → `old_slugs` → 301 to the current
  * canonical URL (locale prefix preserved).
  *
  * The controller only translates the HTTP request into app-layer DTOs
@@ -105,10 +102,9 @@ final class PublicProjectController
     }
 
     /**
-     * The JSON dual-response variant (routes.md:199-212) — length-aware
-     * pagination (page/per_page), FTS search, tag intersect and the
-     * date sort with the direction variant; raw field values without
-     * highlights (ADR-0007).
+     * The JSON dual-response variant — length-aware pagination
+     * (page/per_page), FTS search, tag intersect and the date sort
+     * with the direction variant; raw field values without highlights.
      */
     private function autocompleteJson(Request $request): JsonResponse
     {
@@ -207,8 +203,7 @@ final class PublicProjectController
 
     private function sortFromRequest(Request $request): string
     {
-        // The date column is the only remaining sort strategy (the
-        // complexity strategy was removed 2026-08-16); the `?sort=`
+        // The date column is the only sort strategy; the `?sort=`
         // parameter is kept for contract stability.
         return 'date';
     }

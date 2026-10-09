@@ -13,14 +13,13 @@ use RuntimeException;
 use Throwable;
 
 /**
- * The restore execution (backup.md:393-408, ADR-0018): runs synchronously —
- * the CLI (`backup:restore`) calls it directly, the queued
- * `RestoreBackupJob` executes it inside the worker (the HTTP-triggered
- * restore's async shell). The record transitions
- * `completed → processing` (ADR-0018), the workflow performs the 10 steps,
- * then the record re-completes with its archive stamp; on any failure
- * the record goes `failed` and the site STAYS in maintenance mode
- * (backup.md:397) until `admin:reset-maintenance` or the Settings page.
+ * The restore execution: runs synchronously — the CLI (`backup:restore`)
+ * calls it directly, the queued `RestoreBackupJob` executes it inside
+ * the worker (the HTTP-triggered restore's async shell). The record
+ * transitions `completed → processing`, the workflow performs the 10
+ * steps, then the record re-completes with its archive stamp; on any
+ * failure the record goes `failed` and the site STAYS in maintenance
+ * mode until `admin:reset-maintenance` or the Settings page.
  */
 final class RestoreBackupUseCase
 {
@@ -64,10 +63,10 @@ final class RestoreBackupUseCase
     }
 
     /**
-     * Step 3 of the restore workflow (backup.md:399): the record's
-     * `encryption_key_id` first (the `-k{id}` filename suffix tells the
-     * admin which offline key to use), the legacy
-     * `BACKUP_ENCRYPTION_KEY` env fallback for pre-encryption backups.
+     * Step 3 of the restore workflow: the record's `encryption_key_id`
+     * first (the `-k{id}` filename suffix tells the admin which offline
+     * key to use), the legacy `BACKUP_ENCRYPTION_KEY` env fallback for
+     * pre-encryption backups.
      */
     private function resolveKey(Backup $backup): string
     {

@@ -8,12 +8,11 @@ use App\Features\Experience\Domain\Entities\TimelineItem;
 use DateTimeImmutable;
 
 /**
- * Write-side repository for the Experience feature (architecture.md:
- * 479-507): entity-based CRUD over `experience_timeline_items` with the
- * per-locale translation rows and the `experience_item_tech_tags` pivot
- * (saved as part of the aggregate — {@see TimelineItem::toTechTagIds()}).
- * Soft-delete lifecycle: `delete()` sets `deleted_at`, `restore()`
- * clears it, `forceDelete()` removes the row and its dependent rows.
+ * Write-side repository for the Experience feature: entity-based CRUD over
+ * `experience_timeline_items` with the per-locale translation rows and the
+ * `experience_item_tech_tags` pivot (saved as part of the aggregate).
+ * Soft-delete lifecycle: `delete()` sets `deleted_at`, `restore()` clears
+ * it, `forceDelete()` removes the row and its dependent rows.
  */
 interface TimelineItemRepositoryInterface
 {
@@ -21,23 +20,23 @@ interface TimelineItemRepositoryInterface
 
     /**
      * The chronologically preceding item (greatest `started_at` strictly
-     * below `$startedAt`, non-trashed) — the continuity anchor of ADR-0024.
+     * below `$startedAt`, non-trashed) — the continuity anchor.
      * `$ignoreId` excludes the item being stored/updated itself.
      */
     public function predecessorFor(DateTimeImmutable $startedAt, ?int $ignoreId = null): ?TimelineItem;
 
     /**
      * The chronologically following item (smallest `started_at` strictly
-     * above `$startedAt`, non-trashed) — the continuity anchor of ADR-0024.
+     * above `$startedAt`, non-trashed) — the continuity anchor.
      * `$ignoreId` excludes the item being stored/updated itself.
      */
     public function successorFor(DateTimeImmutable $startedAt, ?int $ignoreId = null): ?TimelineItem;
 
     /**
-     * Closes an ongoing item's period (ADR-0024: adding a newer item
-     * auto-fills its predecessor's `ended_at` with the new item's
-     * `started_at`). An instance update so the model's `saved` event
-     * (sitemap invalidation, ADR-0022) fires for published items.
+     * Closes an ongoing item's period (adding a newer item auto-fills its
+     * predecessor's `ended_at` with the new item's `started_at`). An
+     * instance update so the model's `saved` event (sitemap invalidation)
+     * fires for published items.
      */
     public function setEndedAt(int $id, DateTimeImmutable $endedAt): void;
 
@@ -59,8 +58,8 @@ interface TimelineItemRepositoryInterface
 
     /**
      * Inserts or updates the item, syncing its translations (upsert for
-     * active locales, preserving rows of disabled locales per
-     * content-management.md:419) and the tech-tag pivot.
+     * active locales, preserving rows of disabled locales) and the
+     * tech-tag pivot.
      */
     public function save(TimelineItem $item): void;
 }

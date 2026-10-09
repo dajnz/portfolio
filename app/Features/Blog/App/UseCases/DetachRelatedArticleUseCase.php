@@ -8,8 +8,8 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
- * Unlinks two articles bidirectionally (content-management.md:252):
- * both pair rows are removed atomically.
+ * Unlinks two articles bidirectionally: both pair rows are removed
+ * atomically.
  */
 final class DetachRelatedArticleUseCase
 {

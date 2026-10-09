@@ -9,12 +9,6 @@ use App\Features\Analytics\Domain\ValueObjects\PageDetails;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
-/**
- * The `cta_click_language` event (analytics.md:23): the public
- * language switch, carrying the selected locale. The spec fixes the
- * payload to `ru|en` — the whitelist tracks the supported-locale
- * contract of the event itself.
- */
 final class LanguageSwitchEvent extends AnalyticsEvent
 {
     public const EVENT_TYPE = 'cta_click_language';

@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\Hash;
 use function __;
 
 /**
- * The `current_password` rule (content-management.md:742,755,
- * backup.md:590): rejects the payload unless the submitted password
- * matches the authenticated admin's credentials. The message is
- * resolved from the auth catalog at fail time (`auth.current_password_incorrect`)
- * — a raw key would leak into the Inertia/JSON error payloads.
+ * The `current_password` rule: rejects the payload unless the submitted
+ * password matches the authenticated admin's credentials. The message is
+ * resolved from the auth catalog at fail time
+ * (`auth.current_password_incorrect`) — the raw message key would
+ * otherwise leak into the Inertia/JSON error payloads.
  */
 final class CurrentPasswordRule implements ValidationRule
 {

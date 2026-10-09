@@ -8,10 +8,9 @@ use DomainException;
 
 /**
  * A related-article target is neither already linked nor published —
- * new links must target published articles (content-management.md:687);
- * links created while the target was published are preserved even after
- * an unpublish (ADR-0024). Surfaced as a `related_articles` validation
- * error by the store/update actions.
+ * new links must target published articles; links created while the
+ * target was published are preserved even after an unpublish. Surfaced
+ * as a `related_articles` validation error by the store/update actions.
  */
 final class RelatedArticleNotLinkableException extends DomainException
 {

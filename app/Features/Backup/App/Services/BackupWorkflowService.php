@@ -31,18 +31,18 @@ use function mkdir;
 use function sprintf;
 
 /**
- * The backup creation pipeline (backup.md:374-391) — the full 10-step
- * workflow: pre-flight (2× space rule) → per-table JSONL export →
- * asset collection + download → manifest build → encrypted archive →
- * upload to the `backups` bucket → entity completion → staging cleanup
- * → retention prune. Runs inside `CreateBackupJob`; the entity's
+ * The backup creation pipeline — the full 10-step workflow: pre-flight
+ * (2× space rule) → per-table JSONL export → asset collection +
+ * download → manifest build → encrypted archive → upload to the
+ * `backups` bucket → entity completion → staging cleanup → retention
+ * prune. Runs inside `CreateBackupJob`; the entity's
  * `pending → processing` and failure transitions are the job's concern
  * — this service only completes.
  *
  * The workflow consumes only app-layer contracts: the per-table
- * readers/exporters arrive as ready {@see BackupTableExport} bundles
- * (ADR-0018) and the config-derived values via the {@see BackupSources}
- * DTO — no infra classes are named or instantiated here.
+ * readers/exporters arrive as ready {@see BackupTableExport} bundles and
+ * the config-derived values via the {@see BackupSources} DTO — no infra
+ * classes are named or instantiated here.
  */
 final class BackupWorkflowService
 {
@@ -103,8 +103,8 @@ final class BackupWorkflowService
     }
 
     /**
-     * Step 1: the 2× pre-flight rule (backup.md:378) — abort before
-     * any work when the staging disk cannot hold `2 × (data + assets)`.
+     * Step 1: the 2× pre-flight rule — abort before any work when the
+     * staging disk cannot hold `2 × (data + assets)`.
      */
     private function preflight(): void
     {
@@ -124,10 +124,9 @@ final class BackupWorkflowService
     }
 
     /**
-     * Step 2: export every included table to
-     * `{run}/data/{table}.jsonl` (backup.md:379). Returns the
-     * per-table row counts for the manifest — the exporter reports the
-     * rows it wrote, so no separate DB count is needed.
+     * Step 2: export every included table to `{run}/data/{table}.jsonl`.
+     * Returns the per-table row counts for the manifest — the exporter
+     * reports the rows it wrote, so no separate DB count is needed.
      *
      * @return array<string, int>
      */
@@ -152,8 +151,8 @@ final class BackupWorkflowService
 
     /**
      * Steps 3-4: enumerate the assets bucket and download every object
-     * into `{run}/assets/{path}` (backup.md:380-381). Returns the
-     * `object key => local path` map the manifest's sizes come from.
+     * into `{run}/assets/{path}`. Returns the `object key => local path`
+     * map the manifest's sizes come from.
      *
      * @return array<string, string>
      */
@@ -178,9 +177,9 @@ final class BackupWorkflowService
     }
 
     /**
-     * Step 5: write `manifest.json` (backup.md:383) — creation time,
-     * format version, the exported record counts and the asset listing
-     * with the downloaded byte sizes.
+     * Step 5: write `manifest.json` — creation time, format version,
+     * the exported record counts and the asset listing with the
+     * downloaded byte sizes.
      *
      * @param  array<string, int>  $records
      * @param  array<string, string>  $localAssets  object key => local path

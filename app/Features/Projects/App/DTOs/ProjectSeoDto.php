@@ -4,15 +4,6 @@ declare(strict_types=1);
 
 namespace App\Features\Projects\App\DTOs;
 
-/**
- * The projects pages' SEO data (seo.md:18-31): the localized title/
- * description, the canonical URL, the Open Graph type, the optional
- * robots directive and the JSON-LD blocks (seo.md:150-188 —
- * SoftwareSourceCode + BreadcrumbList on the detail page). Built by
- * the app layer (the site name and the canonical URL need non-HTTP
- * sources); the controllers map it into their output shapes.
- * Immutable.
- */
 final readonly class ProjectSeoDto
 {
     /**
@@ -29,9 +20,6 @@ final readonly class ProjectSeoDto
     ) {
     }
 
-    /**
-     * The public index (seo.md:43).
-     */
     public static function forIndex(string $locale, string $siteName): self
     {
         return new self(
@@ -42,11 +30,6 @@ final readonly class ProjectSeoDto
         );
     }
 
-    /**
-     * The public detail (seo.md:150-188): the localized title/
-     * description, the slashless canonical URL and the JSON-LD
-     * SoftwareSourceCode + BreadcrumbList pair.
-     */
     public static function forDetail(ProjectDataDto $project, string $locale, string $siteName): self
     {
         return new self(
@@ -63,9 +46,8 @@ final readonly class ProjectSeoDto
     }
 
     /**
-     * The signed preview (routes.md:58-60): the same title/description
-     * with the `noindex` robots directive — preview pages must never
-     * enter the index (seo.md).
+     * The signed preview: the same title/description with the `noindex`
+     * robots directive — preview pages must never enter the index.
      */
     public static function forPreview(ProjectDataDto $project, string $locale): self
     {
@@ -83,9 +65,9 @@ final readonly class ProjectSeoDto
     }
 
     /**
-     * The absolute `og:image` URL of the project's preview image
-     * (seo.md:37) — `null` when no preview is set (the frontend falls
-     * back to the default OG image).
+     * The absolute `og:image` URL of the project's preview image —
+     * `null` when no preview is set (the frontend falls back to the
+     * default OG image).
      */
     private static function imageUrl(ProjectDataDto $project): ?string
     {
@@ -137,8 +119,7 @@ final readonly class ProjectSeoDto
     }
 
     /**
-     * The locale-resolved text with the `en` fallback
-     * (content-management.md:415).
+     * The locale-resolved text with the `en` fallback.
      *
      * @param  array<string, string|null>  $map
      */

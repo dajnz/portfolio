@@ -122,9 +122,6 @@ use Intervention\Image\ImageManager;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         $this->app->bind(
@@ -284,8 +281,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AdminListPaginatorInterface::class,
             fn (): AdminListPaginator => new AdminListPaginator(
-                // The mockup's DataTable (projects.html) has no
-                // sortable columns — the list stays on the paginator's
+                // No sortable columns — the list stays on the paginator's
                 // default `id` order.
                 allowedSortColumns: [],
             ),
@@ -301,7 +297,7 @@ class AppServiceProvider extends ServiceProvider
             SitemapService::class,
         );
 
-        // The content pipeline (ADR-0008) is a singleton: the underlying
+        // The content pipeline is a singleton: the underlying
         // highlighter registers all 185 languages on construction, so
         // the graph is built once per process, not per request. The
         // app layer consumes it via the app-layer contract.
@@ -321,7 +317,7 @@ class AppServiceProvider extends ServiceProvider
             ),
         );
 
-        // The public blog read model (step 8.2): the DOMAIN contract
+        // The public blog read model: the DOMAIN contract
         // is implemented by the same Eloquent repository that serves
         // the admin list-query contract — the app layer depends on
         // the domain interface only.
@@ -348,13 +344,13 @@ class AppServiceProvider extends ServiceProvider
         // The Backup feature's repositories + workflow services. The
         // storage surfaces: `Filesystem` (the contract) resolves to the
         // private `backups` disk (its only consumer — the archives live
-        // there); the transfers are per-bucket instances (ADR-0018) — the
+        // there); the transfers are per-bucket instances — the
         // assets one is the named `backup.assets-transfer` binding, the
         // interface binds the backups bucket. The workflows consume
         // only app-layer contracts: the per-table readers/exporters/
         // writers arrive as ready bundles from `BackupTableFactory`
-        // (ADR-0018) and the config-derived values via the `BackupSources`
-        // DTO. The Shared cross-feature surfaces (ADR-0018) sit in front
+        // and the config-derived values via the `BackupSources`
+        // DTO. The Shared cross-feature surfaces sit in front
         // of the Settings feature.
         $this->app->bind(
             BackupRepositoryInterface::class,
@@ -417,7 +413,7 @@ class AppServiceProvider extends ServiceProvider
             fn ($app): \Illuminate\Contracts\Filesystem\Filesystem => $app['filesystem']->disk('rustfs'),
         );
 
-        // The Shared cross-feature surfaces (ADR-0018): settings reads and
+        // The Shared cross-feature surfaces: settings reads and
         // the maintenance toggle for non-Settings features, and the
         // restore's cache flush.
         $this->app->bind(
@@ -515,40 +511,35 @@ class AppServiceProvider extends ServiceProvider
         );
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         // Fonts load lazily from the inlined @font-face styles
         // (`@fonts` — font-display: swap), only when a face is actually
         // rendered. The framework's per-face `<link rel=preload>`s are
         // dropped: they fetched every family/weight on every page ahead
-        // of the LCP image (step 13.3 performance record — 15 font
-        // requests started before the hero background).
+        // of the LCP image.
         Vite::usePreloadTagAttributes(
             fn (mixed $type, ...$rest): array|false => $type === 'fonts' ? false : [],
         );
 
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
 
-        // authentication.md:21-27 — 5 attempts per minute per IP.
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
         RateLimiter::for('totp', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
 
-        // authentication.md:333-343 — layered feedback protection: layer 1
+        // Layered feedback protection: layer 1
         // is this per-IP limiter (5/min), layer 2 is the
         // `rate_limit.fingerprint` middleware (3/h per IP+UA fingerprint).
         RateLimiter::for('feedback', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
 
-        // analytics.md:52 — event ingestion cap (60/min/IP).
+        // Event ingestion cap (60/min/IP).
         RateLimiter::for('analytics', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
 
-        // authentication.md:363 — repopulates `session_version` after
+        // Repopulates `session_version` after
         // remember-me (recaller cookie) re-authentication.
         Event::listen(Login::class, LoginListener::class);
 
-        // openapi.md:269-275 — the Swagger UI (l5-swagger) serves the
+        // The Swagger UI (l5-swagger) serves the
         // dereferenced `docs/openapi/openapi.yaml` contract. Production
         // skips the sync (the package is a require-dev dependency).
         if (! app()->isProduction()) {

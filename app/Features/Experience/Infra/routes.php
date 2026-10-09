@@ -7,11 +7,11 @@ use App\Features\Experience\Infra\Controllers\PublicExperienceController;
 use Illuminate\Support\Facades\Route;
 
 /*
- * Experience routes (routes.md:24,52,102-109). The public timeline and
- * its locale-prefixed variant are public; the admin section is gated by
- * the Auth middleware chain (`auth` + `auth.session_version` + `admin`).
- * The `{locale}` route parameter is constrained to the supported
- * locales so `SetLocaleFromPathMiddleware` never sees an invalid value.
+ * Experience routes. The public timeline and its locale-prefixed variant
+ * are public; the admin section is gated by the Auth middleware chain
+ * (`auth` + `auth.session_version` + `admin`). The `{locale}` route
+ * parameter is constrained to the supported locales so
+ * `SetLocaleFromPathMiddleware` never sees an invalid value.
  */
 
 Route::get('/experience', [PublicExperienceController::class, 'index']);

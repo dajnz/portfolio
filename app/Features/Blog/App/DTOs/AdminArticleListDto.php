@@ -9,8 +9,7 @@ use App\Features\Shared\App\DTOs\CursorPaginationDto;
 /**
  * The admin article list page result: the item rows plus the cursor
  * pagination facts, the tag picker options and the publication years
- * of the list page (blog.yaml#BlogListPageProps — the `tags` and
- * `years` props). Immutable.
+ * of the list page. Immutable.
  */
 final readonly class AdminArticleListDto
 {

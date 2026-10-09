@@ -11,8 +11,7 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * One row of `analytics_reports` (database.md:531-548,
- * analytics.md:186-202, ADR-0017): a per-metric aggregate over the daily
+ * One row of `analytics_reports`: a per-metric aggregate over the daily
  * metrics, pre-computed for one span. NULL dimension = block/chart
  * series row (`span = 'all'` for the whole-time blocks, the last-N
  * rows of the span for the series); otherwise the entity key —

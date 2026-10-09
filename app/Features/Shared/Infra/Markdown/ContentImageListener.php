@@ -8,18 +8,16 @@ use League\CommonMark\Event\DocumentParsedEvent;
 use League\CommonMark\Extension\CommonMark\Node\Inline\Image;
 
 /**
- * Adds `loading="lazy"` to every Markdown image of the rendered
- * document (architecture.md Image Loading: below-fold content images
- * defer). Body images carry no width/height metadata (the editor drops
- * the drag-resize width in the Markdown round trip, content-management
- * .md:234), so only the lazy hint is applied here — the dimension-less
- * CLS caveat is covered by the `.article-content__body img` CSS
- * (`max-width: 100%`).
+ * Adds `loading="lazy"` to every Markdown image of the rendered document
+ * (below-fold content images defer). Body images carry no width/height metadata
+ * (the editor drops the drag-resize width in the Markdown round trip), so only
+ * the lazy hint is applied here — the dimension-less CLS caveat is covered by
+ * the `.article-content__body img` CSS (`max-width: 100%`).
  *
  * Registered via
  * `Environment::addEventListener(DocumentParsedEvent::class, ...)`
- * (commonmark 2.6+ dropped the listener interfaces) — runs after
- * parsing, before rendering.
+ * (commonmark 2.6+ dropped the listener interfaces) — runs after parsing,
+ * before rendering.
  */
 final class ContentImageListener
 {

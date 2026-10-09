@@ -16,10 +16,10 @@ use DateTimeImmutable;
 
 /**
  * TOTP + recovery-code verification with the per-account escalating
- * backoff (authentication.md:210-237). Failed attempts atomically increment
- * `totp_failed_attempts`; the lock tiers are evaluated from the resulting
- * count by `AdminTimedOtp::lockExpiryFor()`. Recovery-code misses count as
- * failed TOTP attempts (ADR-0014).
+ * backoff. Failed attempts atomically increment `totp_failed_attempts`;
+ * the lock tiers are evaluated from the resulting count by
+ * `AdminTimedOtp::lockExpiryFor()`. Recovery-code misses count as failed
+ * TOTP attempts.
  */
 final class VerifyTotpUseCase extends BaseUseCase
 {

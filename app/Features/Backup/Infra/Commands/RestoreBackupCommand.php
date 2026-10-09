@@ -14,15 +14,14 @@ use Throwable;
 use function is_file;
 
 /**
- * `backup:restore` (backup.md:461): the synchronous restore.
- * Normal mode restores a backup from RustFS by filename (looks up the
- * `backups` record, resolves the key from `encryption_key_id` — or
- * the legacy `BACKUP_ENCRYPTION_KEY` fallback). DR mode with `--path`
- * + `--key` delegates to `ImportFromPathUseCase` (validate, upload,
- * create the key + records) and then restores the imported backup.
- * Either mode puts the site in maintenance mode during the restore;
- * on failure the site stays in maintenance (backup.md:397) and the
- * command exits with the error.
+ * `backup:restore`: the synchronous restore. Normal mode restores a
+ * backup from RustFS by filename (looks up the `backups` record,
+ * resolves the key from `encryption_key_id` — or the legacy
+ * `BACKUP_ENCRYPTION_KEY` fallback). DR mode with `--path` + `--key`
+ * delegates to `ImportFromPathUseCase` (validate, upload, create the
+ * key + records) and then restores the imported backup. Either mode
+ * puts the site in maintenance mode during the restore; on failure the
+ * site stays in maintenance and the command exits with the error.
  */
 final class RestoreBackupCommand extends Command
 {

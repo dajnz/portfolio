@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Features\Settings\Domain\Enums;
 
 /**
- * The strictly defined settings key names (database.md "Predefined keys").
- * A setting name carries its allowed `SettingType` — the mapping is
- * immutable, so a `Setting` can never change its value type.
+ * The strictly defined settings key names. A setting name carries its
+ * allowed `SettingType` — the mapping is immutable, so a `Setting` can
+ * never change its value type.
  */
 enum SettingName: string
 {

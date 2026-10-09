@@ -12,14 +12,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Eloquent model for `project_translations` (database.md:218-232).
+ * Eloquent model for `project_translations`.
  *
  * The `saved` event rebuilds the locale's `search_vector` from
  * `title || ' ' || brief_description || ' ' || full_description` via
  * the locale's Snowball dictionary (`config('portfolio.fts.locales')`,
- * fallback `english` — database.md:629-647) and invalidates the
- * `sitemap:xml` cache (seo.md:219 — translation edits change the
- * entity's lastmod, ADR-0022).
+ * fallback `english`) and invalidates the `sitemap:xml` cache
+ * (translation edits change the entity's lastmod).
  *
  * @property int $project_id
  * @property string $locale

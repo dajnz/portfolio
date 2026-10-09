@@ -12,10 +12,9 @@ use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use App\Features\Shared\Infra\Models\SkillModel;
 
 /**
- * Converts between `skills` rows and {@see TechSkill} entities, and back
- * to the row data. Value objects are created here from the raw columns;
- * the group context ({@see SkillGroupVo}) comes from the caller (the
- * group rows are loaded separately).
+ * Converts between `skills` rows and {@see TechSkill} entities. The group
+ * context ({@see SkillGroupVo}) is supplied by the caller, since group
+ * rows are loaded separately.
  */
 final class TechSkillMapper
 {

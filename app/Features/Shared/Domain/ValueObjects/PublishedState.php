@@ -7,12 +7,11 @@ namespace App\Features\Shared\Domain\ValueObjects;
 use DateTimeImmutable;
 
 /**
- * Value object: a content entity's publication state (projects,
- * blog articles — database.md:210, content-management.md:251) — the
- * `is_published` flag and the immutable `published_at` (auto-set on
- * the FIRST publish only). `publish()` keeps an already-set timestamp
- * (the first-publish rule), `unpublish()` preserves it for a possible
- * re-publish. Shared by the Projects and Blog features. Immutable.
+ * A content entity's publication state (projects, blog articles): the
+ * `is_published` flag and the `published_at` timestamp, auto-set on the
+ * first publish only. `publish()` keeps an already-set timestamp (the
+ * first-publish rule); `unpublish()` preserves it for a possible
+ * re-publish.
  */
 final readonly class PublishedState
 {
@@ -43,8 +42,8 @@ final readonly class PublishedState
     }
 
     /**
-     * Marks the state as published; `published_at` is set only when
-     * still absent — the value is immutable after the first publish.
+     * Marks the state as published; `published_at` is set only when still
+     * absent (the first-publish rule).
      */
     public function publish(DateTimeImmutable $now): self
     {

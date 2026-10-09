@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Updates a contact: the non-translatable columns plus the per-locale
  * names (upsert; rows for locales absent from the submission are
- * preserved, per content-management.md:419).
+ * preserved).
  */
 final class UpdateContactUseCase
 {

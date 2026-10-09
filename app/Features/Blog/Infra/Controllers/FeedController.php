@@ -12,13 +12,12 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Illuminate\Support\Facades\App;
 
 /**
- * `GET /rss` (routes.md:218, seo.md:233-238): the RSS 2.0 feed of
- * the 20 most recent published blog articles. The feed DATA is built
- * by the app layer ({@see GetRssFeedUseCase}) and the XML by the
- * shared {@see RssXmlBuilder} — the controller only wires the two and
- * returns the response (the transport shape is a controller concern).
- * The locale middleware resolves the names per the visitor's
- * cookie/URL.
+ * `GET /rss`: the RSS 2.0 feed of the 20 most recent published blog
+ * articles. The feed DATA is built by the app layer
+ * ({@see GetRssFeedUseCase}) and the XML by the shared
+ * {@see RssXmlBuilder} — the controller only wires the two and returns
+ * the response (the transport shape is a controller concern). The
+ * locale middleware resolves the names per the visitor's cookie/URL.
  */
 final class FeedController
 {

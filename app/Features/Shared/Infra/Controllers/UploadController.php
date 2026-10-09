@@ -19,17 +19,16 @@ use Illuminate\Validation\ValidationException;
 use Throwable;
 
 /**
- * `/api/upload` — GET-less, auth-required file lifecycle endpoints
- * (content-management.md:773-819). Files are stored on the `rustfs` disk
- * under an entity-type prefix with a randomized name; the returned `path`
- * is stored in the appropriate DB column by the caller. Deletion of the
- * previous file on replacement is handled by the entity controllers
- * (steps 4.1-8.1), which use this same endpoint for direct removals.
+ * `/api/upload` — GET-less, auth-required file lifecycle endpoints. Files are
+ * stored on the `rustfs` disk under an entity-type prefix with a randomized
+ * name; the returned `path` is stored in the appropriate DB column by the
+ * caller. Deletion of the previous file on replacement is handled by the entity
+ * controllers, which use this same endpoint for direct removals.
  *
  * Images (`jpeg/png/webp/avif`) pass through the WebP processing pipeline
  * before storage — EXIF auto-orientation, downscale to the configured
- * largest-side limit, re-encode at 85% with all metadata stripped. PDFs
- * (resume upload) and GIFs (animation preservation) are stored as-uploaded.
+ * largest-side limit, re-encode at 85% with all metadata stripped. PDFs (resume
+ * upload) and GIFs (animation preservation) are stored as-uploaded.
  */
 final class UploadController
 {

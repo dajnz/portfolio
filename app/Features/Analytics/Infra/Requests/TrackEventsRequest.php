@@ -8,12 +8,11 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\ValidationException;
 
 /**
- * The `/api/analytics/track` batch validator (analytics.md:129-152):
- * an array of 1-100 events, each capped per the documented limits —
- * 100-char event type, 255-char session id, 500-char `page_url`, 2 KB
- * `metadata.referrer`, `seconds` 0-86400, `percentage_completed`
- * 0-100, and the 50 KB total payload cap (ADR-0017: any invalid item
- * rejects the entire batch with a 422).
+ * The `/api/analytics/track` batch validator: an array of 1-100 events,
+ * each capped per the documented limits — 100-char event type,
+ * 255-char session id, 500-char `page_url`, 2 KB `metadata.referrer`,
+ * `seconds` 0-86400, `percentage_completed` 0-100, and the 50 KB total
+ * payload cap (any invalid item rejects the entire batch with a 422).
  */
 final class TrackEventsRequest extends FormRequest
 {
@@ -55,9 +54,9 @@ final class TrackEventsRequest extends FormRequest
             '*' => ['required', 'array'],
             '*.event_type' => ['required', 'string', 'max:100'],
             '*.session_id' => ['required', 'string', 'max:255'],
-            // The page context (ADR-0017): the page type the frontend knows
-            // (capped — the enum whitelist lives in the domain parser)
-            // and the entity id of the entity pages.
+            // The page context: the page type the frontend knows (capped
+            // — the enum whitelist lives in the domain parser) and the
+            // entity id of the entity pages.
             '*.page_type' => ['nullable', 'string', 'max:50'],
             '*.page_entity_id' => ['nullable', 'integer', 'min:1'],
             '*.page_url' => ['nullable', 'string', 'max:500'],

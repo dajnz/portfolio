@@ -8,8 +8,8 @@ use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
- * Attaches a tech tag (content-management.md:160) — a duplicate
- * attachment surfaces as a 409 via the domain exception.
+ * Attaches a tech tag — a duplicate attachment surfaces as a 409 via
+ * the domain exception.
  */
 final class AttachProjectTagUseCase
 {

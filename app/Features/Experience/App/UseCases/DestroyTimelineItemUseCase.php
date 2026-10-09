@@ -8,9 +8,8 @@ use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryIn
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 
 /**
- * Soft-deletes a timeline item (content-management.md:883) — the row
- * stays with `deleted_at` set, hidden from the public timeline and the
- * default admin list.
+ * Soft-deletes a timeline item — the row stays with `deleted_at` set,
+ * hidden from the public timeline and the default admin list.
  */
 final class DestroyTimelineItemUseCase
 {

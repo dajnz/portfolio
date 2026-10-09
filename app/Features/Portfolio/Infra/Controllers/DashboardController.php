@@ -8,10 +8,6 @@ use App\Features\Portfolio\App\UseCases\GetDashboardStatsUseCase;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
-/**
- * `GET /admin` (routes.md:64) — the admin dashboard (admin-section-ui.md:
- * 220-228): the four stat cards (ADR-0017) + quick links rendered client-side.
- */
 final class DashboardController
 {
     public function __construct(

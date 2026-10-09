@@ -8,9 +8,8 @@ use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryIn
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 
 /**
- * Permanently deletes a trashed timeline item (content-management.md:
- * 883): the row, its cascading translations and the tech-tag pivot rows
- * are removed.
+ * Permanently deletes a trashed timeline item: the row, its cascading
+ * translations and the tech-tag pivot rows are removed.
  */
 final class ForceDestroyTimelineItemUseCase
 {

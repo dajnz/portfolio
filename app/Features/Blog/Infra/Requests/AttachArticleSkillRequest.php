@@ -8,9 +8,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * `POST /admin/blog/{article}/skills/{skill}` (content-management.md:
- * 253): validates that the skill exists. The duplicate-attachment 409
- * is thrown by the repository.
+ * `POST /admin/blog/{article}/skills/{skill}`: validates that the
+ * skill exists. The duplicate-attachment 409 is thrown by the
+ * repository.
  */
 final class AttachArticleSkillRequest extends FormRequest
 {

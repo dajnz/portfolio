@@ -8,8 +8,8 @@ use App\Features\Shared\App\Contracts\CacheClearerInterface;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * The framework-backed cache flush (backup.md:406) behind the
- * `CacheClearerInterface` — the restore's refresh step.
+ * The framework-backed cache flush behind the `CacheClearerInterface` — the
+ * restore's refresh step.
  */
 final class LaravelCacheClearer implements CacheClearerInterface
 {

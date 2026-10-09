@@ -11,13 +11,12 @@ use InvalidArgumentException;
 
 /**
  * The admin's TOTP posture: provisioning secret, recovery codes, failure
- * counters and the escalating lockout policy (authentication.md:210-237).
+ * counters and the escalating lockout policy.
  *
  * Embedded in the `Admin` aggregate; persisted through
  * `AdminTimedOtpRepositoryInterface` against the same `admins` row.
  * Lockout tiers live here (1–3 no lock / 4–6 1 min / 7–9 15 min / 10–14
- * 1 h / 15+ permanent) — the separate `TotpLockoutPolicy` service was
- * folded into this entity.
+ * 1 h / 15+ permanent).
  */
 final class AdminTimedOtp
 {
@@ -48,7 +47,7 @@ final class AdminTimedOtp
         }
     }
 
-    /** TOTP not provisioned (the default state). */
+    /** TOTP not provisioned. */
     public static function disabled(): self
     {
         return new self(null, false, 0, null, []);
@@ -137,8 +136,8 @@ final class AdminTimedOtp
     }
 
     /**
-     * Format rule for TOTP codes and recovery codes (content-management.md:717):
-     * a 6-digit code, or a 6-64 char alphanumeric/dash string.
+     * Format rule for TOTP codes and recovery codes: a 6-digit code, or a
+     * 6-64 char alphanumeric/dash string.
      */
     public static function isValidCodeFormat(string $code): bool
     {
@@ -158,7 +157,7 @@ final class AdminTimedOtp
         return $this->findRecoveryCode($code, false) !== null;
     }
 
-    /** Whether the input matches a consumed recovery code (ADR-0014 — counts as a failed attempt). */
+    /** Whether the input matches a consumed recovery code (counts as a failed attempt). */
     public function isRecoveryCodeUsed(string $code): bool
     {
         return $this->findRecoveryCode($code, true) !== null;

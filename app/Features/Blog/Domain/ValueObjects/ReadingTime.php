@@ -6,13 +6,9 @@ namespace App\Features\Blog\Domain\ValueObjects;
 
 /**
  * Value object: an article's reading time — `ceil(word_count / 200)`
- * minutes (database.md:360, content-management.md:472). The word
- * count is taken over the article CONTENT (the text the reader
- * actually reads; the spec names source fields only for the
- * `search_vector` — the reading-time formula itself is word-count
- * based). Computed per locale, stored on the translation row and
- * recomputed on every save (the `ArticleTranslationModel` `saved`
- * event / the repository's batch rebuild).
+ * minutes, where the word count is taken over the article CONTENT.
+ * Computed per locale, stored on the translation row and recomputed on
+ * every save.
  *
  * Immutable.
  */

@@ -15,16 +15,6 @@ use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\DTOs\PaginationQuery;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 
-/**
- * The admin projects list (admin-section-ui.md:327-346): cursor-
- * paginated via the shared app-layer paginator abstraction (the
- * filtered query comes from the list query repository, the pagination
- * facts from the paginator), with the filter bar — title search
- * (`?q=`), the featured toggle (`?featured=1`), the tech-tag
- * AND-intersect (`?tags=1,5`) and the published status
- * (`?published=1|0`) — plus the trashed view (`?trashed=1`). The raw
- * list rows are converted to the item DTOs here.
- */
 final class ListProjectsUseCase
 {
     public function __construct(
@@ -69,7 +59,7 @@ final class ListProjectsUseCase
 
     /**
      * The list rows hydrated with their tech tags (the Tags column of
-     * the admin table renders name chips, admin-section-ui.md:343).
+     * the admin table renders name chips).
      *
      * @param  object[]  $rows
      * @return ProjectListItemDto[]
@@ -102,8 +92,8 @@ final class ListProjectsUseCase
     }
 
     /**
-     * The 30 s count cache is per filter combination (ADR-0010) — every
-     * filter changes the counted set.
+     * The 30 s count cache is per filter combination — every filter
+     * changes the counted set.
      */
     private function countCacheKey(AdminProjectListQuery $query): string
     {

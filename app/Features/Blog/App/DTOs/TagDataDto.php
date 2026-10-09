@@ -7,9 +7,9 @@ namespace App\Features\Blog\App\DTOs;
 use App\Features\Blog\Domain\Entities\ArticleTag;
 
 /**
- * The tag data of the tag form (blog.yaml#TagFormPageProps): the
- * stored tag with the per-locale names map (the LocaleTabs) and the
- * locale-resolved display name. Immutable.
+ * The tag data of the tag form: the stored tag with the per-locale
+ * names map (the LocaleTabs) and the locale-resolved display name.
+ * Immutable.
  */
 final readonly class TagDataDto
 {

@@ -13,10 +13,9 @@ use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
  * Permanently deletes articles (single + bulk) — the DB rows are
  * removed by the repository (with the `old_slugs` history records);
  * the RustFS files (the lead image) are deleted here via the shared
- * asset cleaner, orchestrated by this use case
- * (content-management.md:903-905). A force-deleted published article
- * leaves the sitemap — the cache is invalidated here (the app layer
- * owns the invalidation decisions).
+ * asset cleaner, orchestrated by this use case. A force-deleted
+ * published article leaves the sitemap — the cache is invalidated here
+ * (the app layer owns the invalidation decisions).
  */
 final class ForceDestroyArticleUseCase
 {

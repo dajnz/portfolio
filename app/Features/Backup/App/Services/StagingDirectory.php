@@ -15,7 +15,7 @@ use function rmdir;
 use function unlink;
 
 /**
- * The workflow staging area (backup.md:391): a fresh subdirectory per
+ * The workflow staging area: a fresh subdirectory per
  * run under `config('backup.staging_path')` (`storage/app/backups/tmp/`),
  * recursively removed on completion or failure. Local-only — never
  * scanned by `app:cleanup-orphaned-files` and never included in

@@ -11,10 +11,10 @@ use App\Features\Portfolio\Infra\Models\ContactTranslationModel;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 /**
- * Persistence of `contact_translations` rows (database.md:182-189) —
- * read/write side of the `(contact_id, locale)` composite-PK table.
- * Writes are batched: the sync removes absent locales and upserts the
- * rest in ONE query (no per-locale N+1 loops).
+ * Persistence of `contact_translations` rows — read/write side of the
+ * `(contact_id, locale)` composite-PK table. Writes are batched: the sync
+ * removes absent locales and upserts the rest in ONE query (no per-locale
+ * N+1 loops).
  */
 final class EloquentContactTranslationRepository
 {
@@ -38,7 +38,7 @@ final class EloquentContactTranslationRepository
 
     /**
      * Upserts the given translations and removes rows of the contact
-     * whose locales are absent from the set (ADR-0005-style reconciliation).
+     * whose locales are absent from the set.
      *
      * @param  ContactTranslation[]  $translations
      */
@@ -50,7 +50,7 @@ final class EloquentContactTranslationRepository
         }
 
         // Only ACTIVE locales are reconciled — translations of locales
-        // disabled in the settings are preserved untouched (5.2 rework).
+        // disabled in the settings are preserved untouched.
         ContactTranslationModel::query()
             ->where('contact_id', $contactId)
             ->whereIn('locale', $this->locales->activeLocales())

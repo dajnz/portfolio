@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Features\Blog\App\DTOs;
 
 /**
- * The editor data of the create/edit form (blog.yaml#BlogFormPageProps):
- * the stored article data (null when creating), the tag picker
- * options, the published-articles list of the Related Articles
- * multi-select and the signed 1-hour preview URL (routes.md:155 — the
- * preview button opens it in a new tab; null on the create form).
- * Immutable.
+ * The editor data of the create/edit form: the stored article data
+ * (null when creating), the tag picker options, the published-articles
+ * list of the Related Articles multi-select and the signed 1-hour
+ * preview URL (the preview button opens it in a new tab; null on the
+ * create form). Immutable.
  */
 final readonly class ArticleEditorDataDto
 {

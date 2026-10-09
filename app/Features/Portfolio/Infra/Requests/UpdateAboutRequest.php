@@ -10,11 +10,10 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * `PUT /admin/about` (content-management.md:572-586): the non-translatable
- * fields plus per-locale translatable fields. Fields marked "required
- * per locale" are required only for the locales active in the
- * `supported_locales` setting; rows of disabled locales are preserved,
- * not deleted (content-management.md:419).
+ * `PUT /admin/about`: the non-translatable fields plus per-locale
+ * translatable fields. Fields marked "required per locale" are required
+ * only for the locales active in the `supported_locales` setting; rows of
+ * disabled locales are preserved, not deleted.
  */
 final class UpdateAboutRequest extends FormRequest
 {

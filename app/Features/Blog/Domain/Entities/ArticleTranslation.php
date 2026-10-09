@@ -7,8 +7,8 @@ namespace App\Features\Blog\Domain\Entities;
 use InvalidArgumentException;
 
 /**
- * A per-locale article translation row (database.md:351-364): locale,
- * title, short description and Markdown content — all mandatory.
+ * A per-locale article translation row: locale, title, short
+ * description and Markdown content — all mandatory.
  * `reading_time_minutes` is carried for the round-trip (recomputed on
  * every save from the content — {@see \App\Features\Blog\Domain\ValueObjects\ReadingTime}).
  *

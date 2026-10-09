@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * The `/cv` on-demand pipeline (content-management.md:387-401). In
+ * The `/cv` on-demand pipeline. In
  * `manual` mode the uploaded file path is returned directly; in `auto`
  * mode the flow is:
  *
@@ -100,9 +100,9 @@ final class GetResumePdfUseCase
     }
 
     /**
-     * Assembles the per-locale PDF data (content-management.md:377-385).
-     * Hidden sections (layout `visible: false`) are excluded from the
-     * assembly — they are neither loaded nor rendered.
+     * Assembles the per-locale PDF data. Hidden sections (layout
+     * `visible: false`) are excluded from the assembly — they are neither
+     * loaded nor rendered.
      *
      * @return array<string, mixed>
      */
@@ -145,9 +145,8 @@ final class GetResumePdfUseCase
 
     /**
      * The resume skills: `include_in_resume = true`, grouped by
-     * `skill_groups.sort_order`, skills ordered by `skills.sort_order`
-     * (content-management.md:383) — the Shared read repository's native
-     * shape (architecture.md:224).
+     * `skill_groups.sort_order`, skills ordered by `skills.sort_order` —
+     * the Shared read repository's native shape.
      *
      * @return array<int, array{group: string, skills: array<int, array{name: string, proficiency: int, proficiency_label: string}>}>
      */

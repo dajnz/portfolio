@@ -9,11 +9,11 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * `theme` middleware alias — reads the `theme` cookie (i18n-and-theming.md:175)
- * and exposes it as a request attribute + Inertia shared prop. Values other
- * than `dark` resolve to `light` (the server cannot know the visitor's
- * `prefers-color-scheme`; the root Blade template blocks the FOUC for first
- * visits and seeds the cookie). Admin Tailwind uses `darkMode: 'class'`.
+ * `theme` middleware alias — reads the `theme` cookie and exposes it as a
+ * request attribute + Inertia shared prop. Values other than `dark` resolve
+ * to `light` (the server cannot know the visitor's `prefers-color-scheme`;
+ * the root Blade template blocks the FOUC for first visits and seeds the
+ * cookie). Admin Tailwind uses `darkMode: 'class'`.
  */
 final class ThemeMiddleware
 {

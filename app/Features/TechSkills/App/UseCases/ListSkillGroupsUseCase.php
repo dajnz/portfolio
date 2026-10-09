@@ -8,7 +8,7 @@ use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepository
 
 /**
  * Loads all skill groups with their skills and translations for the
- * admin skills list page (`SkillGroupEditData` contract).
+ * admin skills list page.
  */
 final class ListSkillGroupsUseCase
 {

@@ -46,18 +46,17 @@ use Inertia\Response;
 use Inertia\ResponseFactory;
 
 /**
- * Projects admin surface (routes.md:81-101): the cursor-paginated list
- * with its filter bar (search / featured / tech tags / published /
- * trashed — the dual-response JSON autocomplete variant per
- * admin-section-ui.md:539-572), the create/edit forms (per-locale maps
- * for the translatable fields — the LocaleTabs convention), the CRUD +
- * soft-delete lifecycle, the bulk actions and the quick actions
- * (feature/unfeature, featured reorder, tech writeup, tag attach/
- * detach, publish/unpublish — returning the updated row as JSON so the
- * list row updates without a reload, content-management.md:162).
- * One action → one use case; the controller only translates the HTTP
- * request into app-layer DTOs and the use-case results into the
- * Inertia/JSON output shapes — no repositories, Eloquent or DB calls.
+ * Projects admin surface: the cursor-paginated list with its filter
+ * bar (search / featured / tech tags / published / trashed — the
+ * dual-response JSON autocomplete variant), the create/edit forms
+ * (per-locale maps for the translatable fields — the LocaleTabs
+ * convention), the CRUD + soft-delete lifecycle, the bulk actions and
+ * the quick actions (feature/unfeature, featured reorder, tech writeup,
+ * tag attach/detach, publish/unpublish — returning the updated row as
+ * JSON so the list row updates without a reload). One action → one use
+ * case; the controller only translates the HTTP request into app-layer
+ * DTOs and the use-case results into the Inertia/JSON output shapes —
+ * no repositories, Eloquent or DB calls.
  */
 final class AdminProjectController
 {
@@ -253,9 +252,8 @@ final class AdminProjectController
     }
 
     /**
-     * The JSON autocomplete variant (admin-section-ui.md:539-572):
-     * ILIKE title search over all locales, unpublished included,
-     * length-aware pagination.
+     * The JSON autocomplete variant: ILIKE title search over all
+     * locales, unpublished included, length-aware pagination.
      */
     private function autocompleteJson(Request $request): JsonResponse
     {
@@ -573,7 +571,7 @@ final class AdminProjectController
 
     /**
      * The admin list `meta` wire shape from the cursor pagination
-     * facts (admin-section-ui.md:169-181).
+     * facts.
      *
      * @return array<string, mixed>
      */
@@ -595,7 +593,7 @@ final class AdminProjectController
 
     /**
      * The length-aware `meta` wire shape of the JSON autocomplete
-     * variants (admin-section-ui.md:539-572, routes.md:199-212).
+     * variants.
      *
      * @return array<string, mixed>
      */

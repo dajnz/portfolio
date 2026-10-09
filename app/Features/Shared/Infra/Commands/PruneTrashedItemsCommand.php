@@ -14,17 +14,15 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Hard-deletes entities soft-deleted beyond the trash retention period
- * (default 30; 0 disables pruning). Applies to blog articles, projects
- * and experience timeline items; deletion is chunked (50 per chunk) to
- * avoid loading everything into memory. Registered on a monthly
- * schedule in routes/console.php.
+ * (default 30; 0 disables pruning). Applies to blog articles, projects and
+ * experience timeline items; deletion is chunked (50 per chunk) to avoid
+ * loading everything into memory. Registered on a monthly schedule in
+ * routes/console.php.
  *
- * Projects keep their slug history (`old_slugs` records — content-
- * management.md:905) and release their RustFS files (preview image +
- * screenshots) via the shared asset cleaner — the file orchestration
- * lives here, not in the Eloquent models; the blog/experience tables
- * stay query-builder deletes until their feature steps (timeline items
- * carry no files).
+ * Projects keep their slug history (`old_slugs` records) and release their
+ * RustFS files (preview image + screenshots) via the shared asset cleaner — the
+ * file orchestration lives here, not in the Eloquent models; the blog/experience
+ * tables stay query-builder deletes (timeline items carry no files).
  */
 final class PruneTrashedItemsCommand extends Command
 {
@@ -124,8 +122,7 @@ final class PruneTrashedItemsCommand extends Command
     }
 
     /**
-     * The chunk's RustFS asset paths — the preview images and every
-     * screenshot (content-management.md:827-828).
+     * The chunk's RustFS asset paths — the preview images and every screenshot.
      *
      * @param  int[]  $ids
      * @return string[]

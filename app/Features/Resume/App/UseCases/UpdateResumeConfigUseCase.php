@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\DB;
 /**
  * Persists the resume configuration (`PUT /admin/resume` — the single
  * endpoint for mode switches, layout changes and the explicit About Me
- * save, per the mockup's data flow): upserts the id = 1 row and
- * reconciles the per-locale about texts. The mode arrives as the
- * request-validated string (`auto`|`manual`) — the entity's constructor
- * and mutation methods enforce the domain invariant.
+ * save): upserts the id = 1 row and reconciles the per-locale about
+ * texts. The mode arrives as the request-validated string (`auto`|`manual`)
+ * — the entity's constructor and mutation methods enforce the domain
+ * invariant.
  */
 final class UpdateResumeConfigUseCase
 {

@@ -11,7 +11,7 @@ use stdClass;
  * Query-builder implementation of {@see ResumeDataReaderInterface} — the
  * resume source reads (about info, contacts, experience items) inside the
  * Resume Infra layer, locale-resolved with the `en` fallback. Tech skills
- * come from the Shared read repository (architecture.md:224).
+ * come from the Shared read repository.
  *
  * The `achievements` jsonb is decoded here: the per-locale column already
  * holds the locale's own descriptions (only the entries with a
@@ -165,7 +165,6 @@ final class EloquentResumeDataReader implements ResumeDataReaderInterface
     }
 
     /**
-     * @param  array<int, string|null>  $achievements  Raw jsonb values.
      * @return array<int, array{description: string, project_link: string|null}>
      */
     private function decodeAchievements(mixed $achievements): array

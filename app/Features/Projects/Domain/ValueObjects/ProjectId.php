@@ -8,8 +8,8 @@ use InvalidArgumentException;
 
 /**
  * Value object: a project's numeric identity (`projects.id`). The
- * value 0 marks a transient (unsaved) aggregate. Immutable; the
- * positive-integer rule lives here, not in the consuming entity.
+ * value 0 marks a transient (unsaved) aggregate; the positive-integer
+ * rule lives here, not in the consuming entity.
  */
 final readonly class ProjectId
 {

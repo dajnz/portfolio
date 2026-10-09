@@ -14,11 +14,11 @@ use App\Features\Shared\App\BaseUseCase;
 use DateTimeImmutable;
 
 /**
- * GitHub link/unlink (authentication.md:146-191). The link intent flow —
- * conflict matrix, TOTP-gated pending state, completion — is owned here;
- * `link()` itself is also used by the TOTP re-authentication flow. A
- * successful link/unlink bumps the session version (all other sessions are
- * force-logged-out; the current one is re-synced).
+ * GitHub link/unlink. The link intent flow — conflict matrix, TOTP-gated
+ * pending state, completion — is owned here; `link()` itself is also used
+ * by the TOTP re-authentication flow. A successful link/unlink bumps the
+ * session version (all other sessions are force-logged-out; the current
+ * one is re-synced).
  */
 final class LinkGithubUseCase extends BaseUseCase
 {
@@ -78,7 +78,7 @@ final class LinkGithubUseCase extends BaseUseCase
         $this->sessionVersion->bumpAndSync($admin->toId());
     }
 
-    /** Stores the pending GitHub data with a 5-minute expiry (authentication.md:164-171). */
+    /** Stores the pending GitHub data with a 5-minute expiry. */
     private function preparePendingLink(Admin $admin, string $githubId, string $githubToken): void
     {
         session([

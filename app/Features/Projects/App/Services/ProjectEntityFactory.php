@@ -27,10 +27,10 @@ use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 /**
  * Builds {@see Project} aggregates from the app-layer draft DTO — shared
  * by the store/update use cases. All value normalization (per-locale
- * maps, the reconcile-by-id convention ADR-0005, the zero-indexed sort
- * orders, the preview picture, the featured state) lives here; the use
- * cases only resolve the slug, decide the publication state and
- * delegate persistence.
+ * maps, the reconcile-by-id convention, the zero-indexed sort orders,
+ * the preview picture, the featured state) lives here; the use cases
+ * only resolve the slug, decide the publication state and delegate
+ * persistence.
  */
 final class ProjectEntityFactory
 {
@@ -115,7 +115,7 @@ final class ProjectEntityFactory
     /**
      * The preview picture (from the draft's image DTO) and the gallery
      * rows in their submitted order — the position in the array is the
-     * `sort_order`; an existing `id` marks an update (ADR-0005).
+     * `sort_order`; an existing `id` marks an update.
      */
     private function pictures(ProjectDraftDto $draft): ProjectPictures
     {

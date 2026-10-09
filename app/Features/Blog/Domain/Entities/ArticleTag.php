@@ -9,12 +9,11 @@ use App\Features\Shared\Domain\ValueObjects\Slug;
 use InvalidArgumentException;
 
 /**
- * An article tag (database.md:366-384): the unique kebab-case slug
- * and the per-locale names (required per ACTIVE locale, content-
- * management.md:690-695). The tag↔skill name uniqueness is probed by
- * the tag repository (the case-insensitive cross-table check runs on
- * the article-tag side only — content-management.md:595,695) and
- * surfaced by the store/update use cases.
+ * An article tag: the unique kebab-case slug and the per-locale names
+ * (required per ACTIVE locale). The tag↔skill name uniqueness is
+ * probed by the tag repository (the case-insensitive cross-table check
+ * runs on the article-tag side only) and surfaced by the store/update
+ * use cases.
  */
 final class ArticleTag extends BaseEntity
 {
@@ -65,8 +64,7 @@ final class ArticleTag extends BaseEntity
     }
 
     /**
-     * The name for the given locale, falling back to `en`
-     * (content-management.md:415).
+     * The name for the given locale, falling back to `en`.
      */
     public function nameFor(string $locale): string
     {
@@ -76,8 +74,7 @@ final class ArticleTag extends BaseEntity
     /**
      * The locales with a stored translation row — the exact set the
      * persistence layer reconciles against the active locales (rows of
-     * disabled locales are preserved untouched, content-management.md:
-     * 419).
+     * disabled locales are preserved untouched).
      *
      * @return string[]
      */

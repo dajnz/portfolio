@@ -17,8 +17,8 @@ use Inertia\Response;
 use Inertia\ResponseFactory;
 
 /**
- * `GET/POST /admin/login` + `POST /admin/logout` (authentication.md:15-29,
- * 282). The login page is the single public entry to the admin section.
+ * `GET/POST /admin/login` + `POST /admin/logout`. The login page is the
+ * single public entry to the admin section.
  */
 final class LoginController
 {
@@ -32,13 +32,13 @@ final class LoginController
 
     public function create(Request $request, ResponseFactory $inertia): Response
     {
-        // Prevents stale half-auth state from a previous tab (authentication.md:285).
+        // Prevents stale half-auth state from a previous tab.
         $this->auth->clearPendingTotpLogin();
 
         return $inertia->render('Auth/Admin/Pages/LoginPage', [
             // The GitHub button is shown only when the flag is ON AND at
-            // least one admin account is linked (ADR-0013) — the OAuth login
-            // flow can only fail otherwise.
+            // least one admin account is linked — the OAuth login flow can
+            // only fail otherwise.
             'github_login_available' => $this->flags->isEnabled(FeatureFlagName::GithubOauth)
                 && $this->admins->hasGithubLinkedAdmin(),
             'loginPage' => true,

@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Features\Backup\App\Contracts;
 
 /**
- * Batch object transfer to/from the archive storage (backup.md:201-207,
- * 353-369): concurrent downloads/uploads keyed by path, plus batch
- * deletion (the restore's delete-extras mirror and the archive
- * hard-deletes of delete/prune — backup.md:405,435-438). The contract
- * is storage-agnostic — the Infra layer's `RustFsBatchTransfer`
- * implements it over RustFS; the app layer never names the storage
- * backend. Deleting a missing object is a no-op.
+ * Batch object transfer to/from the archive storage: concurrent
+ * downloads/uploads keyed by path, plus batch deletion (the restore's
+ * delete-extras mirror and the archive hard-deletes of delete/prune).
+ * The contract is storage-agnostic — the Infra layer's
+ * `RustFsBatchTransfer` implements it over RustFS; the app layer never
+ * names the storage backend. Deleting a missing object is a no-op.
  */
 interface StorageBatchTransferable
 {

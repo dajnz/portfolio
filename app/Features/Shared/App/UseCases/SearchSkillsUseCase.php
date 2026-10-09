@@ -9,10 +9,9 @@ use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 
 /**
- * Autocomplete search over tech skill names (`GET /api/skills/search`).
- *
- * Matches case-insensitively on the skill name, orders matches by name
- * ascending, and caps the result at 20 items.
+ * Autocomplete search over tech skill names (`GET /api/skills/search`):
+ * case-insensitive substring match on the name, ordered by name ascending
+ * and capped at 20 results.
  */
 final class SearchSkillsUseCase extends BaseUseCase
 {

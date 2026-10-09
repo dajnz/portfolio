@@ -12,9 +12,9 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 
 /**
  * The single admin list item after a quick action (feature/unfeature,
- * publish/unpublish, tech writeup, tag attach/detach — ADR-0004): the
- * mutations run through their own use cases, this one re-reads the
- * row so the list updates without a reload (content-management.md:162).
+ * publish/unpublish, tech writeup, tag attach/detach): the mutations
+ * run through their own use cases, this one re-reads the row so the
+ * list updates without a reload.
  */
 final class GetProjectListItemUseCase
 {

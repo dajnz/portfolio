@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Http;
 use Throwable;
 
 /**
- * The ADR-0016 "Test Connection" probe: checks that the 3rd-party mail
+ * The "Test Connection" probe: checks that the 3rd-party mail
  * API is reachable and accepts the token — without sending any email.
  *
  * The submitted Mail-tab values override the stored settings (so the
  * probe works on unsaved form state); an empty token submission falls
- * back to the stored token (ADR-0016). The probe is a `GET {endpoint}` with
- * the bearer token (10 s timeout):
+ * back to the stored token. The probe is a `GET {endpoint}` with the
+ * bearer token (10 s timeout):
  *  - 401/403  -> `unauthorized` (token rejected);
  *  - network/timeout errors -> `unreachable`;
  *  - any other response -> `ok` (endpoint reachable, credentials

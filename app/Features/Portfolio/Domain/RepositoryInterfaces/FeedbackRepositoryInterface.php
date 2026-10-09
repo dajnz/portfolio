@@ -7,8 +7,8 @@ namespace App\Features\Portfolio\Domain\RepositoryInterfaces;
 use App\Features\Portfolio\Domain\Entities\Feedback;
 
 /**
- * Persistence of `feedback` submissions (database.md:462-480). Rows are
- * immutable apart from the read/forwarded flags.
+ * Persistence of `feedback` submissions. Rows are immutable apart from
+ * the read/forwarded flags.
  */
 interface FeedbackRepositoryInterface
 {

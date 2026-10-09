@@ -9,10 +9,10 @@ use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 
 /**
- * Soft-deletes articles (single + bulk — content-management.md:903).
- * A deleted published article leaves the sitemap — the cache is
- * invalidated here (the app layer owns the invalidation decisions;
- * the published-state probe is the repository's `publishedIdsOf()`).
+ * Soft-deletes articles (single + bulk). A deleted published article
+ * leaves the sitemap — the cache is invalidated here (the app layer
+ * owns the invalidation decisions; the published-state probe is the
+ * repository's `publishedIdsOf()`).
  */
 final class DestroyArticleUseCase
 {

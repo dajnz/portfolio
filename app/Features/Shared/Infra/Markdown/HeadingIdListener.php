@@ -10,12 +10,11 @@ use League\CommonMark\Extension\CommonMark\Node\Block\Heading;
 use League\CommonMark\Node\StringContainerHelper;
 
 /**
- * Assigns a stable `id` attribute to every heading of the rendered
- * document (the TableOfContents component scans for `<h2 id>`
- * / `<h3 id>` — public-section-components.md:1314). The id is the
- * slugified heading text (the shared {@see Slug} generation — Cyrillic
- * transliterated, so Russian headings produce usable anchors);
- * duplicates within one document get a numeric suffix.
+ * Assigns a stable `id` attribute to every heading of the rendered document
+ * (the TableOfContents component scans for `<h2 id>` / `<h3 id>`). The id is
+ * the slugified heading text (the shared {@see Slug} generation — Cyrillic
+ * transliterated, so Russian headings produce usable anchors); duplicates
+ * within one document get a numeric suffix.
  *
  * Registered as a plain callable via
  * `Environment::addEventListener(DocumentParsedEvent::class, ...)`

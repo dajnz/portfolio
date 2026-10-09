@@ -7,9 +7,9 @@ namespace App\Features\Shared\Infra\Services;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
- * The {@see CountCacheInvalidatorInterface} over the shared admin
- * cursor paginator — bumps the per-entity count-cache version so the
- * paginated list re-counts on the next request (ADR-0024).
+ * The {@see CountCacheInvalidatorInterface} over the shared admin cursor
+ * paginator — bumps the per-entity count-cache version so the paginated list
+ * re-counts on the next request.
  */
 final class AdminListCountCacheInvalidator implements CountCacheInvalidatorInterface
 {

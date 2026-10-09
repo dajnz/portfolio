@@ -13,9 +13,8 @@ use League\CommonMark\Renderer\ChildNodeRendererInterface;
 use League\CommonMark\Renderer\NodeRendererInterface;
 
 /**
- * Renders the {@see CalloutBlock} as the static callout markup the
- * public `CalloutBlock` component enhances
- * (public-section-components.md:1286, mockup `blog-article.html`):
+ * Renders the {@see CalloutBlock} as the static callout markup the public
+ * `CalloutBlock` component enhances:
  *
  *     <aside class="callout callout--{type}"
  *            data-callout-type="{type}">
@@ -23,9 +22,9 @@ use League\CommonMark\Renderer\NodeRendererInterface;
  *         <div class="callout__content">{body}</div>
  *     </aside>
  *
- * The title is parsed as inline markdown (a fresh paragraph parsed via
- * the inline engine, its children rendered and discarded — the
- * callout node's own children are the body).
+ * The title is parsed as inline markdown (a fresh paragraph parsed via the
+ * inline engine, its children rendered and discarded — the callout node's own
+ * children are the body).
  */
 final class CalloutBlockRenderer implements NodeRendererInterface
 {

@@ -11,18 +11,17 @@ use RuntimeException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Process-wide access to `docs/openapi/openapi.yaml` (openapi.md:7-38) in a
- * form the `league/openapi-psr7-validator` can consume. The root document
- * is a $ref-stitched OpenAPI 3.1 spec (docs/openapi/README.md): its `paths`,
- * `components.schemas` and `components.parameters` point at external
- * feature/component YAML files (`./features/*.yaml#/paths/...`,
- * `../components/schemas.yaml#/...`). The validator cannot resolve external
- * references, so the document is dereferenced into a single in-memory
- * document; local `#/components/...` references are left for the
- * validator's native resolution.
+ * Process-wide access to `docs/openapi/openapi.yaml` in a form the
+ * `league/openapi-psr7-validator` can consume. The root document is a
+ * $ref-stitched OpenAPI 3.1 spec: its `paths`, `components.schemas` and
+ * `components.parameters` point at external feature/component YAML files
+ * (`./features/*.yaml#/paths/...`, `../components/schemas.yaml#/...`). The
+ * validator cannot resolve external references, so the document is dereferenced
+ * into a single in-memory document; local `#/components/...` references are left
+ * for the validator's native resolution.
  *
  * Consumed by the `validate_api_spec` middleware, the OpenAPI contract test
- * suite (step 2.7) and the Swagger UI docs sync (`SwaggerUiService`).
+ * suite and the Swagger UI docs sync (`SwaggerUiService`).
  */
 final class OpenApiSpecDocument
 {

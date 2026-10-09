@@ -8,7 +8,7 @@ use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterfac
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 
 /**
- * Deletes a contact (translations cascade via FK — database.md:182-189).
+ * Deletes a contact (translations cascade via FK).
  */
 final class DestroyContactUseCase
 {

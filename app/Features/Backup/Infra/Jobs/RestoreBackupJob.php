@@ -12,15 +12,13 @@ use RuntimeException;
 use Throwable;
 
 /**
- * The queued async restore (ADR-0018): the HTTP-triggered restore dispatches
- * this job, which executes the synchronous `RestoreBackupUseCase`
- * inside the worker — the UI polls
- * `GET /admin/backups/{backup}/status` (~2 s) until the record
- * re-completes or fails. On failure the record is already marked
- * `failed` by the use case; this hook caches the error message for
- * the status endpoint (the `failed` row shape,
- * openapi/inertia/backup.yaml:64) and the site stays in maintenance
- * mode (backup.md:397).
+ * The queued async restore: the HTTP-triggered restore dispatches this
+ * job, which executes the synchronous `RestoreBackupUseCase` inside the
+ * worker — the UI polls `GET /admin/backups/{backup}/status` (~2 s)
+ * until the record re-completes or fails. On failure the record is
+ * already marked `failed` by the use case; this hook caches the error
+ * message for the status endpoint and the site stays in maintenance
+ * mode.
  */
 final class RestoreBackupJob implements ShouldQueue
 {

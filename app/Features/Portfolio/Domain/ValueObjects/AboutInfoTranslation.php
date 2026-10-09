@@ -8,8 +8,7 @@ use InvalidArgumentException;
 
 /**
  * Value object: a single localized about block (`about_info_translations`,
- * PK `(about_info_id, locale)` — database.md:89-99). Immutable; carries
- * no identity of its own.
+ * PK `(about_info_id, locale)`). Immutable; carries no identity of its own.
  */
 final readonly class AboutInfoTranslation
 {

@@ -7,10 +7,10 @@ namespace App\Features\Resume\Infra\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `resume_config_translations` (database.md:117-126).
- * Composite primary key `(resume_config_id, locale)` — no auto-increment,
- * no timestamps. `about_text` is the custom "About Me" for the
- * auto-generated resume (falls back to the about short pitch when null).
+ * Eloquent model for `resume_config_translations`. Composite primary key
+ * `(resume_config_id, locale)` — no auto-increment, no timestamps.
+ * `about_text` is the custom "About Me" for the auto-generated resume
+ * (falls back to the about short pitch when null).
  *
  * @property int $resume_config_id
  * @property string $locale

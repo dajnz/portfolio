@@ -9,9 +9,8 @@ use DateTimeImmutable;
 /**
  * An article as a list item — the admin table rows and the admin
  * autocomplete items. The aggregate parts travel as data DTOs (the
- * unified tag chips); the Related column is the static link count
- * (user request 2026-08-13 — no per-row related management in the
- * table); the dates are converted at the boundary. Immutable.
+ * unified tag chips); the Related column is the static link count; the
+ * dates are converted at the boundary. Immutable.
  */
 final readonly class ArticleListItemDto
 {

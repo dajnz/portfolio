@@ -10,11 +10,6 @@ use App\Features\Projects\Infra\Models\ProjectDetailItemModel;
 use App\Features\Projects\Domain\ValueObjects\EngineeringDetailIcon;
 use App\Features\Shared\Domain\ValueObjects\SortOrder;
 
-/**
- * Converts between `project_detail_items` rows (with their translation
- * rows pre-loaded via the `translations` relation) and
- * {@see ProjectEngineeringDetail} entities, and back to the row data.
- */
 final class ProjectEngineeringDetailMapper
 {
     public function __construct(

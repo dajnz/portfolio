@@ -7,11 +7,8 @@ namespace App\Features\Portfolio\App\UseCases;
 use App\Features\Portfolio\Infra\Services\DashboardStatsReader;
 
 /**
- * The admin dashboard stat cards (admin-section-ui.md:224-228, ADR-0017):
- * count cards exclude trashed; "Total Views" sums `article_views.views`
- * across ALL articles incl. unpublished + trashed; "Blog Views" counts
- * published, non-trashed articles only. The reads live in the feature's
- * Infra layer (ADR-0003 — no cross-feature class imports).
+ * The admin dashboard stat cards. The reads live in the feature's Infra
+ * layer (no cross-feature class imports).
  */
 final class GetDashboardStatsUseCase
 {

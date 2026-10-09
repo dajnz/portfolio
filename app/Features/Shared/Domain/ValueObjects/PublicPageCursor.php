@@ -7,13 +7,11 @@ namespace App\Features\Shared\Domain\ValueObjects;
 use InvalidArgumentException;
 
 /**
- * Value object: a cursor position in a public infinite-scroll list
- * (public-section-ui.md:316-327) — the item id plus the active sort
- * value (`published_at`, `tech_tags_count` or the FTS rank as a
- * string). The opaque base64url wire form is the
+ * A cursor position in a public infinite-scroll list: the item id plus
+ * the active sort value (`published_at`, `tech_tags_count` or the FTS
+ * rank as a string). The opaque base64url wire form is the
  * {@see \App\Features\Shared\Infra\Persistence\PublicCursorCodec}'s
  * concern; domain and application code reason about this VO.
- * Immutable; both parts are mandatory.
  */
 final readonly class PublicPageCursor
 {

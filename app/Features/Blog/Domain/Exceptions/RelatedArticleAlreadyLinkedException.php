@@ -8,7 +8,7 @@ use DomainException;
 
 /**
  * The related-article pair already exists — surfaced as a 409 by the
- * attach route (content-management.md:252).
+ * attach route.
  */
 final class RelatedArticleAlreadyLinkedException extends DomainException
 {

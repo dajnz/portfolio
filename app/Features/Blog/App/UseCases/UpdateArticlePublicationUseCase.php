@@ -9,9 +9,8 @@ use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 
 /**
- * The publish/unpublish quick actions (single + bulk,
- * content-management.md:251): `published_at` is auto-set on the FIRST
- * publish only and immutable thereafter (database.md:341) — the
+ * The publish/unpublish quick actions (single + bulk): `published_at`
+ * is auto-set on the FIRST publish only and immutable thereafter — the
  * repository's `setPublicationMany()` keeps an already-set value
  * untouched. Every publication toggle changes the sitemap — the cache
  * is invalidated here (the app layer owns the invalidation decisions).

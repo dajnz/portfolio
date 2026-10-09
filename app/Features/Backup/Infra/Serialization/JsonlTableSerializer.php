@@ -23,19 +23,18 @@ use const JSON_THROW_ON_ERROR;
 use const JSON_UNESCAPED_UNICODE;
 
 /**
- * The JSONL table serializer (backup.md:287-306, 379, 402): the
- * per-table export/import surface of the archive's `data/` files —
- * one `json_encode($row, JSON_UNESCAPED_UNICODE)` object per line
- * (no enclosing array, no pretty-printing), `\n`-terminated. Export
- * consumes the {@see DbTableBatchReadable} source in batches and
- * appends each row immediately; import reads `fgets`-line by line,
- * accumulates batches and feeds them into the {@see DbTableBatchWritable}
- * destination (the JSONL import path, backup.md:285-303).
+ * The JSONL table serializer: the per-table export/import surface of the
+ * archive's `data/` files — one `json_encode($row, JSON_UNESCAPED_UNICODE)`
+ * object per line (no enclosing array, no pretty-printing),
+ * `\n`-terminated. Export consumes the {@see DbTableBatchReadable} source
+ * in batches and appends each row immediately; import reads `fgets`-line
+ * by line, accumulates batches and feeds them into the
+ * {@see DbTableBatchWritable} destination (the JSONL import path).
  */
 final class JsonlTableSerializer implements DbTableExportable, DbTableImportable
 {
     /**
-     * Rows accumulated before a `writeBatch()` call (backup.md:281).
+     * Rows accumulated before a `writeBatch()` call.
      */
     private const BATCH_SIZE = 500;
 

@@ -34,29 +34,27 @@ use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * `GET /blog` and `GET /{locale}/blog` (routes.md:27,55) — the public
- * blog index (public-section-ui.md:209-238): published articles
- * ordered by `published_at` with infinite scroll via the opaque
- * composite cursor (the shared {@see PublicCursorCodec}), the
- * `?article_tags=` / `?skill_tags=` AND/intersect filters (ADR-0004), the
+ * `GET /blog` and `GET /{locale}/blog` — the public blog index:
+ * published articles ordered by `published_at` with infinite scroll
+ * via the opaque composite cursor (the shared {@see PublicCursorCodec}),
+ * the `?article_tags=` / `?skill_tags=` AND/intersect filters, the
  * `?year=` filter and the FTS `?q=` search — the Inertia HTML variant
- * carries the `ts_headline()` `<mark>` snippets (ADR-0007). The JSON
+ * carries the `ts_headline()` `<mark>` snippets. The JSON
  * dual-response variant (`Accept: application/json` — the search
- * autocomplete, routes.md:199-212) returns the length-aware
- * `BlogIndexResponse` with raw values and the prefix search form.
+ * autocomplete) returns the length-aware `BlogIndexResponse` with raw
+ * values and the prefix search form.
  *
- * `GET /blog/{article:slug}` — the detail page (routes.md:28,56)
- * with the SEO props + JSON-LD (BlogPosting + BreadcrumbList), the
- * queued view-counter job (content-management.md:214-218), the
- * feature-flagged reactions and the old-slug 301 resolution (ADR-0006):
+ * `GET /blog/{article:slug}` — the detail page with the SEO props +
+ * JSON-LD (BlogPosting + BreadcrumbList), the queued view-counter job,
+ * the feature-flagged reactions and the old-slug 301 resolution:
  * main table → `old_slugs` → 301 to the current canonical URL
  * (locale prefix preserved). The route param is read BY NAME from
- * the request (ADR-0030 — Laravel 13 splices route params positionally).
+ * the request (Laravel 13 splices route params positionally).
  *
  * `POST /api/blog/{article}/reaction` — the reaction toggle
- * (feature-flagged, routes.md:190): the server generates the
- * fingerprint (keyed HMAC of ip|user_agent, ADR-0017), the use case
- * upserts/undoes, and the response carries the updated state.
+ * (feature-flagged): the server generates the fingerprint (keyed HMAC
+ * of ip|user_agent), the use case upserts/undoes, and the response
+ * carries the updated state.
  *
  * The controller only translates the HTTP request into app-layer
  * DTOs and the use-case results into the Inertia/JSON output shapes —
@@ -156,9 +154,9 @@ final class PublicBlogController
     }
 
     /**
-     * The JSON dual-response variant (routes.md:199-212) — length-aware
-     * pagination, the tag intersects, the year filter and the prefix
-     * autocomplete search; raw field values without highlights (ADR-0007).
+     * The JSON dual-response variant — length-aware pagination, the tag
+     * intersects, the year filter and the prefix autocomplete search;
+     * raw field values without highlights.
      */
     private function autocompleteJson(Request $request): JsonResponse
     {
@@ -200,9 +198,9 @@ final class PublicBlogController
     /**
      * The `ArticleCardData` wire shape of a card — the snippet
      * substitutes the `short_description` in the HTML variant's search
-     * results (ADR-0007); the JSON variant returns the raw value. The
-     * `skill_tags` and `lead_image_alt` fields (ADR-0004) feed the card's
-     * linked TechSkillTag chips and the `<img>` alt.
+     * results; the JSON variant returns the raw value. The `skill_tags`
+     * and `lead_image_alt` fields feed the card's linked TechSkillTag
+     * chips and the `<img>` alt.
      *
      * @return array<string, mixed>
      */
@@ -310,8 +308,8 @@ final class PublicBlogController
     }
 
     /**
-     * The keyed-HMAC visitor fingerprint (content-management.md:212,
-     * ADR-0017): `hash_hmac('sha256', ip.'|'.user_agent, key)`.
+     * The keyed-HMAC visitor fingerprint:
+     * `hash_hmac('sha256', ip.'|'.user_agent, key)`.
      */
     private function fingerprint(Request $request): string
     {

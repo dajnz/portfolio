@@ -7,9 +7,9 @@ namespace App\Features\Blog\App\DTOs;
 use App\Features\Blog\Domain\ValueObjects\ReactionType;
 
 /**
- * The result of a reaction toggle (routes.md:366-376 — the
- * `ReactionResponse` wire shape): the visitor's current reaction
- * (`null` after an undo) plus the article's totals. Immutable.
+ * The result of a reaction toggle (the `ReactionResponse` wire
+ * shape): the visitor's current reaction (`null` after an undo) plus
+ * the article's totals. Immutable.
  */
 final readonly class ReactionOutcomeDto
 {

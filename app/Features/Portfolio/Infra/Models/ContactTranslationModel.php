@@ -10,9 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `contact_translations` (database.md:182-189).
- * Composite primary key `(contact_id, locale)` — no auto-increment, no
- * timestamps.
+ * Eloquent model for `contact_translations`. Composite primary key
+ * `(contact_id, locale)` — no auto-increment, no timestamps.
  *
  * @property int $contact_id
  * @property string $locale

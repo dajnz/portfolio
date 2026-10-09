@@ -14,11 +14,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Eloquent model for `blog_articles` (database.md:330-349) — DB-table
- * code only: the fillable columns, the relations and the casts. The
- * `sitemap:xml` invalidation is NOT a model concern — the write use
- * cases orchestrate it via the shared `SitemapInvalidatorInterface`
- * (the app-layer abstraction, seo.md:219).
+ * Eloquent model for `blog_articles` — DB-table code only: the
+ * fillable columns, the relations and the casts. The `sitemap:xml`
+ * invalidation is NOT a model concern — the write use cases orchestrate
+ * it via the shared `SitemapInvalidatorInterface` (the app-layer
+ * abstraction).
  *
  * The RustFS asset deletion (the lead image) is NOT a model concern —
  * the force-delete flows orchestrate it in the use cases through the

@@ -8,11 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Eloquent model for the `project_tech_tags` pivot (database.md:275-
- * 283) — the sole writer of the persisted `tech_tags_count` column:
- * the `saved` event increments and the `deleted` event decrements the
- * owning project's count atomically (content-management.md:160,
- * database.md:211 — "no additional query needed").
+ * Eloquent model for the `project_tech_tags` pivot — the sole writer of
+ * the persisted `tech_tags_count` column: the `saved` event increments
+ * and the `deleted` event decrements the owning project's count
+ * atomically ("no additional query needed").
  *
  * The repository performs every pivot mutation through instances of
  * this model (never raw pivot inserts), so the events fire

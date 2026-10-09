@@ -4,12 +4,6 @@ declare(strict_types=1);
 
 namespace App\Features\Projects\App\DTOs;
 
-/**
- * The set of per-locale translations of a project — the LocaleTabs
- * maps (content-management.md:420). `title` and `brief_description`
- * are required per ACTIVE locale (validated by the request); the
- * Markdown content fields are optional. Immutable.
- */
 final readonly class ProjectTranslationsDto
 {
     /**
@@ -29,9 +23,8 @@ final readonly class ProjectTranslationsDto
     }
 
     /**
-     * The EN title — the slug regeneration source (ADR-0006, content-
-     * management.md:430 — the slug is generated from the default-locale
-     * title only).
+     * The EN title — the slug regeneration source (the slug is generated
+     * from the default-locale title only).
      */
     public function enTitle(): string
     {

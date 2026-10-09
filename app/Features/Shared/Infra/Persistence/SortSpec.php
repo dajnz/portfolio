@@ -9,16 +9,15 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 use InvalidArgumentException;
 
 /**
- * The ordering strategy of an admin list page: the sort column, its
- * direction, and the mandatory unique tiebreaker (the primary key) that
- * makes the ordering deterministic even with duplicate sort values
- * (admin-section-ui.md:187-194).
+ * The ordering strategy of an admin list page: the sort column, its direction,
+ * and the mandatory unique tiebreaker (the primary key) that makes the ordering
+ * deterministic even with duplicate sort values.
  *
- * Owns the translation of the sort into SQL: the ORDER BY clause, the
- * keyset seek predicate (WHERE ...), and the index-only positioning
- * select used for page jumps. Column names are whitelist-validated
- * upstream and reach the SQL only as grammar-quoted identifiers via the
- * query builder — never as raw interpolated strings.
+ * Owns the translation of the sort into SQL: the ORDER BY clause, the keyset
+ * seek predicate (WHERE ...), and the index-only positioning select used for
+ * page jumps. Column names are whitelist-validated upstream and reach the SQL
+ * only as grammar-quoted identifiers via the query builder — never as raw
+ * interpolated strings.
  */
 final readonly class SortSpec
 {

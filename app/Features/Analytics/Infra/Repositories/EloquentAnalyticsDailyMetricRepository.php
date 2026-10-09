@@ -14,13 +14,13 @@ use DateTimeImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Eloquent-backed `analytics_daily_metrics` storage (ADR-0017). Writes go
- * through the query builder — `Eloquent\Builder::upsert` does not
- * apply the model's casts, so the rows are prepared by the mapper
- * (dates as `Y-m-d` strings, floats/ints as scalars) and upserted on
- * the `(metric, date, dimension)` unique key (NULLS NOT DISTINCT —
- * the NULL dimension row conflicts like any other). Reads materialize
- * the rows through the mapper.
+ * Eloquent-backed `analytics_daily_metrics` storage. Writes go through
+ * the query builder — `Eloquent\Builder::upsert` does not apply the
+ * model's casts, so the rows are prepared by the mapper (dates as
+ * `Y-m-d` strings, floats/ints as scalars) and upserted on the
+ * `(metric, date, dimension)` unique key (NULLS NOT DISTINCT — the
+ * NULL dimension row conflicts like any other). Reads materialize the
+ * rows through the mapper.
  */
 final class EloquentAnalyticsDailyMetricRepository implements AnalyticsDailyMetricRepositoryInterface
 {
@@ -144,11 +144,11 @@ final class EloquentAnalyticsDailyMetricRepository implements AnalyticsDailyMetr
     }
 
     /**
-     * The per-span SQL expressions (analytics.md:202): the GROUP BY
-     * bucket and the calendar period bounds — `week` = Monday–Sunday
-     * (PostgreSQL `date_trunc('week', ...)` starts on Monday), the
-     * month/year rows span their calendar bounds, `all` spans the
-     * stored history of the group.
+     * The per-span SQL expressions: the GROUP BY bucket and the
+     * calendar period bounds — `week` = Monday–Sunday (PostgreSQL
+     * `date_trunc('week', ...)` starts on Monday), the month/year rows
+     * span their calendar bounds, `all` spans the stored history of the
+     * group.
      *
      * @return array{string, string, string}
      */

@@ -13,10 +13,10 @@ use App\Features\Resume\Infra\Models\ResumeConfigTranslationModel;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Eloquent persistence of the single-row resume config aggregate
- * (database.md:104-128): the id = 1 row with its translations
- * reconciled on save (upsert by the composite PK — about texts may be
- * cleared back to null, so rows are never deleted, only overwritten).
+ * Eloquent persistence of the single-row resume config aggregate:
+ * the id = 1 row with its translations reconciled on save (upsert by the
+ * composite PK — about texts may be cleared back to null, so rows are
+ * never deleted, only overwritten).
  */
 final class EloquentResumeConfigRepository implements ResumeConfigRepositoryInterface
 {

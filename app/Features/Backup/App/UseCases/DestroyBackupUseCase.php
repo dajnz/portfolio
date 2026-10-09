@@ -10,11 +10,10 @@ use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use RuntimeException;
 
 /**
- * The delete action (backup.md:432-439): processing backups cannot be
- * deleted (backup.md:159). The DB record is soft-deleted (the audit
- * trail), the archive is hard-deleted from the `backups` bucket via
- * the storage contract — a later download of the record 404s
- * (backup.md:157,435-438).
+ * The delete action: processing backups cannot be deleted. The DB
+ * record is soft-deleted (the audit trail), the archive is hard-deleted
+ * from the `backups` bucket via the storage contract — a later download
+ * of the record 404s.
  */
 final class DestroyBackupUseCase
 {

@@ -20,16 +20,14 @@ use function config;
 use function in_array;
 
 /**
- * The queued backup creation (backup.md:376,460): picked up from the
- * `pending` row, marks it `processing`, runs the 10-step
- * `BackupWorkflowService` (which completes it) and on any failure
- * marks the record `failed` with the error message cached for the
- * status endpoint (the `failed` row shape, openapi/inertia/backup.yaml:64).
- * The encryption key comes from the record's `encryption_key_id` (the
- * `-k{id}` filename suffix — a rotation between dispatch and execution
- * must not change the key); when the record has no key id and
- * encryption is enabled, the job fails — no active key existed at
- * creation (backup.md:389).
+ * The queued backup creation: picked up from the `pending` row, marks
+ * it `processing`, runs the 10-step `BackupWorkflowService` (which
+ * completes it) and on any failure marks the record `failed` with the
+ * error message cached for the status endpoint. The encryption key comes
+ * from the record's `encryption_key_id` (the `-k{id}` filename suffix —
+ * a rotation between dispatch and execution must not change the key);
+ * when the record has no key id and encryption is enabled, the job
+ * fails — no active key existed at creation.
  */
 final class CreateBackupJob implements ShouldQueue
 {

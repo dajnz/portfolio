@@ -11,8 +11,8 @@ use App\Features\Portfolio\Infra\Models\AboutInfoModel;
 
 /**
  * Eloquent-backed single-row about repository. The id = 1 convention is
- * applied at the application level (database.md:71-73): `find()` reads
- * the first row, `save()` updates it (creating it on first write).
+ * applied at the application level: `find()` reads the first row, `save()`
+ * updates it (creating it on first write).
  */
 final class EloquentAboutInfoRepository implements AboutInfoRepositoryInterface
 {

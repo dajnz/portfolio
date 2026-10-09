@@ -7,23 +7,19 @@ namespace App\Features\Shared\Infra\Search;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
- * The shared PostgreSQL full-text search expression builder (ADR-0007,
- * database.md:603-695) — the safe SQL fragments used by the public
- * blog/project list queries: `search()` (plainto_tsquery + ts_rank
- * with the 32 normalization, no setweight), `headline()` (ts_headline
- * snippets with the database.md:676-683 `<mark>` parameters) and
- * `autocomplete()` (the prefix form with the empty-tsquery CASE
- * guard, database.md:662-675).
+ * The shared PostgreSQL full-text search expression builder — the safe SQL
+ * fragments used by the public blog/project list queries: `search()`
+ * (plainto_tsquery + ts_rank with the 32 normalization, no setweight),
+ * `headline()` (ts_headline snippets with the `<mark>` parameters) and
+ * `autocomplete()` (the prefix form with the empty-tsquery CASE guard).
  *
- * The query is truncated to 200 characters before any expression is
- * built (database.md:694); an empty query produces NO fragments —
- * the caller skips FTS entirely and returns all rows (database.md:
- * 691). All expressions are fully parameterized (the dictionary and
- * the user query travel as bindings), so user input can never inject
- * SQL.
+ * The query is truncated to 200 characters before any expression is built; an
+ * empty query produces NO fragments — the caller skips FTS entirely and returns
+ * all rows. All expressions are fully parameterized (the dictionary and the user
+ * query travel as bindings), so user input can never inject SQL.
  *
- * Callers compose the fragments against their locale-resolved
- * `search_vector` / `content` expressions, e.g.:
+ * Callers compose the fragments against their locale-resolved `search_vector` /
+ * `content` expressions, e.g.:
  *
  *     $fts = new FtsQueryBuilder($dictionary, $search);
  *     $fts->selectRank($query, 'coalesce(pl.search_vector, pe.search_vector)')
@@ -61,8 +57,7 @@ final class FtsQueryBuilder
 
     /**
      * Whether any FTS fragment should be applied at all — false for
-     * empty/whitespace-only queries ("return all results", database.md:
-     * 691).
+     * empty/whitespace-only queries ("return all results").
      */
     public function isActive(): bool
     {
@@ -70,8 +65,8 @@ final class FtsQueryBuilder
     }
 
     /**
-     * The `plainto_tsquery(?, ?)` expression — the safe tokenization
-     * of arbitrary user input (database.md:651-658).
+     * The `plainto_tsquery(?, ?)` expression — the safe tokenization of
+     * arbitrary user input.
      */
     public function plainExpression(): string
     {
@@ -98,8 +93,7 @@ final class FtsQueryBuilder
     }
 
     /**
-     * The ts_rank expression with the 32 (document-length)
-     * normalization — database.md:659.
+     * The ts_rank expression with the 32 (document-length) normalization.
      */
     public function rankExpression(string $vectorExpression): string
     {
@@ -118,10 +112,9 @@ final class FtsQueryBuilder
     }
 
     /**
-     * The `headline()` snippet expression over the given content
-     * column — `ts_headline(?, {content}, plainto_tsquery(?, ?),
-     * 'MaxWords=50, MinWords=20, StartSel=<mark>, StopSel=</mark>')`
-     * (database.md:676-683).
+     * The `headline()` snippet expression over the given content column —
+     * `ts_headline(?, {content}, plainto_tsquery(?, ?),
+     * 'MaxWords=50, MinWords=20, StartSel=<mark>, StopSel=</mark>')`.
      */
     public function headlineExpression(string $contentExpression): string
     {
@@ -140,9 +133,8 @@ final class FtsQueryBuilder
     }
 
     /**
-     * Selects the highlighted snippet as an aliased column (the
-     * Inertia HTML search results carry it — the JSON variant returns
-     * raw values, ADR-0007).
+     * Selects the highlighted snippet as an aliased column (the Inertia HTML
+     * search results carry it — the JSON variant returns raw values).
      */
     public function selectHeadline(QueryBuilder $query, string $contentExpression, string $alias = 'fts_snippet'): self
     {
@@ -152,11 +144,10 @@ final class FtsQueryBuilder
     }
 
     /**
-     * The `autocomplete()` prefix form (database.md:662-675): the last
-     * word becomes a prefix (`:*`), with the CASE guard that falls
-     * back to the plain tsquery when `plainto_tsquery` produced an
-     * empty tsquery (stop-word-only input — `to_tsquery('english',
-     * ':*')` would be a syntax error).
+     * The `autocomplete()` prefix form: the last word becomes a prefix (`:*`),
+     * with the CASE guard that falls back to the plain tsquery when
+     * `plainto_tsquery` produced an empty tsquery (stop-word-only input —
+     * `to_tsquery('english', ':*')` would be a syntax error).
      */
     public function prefixMatches(string $vectorExpression): string
     {

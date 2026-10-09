@@ -23,18 +23,18 @@ use function is_file;
 use function is_readable;
 
 /**
- * The disaster-recovery import (backup.md:410-421): validates a
- * downloaded `.zip` against a raw offline-saved key, resolves the
- * matching stored key — `EncryptionKeyRepositoryInterface::findByValue()`
- * first (a key the archive was encrypted with may already exist in
+ * The disaster-recovery import: validates a downloaded `.zip` against a
+ * raw offline-saved key, resolves the matching stored key —
+ * `EncryptionKeyRepositoryInterface::findByValue()` first (a key the
+ * archive was encrypted with may already exist in
  * `backup_encryption_keys`, e.g. re-importing a backup downloaded from
  * this same instance — reusing it avoids the duplicate row), importing
  * the key only when no match exists (`is_active = false` — it serves
- * this backup only, never future creations; the naming convention
- * lives on `EncryptionKey::forImport()`), uploads the archive to the
- * `backups` bucket under the ADR-0018 `backup-import-...-k{id}--{name}.zip`
- * name and creates the `completed` `backups` record from the manifest.
- * The caller passes the returned entity to the restore flow (ADR-0018).
+ * this backup only, never future creations; the naming convention lives
+ * on `EncryptionKey::forImport()`), uploads the archive to the `backups`
+ * bucket under the `backup-import-...-k{id}--{name}.zip` name and
+ * creates the `completed` `backups` record from the manifest. The caller
+ * passes the returned entity to the restore flow.
  */
 final class ImportFromPathUseCase
 {

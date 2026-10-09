@@ -8,16 +8,15 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * Value object: the employment period of a timeline item
- * (database.md:292-293, check `ended_at IS NULL OR ended_at >
- * started_at` — an item must not end on or before the day it started,
- * ADR-0024). A null `ended_at` marks an ongoing position (`isCurrent()`,
- * database.md:303) — only the chronologically last item may be ongoing
+ * Value object: the employment period of a timeline item (check
+ * `ended_at IS NULL OR ended_at > started_at` — an item must not end on or
+ * before the day it started). A null `ended_at` marks an ongoing position
+ * (`isCurrent()`) — only the chronologically last item may be ongoing
  * (enforced by the store/update use cases). Immutable; the date-order
  * invariant lives here, not in the entity. `toPrettyRange()` renders the
- * year-level period for frontend output (the timeline card's period
- * line, public-section-ui.md:136) and `toDurationInYears()` the full
- * years worked — projections the entity re-exposes.
+ * year-level period for frontend output (the timeline card's period line)
+ * and `toDurationInYears()` the full years worked — projections the entity
+ * re-exposes.
  */
 final readonly class WorkPeriod
 {

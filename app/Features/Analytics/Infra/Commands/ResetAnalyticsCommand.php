@@ -8,12 +8,10 @@ use App\Features\Analytics\App\UseCases\ResetAnalyticsUseCase;
 use Illuminate\Console\Command;
 
 /**
- * `analytics:wipe` (analytics.md "Data deletion", manual testing aid):
- * deletes ALL raw events, daily metrics and reports — the "fresh
- * state" reset before manual analytics testing. Interactive terminals
- * get a confirmation prompt unless `--force` is given (the
- * ResetAdminPasswordCommand pattern); the command reports the
- * per-table deleted counts.
+ * `analytics:wipe` (manual testing aid): deletes ALL raw events, daily
+ * metrics and reports — the "fresh state" reset before manual analytics
+ * testing. Interactive terminals get a confirmation prompt unless
+ * `--force` is given; the command reports the per-table deleted counts.
  */
 final class ResetAnalyticsCommand extends Command
 {

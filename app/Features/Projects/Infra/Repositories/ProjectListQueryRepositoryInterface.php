@@ -12,7 +12,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * Infra-level read contract for the Projects lists — the cursor-
  * paginated admin list (with its filter bar and the JSON autocomplete
  * variant) and the public infinite-scroll page (with tag intersect +
- * FTS search + date/complexity sorts). Separate from the domain
+ * FTS search + date sort). Separate from the domain
  * {@see \App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface}
  * because these reads return query rows, not entities — the same
  * split as the Experience feature's list contract.
@@ -26,12 +26,11 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 interface ProjectListQueryRepositoryInterface
 {
     /**
-     * The filtered admin list query (admin-section-ui.md:327-346):
-     * locale-resolved rows (title with the `en` fallback) with the
-     * filter bar applied — title search `?q=`, the featured toggle,
-     * the tech-tag AND-intersect `?tags=`, the published status and
-     * the trashed view. The cursor pagination (order, seek, count) is
-     * applied by the shared paginator.
+     * The filtered admin list query: locale-resolved rows (title with
+     * the `en` fallback) with the filter bar applied — title search
+     * `?q=`, the featured toggle, the tech-tag AND-intersect `?tags=`,
+     * the published status and the trashed view. The cursor pagination
+     * (order, seek, count) is applied by the shared paginator.
      *
      * @return \Illuminate\Database\Query\Builder
      */
@@ -45,32 +44,29 @@ interface ProjectListQueryRepositoryInterface
 
     /**
      * The single admin list row of a project — the quick actions'
-     * response shape (ADR-0004, content-management.md:162) — or null when
-     * the project does not exist.
+     * response shape — or null when the project does not exist.
      *
      * @return object|null
      */
     public function findAdminRow(int $id): ?object;
 
     /**
-     * The featured projects of the admin list's reorder section
-     * (admin-section-ui.md:338) — `is_featured` rows of the live view,
-     * ordered by `featured_sort_order` then id (the same locale-
-     * resolved projection as the list rows).
+     * The featured projects of the admin list's reorder section —
+     * `is_featured` rows of the live view, ordered by
+     * `featured_sort_order` then id (the same locale-resolved
+     * projection as the list rows).
      *
      * @return object[]
      */
     public function findFeaturedRows(): array;
 
     /**
-     * The public projects page (content-management.md:125-129,
-     * public-section-ui.md:346-391): published (or all, in preview
-     * mode) projects ordered by the date strategy with the
+     * The public projects page: published (or all, in preview mode)
+     * projects ordered by the date strategy with the
      * `?direction=asc|desc` variant (`published_at {dir}, id {dir}` —
-     * `desc` default; the complexity strategy was removed 2026-08-16),
-     * with the optional tech-tag AND-intersect (`?tags=`), the optional
-     * FTS `?q=` search (plainto_tsquery + ts_rank, which takes over the
-     * ordering per database.md:651-660), and the opaque composite
+     * `desc` default), with the optional tech-tag AND-intersect
+     * (`?tags=`), the optional FTS `?q=` search (plainto_tsquery +
+     * ts_rank, which takes over the ordering), and the opaque composite
      * keyset cursor `(sort_value, id)` as the domain
      * {@see PublicPageCursor} VO.
      *
@@ -95,8 +91,7 @@ interface ProjectListQueryRepositoryInterface
 
     /**
      * Tech tags of the given projects via the pivot ↔ `skills` join,
-     * ordered for display (`skills.sort_order`, then id —
-     * content-management.md:79).
+     * ordered for display (`skills.sort_order`, then id).
      *
      * @param  int[]  $projectIds
      * @return array<int, array<int, TechSkillTag>>  Keyed by project ID.
@@ -113,12 +108,11 @@ interface ProjectListQueryRepositoryInterface
     public function screenshotsFor(array $projectIds): array;
 
     /**
-     * The JSON dual-response variant of `GET /projects` (routes.md:
-     * 199-212) — the autocomplete/search: length-aware
-     * (page/per_page with a total count) over the same locale-resolved
-     * projection, tag intersect and FTS search, ordered by the date
-     * strategy with the direction variant (`desc` default), or the FTS
-     * rank while searching.
+     * The JSON dual-response variant of `GET /projects` — the
+     * autocomplete/search: length-aware (page/per_page with a total
+     * count) over the same locale-resolved projection, tag intersect
+     * and FTS search, ordered by the date strategy with the direction
+     * variant (`desc` default), or the FTS rank while searching.
      *
      * @return array{rows: array<int, object>, total: int}
      */
@@ -133,10 +127,9 @@ interface ProjectListQueryRepositoryInterface
     ): array;
 
     /**
-     * The admin autocomplete JSON variant of `GET /admin/projects`
-     * (admin-section-ui.md:539-572): ILIKE title search over ALL
-     * locales, unpublished projects included, non-trashed only —
-     * length-aware rows plus the total.
+     * The admin autocomplete JSON variant of `GET /admin/projects`:
+     * ILIKE title search over ALL locales, unpublished projects
+     * included, non-trashed only — length-aware rows plus the total.
      *
      * @return array{rows: array<int, object>, total: int}
      */

@@ -8,24 +8,22 @@ use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * `POST /admin/blog` / `PUT /admin/blog/{article}`
- * (content-management.md:675-688): the shared fields plus the
- * per-locale translatable ones. `title` (min 3), `short_description`
- * and `content` (min 50) are required per active locale. The slug is
- * shape-validated here (kebab-case regex, max 200) — the DB-dependent
- * checks live in the store/update use cases via
- * `ArticleDraftValidator` (the ADR-0006 auto-generated value skips the
+ * `POST /admin/blog` / `PUT /admin/blog/{article}`: the shared fields
+ * plus the per-locale translatable ones. `title` (min 3),
+ * `short_description` and `content` (min 50) are required per active
+ * locale. The slug is shape-validated here (kebab-case regex, max 200)
+ * — the DB-dependent checks live in the store/update use cases via
+ * `ArticleDraftValidator` (the auto-generated value skips the
  * uniqueness rejection because the use case re-resolves it server-side
  * with a numeric collision suffix; a MANUAL override that collides is
- * rejected there, content-management.md:441-452).
+ * rejected there).
  *
  * Nested arrays: `tags` (article-tag ids), `skill_tags` (skill ids
  * attached via `article_skill_pivot`) and `related_articles`
  * (existing article ids — the published-target / already-linked /
- * not-self checks are the use cases' job, content-management.md:687).
- * The lead image is a RustFS path string (`nullable, string, max:255` —
- * the file checks are the upload endpoint's job,
- * content-management.md:798-811).
+ * not-self checks are the use cases' job). The lead image is a RustFS
+ * path string (`nullable, string, max:255` — the file checks are the
+ * upload endpoint's job).
  */
 final class StoreArticleRequest extends FormRequest
 {
@@ -60,10 +58,9 @@ final class StoreArticleRequest extends FormRequest
 
         $articleId = $this->route('article');
         if ($articleId !== null) {
-            // content-management.md:687 — an article cannot link to
-            // itself (the `related_articles` CHECK constraint backs
-            // it up at the DB level; the use-case validator re-checks
-            // it before the sync).
+            // An article cannot link to itself (the `related_articles`
+            // CHECK constraint backs it up at the DB level; the
+            // use-case validator re-checks it before the sync).
             $rules['related_articles.*'][] = 'not_in:'.$articleId;
         }
 

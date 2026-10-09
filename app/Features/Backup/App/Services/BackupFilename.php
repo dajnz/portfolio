@@ -13,16 +13,16 @@ use function sprintf;
  * The archive filename conventions: `backup-{Y-m-d-His}-k{id}--{name}.zip`
  * for created backups and `backup-import-{Y-m-d-His}-k{id}--{name}.zip`
  * for DR-imported archives. The `-k{id}` suffix identifies the
- * encryption key for offline decryption (backup.md:82); the `--{name}`
- * part appends the key's display name (the same name the admin sees in
- * the keys list / at generation time) so the offline-saved key entry —
- * name + raw value — maps back to the archive without consulting the
- * database. The name is sanitized to `[A-Za-z0-9._-]` runs (dashes for
- * anything else); it is for human readability only — key resolution is
- * always done from the record's `encryption_key_id`. The pending
- * `backups` row carries the final name — the create workflow produces
- * the archive with exactly this filename, so the record, the RustFS
- * object key and the offline artifact always agree.
+ * encryption key for offline decryption; the `--{name}` part appends the
+ * key's display name (the same name the admin sees in the keys list / at
+ * generation time) so the offline-saved key entry — name + raw value —
+ * maps back to the archive without consulting the database. The name is
+ * sanitized to `[A-Za-z0-9._-]` runs (dashes for anything else); it is
+ * for human readability only — key resolution is always done from the
+ * record's `encryption_key_id`. The pending `backups` row carries the
+ * final name — the create workflow produces the archive with exactly
+ * this filename, so the record, the RustFS object key and the offline
+ * artifact always agree.
  */
 final class BackupFilename
 {

@@ -14,11 +14,10 @@ use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepository
 use InvalidArgumentException;
 
 /**
- * Creates a skill in a group (content-management.md:592-594). Skill
- * names are not translatable and must be unique among other skills
- * (case-insensitive — probed via the repository's
- * {@see TechSkillWriteRepositoryInterface::skillNameExists()}). The
- * group's context ({@see SkillGroupVo}) is loaded via the repository.
+ * Creates a skill in a group. Skill names are not translatable and must
+ * be unique among other skills; the case-insensitive probe is
+ * {@see TechSkillWriteRepositoryInterface::skillNameExists()}. The
+ * group's context is loaded via the repository.
  */
 final class StoreSkillUseCase
 {

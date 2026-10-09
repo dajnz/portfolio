@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Features\Analytics\App\DTOs;
 
 /**
- * The top article of the email digest (analytics.md:217, ADR-0017, 11.3.5):
- * the `views` row with the `article:{id}` dimension carrying the most
- * views on the digest day, joined with its EN title from the reader.
+ * The top article of the email digest: the `views` row with the
+ * `article:{id}` dimension carrying the most views on the digest day,
+ * joined with its EN title from the reader.
  */
 final readonly class AnalyticsTopArticleDto
 {

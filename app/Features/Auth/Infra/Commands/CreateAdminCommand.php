@@ -9,13 +9,13 @@ use App\Features\Auth\Infra\Services\PasswordGenerator;
 use Illuminate\Console\Command;
 
 /**
- * `admin:create` — the sole path to initial credential creation
- * (authentication.md:369-407). Creates the single admin record (or, with
- * `--force`, overwrites the existing admin's login/email only — the
- * password is preserved and must be reset via `admin:reset-password`).
- * The password is a random 24-char string validated against the password
- * rules (uncompromised() with up to 10 retries). Credentials are output
- * to the terminal only — never persisted outside the bcrypt hash.
+ * `admin:create` — the sole path to initial credential creation. Creates
+ * the single admin record (or, with `--force`, overwrites the existing
+ * admin's login/email only — the password is preserved and must be reset
+ * via `admin:reset-password`). The password is a random 24-char string
+ * validated against the password rules (uncompromised() with up to 10
+ * retries). Credentials are output to the terminal only — never persisted
+ * outside the bcrypt hash.
  */
 final class CreateAdminCommand extends Command
 {
@@ -73,7 +73,6 @@ final class CreateAdminCommand extends Command
         }
 
         if ($existing !== null) {
-            // --force: overwrites login and email only — other fields are preserved.
             $this->repository->save($existing->updateCredentials($existing->toName(), (string) $email, (string) $login));
 
             $this->outputCredentialsBox('Admin account overwritten', (string) $login, 'unchanged', (string) $email);
@@ -81,8 +80,8 @@ final class CreateAdminCommand extends Command
             return self::SUCCESS;
         }
 
-        // The spec prompts for login + email only; the name column mirrors
-        // the login (single-admin account, no separate display name).
+        // The name column mirrors the login (single-admin account, no
+        // separate display name).
         $this->repository->create((string) $login, (string) $email, (string) $login, (string) $password);
 
         $this->outputCredentialsBox('Admin account created', (string) $login, (string) $password, (string) $email);

@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\Log;
  * with an optional `cursor[before]=1` marker for the previous page), and
  * the whitelist-resolved sort spec.
  *
- * Built from the HTTP request by the paginator; a `sort_column` that is
- * neither the id column nor a whitelisted column falls back to the id
- * sort with a warning (admin-section-ui.md:196).
+ * Built from the HTTP request by the paginator; a `sort_column` that is neither
+ * the id column nor a whitelisted column falls back to the id sort with a
+ * warning.
  */
 final readonly class PaginationRequest
 {
@@ -34,7 +34,7 @@ final readonly class PaginationRequest
      * @param  string[]  $allowedSortColumns  Columns the `sort_column` request param may select
      *                                        beyond the id column (which is always allowed).
      * @param  string|null  $defaultSortColumn  Sort column used when the request carries no
-     *                                          `sort_column` (default: the id column, ADR-0010).
+     *                                          `sort_column` (default: the id column).
      */
     public static function fromRequest(Request $request, array $allowedSortColumns, string $idColumn, ?string $defaultSortColumn = null): self
     {

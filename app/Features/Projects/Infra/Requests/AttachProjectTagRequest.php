@@ -7,9 +7,9 @@ namespace App\Features\Projects\Infra\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * `POST /admin/projects/{project}/tags` (content-management.md:160):
- * `{ skill_id: number }` — the skill must exist; a duplicate
- * attachment surfaces as a 409 via the domain exception.
+ * `POST /admin/projects/{project}/tags`: `{ skill_id: number }` — the
+ * skill must exist; a duplicate attachment surfaces as a 409 via the
+ * domain exception.
  */
 final class AttachProjectTagRequest extends FormRequest
 {

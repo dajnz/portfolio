@@ -9,10 +9,10 @@ use League\CommonMark\Delimiter\Processor\DelimiterProcessorInterface;
 use League\CommonMark\Node\Inline\AbstractStringContainer;
 
 /**
- * The `++text++` underline delimiter processor of the content pipeline
- * (ADR-0024) — the same scheme as the strike processor, with the `+`
- * delimiter and a minimum run of 2. Runs of other lengths stay
- * literal (no pairing), so "C++" and friends are never consumed.
+ * The `++text++` underline delimiter processor of the content pipeline — the
+ * same scheme as the strike processor, with the `+` delimiter and a minimum run
+ * of 2. Runs of other lengths stay literal (no pairing), so "C++" and friends
+ * are never consumed.
  */
 final class UnderlineDelimiterProcessor implements DelimiterProcessorInterface
 {

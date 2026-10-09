@@ -13,18 +13,15 @@ use function config;
 use function is_string;
 
 /**
- * The RustFS bucket enumerator (backup.md:340-352): calls
- * `ListObjectsV2` with continuation-token pagination (max 1000 keys
- * per request) and returns every object key of the given bucket — no
- * DB introspection. The bucket name selects the disk whose configured
- * bucket matches (`portfolio` → `rustfs`, `backups` → `rustfs-backups`),
- * so the correct credentials are used per bucket.
+ * The RustFS bucket enumerator: calls `ListObjectsV2` with
+ * continuation-token pagination (max 1000 keys per request) and returns
+ * every object key of the given bucket — no DB introspection. The bucket
+ * name selects the disk whose configured bucket matches (`portfolio` →
+ * `rustfs`, `backups` → `rustfs-backups`), so the correct credentials
+ * are used per bucket.
  */
 final class RustFsAssetPathCollector implements AssetPathCollectorInterface
 {
-    /**
-     * Max keys per `ListObjectsV2` request (backup.md:348).
-     */
     private const MAX_KEYS_PER_REQUEST = 1000;
 
     public function __construct(
@@ -62,9 +59,6 @@ final class RustFsAssetPathCollector implements AssetPathCollectorInterface
         return $paths;
     }
 
-    /**
-     * The disk configured with the given bucket name.
-     */
     private function diskNameFor(string $bucket): string
     {
         foreach (array_keys(config('filesystems.disks')) as $diskName) {

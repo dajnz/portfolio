@@ -11,8 +11,7 @@ use App\Features\Shared\App\BaseUseCase;
 /**
  * GitHub OAuth login intent (`oauth_intent = 'login'`): resolves the admin
  * by GitHub ID and either authenticates, enters the half-auth TOTP state,
- * or reports that no account is linked (authentication.md:131-144).
- * GitHub OAuth never bypasses TOTP.
+ * or reports that no account is linked. GitHub OAuth never bypasses TOTP.
  */
 final class HandleGithubCallbackUseCase extends BaseUseCase
 {

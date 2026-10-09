@@ -7,9 +7,9 @@ namespace App\Features\Blog\Domain\Entities;
 use InvalidArgumentException;
 
 /**
- * A per-locale article-tag name (database.md:377-384): locale + name,
- * name mandatory and limited to 100 chars. Value object: immutable,
- * no identity — the `(article_tag_id, locale)` pair identifies the row.
+ * A per-locale article-tag name: locale + name, name mandatory and
+ * limited to 100 chars. Value object: immutable, no identity — the
+ * `(article_tag_id, locale)` pair identifies the row.
  */
 final readonly class ArticleTagTranslation
 {

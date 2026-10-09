@@ -12,9 +12,9 @@ use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
 
 /**
  * The single admin list item after a quick action (publish/unpublish,
- * related attach/detach, skill attach/detach — content-management.md:
- * 255): the mutations run through their own use cases, this one
- * re-reads the row so the list updates without a reload.
+ * related attach/detach, skill attach/detach): the mutations run
+ * through their own use cases, this one re-reads the row so the list
+ * updates without a reload.
  */
 final class GetArticleListItemUseCase
 {

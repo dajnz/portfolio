@@ -8,35 +8,33 @@ use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\Entities\TechSkillGroup;
 
 /**
- * Write side of the tech skills domain (content-management.md:81):
- * admin CRUD + reordering over the shared Eloquent models
- * (`SkillModel`, `SkillGroupModel`, `SkillGroupTranslationModel`).
- * Reads are owned by `Shared`'s `TechSkillReadRepositoryInterface`;
- * the entities are the shared domain ones.
+ * Write side of the tech skills domain: admin CRUD + reordering over the
+ * shared Eloquent models (`SkillModel`, `SkillGroupModel`,
+ * `SkillGroupTranslationModel`). Reads are owned by `Shared`'s
+ * `TechSkillReadRepositoryInterface`; the entities are the shared domain
+ * ones.
  */
 interface TechSkillWriteRepositoryInterface
 {
     /**
      * All groups with their skills and translations, sorted by group
-     * `sort_order` then skill `sort_order` (database.md:167-style order).
+     * `sort_order` then skill `sort_order`.
      *
      * @return TechSkillGroup[]
      */
     public function findAllGroups(): array;
 
     /**
-     * A single group with its per-locale names (skills not loaded) —
-     * used to build the {@see SkillGroupVo} context for new/updated
-     * skills.
+     * A single group with its per-locale names (skills not loaded) — used
+     * to build the group context object for new/updated skills.
      */
     public function findGroupById(int $id): ?TechSkillGroup;
 
     /**
-     * Case-insensitive existence probe for a skill name
-     * (content-management.md:592): the DB `skills.name` unique
-     * constraint is case-sensitive, so the check lives here. When
-     * `$ignoreId` is set, that row is excluded (the skill being
-     * updated).
+     * Case-insensitive existence probe for a skill name: the DB
+     * `skills.name` unique constraint is case-sensitive, so the check
+     * lives here. When `$ignoreId` is set, that row is excluded (the skill
+     * being updated).
      */
     public function skillNameExists(string $name, ?int $ignoreId = null): bool;
 
@@ -46,7 +44,7 @@ interface TechSkillWriteRepositoryInterface
 
     /**
      * Applies the zero-indexed positions of the `{ "ids": [...] }`
-     * payload (ADR-0005) — group IDs in the new drag order.
+     * payload — group IDs in the new drag order.
      *
      * @param  int[]  $ids
      */
@@ -57,7 +55,7 @@ interface TechSkillWriteRepositoryInterface
     public function deleteSkill(int $id): void;
 
     /**
-     * Applies the ADR-0005 skills reorder payload `{ "skills": [{ "id",
+     * Applies the skills reorder payload `{ "skills": [{ "id",
      * "skill_group_id" }] }` (drag order): each skill's array position
      * becomes `sort_order` and the submitted `skill_group_id` becomes its
      * new group (cross-group moves included).

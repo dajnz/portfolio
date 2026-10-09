@@ -19,20 +19,18 @@ use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 use Illuminate\Support\Facades\Config;
 
 /**
- * The public blog index (public-section-ui.md:209-238,
- * content-management.md:194-205): published, non-trashed articles
- * ordered `published_at DESC, id DESC` with infinite scroll via the
- * opaque composite cursor, the `?article_tags=` / `?skill_tags=`
- * AND-intersects (ADR-0004), the `?year=` filter and the FTS `?q=` search
- * (plainto_tsquery + ts_rank — the search takes over the ordering
- * per database.md:651-660, with the `ts_headline` snippet on the
- * HTML variant — ADR-0007).
+ * The public blog index: published, non-trashed articles ordered
+ * `published_at DESC, id DESC` with infinite scroll via the opaque
+ * composite cursor, the `?article_tags=` / `?skill_tags=`
+ * AND-intersects, the `?year=` filter and the FTS `?q=` search
+ * (plainto_tsquery + ts_rank — the search takes over the ordering,
+ * with the `ts_headline` snippet on the HTML variant).
  *
- * Every request returns a superset of earlier positions (seo.md:305):
- * the initial batch unconditionally, then all batches up to and
- * including the one containing the cursor item, then one batch beyond
- * it. `next_cursor` is null whenever the final batch is incomplete
- * (fewer than `perPage` rows — the exhaustion signal).
+ * Every request returns a superset of earlier positions: the initial
+ * batch unconditionally, then all batches up to and including the one
+ * containing the cursor item, then one batch beyond it. `next_cursor`
+ * is null whenever the final batch is incomplete (fewer than `perPage`
+ * rows — the exhaustion signal).
  *
  * The rows and the resolved tag names are converted to the app-layer
  * DTOs here; the controller only prepares its output shapes.
@@ -67,9 +65,9 @@ final class GetPublicBlogIndexUseCase
     }
 
     /**
-     * The JSON dual-response variant (routes.md:199-212) — length-aware
-     * pagination, the prefix autocomplete search, the tag intersects
-     * and the year filter; raw field values without highlights (ADR-0007).
+     * The JSON dual-response variant — length-aware pagination, the
+     * prefix autocomplete search, the tag intersects and the year
+     * filter; raw field values without highlights.
      */
     public function jsonPage(PublicBlogListQuery $query): PaginatedPublicBlogListDto
     {
@@ -271,7 +269,7 @@ final class GetPublicBlogIndexUseCase
 
     /**
      * The batch's last item sort value — the cursor payload for the
-     * next request (public-section-ui.md:316-327).
+     * next request.
      */
     private function sortValueOf(object $row, bool $searching): string
     {

@@ -8,14 +8,14 @@ use InvalidArgumentException;
 
 /**
  * A single localized row of `project_translations` (PK
- * `(project_id, locale)` — database.md:218-232): the identity fields
- * (mandatory title + brief description) and the Markdown content fields
- * (`full_description`, `problem`, `solution` — all nullable). Immutable;
- * carries no identity of its own.
+ * `(project_id, locale)`): the identity fields (mandatory title + brief
+ * description) and the Markdown content fields (`full_description`,
+ * `problem`, `solution` — all nullable). Immutable; carries no identity
+ * of its own.
  *
  * Invariants:
  * - `title` and `brief_description` are mandatory — the only required
- *   columns (content-management.md:626-627, both NOT NULL in the DB);
+ *   columns (both NOT NULL in the DB);
  * - `locale` must be a non-empty string (the `en|ru` policy lives in
  *   the form request, which also enforces the active-locale rules);
  * - empty-string content fields normalize to null (the DB columns are
