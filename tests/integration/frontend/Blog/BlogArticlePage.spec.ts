@@ -221,8 +221,7 @@ describe('BlogArticlePage', () => {
             'Copied!',
         );
 
-        // The copy state change is announced via a polite status region
-        // (accessibility.md dynamic regions).
+        // The copy state change is announced via a polite status region.
         const status = codeBlock.get('[data-testid="blog-article-page-content-code-0-copy-status"]');
         expect(status.attributes('role')).toBe('status');
         expect(status.attributes('aria-live')).toBe('polite');
@@ -325,7 +324,6 @@ describe('BlogArticlePage', () => {
         expect(
             wrapper.find('[data-testid="blog-article-page-content-reactions"]').exists(),
         ).toBe(false);
-        // The views stat still renders.
         expect(wrapper.text()).toContain('Views: 142');
     });
 
@@ -337,7 +335,6 @@ describe('BlogArticlePage', () => {
         expect(related.get('h2').text()).toBe('Related Articles');
         const card = related.get('[data-testid="blog-article-page-related-card-2"]');
         expect(card.get('a.article-card__link').attributes('href')).toBe('/blog/cursor-pagination');
-        // Compact variant: no image.
         expect(card.find('img').exists()).toBe(false);
 
         const empty = mountPage({ article: { ...ARTICLE, related: [] } });

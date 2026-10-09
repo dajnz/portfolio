@@ -1,8 +1,8 @@
 import type { Page } from '@playwright/test';
 
 /**
- * Dynamic-testid locators (testing.md:387 — lists append the runtime id,
- * e.g. `article-card-${article.id}`). When the id is not known statically,
+ * Dynamic-testid locators: lists append the runtime id, e.g.
+ * `article-card-${article.id}`. When the id is not known statically,
  * tests resolve the element through its testid prefix instead of a CSS
  * class or tag selector — the DOM attribute stays the only locator input.
  */
@@ -31,7 +31,6 @@ export async function testidOfCardWithText(page: Page, prefix: string, text: str
     return null;
 }
 
-/** Types into an autocomplete input and clicks the first suggestion. */
 export async function pickFirstSuggestion(page: Page, inputTestId: string, query: string): Promise<void> {
     const input = page.getByTestId(inputTestId);
 

@@ -121,7 +121,7 @@ describe('PublicSearchAutocomplete', () => {
         });
 
         // The fixed lowercase label + numeric date carry no month names
-        // and no translation keys (user rework 2026-08-16).
+        // and no translation keys.
         expect(wrapper.get('.search-autocomplete__result-meta').text()).toBe(
             'published: 15.06.2026',
         );

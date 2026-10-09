@@ -10,11 +10,6 @@ use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 use Tests\Support\ImageFixtures;
 
-/**
- * The upload WebP pipeline (content-management.md "Image Processing"):
- * decode with the EXIF auto-orientation, downscale to the configured
- * largest-side limit, encode a metadata-free WebP at 85% quality.
- */
 function makeUploadedImageProcessor(): UploadedImageProcessor
 {
     return new UploadedImageProcessor(new ImageManager(new Driver()));

@@ -11,12 +11,6 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use ValueError;
 
-/**
- * The reworked `analytics_reports` row entity (database.md:531-548,
- * ADR-0017): per-metric aggregates over the daily metrics for one span —
- * ordered period bounds, finite value, dimension within the
- * varchar(500) column — plus the `fromRow()` row materialization.
- */
 describe('AnalyticsReport', function (): void {
     it('exposes the stored fields', function (): void {
         $report = new AnalyticsReport(

@@ -3,10 +3,8 @@ import { expect, test } from '@playwright/test';
 import { reportAdminAxeWarnings } from '../fixtures/audit';
 
 /**
- * The admin dashboard (testing.md:490): the four stat cards render with
- * values (no skeleton/error state) and the quick links point at the
- * matching admin sections. Content-count assertions are avoided — other
- * admin specs publish content in parallel.
+ * Content-count assertions are avoided — other admin specs publish
+ * content in parallel.
  */
 test.describe('admin dashboard', () => {
     test('loads the stat cards and quick links', async ({ page }, testInfo) => {

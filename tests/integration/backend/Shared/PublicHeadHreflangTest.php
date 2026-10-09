@@ -12,10 +12,10 @@ beforeEach(function (): void {
 
 /**
  * The hreflang `<link rel="alternate">` block every public page renders
- * in the `<head>` (seo.md:246-256): locale-prefixed variants of the
- * slashless canonical URL plus the `x-default`, derived in the root view
- * from the shared `supported_locales` prop. `useSeoUpdater` renders the
- * same set client-side (its unit spec covers the parity).
+ * in the `<head>`: locale-prefixed variants of the slashless canonical
+ * URL plus the `x-default`, derived in the root view from the shared
+ * `supported_locales` prop. `useSeoUpdater` renders the same set
+ * client-side (its unit spec covers the parity).
  */
 describe('Public head hreflang alternates', function (): void {
     it('renders locale alternates and the x-default for a nested public path', function (): void {

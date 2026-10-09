@@ -78,7 +78,7 @@ describe('DataTable', () => {
         expect(wrapper.emitted('update:sort_direction')).toEqual([['asc'], ['desc']]);
         expect(wrapper.emitted('update:sort_column')).toHaveLength(1);
 
-        // desc → asc — there is no unsorted state anymore.
+        // desc → asc — no unsorted state.
         await wrapper.setProps({ sort_column: 'name', sort_direction: 'desc' });
         await header.trigger('click');
         expect(wrapper.emitted('update:sort_column')).toEqual([['name']]);

@@ -20,19 +20,12 @@ use Tests\Support\Traits\OpenApiContractAssertions;
 
 uses(OpenApiContractAssertions::class, InteractsWithAdmin::class);
 
-/*
-|--------------------------------------------------------------------------
-| OpenAPI contract suite (step 2.7, testing.md:200)
-|--------------------------------------------------------------------------
-|
-| For every operation in docs/openapi/openapi.yaml a real request is sent
-| and the response status/body is validated against the operation's
-| declared responses via league/openapi-psr7-validator. Operations whose
-| endpoints do not exist yet are asserted as 404 + `{message}` envelope
-| until their feature step lands (see `self::scenarios()`).
-| Inertia pages are excluded — validated via vue-tsc and Spectral separately.
-|
-*/
+/**
+ * For every operation in docs/openapi/openapi.yaml a real request is sent
+ * and the response status/body is validated against the operation's
+ * declared responses via league/openapi-psr7-validator. Inertia pages are
+ * excluded — validated via vue-tsc and Spectral separately.
+ */
 
 beforeEach(function (): void {
     Storage::fake('rustfs');
@@ -181,7 +174,7 @@ it('validates the trackEvents responses against the spec', function (): void {
         ['event_type' => 'page_view', 'session_id' => 'contract-session'],
     ], $browserHeaders));
 
-    // 422: an invalid event item rejects the whole batch (ADR-0017).
+    // 422: an invalid event item rejects the whole batch.
     $this->assertConformsToSpec('trackEvents', 1, $this->postJson('/api/analytics/track', [
         ['event_type' => str_repeat('x', 101), 'session_id' => 'contract-session'],
     ], $browserHeaders));

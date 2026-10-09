@@ -1,10 +1,5 @@
 import { expect, test } from '@playwright/test';
 
-/**
- * The public feedback form (testing.md:481): a valid submission shows
- * the success state, an empty submission surfaces the validation
- * errors, and a honeypot-filled submission is silently rejected.
- */
 test.describe('feedback form', () => {
     test('submits a valid message and shows the success state', async ({ page }) => {
         await page.addInitScript(() => {

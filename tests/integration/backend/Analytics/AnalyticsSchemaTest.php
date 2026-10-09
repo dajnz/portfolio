@@ -8,12 +8,11 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The 11.3.1 schema (database.md:513-548) on real PostgreSQL: the
- * `analytics_reports` span CHECK, both unique keys — including the
- * NULL dimension rows, which PostgreSQL treats as distinct by default
- * and would let duplicate global rows through (the `NULLS NOT
- * DISTINCT` unique constraints below prevent that) — and the removed
- * `analytics_report_frequency` setting (ADR-0017).
+ * The analytics schema on real PostgreSQL: the `analytics_reports` span
+ * CHECK, both unique keys — including the NULL dimension rows, which
+ * PostgreSQL treats as distinct by default and would let duplicate
+ * global rows through (the `NULLS NOT DISTINCT` unique constraints
+ * below prevent that).
  */
 describe('Analytics schema', function (): void {
     it('rejects an analytics_reports span outside the CHECK list', function (): void {

@@ -16,19 +16,16 @@ use App\Features\Portfolio\Infra\Models\FeedbackModel;
 use DateTimeImmutable;
 
 /**
- * The report rebuild on real PostgreSQL (analytics.md:186-212, ADR-0017):
- * `rebuild()` produces the full span matrix from the stored daily
- * metrics (calendar bucketing incl. the week/year boundaries, the
- * weighted aggregation, the whole-time `all` rows); the full-rebuild
- * path deletes the metric rows for the still-present event window,
- * re-aggregates them from the oldest event → today (plus the FULL
- * feedback history — feedback rows are never pruned), keeps the
- * metrics older than the event window, and rebuilds the reports.
+ * The report rebuild on real PostgreSQL: `rebuild()` produces the full
+ * span matrix from the stored daily metrics (calendar bucketing incl.
+ * the week/year boundaries, the weighted aggregation, the whole-time
+ * `all` rows); the full-rebuild path deletes the metric rows for the
+ * still-present event window, re-aggregates them from the oldest event →
+ * today (plus the FULL feedback history — feedback rows are never
+ * pruned), keeps the metrics older than the event window, and rebuilds
+ * the reports.
  */
 
-/**
- * Builds a daily-metrics row entity for the rebuild fixtures.
- */
 function rebuildMetric(
     string $date,
     float $value,
@@ -301,7 +298,6 @@ describe('RebuildReportsJob full rebuild (integration)', function (): void {
 
         runFullRebuildJob();
 
-        // The pre-window metrics are kept and the feedback row exists.
         $kept = $metrics->rowsBetween(
             metric: MetricName::PageViews,
             dateFrom: new DateTimeImmutable('2026-06-01'),

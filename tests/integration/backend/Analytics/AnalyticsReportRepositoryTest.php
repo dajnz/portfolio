@@ -12,11 +12,11 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * `analytics_reports` persistence (database.md:531-548, ADR-0017) on real
- * PostgreSQL: the (metric, span, dimension, period_start, period_end)
- * upsert — incl. the NULL dimension rows (NULLS NOT DISTINCT unique
- * key) — and the dashboard read shapes: whole-time blocks, last-N
- * series, top/bottom rankings and the available spans per metric.
+ * `analytics_reports` persistence on real PostgreSQL: the (metric, span,
+ * dimension, period_start, period_end) upsert — incl. the NULL
+ * dimension rows (NULLS NOT DISTINCT unique key) — and the dashboard
+ * read shapes: whole-time blocks, last-N series, top/bottom rankings
+ * and the available spans per metric.
  */
 describe('EloquentAnalyticsReportRepository', function (): void {
     beforeEach(function (): void {
@@ -190,9 +190,6 @@ describe('EloquentAnalyticsReportRepository', function (): void {
     });
 });
 
-/**
- * Builds a report row entity for the repository round-trips.
- */
 function analyticsReport(
     string $metric,
     MetricSpan $span,

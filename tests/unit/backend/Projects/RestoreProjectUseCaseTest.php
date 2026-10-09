@@ -10,12 +10,12 @@ use Tests\Support\Fakes\FakeCountCacheInvalidator;
 use Tests\Support\Fakes\FakeProjectRepository;
 
 /**
- * The restore slug-uniqueness re-check (ADR-0006, content-management.md:901)
- * — single and bulk, with the batched reads (one slugs read + one
- * occupied-subset read). The conflict state cannot arise through the
- * HTTP surface (the DB unique index covers trashed rows — soft-deleted
- * entities occupy their slug — so an active project can never hold a
- * trashed project's slug), hence the repository fake.
+ * The restore slug-uniqueness re-check — single and bulk, with the
+ * batched reads (one slugs read + one occupied-subset read). The
+ * conflict state cannot arise through the HTTP surface: the DB unique
+ * index covers trashed rows (soft-deleted entities occupy their slug),
+ * so an active project can never hold a trashed project's slug — hence
+ * the repository fake.
  */
 describe('RestoreProjectUseCase', function (): void {
     it('rejects a single restore when the slug is occupied by an active project', function (): void {

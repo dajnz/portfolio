@@ -107,7 +107,7 @@ async function flush(): Promise<void> {
 /**
  * The unified endpoint returns matches with the `type` discriminator —
  * article tags and skills share the pill state but travel in separate
- * query parameters (content-management.md:198-200).
+ * query parameters.
  */
 function stubUnifiedTagSearch(): ReturnType<typeof vi.fn> {
     const fetchMock = vi.fn().mockResolvedValue(
@@ -195,8 +195,8 @@ describe('BlogIndexPage', () => {
         const blogNav = wrapper.get('[data-testid="public-header-nav-/blog"]');
         expect(blogNav.classes()).toContain('is-active');
         expect(blogNav.attributes('aria-current')).toBe('page');
-        // ADR-0025: the Projects link renders only when a published project
-        // exists (the `has_projects` signal, ADR-0004).
+        // The Projects link renders only when a published project exists
+        // (the `has_projects` signal).
         expect(wrapper.find('[data-testid="public-header-nav-/projects"]').exists()).toBe(true);
     });
 
@@ -406,7 +406,7 @@ describe('BlogIndexPage', () => {
         await flush();
 
         // Both pills hydrate: the article tag from the `tags` prop, the
-        // skill pill from the batch card's skill_tags (ADR-0025).
+        // skill pill from the batch card's skill_tags.
         const articlePill = wrapper.get('[data-testid="blog-page-header-tags-pill-0"]');
         expect(articlePill.text()).toContain('Vue');
         const skillPill = wrapper.get('[data-testid="blog-page-header-tags-pill-1"]');
@@ -485,7 +485,7 @@ describe('BlogIndexPage', () => {
         expect(overflow.text()).toBe('+5');
 
         // List mode raises the cap to 5 (the combined article + skill
-        // list, in the mockup's order).
+        // list).
         await wrapper.get('[data-testid="blog-page-header-view-list"]').trigger('click');
         await flush();
 

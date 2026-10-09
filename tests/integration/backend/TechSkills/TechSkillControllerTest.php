@@ -121,8 +121,8 @@ describe('TechSkillController', function (): void {
 
         $group = SkillGroupModel::factory()->create();
 
-        // The tag↔skill cross-check belongs to the article-tag side (8.1):
-        // a skill name may legitimately repeat an article tag name.
+        // The tag↔skill cross-check belongs to the article-tag side: a
+        // skill name may legitimately repeat an article tag name.
         $tagId = DB::table('article_tags')->insertGetId(['slug' => 'tips']);
         DB::table('article_tag_translations')->insert([
             ['article_tag_id' => $tagId, 'locale' => 'en', 'name' => 'Laravel Tips'],
@@ -234,7 +234,7 @@ describe('TechSkillController', function (): void {
             ->assertSessionHasNoErrors();
 
         // The batched write fires no model events — the explicit stamp
-        // bump is what rotates the resume content hash (step 10.1).
+        // bump is what rotates the resume content hash.
         expect(SkillModel::query()->find($a->id)->updated_at->isAfter($stale))->toBeTrue()
             ->and(SkillModel::query()->find($b->id)->updated_at->isAfter($stale))->toBeTrue();
     });

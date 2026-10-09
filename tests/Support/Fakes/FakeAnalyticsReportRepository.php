@@ -12,10 +12,10 @@ use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepository
 /**
  * In-memory `AnalyticsReportRepositoryInterface` double: records the
  * replaced/upserted rows (the rebuild suite) and serves the dashboard
- * read shapes from the seeded rows (the 11.3.4 use-case suites) —
- * blocks, last-N series (with the optional dimension filter), the
- * top/bottom rankings (with the optional dimension-prefix filter), the
- * whole-time dimension rows and the cumulative day fold.
+ * read shapes from the seeded rows — blocks, last-N series (with the
+ * optional dimension filter), the top/bottom rankings (with the optional
+ * dimension-prefix filter), the whole-time dimension rows and the
+ * cumulative day fold.
  */
 final class FakeAnalyticsReportRepository implements AnalyticsReportRepositoryInterface
 {

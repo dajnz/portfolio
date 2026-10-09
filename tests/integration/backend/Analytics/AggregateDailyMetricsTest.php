@@ -23,14 +23,13 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Mail;
 
 /**
- * The per-day metrics aggregation on real PostgreSQL (analytics.md:158-184,
- * ADR-0017): seeding `analytics_events` + `feedback` rows and running the
- * use case must produce exactly the catalog rows per day — the
- * weighted sum/samples pair, min/max, the per-dimension rows (CTA
- * targets, page URLs, `article:{id}`, `project:{id}`), the distinct-IP
- * visitors — with the upsert idempotence (re-running a day overwrites)
- * and the in-progress-day refresh; the job also dispatches the report
- * rebuild.
+ * The per-day metrics aggregation on real PostgreSQL: seeding
+ * `analytics_events` + `feedback` rows and running the use case must
+ * produce exactly the catalog rows per day — the weighted sum/samples
+ * pair, min/max, the per-dimension rows (CTA targets, page URLs,
+ * `article:{id}`, `project:{id}`), the distinct-IP visitors — with the
+ * upsert idempotence (re-running a day overwrites) and the
+ * in-progress-day refresh; the job also dispatches the report rebuild.
  */
 
 function dailyMetricsPeriod(): ReportPeriod

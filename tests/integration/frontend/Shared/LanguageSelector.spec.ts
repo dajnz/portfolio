@@ -41,7 +41,7 @@ describe('LanguageSelector', () => {
         });
 
         expect(wrapper.get('[data-testid="language-selector-button"]').text()).toBe('RU');
-        // The current language is part of the accessible name (a11y 13.6 #5).
+        // The current language is part of the accessible name.
         expect(wrapper.get('[data-testid="language-selector-button"]').attributes('aria-label')).toBe(
             'Switch language: Русский',
         );

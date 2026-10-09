@@ -25,19 +25,8 @@ use Tests\Support\Fakes\FakeAnalyticsEventRepository;
 use Tests\Support\Fakes\FakeAnalyticsReportDataReader;
 
 /**
- * The per-day aggregation (analytics.md:158-180, ADR-0017): the full
- * metric catalog computed from a day's events (+ feedback rows) — the
- * weighted sum/samples pair, the min/max rows, the per-dimension rows
- * (CTA targets, page URLs, `article:{id}`, `project:{id}`), the
- * distinct-ip visitors and the feedback submissions count — all
- * upserted via the daily-metric repository. The day boundaries are
- * server-local; a range spans several days, each aggregated
- * independently.
- */
-
-/**
  * The shared single-day fixture: the events mirror the real frontend
- * payloads (ADR-0017 — the page context is the attribution source).
+ * payloads (the page context is the attribution source).
  *
  * @return list<\App\Features\Analytics\Domain\Entities\AnalyticsEvent>
  */

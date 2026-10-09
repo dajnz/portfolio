@@ -8,7 +8,6 @@ import { expect, type Page } from '@playwright/test';
  * project only after the admin project finished).
  */
 
-/** A unique human-readable token for one test-run instance. */
 export function unique(label: string): string {
     return `${label}-${Date.now().toString(36)}`;
 }
@@ -52,7 +51,6 @@ export async function rowIdByText(
     );
 }
 
-/** The `<tr>` that carries the row checkbox with the given id. */
 export function rowLocator(page: Page, pageTestId: string, id: number) {
     return page.locator(`tr:has([data-testid="${pageTestId}-table-row-${id}"])`);
 }

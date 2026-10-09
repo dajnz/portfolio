@@ -9,11 +9,11 @@ use App\Features\Analytics\Infra\Models\AnalyticsEventModel;
 use App\Features\Analytics\Infra\Models\AnalyticsReportModel;
 
 /**
- * `analytics:wipe` (analytics.md "Data deletion", manual testing aid):
- * deletes ALL raw events, daily metrics and reports — the "fresh
- * state" reset. Interactive terminals get a confirmation prompt
- * (skipped by `--force`, the ResetAdminPasswordCommand pattern); the
- * command reports the per-table deleted counts.
+ * `analytics:wipe` (manual testing aid): deletes ALL raw events, daily
+ * metrics and reports — the "fresh state" reset. Interactive terminals
+ * get a confirmation prompt (skipped by `--force`, the
+ * ResetAdminPasswordCommand pattern); the command reports the per-table
+ * deleted counts.
  */
 describe('analytics:wipe command', function (): void {
     it('deletes every analytics event, metric and report row with --force', function (): void {

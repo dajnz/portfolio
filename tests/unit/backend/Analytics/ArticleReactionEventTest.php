@@ -10,9 +10,6 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use Tests\Support\AnalyticsEventFixture;
 
-/**
- * The `article_reaction` event invariants (analytics.md:26): article id and the reaction value.
- */
 describe('ArticleReactionEvent', function (): void {
     it('rejects a non-positive article id', function (): void {
         expect(fn () => new ArticleReactionEvent(

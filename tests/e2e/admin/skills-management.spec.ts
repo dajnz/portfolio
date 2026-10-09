@@ -3,11 +3,10 @@ import { expect, test } from '@playwright/test';
 import { unique } from '../fixtures/admin';
 
 /**
- * The skills admin surface (testing.md:494). The tests are serial and
- * share the created group: the first creates a group with a skill and
- * verifies the landing page, the second moves the group up, the last
- * deletes it — the public project (which runs after the admin project)
- * still sees the seeded groups.
+ * The tests are serial and share the created group: the first creates a
+ * group with a skill and verifies the landing page, the second moves the
+ * group up, the last deletes it — the public project (which runs after
+ * the admin project) still sees the seeded groups.
  */
 test.describe.configure({ mode: 'serial' });
 
@@ -37,7 +36,6 @@ test.describe('skills management', () => {
         expect(newGroupId).not.toBeNull();
         await expect(page.getByTestId(`skills-list-page-group-${newGroupId}`)).toContainText(groupEn);
 
-        // Add a skill into the new group.
         await page.getByTestId(`skills-list-page-group-${newGroupId}-add-skill`).click();
         await page.getByTestId(`skills-list-page-new-skill-${newGroupId}-name`).fill(token);
         await page.getByTestId(`skills-list-page-new-skill-${newGroupId}-proficiency`).click();
@@ -46,7 +44,6 @@ test.describe('skills management', () => {
 
         await expect(page.getByTestId(`skills-list-page-group-${newGroupId}`)).toContainText(token);
 
-        // The landing page renders the new group and its skill.
         await page.goto('/');
         const skillsBlock = page.getByTestId('landing-skills-block');
 

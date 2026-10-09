@@ -6,19 +6,14 @@ namespace Tests\Integration\Backend\OpenApi;
 
 use Tests\Support\Traits\InteractsWithAdmin;
 
-/*
-|--------------------------------------------------------------------------
-| Swagger UI (step 2.7, openapi.md:269-275)
-|--------------------------------------------------------------------------
-|
-| GET /docs/api is served by l5-swagger in the local environment only,
-| behind the auth + admin middleware (`swagger.local` alias). The docs JSON
-| it serves is the dereferenced docs/openapi/openapi.yaml written by
-| SwaggerUiService. The local environment is simulated per test via
-| `detectEnvironment()` — the routes are registered unconditionally and the
-| gate runs at request time.
-|
-*/
+/**
+ * GET /docs/api is served by l5-swagger in the local environment only,
+ * behind the auth + admin middleware (`swagger.local` alias). The docs JSON
+ * it serves is the dereferenced docs/openapi/openapi.yaml written by
+ * SwaggerUiService. The local environment is simulated per test via
+ * `detectEnvironment()` — the routes are registered unconditionally and the
+ * gate runs at request time.
+ */
 
 uses(InteractsWithAdmin::class);
 

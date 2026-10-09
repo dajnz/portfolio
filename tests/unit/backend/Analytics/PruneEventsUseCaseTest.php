@@ -8,10 +8,6 @@ use App\Features\Analytics\App\UseCases\PruneEventsUseCase;
 use DateTimeImmutable;
 use Tests\Support\Fakes\FakeAnalyticsEventRepository;
 
-/**
- * The 90-day retention cutoff (analytics.md:214-216): `now - days`,
- * delegated to the repository.
- */
 describe('PruneEventsUseCase', function (): void {
     it('deletes events older than the retention window', function (): void {
         $repository = new FakeAnalyticsEventRepository(deletedCount: 7);

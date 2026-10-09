@@ -105,10 +105,10 @@ describe('Timeline', () => {
 
     it('bubbles the show-details and show-tags events from the items', async () => {
         // The +N overflow button renders only after the icon registration
-        // resolves (the `iconsReady` guard, ADR-0023 pattern) — the page
+        // resolves (the `iconsReady` guard) — the page
         // triggers it, the direct-mount spec must too. The lazy import
         // pays SFC/JSON transform time that varies under parallel suite
-        // load (ADR-0025) — poll instead of a fixed wait.
+        // load — poll instead of a fixed wait.
         ensureExperienceIcons();
 
         const wrapper = mount(Timeline, { props: { items: [viewItem()] } });

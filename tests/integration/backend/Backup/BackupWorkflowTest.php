@@ -111,9 +111,9 @@ describe('BackupWorkflowService — create pipeline', function (): void {
     it('prunes the oldest backups beyond backup_max_count after a successful backup', function (): void {
         SettingModel::query()->where('key', 'backup_max_count')->update(['value' => 1]);
 
-        // A pre-existing older backup (distinct filename — the ADR-0018 name
-        // has second precision, a same-second second backup would
-        // collide with the first's object key).
+        // A pre-existing older backup (distinct filename — the name has
+        // second precision, a same-second second backup would collide
+        // with the first's object key).
         BackupModel::factory()->create([
             'filename' => 'backup-2026-01-01-020000-k1.zip',
             'path' => 'backup-2026-01-01-020000-k1.zip',

@@ -21,18 +21,6 @@ use Tests\Support\Fakes\FakeAnalyticsReportDataReader;
 use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 
 /**
- * The report rebuild job (analytics.md:186-212): the daily path
- * rebuilds the reports only (the metrics were just aggregated); the
- * full-rebuild path (`recomputeMetrics` — the manual command and the
- * dashboard "Generate Now") deletes the metric rows for the dates
- * covered by the still-present events, re-aggregates them from the
- * oldest existing event → today (plus the FULL feedback history —
- * feedback rows are never pruned, so `feedback_submissions` is
- * re-derived even for days before the event window), and keeps the
- * metrics older than the event window.
- */
-
-/**
  * Runs the job against the fakes and returns the report-repository
  * double for the `replaceAll` assertions.
  */
@@ -189,9 +177,6 @@ describe('RebuildReportsJob', function (): void {
     });
 });
 
-/**
- * A single landing page-view event for the aggregation harness.
- */
 function rebuildPageViewEvent(DateTimeImmutable $createdAt): PageViewEvent
 {
     return new PageViewEvent(

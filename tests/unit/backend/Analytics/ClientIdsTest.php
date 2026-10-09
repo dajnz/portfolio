@@ -7,11 +7,6 @@ namespace Tests\Unit\Backend\Analytics;
 use App\Features\Analytics\Domain\ValueObjects\ClientIds;
 use InvalidArgumentException;
 
-/**
- * The client identifiers VO (ADR-0017): the session id, the anonymized IP
- * hash and the User-Agent — the validation moved out of the event
- * base.
- */
 describe('ClientIds', function (): void {
     it('exposes its values', function (): void {
         $ids = new ClientIds('s-1', 'ip-hash', 'Mozilla/5.0');

@@ -132,7 +132,6 @@ describe('HorizontalCarousel', () => {
         await vi.advanceTimersByTimeAsync(1000);
         expect(wrapper.emitted('change')).toEqual([[1], [2]]);
 
-        // Wraps back to the first slide.
         await vi.advanceTimersByTimeAsync(1000);
         expect(wrapper.emitted('change')).toEqual([[1], [2], [0]]);
     });

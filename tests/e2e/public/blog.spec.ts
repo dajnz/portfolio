@@ -5,12 +5,6 @@ import { demoArticles } from '../fixtures/content';
 import { validatePublicHtml } from '../fixtures/htmlValidate';
 import { pickFirstSuggestion } from '../fixtures/locators';
 
-/**
- * The public blog (testing.md:478): index cards with the seeded locale
- * text, article detail (TOC, code block, callout, related posts), the
- * keyword search, the tag/skill filter intersection, the year filter and
- * the grid/list toggle.
- */
 test.describe('blog index', () => {
     test('loads the article cards and opens an article detail page', async ({ page }, testInfo) => {
         await page.addInitScript(() => {
@@ -58,7 +52,6 @@ test.describe('blog index', () => {
             demoArticles.queues.keyword,
         );
 
-        // The table of contents lists the article headings.
         await expect(page.getByTestId('blog-article-page-toc')).toContainText('Why queues matter');
 
         // The code block and the callout mount only after the hydration
@@ -93,7 +86,6 @@ test.describe('blog index', () => {
 
         await expect(results.first()).toContainText(demoArticles.queues.titleEn);
 
-        // Enter with a highlighted result navigates to the article.
         await searchInput.press('Enter');
 
         await expect(page).toHaveURL(new RegExp(`/blog/${demoArticles.queues.slug}$`));

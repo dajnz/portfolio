@@ -10,11 +10,10 @@ use App\Features\Analytics\Infra\Mail\SendAnalyticsReportMail;
 use DateTimeImmutable;
 
 /**
- * The queued analytics digest mail (analytics.md:214-219, ADR-0017,
- * 11.3.5): the previous day's key metrics and top article rendered as
- * a simple HTML table — the subject carries the day, the body the
- * metric labels + values and the article title (the render needs the
- * booted app: the translator + the Blade view).
+ * The queued analytics digest mail: the previous day's key metrics and
+ * top article rendered as a simple HTML table — the subject carries the
+ * day, the body the metric labels + values and the article title (the
+ * render needs the booted app: the translator + the Blade view).
  */
 function digestMail(): SendAnalyticsReportMail
 {

@@ -7,10 +7,6 @@ namespace Tests\Unit\Backend\Projects;
 use App\Features\Projects\Domain\ValueObjects\ProjectLinks;
 use InvalidArgumentException;
 
-/**
- * The {@see ProjectLinks} VO: both links are optional, every present
- * URL must pass `FILTER_VALIDATE_URL` (content-management.md:147).
- */
 describe('ProjectLinks', function (): void {
     it('accepts a valid URL pair and allows both links to be absent', function (): void {
         $links = new ProjectLinks(

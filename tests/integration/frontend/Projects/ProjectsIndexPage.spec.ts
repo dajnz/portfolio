@@ -262,8 +262,8 @@ describe('ProjectsIndexPage', () => {
 
     it('applies the tag filter through the skill autocomplete with the AND ids', async () => {
         // The endpoint wraps the matches in `{ data: [...] }` — the
-        // filter must unwrap it (the 2026-08-16 rework; a bare array
-        // response is still tolerated).
+        // filter must unwrap it (a bare array response is still
+        // tolerated).
         const fetchMock = vi
             .fn()
             .mockResolvedValue(

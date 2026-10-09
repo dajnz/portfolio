@@ -7,12 +7,11 @@ namespace Tests\Integration\Backend\Analytics;
 use App\Features\Analytics\Infra\Models\AnalyticsEventModel;
 
 /**
- * `POST /api/analytics/track` ingestion (analytics.md:129-152,
- * routes.md:184,189,240,364): batch caps + payload size, the bot-UA
- * discard, keyed HMAC IP hashing (ADR-0017) and the 60/min/IP rate
- * limit. Real browsers always send a User-Agent, so the test client
- * must pass one explicitly — a missing header is treated as a bot
- * signal and the batch is discarded.
+ * `POST /api/analytics/track` ingestion: batch caps + payload size, the
+ * bot-UA discard, keyed HMAC IP hashing and the 60/min/IP rate limit.
+ * Real browsers always send a User-Agent, so the test client must pass
+ * one explicitly — a missing header is treated as a bot signal and the
+ * batch is discarded.
  */
 const BROWSER_USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) Chrome/126.0';
 
@@ -71,7 +70,7 @@ it('discards the whole batch for known bot user agents', function (string $userA
 
 it('discards the batch when the user agent header is empty or missing', function (): void {
     // The test client always sends `User-Agent: Symfony` — an explicit
-    // empty header reproduces the missing-UA signal (analytics.md:148).
+    // empty header reproduces the missing-UA signal.
     $this->postJson('/api/analytics/track', [
         ['event_type' => 'page_view', 'session_id' => 's-1'],
     ], ['User-Agent' => ''])->assertNoContent();

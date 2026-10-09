@@ -7,13 +7,6 @@ namespace Tests\Unit\Backend\Backup;
 use App\Features\Backup\Domain\ValueObjects\BackupContentSummary;
 use InvalidArgumentException;
 
-/**
- * The archive content stamp VO (database.md:573-579): nullable fields
- * validated when present (non-negative sizes/counts, per-table record
- * counts) and the all-or-nothing invariant — a summary is either
- * fully empty (the pending row) or fully populated (stamped by
- * `Backup::complete()`).
- */
 describe('BackupContentSummary', function (): void {
     it('exposes the populated fields and reports completeness', function (): void {
         $summary = new BackupContentSummary(

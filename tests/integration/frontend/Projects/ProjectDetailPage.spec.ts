@@ -144,8 +144,6 @@ describe('ProjectDetailPage', () => {
         expect(wrapper.get('[data-testid="project-detail-page-title"]').text()).toBe(
             'Ledger — Invoice Automation Platform',
         );
-        // The "back to projects" button was removed on request — the
-        // sticky main nav covers the way back.
         expect(wrapper.find('[data-testid="project-detail-page-back"]').exists()).toBe(false);
 
         const projectsNav = wrapper.get('[data-testid="public-header-nav-/projects"]');

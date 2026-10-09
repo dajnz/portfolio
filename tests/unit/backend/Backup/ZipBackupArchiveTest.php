@@ -21,16 +21,6 @@ use function uniqid;
 use function unlink;
 
 /**
- * The encrypted `.zip` archive (backup.md:308-338): AES-256 per-entry
- * round-trip (create → validate → readManifest → extract), the
- * wrong-key rejection (backup.md:192-195) and the encryption-disabled
- * path (backup.md:503-506) where any key is accepted.
- */
-
-/**
- * Builds a staging dir with `manifest.json`, a `data/` JSONL file and
- * an `assets/` file.
- *
  * @return array{0: string, 1: Manifest} [dir, manifest]
  */
 function backupArchiveStagingDir(): array
@@ -57,8 +47,6 @@ function backupArchiveStagingDir(): array
 }
 
 /**
- * Builds the staging dir and archives it.
- *
  * @return array{0: string, 1: string, 2: Manifest} [dir, zipPath, manifest]
  */
 function backupArchiveFixture(string $key = 'test-key', ?int $keyId = null, bool $encryptionEnabled = true): array

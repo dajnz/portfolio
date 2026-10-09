@@ -10,7 +10,7 @@ use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface
 /**
  * In-memory {@see ProjectRepositoryInterface} for the use-case unit
  * tests: the slug-related reads are configurable (the restore
- * uniqueness re-check — ADR-0006), the write methods record their calls.
+ * uniqueness re-check), the write methods record their calls.
  */
 final class FakeProjectRepository implements ProjectRepositoryInterface
 {

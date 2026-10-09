@@ -9,11 +9,6 @@ use App\Features\Shared\App\DTOs\RssItemDto;
 use App\Features\Shared\App\Services\RssXmlBuilder;
 use DateTimeImmutable;
 
-/**
- * The generic RSS 2.0 XML builder (step 8.2 rework): pure string
- * construction with full XML escaping — reusable by any feature that
- * needs a feed.
- */
 describe('RssXmlBuilder', function (): void {
     it('builds the channel and items structure', function (): void {
         $xml = (new RssXmlBuilder())->build(rssFeedFixture());
@@ -72,9 +67,6 @@ describe('RssXmlBuilder', function (): void {
 
 });
 
-/**
- * A minimal one-item feed fixture.
- */
 function rssFeedFixture(?string $enclosure = null): RssFeedDto
 {
     return new RssFeedDto(

@@ -9,10 +9,6 @@ use App\Features\Blog\Domain\Entities\ArticleTagTranslation;
 use App\Features\Shared\Domain\ValueObjects\Slug;
 use InvalidArgumentException;
 
-/**
- * The article-tag entity: the per-locale name rules (non-empty,
- * max 100) and the locale resolution with the `en` fallback.
- */
 describe('ArticleTag', function (): void {
     it('rejects an empty translation set', function (): void {
         expect(fn () => new ArticleTag(id: 1, slug: new Slug('php'), translations: []))

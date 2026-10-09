@@ -9,11 +9,10 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Bus;
 
 /**
- * The `analytics:generate-reports` command (analytics.md:204-212): a
- * manual full rebuild — thin, dispatches `RebuildReportsJob` in the
- * full-rebuild mode (recompute the event-window metrics first, then
- * rebuild every report span); it is NOT scheduled (11.3.2 removed the
- * old every-4-hours entry, backup.md:464).
+ * The `analytics:generate-reports` command: a manual full rebuild —
+ * thin, dispatches `RebuildReportsJob` in the full-rebuild mode
+ * (recompute the event-window metrics first, then rebuild every report
+ * span); it is NOT scheduled.
  */
 describe('analytics:generate-reports command', function (): void {
     it('dispatches the full-rebuild job', function (): void {

@@ -7,11 +7,6 @@ namespace Tests\Unit\Backend\Shared;
 use App\Features\Shared\Domain\ValueObjects\Slug;
 use InvalidArgumentException;
 
-/**
- * The shared slug VO (content-management.md:424-464): the kebab-case
- * invariant and the EN/RU slug generation (Cyrillic transliterated to
- * latin — the ADR-0006 auto-generation works for Russian titles too).
- */
 describe('Slug', function (): void {
     it('accepts valid kebab-case values', function (): void {
         expect((new Slug('my-post'))->toValue())->toBe('my-post')

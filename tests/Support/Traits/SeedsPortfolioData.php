@@ -20,10 +20,6 @@ use Illuminate\Support\Facades\DB;
  */
 trait SeedsPortfolioData
 {
-    /**
-     * Seeds a full landing dataset (about, skills, contacts, featured
-     * projects).
-     */
     protected function seedLandingDataset(): void
     {
         AboutInfoModel::factory()->create([

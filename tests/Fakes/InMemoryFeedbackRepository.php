@@ -8,9 +8,6 @@ use App\Features\Portfolio\Domain\Entities\Feedback;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\FeedbackRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 
-/**
- * In-memory feedback repository fake for unit tests.
- */
 final class InMemoryFeedbackRepository implements FeedbackRepositoryInterface
 {
     /**

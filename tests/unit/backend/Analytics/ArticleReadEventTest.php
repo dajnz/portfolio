@@ -9,9 +9,6 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use Tests\Support\AnalyticsEventFixture;
 
-/**
- * The `article_read` event invariants (analytics.md:25): article id and completion percentage.
- */
 describe('ArticleReadEvent', function (): void {
     it('rejects a non-positive article id', function (): void {
         expect(fn () => new ArticleReadEvent(

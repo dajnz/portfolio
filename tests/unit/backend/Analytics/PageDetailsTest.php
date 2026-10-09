@@ -8,10 +8,6 @@ use App\Features\Analytics\Domain\Enums\PageType;
 use App\Features\Analytics\Domain\ValueObjects\PageDetails;
 use InvalidArgumentException;
 
-/**
- * The page context VO (ADR-0017): the page type, entity id and URL, with
- * the typed entity-id accessors used by the reports.
- */
 describe('PageDetails', function (): void {
     it('exposes the page context', function (): void {
         $details = new PageDetails(PageType::BlogArticle, 5, 'https://example.com/blog/hello');

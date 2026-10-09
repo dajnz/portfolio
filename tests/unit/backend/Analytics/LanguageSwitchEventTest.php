@@ -9,9 +9,6 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use Tests\Support\AnalyticsEventFixture;
 
-/**
- * The `cta_click_language` event invariants (analytics.md:23): the locale whitelist.
- */
 describe('LanguageSwitchEvent', function (): void {
     it('rejects an unsupported locale', function (): void {
         expect(fn () => new LanguageSwitchEvent(

@@ -16,18 +16,6 @@ use Tests\Support\Fakes\FakeAnalyticsReportDataReader;
 use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 
 /**
- * The report rebuild (analytics.md:186-212, ADR-0017): every span
- * (day/week/month/year/all) rebuilt from the aggregated metric groups
- * — the per-metric-kind value derivation (weighted
- * `SUM(value)/SUM(samples)` for the avg-able metrics, plain MIN/MAX
- * for the `*_min`/`*_max` metrics, SUM otherwise), the `all` span as
- * one whole-time row per metric+dimension and the full `replaceAll` of
- * the stored reports. The group bucketing itself is the daily-metric
- * repository's SQL (integration-covered); here the use case maps the
- * groups to report rows.
- */
-
-/**
  * Runs the rebuild against the canned groups and returns the replaced
  * report rows.
  *

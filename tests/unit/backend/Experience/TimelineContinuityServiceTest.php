@@ -46,9 +46,6 @@ function continuityService(array $items): array
     return [$repository, $service];
 }
 
-/**
- * Asserts the service rejects the period on the given field.
- */
 function expectContinuityRejected(TimelineContinuityService $service, string $field, string $start, ?string $end = null): void
 {
     try {

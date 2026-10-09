@@ -5,11 +5,6 @@ import { demoExperience } from '../fixtures/content';
 import { validatePublicHtml } from '../fixtures/htmlValidate';
 
 /**
- * The experience timeline (testing.md:480): the seeded items render in
- * chronological order, the current role is marked, the detail modal
- * shows the achievements and the `+N` chip opens the remaining-tags
- * popover.
- *
  * Modal visibility is asserted on the backdrop (base-modal-scrim): the
  * modal root element is an empty positioning wrapper with a zero-sized
  * box — its fixed-position children carry the visual surface.
@@ -33,7 +28,6 @@ test.describe('experience page', () => {
         await expect(items.first()).toContainText('Present');
         await expect(items.last()).toContainText(demoExperience.oldest.companyEn);
 
-        // The detail modal lists the achievements of the opened item.
         await items.first().locator('[data-testid$="-details"]').click();
 
         const scrim = page.getByTestId('base-modal-scrim');

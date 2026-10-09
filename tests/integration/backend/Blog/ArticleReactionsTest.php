@@ -66,7 +66,6 @@ describe('article reactions', function (): void {
             ->assertJsonPath('data.likes', 1)
             ->assertJsonPath('data.dislikes', 0);
 
-        // The same visitor undoes the reaction.
         $this->postJson("/api/blog/{$article->id}/reaction", ['reaction' => 'like'], ['User-Agent' => 'BlogVisitor/1'])
             ->assertJsonPath('data.reaction', null)
             ->assertJsonPath('data.likes', 0);

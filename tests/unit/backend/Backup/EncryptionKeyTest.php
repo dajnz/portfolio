@@ -8,13 +8,6 @@ use App\Features\Backup\Domain\Entities\EncryptionKey;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
-/**
- * The `backup_encryption_keys` row entity (database.md:550-565,
- * backup.md:488-499): the raw key is a 44-character base64 encoding
- * of 32 random bytes (the `backup:generate-key` format), the name
- * fits the varchar(100) column, and `activate()`/`deactivate()`
- * model the rotation the generation use case performs.
- */
 describe('EncryptionKey', function (): void {
     it('exposes the stored fields', function (): void {
         $rawKey = base64_encode(random_bytes(32));
@@ -83,9 +76,9 @@ describe('EncryptionKey', function (): void {
             ->and($key->toId())->toBe(0)
             ->and(strlen($key->toName()))->toBe(21);
 
-        // The same raw key always yields the same name — no timestamp or
-        // randomness in it (ADR-0019): the reuse check relies on the stable
-        // mapping, and re-imports of the same key never collide.
+        // The same raw key always yields the same name — the reuse check
+        // relies on the stable mapping, and re-imports of the same key
+        // never collide.
         expect(EncryptionKey::forImport($rawKey, new DateTimeImmutable('2026-08-25 09:00:00'))->toName())
             ->toBe($expectedName);
     });

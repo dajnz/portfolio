@@ -5,9 +5,9 @@ import { expect, test } from '@playwright/test';
 import { ADMIN_LOGIN, ADMIN_PASSWORD } from '../fixtures/seed';
 
 /**
- * The admin login lifecycle (authentication.md:15-29, 264-283). Tests are
- * serial: they share the e2e admin row and the `throttle:login` limiter
- * (5 attempts/min/IP), so a parallel burst would trip the rate limit.
+ * Tests are serial: they share the e2e admin row and the `throttle:login`
+ * limiter (5 attempts/min/IP), so a parallel burst would trip the rate
+ * limit.
  *
  * The credential tests run in FRESH browser contexts (no storage state):
  * a successful login regenerates the session, which DESTROYS the shared
@@ -55,8 +55,8 @@ test.describe('admin login', () => {
             await page.getByTestId('login-page-password-input').fill(ADMIN_PASSWORD);
             await page.getByTestId('login-page-submit-btn').click();
 
-            // `/admin` (the dashboard) is a 4.x route — the redirect itself is
-            // what the auth flow promises (authentication.md:20,279).
+            // `/admin` (the dashboard) is the post-login target — the
+            // redirect itself is what the auth flow promises.
             await page.waitForURL('**/admin');
         } finally {
             await context.close();
@@ -76,14 +76,14 @@ test.describe('admin login', () => {
     test('redirects the TOTP page to login when no TOTP verification is pending', async ({ page }) => {
         await page.goto('/admin/login/totp');
 
-        // `totp.pending` middleware (authentication.md:266-271).
+        // `totp.pending` middleware.
         await page.waitForURL('**/admin/login');
         await expect(page.getByTestId('login-page-form')).toBeVisible();
     });
 
     test('forces logout of other sessions after a session-version bump', async ({ browser }) => {
         // Fresh context: the mutation must not touch the shared storage
-        // state used by the other tests (authentication.md:283,309).
+        // state used by the other tests.
         // `storageState: null` overrides the project's storage state — the
         // credential tests must start unauthenticated (see the describe
         // comment above).

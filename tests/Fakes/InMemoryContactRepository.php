@@ -8,9 +8,6 @@ use App\Features\Portfolio\Domain\Entities\Contact;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
 use Illuminate\Database\Eloquent\Builder;
 
-/**
- * In-memory contact repository fake for unit tests.
- */
 final class InMemoryContactRepository implements ContactRepositoryInterface
 {
     /**

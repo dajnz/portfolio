@@ -8,9 +8,6 @@ use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\Entities\TechSkillGroup;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 
-/**
- * In-memory repository fake for unit tests.
- */
 final class InMemoryTechSkillReadRepository implements TechSkillReadRepositoryInterface
 {
     public ?string $lastLocale = null;

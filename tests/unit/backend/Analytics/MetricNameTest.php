@@ -6,14 +6,6 @@ namespace Tests\Unit\Backend\Analytics;
 
 use App\Features\Analytics\Domain\Enums\MetricName;
 
-/**
- * The metric catalog guard (analytics.md:172-178): the enum must carry
- * exactly the spec'd names — the global set (dimension NULL), the CTA
- * clicks (dimension = target) and the per-entity `views` (per-article
- * `article:{id}` / per-project `project:{id}`). The per-page and
- * per-article rows reuse the global names (e.g. `time_on_page_*`,
- * `unique_visitors`) — the dimension column carries the scope.
- */
 describe('MetricName', function (): void {
     it('covers the full metric catalog from the spec', function (): void {
         expect(array_column(MetricName::cases(), 'value'))->toBe([

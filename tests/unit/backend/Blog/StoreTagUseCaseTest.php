@@ -12,12 +12,6 @@ use App\Features\Blog\Domain\Entities\ArticleTag;
 use Tests\Support\Fakes\FakeArticleTagRepository;
 use Tests\Support\Fakes\FakeCountCacheInvalidator;
 
-/**
- * The tag↔skill name cross-check (content-management.md:595,695 —
- * enforced on the article-tag side only, case-insensitive, ANY locale
- * of the submitted names) and the ADR-0006 slug resolution of the tag
- * store flow.
- */
 describe('StoreTagUseCase', function (): void {
     it('rejects a tag whose name matches an existing skill (case-insensitive)', function (): void {
         $repository = new FakeArticleTagRepository(skillNames: ['PHP']);

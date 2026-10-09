@@ -7,8 +7,8 @@ import { describe, expect, it } from 'vitest';
 // fixtures must be listed in one of the strict icon manifests
 // (resources/js/iconManifests) or — for the hand-fed `custom` set — be an
 // icon in resources/js/iconSubsets/custom.json. An unlisted icon would
-// silently fall back to a runtime Iconify API fetch (ADR-0023 — offline, no
-// trackers), so this guard fails the test suite instead.
+// silently fall back to a runtime Iconify API fetch (the offline, no-
+// trackers guarantee), so this guard fails the test suite instead.
 
 const sourceDir = join(process.cwd(), 'resources/js');
 const fixturesDir = join(process.cwd(), 'tests/integration/frontend');

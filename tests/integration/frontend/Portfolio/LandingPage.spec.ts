@@ -404,7 +404,7 @@ describe('LandingPage', () => {
 
         // The copied state is announced once through the status region —
         // the button label stays stable so VoiceOver does not also
-        // announce the changed accessible name (a11y 13.6 review).
+        // announce the changed accessible name.
         expect(copy.attributes('aria-label')).toBe('Copy contact');
         expect(wrapper.get('[data-testid="landing-contacts-block-copy-status"]').text()).toBe(
             'Copied!',
@@ -427,7 +427,7 @@ describe('LandingPage', () => {
         expect(wrapper.get('[data-testid="public-header-nav-/blog"]').attributes('href')).toBe('/blog');
         expect(wrapper.get('[data-testid="public-header-nav-#contacts"]').attributes('href')).toBe('#contacts');
 
-        // The landing highlights About Me (a11y 13.6 #6).
+        // The landing highlights About Me.
         const about = wrapper.get('[data-testid="public-header-nav-#about"]');
         expect(about.attributes('aria-current')).toBe('page');
         expect(about.classes()).toContain('is-active');

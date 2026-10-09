@@ -10,9 +10,6 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use Tests\Support\AnalyticsEventFixture;
 
-/**
- * The `time_on_page` event invariants (analytics.md:18): the seconds range and the payload round-trip.
- */
 describe('TimeOnPageEvent', function (): void {
     it('rejects seconds outside the 0-86400 range', function (): void {
         expect(fn () => new TimeOnPageEvent(

@@ -26,9 +26,6 @@ beforeEach(function (): void {
 });
 
 /**
- * The shared store/update payload — title/short_description/content
- * required per active locale, plus the tag/skill/related arrays.
- *
  * @return array<string, mixed>
  */
 function blogPayload(array $overrides = []): array
@@ -54,9 +51,6 @@ function blogPayload(array $overrides = []): array
     ], $overrides);
 }
 
-/**
- * Creates a fully translated article with the given base attributes.
- */
 function blogItem(array $attributes = [], array $translations = []): ArticleModel
 {
     $article = ArticleModel::factory()->create($attributes);
@@ -83,9 +77,6 @@ function blogItem(array $attributes = [], array $translations = []): ArticleMode
     return $article;
 }
 
-/**
- * Creates a translated article tag and returns the model.
- */
 function blogTagItem(string $slug = 'php', array $names = []): ArticleTagModel
 {
     $tag = ArticleTagModel::factory()->create(['slug' => $slug]);
@@ -101,9 +92,6 @@ function blogTagItem(string $slug = 'php', array $names = []): ArticleTagModel
     return $tag;
 }
 
-/**
- * Seeds a skill in a group and returns its id.
- */
 function blogSkillId(string $name = 'PHP', ?string $icon = 'devicon:php'): int
 {
     $group = SkillGroupModel::factory()->create();
@@ -254,8 +242,8 @@ describe('AdminBlogController', function (): void {
             ]);
 
         // With the RU locale cookie the row resolves the RU title
-        // (ADR-0026 — unencrypted cookie; getJson needs withCredentials to
-        // carry cookies at all).
+        // (unencrypted cookie; getJson needs withCredentials to carry
+        // cookies at all).
         $this->withCredentials()
             ->withUnencryptedCookie('locale', 'ru')
             ->getJson('/admin/blog?q='.rawurlencode('русский заголовок').'&per_page=8')
@@ -368,7 +356,7 @@ describe('AdminBlogController', function (): void {
 
         expect(DB::table('related_articles')->where('article_id', $article->id)->where('related_article_id', $wasPublished->id)->exists())->toBeTrue();
 
-        // A NEW unpublished target is still rejected on update.
+        // A new unpublished target is still rejected on update.
         $this->put("/admin/blog/{$article->id}", blogPayload([
             'slug' => 'linked-article',
             'title' => ['en' => 'Linked Article', 'ru' => 'Связанная статья'],

@@ -9,12 +9,6 @@ use App\Features\Analytics\Domain\Enums\MetricName;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
-/**
- * The `analytics_daily_metrics` row entity (database.md:513-529,
- * ADR-0017): the weighted sum/samples pair and the dimension scoping, with
- * the constructor invariants — samples at least 1, finite value,
- * dimension within the varchar(500) column.
- */
 describe('AnalyticsMetric', function (): void {
     it('exposes the stored fields', function (): void {
         $metric = new AnalyticsMetric(
