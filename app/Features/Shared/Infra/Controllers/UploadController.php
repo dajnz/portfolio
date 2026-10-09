@@ -12,9 +12,11 @@ use App\Features\Shared\Infra\Requests\UploadRequest;
 use App\Features\Shared\Infra\Services\UploadedImageProcessor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 /**
  * `/api/upload` — GET-less, auth-required file lifecycle endpoints
@@ -45,9 +47,21 @@ final class UploadController
         $file = $request->validated('file');
         $entityType = $request->validated('entity_type');
 
-        $path = $this->isProcessableImage($file)
-            ? $this->storeProcessed($entityType, $file)
-            : $this->storeAsUploaded($entityType, $file);
+        try {
+            $path = $this->isProcessableImage($file)
+                ? $this->storeProcessed($entityType, $file)
+                : $this->storeAsUploaded($entityType, $file);
+        } catch (ValidationException $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            Log::error('Upload failed', [
+                'file_name' => $file->getClientOriginalName(),
+                'bucket' => config('filesystems.disks.rustfs.bucket'),
+                'exception' => $exception->getMessage(),
+            ]);
+
+            throw $exception;
+        }
 
         return response()->json([
             'data' => [

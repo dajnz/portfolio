@@ -16,6 +16,17 @@ export interface JsonApi {
     del: <T>(url: string, payload?: JsonRequestPayload) => Promise<T>;
 }
 
+// Non-critical read retries (error-handling.md:149-160): GET requests
+// are retried twice on a 5xx with an exponential backoff — mutations and
+// uploads are never retried automatically.
+const GET_RETRY_DELAYS_MS = [1000, 2000];
+
+function wait(ms: number): Promise<void> {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
+
 /**
  * Shared JSON API client (4.2 rework, user-approved): a fetch wrapper for
  * the admin's JSON endpoints — the XSRF-TOKEN cookie header satisfies the
@@ -51,7 +62,7 @@ export function useJsonApi(): JsonApi {
             }
         }
 
-        const response = await fetch(url, {
+        const init: RequestInit = {
             method,
             credentials: 'same-origin',
             headers,
@@ -59,7 +70,20 @@ export function useJsonApi(): JsonApi {
                 payload?.formData ??
                 (payload?.json !== undefined ? JSON.stringify(payload.json) : undefined),
             signal: options?.signal,
-        });
+        };
+
+        let response = await fetch(url, init);
+
+        if (method === 'GET') {
+            for (const delay of GET_RETRY_DELAYS_MS) {
+                if (!(response.status >= 500)) {
+                    break;
+                }
+
+                await wait(delay);
+                response = await fetch(url, init);
+            }
+        }
 
         if (!response.ok) {
             throw new Error(`Request failed with status ${response.status}`);

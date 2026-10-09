@@ -12,6 +12,7 @@ use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use App\Features\Backup\Domain\RepositoryInterfaces\EncryptionKeyRepositoryInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Throwable;
 
@@ -64,6 +65,11 @@ final class CreateBackupJob implements ShouldQueue
                 $current->fail();
                 $backups->save($current);
             }
+
+            Log::error('Backup failed', [
+                'archive_name' => $backup->toFilename(),
+                'exception' => $exception->getMessage(),
+            ]);
 
             throw $exception;
         }
