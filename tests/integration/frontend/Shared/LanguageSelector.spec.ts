@@ -133,6 +133,31 @@ describe('LanguageSelector', () => {
         expect(wrapper.find('[data-testid="language-selector-dropdown"]').exists()).toBe(false);
     });
 
+    it('hides the selector when only one locale is enabled (i18n-and-theming.md:12)', () => {
+        const wrapper = mount(LanguageSelector, {
+            props: {
+                active_locale: 'en',
+                supported_locales: [{ code: 'en', native_name: 'English' }],
+            },
+        });
+
+        expect(wrapper.find('[data-testid="language-selector-button"]').exists()).toBe(false);
+    });
+
+    it('renders the selector when a second locale is enabled', () => {
+        const wrapper = mount(LanguageSelector, {
+            props: {
+                active_locale: 'en',
+                supported_locales: [
+                    { code: 'en', native_name: 'English' },
+                    { code: 'ru', native_name: 'Русский' },
+                ],
+            },
+        });
+
+        expect(wrapper.find('[data-testid="language-selector-button"]').exists()).toBe(true);
+    });
+
     it('applies the classes prop overrides in admin context', () => {
         const wrapper = mount(LanguageSelector, {
             props: {
