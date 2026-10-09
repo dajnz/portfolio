@@ -11,19 +11,15 @@ use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use App\Features\Shared\Domain\ValueObjects\TechSkillGroupName;
 
 /**
- * Domain entity representing a tech skill group.
+ * Group names are translatable per-locale via {@see TechSkillGroupName}
+ * value objects; the icon and sort order are not. Skills are held as a map
+ * keyed by skill ID, and {@see toSkills()} returns them in insertion
+ * order. Constructor arguments are value objects — repositories create
+ * them from raw DB/request values.
  *
- * Group names are translatable via per-locale
- * {@see TechSkillGroupName} value objects; icon and sort order are not.
- * The group carries its skills as a map keyed by skill ID
- * ({@see toSkills()} returns them in insertion order). This is the
- * single entity used by both the Shared read model and the TechSkills
- * write surface. Constructor arguments are value objects — repositories
- * create them from raw DB/request values.
- *
- * State changes go through the mutation methods (`rename`,
- * `changeIcon`, `rearrange`, `addSkill`/`removeSkill`); the write
- * repository persists the entity afterwards.
+ * State changes go through the mutation methods (`rename`, `changeIcon`,
+ * `rearrange`, `addSkill`/`removeSkill`); the write repository persists
+ * the entity afterwards.
  */
 final class TechSkillGroup extends BaseEntity
 {
@@ -85,8 +81,6 @@ final class TechSkillGroup extends BaseEntity
     }
 
     /**
-     * Group names keyed by locale (`locale => name`).
-     *
      * @return array<string, string>
      */
     public function groupNamesByLocale(): array
@@ -102,7 +96,7 @@ final class TechSkillGroup extends BaseEntity
 
     /**
      * Localized name for the given locale, falling back to `en` when the
-     * requested translation is missing (content-management.md:415).
+     * translation is missing.
      */
     public function nameFor(string $locale): string
     {
@@ -112,8 +106,8 @@ final class TechSkillGroup extends BaseEntity
     }
 
     /**
-     * The group's identity + per-locale names as a value object — used
-     * when a skill is moved into this group
+     * The group's identity + per-locale names as a value object, used when
+     * a skill is moved into this group
      * ({@see TechSkill::changeGroup()}).
      */
     public function toGroupVo(): SkillGroupVo
@@ -131,18 +125,13 @@ final class TechSkillGroup extends BaseEntity
         $this->icon = $icon;
     }
 
-    /**
-     * Reorders the group itself (drag-and-drop of groups); the
-     * repository persists the change afterwards.
-     */
     public function rearrange(SortOrder $order): void
     {
         $this->sortOrder = $order;
     }
 
     /**
-     * Adds a skill to the group (drag-and-drop into a group): the skill
-     * is moved into this group at the given position and stored in the
+     * Mutates the passed skill's group context and records it in the
      * internal map.
      */
     public function addSkill(TechSkill $skill, SortOrder $order): void
@@ -153,9 +142,8 @@ final class TechSkillGroup extends BaseEntity
     }
 
     /**
-     * Removes the skill from the group's internal collection
-     * (drag-and-drop out of a group). The skill row itself is left
-     * untouched — only the grouping changes.
+     * Removes the skill from the group's internal collection. The skill row
+     * itself is left untouched — only the grouping changes.
      */
     public function removeSkill(TechSkill $skill): void
     {

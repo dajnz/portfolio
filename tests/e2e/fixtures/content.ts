@@ -1,8 +1,7 @@
 /**
  * The canonical seeded demo content the e2e suites assert on. Values
  * mirror `database/seeders/E2EDemoContentSeeder.php` — keep both files
- * in sync when the dataset changes (the seed.ts credentials note
- * convention).
+ * in sync when the dataset changes.
  */
 
 export const demoAbout = {

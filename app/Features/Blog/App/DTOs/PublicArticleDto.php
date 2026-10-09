@@ -9,12 +9,11 @@ use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 use DateTimeImmutable;
 
 /**
- * The public blog article detail (blog.yaml#BlogArticlePageProps —
- * the `ArticleDetailData` shape): the locale-resolved fields, the
- * server-rendered `content_html` (the shared Markdown pipeline), the
- * resolved tags/related cards, the pre-increment view counter and the
- * reaction state (`null` when the `social_reactions` flag is off —
- * no widget). Immutable.
+ * The public blog article detail (the `ArticleDetailData` shape): the
+ * locale-resolved fields, the server-rendered `content_html` (the
+ * shared Markdown pipeline), the resolved tags/related cards, the
+ * pre-increment view counter and the reaction state (`null` when the
+ * `social_reactions` flag is off — no widget). Immutable.
  */
 final readonly class PublicArticleDto
 {

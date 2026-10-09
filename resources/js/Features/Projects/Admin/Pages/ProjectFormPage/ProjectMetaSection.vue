@@ -1,6 +1,3 @@
-<!-- ProjectMetaSection — the Meta card of the project form: the URL
-     pair (github/demo) and the Featured + sort-order / Published
-     checkbox rows. Pure value+emit contract. -->
 <script setup lang="ts">
 import AdminBaseCard from '@shared-admin/AdminBaseCard.vue';
 import AdminBaseCheckbox from '@shared-admin/AdminBaseCheckbox.vue';
@@ -44,9 +41,8 @@ const { t } = useI18n();
     <h2 class="mb-4 text-lg font-medium text-slate-600 dark:text-slate-400">
       {{ t('admin.projects.meta') }}
     </h2>
-    <!-- Two columns with a clear gap (user request 2026-08-12,
-         round 3): left = the URL pair stacked, right = the
-         Featured + sort-order row, then the Published row
+    <!-- Two columns with a clear gap: left = the URL pair stacked,
+         right = the Featured + sort-order row, then the Published row
          vertically centered against the demo URL. -->
     <div class="grid grid-cols-1 gap-x-12 gap-y-4 sm:grid-cols-2">
       <div class="space-y-4">
@@ -98,8 +94,7 @@ const { t } = useI18n();
           />
         </div>
         <!-- Row 2: Published — own row container, vertically
-             centered against the demo URL input's middle (the
-             ~50px offset was verified by the user). -->
+             centered against the demo URL input's middle. -->
         <div class="mt-[50px]">
           <AdminBaseCheckbox
             :model-value="props.is_published"

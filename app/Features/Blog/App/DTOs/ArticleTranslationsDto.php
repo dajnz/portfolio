@@ -6,9 +6,8 @@ namespace App\Features\Blog\App\DTOs;
 
 /**
  * The set of per-locale translations of an article — the LocaleTabs
- * maps (content-management.md:420). Title, short description and
- * content are required per ACTIVE locale (validated by the request,
- * content-management.md:679-683). Immutable.
+ * maps. Title, short description and content are required per ACTIVE
+ * locale (validated by the request). Immutable.
  */
 final readonly class ArticleTranslationsDto
 {
@@ -25,9 +24,8 @@ final readonly class ArticleTranslationsDto
     }
 
     /**
-     * The EN title — the slug regeneration source (ADR-0006, content-
-     * management.md:430 — the slug is generated from the default-locale
-     * title only).
+     * The EN title — the slug regeneration source (the slug is
+     * generated from the default-locale title only).
      */
     public function enTitle(): string
     {

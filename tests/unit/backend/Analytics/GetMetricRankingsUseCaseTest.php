@@ -13,14 +13,6 @@ use Tests\Support\Fakes\FakeAnalyticsReportDataReader;
 use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 
 /**
- * The top/bottom/liked/disliked rankings (analytics.md:226, ADR-0017,
- * 11.3.4): the `span = 'all'` dimension rows capped at 10, joined with
- * the min/max metrics (time/read/completion) and the EN titles of the
- * article/project dimensions — `GET /admin/analytics/rankings?metric=
- * &variant=&scope=`.
- */
-
-/**
  * @param list<AnalyticsReport> $rows
  * @param array<int, string> $articleTitles
  * @param array<int, string> $projectTitles
@@ -149,9 +141,6 @@ it('drops dimension rows without an EN title', function (): void {
     ]);
 });
 
-/**
- * Builds a whole-time dimension row of the given metric.
- */
 function rankingsReportRow(string $metric, float $value, string $dimension): AnalyticsReport
 {
     return new AnalyticsReport(

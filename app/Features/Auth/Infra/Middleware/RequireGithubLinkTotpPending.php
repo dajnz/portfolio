@@ -10,11 +10,11 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * `totp.pending.github_link` middleware alias (authentication.md:162-177):
- * mirrors `RequireTotpPending` but keys on `github_link.pending_admin_id`.
- * Unlike the login TOTP page the admin is already fully authenticated here
- * — failures clear the `github_link.*` keys and redirect to the profile
- * page (with the lockout flash when a lock is active).
+ * `totp.pending.github_link` middleware alias: mirrors `RequireTotpPending`
+ * but keys on `github_link.pending_admin_id`. Unlike the login TOTP page
+ * the admin is already fully authenticated here — failures clear the
+ * `github_link.*` keys and redirect to the profile page (with the lockout
+ * flash when a lock is active).
  */
 final class RequireGithubLinkTotpPending
 {
@@ -26,7 +26,7 @@ final class RequireGithubLinkTotpPending
     public function handle(Request $request, Closure $next): Response
     {
         // Session expired mid-flow — the pending state implies an
-        // authenticated admin (authentication.md:173).
+        // authenticated admin.
         if (! $request->user()) {
             return redirect()->route('login');
         }

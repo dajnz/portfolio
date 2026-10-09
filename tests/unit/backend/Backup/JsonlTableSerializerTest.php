@@ -12,14 +12,6 @@ use Tests\TestCase;
 
 uses(TestCase::class);
 
-/**
- * The JSONL table serializer (backup.md:287-306): the per-table
- * export/import surface of the archive's `data/` files. The round-trip
- * runs against a real PostgreSQL temp table (the suite's DB contract —
- * backup.md:79: one `json_encode($row, JSON_UNESCAPED_UNICODE)` object
- * per line) through the query-builder reader/writer, including the
- * `settings` upsert-by-key variant (backup.md:402).
- */
 function backupJsonlFixtureTable(): void
 {
     DB::statement('CREATE TEMP TABLE backup_jsonl_test (id serial primary key, name text, payload jsonb, created_at timestamp)');

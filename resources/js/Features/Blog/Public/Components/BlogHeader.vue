@@ -1,4 +1,4 @@
-<!-- BlogHeader (public-section-components.md:1209-1239, mockup blog.html) — the blog index toolbar: the dual-response search autocomplete (Enter with no highlighted result submits the term as a full `?q=` load — public-section-ui.md:487), the unified PublicTagFilter over `/api/blog-tags/search` (article tags + skills with the `type` discriminator — the pills split into `?article_tags=`/`?skill_tags=`, content-management.md:198-200), the conditional year filter (a PublicBaseDropdown rendered only when more than one year of articles exists; "All" = null, the tree's first option) and the grid/list toggle. Filter changes emit `filter-changed` (batched in one tick) — the page resets the scroll cursor and reloads; view-mode changes only emit `update:view_mode` (the cookie persists them client-side, architecture.md:204). -->
+<!-- BlogHeader — the blog index toolbar: the dual-response search autocomplete (Enter with no highlighted result submits the term as a full `?q=` load), the unified PublicTagFilter over `/api/blog-tags/search` (article tags + skills with the `type` discriminator — the pills split into `?article_tags=`/`?skill_tags=`), the conditional year filter (a PublicBaseDropdown rendered only when more than one year of articles exists; "All" = null, the first option) and the grid/list toggle. Filter changes emit `filter-changed` (batched in one tick) — the page resets the scroll cursor and reloads; view-mode changes only emit `update:view_mode` (the cookie persists them client-side). -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import PublicBaseButton from '@shared-public/PublicBaseButton.vue';
@@ -46,7 +46,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 // The year dropdown's "All" option — the component's modelValue is
-// string-typed, so the null state travels as the '' sentinel (ADR-0025).
+// string-typed, so the null state travels as the '' sentinel.
 const YEAR_ALL = '';
 
 const yearOptions = computed(() => [
@@ -57,15 +57,13 @@ const yearOptions = computed(() => [
 const yearModel = computed(() => props.active_year ?? YEAR_ALL);
 
 // The year filter renders only when more than one distinct year of
-// articles exists (the plan's "conditional year filter" + the tree
-// note — a single year adds no filtering value).
+// articles exists (a single year adds no filtering value).
 const showYearFilter = computed(() => props.available_years.length > 1);
 
 // The mobile filter-collapse state: on small screens the toolbar shows
 // only the search row and a toggle button; expanding reveals the tag
 // filter and the year dropdown (each on its own full-width row). The
-// state is purely visual — desktop always shows all rows (the
-// projects ADR-0025 pattern, user request 2026-08-16).
+// state is purely visual — desktop always shows all rows.
 const filtersExpanded = ref(true);
 
 function toggleFilters(): void {
@@ -108,10 +106,10 @@ function onViewModeChange(mode: HeaderViewMode): void {
     <!-- Row 1: the search box spanning the full width + the mobile-only
          filters toggle + the grid/list toggle. Row 2: the tag filter
          and the year dropdown — side by side on desktop, stacked on
-         their own full-width rows on small screens (user rework
-         2026-08-16, the projects toolbar pattern). The toolbar is
-         sticky below the page header so the filters stay reachable
-         while scrolling a long article list. -->
+         their own full-width rows on small screens (the projects
+         toolbar pattern). The toolbar is sticky below the page header
+         so the filters stay reachable while scrolling a long article
+         list. -->
     <div class="blog-toolbar__row">
       <PublicSearchAutocomplete
         class="blog-toolbar__search"
@@ -185,7 +183,7 @@ function onViewModeChange(mode: HeaderViewMode): void {
    header; the opaque page background keeps the cards from showing
    through while scrolling. Two rows: the search + view toggle on the
    first, the tag filter + year dropdown on the second (the projects
-   toolbar pattern, user rework 2026-08-16). */
+   toolbar pattern). */
 .blog-toolbar {
     position: sticky;
     top: var(--header-height);
@@ -257,11 +255,11 @@ function onViewModeChange(mode: HeaderViewMode): void {
     display: none;
 }
 
-/* Small screens (the ADR-0025 projects precedent): the grid/list
-   switch is hidden (grid and list render identically on mobile), the
-   filters toggle appears at the right of the search box, and the tag
-   filter + year dropdown stack on their own full-width rows. The
-   collapsed state hides the filters row entirely. */
+/* Small screens (the projects precedent): the grid/list switch is
+   hidden (grid and list render identically on mobile), the filters
+   toggle appears at the right of the search box, and the tag filter +
+   year dropdown stack on their own full-width rows. The collapsed
+   state hides the filters row entirely. */
 @media (width < 768px) {
     .blog-toolbar__toggle {
         display: inline-flex;

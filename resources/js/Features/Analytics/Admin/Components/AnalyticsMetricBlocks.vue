@@ -1,4 +1,4 @@
-<!-- AnalyticsMetricBlocks (admin-section-components.md:1326-1328, admin-section-ui.md:445-448) — clickable whole-time metric blocks: label, formatted value and an optional min/max line for the avg blocks (time on page / read time / completion rate). The selected block is highlighted (aria-pressed + data-state) and the detail area below follows it. -->
+<!-- AnalyticsMetricBlocks — clickable whole-time metric blocks: label, formatted value and an optional min/max line for the avg blocks (time on page / read time / completion rate). The selected block is highlighted (aria-pressed + data-state) and the detail area below follows it. -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import type { RichText } from '../Composables/useAnalytics';

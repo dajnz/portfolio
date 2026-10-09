@@ -6,12 +6,11 @@ import en from '@/lang/en.json';
 import ru from '@/lang/ru.json';
 
 /**
- * Frontend i18n composable (i18n-and-theming.md:37-43,129,144): resolves
- * dot-path keys from the committed `lang/{en,ru}.json` catalogs, resolves
- * ICU MessageFormat plural/select via intl-messageformat (cached per
- * key+locale), interpolates `:param` placeholders (Laravel-style, used by
- * keys like `admin.feedback.from`), and falls back to the key itself when
- * a translation is missing.
+ * Frontend i18n composable: resolves dot-path keys from the committed
+ * `lang/{en,ru}.json` catalogs, resolves ICU MessageFormat plural/select
+ * via intl-messageformat (cached per key+locale), interpolates `:param`
+ * placeholders (Laravel-style, used by keys like `admin.feedback.from`),
+ * and falls back to the key itself when a translation is missing.
  */
 export type TranslationParams = Record<string, string | number | boolean>;
 
@@ -20,7 +19,7 @@ const catalogs: Record<string, unknown> = { en, ru };
 const LOCALE_COOKIE = 'locale';
 const LOCALE_COOKIE_MAX_AGE = 31536000;
 
-/** Compiled message instances per key+locale (i18n-and-theming.md:129). */
+/** Compiled message instances per key+locale. */
 const messageCache = new Map<string, IntlMessageFormat>();
 
 function lookupPath(catalog: unknown, key: string): string | null {
@@ -82,11 +81,11 @@ export function useI18n(): {
         localeStore.setLocale(next);
 
         if (typeof document !== 'undefined') {
-            // biome-ignore lint/suspicious/noDocumentCookie: spec-mandated `locale` cookie (i18n-and-theming.md:34,43)
+            // biome-ignore lint/suspicious/noDocumentCookie: spec-mandated `locale` cookie
             document.cookie = `${LOCALE_COOKIE}=${next};path=/;max-age=${LOCALE_COOKIE_MAX_AGE};SameSite=Lax`;
         }
 
-        // Reload the page with fresh server-side props (i18n-and-theming.md:43).
+        // Reload the page with fresh server-side props.
         router.reload();
     }
 

@@ -2,11 +2,9 @@ import { router } from '@inertiajs/vue3';
 import { nextTick, type Ref, ref } from 'vue';
 
 /**
- * Route-change announcement (a11y 13.6 review — replaces the former
- * focus-to-`<h1>` behaviour of accessibility.md:56-74). On every real
- * Inertia navigation the new page's `<h1>` (falling back to the document
- * title) is announced through a polite live region rendered by the app
- * root.
+ * Route-change announcement: on every real Inertia navigation the new
+ * page's `<h1>` (falling back to the document title) is announced
+ * through a polite live region rendered by the app root.
  *
  * Focus is deliberately NOT moved: the document stays at the top, so the
  * skip link remains the first tab stop after a navigation. Moving focus

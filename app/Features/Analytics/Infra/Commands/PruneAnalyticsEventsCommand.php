@@ -8,10 +8,9 @@ use App\Features\Analytics\App\UseCases\PruneEventsUseCase;
 use Illuminate\Console\Command;
 
 /**
- * `analytics:prune-events` (analytics.md:216, backup.md:464) — the
- * monthly safety net that applies the 90-day retention independently of
- * metrics generation, so raw events never exceed the window even when
- * aggregation is skipped or fails.
+ * `analytics:prune-events` — the monthly safety net that applies the
+ * 90-day retention independently of metrics generation, so raw events
+ * never exceed the window even when aggregation is skipped or fails.
  */
 final class PruneAnalyticsEventsCommand extends Command
 {

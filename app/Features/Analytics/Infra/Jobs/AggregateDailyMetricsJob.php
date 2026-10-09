@@ -12,16 +12,15 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Bus;
 
 /**
- * The queued daily aggregation (analytics.md:182-184, architecture.md:171):
- * aggregates `analytics_events` (+ `feedback` rows) into
- * `analytics_daily_metrics` for the given date range — defaulting to
- * the previous day plus the in-progress day (`AggregateDailyMetricsUseCase
- * ::defaultDateRange()`) — and then dispatches the report rebuild
- * (`RebuildReportsJob`, step 11.3.3) so the reports never drift from
- * the metrics. The previous day's digest mail (`SendDailyDigestUseCase`,
- * step 11.3.5) is queued after the rebuild — the digest covers the
- * range start's day. The date-range default and the email decision
- * live in the use cases, not here. Dispatched by
+ * The queued daily aggregation: aggregates `analytics_events` (+
+ * `feedback` rows) into `analytics_daily_metrics` for the given date
+ * range — defaulting to the previous day plus the in-progress day
+ * (`AggregateDailyMetricsUseCase::defaultDateRange()`) — and then
+ * dispatches the report rebuild (`RebuildReportsJob`) so the reports
+ * never drift from the metrics. The previous day's digest mail
+ * (`SendDailyDigestUseCase`) is queued after the rebuild — the digest
+ * covers the range start's day. The date-range default and the email
+ * decision live in the use cases, not here. Dispatched by
  * `analytics:generate-daily-metrics` (scheduled `0 2 * * *`).
  */
 final class AggregateDailyMetricsJob implements ShouldQueue
@@ -40,9 +39,9 @@ final class AggregateDailyMetricsJob implements ShouldQueue
 
         $aggregate->aggregate(new ReportPeriod($dateFrom, $dateTo));
 
-        // The report rebuild (11.3.3) runs after every aggregation —
-        // reports are fully rebuilt from the daily metrics, so they
-        // cannot drift.
+        // The report rebuild runs after every aggregation — reports
+        // are fully rebuilt from the daily metrics, so they cannot
+        // drift.
         Bus::dispatch(new RebuildReportsJob());
 
         $digestMail->sendForDay($dateFrom);

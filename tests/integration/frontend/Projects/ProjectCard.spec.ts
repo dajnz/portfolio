@@ -147,7 +147,6 @@ describe('ProjectCard', () => {
         const placeholder = wrapper.get('.project-card__image--placeholder');
         expect(placeholder.attributes('aria-hidden')).toBe('true');
         expect(placeholder.find('.project-card__placeholder-icon').exists()).toBe(true);
-        // The "PREVIEW" text label was dropped (2026-08-16 rework).
         expect(placeholder.find('.project-card__placeholder-label').exists()).toBe(false);
         expect(placeholder.text()).toBe('');
     });
@@ -161,8 +160,8 @@ describe('ProjectCard', () => {
         expect(github.attributes('href')).toBe('https://example.com/ledger');
         expect(github.attributes('target')).toBe('_blank');
         expect(github.attributes('rel')).toBe('noopener');
-        // The 2026-08-16 rework: light contour buttons instead of the
-        // heavy solid secondary variant.
+        // Light contour buttons instead of the heavy solid secondary
+        // variant.
         expect(github.classes()).toContain('btn--outline');
         expect(github.text()).toContain('Sources');
 

@@ -12,14 +12,10 @@ use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use InvalidArgumentException;
 
 /**
- * Domain entity representing a single tech skill.
- *
- * Every skill belongs to a group; the group's identity and localised
- * names are carried as a {@see SkillGroupVo} so that no skill is
- * isolated from its group context. This is the single entity used by
- * both the Shared read model and the TechSkills write surface
- * (content-management.md:19,81). Constructor arguments are value
- * objects — repositories create them from raw DB/request values.
+ * Every skill belongs to a group; the group's identity and localized
+ * names are carried as a {@see SkillGroupVo}, so no skill is isolated
+ * from its group context. Constructor arguments are value objects —
+ * repositories create them from raw DB/request values.
  *
  * State changes go through the mutation methods (`rename`, `changeIcon`,
  * `changeProficiency`, `useInResume`/`unuseInResume`, `changeGroup`);
@@ -137,9 +133,9 @@ final class TechSkill extends BaseEntity
     }
 
     /**
-     * Moves the skill into another group (drag-and-drop between groups):
-     * the new group context and the new position within it are applied
-     * together; the repository persists the change afterwards.
+     * Moves the skill into another group: the new group context and the new
+     * position within it are applied together; the repository persists the
+     * change afterwards.
      */
     public function changeGroup(SkillGroupVo $group, SortOrder $order): void
     {

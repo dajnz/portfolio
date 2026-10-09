@@ -11,14 +11,13 @@ use App\Features\Analytics\Domain\Enums\MetricSpan;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
 
 /**
- * The admin analytics dashboard props (analytics.md:223-227, ADR-0017,
- * 11.3.4) for `GET /admin/analytics`: the whole-time metric blocks per
- * tab (overview/blog/projects — `{key, value, min?, max?}`, keys are
- * the stable identifiers the frontend maps to i18n labels and to the
- * series/rankings parameters), the default chart series
- * (`page_views`, day/week/month + the cumulative `all`) and the
- * default rankings (time-on-page top/bottom 10 pages). Metrics without
- * stored rows fall back to a zero block.
+ * The admin analytics dashboard props for `GET /admin/analytics`: the
+ * whole-time metric blocks per tab (overview/blog/projects —
+ * `{key, value, min?, max?}`, keys are the stable identifiers the
+ * frontend maps to i18n labels and to the series/rankings parameters),
+ * the default chart series (`page_views`, day/week/month + the
+ * cumulative `all`) and the default rankings (time-on-page top/bottom
+ * 10 pages). Metrics without stored rows fall back to a zero block.
  */
 final class GetAnalyticsDashboardUseCase
 {
@@ -116,10 +115,10 @@ final class GetAnalyticsDashboardUseCase
 
     /**
      * The projects blocks — the sums of the per-project dimension rows
-     * (the catalog stores no dimension-NULL project totals;
-     * analytics.md:178) and the project-scoped uniques (the distinct
-     * visitors across ALL project pages — the same visitor viewing
-     * several projects counts once, unlike the per-project rows).
+     * (the catalog stores no dimension-NULL project totals) and the
+     * project-scoped uniques (the distinct visitors across ALL project
+     * pages — the same visitor viewing several projects counts once,
+     * unlike the per-project rows).
      *
      * @return list<array{key: string, value: float}>
      */

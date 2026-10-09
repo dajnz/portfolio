@@ -6,12 +6,11 @@ import { useI18n } from './useI18n';
 
 export interface UnsavedChangesGuard {
     isDirty: Ref<boolean>;
-    /** Removes both guards — called on successful form submission (spec §4). */
+    /** Removes both guards — called on successful form submission. */
     clear: () => void;
     /** Skips the prompt for the next Inertia visit — called right before
      *  the form's own submit, which would otherwise trip the navigation
-     *  guard on a dirty form (4.2 deviation: admin-section-components
-     *  .md:551 only documents the guard, not the submit bypass). */
+     *  guard on a dirty form. */
     suppressNextVisit: () => void;
     /** Replaces the comparison baseline and re-syncs — for forms that
      *  save in parts without a full re-render (SettingsPage per-tab
@@ -21,11 +20,11 @@ export interface UnsavedChangesGuard {
 }
 
 /**
- * Unsaved-changes guard for admin forms (admin-section-components.md:537-553):
- * registers a `window.beforeunload` listener and an Inertia `before`
- * navigation guard while the form differs from its initial snapshot, and
- * prompts the user (`common.unsaved_changes`). `clear()` removes the
- * guards — called on successful submission.
+ * Unsaved-changes guard for admin forms: registers a
+ * `window.beforeunload` listener and an Inertia `before` navigation
+ * guard while the form differs from its initial snapshot, and prompts
+ * the user (`common.unsaved_changes`). `clear()` removes the guards —
+ * called on successful submission.
  *
  * The dirty check uses lodash-es `isEqual` (per-method import, tree-shaken
  * into the bundle) — deep equality across plain data, nested objects and

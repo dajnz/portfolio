@@ -10,10 +10,10 @@ use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
 
 /**
- * The top/bottom/liked/disliked ranking payload (analytics.md:226,
- * ADR-0017, 11.3.4) for `GET /admin/analytics/rankings?metric=&variant=
- * &scope=`: the `span = 'all'` dimension rows of the metric, capped at
- * 10. The `top`/`bottom` variants order by value desc/asc; the
+ * The top/bottom/liked/disliked ranking payload for
+ * `GET /admin/analytics/rankings?metric=&variant=&scope=`: the
+ * `span = 'all'` dimension rows of the metric, capped at 10. The
+ * `top`/`bottom` variants order by value desc/asc; the
  * `liked`/`disliked` variants rank the reactions metrics desc (the
  * request validates their pairing). The `scope` selects the dimension
  * family (`article:`/`project:` — the `views`/`unique_visitors`
@@ -171,8 +171,8 @@ final class GetMetricRankingsUseCase
 
     /**
      * The `*_min`/`*_max` partner of the avg-able ranking metrics (the
-     * `*_seconds` / `completion_rate_sum` + their min/max columns —
-     * analytics.md:176-177); the count-like metrics carry no min/max.
+     * `*_seconds` / `completion_rate_sum` + their min/max columns); the
+     * count-like metrics carry no min/max.
      */
     private function avgPartner(MetricName $metric, string $kind): ?MetricName
     {

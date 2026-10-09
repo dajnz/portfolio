@@ -17,7 +17,7 @@
 //   4. runs the usage-coverage guard: every `set:name` literal found in
 //      resources/js source must be listed in one of the manifests, so an
 //      unlisted icon fails the build instead of silently falling back to
-//      a runtime Iconify API fetch (ADR-0023 — offline, no trackers). The
+//      a runtime Iconify API fetch (offline, no trackers). The
 //      hand-fed `custom` set (scripts/build-custom-icons.mjs) forms its
 //      own allowlist: `custom:*` literals are checked against the icons
 //      in resources/js/iconSubsets/custom.json instead.
@@ -133,7 +133,7 @@ function collectSourceTokens() {
     // OpenAPI types, the subset JSONs and the manifests themselves are
     // excluded. The test fixtures are covered too — a fixture-only icon
     // missing from the subsets would trigger the same runtime Iconify
-    // API fetch in the specs (ADR-0023). The `custom` prefix is scanned too:
+    // API fetch in the specs. The `custom` prefix is scanned too:
     // its icons come from the files in resources/icons/custom (scripts/
     // build-custom-icons.mjs), not from a manifest.
     const knownPrefixes = new Set(['heroicons', 'simple-icons', 'devicon', 'lucide', 'custom']);

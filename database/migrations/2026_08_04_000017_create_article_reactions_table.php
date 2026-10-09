@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('article_reactions', function (Blueprint $table) {
@@ -26,9 +23,6 @@ return new class () extends Migration {
         DB::statement('alter table article_reactions add constraint article_reactions_reaction_check check (reaction in (\'like\', \'dislike\'))');
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('article_reactions');

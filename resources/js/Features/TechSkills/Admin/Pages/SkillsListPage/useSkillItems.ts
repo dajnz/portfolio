@@ -181,8 +181,8 @@ export function useSkillItems(groups: Ref<SkillGroupData[]>, persistSkillOrder: 
     // The editing draft owns name/icon/proficiency (the row's dropdown
     // feeds it); the include-in-resume checkbox stays a live quick action
     // (full-row PUT with the current values, mirroring the contacts page's
-    // toggle behavior). The viewing proficiency dots are DISPLAY-ONLY
-    // (5.2 rework — proficiency is edited via the inline dropdown).
+    // toggle behavior). The viewing proficiency dots are display-only —
+    // proficiency is edited via the inline dropdown.
     function updateSkillField(
         groupId: number,
         skillId: number,

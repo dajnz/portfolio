@@ -20,9 +20,8 @@ use DateTimeImmutable;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Creates a timeline item (ADR-0024): the {@see WorkPeriod} (a null
- * `ended_at` = ongoing — the form no longer sends an `is_current`
- * flag), the {@see RelatedProject} (null when no project reference),
+ * Creates a timeline item: the {@see WorkPeriod} (a null `ended_at` =
+ * ongoing), the {@see RelatedProject} (null when no project reference),
  * the {@see SortOrder}, the tech tags resolved from their IDs, and the
  * per-locale translations — every ACTIVE locale gets a row, since
  * `short_description` and `position` are required per locale; the
@@ -153,7 +152,7 @@ final class StoreTimelineItemUseCase
         $translations = [];
 
         // Every ACTIVE locale gets a row — `short_description` is
-        // required per locale (content-management.md:659).
+        // required per locale.
         foreach ($this->locales->activeLocales() as $locale) {
             $translations[] = new TimelineItemTranslation(
                 locale: $locale,

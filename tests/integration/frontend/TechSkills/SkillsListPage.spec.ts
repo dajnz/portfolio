@@ -263,8 +263,8 @@ describe('SkillsListPage', () => {
         await wrapper.get('[data-testid="skills-list-page-group-1-add-skill"]').trigger('click');
         expect(wrapper.find('[data-testid="skills-list-page-new-skill-1"]').exists()).toBe(true);
 
-        // The editor row renders BELOW the skills list (5.2 rework — the
-        // saved skill appears where it was created, at the group bottom).
+        // The editor row renders BELOW the skills list — the saved skill
+        // appears where it was created, at the group bottom.
         const skillsList = wrapper.get('[data-testid="skills-list-page-skills-1"]');
         const editorRow = wrapper.get('[data-testid="skills-list-page-new-skill-1"]');
         expect(
@@ -301,7 +301,7 @@ describe('SkillsListPage', () => {
         await wrapper.get('[data-testid="skills-list-page-group-1-add-skill"]').trigger('click');
 
         // Group 1 has two skills — the editor must appear once, not once
-        // per skill row (the reported duplication).
+        // per skill row.
         expect(
             wrapper.findAll('[data-testid="skills-list-page-new-skill-1"]'),
         ).toHaveLength(1);
@@ -392,7 +392,7 @@ describe('SkillsListPage', () => {
         expect(wrapper.find('[data-testid="skills-list-page-skill-1-name"]').exists()).toBe(true);
 
         // Capture-phase pointerdown outside the edited row closes the
-        // editor without saving (the blur-save was removed — ADR-0024 rework).
+        // editor without saving.
         wrapper
             .get('[data-testid="skills-list-page-add-group"]')
             .element.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));

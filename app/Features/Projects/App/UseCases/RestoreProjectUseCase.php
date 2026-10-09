@@ -12,8 +12,8 @@ use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
  * Restores soft-deleted projects (single + bulk). The slug uniqueness
  * is re-checked against NON-trashed projects — soft-deleted entities
  * occupy their slug, so a restored project must not collide with an
- * active one (ADR-0006, content-management.md:901). The checks are batched:
- * one read for the projects' slugs and one for the occupied subset.
+ * active one. The checks are batched: one read for the projects' slugs
+ * and one for the occupied subset.
  */
 final class RestoreProjectUseCase
 {

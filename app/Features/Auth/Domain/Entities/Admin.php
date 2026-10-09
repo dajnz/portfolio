@@ -98,7 +98,7 @@ final class Admin extends BaseEntity
      * Whether GitHub OAuth is the primary login method: a GitHub ID is
      * linked and no password hash is stored. Always false under the
      * current schema (`admins.password` is NOT NULL) — derived anyway for
-     * forward compatibility (authentication.md:329).
+     * forward compatibility.
      */
     public function isOauthPrimary(): bool
     {

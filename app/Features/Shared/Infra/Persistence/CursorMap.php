@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Features\Shared\Infra\Persistence;
 
 /**
- * The `cursors` map of an admin list page response
- * (admin-section-ui.md:169-181): `first`/`last` are the cursor positions
- * of the page's boundary items (used for previous/next navigation;
- * `null` on an empty page) and `page` is the current page number.
+ * The `cursors` map of an admin list page response: `first`/`last` are the
+ * cursor positions of the page's boundary items (used for previous/next
+ * navigation; `null` on an empty page) and `page` is the current page number.
  */
 final readonly class CursorMap
 {

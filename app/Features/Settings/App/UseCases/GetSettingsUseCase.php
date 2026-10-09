@@ -9,8 +9,7 @@ use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface
 
 /**
  * Flat `key => typed value` map of every setting row, shared to the
- * Settings page (contract: `settings` prop of `SettingsPageProps`).
- * `mail_api_token` is masked (ADR-0016).
+ * Settings page, with the `mail_api_token` secret masked.
  */
 final class GetSettingsUseCase
 {

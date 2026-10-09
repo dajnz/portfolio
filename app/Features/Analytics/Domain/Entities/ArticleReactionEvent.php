@@ -10,10 +10,6 @@ use App\Features\Analytics\Domain\ValueObjects\PageDetails;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
-/**
- * The `article_reaction` event (analytics.md:26): the like/dislike
- * click on an article, carrying the article id and the reaction value.
- */
 final class ArticleReactionEvent extends AnalyticsEvent
 {
     public const EVENT_TYPE = 'article_reaction';

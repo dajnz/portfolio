@@ -9,12 +9,12 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * A feedback submission (database.md:462-480): the sender identity, the
- * message, and the server-computed anonymized identifiers. The row is
- * immutable apart from the read/forwarded flags — `created_at` only, no
- * `updated_at`. The `ipAddress`/`fingerprint` values are the keyed
- * HMAC-SHA256 digests (ADR-0017), never the raw IP/User-Agent. Invariants are
- * enforced in the constructor via the dedicated validation methods.
+ * A feedback submission: the sender identity, the message, and the
+ * server-computed anonymized identifiers. The row is immutable apart from
+ * the read/forwarded flags — `created_at` only, no `updated_at`. The
+ * `ipAddress`/`fingerprint` values are the keyed HMAC-SHA256 digests, never
+ * the raw IP/User-Agent. Invariants are enforced in the constructor via the
+ * dedicated validation methods.
  */
 final class Feedback extends BaseEntity
 {

@@ -10,10 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `project_detail_item_translations` (database.md:
- * 251-259): the per-locale title/description of an engineering detail
- * item.
- *
  * @property int $detail_item_id
  * @property string $locale
  * @property string $title

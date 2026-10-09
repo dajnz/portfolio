@@ -1,5 +1,5 @@
-// Shared locale-options helper (5.2 rework) — the admin surfaces receive
-// the ACTIVE locales (the `supported_locales` setting) via the shared
+// Shared locale-options helper — the admin surfaces receive the ACTIVE
+// locales (the `supported_locales` setting) via the shared
 // `supported_locales` prop; this maps the codes to the {code,
 // native_name} options the LanguageSelector / LocaleTabs consume.
 // Falls back to the full en/ru pair when the shared prop is absent (the

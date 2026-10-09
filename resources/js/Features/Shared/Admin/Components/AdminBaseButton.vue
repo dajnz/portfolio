@@ -1,4 +1,3 @@
-// admin-section-components.md:19-24 — mirrors PublicBaseButton + size
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { computed } from 'vue';
@@ -48,8 +47,8 @@ const props = withDefaults(
 
 const emit = defineEmits<{ click: [event: MouseEvent] }>();
 
-// Icon-only sizing also applies to the outline-icon variants (5.2
-// rework — border + icon, no text).
+// Icon-only sizing also applies to the outline-icon variants
+// (border + icon, no text).
 const isIconOnly = computed(() =>
     ['icon-only', 'icon-outline', 'icon-outline-danger'].includes(props.variant),
 );
@@ -135,8 +134,7 @@ function handleClick(event: MouseEvent): void {
         </slot>
       </span>
       <!-- The label span is omitted when the button has no text — an
-           icon-only danger/outline button must stay perfectly centred
-           (5.2 rework). -->
+           icon-only danger/outline button must stay perfectly centred. -->
       <span v-if="$slots.default">
         <slot />
       </span>

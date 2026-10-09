@@ -10,17 +10,16 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 /**
- * Resume PDF cache invalidation (content-management.md:400): any save,
- * delete or restore of a resume source row clears every `resume:pdf:*`
- * Redis key, so the next `/cv` request regenerates. The listeners are
- * table-based (the shared data contract — the same tables the resume's
- * query-builder reads touch) rather than per-model-class: the source
- * models belong to other features and must not import Resume classes
- * (ADR-0003). Eloquent dispatches string events (`eloquent.saved: Class`)
- * unless a model declares `dispatchesEvents`, hence the wildcard
- * patterns. Batched query-builder writes (reorders) fire no model events
- * — their `updated_at` bumps rotate the content hash instead (see the
- * TechSkills/Portfolio reorder implementations).
+ * Resume PDF cache invalidation: any save, delete or restore of a resume
+ * source row clears every `resume:pdf:*` Redis key, so the next `/cv`
+ * request regenerates. The listeners are table-based (the shared data
+ * contract — the same tables the resume's query-builder reads touch)
+ * rather than per-model-class: the source models belong to other features
+ * and must not import Resume classes. Eloquent dispatches string events
+ * (`eloquent.saved: Class`) unless a model declares `dispatchesEvents`,
+ * hence the wildcard patterns. Batched query-builder writes (reorders)
+ * fire no model events — their `updated_at` bumps rotate the content hash
+ * instead (see the TechSkills/Portfolio reorder implementations).
  */
 final class ResumePdfInvalidationProvider extends ServiceProvider
 {

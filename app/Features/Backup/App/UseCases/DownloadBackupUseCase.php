@@ -8,10 +8,9 @@ use App\Features\Backup\Domain\Entities\Backup;
 use RuntimeException;
 
 /**
- * The download guard (backup.md:423-430): only `completed` backups are
- * downloadable (backup.md:159). Returns the RustFS object key of the
- * archive — the controller streams it through the private `backups`
- * bucket behind the admin auth middleware.
+ * The download guard: only `completed` backups are downloadable. Returns
+ * the RustFS object key of the archive — the controller streams it
+ * through the private `backups` bucket behind the admin auth middleware.
  */
 final class DownloadBackupUseCase
 {

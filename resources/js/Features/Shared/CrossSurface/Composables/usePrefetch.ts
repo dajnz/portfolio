@@ -1,8 +1,7 @@
 import { router } from '@inertiajs/vue3';
 
 /**
- * Lingering threshold for hover-based prefetch (architecture.md:1222 —
- * "If the pointer lingers > 100ms, call Inertia.visit").
+ * Hover-based prefetch fires only after the pointer lingers this long.
  */
 export const HOVER_PREFETCH_DELAY_MS = 100;
 
@@ -16,9 +15,9 @@ export interface UsePrefetchApi {
 }
 
 /**
- * Inertia page prefetch (architecture.md:1218-1240): wraps `router.visit`
- * with debounce (hover linger) and AbortController cancellation. Prefetches
- * fetch the Inertia page JSON, never `<link rel="prefetch">` HTML.
+ * Inertia page prefetch: wraps `router.visit` with debounce (hover
+ * linger) and AbortController cancellation. Prefetches fetch the Inertia
+ * page JSON, never `<link rel="prefetch">` HTML.
  */
 export function usePrefetch(): UsePrefetchApi {
     let inFlight: AbortController | null = null;
@@ -37,8 +36,8 @@ export function usePrefetch(): UsePrefetchApi {
         inFlight = controller;
 
         // Inertia 3 cancels visits via the visit's cancel token
-        // (`onCancelToken`) rather than a `signal` option (architecture.md:1233
-        // pseudocode is Inertia-2-era); the AbortController bridges the two.
+        // (`onCancelToken`) rather than a `signal` option; the
+        // AbortController bridges the two.
         router.visit(url, {
             preserveState: true,
             onCancelToken: (cancelToken) => {
@@ -79,7 +78,6 @@ export function usePrefetch(): UsePrefetchApi {
                 timer = null;
             }
 
-            // Cancel if the prefetch hasn't completed yet.
             cancel();
         };
 

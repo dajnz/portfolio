@@ -18,9 +18,8 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * A portfolio project (database.md:194-216, content-management.md:115-
- * 163): the slug history ({@see ProjectSlugs} — the current kebab-case
- * slug and the recorded old ones), the picture set
+ * A portfolio project: the slug history ({@see ProjectSlugs} — the
+ * current kebab-case slug and the recorded old ones), the picture set
  * ({@see ProjectPictures} — the optional preview picture and the
  * screenshot gallery), the URL pair ({@see ProjectLinks}), the
  * application-level tech-writeup article reference ({@see BlogArticleId}
@@ -49,11 +48,10 @@ use InvalidArgumentException;
  * embedded value objects stay immutable.
  *
  * Localized state is projected per property: `titleFor($locale)` etc.
- * resolve the requested locale with an `en` fallback
- * (content-management.md:415-418), the `*ByLocale()` maps expose every
- * stored locale for the admin LocaleTabs, and the screenshot /
- * engineering-detail collections stay accessible for the form's merged
- * editors.
+ * resolve the requested locale with an `en` fallback, the `*ByLocale()`
+ * maps expose every stored locale for the admin LocaleTabs, and the
+ * screenshot / engineering-detail collections stay accessible for the
+ * form's merged editors.
  */
 final class Project extends BaseEntity
 {
@@ -201,8 +199,7 @@ final class Project extends BaseEntity
     /**
      * The locales with a stored translation row — the exact set the
      * persistence layer reconciles against the active locales (rows of
-     * disabled locales are preserved untouched, content-management.md:
-     * 419).
+     * disabled locales are preserved untouched).
      *
      * @return string[]
      */
@@ -285,7 +282,7 @@ final class Project extends BaseEntity
      * brief description; the project is not published yet) and the
      * publication state is replaced with the published one.
      * `published_at` is set only on the FIRST publish and immutable
-     * thereafter (database.md:210).
+     * thereafter.
      */
     public function publish(DateTimeImmutable $now): void
     {
@@ -306,7 +303,7 @@ final class Project extends BaseEntity
 
     /**
      * Unpublishes the project, preserving `published_at` — the value
-     * is immutable after the first publish (database.md:210).
+     * is immutable after the first publish.
      */
     public function unpublish(): void
     {
@@ -328,7 +325,7 @@ final class Project extends BaseEntity
 
     /**
      * Translation for the given locale, falling back to `en` when the
-     * requested one is missing (content-management.md:415).
+     * requested one is missing.
      */
     private function translationFor(string $locale): ?ProjectTranslation
     {

@@ -16,25 +16,22 @@ use function mb_strlen;
 use function sprintf;
 
 /**
- * A backup archive row (`backups`, database.md:567-587): tracks the
- * lifecycle of one encrypted `.zip` stored in the RustFS `backups`
- * bucket. The entity does not perform I/O — use cases and the
- * workflow services drive it (backup.md:132-159).
+ * A backup archive row (`backups`): tracks the lifecycle of one
+ * encrypted `.zip` stored in the RustFS `backups` bucket. The entity
+ * does not perform I/O — use cases and the workflow services drive it.
  *
- * State transitions (backup.md:153-157):
+ * State transitions:
  * - `pending → processing` — the create/restore job picked up the record;
  * - `processing → completed` — the archive is uploaded (create) or the
- *   restore finished (ADR-0018); the archive path and the content summary
- *   are stamped on the entity;
+ *   restore finished; the archive path and the content summary are
+ *   stamped on the entity;
  * - `pending | processing → failed` — an error occurred;
- * - `completed → processing` — an existing backup being re-restored
- *   (ADR-0018: the restore job mirrors the create lifecycle on the same
- *   record, which the UI polls via `GET /admin/backups/{backup}/status`).
+ * - `completed → processing` — an existing backup being re-restored (the
+ *   restore job mirrors the create lifecycle on the same record, which
+ *   the UI polls via `GET /admin/backups/{backup}/status`).
  *
- * `completed_at` is set when the record completes **or** fails
- * (openapi/inertia/backup.yaml:64); pending/processing rows keep it
- * null. Downloads are only available on `completed`, deletion is
- * blocked while `processing` (backup.md:159).
+ * `completed_at` is set when the record completes **or** fails;
+ * pending/processing rows keep it null.
  */
 final class Backup extends BaseEntity
 {
@@ -145,7 +142,7 @@ final class Backup extends BaseEntity
     }
 
     /**
-     * Set when the record completed **or** failed (backup.yaml:64).
+     * Set when the record completed **or** failed.
      */
     public function toCompletedAt(): ?DateTimeImmutable
     {
@@ -157,17 +154,11 @@ final class Backup extends BaseEntity
         return $this->timings->toDeletedAt();
     }
 
-    /**
-     * Downloads are only available for completed backups (backup.md:159).
-     */
     public function canDownload(): bool
     {
         return $this->status === BackupStatus::Completed;
     }
 
-    /**
-     * Deletion is blocked while the record is processing (backup.md:159).
-     */
     public function canDelete(): bool
     {
         return $this->status !== BackupStatus::Processing;
@@ -175,7 +166,7 @@ final class Backup extends BaseEntity
 
     /**
      * `pending → processing` for a fresh backup, `completed → processing`
-     * when an existing backup is re-restored (ADR-0018). Clears the previous
+     * when an existing backup is re-restored. Clears the previous
      * completion stamp on re-processing.
      */
     public function startProcessing(): void
@@ -196,8 +187,8 @@ final class Backup extends BaseEntity
 
     /**
      * `processing → completed`: stamps the archive path and the
-     * content summary (backup.md:144). The summary must be fully
-     * populated — the archive metadata is written atomically.
+     * content summary. The summary must be fully populated — the
+     * archive metadata is written atomically.
      */
     public function complete(string $rustFsPath, BackupContentSummary $summary): void
     {
@@ -220,10 +211,9 @@ final class Backup extends BaseEntity
     }
 
     /**
-     * `pending | processing → failed` (backup.md:156): stamps the
-     * failure moment; the archive path stays untouched (a failed create
-     * never produced a zip, a failed restore keeps the original
-     * archive).
+     * `pending | processing → failed`: stamps the failure moment; the
+     * archive path stays untouched (a failed create never produced a
+     * zip, a failed restore keeps the original archive).
      */
     public function fail(): void
     {
@@ -263,10 +253,10 @@ final class Backup extends BaseEntity
     }
 
     /**
-     * The per-status shape of the stored row (backup.yaml:55-67): a
-     * completed backup carries its archive path + full content summary
-     * + completion time, failed rows the failure time,
-     * pending/processing rows neither.
+     * The per-status shape of the stored row: a completed backup
+     * carries its archive path + full content summary + completion
+     * time, failed rows the failure time, pending/processing rows
+     * neither.
      */
     private function validateStatusState(
         BackupStatus $status,

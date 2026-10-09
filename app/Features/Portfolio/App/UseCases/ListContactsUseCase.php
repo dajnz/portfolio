@@ -13,10 +13,10 @@ use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use Illuminate\Http\Request;
 
 /**
- * The admin contacts list (admin-section-ui.md:304-308): cursor-paginated
- * via the shared paginator (step 2.8). The reorderable list sorts by
- * `sort_order` (asc) — the frontend requests it via the documented
- * `?sort_column=`/`?sort_direction=` params; `id` stays the fallback.
+ * The admin contacts list: cursor-paginated via the shared paginator. The
+ * reorderable list sorts by `sort_order` (asc) — the frontend requests it
+ * via the `?sort_column=`/`?sort_direction=` params; `id` stays the
+ * fallback.
  */
 final class ListContactsUseCase
 {

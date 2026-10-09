@@ -1,4 +1,4 @@
-<!-- TagListPage (admin-section-ui.md:315-319, admin-section-components.md:925-953, tags.html) — the cursor-paginated article-tags management list: search by name across all locales (server-side), the DataTable (Name / Slug / Article Count / Actions — no selection, no bulk endpoints per routes.md), PaginationControls and the delete confirmation that warns when the tag is in use. -->
+<!-- TagListPage — the cursor-paginated article-tags management list: search by name across all locales (server-side), the DataTable (Name / Slug / Article Count / Actions — no selection, no bulk endpoints), PaginationControls and the delete confirmation that warns when the tag is in use. -->
 <script setup lang="ts">
 import type { AdminListMeta, TagTableRow } from '@blog/Admin/Types/article';
 import { router, usePage } from '@inertiajs/vue3';
@@ -198,7 +198,7 @@ function clearSearch(): void {
       <AdminStickyActionBar :test_id="`${props.test_id}-sticky-bar`">
         <div class="flex w-full items-center gap-3">
           <!-- The search takes the whole available width so the New Tag
-               button sits right-aligned (user request 2026-08-13). -->
+               button sits right-aligned. -->
           <div class="min-w-0 flex-1">
             <AdminBaseInput
               :model-value="searchInput"
@@ -252,7 +252,7 @@ function clearSearch(): void {
         <template #row-actions="{ row }">
           <!-- @click.stop — the delete must not bubble into the row's
                edit-navigation click handler (no Edit button — the row
-               click opens the form, user request 2026-08-13). -->
+               click opens the form). -->
           <div
             class="flex items-center gap-1"
             @click.stop

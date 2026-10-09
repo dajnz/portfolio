@@ -10,11 +10,11 @@ use App\Features\Analytics\Domain\ValueObjects\PageDetails;
 use DateTimeImmutable;
 
 /**
- * The plain CTA click events (analytics.md:19-22): `cta_click_github`,
- * `cta_click_demo`, `cta_click_cv`, `cta_click_feedback`. The frontend
- * sends no payload metadata for these — the target is carried by the
- * event type itself (ADR-0017), so `eventType()` derives it from the
- * target and `toEventSpecificData()` normalizes the stored payload.
+ * The plain CTA click events: `cta_click_github`, `cta_click_demo`,
+ * `cta_click_cv`, `cta_click_feedback`. The frontend sends no payload
+ * metadata for these — the target is carried by the event type itself,
+ * so `eventType()` derives it from the target and
+ * `toEventSpecificData()` normalizes the stored payload.
  */
 final class CallToActionClickEvent extends AnalyticsEvent
 {

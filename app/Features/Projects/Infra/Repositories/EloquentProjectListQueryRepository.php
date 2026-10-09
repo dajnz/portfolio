@@ -14,12 +14,11 @@ use Illuminate\Support\Facades\DB;
  * Eloquent implementation of {@see ProjectListQueryRepositoryInterface}.
  *
  * The public page query is a single locale-resolved projection
- * (`coalesce(pl.*, pe.*)` with the `en` fallback — content-management.md:
- * 415) over `projects`, extended with the tech-tag AND-intersect, the
- * FTS search (`plainto_tsquery` + `ts_rank(..., 32)` normalization —
- * database.md:651-660; when present it takes over the ordering) and the
- * keyset cursor of the sort strategy (date / complexity / rank — each
- * with the mandatory `id` tiebreaker, public-section-ui.md:346-391).
+ * (`coalesce(pl.*, pe.*)` with the `en` fallback) over `projects`,
+ * extended with the tech-tag AND-intersect, the FTS search
+ * (`plainto_tsquery` + `ts_rank(..., 32)` normalization; when present
+ * it takes over the ordering) and the keyset cursor of the sort
+ * strategy (date / rank, each with the mandatory `id` tiebreaker).
  * Tech tags and screenshot paths are assembled per page from two
  * supplemental queries.
  *
@@ -195,8 +194,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
 
     /**
      * The admin list projection — the locale-resolved title (the `en`
-     * fallback) plus every row field the admin surfaces render
-     * (admin-section-ui.md:327-346,539-572).
+     * fallback) plus every row field the admin surfaces render.
      */
     private function adminRowsQuery(): QueryBuilder
     {
@@ -263,8 +261,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
     }
 
     /**
-     * The admin title search (content-management.md:137) over ALL
-     * per-locale translation rows.
+     * The admin title search over ALL per-locale translation rows.
      */
     private function applyTitleSearch(QueryBuilder $query, string $search): QueryBuilder
     {
@@ -277,8 +274,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
 
     /**
      * The `?tags=` AND/intersection filter: projects whose tech-tag set
-     * contains ALL of the submitted skill IDs (content-management.md:129,
-     * routes.md:207-208).
+     * contains ALL of the submitted skill IDs.
      *
      * @param  int[]  $tagIds
      */
@@ -294,11 +290,11 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
     }
 
     /**
-     * FTS search (database.md:651-660): `search_vector @@
-     * plainto_tsquery(dictionary, :q)` over the locale-resolved vector
-     * (the `en` fallback vector when the locale row is missing), ordered
-     * by `ts_rank(..., 32)` — the rank column is selected so the keyset
-     * predicate and the ORDER BY can reference it.
+     * FTS search: `search_vector @@ plainto_tsquery(dictionary, :q)`
+     * over the locale-resolved vector (the `en` fallback vector when the
+     * locale row is missing), ordered by `ts_rank(..., 32)` — the rank
+     * column is selected so the keyset predicate and the ORDER BY can
+     * reference it.
      */
     private function applyFtsSearch(QueryBuilder $query, string $search): QueryBuilder
     {
@@ -320,10 +316,9 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
      * The keyset predicate of the active order: the `date` strategy
      * (`(published_at, id)`) or the FTS rank (`(fts_rank, id)` when
      * searching) — each with the mandatory `id` tiebreaker and the
-     * strict seek (public-section-ui.md:346-391). The seek operators
-     * mirror the sort direction: `<`/`id <` in `desc` order, `>`/
-     * `id >` in `asc` order. Split into the boundary and tie disjuncts
-     * for readability.
+     * strict seek. The seek operators mirror the sort direction: `<`/
+     * `id <` in `desc` order, `>`/`id >` in `asc` order. Split into the
+     * boundary and tie disjuncts for readability.
      */
     private function applyCursor(
         QueryBuilder $query,
@@ -418,8 +413,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
 
     /**
      * The sort column of the plain strategies — `date` sorts by the
-     * published timestamp (the only remaining strategy; `complexity`
-     * was removed 2026-08-16).
+     * published timestamp.
      */
     private function seekColumn(string $sort, bool $searching): string
     {

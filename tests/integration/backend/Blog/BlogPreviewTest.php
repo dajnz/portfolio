@@ -42,8 +42,8 @@ describe('BlogPreviewController', function (): void {
                 ->component('Blog/Public/Pages/BlogArticlePage')
                 ->where('article.id', $article->id)
                 ->where('article.title', 'Payments Gateway')
-                // ADR-0004: the preview serves the shared pipeline HTML —
-                // the raw Markdown is rendered (headings with ids).
+                // The preview serves the shared pipeline HTML — the raw
+                // Markdown is rendered (headings with ids).
                 ->where('article.content_html', fn (string $html) => str_contains($html, '<h2 id="the-problem">')
                     && str_contains($html, 'article body'))
                 ->where('reactions', null)
@@ -61,9 +61,6 @@ describe('BlogPreviewController', function (): void {
     });
 });
 
-/**
- * Creates a fully translated article with the given base attributes.
- */
 function previewArticleItem(array $attributes = [], array $translations = []): ArticleModel
 {
     $article = ArticleModel::factory()->create($attributes);

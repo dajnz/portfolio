@@ -11,13 +11,12 @@ use Inertia\Response;
 use Inertia\ResponseFactory;
 
 /**
- * `GET /admin/preview/projects/{project}` (routes.md:156,60) — the
- * signed preview URL: 1-hour expiry via `URL::temporarySignedRoute()`,
- * no `auth` middleware. Renders the public project detail page while
- * bypassing the `is_published` scope, so the admin can preview a draft
- * (routes.md:60) — the page is resolved by the preview use case (the
- * tech-writeup publication check and the `noindex` SEO variant are its
- * concern).
+ * `GET /admin/preview/projects/{project}` — the signed preview URL:
+ * 1-hour expiry via `URL::temporarySignedRoute()`, no `auth` middleware.
+ * Renders the public project detail page while bypassing the
+ * `is_published` scope, so the admin can preview a draft — the page is
+ * resolved by the preview use case (the tech-writeup publication check
+ * and the `noindex` SEO variant are its concern).
  */
 final class PreviewController
 {

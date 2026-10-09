@@ -13,15 +13,14 @@ use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsDailyMetricRepos
 use DateTimeImmutable;
 
 /**
- * The email digest payload (analytics.md:214-219, ADR-0017, 11.3.5) for
- * one day: the global `page_views`/`unique_visitors`/
- * `feedback_submissions` rows (zero when the day has none) and the top
- * article by views — the `views` row with an `article:{id}` dimension
- * carrying the most views. The article is shown only when it has an EN
- * translation (the rankings' display-name rule, ADR-0017 — untranslated
- * rows are dropped, the next best article wins); without any titled
- * article the digest carries no top article. Used by
- * `AggregateDailyMetricsJob` (11.3.5) to fill `SendAnalyticsReportMail`.
+ * The email digest payload for one day: the global
+ * `page_views`/`unique_visitors`/`feedback_submissions` rows (zero when
+ * the day has none) and the top article by views — the `views` row with
+ * an `article:{id}` dimension carrying the most views. The article is
+ * shown only when it has an EN translation (the rankings' display-name
+ * rule — untranslated rows are dropped, the next best article wins);
+ * without any titled article the digest carries no top article. Used
+ * by `AggregateDailyMetricsJob` to fill `SendAnalyticsReportMail`.
  */
 final class GetDailyDigestUseCase
 {
@@ -66,7 +65,7 @@ final class GetDailyDigestUseCase
 
     /**
      * The `views` rows with an `article:{id}` dimension ordered by
-     * value desc — the first one with an EN title wins (ADR-0017).
+     * value desc — the first one with an EN title wins.
      *
      * @param list<AnalyticsMetric> $rows
      */

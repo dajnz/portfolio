@@ -6,10 +6,9 @@ namespace App\Features\Shared\App\DTOs;
 
 /**
  * The length-aware pagination facts of a page-numbered list (the admin
- * autocomplete variants — admin-section-ui.md:539-572 and routes.md:
- * 199-212): the requested page, the per-page size and the derived
- * bounds (`from`/`to`/`last_page` over the total). The controller maps
- * these into the wire `meta` payload. Immutable.
+ * autocomplete variants): the requested page, the per-page size and the
+ * derived bounds (`from`/`to`/`last_page` over the total). The controller
+ * maps these into the wire `meta` payload.
  */
 final readonly class PaginationDto
 {

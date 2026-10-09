@@ -6,13 +6,6 @@ namespace App\Features\Projects\App\DTOs;
 
 use DateTimeImmutable;
 
-/**
- * A project as a list item — the shared shape of the admin table
- * rows, the admin autocomplete items and the public index cards (each
- * controller maps the fields its output needs). Built by the use cases
- * from the raw list rows; the dates are converted at the boundary.
- * Immutable.
- */
 final readonly class ProjectListItemDto
 {
     /**

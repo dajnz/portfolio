@@ -8,8 +8,8 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
- * Hard-deletes an article tag (content-management.md:690-695 — no
- * trash for tags; the `article_tag_pivot` rows cascade via the FK).
+ * Hard-deletes an article tag (no trash for tags; the
+ * `article_tag_pivot` rows cascade via the FK).
  */
 final class DestroyTagUseCase
 {

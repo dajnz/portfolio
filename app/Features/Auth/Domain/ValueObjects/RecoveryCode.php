@@ -8,8 +8,8 @@ use InvalidArgumentException;
 use LogicException;
 
 /**
- * Single TOTP recovery code (ADR-0014): `XXXX-XXXX-XXXX` (12 chars) drawn from
- * an unambiguous alphabet (no 0/O/1/I/L), stored bcrypt-hashed as
+ * Single TOTP recovery code: `XXXX-XXXX-XXXX` (12 chars) drawn from an
+ * unambiguous alphabet (no 0/O/1/I/L), stored bcrypt-hashed as
  * `{ "hash": string, "used": bool }`.
  *
  * Freshly generated codes keep their plaintext for one-time display;
@@ -66,7 +66,6 @@ final class RecoveryCode
         return strtoupper((string) preg_replace('/[^A-Za-z0-9]/', '', $code));
     }
 
-    /** Whether the normalized input matches this code's hash. */
     public function matches(string $normalizedCode): bool
     {
         return password_verify($normalizedCode, $this->hash);

@@ -7,11 +7,10 @@ namespace App\Features\Backup\Domain\RepositoryInterfaces;
 use App\Features\Backup\Domain\Entities\Backup;
 
 /**
- * Persistence for the `backups` table (database.md:567-587). The
- * repository stores and materializes {@see Backup} entities — the
- * entity's state transitions are persisted via `save()`, new pending
- * records are created via `create()` (the workflows never touch the
- * model directly).
+ * Persistence for the `backups` table. The repository stores and
+ * materializes {@see Backup} entities — the entity's state transitions
+ * are persisted via `save()`, new pending records are created via
+ * `create()` (the workflows never touch the model directly).
  */
 interface BackupRepositoryInterface
 {
@@ -31,8 +30,7 @@ interface BackupRepositoryInterface
     public function find(int $id): ?Backup;
 
     /**
-     * The restore target of `backup:restore {filename}`
-     * (backup.md:459).
+     * The restore target of `backup:restore {filename}`.
      */
     public function findByFilename(string $filename): ?Backup;
 
@@ -44,9 +42,9 @@ interface BackupRepositoryInterface
     public function listActive(): array;
 
     /**
-     * The number of non-trashed backups — the prune decision source
-     * (backup.md:460): when the count exceeds the `backup_max_count`
-     * setting, the oldest records are deleted.
+     * The number of non-trashed backups — the prune decision source:
+     * when the count exceeds the `backup_max_count` setting, the oldest
+     * records are deleted.
      */
     public function countActive(): int;
 
@@ -61,22 +59,22 @@ interface BackupRepositoryInterface
     /**
      * How many non-trashed backups reference the encryption key — the
      * admin UI's "N backups reference this key" tooltip and the key
-     * deletion guard (database.md:587, backup.md:510).
+     * deletion guard.
      */
     public function countForEncryptionKey(int $encryptionKeyId): int;
 
     /**
      * Clears `encryption_key_id` on the TRASHED backups referencing the
      * key — called right before the key's deletion so the FK
-     * `ON DELETE RESTRICT` (database.md:587) does not block it (the
-     * soft-deleted rows are invisible to the admin; their archives keep
-     * the `-k{id}--{name}` filename for manual decryption).
+     * `ON DELETE RESTRICT` does not block it (the soft-deleted rows are
+     * invisible to the admin; their archives keep the `-k{id}--{name}`
+     * filename for manual decryption).
      */
     public function detachTrashedEncryptionKeyReferences(int $encryptionKeyId): void;
 
     /**
      * Soft-deletes the record (deleted_at) — the archive's RustFS
-     * hard-delete is the caller's concern (backup.md:157,435).
+     * hard-delete is the caller's concern.
      */
     public function delete(Backup $backup): void;
 }

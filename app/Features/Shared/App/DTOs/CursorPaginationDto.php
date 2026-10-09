@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Features\Shared\App\DTOs;
 
 /**
- * The cursor pagination facts of an admin list page (admin-section-ui.
- * md:169-181): the (cached) total, the page facts and the boundary
- * cursors. The controller maps these into the wire `meta` payload.
- * Immutable.
+ * The cursor pagination facts of an admin list page: the (cached) total,
+ * the page facts and the boundary cursors. The controller maps these into
+ * the wire `meta` payload.
  */
 final readonly class CursorPaginationDto
 {

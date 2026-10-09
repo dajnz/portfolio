@@ -138,7 +138,7 @@ describe('TextEditor', () => {
 
     it('exposes the per-surface button configs', () => {
         // The projects config keeps the shared formatting but drops the
-        // blog-only controls (image upload, tables, callouts — ADR-0024).
+        // blog-only controls (image upload, tables, callouts).
         expect(PROJECT_EDITOR_BUTTONS).toEqual([
             'heading',
             'bullet-list',
@@ -334,13 +334,11 @@ describe('TextEditor', () => {
         const popup = wrapper.get('[data-testid="text-editor-popup"]');
         expect(popup.text()).toContain('none');
         // Anchored under the clicked button (fixed; happy-dom zero rects
-        // → bottom 0 + 4px = top 4px) — the code-block popup previously
-        // opened without the click event and landed at (8, 52), the
-        // viewport top-left (2026-08-14 review find).
+        // → bottom 0 + 4px = top 4px).
         expect(popup.attributes('style')).toContain('left: 8px');
         expect(popup.attributes('style')).toContain('top: 4px');
         // The thin themed scrollbar replaces the default one that hid the
-        // popup's rounded right border (2026-08-14 review find).
+        // popup's rounded right border.
         expect(popup.find('.thin-scrollbar').exists()).toBe(true);
 
         // php = index 3 in CODE_LANGUAGES (none, javascript, typescript, php).
@@ -365,9 +363,7 @@ describe('TextEditor', () => {
         ).toBe(true);
         // The popup anchors to the CLICKED BUTTON's viewport rect (fixed)
         // — happy-dom rects are all zeros, so bottom 0 + 4px = top 4px;
-        // a missing click event keeps the default (8, 52) anchor instead
-        // (2026-08-14 review find — the callout/code popups never
-        // forwarded the event and landed at the viewport top-left).
+        // a missing click event keeps the default (8, 52) anchor instead.
         expect(wrapper.get('[data-testid="text-editor-popup"]').attributes('style')).toContain(
             'left: 8px',
         );
@@ -400,8 +396,8 @@ describe('TextEditor', () => {
         // The label row: translated type name + the per-type icon.
         expect(callout.text()).toContain('Warning');
         expect(callout.find('svg').exists()).toBe(true);
-        // The style-guide frame (style-guide.html #callouts): full radius,
-        // 4px left border, --space-lg padding (2026-08-14 review find).
+        // The callout frame: full radius, 4px left border, --space-lg
+        // padding.
         expect(callout.classes()).toContain('rounded-[0.625rem]');
         expect(callout.classes()).toContain('border-l-4');
         expect(callout.classes()).toContain('px-6');

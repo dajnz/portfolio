@@ -1,6 +1,5 @@
 /**
- * Backup feature wire shapes (docs/openapi/inertia/backup.yaml — the
- * committed contract): the `BackupListPageProps` page props, the
+ * Backup feature wire shapes — the `BackupListPageProps` page props, the
  * encryption-key JSON list, the generated-key response and the status
  * polling envelope.
  */

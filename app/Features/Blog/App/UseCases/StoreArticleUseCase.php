@@ -16,16 +16,16 @@ use App\Features\Shared\Domain\ValueObjects\PublishedState;
 use DateTimeImmutable;
 
 /**
- * Creates an article (content-management.md:191-274): the resolved
- * slug (ADR-0006 — auto-generated from the EN title with a collision suffix,
- * or the manual override kept as-is — the override's uniqueness and
- * the related-link targets are checked by {@see ArticleDraftValidator}
- * first), the shared fields, the per-locale translations (title +
- * short description + content required per ACTIVE locale), the lead
- * image, the featured flag, the `article_tag_pivot` /
- * `article_skill_pivot` rows and the bidirectional `related_articles`
- * pairs. A form-save with `is_published` set publishes the fresh
- * aggregate ({@see \App\Features\Blog\Domain\Entities\Article::publish()}
+ * Creates an article: the resolved slug (auto-generated from the EN
+ * title with a collision suffix, or the manual override kept as-is —
+ * the override's uniqueness and the related-link targets are checked
+ * by {@see ArticleDraftValidator} first), the shared fields, the
+ * per-locale translations (title + short description + content required
+ * per ACTIVE locale), the lead image, the featured flag, the
+ * `article_tag_pivot` / `article_skill_pivot` rows and the
+ * bidirectional `related_articles` pairs. A form-save with
+ * `is_published` set publishes the fresh aggregate
+ * ({@see \App\Features\Blog\Domain\Entities\Article::publish()}
  * asserts the publication invariants). The repository persists the
  * aggregate in one transaction. A published article enters the
  * sitemap — the cache is invalidated here (the app layer owns the

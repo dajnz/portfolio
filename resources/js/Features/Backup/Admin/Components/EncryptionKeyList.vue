@@ -1,4 +1,4 @@
-<!-- EncryptionKeyList (admin-section-components.md:1479-1491, backups.html) — the key table (name / created / active / backups) with the Generate New Key action and the per-key Delete (enabled only when no backups reference the key; disabled rows carry the "N backups reference this key." tooltip). Rows carry the DataTable's zebra styling; the created/status/count columns have fixed widths so the rows stay aligned across locales (the RU count label fits 4-digit totals). -->
+<!-- EncryptionKeyList — the key table (name / created / active / backups) with the Generate New Key action and the per-key Delete (enabled only when no backups reference the key; disabled rows carry the "N backups reference this key." tooltip). Rows carry the DataTable's zebra styling; the created/status/count columns have fixed widths so the rows stay aligned across locales (the RU count label fits 4-digit totals). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import AdminBaseBadge from '@shared-admin/AdminBaseBadge.vue';

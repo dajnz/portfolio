@@ -15,17 +15,17 @@ use App\Features\Backup\Domain\ValueObjects\BackupTimings;
 use DateTimeImmutable;
 
 /**
- * The "Create Backup Now" entry point (backup.md:376,460): creates the
- * `pending` `backups` row (the archive's final filename — ADR-0018's
- * `-k{id}` suffix from the active key) and dispatches the create job
- * via the {@see BackupJobDispatcherInterface}, so the admin UI returns
- * immediately and the row is polled via `GET /admin/backups/{backup}/status`.
- * When encryption is enabled but no active key exists, the row is
- * created anyway — the job fails it at pre-flight (backup.md:389) and
- * the UI shows the key-generation prompt. The `encryption_enabled`
- * flag is injected (the container resolves it from
- * `config('backup.encryption_enabled')`) — the app layer reads no
- * config directly.
+ * The "Create Backup Now" entry point: creates the `pending` `backups`
+ * row (the archive's final filename — the `-k{id}` suffix from the
+ * active key) and dispatches the create job via the
+ * {@see BackupJobDispatcherInterface}, so the admin UI returns
+ * immediately and the row is polled via
+ * `GET /admin/backups/{backup}/status`. When encryption is enabled but
+ * no active key exists, the row is created anyway — the job fails it at
+ * pre-flight and the UI shows the key-generation prompt. The
+ * `encryption_enabled` flag is injected (the container resolves it from
+ * `config('backup.encryption_enabled')`) — the app layer reads no config
+ * directly.
  */
 final class CreateBackupUseCase
 {

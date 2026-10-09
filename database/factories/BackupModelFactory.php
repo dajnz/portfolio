@@ -9,10 +9,9 @@ use App\Features\Backup\Infra\Models\BackupModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Test factory for `backups` (ADR-0029). The default is a completed
- * record carrying the full archive stamp (the entity's completed-row
- * shape) — pass `status`/`path`/`size_bytes` explicitly for
- * pending/processing/failed rows.
+ * The default is a completed record carrying the full archive stamp
+ * (the entity's completed-row shape) — pass `status`/`path`/`size_bytes`
+ * explicitly for pending/processing/failed rows.
  */
 final class BackupModelFactory extends Factory
 {

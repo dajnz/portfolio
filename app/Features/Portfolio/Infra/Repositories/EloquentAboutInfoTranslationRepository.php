@@ -11,10 +11,10 @@ use App\Features\Portfolio\Infra\Models\AboutInfoTranslationModel;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 
 /**
- * Persistence of `about_info_translations` rows (database.md:89-99) —
- * read/write side of the `(about_info_id, locale)` composite-PK table.
- * Writes are batched: the sync removes absent locales and upserts the
- * rest in ONE query (no per-locale N+1 loops).
+ * Persistence of `about_info_translations` rows — read/write side of the
+ * `(about_info_id, locale)` composite-PK table. Writes are batched: the
+ * sync removes absent locales and upserts the rest in ONE query (no
+ * per-locale N+1 loops).
  */
 final class EloquentAboutInfoTranslationRepository
 {
@@ -39,7 +39,7 @@ final class EloquentAboutInfoTranslationRepository
     /**
      * Upserts the given translations and removes rows whose locales are
      * absent from the set (the entity is assembled from the active
-     * `supported_locales` only — content-management.md:419).
+     * `supported_locales` only).
      *
      * @param  AboutInfoTranslation[]  $translations
      */
@@ -51,7 +51,7 @@ final class EloquentAboutInfoTranslationRepository
         }
 
         // Only ACTIVE locales are reconciled — translations of locales
-        // disabled in the settings are preserved untouched (5.2 rework).
+        // disabled in the settings are preserved untouched.
         AboutInfoTranslationModel::query()
             ->where('about_info_id', $aboutInfoId)
             ->whereIn('locale', $this->locales->activeLocales())

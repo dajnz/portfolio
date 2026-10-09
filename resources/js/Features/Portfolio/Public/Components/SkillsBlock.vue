@@ -1,4 +1,3 @@
-<!-- SkillsBlock (public-section-components.md:944-956) — the grouped tech-skill section. Groups render in the content-management.md:78 masonry pattern: two columns per row, narrow (1/3) + wide (2/3), the wide position alternating each row. The whole block hides when no groups are configured; skeleton rows render while `is_loading`. -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
@@ -121,8 +120,8 @@ const skeletonSkills = [0, 1, 2];
 .skills-block {
     background: var(--color-bg-secondary);
 
-    /* Top padding halved (user rework 2026-08-14) — the section
-   heading no longer floats 4rem below the previous block. */
+    /* Halved top padding — keeps the section heading from floating
+   4rem below the previous block. */
     padding: var(--space-xl) 0 var(--space-3xl);
 }
 
@@ -147,12 +146,10 @@ const skeletonSkills = [0, 1, 2];
     gap: var(--space-xl);
 }
 
-/* content-management.md:78 — the wide column moves each row. */
 .skills-block__row--wide-first {
     grid-template-columns: 2fr 1fr;
 }
 
-/* A trailing odd group spans the full row. */
 .skills-block__row--single {
     grid-template-columns: 1fr;
 }

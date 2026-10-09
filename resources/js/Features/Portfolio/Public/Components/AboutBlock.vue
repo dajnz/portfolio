@@ -1,4 +1,3 @@
-<!-- AboutBlock (public-section-components.md:929-942) — the landing hero: photo, name/title/short pitch, availability badge, location/timezone/work-type meta and the CTA row. `about` is null only when the server sent no about row — the contract renders the skeleton then (circle + text lines). The GitHub CTA fires cta_click_github and the CV download fires cta_click_cv (analytics.md:34-37). -->
 <script setup lang="ts">
 import { useAnalytics } from '@shared-cross/Composables/useAnalytics';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -27,7 +26,7 @@ const analytics = useAnalytics();
 // The CTA icons (e.g. the simple-icons GitHub mark) must not render
 // before the landing's lazy pack registration resolved — the Iconify
 // runtime would otherwise fall back to its remote API (blocked by CSP
-// `connect-src 'self'`, ADR-0023 self-hosted stance).
+// `connect-src 'self'`).
 const publicIconsReady = usePublicIconsReady();
 
 function ctaKey(url: string): string {
@@ -220,7 +219,7 @@ function handleCta(link: CtaLink): void {
 }
 
 /* Availability → work type → location, stacked one below another under
-   the photo (user rework 2026-08-14). */
+   the photo. */
 .about-block__meta-col {
     display: flex;
     flex-direction: column;

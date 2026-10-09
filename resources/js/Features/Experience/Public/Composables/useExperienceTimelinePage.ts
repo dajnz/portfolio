@@ -53,19 +53,16 @@ export interface UseExperienceTimelinePageApi {
 }
 
 /**
- * Maps the committed ExperienceTimelinePageProps wire shape
- * (docs/openapi/inertia/experience.yaml) onto the timeline component
- * contracts (public-section-components.md:1011-1091): the resolved item
- * views (with the localized period, `YYYY – YYYY` / `YYYY – Present`
- * per the mockup), the public nav items per ADR-0025 (anchors point at the
- * landing page; the Projects link is conditional on the `has_projects`
+ * Maps the ExperienceTimelinePageProps wire shape onto the timeline
+ * component contracts: the resolved item views (with the localized period,
+ * `YYYY – YYYY` / `YYYY – Present`), the public nav items (anchors point at
+ * the landing page; the Projects link is conditional on the `has_projects`
  * prop — the only published-project signal the wire carries), and the
  * infinite-scroll machinery: "Load More" reloads with the opaque
- * `next_cursor` (`replace: true` → history.replaceState per
- * public-section-ui.md:329-342) and the client REPLACES its items with
- * the reconstructed superset response (ADR-0010 — the props are the list
- * state, nothing is appended locally); a failed request flips the
- * `loadError` state rendered as the inline error banner, `retry()`
+ * `next_cursor` (`replace: true` → history.replaceState) and the client
+ * REPLACES its items with the reconstructed superset response (the props
+ * are the list state, nothing is appended locally); a failed request flips
+ * the `loadError` state rendered as the inline error banner, `retry()`
  * restarts from the initial batch.
  */
 export function useExperienceTimelinePage(props: {
@@ -109,8 +106,8 @@ export function useExperienceTimelinePage(props: {
         // failures surface through the network/HTTP visit callbacks. A
         // network failure flips the inline error banner (the URL keeps
         // its pre-visit state, so a retry serves the initial batch);
-        // HTTP error responses swap in the backend-rendered ErrorPage
-        // (ADR-0015), nothing to fix inline.
+        // HTTP error responses swap in the backend-rendered ErrorPage,
+        // nothing to fix inline.
         router.reload({
             data: { cursor },
             replace: true,
@@ -164,8 +161,8 @@ function normalizeRoute(url: string): string {
 }
 
 /**
- * The card period per the mockup (experience.html): year-only bounds
- * joined by an en dash — `2024 – Present` (ongoing) / `2021 – 2024`.
+ * The card period: year-only bounds joined by an en dash —
+ * `2024 – Present` (ongoing) / `2021 – 2024`.
  */
 function toTimelineItemView(item: TimelineWireItem, presentLabel: string): TimelineItemView {
     const startYear = (item.started_at ?? '').slice(0, 4);

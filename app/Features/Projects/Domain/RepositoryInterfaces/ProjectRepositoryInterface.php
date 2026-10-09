@@ -8,28 +8,23 @@ use App\Features\Projects\Domain\Entities\Project;
 use App\Features\Projects\Domain\Exceptions\ProjectTagAlreadyAttachedException;
 
 /**
- * The write side + admin/private reads of the Projects feature
- * (database.md:194-283, content-management.md:135-163): entity-based
- * CRUD over `projects` with its aggregate parts (translations,
- * screenshots, engineering detail items, the `project_tech_tags` pivot)
- * and the quick actions of the admin list — publication toggles
- * (setting `published_at` once), featured state with the max+1 default
- * order, the atomic featured reorder, the tech-writeup link and the
- * tag attach/detach with the persisted `tech_tags_count` maintained by
- * the pivot model's Eloquent events.
+ * The write side + admin/private reads of the Projects feature:
+ * entity-based CRUD over `projects` with its aggregate parts
+ * (translations, screenshots, engineering detail items, the
+ * `project_tech_tags` pivot) and the quick actions of the admin list —
+ * publication toggles (setting `published_at` once), featured state
+ * with the max+1 default order, the atomic featured reorder, the
+ * tech-writeup link and the tag attach/detach with the persisted
+ * `tech_tags_count` maintained by the pivot model's Eloquent events.
  *
- * Slug support: `takenSlugs()` serves the ADR-0006 collision-suffix
- * resolution (content-management.md:441-452 — including trashed rows,
- * ADR-0006), `slugsOfProjects()`/`slugsOccupiedByActive()` serve the
- * restore uniqueness re-check (ADR-0006) in batch, and `currentSlugForOld()`
- * the public old-slug 301 (ADR-0006). The repository upserts `old_slugs`
- * rows when a slug changes (database.md:451) and on force-delete
- * (content-management.md:905). Deletes are instance-based so the
- * sitemap invalidation events fire (ADR-0022); bulk operations run in
- * batched queries with a single invalidation;
- * `forceDelete()` cleans the project's RustFS files (preview image +
- * screenshots — content-management.md:822-828, wired in the model per
- * ADR-0012).
+ * Slug support: `takenSlugs()` serves the collision-suffix resolution
+ * (including trashed rows), `slugsOfProjects()`/`slugsOccupiedByActive()`
+ * serve the restore uniqueness re-check in batch, and `currentSlugForOld()`
+ * the public old-slug 301. The repository upserts `old_slugs` rows when
+ * a slug changes and on force-delete. Deletes are instance-based so the
+ * sitemap invalidation events fire; bulk operations run in batched
+ * queries with a single invalidation; `forceDelete()` cleans the
+ * project's RustFS files (preview image + screenshots).
  */
 interface ProjectRepositoryInterface
 {
@@ -54,13 +49,13 @@ interface ProjectRepositoryInterface
 
     /**
      * The preview variant of {@see findBySlug()} — resolves the project
-     * regardless of `is_published` (signed preview URLs, routes.md:60).
+     * regardless of `is_published` (signed preview URLs).
      */
     public function findBySlugIncludingUnpublished(string $slug): ?Project;
 
     /**
      * The slugs of the given projects (soft-deleted included) — the
-     * batch input of the restore uniqueness re-check (ADR-0006).
+     * batch input of the restore uniqueness re-check.
      *
      * @param  int[]  $ids
      * @return array<int, string>  Keyed by project id.
@@ -70,7 +65,7 @@ interface ProjectRepositoryInterface
     /**
      * The subset of the given slugs occupied by NON-trashed projects —
      * soft-deleted entities occupy their slug, so the restore check is
-     * against active rows only (ADR-0006, content-management.md:901).
+     * against active rows only.
      *
      * @param  string[]  $slugs
      * @return string[]
@@ -79,17 +74,16 @@ interface ProjectRepositoryInterface
 
     /**
      * Existing slug values matching the base prefix (soft-deleted
-     * included) — the input of the ADR-0006 numeric collision-suffix
-     * resolution (content-management.md:441-452).
+     * included) — the input of the numeric collision-suffix resolution.
      *
      * @return string[]
      */
     public function takenSlugs(string $base, ?int $ignoreId = null): array;
 
     /**
-     * The current slug mapped from an `old_slugs` record
-     * (content-management.md:459-463) — null when the slug is not
-     * recorded (a trashed project's history resolves to nothing).
+     * The current slug mapped from an `old_slugs` record — null when
+     * the slug is not recorded (a trashed project's history resolves to
+     * nothing).
      */
     public function currentSlugForOld(string $oldSlug): ?string;
 
@@ -107,11 +101,11 @@ interface ProjectRepositoryInterface
     /**
      * Inserts or updates the aggregate in one transaction: the base
      * row, the translation sync (upsert by locale, active-locale
-     * reconciliation), the screenshot reconcile (ADR-0005 — rows with IDs
+     * reconciliation), the screenshot reconcile (rows with IDs
      * updated, new rows created, absent rows deleted with their RustFS
      * files), the detail-item reconcile (same, no files) and the
      * tech-tag pivot sync (so the `tech_tags_count` stays consistent).
-     * A slug change records the old slug in `old_slugs` (ADR-0006).
+     * A slug change records the old slug in `old_slugs`.
      */
     public function save(Project $project): void;
 
@@ -132,7 +126,7 @@ interface ProjectRepositoryInterface
     /**
      * Permanently deletes the project — RustFS files are removed via
      * the model's `forceDelete()` override and an `old_slugs` record
-     * preserves the slug history (content-management.md:905).
+     * preserves the slug history.
      */
     public function forceDelete(int $id): void;
 
@@ -143,8 +137,8 @@ interface ProjectRepositoryInterface
 
     /**
      * Sets `is_published`; `published_at` is auto-set to `now()` on
-     * the FIRST publish only (immutable thereafter — database.md:210).
-     * A single sitemap invalidation covers the whole batch (ADR-0022).
+     * the FIRST publish only (immutable thereafter). A single sitemap
+     * invalidation covers the whole batch.
      *
      * @param  int[]  $ids
      */
@@ -153,13 +147,13 @@ interface ProjectRepositoryInterface
     /**
      * Sets `is_featured`; when featuring, `featured_sort_order`
      * defaults to `max(featured_sort_order) + 1` if not already set;
-     * unfeaturing preserves the value (content-management.md:157).
+     * unfeaturing preserves the value.
      */
     public function setFeatured(int $id, bool $featured): void;
 
     /**
      * Writes `featured_sort_order` as the zero-indexed position of the
-     * submitted id array, atomically (content-management.md:158).
+     * submitted id array, atomically.
      *
      * @param  int[]  $ids  Featured project IDs in the new drag order.
      */

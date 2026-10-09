@@ -52,9 +52,6 @@ describe('ProjectPreviewController', function (): void {
     });
 });
 
-/**
- * Creates a translated project row for the preview tests.
- */
 function previewProject(array $attributes = []): \App\Features\Projects\Infra\Models\ProjectModel
 {
     $project = \App\Features\Projects\Infra\Models\ProjectModel::factory()->create($attributes);

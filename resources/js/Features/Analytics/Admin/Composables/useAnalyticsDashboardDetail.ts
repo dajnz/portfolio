@@ -16,15 +16,14 @@ import {
 } from './useAnalytics';
 
 /**
- * The dashboard page's detail-area wiring (admin-section-components.md:
- * 1295-1352, 11.3.7): owns the active tab + the selected block, the
- * fetch orchestration (default-seed states render from the props
- * without fetching; block clicks and the span/variant dropdowns fetch
- * through `useAnalytics` — AbortController cancellation + per-fetch
- * loading/error refs) and the chart/rankings view models for the
- * detail area. The page keeps only the orchestration (header, tabs,
- * blocks, empty state) and renders `AnalyticsDetailArea` with this
- * API. The default overview chart (total visits, daily) and the
+ * The dashboard page's detail-area wiring: owns the active tab + the
+ * selected block, the fetch orchestration (default-seed states render
+ * from the props without fetching; block clicks and the span/variant
+ * dropdowns fetch through `useAnalytics` — AbortController cancellation
+ * + per-fetch loading/error refs) and the chart/rankings view models
+ * for the detail area. The page keeps only the orchestration (header,
+ * tabs, blocks, empty state) and renders `AnalyticsDetailArea` with
+ * this API. The default overview chart (total visits, daily) and the
  * default time-on-page top rankings render from the
  * `default_chart`/`default_rankings` props without fetching.
  */
@@ -72,7 +71,7 @@ const TOP_BOTTOM_VARIANTS: Array<AnalyticsVariant> = ['top', 'bottom'];
 
 // The chart blocks keyed to their chart-card titles (the selected block
 // drives the detail area; the block-key map mirrors the OpenAPI
-// AnalyticsBlock table, 11.3.4).
+// AnalyticsBlock table).
 const CHART_TITLE_KEYS: Record<string, string> = {
     total_visits: 'admin.analytics.visits_over_time',
     unique_visitors: 'admin.analytics.unique_visitors_over_time',
@@ -292,7 +291,7 @@ export function useAnalyticsDashboardDetail(
     );
 
     // A fetch failure passes a non-array data/series — the chart
-    // contract's error signal (admin-section-components.md:1351).
+    // contract's error signal.
     const chartData = computed(() =>
         analytics.chartError.value ? null : analytics.chartPoints.value,
     );

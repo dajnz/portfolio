@@ -1,4 +1,4 @@
-<!-- TotpVerificationPage (admin-section-components.md:1560-1572) — renders LoginCard with the TOTP code form; shared by the login half-auth flow (/admin/login/totp) and the GitHub-link re-verification (/admin/profile/github-link/totp). The form POSTs to the current URL; the github-link variant shows the link-confirmation hint (authentication.md:173). -->
+<!-- TotpVerificationPage — renders LoginCard with the TOTP code form; shared by the login half-auth flow (/admin/login/totp) and the GitHub-link re-verification (/admin/profile/github-link/totp). The form POSTs to the current URL; the github-link variant shows the link-confirmation hint. -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
@@ -81,8 +81,6 @@ onMounted(() => {
     codeInput.value?.focus();
 });
 
-// Tailwind classes for the shared footer controls, mirroring the mockup
-// (login-totp.html:126-131).
 const footerClasses = {
     language: {
         button: 'h-9 rounded-lg border border-slate-200 px-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800',
@@ -173,7 +171,6 @@ const footerClasses = {
       />
     </template>
   </LoginCard>
-  <!-- Verification errors + lockout warnings surface here as toasts
-       (login-totp.html). -->
+  <!-- Verification errors + lockout warnings surface here as toasts. -->
   <AdminBaseToast />
 </template>

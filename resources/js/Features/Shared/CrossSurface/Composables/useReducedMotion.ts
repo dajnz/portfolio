@@ -1,10 +1,10 @@
 import { getCurrentScope, onScopeDispose, type Ref, ref } from 'vue';
 
 /**
- * `prefers-reduced-motion` accessor (accessibility.md:180-195): reads the
- * system preference at startup and tracks subsequent changes. Components
- * driving JS animations (toast slide-in, modal fade-in, sidebar expand)
- * render the final state immediately when this is true.
+ * `prefers-reduced-motion` accessor: reads the system preference at
+ * startup and tracks subsequent changes. Components driving JS
+ * animations (toast slide-in, modal fade-in, sidebar expand) render the
+ * final state immediately when this is true.
  */
 export function useReducedMotion(): { prefersReduced: Ref<boolean> } {
     const prefersReduced = ref(false);

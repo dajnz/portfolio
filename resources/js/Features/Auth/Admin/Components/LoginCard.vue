@@ -1,4 +1,4 @@
-<!-- LoginCard (admin-section-components.md:1574-1590) — standalone centered auth card shared by LoginPage and TotpVerificationPage. The `default` slot carries the form, the `footer` slot the theme/language controls. -->
+<!-- LoginCard — standalone centered auth card shared by LoginPage and TotpVerificationPage. The `default` slot carries the form, the `footer` slot the theme/language controls. -->
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -96,9 +96,8 @@ const logoLetter = computed(() =>
           @click="emit('github-login')"
         >
           <template #icon>
-            <!-- Inline octocat mark (mockup sprite) — simple-icons is not
-                 registered until step 7.2, and the self-hosted stance bans
-                 runtime Iconify fetches (ADR-0023). -->
+            <!-- Inline octocat mark — simple-icons is not registered, and
+                 the self-hosted stance bans runtime Iconify fetches. -->
             <svg
               viewBox="0 0 24 24"
               class="w-5 h-5"

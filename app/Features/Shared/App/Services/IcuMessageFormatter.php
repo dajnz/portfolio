@@ -7,7 +7,7 @@ namespace App\Features\Shared\App\Services;
 use MessageFormatter;
 
 /**
- * ICU MessageFormat formatter (i18n-and-theming.md:31, ADR-0009).
+ * ICU MessageFormat formatter.
  *
  * Wraps PHP's `\MessageFormatter::format()` (an intl dependency — hence an
  * app-layer service, not a domain class) so controllers, use cases and
@@ -21,8 +21,6 @@ use MessageFormatter;
 final class IcuMessageFormatter
 {
     /**
-     * Formats an ICU MessageFormat pattern.
-     *
      * @param  array<string, int|float|string|null>  $arguments
      *
      * @throws \IntlException when the pattern is not valid ICU syntax

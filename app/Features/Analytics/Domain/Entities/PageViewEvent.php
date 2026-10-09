@@ -10,10 +10,10 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * The `page_view` event (analytics.md:17): every public page load, with
- * the referrer and the document title. The title is informational (not
- * aggregated) — nullable so a malformed event still counts towards the
- * page-view metrics.
+ * The `page_view` event: every public page load, with the referrer and
+ * the document title. The title is informational (not aggregated) —
+ * nullable so a malformed event still counts towards the page-view
+ * metrics.
  */
 final class PageViewEvent extends AnalyticsEvent
 {

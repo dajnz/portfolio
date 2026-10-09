@@ -7,20 +7,17 @@ namespace App\Features\Shared\Infra\Persistence;
 use JsonException;
 
 /**
- * The public list pages' opaque cursor codec (public-section-ui.md:
- * 316-327): `cursor = base64url(JSON.stringify({ "id": <item id>, "v":
- * <sort value | null> }))`. The client treats the value as opaque — it
- * receives it as `next_cursor` and echoes it back on "Load More" and in
- * the URL — only the server encodes/decodes. Reused by every public
- * infinite-scroll list (experience 6.1; projects 7.1 and blog 8.2
- * follow).
+ * The public list pages' opaque cursor codec:
+ * `cursor = base64url(JSON.stringify({ "id": <item id>, "v": <sort value | null> }))`.
+ * The client treats the value as opaque — it receives it as `next_cursor` and
+ * echoes it back on "Load More" and in the URL — only the server
+ * encodes/decodes.
  *
  * This is a DIFFERENT wire format from the admin lists' structured
  * `?cursor[id]=&cursor[sort_value]=` params ({@see CursorDecoder} +
- * {@see SortSpec}) — a single opaque string vs. sort-aware query
- * params — hence the separate codec. A malformed value decodes to null
- * (the caller treats it as an initial-batch request; the cursor is a
- * UX-state concern, never a 4xx — seo.md:305).
+ * {@see SortSpec}) — a single opaque string vs. sort-aware query params — hence
+ * the separate codec. A malformed value decodes to null (the caller treats it
+ * as an initial-batch request; the cursor is a UX-state concern, never a 4xx).
  */
 final class PublicCursorCodec
 {

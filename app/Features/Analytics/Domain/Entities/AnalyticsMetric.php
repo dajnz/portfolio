@@ -10,13 +10,13 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * One row of `analytics_daily_metrics` (database.md:513-529, ADR-0017):
- * the per-day aggregate of a metric for one dimension — NULL dimension
- * = global, otherwise the entity key (page URL, `article:{id}`,
- * `project:{id}`, CTA target). `value` + `samples` store the weighted
- * sum/samples pair (never averages — every report span's average is
- * computed as `SUM(value)/SUM(samples)`), or the plain min/max value
- * with `samples = 1`.
+ * One row of `analytics_daily_metrics`: the per-day aggregate of a
+ * metric for one dimension — NULL dimension = global, otherwise the
+ * entity key (page URL, `article:{id}`, `project:{id}`, CTA target).
+ * `value` + `samples` store the weighted sum/samples pair (never
+ * averages — every report span's average is computed as
+ * `SUM(value)/SUM(samples)`), or the plain min/max value with
+ * `samples = 1`.
  *
  * The constructor protects the invariants: samples are always at
  * least 1, the value must be finite, and the dimension must fit the

@@ -1,4 +1,4 @@
-<!-- AnalyticsRichValue (analytics.md durations — user request 2026-08-22) — renders a block/table value: plain strings/numbers verbatim, `RichText` segment arrays as bold numbers + dull unit labels ("1 min. 05 sec." — the numbers carry the parent's emphasis, the labels are smaller and greyer). Plain interpolated text — never markup. -->
+<!-- AnalyticsRichValue — renders a block/table value: plain strings/numbers verbatim, `RichText` segment arrays as bold numbers + dull unit labels ("1 min. 05 sec." — the numbers carry the parent's emphasis, the labels are smaller and greyer). Plain interpolated text — never markup. -->
 <script setup lang="ts">
 import type { RichText } from '../Composables/useAnalytics';
 

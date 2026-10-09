@@ -1,4 +1,4 @@
-<!-- AnalyticsChart (admin-section-components.md:1334-1352, admin-section-ui.md:441-452, mockup analytics.html:217-233) — the root of the lightweight hand-drawn SVG chart (bar/line), no charting library. Orchestrates the states (loading / loaded / empty / error) and the mode switch; the geometry lives in `useAnalyticsChart`, the marks in the plot sub-components (AnalyticsChartBarPlot / AnalyticsChartLinePlot / AnalyticsChartSeriesPlot + AnalyticsChartTooltip). Multi-series mode via the `series` prop (one line per series + a legend with the series names — the CTA multi-chart): `series` is mutually exclusive with `data` — when both are given the runtime guard prefers `series` (documented; the page never passes both). A non-array `data` or `series` (the page passes `null` on fetch error) drives the error state. Every multi-series point renders a visible marker (a lone polyline would be invisible) with a hover tooltip — the series name + the point's value (user request 2026-08-22). Chart data is set via textContent exclusively — never innerHTML or string concatenation (analytics.md:230): labels/values render through Vue interpolation into text nodes; only numeric coordinates are composed into attributes. -->
+<!-- AnalyticsChart — the root of the lightweight hand-drawn SVG chart (bar/line), no charting library. Orchestrates the states (loading / loaded / empty / error) and the mode switch; the geometry lives in `useAnalyticsChart`, the marks in the plot sub-components (AnalyticsChartBarPlot / AnalyticsChartLinePlot / AnalyticsChartSeriesPlot + AnalyticsChartTooltip). Multi-series mode via the `series` prop (one line per series + a legend with the series names — the CTA multi-chart): `series` is mutually exclusive with `data` — when both are given the runtime guard prefers `series` (the page never passes both). A non-array `data` or `series` (the page passes `null` on fetch error) drives the error state. Every multi-series point renders a visible marker (a lone polyline would be invisible) with a hover tooltip — the series name + the point's value. Chart data is set via textContent exclusively — never innerHTML or string concatenation: labels/values render through Vue interpolation into text nodes; only numeric coordinates are composed into attributes. -->
 <script setup lang="ts">
 import AdminBaseSkeleton from '@shared-admin/AdminBaseSkeleton.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -102,8 +102,6 @@ const svgLabel = computed(() =>
     </h2>
 
     <template v-if="props.is_loading">
-      <!-- Contract loading state: skeleton rectangle at the chart area
-           dimensions (admin-section-components.md:715). -->
       <div
         :style="{ height: `${props.height}px` }"
         :data-testid="`${props.test_id}-loading`"

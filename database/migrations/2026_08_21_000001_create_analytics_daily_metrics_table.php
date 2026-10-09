@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     /**
-     * The per-day aggregated metrics store (database.md:513-529,
-     * analytics.md:158-180, ADR-0017): one row per `(metric, date,
+     * The per-day aggregated metrics store: one row per `(metric, date,
      * dimension)` — NULL dimension = global metric, otherwise the
      * entity key (page URL, `article:{id}`, `project:{id}`, CTA
      * target). `value` + `samples` keep the weighted sum/samples
@@ -38,9 +37,6 @@ return new class () extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('analytics_daily_metrics');

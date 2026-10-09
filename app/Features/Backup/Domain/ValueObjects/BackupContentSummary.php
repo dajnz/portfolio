@@ -11,15 +11,15 @@ use function is_int;
 use function is_string;
 
 /**
- * The archive content stamp of a `backups` row (database.md:573-579):
- * the byte size of the archive and the manifest summary — the
- * per-table record counts, the asset count and the assets byte size.
+ * The archive content stamp of a `backups` row: the byte size of the
+ * archive and the manifest summary — the per-table record counts, the
+ * asset count and the assets byte size.
  *
- * The fields are nullable to model the pending row (none set yet);
- * the all-or-nothing invariant keeps a summary either fully empty or
- * fully populated — the values are stamped atomically by
- * `Backup::complete()`. The record counts must be non-negative
- * integers per table, every present number must be ≥ 0.
+ * The fields are nullable to model the pending row (none set yet); the
+ * all-or-nothing invariant keeps a summary either fully empty or fully
+ * populated — the values are stamped atomically by `Backup::complete()`.
+ * The record counts must be non-negative integers per table, every
+ * present number must be ≥ 0.
  */
 final class BackupContentSummary
 {

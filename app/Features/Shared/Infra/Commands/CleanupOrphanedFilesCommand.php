@@ -11,11 +11,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * `app:cleanup-orphaned-files` (backup.md:465, content-management.md:821-854)
- * — deletes RustFS objects in the assets bucket (`rustfs` disk) that are
- * not referenced by any DB column or embedded Markdown image. Supports
- * `--dry-run` to list orphans without deleting. Registered on a monthly
- * schedule in routes/console.php; the temp backup dir
+ * `app:cleanup-orphaned-files` — deletes RustFS objects in the assets bucket
+ * (`rustfs` disk) that are not referenced by any DB column or embedded Markdown
+ * image. Supports `--dry-run` to list orphans without deleting. Registered on a
+ * monthly schedule in routes/console.php; the temp backup dir
  * (`storage/app/backups/tmp/`) is never scanned.
  *
  * Reference sources: `projects.preview_image`, `project_screenshots.image_path`,
@@ -23,10 +22,9 @@ use Illuminate\Support\Facades\Storage;
  * `resume_config.custom_resume_file`, and image paths extracted from
  * `blog_article_translations.content` (Markdown `![alt](path)` + HTML
  * `<img src="path">`). The generated resume PDFs
- * (`about/resume_{locale}_{content_hash}.pdf`) matching the CURRENT
- * content hash are preserved (content-management.md:409,831-833) — the
- * hash is recomputed here with the same source stamps the Resume feature
- * uses (step 10.1), so stale-hash PDFs fall out as orphans.
+ * (`about/resume_{locale}_{content_hash}.pdf`) matching the CURRENT content hash
+ * are preserved — the hash is recomputed here with the same source stamps the
+ * Resume feature uses, so stale-hash PDFs fall out as orphans.
  */
 final class CleanupOrphanedFilesCommand extends Command
 {
@@ -117,11 +115,10 @@ final class CleanupOrphanedFilesCommand extends Command
 
     /**
      * The expected generated resume PDFs: `about/resume_{locale}_{hash}.pdf`
-     * for every active locale with the CURRENT content hash
-     * (content-management.md:392,409). The hash mirrors the Resume
-     * feature's computation (source `updated_at` stamps + config stamp +
-     * layout JSON — content-management.md:393) so PDFs of older hashes
-     * are not referenced and get cleaned up.
+     * for every active locale with the CURRENT content hash. The hash mirrors
+     * the Resume feature's computation (source `updated_at` stamps + config stamp
+     * + layout JSON) so PDFs of older hashes are not referenced and get cleaned
+     * up.
      *
      * @return string[]
      */

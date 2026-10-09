@@ -1,10 +1,5 @@
-<!-- ProficiencyDots (TechSkills, 5.2) — the 1-5 proficiency indicator.
-     Purely presentational (plain divs, no buttons): the dots are too
-     small for reliable clicking (and unusable on touch), so proficiency
-     is edited via the inline dropdown instead. Filled dots share the
-     CURRENT level's color (1 redish → 5 violettish — 5.2 rework); the
-     container carries the current level's translated name as its ONLY
-     title/accessible label (no per-dot titles). -->
+<!-- Purely presentational proficiency indicator — the dots are too small
+     for reliable clicking, so proficiency is edited via the inline dropdown. -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { computed } from 'vue';

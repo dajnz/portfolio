@@ -10,10 +10,10 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Bus;
 
 /**
- * The `analytics:generate-daily-metrics` command (analytics.md:182-184):
- * thin — resolves the date range (previous day + in-progress day) and
- * dispatches the queued `AggregateDailyMetricsJob`; the scheduler
- * registration in `routes/console.php` is asserted here too.
+ * The `analytics:generate-daily-metrics` command: thin — resolves the
+ * date range (previous day + in-progress day) and dispatches the queued
+ * `AggregateDailyMetricsJob`; the scheduler registration in
+ * `routes/console.php` is asserted here too.
  */
 describe('analytics:generate-daily-metrics command', function (): void {
     it('dispatches the aggregation job for the default range', function (): void {

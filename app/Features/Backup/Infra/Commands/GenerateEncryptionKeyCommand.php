@@ -8,10 +8,10 @@ use App\Features\Backup\App\UseCases\GenerateEncryptionKeyUseCase;
 use Illuminate\Console\Command;
 
 /**
- * `backup:generate-key` (backup.md:463,510): creates a fresh active
- * encryption key (32 random bytes, base64 — 44 chars) and prints the
- * raw value exactly once to the terminal. The admin saves it offline
- * (backup.md:500); the value is never shown again.
+ * `backup:generate-key`: creates a fresh active encryption key (32
+ * random bytes, base64 — 44 chars) and prints the raw value exactly once
+ * to the terminal. The admin saves it offline; the value is never shown
+ * again.
  */
 final class GenerateEncryptionKeyCommand extends Command
 {

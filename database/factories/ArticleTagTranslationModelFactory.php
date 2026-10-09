@@ -8,10 +8,6 @@ use App\Features\Blog\Infra\Models\ArticleTagModel;
 use App\Features\Blog\Infra\Models\ArticleTagTranslationModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * Test factory for `article_tag_translations` (ADR-0029, both locales
- * covered via the `forLocale()` state).
- */
 final class ArticleTagTranslationModelFactory extends Factory
 {
     protected $model = ArticleTagTranslationModel::class;

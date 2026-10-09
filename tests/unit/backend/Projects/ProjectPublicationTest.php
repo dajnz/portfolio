@@ -34,12 +34,6 @@ function projectWithPublished(PublishedState $published): Project
     );
 }
 
-/**
- * The mutable {@see Project} aggregate's publication transitions:
- * `publish()` guards the publication invariants (required translated
- * fields + not-yet-published) before mutating the state, `unpublish()`
- * preserves the first-publish timestamp (database.md:210).
- */
 describe('Project publication state', function (): void {
     it('publishes an unpublished project and sets published_at on the first publish', function (): void {
         $project = projectWithPublished(PublishedState::unpublished());

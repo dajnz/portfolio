@@ -7,10 +7,6 @@ namespace App\Features\Projects\Infra\Mappers;
 use App\Features\Projects\Domain\Entities\ProjectEngineeringDetailTranslation;
 use App\Features\Projects\Infra\Models\ProjectDetailItemTranslationModel;
 
-/**
- * Converts between `project_detail_item_translations` rows and
- * {@see ProjectEngineeringDetailTranslation} entities.
- */
 final class ProjectEngineeringDetailTranslationMapper
 {
     public function toEntity(ProjectDetailItemTranslationModel $model): ProjectEngineeringDetailTranslation

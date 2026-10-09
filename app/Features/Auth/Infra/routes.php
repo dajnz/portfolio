@@ -9,13 +9,12 @@ use App\Features\Auth\Infra\Controllers\TotpController;
 use Illuminate\Support\Facades\Route;
 
 /*
- * Auth routes (routes.md:29-36,157-167).
+ * Auth routes.
  *
  * `GET /admin/login` is the single route named `login` — the `auth`
  * middleware redirects unauthenticated requests to it. The TOTP routes use
  * the half-auth middlewares (`totp.pending` / `totp.pending.github_link`),
- * not `auth` (authentication.md:42,264-271). OAuth routes are gated by the
- * `feature:github_oauth` flag.
+ * not `auth`. OAuth routes are gated by the `feature:github_oauth` flag.
  */
 
 Route::get('/admin/login', [LoginController::class, 'create'])->name('login');

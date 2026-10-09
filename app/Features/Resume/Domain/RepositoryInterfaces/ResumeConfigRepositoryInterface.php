@@ -9,7 +9,7 @@ use App\Features\Resume\Domain\Entities\ResumeConfig;
 /**
  * Persistence of the single-row resume configuration aggregate
  * (`resume_config` + `resume_config_translations`, owned exclusively by
- * the Resume feature — database.md:128).
+ * the Resume feature).
  */
 interface ResumeConfigRepositoryInterface
 {

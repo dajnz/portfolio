@@ -17,13 +17,11 @@ use App\Features\Shared\Domain\RepositoryInterfaces\PublishedArticleReadReposito
 /**
  * Builds the {@see ProjectDetailDto} of an aggregate — the project's
  * data DTO, the pipeline-rendered markdown bodies for the request
- * locale (content-management.md:131, ADR-0008), the tech-writeup reference
- * resolved against the CURRENT publication state
- * (content-management.md:133; the stored reference is preserved so the
- * link reappears on re-publish) and the SEO data (the public variant
- * with the site name, the preview variant with the `noindex`
- * directive). Shared by the public detail and the signed preview use
- * cases.
+ * locale, the tech-writeup reference resolved against the CURRENT
+ * publication state (the stored reference is preserved so the link
+ * reappears on re-publish) and the SEO data (the public variant with
+ * the site name, the preview variant with the `noindex` directive).
+ * Shared by the public detail and the signed preview use cases.
  */
 final class ProjectDetailDtoBuilder
 {

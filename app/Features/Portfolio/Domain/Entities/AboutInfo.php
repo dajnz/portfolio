@@ -12,11 +12,11 @@ use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 
 /**
  * The single-row about block (`about_info`, id = 1 enforced at the
- * application level — database.md:71-88): the hero photo (as a
- * {@see StoredPicture} carrying the RustFS path + per-locale alts) and
- * the non-translatable presentation flags. Localized text lives in
- * {@see AboutInfoTranslation} value objects; `resume_file` is the legacy
- * column managed by the Resume feature and deliberately absent here.
+ * application level): the hero photo (as a {@see StoredPicture} carrying
+ * the RustFS path + per-locale alts) and the non-translatable presentation
+ * flags. Localized text lives in {@see AboutInfoTranslation} value objects;
+ * `resume_file` is the legacy column managed by the Resume feature and
+ * deliberately absent here.
  */
 final class AboutInfo extends BaseEntity
 {

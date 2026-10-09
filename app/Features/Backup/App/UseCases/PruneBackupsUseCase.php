@@ -12,13 +12,12 @@ use RuntimeException;
 use function count;
 
 /**
- * The post-create retention step (backup.md:387,460,528): deletes the
- * surplus backups when the active count exceeds `backup_max_count` —
- * the DB `settings` row wins at runtime, the injected fallback
- * (`config('backup.max_count')`, resolved by the container) covers the
- * pre-seed case. Oldest backups are removed first; each record is
- * soft-deleted and its archive hard-deleted from the `backups` bucket
- * via the storage contract.
+ * The post-create retention step: deletes the surplus backups when the
+ * active count exceeds `backup_max_count` — the DB `settings` row wins
+ * at runtime, the injected fallback (`config('backup.max_count')`,
+ * resolved by the container) covers the pre-seed case. Oldest backups
+ * are removed first; each record is soft-deleted and its archive
+ * hard-deleted from the `backups` bucket via the storage contract.
  */
 final class PruneBackupsUseCase
 {

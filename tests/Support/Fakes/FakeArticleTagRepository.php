@@ -10,15 +10,14 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
 /**
  * In-memory {@see ArticleTagRepositoryInterface} for the use-case unit
  * tests: the tag↔skill name probe is configurable (the cross-check
- * direction — content-management.md:695), the write methods record
- * their calls.
+ * direction), the write methods record their calls.
  */
 final class FakeArticleTagRepository implements ArticleTagRepositoryInterface
 {
     /**
      * @param  string[]  $skillNames  The existing skill names (any locale).
      * @param  array<int, ArticleTag>  $tags  Tag id => stored tag.
-     * @param  string[]  $taken  Existing tag slugs (the ADR-0006 suffix probe).
+     * @param  string[]  $taken  Existing tag slugs (the suffix probe).
      */
     public function __construct(
         public array $skillNames = [],

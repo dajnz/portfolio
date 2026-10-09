@@ -1,4 +1,4 @@
-<!-- TagFormPage (admin-section-ui.md:321-325, admin-section-components.md:939-951, tag-form.html) — the create/edit article-tag form: LocaleTabs-bound Name (required, max 100), shared Slug (auto-generated from the EN name, editable, slug-regex validated, unique across article_tags), Save (no Cancel — the "Back to tags list" link replaces it, the ADR-0024 convention). POST /admin/tags on create, PUT on edit; useUnsavedChanges guards the form. -->
+<!-- TagFormPage — the create/edit article-tag form: LocaleTabs-bound Name (required, max 100), shared Slug (auto-generated from the EN name, editable, slug-regex validated, unique across article_tags), Save (no Cancel — the "Back to tags list" link replaces it). POST /admin/tags on create, PUT on edit; useUnsavedChanges guards the form. -->
 <script setup lang="ts">
 import type { TagEditData } from '@blog/Admin/Types/article';
 import { router, usePage } from '@inertiajs/vue3';
@@ -92,8 +92,8 @@ function onNameChange(locale: string, value: string): void {
 
     // Auto-generate the slug from the EN name while the field is still
     // untouched (create mode). Once edited, the manual override wins
-    // (ADR-0006 — the backend keeps a submitted slug that differs from the
-    // stored one).
+    // (the backend keeps a submitted slug that differs from the stored
+    // one).
     if (locale === 'en' && !slugTouched.value) {
         form.slug = slugify(value);
     }

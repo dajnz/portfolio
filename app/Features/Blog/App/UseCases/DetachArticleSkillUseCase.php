@@ -8,8 +8,7 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
- * Detaches a tech skill tag via `article_skill_pivot`
- * (content-management.md:253).
+ * Detaches a tech skill tag via `article_skill_pivot`.
  */
 final class DetachArticleSkillUseCase
 {

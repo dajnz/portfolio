@@ -8,13 +8,6 @@ use App\Features\Backup\Domain\ValueObjects\BackupTimings;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
-/**
- * The `backups` timestamps VO (database.md:582-585): the creation
- * moment plus the nullable completion/failure and deletion stamps —
- * neither may precede the creation time. The entity's state
- * transitions swap immutable instances via `withCompletedAt()` /
- * `withoutCompletedAt()` (ADR-0018).
- */
 describe('BackupTimings', function (): void {
     it('exposes the timestamps', function (): void {
         $createdAt = new DateTimeImmutable('2026-07-09 02:00:00');

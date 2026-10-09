@@ -8,17 +8,15 @@ use DateTimeImmutable;
 use Illuminate\Support\Facades\Config;
 
 /**
- * The blog pages' SEO data (seo.md:18-31,39-41): the localized
- * title/description, the slashless canonical URL, the Open Graph type
- * (+ the absolute lead-image URL for the detail page), the optional
- * robots directive and the JSON-LD blocks (seo.md:119-186 —
- * BlogPosting + BreadcrumbList). Built by the app layer; the
- * controller maps it into the wire `SeoProps` shape.
+ * The blog pages' SEO data: the localized title/description, the
+ * slashless canonical URL, the Open Graph type (+ the absolute
+ * lead-image URL for the detail page), the optional robots directive
+ * and the JSON-LD blocks (BlogPosting + BreadcrumbList). Built by the
+ * app layer; the controller maps it into the wire `SeoProps` shape.
  *
  * The `og:image` is converted to an ABSOLUTE `/assets/` URL here
- * (seo.md:63 — crawlers reject relative image URLs); the index page
- * leaves it null — the frontend falls back to `/images/og-default.png`.
- * Immutable.
+ * (crawlers reject relative image URLs); the index page leaves it null
+ * — the frontend falls back to `/images/og-default.png`. Immutable.
  */
 final readonly class BlogSeoDto
 {
@@ -39,8 +37,8 @@ final readonly class BlogSeoDto
     }
 
     /**
-     * The blog index (seo.md:39): the localized site-title pattern,
-     * no page-specific image.
+     * The blog index: the localized site-title pattern, no
+     * page-specific image.
      */
     public static function forIndex(string $locale, string $siteName): self
     {
@@ -53,10 +51,9 @@ final readonly class BlogSeoDto
     }
 
     /**
-     * The article detail (seo.md:41,65): the localized title
-     * pattern, the short description, the article OG type with the
-     * absolute lead-image URL and the BlogPosting + BreadcrumbList
-     * JSON-LD pair.
+     * The article detail: the localized title pattern, the short
+     * description, the article OG type with the absolute lead-image URL
+     * and the BlogPosting + BreadcrumbList JSON-LD pair.
      *
      * @param  string[]  $tagNames  The article-tag names.
      * @param  string[]  $skillNames  The attached skill names (both feed `keywords`).

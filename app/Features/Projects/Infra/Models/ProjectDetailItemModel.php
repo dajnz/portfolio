@@ -11,10 +11,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent model for `project_detail_items` (database.md:236-249):
- * the engineering detail item's Iconify identifier and gallery
- * `sort_order`, with its per-locale title/description rows.
- *
  * @property int $id
  * @property int $project_id
  * @property string|null $icon

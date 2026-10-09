@@ -1,14 +1,3 @@
-<!-- SkillGroupCard (admin-section-components.md:851-865, skills.html:211-278;
-     5.2 rework) — one skill group card. The header (drag handle, icon,
-     name, move up/down keyboard alternatives, delete) and the footer
-     ("Add Skill") carry a distinct background so the contained skills
-     list reads as nested; the header highlights on hover and a click on
-     it starts editing (no dedicated edit button). Editing (3×3 grid:
-     icon picker / locale-tabbed name / Save+Cancel — the translation
-     tabs sit BELOW the name input, empty grid cells keep the row
-     heights aligned): Enter saves, Escape or a click anywhere outside
-     the header discards. The skills list + new-skill row are injected
-     through the default slot. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { usePage } from '@inertiajs/vue3';
@@ -77,9 +66,8 @@ const page = usePage<{ supported_locales?: string[] }>();
 
 const editingLocale = ref('en');
 
-// The group's per-locale editing tabs only offer the ACTIVE locales
-// (the shared `supported_locales` prop — disabled locales are not
-// editable, 5.2 rework).
+// The group's per-locale editing tabs only offer the ACTIVE locales (the
+// shared `supported_locales` prop — disabled locales are not editable).
 const locales = computed(() => localeOptionsFromCodes(page.props?.supported_locales));
 
 // Locales whose required name translation is empty — the tab gets the

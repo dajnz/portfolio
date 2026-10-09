@@ -2,8 +2,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
 /**
- * The authenticated admin's shared props shape (ADR-0004, auth.yaml contract):
- * `{ id, name, email, login, github_linked, totp_enabled, is_oauth_primary }`.
+ * The authenticated admin as carried by the server-shared `auth` prop.
  */
 export interface AdminUser {
     id?: number;
@@ -16,10 +15,10 @@ export interface AdminUser {
 }
 
 /**
- * Global admin session state (architecture.md:187-193, authentication.md:11).
- * Hydrated from the server-shared `auth` prop (`auth.user` is null on
- * public pages); sessions are server-managed, so logout/login arrive as
- * full page loads and always re-hydrate this store from the new props.
+ * Global admin session state. Hydrated from the server-shared `auth` prop
+ * (`auth.user` is null on public pages); sessions are server-managed, so
+ * logout/login arrive as full page loads and always re-hydrate this store
+ * from the new props.
  */
 export const useAuthStore = defineStore('auth', () => {
     const user = ref<AdminUser | null>(null);

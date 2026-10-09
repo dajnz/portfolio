@@ -8,9 +8,8 @@ use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * `POST /admin/contacts` (content-management.md:607-616): the
- * non-translatable contact fields plus the per-locale display name
- * (required per locale per content-management.md:419).
+ * `POST /admin/contacts`: the non-translatable contact fields plus the
+ * per-locale display name (required per locale).
  */
 final class StoreContactRequest extends FormRequest
 {

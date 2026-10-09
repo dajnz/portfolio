@@ -121,17 +121,6 @@ const AVAILABILITY_VARIANTS: Record<string, AvailabilityVariant> = {
     busy: 'danger',
 };
 
-/**
- * Maps the committed LandingPageProps wire shape (docs/openapi/inertia/
- * portfolio.yaml#LandingPageProps) onto the landing component contracts
- * (public-section-components.md:889-1007): AboutBlock data + CTA links,
- * SkillsBlock groups (with per-skill proficiency labels), the featured
- * project cards, the ContactsBlock links + FeedbackForm props, plus the
- * public nav items (ADR-0025) and the dns-prefetch hosts for external links
- * (architecture.md:1271). Pure derivation — the components fire their
- * own analytics (AboutBlock cta_click_github/cv, FeedbackForm
- * cta_click_feedback).
- */
 export function useLandingPage(props: LandingDataProps): UseLandingPageApi {
     const { t } = useI18n();
 
@@ -310,10 +299,10 @@ export function useLandingPage(props: LandingDataProps): UseLandingPageApi {
 }
 
 /**
- * IANA timezone → display label (mockup: "CET (UTC+1)"): the short name
- * ("CET"/"CEST") plus a compact UTC offset. Both derive from Intl so the
- * label is locale-independent; falls back to the raw value when the
- * runtime does not know the timezone.
+ * IANA timezone → display label: the short name ("CET"/"CEST") plus a
+ * compact UTC offset. Both derive from Intl so the label is
+ * locale-independent; falls back to the raw value when the runtime does
+ * not know the timezone.
  */
 function formatTimezone(iana: string): string {
     if (iana === '') {

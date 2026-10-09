@@ -10,10 +10,9 @@ use Illuminate\Testing\TestResponse;
 use League\OpenAPIValidation\PSR7\Exception\ValidationFailed;
 
 /**
- * Shared plumbing for the OpenAPI contract suite (step 2.7): per-operation
+ * Shared plumbing for the OpenAPI contract suite: per-operation
  * scenarios, real-request dispatch and response validation against
- * `docs/openapi/openapi.yaml` via `league/openapi-psr7-validator`
- * (testing.md:200).
+ * `docs/openapi/openapi.yaml` via `league/openapi-psr7-validator`.
  */
 trait OpenApiContractAssertions
 {
@@ -21,7 +20,7 @@ trait OpenApiContractAssertions
      * Scenario registry — keyed by `operationId` from `docs/openapi/openapi.yaml`.
      * Every operation must be listed here (enforced by the coverage test);
      * operations whose endpoint does not exist yet stay `implemented: false`
-     * and are asserted as 404s until their feature step flips them.
+     * and are asserted as 404s.
      *
      * @return array<string, array{path: string, method: string, implemented: bool, implemented_in?: string, cases?: int[]}>
      */
@@ -142,9 +141,7 @@ trait OpenApiContractAssertions
 
     /**
      * Not-yet-implemented endpoints (scenario `implemented: false`) must
-     * answer 404 with the general `{message}` error envelope until their
-     * feature step lands. All operations are currently implemented; the
-     * helper stays for future pending operations.
+     * answer 404 with the general `{message}` error envelope.
      */
     protected function assertPendingOperation(TestResponse $response): void
     {

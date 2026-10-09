@@ -1,12 +1,12 @@
 {{--
-    Shared error-page layout (error-handling.md:196-212, seo.md:260-279).
+    Shared error-page layout.
     Extended by resources/views/errors/{403,404,419,422,429,500,503}.blade.php.
 
-    Self-contained: inline BEM CSS mirroring the public design tokens
-    (docs/mockups/public/404.html + tokens.css) — no external dependencies,
-    no JavaScript. The theme class is applied server-side from the theme
-    cookie (ThemeMiddleware); without it, `prefers-color-scheme` decides.
-    404 pages carry a `noindex, follow` robots meta (seo.md:332).
+    Self-contained: inline BEM CSS mirroring the public design tokens — no
+    external dependencies, no JavaScript. The theme class is applied
+    server-side from the theme cookie (ThemeMiddleware); without it,
+    `prefers-color-scheme` decides. 404 pages carry a `noindex, follow`
+    robots meta.
 --}}
 @php
     $status = ($exception ?? null)?->getStatusCode() ?? 500;

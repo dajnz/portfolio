@@ -6,11 +6,6 @@ use App\Features\TechSkills\Infra\Controllers\TechSkillController;
 use App\Features\TechSkills\Infra\Controllers\TechSkillGroupController;
 use Illuminate\Support\Facades\Route;
 
-/*
- * TechSkills routes (routes.md:67-75). All admin surface, gated by the
- * Auth middleware chain (`auth` + `auth.session_version` + `admin`).
- */
-
 Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function (): void {
     Route::get('/admin/skills', [TechSkillController::class, 'index']);
     Route::post('/admin/skills', [TechSkillController::class, 'store']);

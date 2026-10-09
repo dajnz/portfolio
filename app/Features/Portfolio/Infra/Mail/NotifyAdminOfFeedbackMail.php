@@ -12,12 +12,12 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Queued "new feedback received" admin notification (architecture.md:173):
- * sender identity + excerpt — the first 120 characters of the message,
- * same truncation as the admin feedback list (admin-section-ui.md:406).
- * Dispatched by `SubmitFeedbackUseCase` when the `email_on_feedback`
- * setting is on; the mail config is merged at boot by
- * `SettingsMailConfigProvider`, so queue workers see the DB values.
+ * Queued "new feedback received" admin notification: sender identity plus
+ * an excerpt — the first 120 characters of the message, the same
+ * truncation as the admin feedback list. Dispatched by
+ * `SubmitFeedbackUseCase` when the `email_on_feedback` setting is on; the
+ * mail config is merged at boot by `SettingsMailConfigProvider`, so queue
+ * workers see the DB values.
  */
 final class NotifyAdminOfFeedbackMail extends Mailable implements ShouldQueue
 {

@@ -1,4 +1,4 @@
-<!-- UploadRestoreForm (admin-section-components.md:1526-1548, backups.html) — the disaster-recovery restore: the .zip DropzoneUpload (client-side type + size validation), the monospace show/hide key input and the password confirmation, with the indeterminate ProgressBar during upload + restore. -->
+<!-- UploadRestoreForm — the disaster-recovery restore: the .zip DropzoneUpload (client-side type + size validation), the monospace show/hide key input and the password confirmation, with the indeterminate ProgressBar during upload + restore. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
@@ -17,11 +17,11 @@ const props = withDefaults(
         restore_progress?: number | null;
         restore_error?: string | null;
         /** Incremented on every successful DR restore — the form clears
-         *  its inputs on the tick (ADR-0019): a reload can't do it, the
-         *  component outlives the Inertia visit. */
+         *  its inputs on the tick: a reload can't do it, the component
+         *  outlives the Inertia visit. */
         restore_success_tick?: number;
         /** Max file size in KB from the `backup_upload_max_size` setting
-         *  (default 102400 = 100 MB, admin-section-components.md:1526). */
+         *  (default 102400 = 100 MB). */
         max_file_size?: number;
         test_id?: string;
     }>(),
@@ -55,11 +55,11 @@ const fileError = ref<string | null>(null);
 const keyError = ref<string | null>(null);
 const passwordError = ref<string | null>(null);
 
-// A successful DR restore clears the submitted inputs (ADR-0019) — the
-// parent increments the tick exactly when the restore-mode poll
-// observes the completion (a failed restore keeps the inputs so the
-// admin can retry). Failure-driven server errors land via props and
-// stay untouched here.
+// A successful DR restore clears the submitted inputs — the parent
+// increments the tick exactly when the restore-mode poll observes the
+// completion (a failed restore keeps the inputs so the admin can
+// retry). Failure-driven server errors land via props and stay
+// untouched here.
 watch(
     () => props.restore_success_tick,
     (tick) => {

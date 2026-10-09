@@ -1,4 +1,3 @@
-// admin-section-components.md:31-33 — mirrors PublicBaseTextarea
 <script setup lang="ts">
 import { computed, useId } from 'vue';
 

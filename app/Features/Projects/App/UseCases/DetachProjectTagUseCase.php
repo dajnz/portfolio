@@ -7,9 +7,6 @@ namespace App\Features\Projects\App\UseCases;
 use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
-/**
- * Detaches a tech tag (content-management.md:160).
- */
 final class DetachProjectTagUseCase
 {
     public function __construct(

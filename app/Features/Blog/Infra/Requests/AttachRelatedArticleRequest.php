@@ -9,11 +9,11 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 /**
- * `POST /admin/blog/{article}/related/{relatedArticle}`
- * (content-management.md:252): validates that the related article
- * exists and is published and that it is not the article itself
- * (the `related_articles` CHECK constraint backs the latter up at the
- * DB level). The duplicate-link 409 is thrown by the repository.
+ * `POST /admin/blog/{article}/related/{relatedArticle}`: validates
+ * that the related article exists and is published and that it is not
+ * the article itself (the `related_articles` CHECK constraint backs
+ * the latter up at the DB level). The duplicate-link 409 is thrown by
+ * the repository.
  */
 final class AttachRelatedArticleRequest extends FormRequest
 {

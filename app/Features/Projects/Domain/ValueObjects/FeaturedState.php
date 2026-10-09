@@ -10,8 +10,7 @@ use App\Features\Shared\Domain\ValueObjects\SortOrder;
  * Value object: the project's featured state — the `is_featured` flag
  * and the zero-indexed `featured_sort_order` ({@see SortOrder}, the
  * drag order of the landing "Featured Projects" section). The order is
- * nullable (an unfeatured project may keep its last order —
- * content-management.md:157). Immutable.
+ * nullable (an unfeatured project may keep its last order).
  */
 final readonly class FeaturedState
 {

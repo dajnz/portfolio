@@ -10,10 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * `csp` middleware alias — generates the per-request CSP nonce and appends
- * the Content-Security-Policy header (devops.md:751-813). Skipped on `/api/*`
- * (no HTML responses) and when APP_ENV=local. The nonce is stored in a
- * `CspNonce` singleton so the root Blade layout and Inertia shared props
- * can inject it into inline scripts.
+ * the Content-Security-Policy header. Skipped on `/api/*` (no HTML responses)
+ * and when APP_ENV=local. The nonce is stored in a `CspNonce` singleton so the
+ * root Blade layout and Inertia shared props can inject it into inline scripts.
  */
 final class CspNonceMiddleware
 {

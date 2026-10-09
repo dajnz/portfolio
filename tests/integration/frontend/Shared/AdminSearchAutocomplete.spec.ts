@@ -206,9 +206,9 @@ describe('AdminSearchAutocomplete', () => {
     });
 
     it('shows the error state on a failed fetch and retries', async () => {
-        // The GET retry policy (error-handling.md:149-160) retries 5xx
-        // responses twice (1 s + 2 s) — keep the mock failing until the
-        // manual retry button flips it to success.
+        // The GET retry policy retries 5xx responses twice (1 s + 2 s) —
+        // keep the mock failing until the manual retry button flips it to
+        // success.
         const fetchMock = vi
             .mocked(fetch)
             .mockResolvedValue(new Response('nope', { status: 500 }));

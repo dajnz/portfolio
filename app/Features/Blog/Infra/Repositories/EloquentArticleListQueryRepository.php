@@ -16,20 +16,18 @@ use Illuminate\Support\Facades\Config;
 
 /**
  * Eloquent implementation of {@see ArticleListQueryRepositoryInterface}
- * (the admin list-query contract — ADR-0001) and
- * {@see PublicArticleReadRepositoryInterface} (the public read model —
- * step 8.2).
+ * (the admin list-query contract) and
+ * {@see PublicArticleReadRepositoryInterface} (the public read model).
  *
  * The admin list projection is a single locale-resolved query
- * (`coalesce(pl.*, pe.*)` with the `en` fallback — content-management.md:
- * 415) over `blog_articles`, extended with the `article_views` count,
- * the separate article-tag / skill-tag AND-intersects
- * (`?article_tags=` / `?skill_tags=` — routes.md:204-205, ADR-0004), the
- * title/content search, the published status and the publication-year
- * filter. Tag chips, skill tags and related rows are assembled per
- * page from supplemental queries. The admin list pagination itself
- * lives behind the shared app-layer paginator (the filters-only query
- * is supplied here).
+ * (`coalesce(pl.*, pe.*)` with the `en` fallback) over
+ * `blog_articles`, extended with the `article_views` count, the
+ * separate article-tag / skill-tag AND-intersects
+ * (`?article_tags=` / `?skill_tags=`), the title/content search, the
+ * published status and the publication-year filter. Tag chips, skill
+ * tags and related rows are assembled per page from supplemental
+ * queries. The admin list pagination itself lives behind the shared
+ * app-layer paginator (the filters-only query is supplied here).
  *
  * The tag list rows use the same locale-resolved projection over
  * `article_tags` with the `article_tag_pivot` usage count.
@@ -364,8 +362,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
 
     /**
      * The public list projection — the locale-resolved card fields
-     * (the `en` fallback per content-management.md:415) over the
-     * non-trashed articles.
+     * (the `en` fallback) over the non-trashed articles.
      */
     private function publicRowsQuery(string $locale): QueryBuilder
     {
@@ -402,7 +399,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
 
     /**
      * The locale-resolved `content` expression — the `ts_headline`
-     * snippet source (database.md:676-683).
+     * snippet source.
      */
     private function contentExpression(): string
     {
@@ -410,11 +407,10 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
     }
 
     /**
-     * Applies the FTS search (database.md:651-660): the `@@`
-     * plainto_tsquery filter over the locale-resolved vector, the
-     * ts_rank column (the ORDER BY + keyset seek reference it) and
-     * the `ts_headline` snippet column (the `<mark>`-wrapped excerpt
-     * of the Inertia HTML results — ADR-0007).
+     * Applies the FTS search: the `@@` plainto_tsquery filter over the
+     * locale-resolved vector, the ts_rank column (the ORDER BY + keyset
+     * seek reference it) and the `ts_headline` snippet column (the
+     * `<mark>`-wrapped excerpt of the Inertia HTML results).
      */
     private function applyFtsSearch(QueryBuilder $query, string $locale, string $search): FtsQueryBuilder
     {
@@ -486,7 +482,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
     /**
      * The admin list projection — the locale-resolved title, the
      * reading time and the `article_views` count plus every row field
-     * the admin surfaces render (admin-section-ui.md:387-403).
+     * the admin surfaces render.
      */
     private function adminRowsQuery(): QueryBuilder
     {
@@ -517,8 +513,8 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
     }
 
     /**
-     * The admin title/content search (content-management.md:224) over
-     * ALL per-locale translation rows.
+     * The admin title/content search over ALL per-locale translation
+     * rows.
      */
     private function applyTextSearch(QueryBuilder $query, string $search): QueryBuilder
     {
@@ -532,8 +528,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
 
     /**
      * The `?article_tags=` AND/intersection filter: articles whose
-     * article-tag set contains ALL of the submitted tag ids
-     * (routes.md:204-205, ADR-0004).
+     * article-tag set contains ALL of the submitted tag ids.
      *
      * @param  int[]  $tagIds
      */
@@ -568,7 +563,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
 
     /**
      * The tag list projection — the locale-resolved name plus the
-     * `article_tag_pivot` usage count (admin-section-ui.md:315-320).
+     * `article_tag_pivot` usage count.
      */
     private function tagRowsQuery(string $locale): QueryBuilder
     {
@@ -590,8 +585,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
     }
 
     /**
-     * The tag name search (admin-section-ui.md:315 — across all
-     * locales).
+     * The tag name search (across all locales).
      */
     private function applyTagNameSearch(QueryBuilder $query, string $search): QueryBuilder
     {

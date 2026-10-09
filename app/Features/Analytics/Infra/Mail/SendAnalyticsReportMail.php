@@ -13,13 +13,12 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Queued analytics digest mail (analytics.md:214-219, architecture.md:
- * 172, ADR-0017): a simple HTML table with the previous day's key metrics
- * (page views, unique visitors, feedback submissions) and the top
- * article by views, sent when `analytics_email_enabled` is on and a
- * recipient is configured. The mailable is queued (ShouldQueue) —
- * dispatched via `Mail::to(...)->send()`, which queues ShouldQueue
- * mailables. The digest is built by `GetDailyDigestUseCase` (11.3.5)
+ * Queued analytics digest mail: a simple HTML table with the previous
+ * day's key metrics (page views, unique visitors, feedback submissions)
+ * and the top article by views, sent when `analytics_email_enabled` is
+ * on and a recipient is configured. The mailable is queued
+ * (ShouldQueue) — dispatched via `Mail::to(...)->send()`, which queues
+ * ShouldQueue mailables. The digest is built by `GetDailyDigestUseCase`
  * before the mailable is queued, so the queued payload is plain data.
  */
 final class SendAnalyticsReportMail extends Mailable implements ShouldQueue

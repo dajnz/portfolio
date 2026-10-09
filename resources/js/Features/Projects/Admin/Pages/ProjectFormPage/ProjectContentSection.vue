@@ -1,7 +1,3 @@
-<!-- ProjectContentSection — the Content card of the project form:
-     locale-tabbed title/brief textarea + the three TextEditor Markdown
-     fields. Receives the per-locale value maps and the active locale;
-     emits field updates for that locale only. -->
 <script setup lang="ts">
 import AdminBaseCard from '@shared-admin/AdminBaseCard.vue';
 import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';

@@ -8,8 +8,8 @@ use App\Features\Resume\App\Contracts\ResumePdfRendererInterface;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 /**
- * The resume PDF renderer (content-management.md:387-401): renders the
- * per-locale resume data through one of the committed Blade templates
+ * The resume PDF renderer: renders the per-locale resume data through one
+ * of the committed Blade templates
  * (`resources/views/resume-templates/{template}.blade.php`) and converts
  * the HTML to PDF via dompdf. The templates receive the raw assembly
  * (`data`) plus the resolved locale; section headings are translated via

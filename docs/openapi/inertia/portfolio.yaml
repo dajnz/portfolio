@@ -25,9 +25,7 @@ components:
                   type: boolean
                   description: |
                     Whether more published projects exist beyond the featured
-                    ones on the page — controls the "View all projects" link
-                    (public-section-components.md:981-985,
-                    content-management.md:116-120).
+                    ones on the page — controls the "View all projects" link.
                 experience_items:
                   type: array
                   items:
@@ -39,11 +37,11 @@ components:
                 console_greeting:
                   type: object
                   description: |
-                    ConsoleGreeting data (public-section-components.md:578-590,
-                    ADR-0023): greeting text (localized), the developer name and
-                    position (locale-resolved about values) and the contacts
-                    as label/value pairs. Rendered by the public layout only
-                    when passed and the `console_greeting` flag is enabled.
+                    ConsoleGreeting data (ADR-0023): greeting text (localized),
+                    the developer name and position (locale-resolved about
+                    values) and the contacts as label/value pairs. Rendered by
+                    the public layout only when passed and the
+                    `console_greeting` flag is enabled.
                   properties:
                     greeting:
                       type: string
@@ -65,10 +63,9 @@ components:
                   nullable: true
                   description: |
                     The randomized honeypot field name for the feedback form,
-                    derived from the session ID via keyed HMAC-SHA256
-                    (authentication.md:345-351) and embedded in the page HTML
-                    on render. Null when no session is active (the check is
-                    then skipped server-side).
+                    derived from the session ID via keyed HMAC-SHA256 and
+                    embedded in the page HTML on render. Null when no session
+                    is active (the check is then skipped server-side).
                 seo:
                   $ref: './shared.yaml#/components/schemas/SeoProps'
 
@@ -122,7 +119,7 @@ components:
                 resume_mode:
                   type: string
                   enum: [auto, manual]
-                  description: Current resume generation mode (Resume feature) — the resume summary line's mode label (admin-section-components.md:793-794).
+                  description: Current resume generation mode (Resume feature) — the resume summary line's mode label.
 
     ContactsListPageProps:
       allOf:

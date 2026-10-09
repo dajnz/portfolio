@@ -14,13 +14,6 @@ use Tests\Support\Fakes\FakeBatchTableReader;
 use function sys_get_temp_dir;
 
 /**
- * The backup pre-flight estimator (backup.md:242-249, 378): data size
- * = summed serialized JSONL rows, asset size = summed bucket objects,
- * and the 2× rule — `hasEnoughSpace()` is false when the available
- * space is below `2 × (data + assets)` (backup.md:249).
- */
-
-/**
  * @return array{0: StorageEstimator, 1: Filesystem}
  */
 function backupEstimatorFixture(array $rows, array $paths, array $sizes): array

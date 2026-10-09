@@ -2,7 +2,7 @@ components:
   schemas:
     ResumeSectionConfig:
       type: object
-      description: A resume layout section's visibility + order (order range 0–4 per the request validation, content-management.md:369).
+      description: A resume layout section's visibility + order (order range 0–4 per the request validation).
       properties:
         visible:
           type: boolean

@@ -10,11 +10,11 @@ use App\Features\Backup\Infra\Mappers\BackupMapper;
 use App\Features\Backup\Infra\Models\BackupModel;
 
 /**
- * Eloquent-backed `backups` storage (database.md:567-587). All
- * writes go through the model (the mapper prepares the rows — the
- * pending `''`/`0` placeholders); reads materialize the entities via
- * the mapper. Soft-deleted rows are invisible to every read — a
- * deleted backup's download/status lookups 404 (backup.md:438).
+ * Eloquent-backed `backups` storage. All writes go through the model
+ * (the mapper prepares the rows — the pending `''`/`0` placeholders);
+ * reads materialize the entities via the mapper. Soft-deleted rows are
+ * invisible to every read — a deleted backup's download/status lookups
+ * 404.
  */
 final class EloquentBackupRepository implements BackupRepositoryInterface
 {

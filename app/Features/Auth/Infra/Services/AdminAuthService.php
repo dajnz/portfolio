@@ -34,7 +34,6 @@ final class AdminAuthService
 
     /* `auth.session_version` middleware (RequireSessionVersion) */
 
-    /** Whether the version stored at login matches the admin's current `session_version`. */
     public function sessionVersionMatches(): bool
     {
         $user = Auth::guard('web')->user();
@@ -43,7 +42,6 @@ final class AdminAuthService
             && (int) session('session_version', -1) === (int) $user->session_version;
     }
 
-    /** Force-logout of the current session (on version mismatch). */
     public function forceLogout(): void
     {
         Auth::logout();
@@ -51,7 +49,6 @@ final class AdminAuthService
 
     /* `totp.pending` middleware (RequireTotpPending) — login half-auth state */
 
-    /** Whether a half-auth TOTP login is in progress. */
     public function hasPendingTotpLogin(): bool
     {
         return session('totp.pending_admin_id') !== null;
@@ -78,7 +75,6 @@ final class AdminAuthService
 
     /* `totp.pending.github_link` middleware (RequireGithubLinkTotpPending) */
 
-    /** Whether the pending GitHub-link state belongs to the authenticated admin. */
     public function githubLinkPendingForCurrentAdmin(): bool
     {
         return Auth::check()
@@ -109,22 +105,17 @@ final class AdminAuthService
         ]);
     }
 
-    /* Shared */
-
-    /** Clears both half-auth states (logout). */
     public function clearPendingAuthenticationState(): void
     {
         $this->clearPendingTotpLogin();
         $this->clearPendingGithubLink();
     }
 
-    /** Whether the admin is currently inside a TOTP lockout. */
     public function adminIsTotpLocked(Admin $admin): bool
     {
         return $admin->toTimedOtp()->isLocked(new DateTimeImmutable());
     }
 
-    /** Localized lockout flash message for an admin with an active lock. */
     public function totpLockoutFlash(Admin $admin): string
     {
         $lockedUntil = $admin->toTimedOtp()->toLockedUntil();

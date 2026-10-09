@@ -10,10 +10,6 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use Tests\Support\AnalyticsEventFixture;
 
-/**
- * The `page_view` event invariants (analytics.md:17): the referrer cap
- * and the payload round-trip.
- */
 describe('PageViewEvent', function (): void {
     it('rejects a referrer longer than 2048 characters', function (): void {
         expect(fn () => new PageViewEvent(

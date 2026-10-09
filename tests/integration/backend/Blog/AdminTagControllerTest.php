@@ -23,9 +23,6 @@ beforeEach(function (): void {
     Storage::fake('rustfs');
 });
 
-/**
- * Creates a fully translated article with the given base attributes.
- */
 function articleItem(array $attributes = [], array $translations = []): ArticleModel
 {
     $article = ArticleModel::factory()->create($attributes);
@@ -52,9 +49,6 @@ function articleItem(array $attributes = [], array $translations = []): ArticleM
     return $article;
 }
 
-/**
- * Creates a translated article tag and returns the model.
- */
 function articleTagItem(string $slug = 'php', array $names = []): ArticleTagModel
 {
     $tag = ArticleTagModel::factory()->create(['slug' => $slug]);
@@ -70,9 +64,6 @@ function articleTagItem(string $slug = 'php', array $names = []): ArticleTagMode
     return $tag;
 }
 
-/**
- * Seeds a skill in a group and returns its id.
- */
 function articleSkillId(string $name = 'PHP', ?string $icon = 'devicon:php'): int
 {
     $group = SkillGroupModel::factory()->create();

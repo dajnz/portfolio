@@ -16,12 +16,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Eloquent model for `experience_timeline_items` (database.md:285-305).
+ * Eloquent model for `experience_timeline_items`.
  *
  * The `sitemap:xml` cache is invalidated whenever a published item is
- * saved or deleted (seo.md:219 — wired here per ADR-0022): a save that
- * leaves the item published, or flips `is_published` (an unpublish must
- * drop the sitemap entry too), and a delete of a published item.
+ * saved or deleted: a save that leaves the item published, or flips
+ * `is_published` (an unpublish must drop the sitemap entry too), and a
+ * delete of a published item.
  *
  * @property int $id
  * @property \Illuminate\Support\Carbon $started_at

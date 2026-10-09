@@ -1,4 +1,3 @@
-<!-- ProjectFormPage (admin-section-ui.md:348-359, admin-section-components.md:995-1038, project-form.html) — the create/edit project form: the page orchestrator holding the form state, the locale handling, the slug auto-generation and the save round-trip, composing six section cards (Content / Basic / Media / Meta / Relations / Engineering Details) that each own their template and emit value updates. POST /admin/projects on create, PUT on edit; the per-locale maps follow the LocaleTabs convention; empty screenshot/detail rows are dropped before submit (the backend's `required_with` rules); the slug auto-generates from the EN title on create until manually edited (ADR-0006 keeps the manual override; the backend regenerates on save when the submitted slug still equals the stored one); Preview opens the signed URL; useUnsavedChanges guards the whole form. -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import type { EngineeringDetailRow } from '@projects-admin/EngineeringDetailItem.vue';
@@ -176,14 +175,13 @@ const form = reactive<ProjectFormValues>(buildForm(props.project));
 
 // The guard's baseline is a DEEP COPY of the SAME built form — a second
 // buildForm() call would regenerate the screenshot/detail row `uid`s,
-// making an untouched form look dirty (the Experience form precedent,
-// ADR-0024).
+// making an untouched form look dirty (the Experience form precedent).
 const initialSnapshot = JSON.parse(JSON.stringify(form)) as ProjectFormValues;
 
 // Locales with a missing required translation — their tab gets the
 // warning marker before the save round-trip. Beyond the mandatory
-// `title` + `brief_description`, two dynamic policies (user request
-// 2026-08-12) mark a locale incomplete:
+// `title` + `brief_description`, two dynamic policies mark a locale
+// incomplete:
 //  1. the Markdown trio (full description / problem / solution) is
 //     all-empty or all-filled ACROSS locales, per field — a field
 //     filled in one language must be filled in every language (the
@@ -243,9 +241,7 @@ function onTitleChange(locale: string, value: string): void {
     form.title[locale] = value;
 
     // Auto-generate the slug from the EN title while the field is still
-    // untouched (create mode). Once edited, the manual override wins
-    // (ADR-0006 — the backend keeps a submitted slug that differs from the
-    // stored one).
+    // untouched (create mode). Once edited, the manual override wins.
     if (locale === 'en' && !slugTouched.value) {
         form.slug = slugify(value);
     }
@@ -379,7 +375,7 @@ function save(): void {
       class="mx-auto max-w-4xl"
       :data-testid="props.test_id"
     >
-      <!-- Sticky header controls (user request 2026-08-12): back link /
+      <!-- Sticky header controls: back link /
            locale tabs / preview + save, spread with space-between —
            the preview/save group is a single distributed item (its
            internal gap stays 3). -->

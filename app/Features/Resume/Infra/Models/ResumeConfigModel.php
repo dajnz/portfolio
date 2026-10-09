@@ -8,10 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent model for `resume_config` (database.md:104-116) — the
- * single-row resume generation configuration (id = 1, enforced at the
- * application level). `layout` is the jsonb template + sections map
- * (content-management.md:335-347).
+ * Eloquent model for `resume_config` — the single-row resume generation
+ * configuration (id = 1, enforced at the application level). `layout` is
+ * the jsonb template + sections map.
  *
  * @property int $id
  * @property string $mode

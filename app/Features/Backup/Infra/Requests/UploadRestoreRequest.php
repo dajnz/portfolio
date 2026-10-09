@@ -11,14 +11,13 @@ use Illuminate\Foundation\Http\FormRequest;
 use function config;
 
 /**
- * The disaster-recovery upload payload (content-management.md:749-755,
- * backup.md:592-595): the downloaded `.zip`, the offline-saved raw
- * key (44-char base64 of 32 bytes) and the admin's current password.
- * The file size limit comes from the `backup_upload_max_size` setting
- * (KB) — read via the Shared settings surface (ADR-0018) with
- * `config('backup.upload_max_size_kb')` as the fallback; the server
- * validates the archive against the key after the request rules pass
- * (ImportFromPathUseCase).
+ * The disaster-recovery upload payload: the downloaded `.zip`, the
+ * offline-saved raw key (44-char base64 of 32 bytes) and the admin's
+ * current password. The file size limit comes from the
+ * `backup_upload_max_size` setting (KB) — read via the Shared settings
+ * surface with `config('backup.upload_max_size_kb')` as the fallback; the
+ * server validates the archive against the key after the request rules
+ * pass (ImportFromPathUseCase).
  */
 final class UploadRestoreRequest extends FormRequest
 {

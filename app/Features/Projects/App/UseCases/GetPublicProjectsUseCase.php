@@ -21,21 +21,17 @@ use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInter
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 
 /**
- * The public projects page (public-section-ui.md:142-175,
- * content-management.md:125-129): published, non-trashed projects with
+ * The public projects page: published, non-trashed projects with
  * infinite scroll via the opaque composite cursor, the `?tags=`
  * AND/intersect, the FTS `?q=` search (plainto_tsquery + ts_rank — the
- * search takes over the ordering per database.md:651-660) and the
- * `?sort=date` strategy with the `?direction=asc|desc` variant
- * (`published_at {dir}, id {dir}` — the complexity strategy was removed
- * per the 2026-08-16 user decision).
+ * search takes over the ordering) and the `date` sort strategy with the
+ * `?direction=asc|desc` variant (`published_at {dir}, id {dir}`).
  *
- * Every request returns a superset of earlier positions (seo.md:305):
- * the initial batch unconditionally, then all batches up to and
- * including the one containing the cursor item, then one batch beyond
- * it (public-section-ui.md:338-340). `next_cursor` is null whenever
- * the final batch is incomplete (fewer than `perPage` rows — the
- * exhaustion signal, public-section-ui.md:314).
+ * Every request returns a superset of earlier positions: the initial
+ * batch unconditionally, then all batches up to and including the one
+ * containing the cursor item, then one batch beyond it. `next_cursor`
+ * is null whenever the final batch is incomplete (fewer than `perPage`
+ * rows — the exhaustion signal).
  *
  * The rows carry the sort value of the batch's last item (the
  * published_at timestamp / fts_rank) so the next cursor is encoded from
@@ -83,9 +79,9 @@ final class GetPublicProjectsUseCase
     }
 
     /**
-     * The JSON dual-response variant (routes.md:199-212) — length-aware
-     * pagination, FTS search, tag intersect and the date sort with the
-     * direction variant; raw field values without highlights (ADR-0007).
+     * The JSON dual-response variant — length-aware pagination, FTS
+     * search, tag intersect and the date sort with the direction
+     * variant; raw field values without highlights.
      */
     public function jsonPage(ProjectListQuery $query): PaginatedProjectListDto
     {
@@ -245,9 +241,8 @@ final class GetPublicProjectsUseCase
 
     /**
      * The batch's last item sort value — the cursor payload for the
-     * next request (public-section-ui.md:316-327). The FTS rank while
-     * searching, the published timestamp otherwise (the only remaining
-     * sort column — the complexity strategy was removed 2026-08-16).
+     * next request. The FTS rank while searching, the published
+     * timestamp otherwise.
      */
     private function sortValueOf(object $row, ProjectListQuery $query, bool $searching): string
     {

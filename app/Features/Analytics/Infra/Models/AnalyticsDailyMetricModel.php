@@ -10,11 +10,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `analytics_daily_metrics` (database.md:513-529).
- * The per-day aggregate store is append-only-ish — `created_at` only,
- * no `updated_at`; the `dimension` column holds the entity key
- * (NULL for global metrics), `value` + `samples` the weighted
- * sum/samples pair (never averages).
+ * Eloquent model for `analytics_daily_metrics`. The per-day aggregate
+ * store is append-only-ish — `created_at` only, no `updated_at`; the
+ * `dimension` column holds the entity key (NULL for global metrics),
+ * `value` + `samples` the weighted sum/samples pair (never averages).
  *
  * @property int $id
  * @property string $metric

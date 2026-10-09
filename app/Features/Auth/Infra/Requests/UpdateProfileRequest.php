@@ -9,8 +9,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 /**
- * `PUT /admin/profile` (content-management.md:719-727,
- * authentication.md:288-292). Shape-only validation — the current-password
+ * `PUT /admin/profile`. Shape-only validation — the current-password
  * verification happens in `UpdateProfileUseCase` (the domain owns it).
  */
 final class UpdateProfileRequest extends FormRequest
@@ -36,10 +35,10 @@ final class UpdateProfileRequest extends FormRequest
             'password' => [
                 $changingPassword ? 'required' : 'nullable',
                 'string',
-                // Password rules (authentication.md:288-292): 12+ chars,
-                // mixed case, at least one digit. `uncompromised()` stays
-                // with the generator (admin:create/reset) — the request
-                // path must not depend on the external HaveIBeenPwned API.
+                // Password rules: 12+ chars, mixed case, at least one digit.
+                // `uncompromised()` stays with the generator
+                // (admin:create/reset) — the request path must not depend on
+                // the external HaveIBeenPwned API.
                 Password::min(12)->mixedCase()->numbers(),
                 'confirmed',
             ],

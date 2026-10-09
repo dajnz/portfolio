@@ -6,8 +6,7 @@ namespace App\Features\Projects\App\DTOs;
 
 /**
  * The linked tech-writeup article — resolved against the CURRENT
- * publication state (content-management.md:133): present only while
- * the article is published. Immutable.
+ * publication state: present only while the article is published.
  */
 final readonly class TechWriteupLinkDto
 {

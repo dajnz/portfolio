@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Portfolio\Domain\ValueObjects;
 
 /**
- * The about-info availability status (database.md:75-87): one of
- * `available`, `limited`, `busy`, stored as a varchar + CHECK constraint.
+ * The about-info availability status: one of `available`, `limited`,
+ * `busy`, stored as a varchar + CHECK constraint.
  *
  * `toLabelKey()` returns the static-translation key of the status label
  * (`landing.availability.*`) — how a status is displayed (badge colors

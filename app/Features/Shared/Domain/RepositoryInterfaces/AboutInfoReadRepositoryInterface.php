@@ -6,9 +6,7 @@ namespace App\Features\Shared\Domain\RepositoryInterfaces;
 
 /**
  * Read-only access to the single-row `about_info` aggregate for
- * cross-feature consumers: the site name used by the public SEO props
- * (seo.md:43). The write side and the full read side belong to the
- * Portfolio feature.
+ * cross-feature consumers (the site name used by the public SEO props).
  */
 interface AboutInfoReadRepositoryInterface
 {
@@ -20,8 +18,7 @@ interface AboutInfoReadRepositoryInterface
 
     /**
      * The stored RustFS path of the admin's profile photo (the
-     * BlogPosting `publisher.logo`, seo.md:141), or `null` when no
-     * photo is set.
+     * BlogPosting `publisher.logo`), or `null` when no photo is set.
      */
     public function findSitePhotoPath(): ?string;
 }

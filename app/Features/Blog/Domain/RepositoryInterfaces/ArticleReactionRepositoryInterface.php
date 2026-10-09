@@ -7,12 +7,11 @@ namespace App\Features\Blog\Domain\RepositoryInterfaces;
 use App\Features\Blog\Domain\Entities\ArticleReaction;
 
 /**
- * The reaction persistence (database.md:406-420,
- * content-management.md:207-212): one reaction per
+ * The reaction persistence: one reaction per
  * `(article_id, fingerprint)` pair, upsert semantics — a different
  * reaction type updates the row, the same type deletes it (undo).
- * Consumed by the public reactions endpoint (step 8.2); the
- * fingerprint is server-generated (keyed HMAC of ip|user_agent, ADR-0017).
+ * Consumed by the public reactions endpoint; the fingerprint is
+ * server-generated (keyed HMAC of ip|user_agent).
  */
 interface ArticleReactionRepositoryInterface
 {

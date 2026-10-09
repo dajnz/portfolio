@@ -9,12 +9,6 @@ use App\Features\Backup\Domain\ValueObjects\ManifestAsset;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
-/**
- * The backup archive manifest (backup.md:83-128): `fromJson()`/
- * `fromArray()` parsing of the stored `manifest.json`, the
- * `assets_count`/`assets_size_bytes` consistency invariants and the
- * pretty-printed `toJson()` round-trip the creation workflow writes.
- */
 describe('Manifest', function (): void {
     it('exposes the parsed fields', function (): void {
         $manifest = new Manifest(

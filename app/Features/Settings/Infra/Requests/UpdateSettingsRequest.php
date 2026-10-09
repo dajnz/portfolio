@@ -12,15 +12,14 @@ use Illuminate\Foundation\Http\FormRequest;
 use InvalidArgumentException;
 
 /**
- * `PUT /admin/settings` — grouped `{ settings: { key: value, ... } }`
- * payload for the active tab.
+ * Grouped `{ settings: { key: value, ... } }` payload for the active tab.
  *
  * Per-key validation is the domain's job: type conformance is enforced by
  * `SettingValue`, and the name-specific value domains (bounds, report
  * frequency) by the `Setting` entity. This request only checks that the
- * key is known and persisted (`exists:settings,key` per the spec), then
- * constructs the domain objects and surfaces their failures:
- *  - type conformance → "Invalid value type for '{key}'." (spec message);
+ * key is known and persisted, then constructs the domain objects and
+ * surfaces their failures:
+ *  - type conformance → "Invalid value type for '{key}'.";
  *  - domain constraints → the entity's own message.
  */
 final class UpdateSettingsRequest extends FormRequest

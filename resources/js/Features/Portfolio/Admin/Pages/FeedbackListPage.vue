@@ -1,4 +1,3 @@
-<!-- FeedbackListPage (admin-section-components.md:1184-1211, admin-section-ui.md:404-408, feedback.html) — feedback submissions DataTable (Date / Sender Email / Excerpt / Status), row click navigates to the detail page; cursor pagination; read-only list (no create CTA). -->
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseBadge from '@shared-admin/AdminBaseBadge.vue';

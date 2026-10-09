@@ -1,20 +1,3 @@
-<!-- SkillItem (admin-section-components.md:867-884, skills.html:242-266;
-     5.2 reworks) — one skill row inside a group's SortableList. The whole
-     row is the drag surface (no handle-mode guard — the row drags from
-     anywhere except the `skill-row-interactive` controls) and a click
-     switches it to edit mode. Viewing: icon, name, display-only
-     color-coded proficiency dots (single container title with the current
-     level name — proficiency is edited via the dropdown, 5.2 rework),
-     include-in-resume checkbox, keyboard move-up/down alternatives
-     (accessibility.md:35-44), an icon-outline-danger delete aligned to
-     the right edge. Editing (4 columns: icon picker, name input,
-     localized proficiency dropdown, checkbox + icon-only Save/Cancel):
-     Enter saves, Escape cancels, clicking outside the row discards. Gaps
-     (5.2 rework): a small base gap (10 px) between the knob/icon/name/
-     dropdown and the Save/Cancel pair; double-ish gaps (24 px) around the
-     Resume checkbox to visually separate the input group / the checkbox /
-     the action buttons. All mutations bubble as `update` with
-     `{ id, field, value }`; the page persists them. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
@@ -222,7 +205,6 @@ function onRowClick(): void {
     </span>
 
     <template v-if="!props.editing">
-      <!-- Move up/down group. -->
       <span class="mx-6 flex shrink-0 items-center gap-2.5">
         <span
           class="skill-row-interactive"
@@ -273,7 +255,6 @@ function onRowClick(): void {
     </template>
 
     <template v-else>
-      <!-- Action buttons group (Save/Cancel with the base gap). -->
       <span class="mx-6 flex shrink-0 items-center gap-2.5">
         <span
           class="skill-row-interactive"

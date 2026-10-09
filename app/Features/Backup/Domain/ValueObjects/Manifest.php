@@ -21,19 +21,19 @@ use const JSON_UNESCAPED_SLASHES;
 use const JSON_UNESCAPED_UNICODE;
 
 /**
- * The backup archive manifest (backup.md:83-128): the archive metadata
- * written as `manifest.json` at creation time and parsed back at
- * validate/restore. Carries the creation timestamp, the format
- * version, the per-table record counts and the full asset listing —
- * the restore workflow's exact-mirror source (objects present in the
- * live bucket but absent from `assets` are deleted).
+ * The backup archive manifest: the archive metadata written as
+ * `manifest.json` at creation time and parsed back at
+ * validate/restore. Carries the creation timestamp, the format version,
+ * the per-table record counts and the full asset listing — the restore
+ * workflow's exact-mirror source (objects present in the live bucket
+ * but absent from `assets` are deleted).
  *
  * The constructor protects the invariants: every table count is a
  * non-negative integer, and the redundant `assets_count` /
  * `assets_size_bytes` fields must agree with the asset list.
  * `fromJson()`/`fromArray()` parse a stored manifest (single
- * pretty-printed JSON object, backup.md:80); `toJson()` produces the
- * same shape for the creation workflow.
+ * pretty-printed JSON object); `toJson()` produces the same shape for
+ * the creation workflow.
  */
 final class Manifest
 {
@@ -108,9 +108,6 @@ final class Manifest
         );
     }
 
-    /**
-     * Parses a stored `manifest.json` string (backup.md:83-128).
-     */
     public static function fromJson(string $json): self
     {
         try {
@@ -204,7 +201,7 @@ final class Manifest
     }
 
     /**
-     * The pretty-printed manifest file content (backup.md:80).
+     * The pretty-printed manifest file content.
      */
     public function toJson(): string
     {

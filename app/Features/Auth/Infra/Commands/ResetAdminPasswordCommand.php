@@ -10,11 +10,10 @@ use App\Features\Auth\Infra\Services\PasswordGenerator;
 use Illuminate\Console\Command;
 
 /**
- * `admin:reset-password` (authentication.md:409-421) — generates a new
- * random password, hashes it, clears the TOTP lockout state and bumps the
- * session version (invalidating all existing sessions). Runs without
- * prompts when `--login` and `--password` are both provided (CI/scripted
- * setups).
+ * `admin:reset-password` — generates a new random password, hashes it,
+ * clears the TOTP lockout state and bumps the session version (invalidating
+ * all existing sessions). Runs without prompts when `--login` and
+ * `--password` are both provided (CI/scripted setups).
  */
 final class ResetAdminPasswordCommand extends Command
 {

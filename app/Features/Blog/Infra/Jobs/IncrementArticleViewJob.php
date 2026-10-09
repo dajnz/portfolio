@@ -9,14 +9,14 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
 
 /**
- * The queued per-view counter increment (content-management.md:214-218):
- * dispatched by the public article controller with the client IP and
- * User-Agent. The User-Agent is checked against the analytics bot
- * blocklist (`config('analytics.not_bot_user_agent_pattern')`) —
- * known crawlers and requests without a User-Agent are silently
- * skipped, no increment. The increment itself is a single atomic
- * upsert statement: the first view inserts the row, concurrent
- * requests conflict on the `article_id` primary key and increment —
+ * The queued per-view counter increment: dispatched by the public
+ * article controller with the client IP and User-Agent. The
+ * User-Agent is checked against the analytics bot blocklist
+ * (`config('analytics.not_bot_user_agent_pattern')`) — known crawlers
+ * and requests without a User-Agent are silently skipped, no
+ * increment. The increment itself is a single atomic upsert
+ * statement: the first view inserts the row, concurrent requests
+ * conflict on the `article_id` primary key and increment —
  * `updateOrCreate + increment` would not be atomic under concurrent
  * first views.
  */

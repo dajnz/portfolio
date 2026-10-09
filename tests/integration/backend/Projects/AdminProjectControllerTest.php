@@ -26,9 +26,6 @@ beforeEach(function (): void {
 });
 
 /**
- * The shared store/update payload — title/brief_description required
- * per active locale, plus the media/relations/engineering sections.
- *
  * @return array<string, mixed>
  */
 function projectPayload(array $overrides = []): array
@@ -54,9 +51,6 @@ function projectPayload(array $overrides = []): array
     ], $overrides);
 }
 
-/**
- * Creates a fully translated project with the given base attributes.
- */
 function projectItem(array $attributes = [], array $translations = []): ProjectModel
 {
     $project = ProjectModel::factory()->create($attributes);
@@ -75,9 +69,6 @@ function projectItem(array $attributes = [], array $translations = []): ProjectM
     return $project;
 }
 
-/**
- * Seeds a skill in a group and returns its id.
- */
 function projectSkillId(string $name = 'PHP'): int
 {
     $group = SkillGroupModel::factory()->create();
@@ -86,9 +77,6 @@ function projectSkillId(string $name = 'PHP'): int
 }
 
 /**
- * Creates a project with two fully translated engineering detail items
- * (one per the drag-reorder regression tests).
- *
  * @return array{0: ProjectModel, 1: ProjectDetailItemModel, 2: ProjectDetailItemModel}
  */
 function projectWithDetailItemPair(): array
@@ -276,7 +264,6 @@ describe('AdminProjectController', function (): void {
         $go = projectSkillId('Go');
         $tagged->techTags()->attach([$php, $go]);
 
-        // AND/intersection: the project must carry BOTH tags.
         $this->get('/admin/projects?tags='.$php.','.$go)
             ->assertInertia(fn (Assert $page) => $page
                 ->has('projects', 1)
@@ -383,8 +370,7 @@ describe('AdminProjectController', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         // full_description filled only in EN — the field must be
-        // all-empty or all-filled ACROSS locales (user request
-        // 2026-08-12).
+        // all-empty or all-filled ACROSS locales.
         $this->post('/admin/projects', projectPayload([
             'full_description' => ['en' => '**Full** markdown.', 'ru' => ''],
             'problem' => ['en' => '', 'ru' => ''],
@@ -781,7 +767,6 @@ describe('AdminProjectController', function (): void {
             ->and($screenshots->last()->image_path)->toBe('projects/new.png')
             ->and($screenshots->last()->sort_order)->toBe(1);
 
-        // The absent screenshot row was deleted with its RustFS file.
         expect(ProjectScreenshotModel::find($removed->id))->toBeNull()
             ->and(Storage::disk('rustfs')->exists('projects/removed.png'))->toBeFalse();
     });
@@ -821,7 +806,6 @@ describe('AdminProjectController', function (): void {
 
         expect($project->fresh()->slug)->toBe('payments-hub');
 
-        // The old slug redirects to the new one.
         expect(DB::table('old_slugs')->where('old_slug', 'payments-gateway')->where('entity_type', 'project')->exists())->toBeTrue();
     });
 
@@ -867,8 +851,6 @@ describe('AdminProjectController', function (): void {
         $this->patch("/admin/projects/{$project->id}/restore")->assertRedirect();
         expect(ProjectModel::find($project->id)->deleted_at)->toBeNull();
 
-        // Force-delete: the RustFS files are removed and the slug
-        // history is preserved.
         Storage::disk('rustfs')->assertExists('projects/shot.png');
         $this->delete("/admin/projects/{$project->id}/force")->assertRedirect();
         expect(ProjectModel::withTrashed()->find($project->id))->toBeNull()
@@ -958,7 +940,6 @@ describe('AdminProjectController', function (): void {
 
         expect($project->fresh()->tech_writeup_article_id)->toBe($publishedArticleId);
 
-        // Null removes the link.
         $this->patch("/admin/projects/{$project->id}/tech-writeup", [
             'tech_writeup_article_id' => null,
         ])->assertOk();
@@ -1033,8 +1014,7 @@ describe('AdminProjectController', function (): void {
 
         // An unpublished project's form save still invalidates — the
         // translation sync rebuilds `search_vector` and invalidates the
-        // sitemap unconditionally (seo.md:219 — translation changes are
-        // reflected in lastmod).
+        // sitemap unconditionally.
         $project->update(['is_published' => false]);
         $prime();
         $this->put("/admin/projects/{$project->id}", projectPayload([

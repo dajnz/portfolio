@@ -1,26 +1,8 @@
-/* ==========================================================================
-   Public Section Design Tokens
-   CSS custom properties driving BEM + scoped-per-component styles (the same
-   names/blocks a Vue SFC would use with <style scoped>). Light + dark
-   themes. Slow ambient gradients, glassmorphism, reduced-motion support.
-
-   Direction: "Atelier" — a modern, editorial glassmorphism feel for a
-   builder's portfolio. Three accent hues that read well together without
-   drifting into a single trendy hue: Moss (primary, confident and calm),
-   Plum (secondary, adds depth to gradients/dark mode), and Gold (sparing
-   highlight, doubles as the warning color). Set on a soft mist-paper
-   ground in light mode and a deep forest-ink ground in dark mode. Gradients
-   and ambient glass "mesh" blobs drift very slowly (60-110s) so they read
-   as atmosphere, never as motion that competes with content.
-   ========================================================================== */
-
 /* --------------------------------------------------------------------------
    1. Fonts
    --------------------------------------------------------------------------
-   The mockup imports Inter/JetBrains Mono from Google Fonts. The app
-   bundles the same faces via the Vite bunny plugin (vite.config.ts), so
-   the remote import is dropped; the stacks below remain the
-   design-token font faces verbatim.
+   The app bundles Inter/JetBrains Mono via the Vite bunny plugin
+   (vite.config.ts); the stacks below are the design-token font faces.
    -------------------------------------------------------------------------- */
 
 /* --------------------------------------------------------------------------
@@ -71,8 +53,7 @@ ul, ol {
     list-style: none;
 }
 
-/* Themed selection + marked text (was left to browser defaults — clashed
-   with both themes) */
+/* Themed selection + marked text — browser defaults clash with both themes */
 ::selection {
     background: var(--color-accent-muted);
     color: var(--color-text-primary);
@@ -85,9 +66,8 @@ mark {
     padding: 0.05em 0.15em;
 }
 
-/* Inline code + code blocks — previously unstyled (browser defaults only),
-   which meant no theming and no dark-mode support. Used throughout prose,
-   blog articles, and this guide's own descriptions. */
+/* Inline code + code blocks — themed for both light and dark modes, used
+   throughout prose, blog articles, and this guide's own descriptions. */
 code {
     font-family: var(--font-mono);
     font-size: 0.9em;
@@ -164,7 +144,7 @@ pre code {
     /* --- Colors — Text --- */
     --color-text-primary:    oklch(0.24 0.02 89.88);
     --color-text-secondary:  oklch(0.37 0.03 101.67);
-    --color-text-tertiary:   oklch(0.53 0.02 100);   /* meets 4.5:1 on --color-bg-primary — usable for body text/placeholders (accessibility.md) */
+    --color-text-tertiary:   oklch(0.53 0.02 100);   /* meets 4.5:1 on --color-bg-primary — usable for body text/placeholders */
     --color-text-inverse:    oklch(0.98 0.01 0);
 
     /* --- Colors — Accent ---
@@ -292,21 +272,20 @@ pre code {
     --header-height:     64px;
 
     /* Breakpoints + container widths (component-facing names used by the
-       PublicCenteredContainer layout tokens — see i18n-and-theming.md) */
+       PublicCenteredContainer layout tokens) */
     --bp-sm: 640px;
     --bp-md: 768px;
     --bp-lg: 1024px;
     --bp-xl: 1280px;
     /* The `--layout-*` names (not `--container-*`) are deliberate:
        Tailwind v4's `max-w-*` utilities read the `--container-*` scale —
-       the mockup's `--container-sm: 640px` would silently turn `max-w-sm`
-       (the admin login card, 24rem per the mockup) into 640px. */
+       a `--container-sm: 640px` would silently turn `max-w-sm` (the admin
+       login card, 24rem) into 640px. */
     --layout-sm: 640px;
     --layout-md: 768px;
     --layout-lg: 1024px;
-    /* Uniform landing content width (user request 2026-08-14, 1000px per
-       follow-up): all four landing blocks share this size via
-       `centered-container--content`. */
+    /* Uniform landing content width — all four landing blocks share this
+       size via `centered-container--content`. */
     --layout-content: 1000px;
     --layout-xl: 1200px;
     --container-padding: 16px;
@@ -351,7 +330,7 @@ pre code {
     /* --- Colors — Text --- */
     --color-text-primary:    oklch(0.96 0.01 0);
     --color-text-secondary:  oklch(0.76 0.01 50.93);
-    --color-text-tertiary:   oklch(0.68 0.02 100);    /* meets 4.5:1 on --color-bg-primary (dark) — accessibility.md */
+    --color-text-tertiary:   oklch(0.68 0.02 100);    /* meets 4.5:1 on --color-bg-primary (dark) */
     --color-text-inverse:    oklch(0.75 0.04 68.76);
 
     /* --- Colors — Accent --- */

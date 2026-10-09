@@ -37,13 +37,12 @@ use Illuminate\Support\Facades\Response as ResponseFacade;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * Article-tag admin surface (routes.md:149-154) plus the inline API
- * creation (`POST /api/tags` — routes.md:191, features/blog.yaml#
- * createTag): the cursor-paginated tag list (name / slug / article
- * count, cross-locale search), the create/edit forms (per-locale
- * names via LocaleTabs) and the JSON `storeApi` used by the blog
- * form's inline tag creation. The tag↔skill name cross-check surfaces
- * as a `name` validation error (content-management.md:695).
+ * Article-tag admin surface plus the inline API creation
+ * (`POST /api/tags`): the cursor-paginated tag list (name / slug /
+ * article count, cross-locale search), the create/edit forms
+ * (per-locale names via LocaleTabs) and the JSON `storeApi` used by the
+ * blog form's inline tag creation. The tag↔skill name cross-check
+ * surfaces as a `name` validation error.
  * One action → one use case; the controller only translates the HTTP
  * request into app-layer DTOs and the use-case results into the
  * Inertia/JSON output shapes — no repositories, Eloquent or DB calls.
@@ -130,10 +129,9 @@ final class AdminTagController
     }
 
     /**
-     * `POST /api/tags` (routes.md:191, features/blog.yaml#createTag) —
-     * the inline tag creation of the blog form: 201 with the created
-     * tag so the frontend can add it to the article's selection
-     * without a reload.
+     * `POST /api/tags` — the inline tag creation of the blog form: 201
+     * with the created tag so the frontend can add it to the article's
+     * selection without a reload.
      */
     public function storeApi(StoreTagApiRequest $request): JsonResponse
     {
@@ -153,9 +151,8 @@ final class AdminTagController
     }
 
     /**
-     * `GET /api/tags/search` (routes.md:196, features/blog.yaml#
-     * searchTags): the article-tags autocomplete — `{id, name, slug}`
-     * rows, name ascending, capped at 20 (ADR-0007).
+     * `GET /api/tags/search`: the article-tags autocomplete —
+     * `{id, name, slug}` rows, name ascending, capped at 20.
      */
     public function search(Request $request): JsonResponse
     {
@@ -177,11 +174,9 @@ final class AdminTagController
     }
 
     /**
-     * `GET /api/blog-tags/search` (routes.md:197, features/blog.yaml#
-     * searchUnifiedBlogTags): the unified autocomplete of the blog
-     * filter — article tags and tech skills with the `type`
-     * discriminator (`tag` | `skill`), name ascending, capped at 20
-     * (ADR-0007, content-management.md:198-200).
+     * `GET /api/blog-tags/search`: the unified autocomplete of the
+     * blog filter — article tags and tech skills with the `type`
+     * discriminator (`tag` | `skill`), name ascending, capped at 20.
      */
     public function searchUnified(Request $request): JsonResponse
     {
@@ -281,8 +276,7 @@ final class AdminTagController
     }
 
     /**
-     * The `TagResponse` `name` map (per-locale, nullable —
-     * features/blog.yaml#TagResponse).
+     * The `TagResponse` `name` map (per-locale, nullable).
      *
      * @param  array<string, string>  $names
      * @return array<string, string|null>
@@ -299,7 +293,7 @@ final class AdminTagController
 
     /**
      * The admin list `meta` wire shape from the cursor pagination
-     * facts (admin-section-ui.md:169-181).
+     * facts.
      *
      * @return array<string, mixed>
      */

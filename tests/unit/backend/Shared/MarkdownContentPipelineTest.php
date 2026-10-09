@@ -11,13 +11,6 @@ use Illuminate\Cache\ArrayStore;
 use Illuminate\Cache\Repository;
 use Illuminate\Support\Facades\Cache;
 
-/**
- * The shared content pipeline (ADR-0008, content-management.md:466-481):
- * safe-mode CommonMark (raw HTML escaped, unsafe links blocked), the
- * `> [!TYPE]` callouts, the server-highlighted code blocks with the
- * `data-code-block` markers and the heading anchor ids — plus the
- * Redis `article:html:{id}:{locale}:{updated_at}` cache.
- */
 describe('MarkdownContentPipeline', function (): void {
     it('escapes raw HTML instead of passing it through', function (): void {
         $html = pipeline()->render('Body <script>alert(1)</script> and <img src=x onerror=alert(1)>.');
@@ -184,7 +177,7 @@ describe('MarkdownContentPipeline', function (): void {
     });
 
     it('ADR-0008-regression: a content change within the same second never serves the old render', function (): void {
-        // The 8.2 `updated_at`-stamp key collided when two saves
+        // A timestamp-stamp cache key once collided when two saves
         // landed in the same second — the second render hit the first
         // save's cached HTML. The content hash in the key rotates
         // regardless of the timestamp precision.

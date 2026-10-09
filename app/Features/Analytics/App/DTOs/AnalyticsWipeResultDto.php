@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Analytics\App\DTOs;
 
 /**
- * The `analytics:wipe` result (analytics.md "Data deletion"): the
- * per-table deleted row counts, surfaced by the command's output.
+ * The `analytics:wipe` result: the per-table deleted row counts,
+ * surfaced by the command's output.
  */
 final class AnalyticsWipeResultDto
 {

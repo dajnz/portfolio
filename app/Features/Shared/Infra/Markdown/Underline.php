@@ -8,10 +8,10 @@ use League\CommonMark\Node\Inline\AbstractInline;
 use League\CommonMark\Node\Inline\DelimitedInterface;
 
 /**
- * The underline inline node of the content pipeline — the `++text++`
- * markdown syntax produced by the admin editor's underline button
- * (ADR-0024). Rendered as `<u>`; the inner content is parsed with the
- * regular inline parser (text escaping applies).
+ * The underline inline node of the content pipeline — the `++text++` markdown
+ * syntax produced by the admin editor's underline button. Rendered as `<u>`;
+ * the inner content is parsed with the regular inline parser (text escaping
+ * applies).
  */
 final class Underline extends AbstractInline implements DelimitedInterface
 {

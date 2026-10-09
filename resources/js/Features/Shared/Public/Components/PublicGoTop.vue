@@ -65,8 +65,6 @@ onBeforeUnmount(() => {
 <style scoped>
 .public-go-top {
     position: fixed;
-
-    /* User rework 2026-08-16: 1rem offsets (was 3rem). */
     bottom: 1rem;
     right: 1rem;
     z-index: var(--z-sticky);

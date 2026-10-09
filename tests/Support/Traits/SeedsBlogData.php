@@ -14,11 +14,10 @@ use App\Features\Shared\Infra\Persistence\Cursor;
 use App\Features\Shared\Infra\Persistence\PublicCursorCodec;
 
 /**
- * Shared fixtures for the public-blog test suites (step 8.2): the
- * published fully-translated article, the translated tag, the seeded
- * skill and the opaque-cursor encoder used by the infinite-scroll
- * assertions (the same codec the controller uses — the per-file
- * helper convention per ADR-0029).
+ * Shared fixtures for the public-blog test suites: the published
+ * fully-translated article, the translated tag, the seeded skill and the
+ * opaque-cursor encoder used by the infinite-scroll assertions (the same
+ * codec the controller uses).
  */
 trait SeedsBlogData
 {
@@ -52,9 +51,6 @@ trait SeedsBlogData
         return $article;
     }
 
-    /**
-     * Creates a translated article tag and returns the model.
-     */
     protected function publicBlogTag(string $slug = 'php', array $names = []): ArticleTagModel
     {
         $tag = ArticleTagModel::factory()->create(['slug' => $slug]);
@@ -70,9 +66,6 @@ trait SeedsBlogData
         return $tag;
     }
 
-    /**
-     * Seeds a skill in a group and returns its id.
-     */
     protected function publicBlogSkillId(string $name = 'PHP', ?string $icon = 'devicon:php'): int
     {
         $group = SkillGroupModel::factory()->create();

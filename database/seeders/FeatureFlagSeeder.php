@@ -8,9 +8,6 @@ use App\Features\Settings\Domain\Enums\FeatureFlagName;
 use App\Features\Settings\Infra\Models\FeatureFlagModel;
 use Illuminate\Database\Seeder;
 
-/**
- * Inserts the initial feature flags (database.md) with `enabled = false`.
- */
 class FeatureFlagSeeder extends Seeder
 {
     public function run(): void

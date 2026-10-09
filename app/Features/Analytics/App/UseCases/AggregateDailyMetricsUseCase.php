@@ -22,22 +22,21 @@ use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
 use DateTimeImmutable;
 
 /**
- * The per-day metrics aggregation (analytics.md:158-180, ADR-0017): the
- * 11.1 event-aggregation logic reworked per day over a date range.
- * For every day of the range it computes the full metric catalog from
- * that day's events (typed entities via `eventsBetween`) and the
- * feedback submissions (the cross-feature reader), and upserts the
- * rows via the daily-metric repository — re-running a day overwrites
- * (idempotent). The catalog per analytics.md:172-178: global rows
- * (dimension NULL), `cta_clicks` per target, per-page time on page by
- * URL, per-article and per-project rows keyed as `article:{id}` /
- * `project:{id}`. `unique_visitors` is always `COUNT(DISTINCT
- * ip_hash)` (session ids are client-generated and untrustworthy);
- * blog-scoped uniques count distinct IPs among the events on article
- * pages (`toBlogArticleId() !== null`), project-scoped uniques among
- * the events on project pages (`toProjectId() !== null`) — the same
- * visitor across several project pages counts once; per-entity uniques
- * count the page views' distinct IPs on that entity's pages.
+ * The per-day metrics aggregation: for every day of the range it
+ * computes the full metric catalog from that day's events (typed
+ * entities via `eventsBetween`) and the feedback submissions (the
+ * cross-feature reader), and upserts the rows via the daily-metric
+ * repository — re-running a day overwrites (idempotent). The catalog:
+ * global rows (dimension NULL), `cta_clicks` per target, per-page time
+ * on page by URL, per-article and per-project rows keyed as
+ * `article:{id}` / `project:{id}`. `unique_visitors` is always
+ * `COUNT(DISTINCT ip_hash)` (session ids are client-generated and
+ * untrustworthy); blog-scoped uniques count distinct IPs among the
+ * events on article pages (`toBlogArticleId() !== null`),
+ * project-scoped uniques among the events on project pages
+ * (`toProjectId() !== null`) — the same visitor across several project
+ * pages counts once; per-entity uniques count the page views' distinct
+ * IPs on that entity's pages.
  */
 final class AggregateDailyMetricsUseCase
 {
@@ -73,10 +72,9 @@ final class AggregateDailyMetricsUseCase
     }
 
     /**
-     * The default aggregation range (analytics.md:182-184): the
-     * previous day + the in-progress day, in the server-local
-     * timezone — the dashboard stays live. Shared by the scheduled
-     * command and the job.
+     * The default aggregation range: the previous day + the in-progress
+     * day, in the server-local timezone — the dashboard stays live.
+     * Shared by the scheduled command and the job.
      *
      * @return array{DateTimeImmutable, DateTimeImmutable}
      */
@@ -124,9 +122,9 @@ final class AggregateDailyMetricsUseCase
 
     /**
      * Whether the event's page URL points into the admin section
-     * (analytics.md:3,38 — tracking is `[Public]`-only): such events
-     * are ignored at aggregation. Null page URLs (events without one)
-     * are never treated as admin.
+     * (tracking is `[Public]`-only): such events are ignored at
+     * aggregation. Null page URLs (events without one) are never
+     * treated as admin.
      */
     private function isAdminPageUrl(?string $pageUrl): bool
     {
@@ -140,10 +138,8 @@ final class AggregateDailyMetricsUseCase
     }
 
     /**
-     * The single-pass accumulation of the day's events (the 11.1
-     * `OverallReport`/`BlogReport`/`ProjectsReport::accumulate()`
-     * logic combined — ADR-0017). CTA targets come from the event types
-     * (ADR-0017): `CallToActionClickEvent`→its target,
+     * The single-pass accumulation of the day's events. CTA targets
+     * come from the event types: `CallToActionClickEvent`→its target,
      * `LanguageSwitchEvent`→`language`, `ThemeSwitchEvent`→`theme`.
      *
      * @param list<AnalyticsEvent> $events
@@ -190,12 +186,12 @@ final class AggregateDailyMetricsUseCase
         ];
 
         foreach ($events as $event) {
-            // The aggregation net (analytics.md:3,38 — tracking is
-            // `[Public]`-only): events whose page URL points into the
-            // admin section are ignored, so admin browsing can never
-            // pollute the global metrics even if the client-side guard
-            // regresses. `page_type: null` events on PUBLIC urls
-            // (legacy rows without the page context, ADR-0017) are kept.
+            // The aggregation net (tracking is `[Public]`-only): events
+            // whose page URL points into the admin section are ignored,
+            // so admin browsing can never pollute the global metrics
+            // even if the client-side guard regresses. `page_type: null`
+            // events on PUBLIC urls (legacy rows without the page
+            // context) are kept.
             if ($this->isAdminPageUrl($event->toPageUrl())) {
                 continue;
             }
@@ -346,8 +342,8 @@ final class AggregateDailyMetricsUseCase
     }
 
     /**
-     * The dimension-NULL rows (analytics.md:174): the page-view count,
-     * the distinct-IP visitors across ALL events, the feedback
+     * The dimension-NULL rows: the page-view count, the distinct-IP
+     * visitors across ALL events, the feedback
      * submissions, the time-on-page sum/samples/min/max, the blog
      * views + blog-scoped uniques, the blog read time (time-on-page on
      * article pages), the completion rate and the reactions.
@@ -410,8 +406,7 @@ final class AggregateDailyMetricsUseCase
 
     /**
      * The blog-scoped unique visitors — the distinct IPs among ALL
-     * events on article pages (`toBlogArticleId() !== null`,
-     * analytics.md:180).
+     * events on article pages (`toBlogArticleId() !== null`).
      *
      * @param array<string, true> $blogVisitors
      */
@@ -434,8 +429,8 @@ final class AggregateDailyMetricsUseCase
     }
 
     /**
-     * The `cta_clicks` rows (analytics.md:175): one per target that
-     * received clicks — `github`/`demo`/`cv`/`feedback` from the plain
+     * The `cta_clicks` rows: one per target that received clicks —
+     * `github`/`demo`/`cv`/`feedback` from the plain
      * CTA events, `language`/`theme` from the switch events.
      *
      * @param array<string, int> $cta
@@ -458,8 +453,7 @@ final class AggregateDailyMetricsUseCase
     }
 
     /**
-     * The per-page time-on-page rows (analytics.md:176) — dimension =
-     * the page URL.
+     * The per-page time-on-page rows — dimension = the page URL.
      *
      * @param array<string, list<int>> $pages
      *
@@ -482,8 +476,8 @@ final class AggregateDailyMetricsUseCase
     }
 
     /**
-     * The per-article rows (analytics.md:177) — dimension
-     * `article:{id}`: views + the page views' distinct IPs, the read
+     * The per-article rows — dimension `article:{id}`: views + the
+     * page views' distinct IPs, the read
      * time from time-on-page events on the article page, the
      * completion rate from `article_read` percentages, the reactions.
      *
@@ -520,8 +514,8 @@ final class AggregateDailyMetricsUseCase
     }
 
     /**
-     * The per-project rows (analytics.md:178) — dimension
-     * `project:{id}`: views + the page views' distinct IPs.
+     * The per-project rows — dimension `project:{id}`: views + the page
+     * views' distinct IPs.
      *
      * @param array<int, array{views: int, visitors: array<string, true>}> $projects
      *
@@ -562,9 +556,9 @@ final class AggregateDailyMetricsUseCase
     }
 
     /**
-     * A sum-like metric row (analytics.md:170): value = the sum,
-     * samples = the number of samples — the weighted aggregation at
-     * the report layer stays exact (`SUM(value)/SUM(samples)`).
+     * A sum-like metric row: value = the sum, samples = the number of
+     * samples — the weighted aggregation at the report layer stays
+     * exact (`SUM(value)/SUM(samples)`).
      *
      * @param list<int> $values
      */
@@ -582,8 +576,8 @@ final class AggregateDailyMetricsUseCase
     }
 
     /**
-     * The min/max row pair (analytics.md:170) — plain values, samples
-     * = 1. Both null when there are no samples.
+     * The min/max row pair — plain values, samples = 1. Both null when
+     * there are no samples.
      *
      * @param list<int> $values
      *

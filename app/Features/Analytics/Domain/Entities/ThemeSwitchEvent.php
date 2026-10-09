@@ -10,10 +10,9 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * The `cta_click_theme` event (analytics.md:24): the theme switch.
- * The frontend currently sends no payload for it — the mode is
- * modelled as nullable for the spec's `light|dark` payload and
- * validated when present.
+ * The `cta_click_theme` event: the theme switch. The frontend sends no
+ * payload for it — the mode is modelled as nullable for the `light|dark`
+ * payload and validated when present.
  */
 final class ThemeSwitchEvent extends AnalyticsEvent
 {

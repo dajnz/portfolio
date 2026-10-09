@@ -172,8 +172,6 @@ function assertHasDrawableShapes(file, svg) {
 }
 
 function loadIcon(file) {
-    // Validates the source SVG against the drop-in conventions and turns
-    // it into the flat, monochrome body an Iconify glyph needs.
     const svg = parseSvgFile(file);
     assertConventionalViewBox(file, svg);
     cleanSvgMarkup(file, svg);

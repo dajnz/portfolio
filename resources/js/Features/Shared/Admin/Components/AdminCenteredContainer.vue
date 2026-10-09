@@ -1,4 +1,3 @@
-<!-- AdminCenteredContainer (admin-section-components.md:355-367) — Tailwind-styled mirror of PublicCenteredContainer. -->
 <script setup lang="ts">
 import { computed } from 'vue';
 

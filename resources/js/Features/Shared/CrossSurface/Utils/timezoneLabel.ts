@@ -1,5 +1,5 @@
 // Timezone display labels for the admin pickers: the about form's
-// timezone dropdown (user request 2026-09-04) shows each IANA identifier
+// timezone dropdown shows each IANA identifier
 // with its current UTC offset — "Europe/Moscow (UTC+3)" — so admins pick
 // the right zone without knowing the identifier table. The offset is the
 // runtime's current offset (DST-aware: Europe/Berlin reads UTC+2 in

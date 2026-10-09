@@ -11,11 +11,10 @@ use App\Features\Auth\Infra\Services\AdminAuthService;
 use App\Features\Shared\App\BaseUseCase;
 
 /**
- * Login-flow TOTP verification (authentication.md:279): resolves the
- * half-auth admin from the session, verifies the code (backoff applied by
- * `VerifyTotpUseCase`), clears `totp.pending_*` and completes the login.
- * A lockout clears the pending state and rethrows with the localized
- * lockout flash message.
+ * Login-flow TOTP verification: resolves the half-auth admin from the
+ * session, verifies the code (backoff applied by `VerifyTotpUseCase`),
+ * clears `totp.pending_*` and completes the login. A lockout clears the
+ * pending state and rethrows with the localized lockout flash message.
  */
 final class VerifyLoginTotpUseCase extends BaseUseCase
 {

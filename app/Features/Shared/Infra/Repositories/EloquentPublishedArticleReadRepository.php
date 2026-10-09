@@ -8,9 +8,9 @@ use App\Features\Shared\Domain\RepositoryInterfaces\PublishedArticleReadReposito
 use Illuminate\Support\Facades\DB;
 
 /**
- * The {@see PublishedArticleReadRepositoryInterface} over
- * `blog_articles` with the `en`-fallback title (content-management.md:
- * 133 — only currently published, non-trashed articles qualify).
+ * The {@see PublishedArticleReadRepositoryInterface} over `blog_articles` with
+ * the `en`-fallback title — only currently published, non-trashed articles
+ * qualify.
  */
 final class EloquentPublishedArticleReadRepository implements PublishedArticleReadRepositoryInterface
 {

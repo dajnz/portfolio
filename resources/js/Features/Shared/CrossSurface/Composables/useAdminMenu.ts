@@ -18,10 +18,9 @@ export interface AdminMenuApi {
 }
 
 /**
- * The admin sidebar's menu groups (admin-section-ui.md:49-55) — Content /
- * Insights / System with their nav items. Every admin page passes the
- * result to `AdminPageLayout`'s `menu_groups` prop (extracted from the
- * duplicated per-page `menuGroups()` functions, 4.2 rework).
+ * The admin sidebar's menu groups — Content / Insights / System with
+ * their nav items; every admin page passes the result to
+ * `AdminPageLayout`'s `menu_groups` prop.
  */
 export function useAdminMenu(): AdminMenuApi {
     const { t } = useI18n();
@@ -100,8 +99,6 @@ export function useAdminMenu(): AdminMenuApi {
                         icon: 'heroicons:archive-box',
                     },
                     {
-                        // ADR-0024: the profile page belongs in the main
-                        // navigation (was header-only).
                         label: t('admin.nav.profile'),
                         route: '/admin/profile',
                         icon: 'heroicons:user-circle',

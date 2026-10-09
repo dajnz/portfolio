@@ -14,10 +14,6 @@ use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
 use JsonException;
 
-/**
- * Seeds a published item with both locales and the given base/translation
- * overrides.
- */
 function publicItem(array $attributes = [], array $translations = []): TimelineItemModel
 {
     $item = TimelineItemModel::factory()->published()->create($attributes);
@@ -36,9 +32,6 @@ function publicItem(array $attributes = [], array $translations = []): TimelineI
     return $item;
 }
 
-/**
- * Seeds a project + translation and returns its id.
- */
 function seededProject(string $slug, string $localeTitle, string $enTitle = ''): int
 {
     $id = DB::table('projects')->insertGetId([
@@ -131,16 +124,13 @@ describe('PublicExperienceController', function (): void {
     });
 
     it('reports has_projects only for a published, non-trashed project', function (): void {
-        // No projects at all.
         $this->get('/experience')
             ->assertInertia(fn (Assert $page) => $page->where('has_projects', false));
 
-        // A published project flips the flag.
         seededProject('payments', 'Payments Gateway');
         $this->get('/experience')
             ->assertInertia(fn (Assert $page) => $page->where('has_projects', true));
 
-        // Unpublished or trashed projects do not.
         DB::table('projects')->update(['is_published' => false]);
         $this->get('/experience')
             ->assertInertia(fn (Assert $page) => $page->where('has_projects', false));
@@ -233,7 +223,7 @@ describe('PublicExperienceController', function (): void {
         publicItem(['started_at' => '2020-01-01']);
 
         // Item 2 carries only an en row — the ru request must fall back
-        // to it (content-management.md:415).
+        // to it.
         $item = TimelineItemModel::factory()->published()->create(['started_at' => '2021-01-01']);
         TimelineItemTranslationModel::factory()->forLocale('en')->create([
             'item_id' => $item->id,
@@ -257,7 +247,6 @@ describe('PublicExperienceController', function (): void {
         publicItem(['started_at' => '2023-01-01']);
         publicItem(['started_at' => '2022-01-01']);
 
-        // Batch 1 — full, so a next cursor is offered.
         $response = $this->get('/experience');
         $response->assertInertia(fn (Assert $page) => $page
             ->has('items', 2)

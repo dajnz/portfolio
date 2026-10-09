@@ -10,12 +10,10 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * The published-articles read for the project form's "Tech Writeup
- * Article" select (admin-section-ui.md:356): a query-builder read over
- * the Blog feature's tables — the Blog feature is not built yet, and
- * cross-feature reads live in the consuming feature's Infra layer
- * (ADR-0003). Only published, non-trashed articles qualify
- * (content-management.md:159); the title resolves the current admin
- * locale with the `en` fallback; newest first.
+ * Article" select: a query-builder read over the Blog feature's tables
+ * — cross-feature reads live in the consuming feature's Infra layer.
+ * Only published, non-trashed articles qualify; the title resolves the
+ * current admin locale with the `en` fallback; newest first.
  */
 final class PublishedArticleReader implements PublishedArticleReaderInterface
 {

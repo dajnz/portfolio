@@ -22,15 +22,13 @@ use Inertia\ResponseFactory;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
- * Feedback surface: the public `POST /api/feedback` submission
- * (routes.md:188, content-management.md:267-273) plus the admin list /
- * detail / flag / delete actions (routes.md:129-133).
+ * Feedback surface: the public `POST /api/feedback` submission plus the
+ * admin list / detail / flag / delete actions.
  *
- * The public store runs the layered protection (authentication.md:
- * 333-351): `throttle:feedback` + `rate_limit.fingerprint` on the route,
- * and the honeypot check here — a filled honeypot is silently rejected
- * (200, nothing stored), and the check is skipped when the session ID
- * cannot be resolved.
+ * The public store runs the layered protection: `throttle:feedback` +
+ * `rate_limit.fingerprint` on the route, and the honeypot check here — a
+ * filled honeypot is silently rejected (200, nothing stored), and the check
+ * is skipped when the session ID cannot be resolved.
  */
 final class FeedbackController
 {
@@ -102,9 +100,7 @@ final class FeedbackController
     {
         $this->destroyCase->destroy($feedback);
 
-        // The detail URL 404s after deletion — redirect to the list
-        // (mockup feedback-detail.html:232: "success → redirect to list
-        // + toast 'Feedback deleted.'").
+        // The detail URL 404s after deletion — redirect to the list.
         return redirect('/admin/feedback')
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.feedback_deleted')]);
     }

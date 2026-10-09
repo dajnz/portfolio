@@ -9,7 +9,7 @@ use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
  * Soft-deletes projects (single + bulk). Files stay in RustFS — the
- * admin may restore the entity (content-management.md:822-826).
+ * admin may restore the entity.
  */
 final class DestroyProjectUseCase
 {

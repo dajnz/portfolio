@@ -1,4 +1,3 @@
-<!-- ExperienceFormPage (admin-section-ui.md:365-374, admin-section-components.md:1072-1100, experience-form.html) — create/edit form for timeline items: sticky header controls (back link / LocaleTabs / save-cancel per ADR-0024), LocaleTabs-bound translatable fields (mandatory position, optional company pair, short description), ProjectSearchCombobox (portfolio project or custom external name), locale-aware date inputs (ADR-0024 — no Current checkbox; an empty end date IS the ongoing marker), AchievementList (per-locale descriptions, SortableList reorder + keyboard move up/down), AdminTechSkillPicker tech tags, include-in-resume + published toggles, useUnsavedChanges guard and per-locale validation errors (warned LocaleTabs for missing required translations). POST /admin/experience on create, PUT on edit. -->
 <script setup lang="ts">
 import type { AchievementRow } from '@experience/Admin/Types/achievement';
 import AchievementList from '@experience-admin/AchievementList.vue';
@@ -134,13 +133,13 @@ const form = reactive<ExperienceFormValues>(buildForm(props.item));
 // The guard's baseline is a DEEP COPY of the SAME built form — a second
 // buildForm() call would regenerate the achievement row `uid`s (client-
 // side SortableList keys), making an untouched form look dirty and
-// tripping the unsaved-changes prompt on the plain back-link navigation
-// (ADR-0024). The watch re-baselines both from the same `fresh` object.
+// tripping the unsaved-changes prompt on the plain back-link navigation.
+// The watch re-baselines both from the same `fresh` object.
 const initialSnapshot = JSON.parse(JSON.stringify(form)) as ExperienceFormValues;
 
 // Locales with a missing required translation — `position` and
-// `short_description` are required per locale (ADR-0024) — their tab gets
-// the warning marker before the save round-trip.
+// `short_description` are required per locale — their tab gets the warning
+// marker before the save round-trip.
 const warnedLocales = computed(() =>
     SUPPORTED_LOCALES.filter(
         (code) =>
@@ -291,9 +290,8 @@ function save(): void {
         {{ props.item !== null && props.item !== undefined ? t('admin.experience.edit') : t('admin.experience.add') }}
       </h1>
 
-      <!-- Sticky header controls (ADR-0024): back link, locale tabs and
-           save/cancel stay visible while scrolling; spread with
-           space-between per the user request. -->
+      <!-- Sticky header controls: back link, locale tabs and save/cancel
+           stay visible while scrolling; spread with space-between. -->
       <AdminStickyActionBar :test_id="`${props.test_id}-sticky-bar`">
         <AdminBaseButton
           tag="a"

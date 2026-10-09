@@ -7,11 +7,10 @@ namespace App\Features\TechSkills\Infra\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * `POST /admin/skills` / `PUT /admin/skills/{skill}`
- * (content-management.md:588-594): the non-translatable skill fields.
- * Name uniqueness among skills is enforced case-insensitively by the
- * use case via the repository's `skillNameExists()` probe (surfaced as
- * a `name` validation error by the controller).
+ * `POST /admin/skills` / `PUT /admin/skills/{skill}`: the non-translatable
+ * skill fields. Name uniqueness among skills is enforced case-insensitively
+ * by the use case via the repository's `skillNameExists()` probe (surfaced
+ * as a `name` validation error by the controller).
  */
 final class StoreSkillRequest extends FormRequest
 {

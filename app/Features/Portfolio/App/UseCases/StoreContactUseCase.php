@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 /**
  * Creates a contact with its per-locale names (only the locales active
  * in the `supported_locales` setting are persisted — disabled locales'
- * rows are preserved, not deleted, per content-management.md:419).
+ * rows are preserved, not deleted).
  */
 final class StoreContactUseCase
 {

@@ -1,4 +1,4 @@
-<!-- BlogListPage (admin-section-ui.md:387-403, admin-section-components.md:1169-1201, blog.html) — the cursor-paginated blog management list: the page orchestrator wiring the composables (useBlogFilters — URL-synced filters; useBlogRows — row data, selection, bulk + the publish/unpublish quick action; useBlogDeletes — the delete/restore dialog flow) into the template: the filters bar (BlogFiltersBar), the TABLE view (BlogTableView — the selectable DataTable with the row click opening the edit form, the state-styled publish toggle, the static Related count, the max-3-tags chips + "+N" and the small lead-image preview), the GRID view (BlogGridView — BlogGridCard cards with lead images + the bulk action bar per view) and the ConfirmationDialog deletes. Quick actions talk to the JSON endpoints (`{data}` row responses) via useJsonApi with optimistic updates + revert; bulk + single deletes are the projects-list flows (Inertia visits with server flash toasts for singles). -->
+<!-- BlogListPage — the cursor-paginated blog management list: the page orchestrator wiring the composables (useBlogFilters — URL-synced filters; useBlogRows — row data, selection, bulk + the publish/unpublish quick action; useBlogDeletes — the delete/restore dialog flow) into the template: the filters bar (BlogFiltersBar), the TABLE view (BlogTableView — the selectable DataTable with the row click opening the edit form, the state-styled publish toggle, the static Related count, the max-3-tags chips + "+N" and the small lead-image preview), the GRID view (BlogGridView — BlogGridCard cards with lead images + the bulk action bar per view) and the ConfirmationDialog deletes. Quick actions talk to the JSON endpoints (`{data}` row responses) via useJsonApi with optimistic updates + revert; bulk + single deletes are the projects-list flows (Inertia visits with server flash toasts for singles). -->
 <script setup lang="ts">
 import type { AdminListMeta, ArticleTableRow } from '@blog/Admin/Types/article';
 import { router, usePage } from '@inertiajs/vue3';
@@ -38,7 +38,6 @@ const { t } = useI18n();
 const page = usePage<{ locale?: string; supported_locales?: string[] }>();
 const { menuGroups } = useAdminMenu();
 
-// ── Composable wiring ──
 const {
     filterTags,
     publishedFilter,
@@ -165,7 +164,6 @@ function emptyAction(): void {
         @empty-action="emptyAction"
       />
 
-      <!-- Table view variant -->
       <BlogTableView
         v-else
         :columns="columns"

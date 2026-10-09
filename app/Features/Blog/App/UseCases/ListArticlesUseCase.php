@@ -19,12 +19,11 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 
 /**
- * The admin articles list (admin-section-ui.md:387-403): cursor-
- * paginated via the shared app-layer paginator abstraction (the
- * filtered query comes from the list query repository, the pagination
- * facts from the paginator), with the filter bar — title/content
- * search (`?q=`), the separate article-tag / skill-tag AND-intersects
- * (`?article_tags=` / `?skill_tags=` per routes.md:204-205, ADR-0004), the
+ * The admin articles list: cursor-paginated via the shared app-layer
+ * paginator abstraction (the filtered query comes from the list query
+ * repository, the pagination facts from the paginator), with the
+ * filter bar — title/content search (`?q=`), the separate article-tag
+ * / skill-tag AND-intersects (`?article_tags=` / `?skill_tags=`), the
  * published status (`?published=1|0`) and the publication year
  * (`?year=YYYY`) — plus the trashed view (`?trashed=1`). The raw list
  * rows are converted to the item DTOs (with their tag chips and
@@ -76,8 +75,7 @@ final class ListArticlesUseCase
     /**
      * The list rows hydrated with their unified tag chips and the
      * related-article counts (the Tags and Related columns of the
-     * admin table, admin-section-ui.md:389 — the Related column is a
-     * static count, user request 2026-08-13).
+     * admin table — the Related column is a static count).
      *
      * @param  object[]  $rows
      * @return ArticleListItemDto[]
@@ -105,7 +103,7 @@ final class ListArticlesUseCase
 
     /**
      * The unified tag/skill chip set of an article row (the `type`
-     * discriminator, admin-section-components.md:623).
+     * discriminator).
      *
      * @param  object[]  $tags  Rows `{id, slug, name}`.
      * @param  TechSkillTag[]  $skills
@@ -145,8 +143,8 @@ final class ListArticlesUseCase
     }
 
     /**
-     * The 30 s count cache is per filter combination (ADR-0010) — every
-     * filter changes the counted set.
+     * The 30 s count cache is per filter combination — every filter
+     * changes the counted set.
      */
     private function countCacheKey(AdminArticleListQueryDto $query): string
     {

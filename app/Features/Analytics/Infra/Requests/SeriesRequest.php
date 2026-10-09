@@ -11,12 +11,11 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 /**
- * The `GET /admin/analytics/series` validator (analytics.md:225,
- * 11.3.4): the metric must be a known catalog name and the span one of
- * the report spans. The `dimension` filter is exclusive to the
- * per-target `cta_clicks` rows — the seven targets (the plain
- * `CallToActionTarget` values plus the `language`/`theme` switch
- * dimensions, analytics.md:175) — required for `cta_clicks` and
+ * The `GET /admin/analytics/series` validator: the metric must be a
+ * known catalog name and the span one of the report spans. The
+ * `dimension` filter is exclusive to the per-target `cta_clicks` rows —
+ * the seven targets (the plain `CallToActionTarget` values plus the
+ * `language`/`theme` switch dimensions) — required for `cta_clicks` and
  * rejected for every other metric.
  */
 final class SeriesRequest extends FormRequest

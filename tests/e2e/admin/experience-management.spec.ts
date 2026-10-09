@@ -5,12 +5,12 @@ import { expect, test } from '@playwright/test';
 import { rowIdByText, setCheckbox, unique } from '../fixtures/admin';
 
 /**
- * The experience admin CRUD (testing.md:493). The tests are serial and
- * share the created item: the first creates the timeline entry, the
- * second verifies the public timeline and cleans up (the item is
- * deleted and the seeded current role's `ended_at` — auto-closed by the
- * timeline-continuity rules when a newer item starts — is restored via
- * tinker, so the public project that follows sees the baseline).
+ * The tests are serial and share the created item: the first creates the
+ * timeline entry, the second verifies the public timeline and cleans up
+ * (the item is deleted and the seeded current role's `ended_at` —
+ * auto-closed by the timeline-continuity rules when a newer item starts —
+ * is restored via tinker, so the public project that follows sees the
+ * baseline).
  */
 test.describe.configure({ mode: 'serial' });
 
@@ -39,7 +39,6 @@ test.describe('experience management', () => {
         // seeded current role when a newer ongoing item appears).
         await pickDay(page, 'experience-form-page-started-at', 1);
 
-        // One achievement per locale.
         await page.getByTestId('experience-form-page-achievements-add').click();
         await page.getByTestId('experience-form-page-achievements-item-0-description-en').fill(
             `Shipped the delivery pipeline for ${token}.`,
@@ -74,14 +73,12 @@ test.describe('experience management', () => {
     test('shows the item on the public timeline and cleans it up', async ({ page }) => {
         expect(createdPosition).not.toBe('');
 
-        // The new ongoing entry tops the public timeline.
         await page.goto('/experience');
         const timeline = page.getByTestId('experience-page-timeline');
 
         await expect(timeline).toContainText(createdPosition);
         await expect(timeline.locator(':scope > li').first()).toContainText(createdPosition);
 
-        // Cleanup: delete the item and restore the seeded role's end.
         await page.goto('/admin/experience');
         createdItemId = await rowIdByText(page, 'experience-list-page', createdPosition, 'delete');
 
@@ -108,7 +105,6 @@ test.describe('experience management', () => {
     });
 });
 
-/** Picks the given day of the currently displayed month in the picker. */
 async function pickDay(
     page: import('@playwright/test').Page,
     fieldTestId: string,

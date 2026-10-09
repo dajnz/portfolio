@@ -7,10 +7,9 @@ namespace App\Features\Settings\Infra\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * `POST /admin/settings/test-mail` — the Mail tab's "Test Connection"
- * probe (ADR-0016). Accepts the current Mail-tab values as a grouped
- * `{ settings: { ... } }` payload; only the five mail keys are allowed
- * (the probe never persists anything).
+ * The Mail tab's "Test Connection" probe: accepts the current Mail-tab
+ * values as a grouped `{ settings: { ... } }` payload; only the five mail
+ * keys are allowed (the probe never persists anything).
  */
 final class TestMailRequest extends FormRequest
 {

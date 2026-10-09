@@ -266,7 +266,7 @@ describe('ProjectFormPage', () => {
             'my-new-project',
         );
 
-        // Manual edits win over the auto-generation (ADR-0006).
+        // Manual edits win over the auto-generation.
         await wrapper.get('[data-testid="project-form-page-slug"]').setValue('custom-slug');
         await wrapper.get('[data-testid="project-form-page-title-en"]').setValue('Another Title');
         await nextTick();
@@ -501,7 +501,7 @@ describe('ProjectFormPage', () => {
         const wrapper = mountForm();
 
         // A fresh screenshot opens EXPANDED (existing ones stay
-        // collapsed by default — user request 2026-08-12).
+        // collapsed by default).
         await wrapper.get('[data-testid="project-form-page-add-screenshot"]').trigger('click');
         await nextTick();
         expect(wrapper.find('[data-testid="project-form-page-screenshot-1-expanded"]').exists()).toBe(

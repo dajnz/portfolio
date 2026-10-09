@@ -10,15 +10,15 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 /**
- * The `GET /admin/analytics/rankings` validator (analytics.md:226,
- * ADR-0017, 11.3.4): the metric must be a known catalog name, the variant
- * one of top/bottom/liked/disliked and the scope one of
- * page/article/project. The (metric, scope) pairs are the ranking
- * surface of the catalog — the count/avg metrics with dimension rows
- * (`time_on_page_seconds` per page; `views`/`unique_visitors` per
- * article and per project; the read-time/completion/reactions metrics
- * per article). The liked/disliked variants pair with the reactions
- * metrics (most liked / most disliked articles).
+ * The `GET /admin/analytics/rankings` validator: the metric must be a
+ * known catalog name, the variant one of top/bottom/liked/disliked and
+ * the scope one of page/article/project. The (metric, scope) pairs are
+ * the ranking surface of the catalog — the count/avg metrics with
+ * dimension rows (`time_on_page_seconds` per page; `views`/
+ * `unique_visitors` per article and per project; the read-time/
+ * completion/reactions metrics per article). The liked/disliked
+ * variants pair with the reactions metrics (most liked / most disliked
+ * articles).
  */
 final class RankingsRequest extends FormRequest
 {

@@ -4,11 +4,10 @@ import { expectToast, setCheckbox } from '../fixtures/admin';
 import { demoArticles } from '../fixtures/content';
 
 /**
- * The admin settings (testing.md:495): a feature-flag toggle takes
- * effect on the public blog article page and an articles-per-page
- * change takes effect on the public blog index. Every change is
- * reverted, since this project runs between the public project and the
- * backup project — both expect the seeded defaults.
+ * A feature-flag toggle takes effect on the public blog article page and
+ * an articles-per-page change takes effect on the public blog index.
+ * Every change is reverted, since this project runs between the public
+ * project and the backup project — both expect the seeded defaults.
  */
 test.describe('admin settings', () => {
     test('toggles the social reactions feature flag', async ({ page }) => {
@@ -32,7 +31,6 @@ test.describe('admin settings', () => {
         await page.goto(`/blog/${demoArticles.queues.slug}`);
         await expect(page.getByTestId('blog-article-page-content-reactions')).toBeVisible();
 
-        // Revert.
         await page.goto('/admin/settings');
         await page.getByTestId('settings-page-tab-flags').click();
         await setCheckbox(page, 'settings-page-flag-social_reactions-toggle', false);

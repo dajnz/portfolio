@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent model for the `contacts` table (database.md:167-180).
+ * Eloquent model for the `contacts` table.
  *
  * @property int $id
  * @property string $value

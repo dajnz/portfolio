@@ -8,8 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * `PUT /admin/resume` — the full resume configuration payload
- * (content-management.md:360-375, the mockup's data flow): mode, the
+ * `PUT /admin/resume` — the full resume configuration payload: mode, the
  * layout JSON (template + the five sections' visibility/order), the
  * manual file path (required in manual mode) and the per-locale About Me
  * texts (nullable — an empty text is stored as null and falls back to

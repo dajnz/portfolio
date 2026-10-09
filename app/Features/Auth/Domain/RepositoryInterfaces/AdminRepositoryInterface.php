@@ -17,13 +17,12 @@ interface AdminRepositoryInterface
 
     public function findByGithubId(string $githubId): ?Admin;
 
-    /** Whether the GitHub ID is already bound to a different admin row. */
     public function githubIdTakenByOther(string $githubId, int $excludeAdminId): bool;
 
     /**
      * Whether any admin account is linked with GitHub (`github_id` set).
-     * The login page's GitHub button requires it (ADR-0013) — without a
-     * linked account the OAuth login flow can only fail.
+     * The login page's GitHub button requires it — without a linked
+     * account the OAuth login flow can only fail.
      */
     public function hasGithubLinkedAdmin(): bool;
 

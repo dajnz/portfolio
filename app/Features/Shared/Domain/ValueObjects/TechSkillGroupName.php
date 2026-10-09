@@ -7,9 +7,8 @@ namespace App\Features\Shared\Domain\ValueObjects;
 use InvalidArgumentException;
 
 /**
- * Value object: a single localized skill group name
- * (`skill_group_translations`, PK `(skill_group_id, locale)` —
- * database.md:144-151). Immutable; carries no identity of its own.
+ * A single localized skill group name (`skill_group_translations`, PK
+ * `(skill_group_id, locale)`). Carries no identity of its own.
  */
 final readonly class TechSkillGroupName
 {

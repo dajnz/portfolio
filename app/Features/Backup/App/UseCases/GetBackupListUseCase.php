@@ -16,14 +16,13 @@ use function max;
 use function min;
 
 /**
- * The `GET /admin/backups` page data (openapi/inertia/backup.yaml
- * `BackupListPageProps`): the non-trashed backups, newest first,
- * page-numbered by the `items_per_page` setting (the contract's
+ * The `GET /admin/backups` page data: the non-trashed backups, newest
+ * first, page-numbered by the `items_per_page` setting (the contract's
  * length-aware `PaginationMeta`), plus `encryption_key_prompt` — true
- * when no active key exists (backup.md:548, the show-once modal).
- * The backup list is small (retention-bounded) — the pagination
- * slices the repository's `listActive()` in memory. Settings reads go
- * through the Shared `SettingsReadRepositoryInterface` (ADR-0018).
+ * when no active key exists (the show-once modal). The backup list is
+ * small (retention-bounded) — the pagination slices the repository's
+ * `listActive()` in memory. Settings reads go through the Shared
+ * `SettingsReadRepositoryInterface`.
  */
 final class GetBackupListUseCase
 {

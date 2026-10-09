@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Features\Shared\Domain\ValueObjects;
 
 /**
- * Value object: the identity + per-locale names of a skill group,
- * carried by {@see \App\Features\Shared\Domain\Entities\TechSkill} so a
- * skill is never isolated from its group context. Immutable; built by
- * the repositories (hydration) and by
+ * The identity + per-locale names of a skill group, carried by
+ * {@see \App\Features\Shared\Domain\Entities\TechSkill} so a skill is
+ * never isolated from its group context. Built by the repositories
+ * (hydration) and by
  * {@see \App\Features\Shared\Domain\Entities\TechSkillGroup::toGroupVo()}.
  */
 final readonly class SkillGroupVo
@@ -36,9 +36,8 @@ final readonly class SkillGroupVo
     }
 
     /**
-     * Localized group name for the given locale, falling back to `en`
-     * when the requested translation is missing (content-management.
-     * md:415).
+     * Localized group name for the given locale, falling back to `en` when
+     * the translation is missing.
      */
     public function groupNameFor(string $locale): string
     {

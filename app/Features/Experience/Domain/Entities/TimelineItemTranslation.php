@@ -8,16 +8,16 @@ use InvalidArgumentException;
 
 /**
  * A single localized row of `experience_timeline_item_translations`
- * (PK `(item_id, locale)` — database.md:307-318): the identity fields
- * (mandatory position; optional company name + country) and the required
- * Markdown `short_description` plus the achievements list (jsonb array
- * of `{description, project_link?}`). Immutable; carries no identity of
- * its own.
+ * (PK `(item_id, locale)`): the identity fields (mandatory position;
+ * optional company name + country) and the required Markdown
+ * `short_description` plus the achievements list (jsonb array of
+ * `{description, project_link?}`). Immutable; carries no identity of its
+ * own.
  *
  * Invariants:
  * - `short_description` is mandatory — it is the only required column
- *   (content-management.md:659, the DB column is NOT NULL);
- * - `position` is mandatory too (ADR-0024 — the DB column is NOT NULL);
+ *   (the DB column is NOT NULL);
+ * - `position` is mandatory too (the DB column is NOT NULL);
  * - the company pair is all-or-none: when any of company name / company
  *   country is set, both must be set (an empty country string is
  *   normalized to null);

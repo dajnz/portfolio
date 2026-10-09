@@ -8,9 +8,8 @@ use App\Features\Shared\App\DTOs\PaginationDto;
 
 /**
  * Builds the pagination facts of the page-numbered lists — the
- * `PaginationDto` the controllers map into the wire `meta` payloads of
- * the JSON autocomplete variants (admin-section-ui.md:539-572 and
- * routes.md:199-212).
+ * `PaginationDto` the controllers map into the wire `meta` payloads of the
+ * JSON autocomplete variants.
  */
 final class PaginationBuilder
 {

@@ -12,12 +12,11 @@ use function base64_encode;
 use function random_bytes;
 
 /**
- * Key generation + rotation (backup.md:494-514): creates a fresh
- * 44-character base64-of-32-bytes key (the AES-256 key format) and
- * makes it active — the previous active key is deactivated but kept
- * (old backups still reference it). The exactly-one-active invariant
- * (database.md:563) is enforced here. The raw value is returned to the
- * caller, which displays it exactly once (backup.md:498-500).
+ * Key generation + rotation: creates a fresh 44-character
+ * base64-of-32-bytes key (the AES-256 key format) and makes it active —
+ * the previous active key is deactivated but kept (old backups still
+ * reference it). The exactly-one-active invariant is enforced here. The
+ * raw value is returned to the caller, which displays it exactly once.
  */
 final class GenerateEncryptionKeyUseCase
 {

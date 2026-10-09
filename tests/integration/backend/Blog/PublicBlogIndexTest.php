@@ -92,7 +92,6 @@ describe('public blog index', function (): void {
 
         $this->publicBlogArticle();
 
-        // Both sources must match: tag AND skill.
         $this->get('/blog?article_tags='.$php->id.'&skill_tags='.$skill)
             ->assertInertia(fn (Assert $page) => $page
                 ->has('articles', 1)

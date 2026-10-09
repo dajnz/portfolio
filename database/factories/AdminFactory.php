@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Test factory for the `admins` table (ADR-0029). The password is passed
- * plaintext — the model's `hashed` cast bcrypts it on write.
+ * The password is passed plaintext — the model's `hashed` cast bcrypts
+ * it on write.
  *
- * Never used by `DatabaseSeeder` (ADR-0029) — factories are test-only.
+ * Never used by `DatabaseSeeder` — factories are test-only.
  */
 final class AdminFactory extends Factory
 {

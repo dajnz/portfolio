@@ -12,10 +12,9 @@ use RuntimeException;
 use function sprintf;
 
 /**
- * Key deletion (backup.md:513-514,589): a key referenced by any
- * backup cannot be deleted — the DB's `ON DELETE RESTRICT` enforces it
- * (database.md:587); the check here surfaces the "N backups reference
- * this key" message first (backup.md:589).
+ * Key deletion: a key referenced by any backup cannot be deleted — the
+ * DB's `ON DELETE RESTRICT` enforces it; the check here surfaces the
+ * "N backups reference this key" message first.
  */
 final class DestroyEncryptionKeyUseCase
 {

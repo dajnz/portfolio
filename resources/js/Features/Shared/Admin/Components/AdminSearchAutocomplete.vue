@@ -1,4 +1,3 @@
-// admin-section-components.md:557-585 + admin-section-ui.md:526-573 — AdminSearchAutocomplete
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -71,8 +70,8 @@ function resultMeta(item: SearchResultItem): string | null {
 }
 
 // ISO timestamp meta values (published_at) render as `dd.mm.yyyy` — the
-// admin's date convention (ADR-0024, same formatter as the experience
-// list) — instead of the raw timestamp. Non-date strings pass through.
+// admin's date convention (same formatter as the experience list) —
+// instead of the raw timestamp. Non-date strings pass through.
 function formatMetaValue(value: string): string {
     const [datePart] = value.split('T');
     const [year, month, day] = datePart.split('-');
@@ -105,7 +104,7 @@ function onInput(event: Event): void {
     }
 
     // The skeleton shows immediately on the first keystroke; the fetch
-    // itself waits for the debounce (admin-section-ui.md:570).
+    // itself waits for the debounce.
     isOpen.value = true;
     isLoading.value = true;
     hasError.value = false;

@@ -12,8 +12,8 @@ use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use Illuminate\Http\Request;
 
 /**
- * The admin feedback list (admin-section-ui.md:404-408): cursor-paginated
- * via the shared paginator (step 2.8), newest first (default id desc).
+ * The admin feedback list: cursor-paginated via the shared paginator,
+ * newest first (default id desc).
  */
 final class ListFeedbackUseCase
 {

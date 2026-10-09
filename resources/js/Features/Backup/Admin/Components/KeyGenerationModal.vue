@@ -1,4 +1,4 @@
-<!-- KeyGenerationModal (admin-section-components.md:1493-1509, backups.html) — AdminBaseModal showing the raw encryption key exactly once: the `<code>` block, the Copy-to-clipboard button (flips to "Copied!" for 2 s) and the "I've saved it" dismissal. -->
+<!-- KeyGenerationModal — AdminBaseModal showing the raw encryption key exactly once: the `<code>` block, the Copy-to-clipboard button (flips to "Copied!" for 2 s) and the "I've saved it" dismissal. -->
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminBaseModal from '@shared-admin/AdminBaseModal.vue';

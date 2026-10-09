@@ -9,12 +9,11 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 
 /**
- * `analytics:generate-reports` (analytics.md:204-212, backup.md:464):
- * the manual full rebuild — thin, dispatches `RebuildReportsJob` in
- * the full-rebuild mode (recompute the metrics for the still-present
- * event window + the full feedback history, then rebuild every report
- * span). The job does the work; the command is NOT scheduled (the old
- * every-4-hours entry was removed in 11.3.2).
+ * `analytics:generate-reports`: the manual full rebuild — thin,
+ * dispatches `RebuildReportsJob` in the full-rebuild mode (recompute
+ * the metrics for the still-present event window + the full feedback
+ * history, then rebuild every report span). The job does the work; the
+ * command is NOT scheduled.
  */
 final class GenerateAnalyticsReportsCommand extends Command
 {

@@ -9,8 +9,8 @@ use App\Features\Analytics\Domain\ValueObjects\ClientIds;
 use App\Features\Analytics\Domain\ValueObjects\PageDetails;
 
 /**
- * Shared factory helpers for the analytics unit suites (ADR-0017): the
- * client identifiers and the page context every typed event needs.
+ * Shared factory helpers for the analytics unit suites: the client
+ * identifiers and the page context every typed event needs.
  */
 final class AnalyticsEventFixture
 {

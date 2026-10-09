@@ -12,12 +12,11 @@ use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Eloquent-backed read model for featured projects (ADR-0003) — consumed by
- * the landing page. Mirrors the TechSkill read pattern: two queries per
- * method (projects + their tech tags separately), locale-resolved
- * translations with an `en` fallback. The Projects feature (7.1) owns
- * the write side and extends the read side; this repository only covers
- * what the landing page needs.
+ * Eloquent-backed read model for featured projects — consumed by the landing
+ * page. Mirrors the TechSkill read pattern: two queries per method (projects +
+ * their tech tags separately), locale-resolved translations with an `en`
+ * fallback. The Projects feature owns the write side and extends the read side;
+ * this repository only covers what the landing page needs.
  */
 final class EloquentProjectReadRepository implements ProjectReadRepositoryInterface
 {

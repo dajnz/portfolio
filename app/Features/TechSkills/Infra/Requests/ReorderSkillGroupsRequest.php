@@ -7,7 +7,7 @@ namespace App\Features\TechSkills\Infra\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * `POST /admin/skill-groups/reorder` — the ADR-0005 payload `{ "ids": [...] }`:
+ * `POST /admin/skill-groups/reorder` — the `{ "ids": [...] }` payload:
  * group IDs in the new drag order; the zero-indexed array position
  * becomes `sort_order`.
  */

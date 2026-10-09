@@ -7,9 +7,8 @@ namespace App\Features\Settings\App\UseCases;
 use App\Features\Settings\Domain\Enums\FeatureFlagName;
 
 /**
- * Applies the Feature Flags tab submission (`{ flags: { key: bool, ... } }`)
- * for `PATCH /admin/settings/feature-flags`. Keys were validated against
- * `FeatureFlagName` by the request.
+ * Applies the Feature Flags tab submission (`{ flags: { key: bool, ... } }`);
+ * the keys were validated against `FeatureFlagName` by the request.
  */
 final class UpdateFeatureFlagsUseCase
 {

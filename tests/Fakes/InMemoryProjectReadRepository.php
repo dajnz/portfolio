@@ -7,9 +7,6 @@ namespace Tests\Fakes;
 use App\Features\Shared\Domain\Entities\FeaturedProject;
 use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
 
-/**
- * In-memory project read-model fake for unit tests.
- */
 final class InMemoryProjectReadRepository implements ProjectReadRepositoryInterface
 {
     /**

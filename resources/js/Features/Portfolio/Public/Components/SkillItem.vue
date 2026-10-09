@@ -1,4 +1,3 @@
-<!-- SkillItem (public-section-components.md:969-979, content-management.md:76-77; reworked 2026-08-14) — one compact skill chip: the top row carries the icon + name, the bottom row the 1-5 proficiency circles. Filled circles share the CURRENT level's color (1 redish → 5 violettish — the same color coding as the admin ProficiencyDots); each circle has a tiny border in that color with a small gap between the border and the inner circle. The level title shows only the localized level name. Chips wrap inline within the group list. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { computed } from 'vue';
@@ -18,14 +17,14 @@ const props = withDefaults(
 
 const iconsReady = usePublicIconsReady();
 // The current level's color — every filled circle shares it (mirrors the
-// admin ProficiencyDots palette, 5.2: danger-500 → warning-500 →
-// success-500 → primary-600 → violet-500).
+// admin ProficiencyDots palette: danger-500 → warning-500 → success-500
+// → primary-600 → violet-500).
 const LEVEL_COLORS = ['#ef4444', '#f59e0b', '#22c55e', '#2447c9', '#8b5cf6'];
 
 const dotColor = computed(() => LEVEL_COLORS[props.skill.proficiency - 1] ?? '#2447c9');
 
-// The tooltip/accessible name carries only the level name (user rework —
-// the skill name is already visible next to the indicator).
+// The tooltip/accessible name carries only the level name (the skill name
+// is already visible next to the indicator).
 const levelLabel = computed<string | undefined>(() => props.skill.proficiency_label ?? undefined);
 </script>
 
@@ -81,8 +80,8 @@ const levelLabel = computed<string | undefined>(() => props.skill.proficiency_la
     box-shadow: var(--shadow-sm);
 }
 
-/* Light theme: the chip uses the user-approved neutral tint and a more
-   prominent shadow (dark keeps the token values above). */
+/* Light theme: the chip uses a neutral tint and a more prominent shadow
+   (dark keeps the token values above). */
 :root:not(.dark) .skill-item {
     background: oklch(95% 0 0deg);
     box-shadow: 0 1px 2px rgb(0 0 0 / 10%), 0 2px 4px rgb(0 0 0 / 10%);

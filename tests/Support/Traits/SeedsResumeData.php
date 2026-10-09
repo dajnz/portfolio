@@ -7,10 +7,10 @@ namespace Tests\Support\Traits;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Shared fixtures for the Resume test suites (step 10.1): the single-row
+ * Shared fixtures for the Resume test suites: the single-row
  * resume_config (default layout normalized to the validated order range
- * 0–4 — ADR-0030) and the resume PDF source data (about info, skills,
- * contacts, a published experience item with a tech tag).
+ * 0–4) and the resume PDF source data (about info, skills, contacts, a
+ * published experience item with a tech tag).
  */
 trait SeedsResumeData
 {
@@ -35,11 +35,6 @@ trait SeedsResumeData
         ], $overrides));
     }
 
-    /**
-     * Seeds the full resume source dataset: about info (en + ru), a skill
-     * group with one included skill, an included contact and a published,
-     * included experience item tagged with the skill.
-     */
     protected function seedResumeSourceData(): void
     {
         // Raw inserts: the models' fillable sets deliberately exclude `id`.

@@ -1,4 +1,3 @@
-<!-- ErrorPage (error-handling.md:171-177, inertia/shared.yaml#InertiaErrorProps) — Inertia error page rendered by the backend for `X-Inertia` requests with `{status, message, request_id}`. Renders within the current surface layout (admin when an admin is authenticated, public otherwise). -->
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';

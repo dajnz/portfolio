@@ -10,13 +10,12 @@ use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use InvalidArgumentException;
 
 /**
- * An engineering detail item of the project detail page
- * (database.md:236-249): an optional {@see EngineeringDetailIcon}
- * identifier in the Iconify `set:name` form (membership is constrained
- * by the strict icon manifests, not server-side), its zero-based
- * `sort_order`, and the per-locale title/description rows
- * ({@see ProjectEngineeringDetailTranslation} — required per locale
- * when the item exists, content-management.md:645-646).
+ * An engineering detail item of the project detail page: an optional
+ * {@see EngineeringDetailIcon} identifier in the Iconify `set:name` form
+ * (membership is constrained by the strict icon manifests, not
+ * server-side), its zero-based `sort_order`, and the per-locale
+ * title/description rows ({@see ProjectEngineeringDetailTranslation} —
+ * required per locale when the item exists).
  *
  * Invariants: the Iconify `set:name` format is validated by
  * {@see EngineeringDetailIcon} when present; the position is a
@@ -69,8 +68,7 @@ final class ProjectEngineeringDetail extends BaseEntity
     }
 
     /**
-     * Title for the given locale, falling back to `en` (content-
-     * management.md:418).
+     * Title for the given locale, falling back to `en`.
      */
     public function titleFor(string $locale): string
     {

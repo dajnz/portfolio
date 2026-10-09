@@ -7,10 +7,6 @@ namespace App\Features\TechSkills\Infra\Mappers;
 use App\Features\Shared\Domain\ValueObjects\TechSkillGroupName;
 use App\Features\Shared\Infra\Models\SkillGroupTranslationModel;
 
-/**
- * Converts between `skill_group_translations` rows and
- * {@see TechSkillGroupName} value objects.
- */
 final class TechSkillGroupNameMapper
 {
     public function toEntity(SkillGroupTranslationModel $model): TechSkillGroupName

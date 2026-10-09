@@ -10,13 +10,13 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * `rate_limit.fingerprint` middleware alias (authentication.md:335-343) —
- * the second, IP+User-Agent layer of the feedback-form protection. The
- * throttle key is `feedback|{hash_hmac(ip)}|{hash_hmac(user_agent)}`
- * (keyed HMAC-SHA256, same key as IP anonymization) — the client-provided
- * fingerprint is deliberately excluded because it is attacker-controllable.
- * Limit: 3 attempts per 3600 seconds per composite key. Layer 1 is the
- * `throttle:feedback` named limiter (5/60 s/IP) applied on the route.
+ * `rate_limit.fingerprint` middleware alias — the second, IP+User-Agent layer
+ * of the feedback-form protection. The throttle key is
+ * `feedback|{hash_hmac(ip)}|{hash_hmac(user_agent)}` (keyed HMAC-SHA256, same
+ * key as IP anonymization) — the client-provided fingerprint is deliberately
+ * excluded because it is attacker-controllable. Limit: 3 attempts per 3600
+ * seconds per composite key. Layer 1 is the `throttle:feedback` named limiter
+ * (5/60 s/IP) applied on the route.
  */
 final class RateLimitWithFingerprintMiddleware
 {

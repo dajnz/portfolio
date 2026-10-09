@@ -10,9 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `article_reactions` (database.md:406-420): the
- * unique `(article_id, fingerprint)` pair and the `like`/`dislike`
- * CHECK constraint. Upsert semantics — only `created_at` exists (the
+ * Eloquent model for `article_reactions`: the unique
+ * `(article_id, fingerprint)` pair and the `like`/`dislike` CHECK
+ * constraint. Upsert semantics — only `created_at` exists (the
  * first-reaction timestamp); the same-reaction re-click DELETES the
  * row (undo), a different reaction UPDATES it.
  *

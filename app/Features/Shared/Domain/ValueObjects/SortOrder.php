@@ -7,9 +7,8 @@ namespace App\Features\Shared\Domain\ValueObjects;
 use InvalidArgumentException;
 
 /**
- * Value object: a zero-based list position (`sort_order` column).
- * Immutable; the non-negative invariant lives here, not in the
- * consuming entities.
+ * A zero-based list position (`sort_order` column). The non-negative
+ * invariant lives here, not in the consuming entities.
  */
 final readonly class SortOrder
 {

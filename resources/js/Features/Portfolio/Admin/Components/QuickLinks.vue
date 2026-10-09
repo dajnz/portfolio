@@ -1,4 +1,3 @@
-<!-- QuickLinks (admin-section-components.md:700-705) — dashboard action links rendered as AdminBaseButton anchors. -->
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 

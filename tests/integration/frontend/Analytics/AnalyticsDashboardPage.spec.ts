@@ -30,7 +30,7 @@ import AnalyticsDashboardPage from '@analytics/Admin/Pages/AnalyticsDashboardPag
 import { useToastStore } from '@shared-cross/Stores/toastStore';
 
 // Wire fixtures mirroring the OpenAPI AnalyticsDashboardPageProps shape
-// (docs/openapi/inertia/analytics.yaml — AnalyticsBlock, AnalyticsDefaultChart,
+// (AnalyticsBlock, AnalyticsDefaultChart,
 // AnalyticsDefaultRankings).
 const OVERVIEW_BLOCKS = [
     { key: 'total_visits', value: 12847 },
@@ -98,7 +98,7 @@ function jsonResponse(payload: unknown) {
     return { ok: true, json: async () => payload };
 }
 
-// The lazy AnalyticsChart (defineAsyncComponent — architecture.md:1250)
+// The lazy AnalyticsChart (defineAsyncComponent)
 // resolves across several microtask/macrotask turns (the first dynamic
 // import pays the SFC transform time), so poll instead of sleeping.
 async function flushUntil(

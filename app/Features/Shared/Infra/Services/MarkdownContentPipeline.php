@@ -37,24 +37,20 @@ use League\CommonMark\Util\HtmlFilter;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * The shared content pipeline (ADR-0008, content-management.md:466-481):
- * Markdown → safe HTML for every admin-authored body. CommonMark runs
- * in safe mode (`HtmlInput::ESCAPE` + `allow_unsafe_links: false` —
- * raw HTML is escaped, so an article can never inject `<script>` or
- * `<iframe>`), the `> [!TYPE]` callout syntax becomes the static
- * `data-callout-type` aside, code blocks are highlighted server-side
- * ({@see CodeHighlighter}) with the `data-code-block` markers, and
- * headings carry the anchor ids the TableOfContents scans for.
+ * The shared content pipeline: Markdown → safe HTML for every admin-authored
+ * body. CommonMark runs in safe mode (`HtmlInput::ESCAPE` +
+ * `allow_unsafe_links: false` — raw HTML is escaped, so an article can never
+ * inject `<script>` or `<iframe>`), the `> [!TYPE]` callout syntax becomes the
+ * static `data-callout-type` aside, code blocks are highlighted server-side
+ * ({@see CodeHighlighter}) with the `data-code-block` markers, and headings
+ * carry the anchor ids the TableOfContents scans for.
  *
  * The article variant is cached in Redis under
- * `article:html:{id}:{locale}:{content-hash}` (ADR-0008 — the content
- * hash rotates the key on every content change; the 8.2
- * `updated_at`-stamp scheme collided for saves within the same
- * second). Reused by any feature rendering Markdown content (Blog
- * detail, Projects detail, ...).
+ * `article:html:{id}:{locale}:{content-hash}` — the content hash rotates the
+ * key on every content change.
  *
- * Implements the app-layer {@see MarkdownContentPipelineInterface} —
- * the app layer never imports this concrete.
+ * Implements the app-layer {@see MarkdownContentPipelineInterface} — the app
+ * layer never imports this concrete.
  */
 final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
 {
@@ -71,10 +67,9 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
             'max_nesting_level' => 100,
         ]);
         $environment->addExtension(new CommonMarkCoreExtension());
-        // The editor's markdown surface extensions (ADR-0024 — the admin
-        // editor buttons serialize to these syntaxes; without the
-        // matching parsers they would render literally or escape to
-        // visible tags):
+        // The editor's markdown surface extensions (the admin editor buttons
+        // serialize to these syntaxes; without the matching parsers they would
+        // render literally or escape to visible tags):
         // - GFM pipe tables (the editor's table button).
         // - `~~strikethrough~~` (the editor's strikethrough button).
         // - `++underline++` (the editor's underline button).
@@ -111,13 +106,9 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
 
     /**
      * The rendered article body, cached under
-     * `article:html:{id}:{locale}:{content-hash}` (ADR-0008) — the key
-     * embeds a hash of the markdown, so ANY content change rotates
-     * the key: self-invalidating by content. The 8.2 stamp scheme
-     * (`updated_at` seconds) collided when two saves landed within
-     * the same second — the second save kept the old key and the
-     * cached render of the first save (observed live 2026-08-16:
-     * edited content never appeared on the public page).
+     * `article:html:{id}:{locale}:{content-hash}` — the key embeds a hash of
+     * the markdown, so ANY content change rotates the key: self-invalidating
+     * by content.
      */
     public function articleHtml(int $id, string $locale, string $markdown): string
     {

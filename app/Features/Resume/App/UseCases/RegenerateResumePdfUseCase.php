@@ -8,12 +8,11 @@ use App\Features\Resume\Infra\Services\ResumePdfCacheInvalidator;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * `POST /api/resume/regenerate` (content-management.md:401, routes.md:194)
- * — force-regenerates the resume PDFs: clears every `resume:pdf:*` Redis
- * key (via the shared invalidator) and deletes the generated RustFS files
- * (`about/resume_*.pdf`). The next `/cv` request regenerates from the
- * current data. The manually uploaded file (`custom_resume_file`) is
- * untouched.
+ * `POST /api/resume/regenerate` — force-regenerates the resume PDFs:
+ * clears every `resume:pdf:*` Redis key (via the shared invalidator) and
+ * deletes the generated RustFS files (`about/resume_*.pdf`). The next
+ * `/cv` request regenerates from the current data. The manually uploaded
+ * file (`custom_resume_file`) is untouched.
  */
 final class RegenerateResumePdfUseCase
 {

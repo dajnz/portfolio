@@ -8,10 +8,9 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * Calendar-aligned report period (analytics.md:164-172): a day runs
- * 00:00→23:59:59, a week Monday→Sunday, a month the 1st→last day, in
- * the server's local timezone. Immutable — the bounds are fixed at
- * construction.
+ * Calendar-aligned report period: a day runs 00:00→23:59:59, a week
+ * Monday→Sunday, a month the 1st→last day, in the server's local
+ * timezone. Immutable — the bounds are fixed at construction.
  */
 final class ReportPeriod
 {

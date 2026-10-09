@@ -1,4 +1,5 @@
-<!-- AdminBaseToggle (style-guide.html "Checkbox, Radio, Toggle", data-variant="toggle"; admin-section-components.md#adminbasetoggle) — the small primary-colored toggle (w-11 track, primary-600 when on), distinct from the large amber AdminBaseSwitch used for maintenance mode. Renders as a compact on/off control for per-row states like feature flags. -->
+<!-- A compact primary-colored on/off toggle for per-row states, distinct
+     from the large amber AdminBaseSwitch used for maintenance mode. -->
 <script setup lang="ts">
 const props = withDefaults(
     defineProps<{

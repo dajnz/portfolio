@@ -12,12 +12,12 @@ use function preg_match;
 use function sprintf;
 
 /**
- * The query-builder table wipe (backup.md:401): `TRUNCATE ... RESTART
- * IDENTITY CASCADE` per table, child-first. The whitelist guard rejects
- * any identifier that is not a plain lowercase table name — the caller
- * supplies config-driven names only (never user input), and this check
- * makes the SQL-injection surface impossible even if a malicious name
- * ever reaches the service.
+ * The query-builder table wipe: `TRUNCATE ... RESTART IDENTITY CASCADE`
+ * per table, child-first. The whitelist guard rejects any identifier
+ * that is not a plain lowercase table name — the caller supplies
+ * config-driven names only (never user input), and this check makes the
+ * SQL-injection surface impossible even if a malicious name ever reaches
+ * the service.
  */
 final class LaravelTableTruncator implements TableTruncatorInterface
 {

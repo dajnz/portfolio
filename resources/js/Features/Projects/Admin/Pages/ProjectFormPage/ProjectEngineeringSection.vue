@@ -1,7 +1,3 @@
-<!-- ProjectEngineeringSection — the Engineering Details card of the
-     project form: a thin wrapper around EngineeringDetailsList that
-     owns the add/remove row mutations (uid + per-locale maps) and
-     emits the updated rows array. -->
 <script setup lang="ts">
 import type { EngineeringDetailRow } from '@projects-admin/EngineeringDetailItem.vue';
 import EngineeringDetailsList from '@projects-admin/EngineeringDetailsList.vue';

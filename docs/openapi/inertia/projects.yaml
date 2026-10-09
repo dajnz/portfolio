@@ -63,8 +63,8 @@ components:
                   description: |
                     The featured projects of the live view, ordered by
                     `featured_sort_order` — the admin reorders them via
-                    the list page's SortableList section
-                    (admin-section-ui.md:338). Empty in the trashed view.
+                    the list page's SortableList section. Empty in the
+                    trashed view.
                   items:
                     $ref: '#/components/schemas/ProjectTableRowData'
                 meta:
@@ -93,10 +93,8 @@ components:
                   type: array
                   description: |
                     The published blog articles the "Tech Writeup Article"
-                    select offers (admin-section-ui.md:356) — only
-                    published articles can be linked
-                    (content-management.md:159). Empty when no article
-                    is published yet.
+                    select offers — only published articles can be linked.
+                    Empty when no article is published yet.
                   items:
                     $ref: '#/components/schemas/PublishedArticleData'
                 preview_url:
@@ -104,9 +102,9 @@ components:
                   nullable: true
                   description: |
                     Signed 1-hour temporary preview URL
-                    (`/admin/preview/projects/{project}`, routes.md:151) —
-                    the preview button opens it in a new tab; null on the
-                    create form (no project exists yet).
+                    (`/admin/preview/projects/{project}`) — the preview
+                    button opens it in a new tab; null on the create form
+                    (no project exists yet).
 
     ProjectCardData:
       type: object
@@ -176,11 +174,11 @@ components:
         problem:
           type: string
           nullable: true
-          description: Markdown — rendered via the shared content pipeline (content-management.md:131).
+          description: Markdown — rendered via the shared content pipeline.
         solution:
           type: string
           nullable: true
-          description: Markdown — rendered via the shared content pipeline (content-management.md:131).
+          description: Markdown — rendered via the shared content pipeline.
         brief_description:
           type: string
         published_at:
@@ -223,8 +221,8 @@ components:
           description: |
             The linked tech-writeup article, resolved against the current
             publication state — present only while the article is
-            published (content-management.md:133); null when no link is
-            set or the article is unpublished/trashed. The stored
+            published; null when no link is set or the article is
+            unpublished/trashed. The stored
             `tech_writeup_article_id` is preserved in the DB either way.
           properties:
             id:
@@ -308,8 +306,8 @@ components:
           description: |
             Engineering detail items with per-locale title/description
             maps (the admin form edits them under LocaleTabs —
-            `item.title.en` etc. in the mockup). Rows carry their id for
-            the reconcile-by-id convention (ADR-0005).
+            `item.title.en` etc.). Rows carry their id for the
+            reconcile-by-id convention (ADR-0005).
           items:
             $ref: '#/components/schemas/ProjectDetailItemEditData'
 
@@ -343,7 +341,7 @@ components:
           description: |
             The project's tech tags (icon + name) — the Tags column
             renders them as removable chips and the "+" button adds
-            more (admin-section-ui.md:343).
+            more.
           items:
             $ref: '#/components/schemas/SkillTagData'
         created_at:

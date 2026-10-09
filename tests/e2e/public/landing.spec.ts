@@ -5,10 +5,10 @@ import { demoAbout, demoProjects, demoSkills } from '../fixtures/content';
 import { validatePublicHtml } from '../fixtures/htmlValidate';
 
 /**
- * The landing page (testing.md:477) — one test per block: about,
- * skills, featured projects and contacts. The block tests load the
- * page separately so each assertion group stays small and isolated;
- * the shared audits (axe + html-validate) run on the first load.
+ * The landing page — one test per block: about, skills, featured
+ * projects and contacts. The block tests load the page separately so
+ * each assertion group stays small and isolated; the shared audits
+ * (axe + html-validate) run on the first load.
  */
 test.describe('landing page', () => {
     test('is accessible and valid', async ({ page }, testInfo) => {

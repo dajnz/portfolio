@@ -8,11 +8,9 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * The current resume mode (`resume_config.mode`, owned by the Resume
- * feature) for the About page's resume summary line
- * (admin-section-components.md:793-794, about.html `data-dynamic="resume.mode"`).
- * Query-builder read inside the Portfolio Infra layer (ADR-0003 — no
- * cross-feature class imports). The column default is `manual`
- * (database.md:111), so an absent row reads as `manual` too.
+ * feature) for the About page's resume summary line. Query-builder read
+ * inside the Portfolio Infra layer (no cross-feature class imports). The
+ * column default is `manual`, so an absent row reads as `manual` too.
  */
 final class ResumeModeReader
 {

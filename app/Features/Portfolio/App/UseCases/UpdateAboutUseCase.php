@@ -16,9 +16,8 @@ use Illuminate\Support\Facades\DB;
 /**
  * Updates the single-row about aggregate (id = 1): the non-translatable
  * columns plus the per-locale translation rows (upsert; rows for locales
- * absent from the submission are preserved, per content-management.md:
- * 419 — only locales active in the `supported_locales` setting are
- * touched).
+ * absent from the submission are preserved — only locales active in the
+ * `supported_locales` setting are touched).
  */
 final class UpdateAboutUseCase
 {

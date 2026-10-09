@@ -8,7 +8,7 @@ use App\Features\Portfolio\Domain\Entities\AboutInfo;
 
 /**
  * Persistence of the single-row `about_info` aggregate (id = 1
- * convention, database.md:71-73) including its translations.
+ * convention) including its translations.
  */
 interface AboutInfoRepositoryInterface
 {

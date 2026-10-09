@@ -8,8 +8,8 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Re-authentication payload shared by `POST /admin/profile/totp-disable`
- * and `POST /admin/profile/totp-recovery-codes` (authentication.md:203,239).
- * The password is verified against the hash in the corresponding use case.
+ * and `POST /admin/profile/totp-recovery-codes`. The password is verified
+ * against the hash in the corresponding use case.
  */
 final class RequireCurrentPasswordRequest extends FormRequest
 {

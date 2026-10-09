@@ -1,9 +1,9 @@
 /**
- * Shared list reordering for the keyboard move-up/down alternatives
- * (accessibility.md:35-44). `move` returns a NEW array with the item at
- * `index` shifted one position, or `null` when it is already at the
- * boundary (the caller then keeps the current order); `canMoveUp` /
- * `canMoveDown` drive the boundary disabled states.
+ * Shared list reordering for the keyboard move-up/down alternatives.
+ * `move` returns a NEW array with the item at `index` shifted one
+ * position, or `null` when it is already at the boundary (the caller
+ * then keeps the current order); `canMoveUp` / `canMoveDown` drive the
+ * boundary disabled states.
  */
 export interface Reorder {
     move: <T>(items: readonly T[], index: number, direction: -1 | 1) => T[] | null;

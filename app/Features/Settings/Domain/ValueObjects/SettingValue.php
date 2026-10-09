@@ -10,8 +10,7 @@ use InvalidArgumentException;
 /**
  * Immutable setting value: a `SettingType` plus a value that conforms to
  * it. Type conformance is enforced in the constructor, so an invalid
- * value can never be constructed (this is what the old validation rule
- * delegated to).
+ * value can never be constructed.
  *
  * A `null` input for a string value normalizes to `''` (an empty form
  * field); a numeric string for an integer value normalizes to the int
@@ -71,9 +70,6 @@ final readonly class SettingValue
         return new self($type, $type->parseRaw($raw));
     }
 
-    /**
-     * Converts the internal value back to the raw DB text.
-     */
     public function toRaw(): ?string
     {
         return $this->type->toRaw($this->value);

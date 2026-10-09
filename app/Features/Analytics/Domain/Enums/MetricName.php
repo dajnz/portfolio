@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Features\Analytics\Domain\Enums;
 
 /**
- * The metric catalog (analytics.md:172-178, ADR-0017) — the full set of
- * names stored in `analytics_daily_metrics.metric` and
- * `analytics_reports.metric`. Aggregation rules per metric kind:
- * count/sum → `SUM`, min → `MIN`, max → `MAX`, avg-able
- * (`*_seconds`, `completion_rate_sum`) → `SUM(value)/SUM(samples)`.
- * The same name may carry several dimension scopes (e.g. global +
- * per-article `views`) — the scope lives in the `dimension` column,
- * not in the name.
+ * The metric catalog — the full set of names stored in
+ * `analytics_daily_metrics.metric` and `analytics_reports.metric`.
+ * Aggregation rules per metric kind: count/sum → `SUM`, min → `MIN`,
+ * max → `MAX`, avg-able (`*_seconds`, `completion_rate_sum`) →
+ * `SUM(value)/SUM(samples)`. The same name may carry several dimension
+ * scopes (e.g. global + per-article `views`) — the scope lives in the
+ * `dimension` column, not in the name.
  */
 enum MetricName: string
 {
@@ -47,7 +46,7 @@ enum MetricName: string
     /**
      * Whether the metric aggregates as a weighted average across spans
      * (`SUM(value)/SUM(samples)` — the `*_seconds` and
-     * `completion_rate_sum` metrics, analytics.md:172).
+     * `completion_rate_sum` metrics).
      */
     public function isWeightedAverage(): bool
     {

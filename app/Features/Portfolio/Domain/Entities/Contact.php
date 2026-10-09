@@ -11,12 +11,11 @@ use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use InvalidArgumentException;
 
 /**
- * A contact entry shown on the landing page and in the resume
- * (database.md:167-189, content-management.md:105-110): localized display
- * names ({@see ContactTranslation} value objects) plus the
+ * A contact entry shown on the landing page and in the resume: localized
+ * display names ({@see ContactTranslation} value objects) plus the
  * non-translatable value/icon/url and its position in the reorderable
- * list (`sort_order`, zero-indexed per ADR-0005). Invariants are enforced by
- * the shared value objects ({@see ContactIcon}, {@see SortOrder}).
+ * list (`sort_order`, zero-indexed). Invariants are enforced by the
+ * shared value objects ({@see ContactIcon}, {@see SortOrder}).
  */
 final class Contact extends BaseEntity
 {
@@ -98,7 +97,7 @@ final class Contact extends BaseEntity
 
     /**
      * Localized name for the given locale, falling back to `en` when the
-     * requested translation is missing (content-management.md:415).
+     * requested translation is missing.
      */
     public function nameFor(string $locale): string
     {

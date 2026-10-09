@@ -1,7 +1,3 @@
-<!-- ProjectRelationsSection — the Relations card of the project form:
-     the tech-tag picker and the tech-writeup article select over the
-     published articles. Exports the wire types the page orchestrator
-     shares with it. -->
 <script setup lang="ts">
 import AdminBaseCard from '@shared-admin/AdminBaseCard.vue';
 import AdminBaseDropdown from '@shared-admin/AdminBaseDropdown.vue';

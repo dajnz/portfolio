@@ -22,10 +22,9 @@ const messages = catalogs[locale === 'ru' ? 'ru' : 'en'];
 
 const hasError = ref(false);
 
-// Error boundary per error-handling.md:212 — a render error inside an
-// Inertia page is caught here and replaced with a minimal error state
-// instead of an empty (crashed) viewport. Returning false stops the
-// error from bubbling further.
+// Error boundary — a render error inside an Inertia page is caught here
+// and replaced with a minimal error state instead of an empty (crashed)
+// viewport. Returning false stops the error from bubbling further.
 onErrorCaptured(() => {
     hasError.value = true;
 
@@ -33,9 +32,9 @@ onErrorCaptured(() => {
 });
 
 // Global state hydration: the stores are re-hydrated from the shared
-// props of every Inertia page (initial mount + each successful visit) —
-// architecture.md:187-193. The initial page is passed via the prop;
-// subsequent visits surface through the `success` event's page payload.
+// props of every Inertia page (initial mount + each successful visit).
+// The initial page is passed via the prop; subsequent visits surface
+// through the `success` event's page payload.
 const themeStore = useThemeStore();
 const localeStore = useLocaleStore();
 const authStore = useAuthStore();
@@ -48,7 +47,7 @@ function hydrateFromPage(page: Page, theme: unknown = page.props.theme): void {
 
     // `<html lang>` is server-rendered once by the Blade layout and is
     // not part of the Inertia body swap, so it must be synced here on
-    // hydration and every visit (a11y 13.6 #3).
+    // hydration and every visit.
     if (typeof document !== 'undefined') {
         document.documentElement.lang = localeStore.locale;
     }
@@ -57,10 +56,9 @@ function hydrateFromPage(page: Page, theme: unknown = page.props.theme): void {
 // The effective theme at the initial mount. On a first visit the server
 // has no `theme` cookie yet, so the shared prop cannot reflect the system
 // preference — the blocking boot script in app.blade.php resolves it and
-// sets the `dark` class before hydration (i18n-and-theming.md:179). The
-// document state is therefore authoritative on the client; the server
-// (no `document`) falls back to the prop. Inertia visits keep hydrating
-// from the prop.
+// sets the `dark` class before hydration. The document state is therefore
+// authoritative on the client; the server (no `document`) falls back to
+// the prop. Inertia visits keep hydrating from the prop.
 function resolveInitialTheme(page: Page): unknown {
     if (typeof document === 'undefined') {
         return page.props.theme;
@@ -69,9 +67,8 @@ function resolveInitialTheme(page: Page): unknown {
     return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
 }
 
-// Session `notification` flashes (error-handling.md:103-115) are picked
-// up once per page load; the toast queue is cleared on navigation start
-// (architecture.md:193).
+// Session `notification` flashes are picked up once per page load; the
+// toast queue is cleared on navigation start.
 interface NotificationProps {
     type?: ToastVariant;
     message?: string;
@@ -88,9 +85,9 @@ function showNotification(page: Page): void {
 
 hydrateFromPage(props.page, resolveInitialTheme(props.page));
 
-// useAnalytics is registered exactly once at the app level
-// (analytics.md:45-48); its cleanup tears down the flush interval and
-// the event listeners when the root component unmounts.
+// useAnalytics is registered exactly once at the app level; its cleanup
+// tears down the flush interval and the event listeners when the root
+// component unmounts.
 const analytics = useAnalytics();
 
 // useRouteAnnouncement announces the new page's `<h1>` through the live
@@ -104,7 +101,7 @@ if (typeof window !== 'undefined') {
 
     router.on('start', (event) => {
         // Prefetches fire `start` too; only a real navigation should
-        // dismiss the toast queue (a11y 13.6 adjacent fix).
+        // dismiss the toast queue.
         if (event.detail.visit.prefetch) {
             return;
         }

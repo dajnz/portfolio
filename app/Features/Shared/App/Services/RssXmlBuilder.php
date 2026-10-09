@@ -8,12 +8,11 @@ use App\Features\Shared\App\DTOs\RssFeedDto;
 use App\Features\Shared\App\DTOs\RssItemDto;
 
 /**
- * Builds RSS 2.0 XML from the shared {@see RssFeedDto} data — a
- * generic, framework-free service reusable by any feature that needs
- * a feed (the Blog `/rss` route today; resume/other feeds later).
- * Every text value is XML-escaped (`ENT_XML1` — the whole document
- * stays well-formed regardless of the content); the dates use the
- * RFC 2822 format RSS requires.
+ * Builds RSS 2.0 XML from the shared {@see RssFeedDto} data — a generic,
+ * framework-free service reusable by any feature that needs a feed. Every
+ * text value is XML-escaped (`ENT_XML1` — the whole document stays
+ * well-formed regardless of the content); the dates use the RFC 2822
+ * format RSS requires.
  *
  * Pure string construction — no framework dependencies, unit-testable
  * without the container.

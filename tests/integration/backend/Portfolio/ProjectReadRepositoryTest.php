@@ -9,9 +9,6 @@ use App\Features\Shared\Infra\Models\SkillModel;
 use App\Features\Shared\Infra\Models\SkillGroupModel;
 use Illuminate\Support\Facades\DB;
 
-/**
- * The ADR-0003 shared project read model consumed by the landing page.
- */
 function createProject(string $slug, array $attributes = []): int
 {
     return DB::table('projects')->insertGetId(array_merge([

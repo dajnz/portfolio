@@ -18,14 +18,13 @@ use function strlen;
 use const JSON_UNESCAPED_UNICODE;
 
 /**
- * The backup pre-flight estimator (backup.md:242-249, 378): the
- * required staging space is `2 × (estimated data + assets)` — data is
- * the summed serialized JSONL size of the rows the given batch reader
- * yields (what the archive will actually contain), assets the summed
- * size of the bucket's objects (enumerated via the collector, sized via
- * the assets disk), available space the free space of the staging disk.
- * `hasEnoughSpace()` returns false when the available space is below
- * the 2× requirement (backup.md:249).
+ * The backup pre-flight estimator: the required staging space is
+ * `2 × (estimated data + assets)` — data is the summed serialized JSONL
+ * size of the rows the given batch reader yields (what the archive will
+ * actually contain), assets the summed size of the bucket's objects
+ * (enumerated via the collector, sized via the assets disk), available
+ * space the free space of the staging disk. `hasEnoughSpace()` returns
+ * false when the available space is below the 2× requirement.
  */
 final class StorageEstimator implements StorageEstimatorInterface
 {

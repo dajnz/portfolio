@@ -1,4 +1,3 @@
-<!-- ProjectCard (public-section-components.md:703-732, mockup projects.html) — the project preview card shared by the landing's featured section (compact) and the projects index (default). The card is a container with a stretched Inertia `<Link>` overlay to `/projects/{slug}` (a DOM sibling of the card's own filter-chip and source links — nested anchors would be invalid HTML); the image area renders ProjectCardCarousel when screenshots exist (its `single` state covers the one-shot case), the static preview image otherwise, and a neat placeholder (icon + label) when neither is present. The tech tags are capped at `tags_limit` (3 on the grid cards, 5 on the list cards — user rework 2026-08-16) with a "+N" chip carrying the remaining names as its accessible name; the chips link to `/projects?tags={id}` (the projects index tag filter). The Sources/Live Demo buttons are anchors opened in a new tab (analytics-tracked); with the overlay link they are DOM siblings, not children, of the card link — no nested-anchor hijack to neutralize. Analytics: `cta_click_github` / `cta_click_demo` (analytics.md:34-37). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { Link } from '@inertiajs/vue3';
@@ -36,7 +35,7 @@ const { t } = useI18n();
 const analytics = useAnalytics();
 // The Sources GitHub glyph comes from the lazily-registered simple-icons
 // subset — rendering before registration would trigger the Iconify
-// runtime's remote fallback (blocked by CSP, ADR-0023).
+// runtime's remote fallback (blocked by CSP).
 const projectsIconsReady = useProjectsIconsReady();
 
 const visibleTags = computed(() => props.project?.tech_tags.slice(0, props.tags_limit) ?? []);
@@ -124,8 +123,7 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
       :data-testid="`${props.test_id}-placeholder`"
     >
       <!-- The large, faint photo icon on the tinted surface — no text
-           label (user rework 2026-08-16: "PREVIEW" dropped, the icon
-           3× bigger and less prominent). -->
+           label. -->
       <Icon
         class="project-card__placeholder-icon"
         icon="heroicons:photo"
@@ -197,8 +195,8 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
 
 <style scoped>
 /* The `.card`/`.card__*` look lives in the global stylesheet
-   (resources/css/app.css — the mockup's pages.css pattern); this
-   component only styles its own modifiers. `.card__image` gives the
+   (resources/css/app.css); this component only styles its own
+   modifiers. `.card__image` gives the
    wrapper the 16/9 slot; the inner image fills it. */
 .project-card {
     display: block;
@@ -219,9 +217,8 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
 }
 
 /* The no-image placeholder: a tinted surface with a dashed inner frame
-   and a large, faint photo icon — 3× the previous size (5.25em) with a
-   reduced opacity so it reads as a subtle watermark, no text label
-   (user rework 2026-08-16). */
+   and a large, faint photo icon at reduced opacity so it reads as a
+   subtle watermark, no text label. */
 .project-card__image--placeholder {
     flex-direction: column;
     background:
@@ -289,9 +286,9 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
      ProjectCard scope cannot reach the button's internals, so a plain
      block overrides them (the projects-grid--list precedent). The
      buttons become light outline (contour) chips that always fit on
-     one row and stay left-aligned with the card content (user rework
-     2026-08-16). The specificity beats the scoped `.btn[data-v-…]`
-     rules regardless of stylesheet order. -->
+     one row and stay left-aligned with the card content. The
+     specificity beats the scoped `.btn[data-v-…]` rules regardless of
+     stylesheet order. -->
 <style>
 /* The carousel lives inside the card: the scoped overlay rules make
    the carousel layer click-through; its internal buttons must stay

@@ -11,7 +11,7 @@ use PragmaRX\Google2FA\Google2FA as Google2FAService;
 /**
  * Thin wrapper over pragmarx/google2fa (+ endroid/qr-code for the
  * provisioning QR). TOTP verification uses a ±1 time-step window
- * (90-second acceptance) per authentication.md:237.
+ * (90-second acceptance).
  */
 final class TotpService
 {

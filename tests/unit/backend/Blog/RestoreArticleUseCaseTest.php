@@ -11,14 +11,12 @@ use Tests\Support\Fakes\FakeCountCacheInvalidator;
 use Tests\Support\Fakes\FakeSitemapInvalidator;
 
 /**
- * The restore slug-uniqueness re-check (ADR-0006, content-management.md:901)
- * — single and bulk, with the batched reads (one slugs read + one
- * occupied-subset read). The conflict state cannot arise through the
- * HTTP surface (the DB unique index covers trashed rows — soft-deleted
- * entities occupy their slug — so an active article can never hold a
- * trashed article's slug), hence the repository fake. The sitemap
- * invalidation decision (a restored published article re-enters the
- * sitemap) lives in this use case.
+ * The restore slug-uniqueness re-check — single and bulk, with the
+ * batched reads (one slugs read + one occupied-subset read). The
+ * conflict state cannot arise through the HTTP surface: the DB unique
+ * index covers trashed rows (soft-deleted entities occupy their slug),
+ * so an active article can never hold a trashed article's slug — hence
+ * the repository fake.
  */
 describe('RestoreArticleUseCase', function (): void {
     it('rejects a single restore when the slug is occupied by an active article', function (): void {

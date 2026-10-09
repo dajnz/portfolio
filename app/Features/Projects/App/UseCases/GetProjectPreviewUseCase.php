@@ -9,12 +9,11 @@ use App\Features\Projects\App\Services\ProjectDetailDtoBuilder;
 use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface;
 
 /**
- * The signed preview page (`/admin/preview/projects/{project}`,
- * routes.md:156,60): the project is resolved by id — trashed and
- * unpublished included — and rendered with the `noindex` SEO variant
- * (the preview must never enter the index). The route signature is
- * validated by the controller; the tech-writeup publication check is
- * shared with the public detail.
+ * The signed preview page (`/admin/preview/projects/{project}`): the
+ * project is resolved by id — trashed and unpublished included — and
+ * rendered with the `noindex` SEO variant (the preview must never enter
+ * the index). The route signature is validated by the controller; the
+ * tech-writeup publication check is shared with the public detail.
  */
 final class GetProjectPreviewUseCase
 {

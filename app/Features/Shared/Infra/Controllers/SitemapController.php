@@ -8,8 +8,7 @@ use App\Features\Shared\Infra\Services\SitemapService;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * `/sitemap.xml` (XML, Redis-cached 24 h) and `/robots.txt` (static text)
- * — seo.md:194-231.
+ * `/sitemap.xml` (XML, Redis-cached 24 h) and `/robots.txt` (static text).
  */
 final class SitemapController
 {

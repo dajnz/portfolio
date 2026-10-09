@@ -11,11 +11,10 @@ use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 
 /**
- * The experience form page data (experience.yaml#ExperienceFormPageProps):
- * the existing item (null when creating) plus the picker options — all
- * tech skills for the `AdminTechSkillPicker` and the non-trashed
- * portfolio projects (locale-resolved titles) for the searchable
- * `ProjectSearchCombobox`.
+ * The experience form page data: the existing item (null when creating)
+ * plus the picker options — all tech skills for the `AdminTechSkillPicker`
+ * and the non-trashed portfolio projects (locale-resolved titles) for the
+ * searchable `ProjectSearchCombobox`.
  */
 final class GetTimelineItemForEditUseCase
 {

@@ -15,11 +15,10 @@ use App\Features\Shared\App\DTOs\PaginationQuery;
 use Illuminate\Support\Facades\Config;
 
 /**
- * The admin tags list (admin-section-ui.md:315-320): cursor-paginated
- * via the shared app-layer paginator abstraction, with the
- * cross-locale name search (`?q=`) and the `article_tag_pivot` usage
- * count per row (the Article Count column). The raw rows are converted
- * to the row DTOs here.
+ * The admin tags list: cursor-paginated via the shared app-layer
+ * paginator abstraction, with the cross-locale name search (`?q=`) and
+ * the `article_tag_pivot` usage count per row (the Article Count
+ * column). The raw rows are converted to the row DTOs here.
  */
 final class ListTagsUseCase
 {

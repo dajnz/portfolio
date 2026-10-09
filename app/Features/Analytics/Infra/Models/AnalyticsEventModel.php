@@ -10,10 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `analytics_events` (database.md:486-505). The raw
- * event log is append-only — `created_at` only, no `updated_at`; the
- * `ip_address` column holds the keyed HMAC-SHA256 digest (ADR-0017), never
- * the raw client IP.
+ * Eloquent model for `analytics_events`. The raw event log is
+ * append-only — `created_at` only, no `updated_at`; the `ip_address`
+ * column holds the keyed HMAC-SHA256 digest, never the raw client IP.
  *
  * @property int $id
  * @property string $event_type

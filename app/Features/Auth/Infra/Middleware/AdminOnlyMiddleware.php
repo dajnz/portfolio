@@ -10,10 +10,9 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * `admin` middleware alias: the authenticated user must be an `AdminModel`
- * (authentication.md:302-327). Since `admins` is the only credential table
- * this is effectively a type/table check, kept as a defensive guard
- * against misconfiguration.
+ * `admin` middleware alias: the authenticated user must be an `AdminModel`.
+ * Since `admins` is the only credential table this is effectively a
+ * type/table check, kept as a defensive guard against misconfiguration.
  */
 final class AdminOnlyMiddleware
 {

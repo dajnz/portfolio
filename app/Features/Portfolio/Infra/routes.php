@@ -10,11 +10,11 @@ use App\Features\Portfolio\Infra\Controllers\LandingController;
 use Illuminate\Support\Facades\Route;
 
 /*
- * Portfolio routes (routes.md:22,50,64-80,129-133). The landing root and
- * the locale-prefixed variant are public; the admin section is gated by
- * the Auth middleware chain (`auth` + `auth.session_version` + `admin`).
- * The `{locale}` route parameter is constrained to the supported locales
- * so `SetLocaleFromPathMiddleware` never sees an invalid value.
+ * Portfolio routes. The landing root and the locale-prefixed variant are
+ * public; the admin section is gated by the Auth middleware chain (`auth` +
+ * `auth.session_version` + `admin`). The `{locale}` route parameter is
+ * constrained to the supported locales so `SetLocaleFromPathMiddleware`
+ * never sees an invalid value.
  */
 
 Route::get('/', [LandingController::class, 'index']);

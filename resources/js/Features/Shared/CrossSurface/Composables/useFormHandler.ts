@@ -29,10 +29,10 @@ function cloneForm<T extends Record<string, unknown>>(value: T): T {
 }
 
 /**
- * Shared admin form state management (admin-section-components.md:1598-1618).
- * Handles 422 (populates `errors`), 5xx (error toast), success (clears the
- * unsaved-changes guard, then redirects or resets). Integrates
- * `useUnsavedChanges` automatically — the guard is removed on success.
+ * Shared admin form state management. Handles 422 (populates `errors`),
+ * 5xx (error toast), success (clears the unsaved-changes guard, then
+ * redirects or resets). Integrates `useUnsavedChanges` automatically —
+ * the guard is removed on success.
  */
 export function useFormHandler(
     initialValues: Record<string, unknown>,

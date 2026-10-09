@@ -14,14 +14,13 @@ use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 
 /**
- * The project editor data (the create/edit form, projects.yaml#
- * ProjectFormPageProps): the stored project data (null when creating —
- * hydrated with every aggregate part for the tabbed editor and mapped
- * to the data DTOs here), the tech-skill picker options, the published
- * articles of the tech-writeup select (admin-section-ui.md:356) and
- * the signed 1-hour preview URL (routes.md:151 — the preview button
- * opens it in a new tab; null on the create form). Trashed projects
- * reach the form too (restore happens from the form's own view, ADR-0006).
+ * The project editor data (the create/edit form): the stored project
+ * data (null when creating — hydrated with every aggregate part for the
+ * tabbed editor and mapped to the data DTOs here), the tech-skill
+ * picker options, the published articles of the tech-writeup select and
+ * the signed 1-hour preview URL (the preview button opens it in a new
+ * tab; null on the create form). Trashed projects reach the form too
+ * (restore happens from the form's own view).
  */
 final class GetProjectForEditUseCase
 {

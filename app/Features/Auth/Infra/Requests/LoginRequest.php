@@ -6,9 +6,6 @@ namespace App\Features\Auth\Infra\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-/**
- * `POST /admin/login` (content-management.md:705-711).
- */
 final class LoginRequest extends FormRequest
 {
     /** @return array<string, mixed> */

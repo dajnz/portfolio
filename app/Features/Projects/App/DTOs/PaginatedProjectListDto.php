@@ -6,11 +6,6 @@ namespace App\Features\Projects\App\DTOs;
 
 use App\Features\Shared\App\DTOs\PaginationDto;
 
-/**
- * The length-aware project list result (the public JSON dual-response
- * variant — routes.md:199-212): the locale-resolved items, their tech
- * tags and the pagination facts. Immutable.
- */
 final readonly class PaginatedProjectListDto
 {
     /**

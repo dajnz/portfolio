@@ -60,7 +60,7 @@ components:
         type: string
         enum: [date]
         default: date
-      description: Sort column for projects index (date only — the complexity strategy was removed per the 2026-08-16 user decision).
+      description: Sort column for projects index (date only).
 
     projectSortDirection:
       name: direction

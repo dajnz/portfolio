@@ -6,7 +6,7 @@ namespace App\Features\Blog\App\DTOs;
 
 /**
  * A published article as a picker option — `{id, slug, title}` (the
- * Related Articles multi-select of the form, ADR-0004-style). Immutable.
+ * Related Articles multi-select of the form). Immutable.
  */
 final readonly class ArticleOptionDto
 {

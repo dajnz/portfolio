@@ -7,10 +7,10 @@ namespace App\Features\TechSkills\App\UseCases;
 use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepositoryInterface;
 
 /**
- * Reorders skills per the ADR-0005 payload `{ "skills": [{ "id",
- * "skill_group_id" }] }`: the zero-indexed array position becomes
- * `sort_order` and the submitted group assignment is persisted — this is
- * what makes cross-group drag-and-drop moves stick.
+ * Reorders skills per the `{ "skills": [{ "id", "skill_group_id" }] }`
+ * payload: the zero-indexed array position becomes `sort_order` and the
+ * submitted group assignment is persisted — this is what makes
+ * cross-group drag-and-drop moves stick.
  */
 final class ReorderSkillsUseCase
 {

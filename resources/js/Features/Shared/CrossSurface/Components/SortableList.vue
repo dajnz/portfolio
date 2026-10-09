@@ -1,4 +1,3 @@
-<!-- SortableList (public-section-components.md:313-334) — native HTML5 drag-and-drop reordering, shared by public and admin surfaces via the `classes` prop (BEM by default, Tailwind in admin). Reused by the admin reorder lists in 4.2/5.2/6.2/7.2. Cross-list drops (5.2: dragging a skill between groups) are coordinated through the shared `crossSortableDrag` module — a list only accepts a drop when the source list shares its `cross_scope` (skill lists across groups, never a group card landing in a skill list). -->
 <script setup lang="ts">
 import {
     clearAllPreviews,
@@ -32,8 +31,8 @@ const props = withDefaults(
         disabled?: boolean;
         /** Handle-mode drag guard: when set, drags only start from a
          *  mousedown on an element matching this selector. Without it the
-         *  whole item is draggable (5.2 rework — the skill rows drag from
-         *  anywhere except `interactive_selector` controls). */
+         *  whole item is draggable (the skill rows drag from anywhere
+         *  except `interactive_selector` controls). */
         handle?: string;
         /** Selector of the item's interactive controls (checkbox, dots,
          *  buttons, inputs...). A drag started on a matching element is
@@ -69,19 +68,19 @@ const emit = defineEmits<{
 }>();
 
 // Local working copy — the visual order shifts live during a drag and the
-// parent's `modelValue` is only updated on drop (optimistic-update pattern
-// per error-handling.md; rollback is the parent's concern).
+// parent's `modelValue` is only updated on drop (optimistic-update pattern;
+// rollback is the parent's concern).
 const items = ref<Array<Record<string, unknown>>>([...props.modelValue]);
 
 let draggingIndex: number | null = null;
 let draggedItem: Record<string, unknown> | null = null;
 
-// Cross-list drop preview (5.2 rework): while a foreign-list drag hovers
-// this list, the dragged item is INSERTED into the local items at the
-// hovered position (semi-transparent) so the drop destination is
-// visible — the same feedback as the within-list live shift. The preview
-// is removed on dragleave/drop; the drop finalizes it. The flags are
-// refs — the item classes bind them.
+// Cross-list drop preview: while a foreign-list drag hovers this list,
+// the dragged item is INSERTED into the local items at the hovered
+// position (semi-transparent) so the drop destination is visible — the
+// same feedback as the within-list live shift. The preview is removed on
+// dragleave/drop; the drop finalizes it. The flags are refs — the item
+// classes bind them.
 const previewActive = ref(false);
 const previewIndex = ref(-1);
 // The dragged item's key while its preview is shown — the class binding
@@ -97,8 +96,8 @@ const ulEl = ref<HTMLElement | null>(null);
 // hovered-but-left lists can never keep a stale copy). The preview item
 // is located BY KEY, not by `previewIndex` — a foreign `props.modelValue`
 // reset (a server re-render landing mid-drag) could otherwise leave the
-// flags pointing at a real item and the cleanup would remove the wrong
-// row (the reported duplication/corruption).
+// flags pointing at a real item, and the cleanup would remove the wrong
+// row and duplicate the preview.
 function clearPreview(): void {
     if (!previewActive.value) {
         return;
@@ -137,7 +136,7 @@ let lastMousedownTarget: Element | null = null;
 const isDragging = ref(false);
 
 function onItemMouseDown(event: MouseEvent, index: number): void {
-    // Nested lists (5.2 — the skills lists live inside the groups list's
+    // Nested lists (the skills lists live inside the groups list's
     // items): the mousedown bubbles up to the OUTER list's items, whose
     // handle-mode arming must not see it — the innermost list owns its
     // item's gestures.
@@ -173,8 +172,8 @@ watch(
             // no longer contain the preview item, but the flags/index
             // would still point at it — the next dragover would then
             // treat a REAL item as the preview slot (splicing it out,
-            // duplicating the preview — the reported ghost items after a
-            // mid-drag server re-render). Reset the whole preview state.
+            // duplicating the preview into ghost items). Reset the whole
+            // preview state.
             previewActive.value = false;
             previewIndex.value = -1;
             previewItemKey.value = null;
@@ -198,7 +197,7 @@ function itemIndex(event: DragEvent): number {
 }
 
 function onDragStart(event: DragEvent, index: number): void {
-    // Nested lists (5.2 — the skills lists live inside the groups list's
+    // Nested lists (the skills lists live inside the groups list's
     // items): the dragstart bubbles up to the OUTER list's items, whose
     // handle-mode guard would preventDefault() it (its arming never saw
     // the mousedown) and kill the drag before any dragover — the
@@ -424,7 +423,7 @@ function onDrop(event: DragEvent): void {
     }
 
     // Cross-list drop: a drag that started in another list with the same
-    // scope (5.2 — a skill moved into this group). The insertion position
+    // scope (a skill moved into this group). The insertion position
     // mirrors the same-list midpoint logic (the live preview already
     // placed the item — the drop finalizes it); the parent is told where
     // the item came from via the second `drag-end` argument.
@@ -556,8 +555,8 @@ const containerAxisClass = computed(() =>
         :index="index"
       />
     </li>
-    <!-- Empty-state content (5.2 rework — the empty-group message lives
-         INSIDE the drop target so cross-group drops land on it). -->
+    <!-- Empty-state content (the empty-group message lives INSIDE the
+         drop target so cross-group drops land on it). -->
     <slot
       v-if="items.length === 0"
       name="empty"

@@ -8,7 +8,7 @@ use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepository
 
 /**
  * Reorders skill groups to the zero-indexed positions of the submitted
- * `{ "ids": [...] }` payload (ADR-0005); the repository applies the writes
+ * `{ "ids": [...] }` payload; the repository applies the writes
  * atomically.
  */
 final class ReorderSkillGroupsUseCase

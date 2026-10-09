@@ -1,4 +1,3 @@
-<!-- LanguageSelector (public-section-components.md:492-506, admin-section-components.md:412-414) — RU/EN switcher shared by both surfaces. Sets the `locale` cookie via useI18n and reloads the page; the `cta_click_language` analytics event fires only on the public surface (`track_locale_changes`). -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { usePage } from '@inertiajs/vue3';
@@ -60,7 +59,7 @@ const resolvedOptions = computed(() =>
 
 // The trigger carries the current language in its accessible name (the
 // visible "EN"/"RU" text is overridden by `aria-label`) so switching to
-// the selector announces the active language (a11y 13.6 #5).
+// the selector announces the active language.
 const activeNativeName = computed(
     () =>
         resolvedOptions.value.find((option) => option.code === resolvedLocale.value)?.native_name ??
@@ -80,7 +79,7 @@ function selectLocale(option: LocaleOption): void {
     }
 
     if (props.track_locale_changes) {
-        // Public surface only (analytics.md:38).
+        // Public surface only.
         analytics.track('cta_click_language', { locale: option.code });
     }
 

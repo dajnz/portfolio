@@ -7,9 +7,6 @@ namespace Database\Factories;
 use App\Features\Portfolio\Infra\Models\AboutInfoModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * Test factory for the single-row `about_info` table (ADR-0029).
- */
 final class AboutInfoModelFactory extends Factory
 {
     protected $model = AboutInfoModel::class;

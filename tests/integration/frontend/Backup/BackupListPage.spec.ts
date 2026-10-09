@@ -42,8 +42,7 @@ import BackupListPage from '@backup/Admin/Pages/BackupListPage/BackupListPage.vu
 import RestoreForm from '@backup/Admin/Components/RestoreForm.vue';
 import { useToastStore } from '@shared-cross/Stores/toastStore';
 
-// Wire fixtures mirroring the OpenAPI BackupListPageProps shape
-// (docs/openapi/inertia/backup.yaml).
+// Wire fixtures mirroring the OpenAPI BackupListPageProps shape.
 const COMPLETED_45MB = {
     id: 1,
     filename: 'backup-2026-08-01-020000-k3.zip',
@@ -129,8 +128,6 @@ function mountPage(props: Record<string, unknown> = {}) {
     return wrapper;
 }
 
-/** Selects the first completed backup in the RestoreForm dropdown and
- *  submits it with the given password. */
 async function fillRestoreForm(wrapper: ReturnType<typeof mount>): Promise<void> {
     await wrapper
         .get('[data-testid="backup-list-page-restore-backup"]')
@@ -145,7 +142,6 @@ async function fillRestoreForm(wrapper: ReturnType<typeof mount>): Promise<void>
     await settle();
 }
 
-/** Picks a `.zip` file in the DR dropzone. */
 async function pickDisasterZip(wrapper: ReturnType<typeof mount>): Promise<void> {
     const zip = new File(['zip'], 'backup.zip', { type: 'application/zip' });
     const input = wrapper.get('[data-testid="backup-list-page-upload-file-input"]')
@@ -155,7 +151,6 @@ async function pickDisasterZip(wrapper: ReturnType<typeof mount>): Promise<void>
     await settle();
 }
 
-/** Fills the DR form (zip + raw key + password) and submits it. */
 async function submitDisasterUpload(wrapper: ReturnType<typeof mount>): Promise<void> {
     await pickDisasterZip(wrapper);
 
@@ -169,7 +164,6 @@ async function submitDisasterUpload(wrapper: ReturnType<typeof mount>): Promise<
     await settle();
 }
 
-/** Asserts the DR form inputs were cleared (successful restore). */
 function expectDisasterFormCleared(wrapper: ReturnType<typeof mount>): void {
     expect(wrapper.text()).not.toContain('backup.zip');
     expect(
@@ -257,7 +251,6 @@ describe('BackupListPage', () => {
         await settle();
     }
 
-    /** Lets the running restore poll observe the record's completion. */
     async function completeRunningPoll(): Promise<void> {
         fetchMock.mockImplementation((url: string) => {
             if (url.includes('/status')) {
@@ -280,7 +273,7 @@ describe('BackupListPage', () => {
 
         expect(wrapper.get('[data-testid="backup-list-page"] h1').text()).toBe('Backup & Restore');
 
-        // BackupStats — derived from the page props (mockup backups.html).
+        // BackupStats — derived from the page props.
         const stats = wrapper.get('[data-testid="backup-list-page-stats"]');
         expect(stats.get('[data-testid="backup-list-page-stats-total"]').text()).toBe('2');
         expect(stats.get('[data-testid="backup-list-page-stats-size"]').text()).toBe('46 MB');
@@ -317,7 +310,6 @@ describe('BackupListPage', () => {
         });
         await settle();
 
-        // The RestoreForm dropdown lists only completed backups.
         const restoreForm = wrapper.findComponent(RestoreForm);
         expect(restoreForm.props('backups')).toEqual([
             { id: 1, filename: COMPLETED_45MB.filename },
@@ -356,7 +348,7 @@ describe('BackupListPage', () => {
         expect(routerMock.post).toHaveBeenCalledWith('/admin/backups', undefined, expect.anything());
 
         // The redirect lands with the new row still pending — the page
-        // picks it up and polls it (mockup backups.html data-flow).
+        // picks it up and polls it.
         fetchMock.mockImplementation((url: string) => {
             if (url.includes('/status')) {
                 return Promise.resolve(jsonResponse(statusPayload('completed')));
@@ -459,7 +451,7 @@ describe('BackupListPage', () => {
 
         // The redirect lands (worker-lag: the row still completed) — the
         // page polls the submitted record; processing → completed fires
-        // the ADR-0018 success toast.
+        // the success toast.
         const options = routerMock.post.mock.calls[0][2] as { onSuccess: () => void };
         fetchMock.mockImplementation((url: string) => {
             if (url.includes('/status')) {
@@ -787,7 +779,6 @@ describe('BackupListPage', () => {
         const wrapper = mountPage({ encryption_key_prompt: true });
         await settle();
 
-        // The generation confirmation dialog opens automatically.
         const dialog = wrapper.get('[data-testid="backup-list-page-generate-dialog"]');
         expect(dialog.text()).toContain('A new encryption key will be created');
 
@@ -815,7 +806,6 @@ describe('BackupListPage', () => {
         await dialog.get('[data-testid="backup-list-page-generate-dialog-confirm"]').trigger('click');
         await settle();
 
-        // The raw key is shown exactly once in the modal.
         const modal = wrapper.get('[data-testid="backup-list-page-key-modal"]');
         expect(modal.text()).toContain('QUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVo=');
         expect(modal.text()).toContain('Save this key offline. It will not be shown again.');
@@ -926,7 +916,6 @@ describe('BackupListPage', () => {
         const wrapper = mountPage();
         await settle();
 
-        // The referenced key's Delete is disabled with the tooltip.
         const referencedDelete = wrapper.get(
             '[data-testid="backup-list-page-keys-key-3-delete"]',
         );

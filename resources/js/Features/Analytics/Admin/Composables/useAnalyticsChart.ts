@@ -10,7 +10,6 @@ export interface ChartSeries {
     points: Array<ChartPoint>;
 }
 
-/** The plot geometry of one single-series point (bar or line). */
 export interface PointGeometry {
     x: number;
     y: number;
@@ -30,7 +29,6 @@ export interface SeriesMarker extends LinePointGeometry {
     label: string;
 }
 
-/** The tooltip payload: the marker's coordinates + the series name. */
 export interface HoveredMarker {
     x: number;
     y: number;
@@ -38,9 +36,8 @@ export interface HoveredMarker {
     name: string;
 }
 
-// Mockup geometry (analytics.html:221-228): viewBox 640×260, 20 px
-// side padding, value labels in the top 40 px, x-labels in the bottom
-// 30 px.
+// Plot geometry: viewBox 640×260, 20 px side padding, value labels in
+// the top 40 px, x-labels in the bottom 30 px.
 export const VIEWBOX_WIDTH = 640;
 export const VIEWBOX_HEIGHT = 260;
 export const PADDING_X = 20;
@@ -57,12 +54,11 @@ export function seriesColor(index: number): string {
 }
 
 /**
- * The AnalyticsChart geometry (admin-section-components.md:1334-1352):
- * the pure coordinate math for the single-series plot (bars/line) and
- * the multi-series plot (the union x-axis, per-series polylines and
- * point markers). Numeric coordinates only — the labels/values render
- * through Vue interpolation into text nodes (the textContent rule,
- * analytics.md:230).
+ * The AnalyticsChart geometry: the pure coordinate math for the
+ * single-series plot (bars/line) and the multi-series plot (the union
+ * x-axis, per-series polylines and point markers). Numeric coordinates
+ * only — the labels/values render through Vue interpolation into text
+ * nodes (the textContent rule).
  */
 export function useAnalyticsChart(
     data: ComputedRef<Array<ChartPoint>>,
@@ -189,7 +185,6 @@ export function useAnalyticsChart(
         }),
     );
 
-    // The x-axis slot of the multi-series plot.
     const multiSlot = computed(() => {
         const count = Math.max(1, unionLabels.value.length);
 

@@ -6,7 +6,7 @@ import type { Ref } from 'vue';
 
 // SkillsListPage — reorder persistence (SkillsListPage.vue is the
 // orchestrator). Applies the SortableList drag results to the page's
-// shared `groups` working copy and posts the ADR-0005 payloads
+// shared `groups` working copy and posts the payloads
 // (`{ "skills": [{ "id", "skill_group_id" }] }` — the zero-indexed array
 // position becomes `sort_order`; groups use `{ ids }`), rolling back to
 // the original props snapshot on server errors.

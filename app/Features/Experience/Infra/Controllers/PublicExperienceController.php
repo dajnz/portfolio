@@ -14,18 +14,16 @@ use Inertia\Response;
 use Inertia\ResponseFactory;
 
 /**
- * `GET /experience` and `GET /{locale}/experience` (routes.md:24,52) —
- * the public career timeline (public-section-ui.md:103-141): published
- * items ordered `started_at DESC, id DESC` with infinite scroll via the
- * opaque composite cursor (the shared {@see PublicCursorCodec} — the
- * client treats it as opaque, only the server encodes/decodes;
- * public-section-ui.md:316-327). `next_cursor` is null when the final
- * batch is incomplete — the exhaustion signal. SEO props per seo.md:43
- * (title/description; ogImage falls back client-side to
- * `/images/og-default.png`); the canonical URL is always the base path
- * (seo.md:315). Tech tags are the deduplicated union of the item's own
- * and the linked project's tags (content-management.md:174), assembled
- * here from the entity's {@see TechSkillTag}s.
+ * `GET /experience` and `GET /{locale}/experience` — the public career
+ * timeline: published items ordered `started_at DESC, id DESC` with
+ * infinite scroll via the opaque composite cursor (the shared
+ * {@see PublicCursorCodec} — the client treats it as opaque, only the
+ * server encodes/decodes). `next_cursor` is null when the final batch is
+ * incomplete — the exhaustion signal. SEO props carry the title and
+ * description (ogImage falls back client-side to
+ * `/images/og-default.png`); the canonical URL is always the base path.
+ * Tech tags are the deduplicated union of the item's own and the linked
+ * project's tags, assembled here from the entity's {@see TechSkillTag}s.
  */
 final class PublicExperienceController
 {
@@ -114,9 +112,9 @@ final class PublicExperienceController
 
     /**
      * The deduplicated union of the item's own tech tags and the linked
-     * project's tags (content-management.md:174) — own tags first, then
-     * the project's tags not already present, both in the repository's
-     * display order (`skills.sort_order`, then id).
+     * project's tags — own tags first, then the project's tags not already
+     * present, both in the repository's display order (`skills.sort_order`,
+     * then id).
      *
      * @param  array<int, array{name: string, slug: string, tech_tags: TechSkillTag[]}>  $projectRefs
      * @return array<int, array<string, mixed>>

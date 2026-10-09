@@ -9,9 +9,6 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use Tests\Support\AnalyticsEventFixture;
 
-/**
- * The `cta_click_theme` event invariants (analytics.md:24): the mode is validated when present.
- */
 describe('ThemeSwitchEvent', function (): void {
     it('rejects an unsupported mode', function (): void {
         expect(fn () => new ThemeSwitchEvent(

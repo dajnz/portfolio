@@ -1,4 +1,4 @@
-<!-- TOTPSetup (admin-section-components.md:1470-1513) — two-factor card of the profile page. States: disabled (Enable button) → setup (QR + manual key + verify) → enabled (recovery codes + disable). The page owns the HTTP calls and passes results back through props. -->
+<!-- TOTPSetup — two-factor card of the profile page. States: disabled (Enable button) → setup (QR + manual key + verify) → enabled (recovery codes + disable). The page owns the HTTP calls and passes results back through props. -->
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
@@ -46,7 +46,7 @@ const disableDialogOpen = ref(false);
 const regeneratePassword = ref('');
 const copied = ref(false);
 
-// Server-rendered inline SVG (authentication.md:216-224) — trusted markup.
+// Server-rendered inline SVG — trusted markup.
 const qrMarkup = computed(() => props.qr_code_svg ?? '');
 
 // The codes returned by enable/generate are shown once (modal) — watch the
@@ -200,8 +200,8 @@ async function copyCodes(): Promise<void> {
         :data-testid="`${props.test_id}-qr`"
       >
         <!-- Server-rendered inline SVG (endroid/qr-code) — trusted markup
-             produced by the backend (authentication.md:216-224); the
-             eslint vue/no-v-html warning is accepted by design. -->
+             produced by the backend; the eslint vue/no-v-html warning is
+             accepted by design. -->
         <!-- eslint-disable-next-line vue/no-v-html -->
         <div v-html="qrMarkup" />
       </div>

@@ -12,13 +12,6 @@ use DateTimeImmutable;
 use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 
 /**
- * The metric chart series (analytics.md:225, 11.3.4): the span points
- * (period_start labels, chronological) via `GET /admin/analytics/
- * series?metric=&span=`, the cumulative running total for `span=all`,
- * the per-target `cta_clicks` dimension filter, and the 90-point cap.
- */
-
-/**
  * @param list<AnalyticsReport> $rows
  */
 function seriesPoints(array $rows, MetricSpan $span, string $metric = 'page_views', ?string $dimension = null): array
@@ -93,10 +86,6 @@ it('caps the span points at 90', function (): void {
         ->and($points[89]['label'])->toBe('2026-06-30');
 });
 
-/**
- * Builds a series row of the given metric at the span — dimension
- * defaults to null (the global rows).
- */
 function seriesReportRow(
     MetricSpan $span,
     string $periodStart,

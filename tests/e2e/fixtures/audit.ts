@@ -3,11 +3,10 @@ import type { Result } from 'axe-core';
 import { getViolations, injectAxe } from 'axe-playwright';
 
 /**
- * Page-level axe-core audits (accessibility.md:249-267). Public pages:
- * critical/serious violations fail the test, moderate/minor are recorded
- * as warnings. Admin pages: every impact is a warning — the admin
- * surface serves a single authenticated user and never blocks the
- * pipeline on a11y findings.
+ * Page-level axe-core audits. Public pages: critical/serious violations
+ * fail the test, moderate/minor are recorded as warnings. Admin pages:
+ * every impact is a warning — the admin surface serves a single
+ * authenticated user and never blocks the pipeline on a11y findings.
  */
 
 const BLOCKING_IMPACTS = new Set(['critical', 'serious']);

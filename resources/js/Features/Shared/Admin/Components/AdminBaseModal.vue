@@ -1,4 +1,3 @@
-<!-- AdminBaseModal (admin-section-components.md:79-83) — same contract as PublicBaseModal, Tailwind-styled. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -34,8 +33,8 @@ const $slots = useSlots();
 
 // The default slot may EXIST yet render nothing (a consumer's
 // `v-if`-guarded body — the ConfirmationDialog's message block). The
-// body wrapper must not render for an empty slot (5.2 rework — the
-// title-only delete dialogs showed a stray empty box).
+// body wrapper must not render for an empty slot (a title-only delete
+// dialog must not show a stray empty box).
 function hasDefaultSlotContent(): boolean {
     return ($slots.default?.() ?? []).some((vnode) => vnode.type !== Comment);
 }
@@ -216,10 +215,10 @@ onBeforeUnmount(() => {
               </button>
             </div>
             <!-- The body block is omitted when the default slot is empty
-                 (5.2 rework — the title-only delete dialogs must not
-                 render an empty box). `hasDefaultSlotContent` inspects
-                 the rendered slot vnodes: a slot whose content is
-                 `v-if`-guarded away still exists, but renders nothing. -->
+                 (a title-only delete dialog must not render an empty
+                 box). `hasDefaultSlotContent` inspects the rendered slot
+                 vnodes: a slot whose content is `v-if`-guarded away still
+                 exists, but renders nothing. -->
             <div
               v-if="hasDefaultSlotContent()"
               class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400"

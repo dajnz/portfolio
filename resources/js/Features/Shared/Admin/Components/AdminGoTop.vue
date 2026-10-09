@@ -1,4 +1,3 @@
-<!-- AdminGoTop (admin-section-components.md:325-329) — same contract as PublicGoTop, Tailwind-styled. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';

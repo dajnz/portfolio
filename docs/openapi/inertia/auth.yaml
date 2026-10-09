@@ -58,7 +58,7 @@ components:
                       type: boolean
                     recovery_codes_remaining:
                       type: integer
-                      description: Count of unused recovery codes (0 when TOTP is disabled). Rendered by the TOTPSetup component (admin-section-components.md:1477-1489).
+                      description: Count of unused recovery codes (0 when TOTP is disabled). Rendered by the TOTPSetup component.
                     session_version:
                       type: integer
                 github_oauth_enabled:
@@ -194,8 +194,6 @@ paths:
           sets `totp_enabled = true`, increments `session_version`, and
           returns `{ data: { recovery_codes: [...] } }` (10 single-use
           codes displayed once).
-
-        See [authentication.md](authentication.md#totp-2fa) for the full flow.
       operationId: enableTotp
       security:
         - cookieAuth: []

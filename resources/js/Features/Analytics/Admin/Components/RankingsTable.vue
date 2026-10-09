@@ -1,4 +1,4 @@
-<!-- RankingsTable (admin-section-components.md:1330-1332, admin-section-ui.md:445-448) — wrapper over the shared DataTable for the top/bottom/liked/disliked 10 lists: a variant dropdown above the table, skeleton loading, an empty state and an error state with a Retry button (the error and empty states reuse DataTable's `empty_mode` machinery). The `row_key` prop is a DataTable detail the wrapper must surface — the page rankings rows carry `id` while the time-on-page rankings carry `page_url`. -->
+<!-- RankingsTable — wrapper over the shared DataTable for the top/bottom/liked/disliked 10 lists: a variant dropdown above the table, skeleton loading, an empty state and an error state with a Retry button (the error and empty states reuse DataTable's `empty_mode` machinery). The `row_key` prop is a DataTable detail the wrapper must surface — the page rankings rows carry `id` while the time-on-page rankings carry `page_url`. -->
 <script setup lang="ts">
 import AdminBaseDropdown from '@shared-admin/AdminBaseDropdown.vue';
 import DataTable from '@shared-admin/DataTable.vue';

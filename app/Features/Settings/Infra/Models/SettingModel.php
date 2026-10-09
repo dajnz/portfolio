@@ -7,10 +7,8 @@ namespace App\Features\Settings\Infra\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for the `settings` key-value table.
- *
- * `value` is stored as text; type-aware casting happens in
- * `SettingMapper`/`SettingsService` (the `type` column drives it).
+ * Eloquent model for the `settings` key-value table. `value` is stored as
+ * text; type-aware casting happens in `SettingMapper`.
  *
  * @property string $key
  * @property string|null $value

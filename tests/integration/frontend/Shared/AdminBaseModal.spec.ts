@@ -69,7 +69,6 @@ describe('AdminBaseModal', () => {
         const panel = wrapper.get('[data-testid="base-modal-panel"]');
         expect(panel.find('.px-6.py-4.text-sm').exists()).toBe(false);
 
-        // With the guard true, the body block renders.
         await wrapper.setProps({ modelValue: false });
         const withContent = mount(AdminBaseModal, {
             props: { modelValue: true, title: 'Confirm' },

@@ -21,13 +21,13 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
- * Analytics endpoints (routes.md:136-139,189): the public event
- * ingestion (`POST /api/analytics/track` — rate-limited, no
- * session/CSRF per routes.md:184, returns 204 No Content) and the
- * admin dashboard — the Inertia page (`GET /admin/analytics`), the
- * chart series + ranking JSON endpoints and the "Generate Now"
- * full-rebuild dispatch (`POST /admin/analytics/generate-reports`,
- * 202 — the dashboard reloads on completion, analytics.md:212).
+ * Analytics endpoints: the public event ingestion
+ * (`POST /api/analytics/track` — rate-limited, no session/CSRF,
+ * returns 204 No Content) and the admin dashboard — the Inertia page
+ * (`GET /admin/analytics`), the chart series + ranking JSON endpoints
+ * and the "Generate Now" full-rebuild dispatch
+ * (`POST /admin/analytics/generate-reports`, 202 — the dashboard
+ * reloads on completion).
  */
 final class AnalyticsController
 {
@@ -60,9 +60,9 @@ final class AnalyticsController
     }
 
     /**
-     * The Inertia props (analytics.md:223-227) — the dashboard DTO
-     * mapped onto the wire shape (the transport structure is the
-     * controller's concern, not the app layer's).
+     * The Inertia props — the dashboard DTO mapped onto the wire shape
+     * (the transport structure is the controller's concern, not the app
+     * layer's).
      *
      * @return array{
      *     overview_blocks: list<array{key: string, value: float, min?: float, max?: float}>,

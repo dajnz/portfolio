@@ -2,16 +2,15 @@
 // orchestrator): the "Create Backup Now" submit, the same-instance
 // restore submit (RestoreForm) and the disaster-recovery upload submit
 // (UploadRestoreForm), each feeding the ~2 s status-polling loop
-// (useBackupStatusPolling, ADR-0018). The page picks in-flight records up
-// from the list props; on submit the page falls back to polling the
-// record with a restore-mode transition requirement (worker-lag — a
-// slow worker leaves the row `completed`). Completion handlers show the
-// toasts and patch the re-completed row (no reload — a toast shown
-// right before a reload is cleared by the visit start, app.vue). The
-// disaster-recovery restore additionally owns the stored-key-count
-// baseline (an import adds exactly one key row — the finish toast
-// differentiates import from reuse, ADR-0019) and the success tick the
-// UploadRestoreForm clears its inputs on.
+// (useBackupStatusPolling). The page picks in-flight records up from the
+// list props; on submit the page falls back to polling the record with a
+// restore-mode transition requirement (worker-lag — a slow worker leaves
+// the row `completed`). Completion handlers show the toasts and patch
+// the re-completed row (no reload — a toast shown right before a reload
+// is cleared by the visit start, app.vue). The disaster-recovery restore
+// additionally owns the stored-key-count baseline (an import adds exactly
+// one key row — the finish toast differentiates import from reuse) and
+// the success tick the UploadRestoreForm clears its inputs on.
 
 import { useBackupStatusPolling } from '@backup/Admin/Composables/useBackupStatusPolling';
 import type { BackupEntry, BackupStatusPayload } from '@backup/Admin/Types/backup';
@@ -68,16 +67,16 @@ export function useBackupOperations(
     const restoreErrorKind = ref<PollMode | null>(null);
     const serverErrors = ref<Record<string, string>>({});
 
-    /** The stored-key count snapshot BEFORE a disaster-recovery upload
-     *  (ADR-0019): an import adds exactly one `disaster-key-*` row, a reuse
-     *  adds none — the finish toast differentiates the two cases via
-     *  the diff. Null when no disaster-recovery upload was submitted in
-     *  this page lifetime. */
+    /** The stored-key count snapshot BEFORE a disaster-recovery upload:
+     *  an import adds exactly one `disaster-key-*` row, a reuse adds none
+     *  — the finish toast differentiates the two cases via the diff.
+     *  Null when no disaster-recovery upload was submitted in this page
+     *  lifetime. */
     const disasterKeyBaseline = ref<number | null>(null);
 
     /** Incremented on every successful disaster-recovery restore — the
-     *  UploadRestoreForm clears its inputs when the tick changes
-     *  (success only, ADR-0019). */
+     *  UploadRestoreForm clears its inputs when the tick changes (success
+     *  only). */
     const disasterRestoreSuccessTick = ref(0);
 
     const isCreating = computed(() => pollMode.value === 'create');
@@ -142,16 +141,16 @@ export function useBackupOperations(
             onCompleted: () => {
                 pollMode.value = null;
 
-                // ADR-0018 — the success toast fires only after the async
-                // restore completes, not at submit time. No reload here:
-                // the restored row re-completed with the archive stamp,
-                // so the local copy is patched in place (a toast shown
-                // right before a reload would be cleared by the visit
-                // start, app.vue).
+                // The success toast fires only after the async restore
+                // completes, not at submit time. No reload here: the
+                // restored row re-completed with the archive stamp, so
+                // the local copy is patched in place (a toast shown right
+                // before a reload would be cleared by the visit start,
+                // app.vue).
                 dependencies.markRowCompleted(id);
 
                 if (kind === DISASTER_RECOVERY_RESTORE) {
-                    // ADR-0019 — the uploaded key either matched a stored key
+                    // The uploaded key either matched a stored key
                     // (reuse: no new row) or was imported (the count grew
                     // by one). Without a submit snapshot (a restore
                     // started elsewhere, e.g. the CLI) the import message
@@ -282,9 +281,9 @@ export function useBackupOperations(
     }): void {
         serverErrors.value = {};
 
-        // Snapshot the stored-key count BEFORE the upload (ADR-0019): the
-        // finish toast compares it against the list after the restore —
-        // an import added one key row, a reuse added none.
+        // Snapshot the stored-key count BEFORE the upload: the finish
+        // toast compares it against the list after the restore — an
+        // import added one key row, a reuse added none.
         disasterKeyBaseline.value = dependencies.getStoredKeyCount();
 
         const body = new FormData();

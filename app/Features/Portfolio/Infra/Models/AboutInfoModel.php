@@ -11,7 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent model for the single-row `about_info` table (database.md:71-88).
+ * Eloquent model for the single-row `about_info` table.
+ *
  * `resume_file` is the legacy column owned by the Resume feature and is
  * deliberately absent from the fillable set.
  *

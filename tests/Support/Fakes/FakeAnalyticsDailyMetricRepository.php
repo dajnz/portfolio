@@ -14,7 +14,7 @@ use DateTimeImmutable;
  * In-memory `AnalyticsDailyMetricRepositoryInterface` double for the
  * aggregation + report-rebuild unit suites: records the upserted rows
  * and the deleted date ranges, returns the canned per-span group rows
- * and the canned `rowsBetween` result (the email-digest reads, 11.3.5).
+ * and the canned `rowsBetween` result (the email-digest reads).
  */
 final class FakeAnalyticsDailyMetricRepository implements AnalyticsDailyMetricRepositoryInterface
 {

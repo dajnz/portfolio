@@ -40,7 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         // Health endpoints — registered outside every middleware group:
-        // no auth, no session, no locale, no CSP (devops.md:815-824).
+        // no auth, no session, no locale, no CSP.
         // `routes/web.php` cannot host them (the `web` group would apply).
         then: function (): void {
             Route::get('/up', [HealthController::class, 'up']);
@@ -48,7 +48,7 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // routes.md:258-291 — middleware group composition. `log_context`
+        // Middleware group composition. `log_context`
         // and `trailing_slash` are prepended so the request is captured
         // (and the 301 emitted) before any state-setting middleware runs;
         // the remaining web-group middleware is appended after the
@@ -70,13 +70,13 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         // The `theme` and `locale` cookies are set client-side by the
-        // frontend (`document.cookie`, i18n-and-theming.md:177,184-190) and
-        // read back by `ThemeMiddleware`/`SetLocaleMiddleware` — Laravel's
-        // cookie encryption would make them unreadable (ADR-0026).
+        // frontend (`document.cookie`) and read back by
+        // `ThemeMiddleware`/`SetLocaleMiddleware` — Laravel's cookie
+        // encryption would make them unreadable.
         $middleware->encryptCookies(except: ['theme', 'locale']);
 
         // The `api` group already contains `throttle:api` and
-        // `SubstituteBindings` (framework defaults); spec order:
+        // `SubstituteBindings` (framework defaults); the resulting order:
         // log_context → throttle:api → validate_api_spec.
         $middleware->api(
             prepend: [
@@ -102,9 +102,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'maintenance' => CheckMaintenanceModeMiddleware::class,
             'rate_limit.fingerprint' => RateLimitWithFingerprintMiddleware::class,
             'validate_api_spec' => ValidateApiAgainstSpec::class,
-            // openapi.md:273-275 — the Swagger UI routes are local-only.
+            // The Swagger UI routes are local-only.
             'swagger.local' => SwaggerLocalOnlyMiddleware::class,
-            // routes.md:288 — the session stack for the auth-required API
+            // The session stack for the auth-required API
             // endpoints (`POST /api/upload` etc.); not in the framework's
             // default alias set.
             'encrypt_cookies' => EncryptCookies::class,
@@ -119,10 +119,9 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
 
-        // Step 2.5 — the full error mapping (error-handling.md:53-68,
-        // 175-179): JSON envelope for API/JSON requests, `ErrorPage`
-        // Inertia response for `X-Inertia` requests, and `null` (fall
-        // through) for Blade — the framework then renders the
+        // The full error mapping: JSON envelope for API/JSON requests,
+        // `ErrorPage` Inertia response for `X-Inertia` requests, and
+        // `null` (fall through) for Blade — the framework then renders the
         // `resources/views/errors/{status}` views. Returning `null`
         // from a render callback defers to the default handling.
         $exceptions->render(fn (Throwable $exception, Request $request): ?Response => app(

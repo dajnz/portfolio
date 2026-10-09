@@ -36,20 +36,19 @@ use Illuminate\Support\Facades\DB;
  * the translation sync (batched delete + insert with the locale
  * `search_vector`s rebuilt in one statement — the per-row `saved`
  * events are replaced by the equivalent batch), the screenshot
- * reconcile (ADR-0005 — upsert by id, batch insert, deleted absent rows),
- * the detail-item reconcile (ADR-0005, translations batched) and the
- * tech-tag pivot sync (batch insert + the persisted `tech_tags_count`
- * adjusted explicitly — the same explicit-decrement pattern as
- * `detachTag()`). No query runs in a loop.
+ * reconcile (upsert by id, batch insert, deleted absent rows), the
+ * detail-item reconcile (translations batched) and the tech-tag pivot
+ * sync (batch insert + the persisted `tech_tags_count` adjusted
+ * explicitly — the same explicit-decrement pattern as `detachTag()`).
+ * No query runs in a loop.
  *
  * The translation sync preserves rows of locales disabled in the
- * settings (content-management.md:419); every ACTIVE-locale row absent
- * from the entity is deleted.
+ * settings; every ACTIVE-locale row absent from the entity is deleted.
  *
  * The bulk lifecycle ops (delete/restore/force-delete/publication)
  * run as batched queries with a single sitemap invalidation — the
  * per-instance `saved`/`deleted` events fire on the single-item paths
- * only (ADR-0022).
+ * only.
  */
 final class EloquentProjectRepository implements ProjectRepositoryInterface
 {
@@ -194,11 +193,9 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
             $this->syncDetailItems($projectId, $project);
             $this->syncTechTags($projectId, $project);
 
-            // The batched translation sync replaces the per-row `saved`
-            // events, which used to invalidate the sitemap on EVERY
-            // save (seo.md:219 — translation changes are reflected in
-            // lastmod); the batch keeps that unconditional
-            // invalidation once (ADR-0022).
+            // The batched translation sync bypasses the per-row `saved`
+            // events, so the sitemap invalidation is applied once here:
+            // translation changes are reflected in lastmod.
             app(SitemapService::class)->invalidate();
         });
     }
@@ -206,7 +203,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     public function delete(int $id): void
     {
         // Instance delete — the model's `deleted` event (sitemap
-        // invalidation, ADR-0022) fires only for instance-based deletes.
+        // invalidation) fires only for instance-based deletes.
         ProjectModel::query()->find($id)?->delete();
     }
 
@@ -223,7 +220,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
 
         if ($model !== null) {
             // Instance restore — `restore()` saves the model, firing
-            // the `saved` event (sitemap invalidation, ADR-0022).
+            // the `saved` event (sitemap invalidation).
             $model->restore();
         }
     }
@@ -240,9 +237,9 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
         $model = ProjectModel::withTrashed()->find($id);
 
         if ($model !== null) {
-            // An `old_slugs` record preserves the slug history
-            // (content-management.md:905); the RustFS file deletion is
-            // orchestrated by the use case via the asset cleaner.
+            // An `old_slugs` record preserves the slug history; the
+            // RustFS file deletion is orchestrated by the use case via
+            // the asset cleaner.
             $this->recordOldSlug($model->slug, (int) $model->id);
             $model->forceDelete();
         }
@@ -275,8 +272,8 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
 
         if ($published) {
             // `published_at` is auto-set on the FIRST publish only and
-            // immutable thereafter (database.md:210) — the coalesce
-            // keeps an already-set value untouched.
+            // immutable thereafter — the coalesce keeps an already-set
+            // value untouched.
             $query->update([
                 'is_published' => true,
                 'published_at' => DB::raw('coalesce(published_at, now())'),
@@ -300,8 +297,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
             $model->update([
                 'is_featured' => $featured,
                 // The max+1 default applies only when featuring and no
-                // order is set yet; unfeaturing preserves the value
-                // (content-management.md:157).
+                // order is set yet; unfeaturing preserves the value.
                 'featured_sort_order' => $featured && $model->featured_sort_order === null
                     ? (int) ProjectModel::query()
                         ->where('is_featured', true)
@@ -383,7 +379,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
 
     /**
      * The row being replaced on update — needed for the old-slug
-     * record (ADR-0006).
+     * record.
      */
     private function existingRow(Project $project): ?ProjectModel
     {
@@ -396,9 +392,8 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
 
     /**
      * The base-row data; `published_at` is auto-set on the FIRST
-     * publish only and immutable thereafter (database.md:210) — the
-     * form-save path applies the same rule as the publish quick
-     * action.
+     * publish only and immutable thereafter — the form-save path
+     * applies the same rule as the publish quick action.
      *
      * @return array<string, mixed>
      */
@@ -417,10 +412,10 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
      * Reconciles the project's translation rows from the entity's
      * locale projections: the rows of the entity's locales are replaced
      * wholesale and ACTIVE-locale rows absent from the set are deleted
-     * (rows of locales disabled in the settings are preserved untouched
-     * — content-management.md:419) in ONE delete; the insert is ONE
-     * batch; the `search_vector`s are rebuilt in ONE statement (the
-     * equivalent of the per-row `saved` event of the model).
+     * (rows of locales disabled in the settings are preserved
+     * untouched) in ONE delete; the insert is ONE batch; the
+     * `search_vector`s are rebuilt in ONE statement (the equivalent of
+     * the per-row `saved` event of the model).
      */
     private function syncTranslations(int $projectId, Project $project): void
     {
@@ -448,8 +443,8 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
 
     /**
      * Rebuilds the `search_vector` of the project's translation rows
-     * per the locale dictionary (database.md:629-647) — the batch
-     * equivalent of the `ProjectTranslationModel` `saved` event.
+     * per the locale dictionary — the batch equivalent of the
+     * `ProjectTranslationModel` `saved` event.
      */
     private function rebuildSearchVectors(int $projectId): void
     {
@@ -471,18 +466,18 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     }
 
     /**
-     * The screenshot reconcile (ADR-0005): rows with an existing id are
-     * upserted, new entries are inserted in one batch, and DB rows
-     * absent from the submitted set are deleted — all in batched
-     * queries. The obsolete RustFS files are NOT this repository's
-     * concern (the use case computes and deletes them).
+     * The screenshot reconcile: rows with an existing id are upserted,
+     * new entries are inserted in one batch, and DB rows absent from
+     * the submitted set are deleted — all in batched queries. The
+     * obsolete RustFS files are NOT this repository's concern (the use
+     * case computes and deletes them).
      */
     private function syncScreenshots(int $projectId, Project $project): void
     {
         // The pre-existing id set, captured BEFORE the upserts — the
-        // ADR-0005 cleanup must only touch rows that existed before this
-        // sync (new rows carry id 0 and receive fresh ids; comparing
-        // the submitted ids against the DB would delete them).
+        // cleanup must only touch rows that existed before this sync
+        // (new rows carry id 0 and receive fresh ids; comparing the
+        // submitted ids against the DB would delete them).
         $preExistingIds = $this->screenshotIdsOf($projectId);
         $submitted = $project->toScreenshots();
 
@@ -556,11 +551,11 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     }
 
     /**
-     * The detail-item reconcile (ADR-0005): rows with an existing id are
-     * upserted, new entries are inserted (their fresh ids drive the
-     * translation rows), the per-locale translation rows are replaced
-     * in two batched queries, and DB rows absent from the submitted
-     * set are deleted (translations cascade via the FK).
+     * The detail-item reconcile: rows with an existing id are upserted,
+     * new entries are inserted (their fresh ids drive the translation
+     * rows), the per-locale translation rows are replaced in two
+     * batched queries, and DB rows absent from the submitted set are
+     * deleted (translations cascade via the FK).
      */
     private function syncDetailItems(int $projectId, Project $project): void
     {
@@ -747,8 +742,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
 
     /**
      * The `old_slugs` rows of the given projects — the slug history
-     * preservation of the bulk force-delete (content-management.md:
-     * 905).
+     * preservation of the bulk force-delete.
      *
      * @param  int[]  $ids
      * @return array<int, array{old_slug: string, entity_type: string, entity_id: int}>
@@ -768,8 +762,8 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     }
 
     /**
-     * The single-statement `featured_sort_order` reorder (ADR-0005): each id
-     * is written as its zero-indexed position in the submitted array.
+     * The single-statement `featured_sort_order` reorder: each id is
+     * written as its zero-indexed position in the submitted array.
      *
      * @param  int[]  $ids
      */
@@ -785,10 +779,10 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     }
 
     /**
-     * Records a slug change in `old_slugs` (ADR-0006) — the upsert
-     * semantics of database.md:451: a slug reverting to a previously
-     * recorded value re-points the existing row instead of violating
-     * the `(old_slug, entity_type)` unique constraint.
+     * Records a slug change in `old_slugs` — the upsert semantics: a
+     * slug reverting to a previously recorded value re-points the
+     * existing row instead of violating the `(old_slug, entity_type)`
+     * unique constraint.
      */
     private function recordOldSlug(string $oldSlug, int $projectId): void
     {
@@ -805,8 +799,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
 
     /**
      * Tech tags of the given projects via the pivot ↔ `skills` join,
-     * ordered for display (`skills.sort_order`, then id —
-     * content-management.md:79).
+     * ordered for display (`skills.sort_order`, then id).
      *
      * @param  int[]  $projectIds
      * @return array<int, TechSkillTag[]>  Keyed by project ID.

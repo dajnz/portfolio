@@ -9,12 +9,10 @@ use App\Features\Shared\Infra\OpenApi\OpenApiSpecDocument;
 /**
  * Keeps the l5-swagger docs file (`storage/api-docs/api-docs.json`, per
  * `config/l5-swagger.php` `paths.docs`/`paths.docs_json`) in sync with the
- * authoritative `docs/openapi/openapi.yaml` contract. l5-swagger's own
- * generator scans PHP annotations — it cannot consume a YAML spec — so the
- * UI serves the dereferenced OpenAPI document instead (openapi.md:269-275:
- * "Points `docs.openapi.paths.definitions` to `docs/openapi/openapi.yaml`").
- * `generate_always` stays `false`; the file is rewritten only when it is
- * missing or the spec is newer.
+ * authoritative `docs/openapi/openapi.yaml` contract. l5-swagger's own generator
+ * scans PHP annotations — it cannot consume a YAML spec — so the UI serves the
+ * dereferenced OpenAPI document instead. `generate_always` stays `false`; the
+ * file is rewritten only when it is missing or the spec is newer.
  */
 final class SwaggerUiService
 {

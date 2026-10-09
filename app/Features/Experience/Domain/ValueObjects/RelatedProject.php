@@ -7,14 +7,13 @@ namespace App\Features\Experience\Domain\ValueObjects;
 use InvalidArgumentException;
 
 /**
- * Value object: the project reference of a timeline item
- * (database.md:296,298,305) — either a portfolio project
- * (`experience_timeline_items.project_id`) or an external, non-portfolio
- * project name (`external_project_name`). Exactly ONE of the two is set;
- * an item without a project reference is represented by a null
- * `RelatedProject` on the {@see \App\Features\Experience\Domain\Entities\TimelineItem}
- * entity. Immutable; the exclusivity invariant lives here, not in the
- * entity.
+ * Value object: the project reference of a timeline item — either a
+ * portfolio project (`experience_timeline_items.project_id`) or an
+ * external, non-portfolio project name (`external_project_name`). Exactly
+ * ONE of the two is set; an item without a project reference is represented
+ * by a null `RelatedProject` on the
+ * {@see \App\Features\Experience\Domain\Entities\TimelineItem} entity.
+ * Immutable; the exclusivity invariant lives here, not in the entity.
  */
 final readonly class RelatedProject
 {

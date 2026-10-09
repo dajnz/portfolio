@@ -1,11 +1,10 @@
 /**
- * Backup formatting helpers (mockup `backups.html` — the visual
- * reference): byte sizes ("45 MB", "1.2 GB") and UTC date stamps
- * ("2026-07-09", "2026-07-09 02:00 UTC"). The mockup's admin dates are
- * plain ISO stamps, so no locale-aware Intl formatting is applied.
- * Shared by the page and the components (the key list's created column
- * renders the same UTC date format) — pure functions behind a
- * composable, so the components never re-implement their own `pad()`.
+ * Backup formatting helpers: byte sizes ("45 MB", "1.2 GB") and UTC date
+ * stamps ("2026-07-09", "2026-07-09 02:00 UTC"). Admin dates are plain
+ * ISO stamps, so no locale-aware Intl formatting is applied. Shared by
+ * the page and the components (the key list's created column renders the
+ * same UTC date format) — pure functions behind a composable, so the
+ * components never re-implement their own `pad()`.
  */
 
 function pad(value: number): string {

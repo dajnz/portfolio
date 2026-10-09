@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('skills', function (Blueprint $table) {
@@ -30,9 +27,6 @@ return new class () extends Migration {
         DB::statement('alter table skills add constraint skills_proficiency_check check (proficiency between 1 and 5)');
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('skills');

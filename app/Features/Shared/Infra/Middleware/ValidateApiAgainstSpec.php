@@ -15,17 +15,17 @@ use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 /**
- * `validate_api_spec` middleware alias (openapi.md:279-299) — dev-time
- * OpenAPI contract drift detection. Active only when APP_DEBUG=true;
- * validates the JSON response of `/api/*` requests (and the dual-response
- * `GET /blog` / `GET /projects` web routes) against `docs/openapi/openapi.yaml`.
- * Violations are logged at `warning` — non-blocking, so it never halts dev
- * iteration. The parsed spec is cached in memory for the request lifecycle.
- * Paths without a matching operation in the spec are skipped.
+ * `validate_api_spec` middleware alias — dev-time OpenAPI contract drift
+ * detection. Active only when APP_DEBUG=true; validates the JSON response of
+ * `/api/*` requests (and the dual-response `GET /blog` / `GET /projects` web
+ * routes) against `docs/openapi/openapi.yaml`. Violations are logged at
+ * `warning` — non-blocking, so it never halts dev iteration. The parsed spec
+ * is cached in memory for the request lifecycle. Paths without a matching
+ * operation in the spec are skipped.
  *
- * The root `openapi.yaml` is a $ref-stitched document (README.md); the
- * external references are dereferenced once per process by
- * `OpenApiSpecDocument` (the OpenAPI validator cannot resolve them).
+ * The root `openapi.yaml` is a $ref-stitched document; the external references
+ * are dereferenced once per process by `OpenApiSpecDocument` (the OpenAPI
+ * validator cannot resolve them).
  */
 final class ValidateApiAgainstSpec
 {

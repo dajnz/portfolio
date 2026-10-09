@@ -10,31 +10,28 @@ use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 
 /**
- * The public experience timeline (public-section-ui.md:103-141,
- * experience.yaml#ExperienceTimelinePageProps): published, non-trashed
- * items ordered `started_at DESC, id DESC`, infinite-scrolled via the
- * opaque composite cursor (`{id, v: started_at}` — the controller
- * encodes/decodes the base64url form via the shared
+ * The public experience timeline: published, non-trashed items ordered
+ * `started_at DESC, id DESC`, infinite-scrolled via the opaque composite
+ * cursor (`{id, v: started_at}` — the controller encodes/decodes the
+ * base64url form via the shared
  * {@see \App\Features\Shared\Infra\Persistence\PublicCursorCodec}).
  *
- * Every request returns a superset of earlier positions (seo.md:305):
- * the initial batch unconditionally, then all batches up to and
- * including the one containing the cursor item, then one batch beyond
- * it (public-section-ui.md:338-340). The extra batch is what lets a
- * "Load More" request advance — a response ending at the sent cursor
- * would pin the client forever — and `next_cursor` (the last item of
- * the final batch) doubles as the exhaustion signal: `null` whenever
- * that batch is incomplete (fewer than `perPage` rows — no `COUNT(*)`
- * pre-query, public-section-ui.md:314).
+ * Every request returns a superset of earlier positions: the initial
+ * batch unconditionally, then all batches up to and including the one
+ * containing the cursor item, then one batch beyond it. The extra batch
+ * is what lets a "Load More" request advance — a response ending at the
+ * sent cursor would pin the client forever — and `next_cursor` (the last
+ * item of the final batch) doubles as the exhaustion signal: `null`
+ * whenever that batch is incomplete (fewer than `perPage` rows — no
+ * `COUNT(*)` pre-query).
  *
  * Project references (locale-resolved titles/slugs + the project's
- * tech tags) come from query-builder reads inside the Experience Infra
- * (ADR-0003); the per-card tag union is assembled by the controller from the
- * item's own {@see TimelineItem::toTechTags()} and the project's tags.
- * The page-level flags ride along: `has_projects` (the ADR-0025 nav
- * condition) and the about-info name for the SEO title (seo.md:43) —
- * both query-builder reads inside the same Infra repository, so the
- * controller stays query-free.
+ * tech tags) come from query-builder reads inside the Experience Infra;
+ * the per-card tag union is assembled by the controller from the item's
+ * own {@see TimelineItem::toTechTags()} and the project's tags. The
+ * page-level flags ride along: `has_projects` (the header nav condition)
+ * and the about-info name for the SEO title — both query-builder reads
+ * inside the same Infra repository, so the controller stays query-free.
  *
  * @return array{
  *     items: TimelineItem[],

@@ -9,11 +9,10 @@ use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface
 use App\Features\Shared\App\Contracts\MaintenanceModeInterface;
 
 /**
- * The setting-based maintenance toggle (backup.md:397,407): writes the
- * `site_maintenance_mode` setting through the Settings feature's
- * repository (cache-invalidating). Used by the restore workflow; the
- * ops-level `admin:reset-maintenance` command and the Settings page
- * toggle the same setting directly.
+ * The setting-based maintenance toggle: writes the `site_maintenance_mode`
+ * setting through the Settings feature's repository (cache-invalidating). Used
+ * by the restore workflow; the ops-level `admin:reset-maintenance` command and
+ * the Settings page toggle the same setting directly.
  */
 final class LaravelMaintenanceMode implements MaintenanceModeInterface
 {

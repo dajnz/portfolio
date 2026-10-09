@@ -1,4 +1,3 @@
-<!-- DashboardPage (admin-section-components.md:672-705, admin-section-ui.md:220-228, dashboard.html) — the admin dashboard: four stat cards (ADR-0017) + quick links to content surfaces. Replaces the step-4.1 placeholder (ADR-0029). -->
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
 import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';

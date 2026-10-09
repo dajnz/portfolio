@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Feature flags are cached separately from settings with the same 1-minute
- * TTL (architecture.md). Reads through `isEnabled()` hit the cache; any
- * write invalidates the affected flag.
+ * TTL. Reads through `isEnabled()` hit the cache; any write invalidates
+ * the affected flag.
  */
 final class EloquentFeatureFlagRepository implements FeatureFlagRepositoryInterface
 {

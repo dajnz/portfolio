@@ -10,10 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * `swagger.local` middleware alias — the Swagger UI routes are only served
- * in the `local` environment (openapi.md:273-275: "Only registered in
- * `local` (`APP_ENV=local`), behind `auth` middleware"). The routes are
- * registered unconditionally by l5-swagger; this gate makes them behave as
- * if they did not exist outside local.
+ * in the `local` environment. The routes are registered unconditionally by
+ * l5-swagger; this gate makes them behave as if they did not exist outside
+ * local.
  */
 final class SwaggerLocalOnlyMiddleware
 {

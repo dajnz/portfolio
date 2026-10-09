@@ -8,8 +8,7 @@ use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepository
 
 /**
  * Deletes a skill. The skill stays referenced by project/experience/blog
- * pivot rows only as long as those pivots exist — the FKs cascade
- * (database.md:282-283,327-328,403-404).
+ * pivot rows only as long as those pivots exist — the FKs cascade.
  */
 final class DestroySkillUseCase
 {

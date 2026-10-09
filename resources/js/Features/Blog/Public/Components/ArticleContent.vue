@@ -1,8 +1,8 @@
-<!-- ArticleContent (public-section-components.md:1268-1290, mockup blog-article.html) — the article's reading column: title, "Published: {date} · {n} min read" meta, the article-tag badges + linked skill chips, the pipeline-rendered body (v-html) and the stats row (views + the feature-flagged ArticleReactions — rendered only when `article.reactions` is non-null, ADR-0004).
+<!-- ArticleContent — the article's reading column: title, "Published: {date} · {n} min read" meta, the article-tag badges + linked skill chips, the pipeline-rendered body (v-html) and the stats row (views + the feature-flagged ArticleReactions — rendered only when `article.reactions` is non-null).
 
-The body is the server-rendered safe-mode Markdown HTML (ADR-0008): code blocks arrive as `<pre data-code-block data-language data-raw>` (highlight.php tokens — no-JS functional, ADR-0008) and callouts as `<aside data-callout-type>`. After mounting, the progressive-enhancement pass mounts real CodeBlock/CalloutBlock components in place of those markers (ADR-0025) — the copy buttons and the per-type callout icons; the pass re-runs whenever `content_html` changes (article navigation) after removing the previous mounts.
+The body is the server-rendered safe-mode Markdown HTML: code blocks arrive as `<pre data-code-block data-language data-raw>` (highlight.php tokens — no-JS functional) and callouts as `<aside data-callout-type>`. After mounting, the progressive-enhancement pass mounts real CodeBlock/CalloutBlock components in place of those markers — the copy buttons and the per-type callout icons; the pass re-runs whenever `content_html` changes (article navigation) after removing the previous mounts.
 
-The scroll tracker fires the `article_read` analytics event once at 75%+ scroll depth (useReadingProgress, analytics.md:40). -->
+The scroll tracker fires the `article_read` analytics event once at 75%+ scroll depth. -->
 <script setup lang="ts">
 import { formatArticleDate } from '@blog-shared/Composables/useArticleCards';
 import { Icon } from '@iconify/vue';
@@ -71,14 +71,13 @@ function cleanupMounts(): void {
 }
 
 /**
- * The progressive-enhancement pass (public-section-components.md:
- * 1281-1289): mounts CodeBlock over each `pre[data-code-block]` (the
- * language + raw-code attributes become the component props; the
- * inner `<code>` HTML becomes `code_html`) and CalloutBlock over each
- * `aside[data-callout-type]` (title text + content HTML extracted
- * from the static markup). The static no-JS output is fully styled —
- * the mounts only add the interactivity (copy buttons, callout
- * icons).
+ * The progressive-enhancement pass: mounts CodeBlock over each
+ * `pre[data-code-block]` (the language + raw-code attributes become the
+ * component props; the inner `<code>` HTML becomes `code_html`) and
+ * CalloutBlock over each `aside[data-callout-type]` (title text +
+ * content HTML extracted from the static markup). The static no-JS
+ * output is fully styled — the mounts only add the interactivity (copy
+ * buttons, callout icons).
  */
 function enhance(): void {
     const body = bodyEl.value;
@@ -228,10 +227,10 @@ onBeforeUnmount(cleanupMounts);
         />
       </div>
 
-      <!-- The pipeline-rendered body (ADR-0008): safe-mode CommonMark +
-           callouts + server-highlighted code; the enhancer mounts the
+      <!-- The pipeline-rendered body: safe-mode CommonMark + callouts +
+           server-highlighted code; the enhancer mounts the
            CodeBlock/CalloutBlock components over the markers after
-           mount (public-section-components.md:1281-1289). -->
+           mount. -->
       <!-- eslint-disable vue/no-v-html -->
       <div
         :id="props.body_id || undefined"
@@ -267,9 +266,8 @@ onBeforeUnmount(cleanupMounts);
 </template>
 
 <style scoped>
-/* The reading column per the mockup (blog-article.html): a card-like
-   panel on the page background. The layout (two-column grid with the
-   TOC) is the page's. */
+/* The reading column: a card-like panel on the page background. The
+   layout (two-column grid with the TOC) is the page's. */
 .article-content {
     max-width: calc(var(--wide-max-width) - var(--sidebar-width) - var(--space-xl));
     min-width: 0;
@@ -308,11 +306,10 @@ onBeforeUnmount(cleanupMounts);
     margin-bottom: var(--space-xl);
 }
 
-/* The rendered body — the mockup's typography base
-   (blog-article.html): the root box is scoped (the root element
-   carries the scope attribute); the INNER element styles live in the
-   plain block below (v-html content never receives the scope
-   attribute). */
+/* The rendered body — the typography base: the root box is scoped (the
+   root element carries the scope attribute); the INNER element styles
+   live in the plain block below (v-html content never receives the
+   scope attribute). */
 .article-content__body {
     font-size: var(--font-size-base);
     line-height: var(--line-height-relaxed);
@@ -359,8 +356,7 @@ onBeforeUnmount(cleanupMounts);
     color: var(--color-text-primary);
 
     /* The heading anchor offset — the TOC/scrollIntoView target lands
-       below the sticky header (user rework 2026-08-16: the smooth
-       scroll used to hide the heading behind the header). */
+       below the sticky header. */
     scroll-margin-top: calc(var(--header-height) + var(--space-md));
 }
 
@@ -465,8 +461,7 @@ onBeforeUnmount(cleanupMounts);
     /* The block's code must not carry the INLINE code treatment
        (background/padding/radius from the rule above — its class
        specificity beats the tokens' `pre code` reset): the highlighted
-       tokens sit directly on the block's surface (user rework
-       2026-08-16). */
+       tokens sit directly on the block's surface. */
     background: none;
     padding: 0;
     border-radius: 0;

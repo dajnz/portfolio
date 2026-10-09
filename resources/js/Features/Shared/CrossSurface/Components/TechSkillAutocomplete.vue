@@ -1,4 +1,3 @@
-<!-- TechSkillAutocomplete (public-section-components.md:529-556) — styling-agnostic base autocomplete for tech-skill picking, used by the admin picker and public tag filters. Fetches `GET /api/skills/search?q=...`; BEM by default, Tailwind via the `classes` prop. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';

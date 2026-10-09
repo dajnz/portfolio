@@ -26,13 +26,12 @@ use TypeError;
  * identifiers and the page context arrive pre-built as their VOs.
  * Returns null for rows that cannot be materialized: unknown event
  * types (forward compatibility — ingestion rejects them, but legacy or
- * hand-seeded rows may exist) and malformed payload metadata (the old
- * SQL aggregation effectively skipped those too). An unknown page type
- * is tolerated (null) — the page context is informational for the
- * reports, the event itself is still valid.
+ * hand-seeded rows may exist) and malformed payload metadata. An
+ * unknown page type is tolerated (null) — the page context is
+ * informational for the reports, the event itself is still valid.
  *
  * The plain CTA clicks are identified by their `cta_click_{target}`
- * type suffix (ADR-0017 — the frontend sends no payload for them); the
+ * type suffix (the frontend sends no payload for them); the
  * language/theme switches (also `cta_click_*` types) resolve first
  * through the match below.
  */

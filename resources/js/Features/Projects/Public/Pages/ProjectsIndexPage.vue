@@ -1,4 +1,3 @@
-<!-- ProjectsIndexPage (public-section-ui.md:142-175, public-section-components.md:1094-1132, mockup projects.html) — the public projects list: the ProjectsHeader toolbar (dual-response search autocomplete, skill tag filter with AND/intersect, the date/complexity sort dropdown, the grid/list toggle persisted in the `projects_view_mode` cookie), the ProjectCard grid/list, the infinite-scroll Load More (cursor reload per ADR-0010 replace semantics) and the three empty/error states via PublicEmptyState. The nav follows ADR-0025 — the Projects link is conditional on any published project existing (the same signal the landing uses). -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
@@ -16,7 +15,7 @@ type ProjectsProps = NonNullable<components['schemas']['ProjectsIndexPageProps']
 
 // Per-property types (not the whole `ProjectsProps` alias): the SFC
 // compiler's runtime prop resolution cannot expand the indexed-access
-// `NonNullable<...['props']>` type (the 9.2 page used the same form).
+// `NonNullable<...['props']>` type.
 const props = withDefaults(
     defineProps<{
         projects?: ProjectsProps['projects'];
@@ -153,7 +152,7 @@ function onViewModeChange(mode: 'grid' | 'list'): void {
 <style scoped>
 /* The title spans the same content width as the list below it
    (`--layout-content`, the header/footer width), centered inside the
-   layout's xl main container (the 9.2 convention). */
+   layout's xl main container. */
 .page-title {
     font-family: var(--font-display);
     font-size: var(--font-size-4xl);
@@ -165,13 +164,11 @@ function onViewModeChange(mode: 'grid' | 'list'): void {
 }
 
 /* The whole page content spans `--layout-content` (1000px — the
-   header/footer width; user decision 2026-08-15), centered inside the
-   layout's xl main container; the bottom margin clears the footer
-   (the 9.2 Timeline shell convention). The shell also hosts the grid's
+   header/footer width), centered inside the layout's xl main container;
+   the bottom margin clears the footer. The shell also hosts the grid's
    container query (its inline size = `--layout-content`), so the
    3/2/1-cards-per-row behavior follows the token — changing
-   `--layout-content` later keeps the breakpoints (the 9.1 featured
-   grid pattern, user rework 2026-08-16). */
+   `--layout-content` later keeps the breakpoints. */
 .projects-shell {
     max-width: var(--layout-content);
     margin: 0 auto var(--space-2xl);
@@ -205,9 +202,8 @@ function onViewModeChange(mode: 'grid' | 'list'): void {
 </style>
 
 <!-- The list-mode card layout crosses the component boundary (the
-     card internals belong to ProjectCard) — the BEM classes are public
-     and the selectors mirror the mockup's `.projects-grid--list`
-     rules, so a plain (non-scoped) block is used instead of `:deep()`
+     card internals belong to ProjectCard) — the BEM classes are public,
+     so a plain (non-scoped) block is used instead of `:deep()`
      (the TextEditor precedent — stylelint rejects `:deep`). -->
 <style>
 .projects-grid--list .project-card {
@@ -226,7 +222,7 @@ function onViewModeChange(mode: 'grid' | 'list'): void {
     grid-column: 2;
 }
 
-/* Small screens (user request 2026-08-16): the grid/list switch is
+/* Small screens: the grid/list switch is
    hidden there, but the `projects_view_mode` cookie may still hold
    `list` — the card reverts to the stacked grid look so the single
    visible layout is always the grid. */

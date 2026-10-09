@@ -5,20 +5,19 @@ declare(strict_types=1);
 namespace App\Features\Resume\Infra\Repositories;
 
 /**
- * Query-builder reads of the resume PDF's source data
- * (content-management.md:377-385) inside the Resume Infra layer
- * (ADR-0003 — no cross-feature class imports). The `skills` source comes from
- * the Shared `TechSkillReadRepositoryInterface` (architecture.md:224);
- * about info, contacts and experience items are read here, locale-resolved
- * with the `en` fallback (content-management.md:419).
+ * Query-builder reads of the resume PDF's source data inside the Resume
+ * Infra layer (no cross-feature class imports). The `skills` source comes
+ * from the Shared `TechSkillReadRepositoryInterface`; about info, contacts
+ * and experience items are read here, locale-resolved with the `en`
+ * fallback.
  */
 interface ResumeDataReaderInterface
 {
     /**
      * The `updated_at` stamps of every resume source row (about info,
      * skill groups, skills, contacts, experience items) — the content
-     * hash input (content-management.md:393). Translation rows carry no
-     * timestamps (database.md:348-361). Keyed deterministically (by id).
+     * hash input. Translation rows carry no timestamps. Keyed
+     * deterministically (by id).
      *
      * @return array<string, mixed>
      */
@@ -34,14 +33,14 @@ interface ResumeDataReaderInterface
 
     /**
      * The about short pitch for the locale (the About Me fallback when
-     * no custom `about_text` is stored — content-management.md:382).
+     * no custom `about_text` is stored).
      */
     public function shortPitch(string $locale): string;
 
     /**
      * The experience items for the resume: `include_in_resume = true AND
-     * is_published = true`, ordered `started_at DESC, id DESC`
-     * (content-management.md:384). Tech tags are the linked skill names.
+     * is_published = true`, ordered `started_at DESC, id DESC`. Tech tags
+     * are the linked skill names.
      *
      * @return array<int, array{
      *     position: string,
@@ -57,19 +56,17 @@ interface ResumeDataReaderInterface
 
     /**
      * The contacts for the resume: `include_in_resume = true`, ordered by
-     * `sort_order` (content-management.md:385).
+     * `sort_order`.
      *
      * @return array<int, array{name: string, value: string, icon: string|null, url: string|null}>
      */
     public function contactsData(string $locale): array;
 
     /**
-     * The inclusion counts for the admin summary line
-     * (admin-section-ui.md:290): skills / experience items / contacts
-     * with `include_in_resume = true` (soft-deleted experience items
-     * excluded). The counts are the admin-page checkboxes' source —
-     * no `is_published` filter (the PDF additionally requires it,
-     * content-management.md:384).
+     * The inclusion counts for the admin summary line: skills / experience
+     * items / contacts with `include_in_resume = true` (soft-deleted
+     * experience items excluded). The counts are the admin-page checkboxes'
+     * source — no `is_published` filter (the PDF additionally requires it).
      *
      * @return array{skills: int, experience: int, contacts: int}
      */

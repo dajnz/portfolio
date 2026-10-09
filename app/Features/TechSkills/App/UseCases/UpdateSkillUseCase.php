@@ -14,11 +14,10 @@ use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepository
 use InvalidArgumentException;
 
 /**
- * Updates a skill (content-management.md:592-594). Skill names are not
- * translatable; the updated name must stay unique among the other
- * skills (case-insensitive — probed via the repository's
- * {@see TechSkillWriteRepositoryInterface::skillNameExists()}, the
- * skill's own row excluded).
+ * Updates a skill. Skill names are not translatable; the updated name
+ * must stay unique among the other skills. The case-insensitive probe is
+ * {@see TechSkillWriteRepositoryInterface::skillNameExists()}, with the
+ * skill's own row excluded.
  */
 final class UpdateSkillUseCase
 {

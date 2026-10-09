@@ -6,10 +6,10 @@ import type { Page, TestInfo } from '@playwright/test';
 import { HtmlValidate, type ConfigData } from 'html-validate';
 
 /**
- * Inline W3C HTML validation of the hydrated public DOM (testing.md:
- * 498-547). Runs `html-validate` on `page.content()` and records every
- * message as a `console.warn`-equivalent annotation. Violations never
- * fail the test — HTML validation is a diagnostic, not a gate.
+ * Inline W3C HTML validation of the hydrated public DOM. Runs
+ * `html-validate` on `page.content()` and records every message as a
+ * `console.warn`-equivalent annotation. Violations never fail the test —
+ * HTML validation is a diagnostic, not a gate.
  *
  * `.htmlvalidate.json` notes (all diagnostics-only, never a gate):
  * - `attribute-boolean-style` runs with `style: "empty"` — Vue renders

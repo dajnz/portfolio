@@ -1,4 +1,4 @@
-<!-- AnalyticsChartBarPlot — the single-series bar marks of AnalyticsChart: one bar + the value/x labels per point (the mockup geometry, admin-section-components.md:1334-1352). Labels render as text nodes (the textContent rule). -->
+<!-- AnalyticsChartBarPlot — the single-series bar marks of AnalyticsChart: one bar + the value/x labels per point. Labels render as text nodes (the textContent rule). -->
 <script setup lang="ts">
 import { type PointGeometry, VIEWBOX_HEIGHT } from '../Composables/useAnalyticsChart';
 

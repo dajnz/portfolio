@@ -1,4 +1,4 @@
-<!-- ResumeEditPage (admin-section-components.md:803-845, admin-section-ui.md:246-296, resume.html) — the resume settings form: mode radio, the auto-mode layout editor (template + ResumeSectionEditor) with per-locale About Me text, the inclusion summary, Regenerate + Download preview, and the manual-mode PDF dropzone. Layout changes (mode/template/visibility/order) auto-save via PUT /admin/resume without `about_text` (the backend leaves the stored texts untouched — UpdateResumeConfigUseCase reconciles only the provided locales); the About Me texts persist via the explicit Save button (admin-section-ui.md:285-289). -->
+<!-- ResumeEditPage — the resume settings form: mode radio, the auto-mode layout editor (template + ResumeSectionEditor) with per-locale About Me text, the inclusion summary, Regenerate + Download preview, and the manual-mode PDF dropzone. Layout changes (mode/template/visibility/order) auto-save via PUT /admin/resume without `about_text` (the backend leaves the stored texts untouched — UpdateResumeConfigUseCase reconciles only the provided locales); the About Me texts persist via the explicit Save button. -->
 <script setup lang="ts">
 import type { RequestPayload } from '@inertiajs/core';
 import { router, usePage } from '@inertiajs/vue3';
@@ -66,7 +66,7 @@ const SAVE_KEYS: FormKey[] = ['mode', 'layout', 'customResumeFile', 'aboutTexts'
 const AUTO_SAVE_KEYS: FormKey[] = ['mode', 'layout', 'customResumeFile'];
 
 // The per-locale editing tabs only offer the ACTIVE locales (the shared
-// `supported_locales` prop — disabled locales are not editable, 5.2).
+// `supported_locales` prop — disabled locales are not editable).
 const locales = computed(() => localeOptionsFromCodes(page.props?.supported_locales));
 
 const SECTION_LABELS: Record<ResumeSectionKey, string> = {
@@ -308,7 +308,7 @@ function cancel(): void {
         :data-testid="`${props.test_id}-form`"
         @submit.prevent="save"
       >
-        <!-- Resume Mode — switching auto-saves (admin-section-ui.md:285). -->
+        <!-- Resume Mode — switching auto-saves. -->
         <fieldset class="mb-6 rounded-lg border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary">
           <AdminRadioGroup
             :model-value="form.mode"
@@ -324,7 +324,6 @@ function cancel(): void {
           />
         </fieldset>
 
-        <!-- Auto mode: layout + about text + inclusion summary. -->
         <div
           v-if="form.mode === 'auto'"
           class="mb-6 space-y-6 rounded-lg border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"
@@ -355,7 +354,7 @@ function cancel(): void {
             />
           </div>
 
-          <!-- About Me text — explicitly saved (admin-section-ui.md:288-289). -->
+          <!-- About Me text — explicitly saved. -->
           <div class="space-y-4">
             <LocaleTabs
               v-model="activeLocale"
@@ -375,8 +374,6 @@ function cancel(): void {
             />
           </div>
 
-          <!-- Inclusion summary — read-only counts + Manage links
-               (admin-section-ui.md:290). -->
           <div
             class="rounded-lg bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-900/50 dark:text-slate-400"
             :data-testid="`${props.test_id}-inclusion-summary`"
@@ -457,7 +454,7 @@ function cancel(): void {
           </div>
         </div>
 
-        <!-- Manual mode: the uploaded PDF (content-management.md:405). -->
+        <!-- Manual mode: the uploaded PDF. -->
         <div
           v-else
           class="mb-6 rounded-lg border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Settings\Domain\Enums;
 
 /**
- * The strictly defined settings value types (database.md — the
- * `settings.type` column: string|boolean|integer|json).
+ * The strictly defined settings value types (the `settings.type` column:
+ * string|boolean|integer|json).
  *
  * Owns the value semantics: type conformance checks and the raw (DB text)
  * parse/serialize conversions used by `SettingValue`.
@@ -51,9 +51,6 @@ enum SettingType: string
         };
     }
 
-    /**
-     * Serializes the internal PHP value to DB text.
-     */
     public function toRaw(mixed $value): ?string
     {
         return match ($this) {

@@ -7,12 +7,11 @@ namespace App\Features\Projects\App\DTOs;
 use App\Features\Shared\Domain\ValueObjects\BlogArticleId;
 
 /**
- * The project data as submitted by the store/update forms
- * (content-management.md:621-648) — the whole payload of the
- * `StoreProjectUseCase`/`UpdateProjectUseCase`. `submittedSlug` is the
- * raw form value; the server re-resolves it per ADR-0006 (the auto-generated
- * case regenerates with a numeric collision suffix, manual overrides
- * are kept as-is). Composed of the granular data DTOs. Immutable.
+ * The project data as submitted by the store/update forms — the whole
+ * payload of the `StoreProjectUseCase`/`UpdateProjectUseCase`.
+ * `submittedSlug` is the raw form value; the server re-resolves it (the
+ * auto-generated case regenerates with a numeric collision suffix,
+ * manual overrides are kept as-is).
  */
 final readonly class ProjectDraftDto
 {

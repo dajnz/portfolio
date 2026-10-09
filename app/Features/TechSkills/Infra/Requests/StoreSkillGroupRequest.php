@@ -8,10 +8,9 @@ use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * `POST /admin/skill-groups` / `PUT /admin/skill-groups/{skillGroup}`
- * (content-management.md:596-599): the non-translatable group fields
- * plus the per-locale name (required per locale per
- * content-management.md:419).
+ * `POST /admin/skill-groups` / `PUT /admin/skill-groups/{skillGroup}`:
+ * the non-translatable group fields plus the per-locale names (required
+ * for every active locale).
  */
 final class StoreSkillGroupRequest extends FormRequest
 {

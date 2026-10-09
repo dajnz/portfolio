@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace App\Features\Backup\App\Contracts;
 
 /**
- * The backup pre-flight estimator surface (backup.md:242-249): the
- * 2× space rule. An abstraction over the infra `StorageEstimator`
- * (Backup/Infra/Storage) so the app-layer workflows never name the
- * concrete estimator.
+ * The backup pre-flight estimator surface: the 2× space rule. An
+ * abstraction over the infra `StorageEstimator` (Backup/Infra/Storage)
+ * so the app-layer workflows never name the concrete estimator.
  */
 interface StorageEstimatorInterface
 {

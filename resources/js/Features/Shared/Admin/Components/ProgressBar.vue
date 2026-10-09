@@ -1,4 +1,3 @@
-// ProgressBar (admin-section-components.md:117-135) — determinate/indeterminate progress bar with ARIA attributes.
 <script setup lang="ts">
 import { computed } from 'vue';
 

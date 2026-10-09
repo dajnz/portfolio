@@ -16,11 +16,10 @@ use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
 /**
- * GitHub OAuth (authentication.md:116-191): one callback handles both the
- * login intent (unauthenticated) and the link intent (authenticated),
- * communicated via the `oauth_intent` session flag. The intents are
- * executed by the use cases; this controller only maps outcomes to
- * redirects.
+ * GitHub OAuth: one callback handles both the login intent
+ * (unauthenticated) and the link intent (authenticated), communicated via
+ * the `oauth_intent` session flag. The intents are executed by the use
+ * cases; this controller only maps outcomes to redirects.
  */
 final class GithubController
 {
@@ -59,7 +58,7 @@ final class GithubController
 
     private function handleLoginIntent(SocialiteUser $socialiteUser): RedirectResponse
     {
-        // Logic bug guard (authentication.md:133): authenticated user with a login intent.
+        // Guard against an authenticated user with a login intent.
         if (Auth::check()) {
             abort(400, 'Authenticated user with login OAuth intent.');
         }
@@ -74,7 +73,7 @@ final class GithubController
 
     private function handleLinkIntent(SocialiteUser $socialiteUser): RedirectResponse
     {
-        // Session expired mid-flow (authentication.md:187).
+        // Session expired mid-flow.
         if (! Auth::check()) {
             return redirect()->route('login');
         }

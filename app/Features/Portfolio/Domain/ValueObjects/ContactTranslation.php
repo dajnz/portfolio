@@ -8,8 +8,7 @@ use InvalidArgumentException;
 
 /**
  * Value object: a single localized contact name (`contact_translations`,
- * PK `(contact_id, locale)` — content-management.md:105-110). Immutable;
- * carries no identity of its own.
+ * PK `(contact_id, locale)`). Immutable; carries no identity of its own.
  */
 final readonly class ContactTranslation
 {

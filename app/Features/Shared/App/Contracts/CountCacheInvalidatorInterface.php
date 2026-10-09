@@ -6,11 +6,11 @@ namespace App\Features\Shared\App\Contracts;
 
 /**
  * Invalidates the shared admin list count cache after a write to a
- * cursor-paginated entity (the 30 s per-filter-combo totals of
- * admin-section-ui.md:149, versioned per entity — ADR-0024). An abstraction
- * over {@see \App\Features\Shared\Infra\Services\AdminCursorPaginator::invalidateCountCache()}
- * so the app layer never touches the infra paginator; the
- * framework-backed implementation lives on the infra layer.
+ * cursor-paginated entity (the 30 s per-filter-combo totals, versioned per
+ * entity). An abstraction over
+ * {@see \App\Features\Shared\Infra\Services\AdminCursorPaginator::invalidateCountCache()}
+ * so the app layer never touches the infra paginator; the framework-backed
+ * implementation lives on the infra layer.
  */
 interface CountCacheInvalidatorInterface
 {

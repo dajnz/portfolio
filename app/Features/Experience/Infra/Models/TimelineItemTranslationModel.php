@@ -10,10 +10,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `experience_timeline_item_translations`
- * (database.md:307-318). Composite primary key `(item_id, locale)` — no
- * auto-increment, no timestamps. `achievements` is the per-locale jsonb
- * array of `{description, project_link?}`.
+ * Eloquent model for `experience_timeline_item_translations`. Composite
+ * primary key `(item_id, locale)` — no auto-increment, no timestamps.
+ * `achievements` is the per-locale jsonb array of
+ * `{description, project_link?}`.
  *
  * @property int $item_id
  * @property string $locale

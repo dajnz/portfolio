@@ -12,21 +12,21 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
 /**
- * E2E test seeder (testing.md:550-553, authentication.md:427) — the sole
- * exception to the "no seeder creates admin credentials" rule. Idempotent:
- * truncates every table (`TRUNCATE ... RESTART IDENTITY CASCADE`) before
- * inserting, so a fresh DB and a re-run produce identical state.
+ * E2E test seeder — the sole exception to the "no seeder creates admin
+ * credentials" rule. Idempotent: truncates every table
+ * (`TRUNCATE ... RESTART IDENTITY CASCADE`) before inserting, so a fresh
+ * DB and a re-run produce identical state.
  *
  * Playwright's `global-setup.ts` is the only caller (CI + local e2e). The
  * seeder refuses to run in production. Besides the admin account, the
  * shared lookups, the single-row entities and the bilingual about block,
  * it delegates the demo dataset (skills, tags, articles, projects,
  * experience, contacts) to {@see E2EDemoContentSeeder} — the canonical
- * fixtures the e2e suites assert on (added in step 13.2).
+ * fixtures the e2e suites assert on.
  */
 final class E2ETestSeeder extends Seeder
 {
-    /** Known credentials for `auth.setup.ts` (testing.md:550). */
+    /** Known credentials for `auth.setup.ts`. */
     public const ADMIN_LOGIN = 'e2e-admin';
 
     public const ADMIN_EMAIL = 'e2e-admin@example.com';
@@ -72,10 +72,10 @@ final class E2ETestSeeder extends Seeder
     }
 
     /**
-     * The single-row configuration entities per database.md:597: the
-     * resume_config (id = 1, `mode = 'manual'` matching the column
-     * default, the default layout JSON, no translations) and the
-     * about_info row (id = 1) with its bilingual translations.
+     * The single-row configuration entities: the resume_config (id = 1,
+     * `mode = 'manual'` matching the column default, the default layout
+     * JSON, no translations) and the about_info row (id = 1) with its
+     * bilingual translations.
      */
     private function seedSingleRowEntities(): void
     {
@@ -128,8 +128,8 @@ final class E2ETestSeeder extends Seeder
     }
 
     /**
-     * The known-credentials admin account (authentication.md:427) —
-     * the password is bcrypt-hashed by the model's `hashed` cast.
+     * The known-credentials admin account — the password is
+     * bcrypt-hashed by the model's `hashed` cast.
      */
     private function seedAdmin(): void
     {
@@ -147,7 +147,7 @@ final class E2ETestSeeder extends Seeder
     /**
      * Truncates every table with identity restart and cascade — the FK
      * order is irrelevant because CASCADE resolves dependencies, and the
-     * idempotency contract (testing.md:552) survives any schema evolution.
+     * idempotency contract survives any schema evolution.
      *
      * The `migrations` table is preserved: it tracks the applied schema,
      * and wiping it would make the next `php artisan migrate` re-create

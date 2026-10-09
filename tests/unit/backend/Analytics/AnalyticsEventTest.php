@@ -9,11 +9,6 @@ use App\Features\Analytics\Domain\Enums\CallToActionTarget;
 use DateTimeImmutable;
 use Tests\Support\AnalyticsEventFixture;
 
-/**
- * The shared event state (ADR-0017): the client identifiers and the page
- * context are carried as their VOs (their validation lives there) —
- * the base exposes the delegating getters and the event-type identity.
- */
 describe('AnalyticsEvent', function (): void {
     it('exposes the shared state and the event type identity', function (): void {
         $event = new CallToActionClickEvent(

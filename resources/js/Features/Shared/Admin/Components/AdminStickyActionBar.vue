@@ -1,4 +1,5 @@
-<!-- AdminStickyActionBar (admin-section-ui.md, ADR-0024) — the sticky header action bar for admin pages: primary controls (create buttons, filters, locale tabs, save/cancel) stay visible while scrolling, pinned a few px below the fixed admin header (h-16). The bar's bottom border + edge fades appear only while stuck (rAF-throttled scroll listener, same behavior as the AboutEditPage action bar it was extracted from). Children are spread with `justify-between` — the page composes its own groups (e.g. back link + locale tabs on the left, save/cancel on the right). -->
+<!-- Sticky page action bar pinned below the admin header; its bottom border
+     and edge fades appear only while stuck (rAF-throttled scroll listener). -->
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 

@@ -18,17 +18,6 @@ use App\Features\Analytics\Domain\Factories\AnalyticsEventFactory;
 use DateTimeImmutable;
 use Tests\Support\AnalyticsEventFixture;
 
-/**
- * The metadata parser (ADR-0017): every stored row shape materializes
- * into its typed entity; unknown event types and malformed payloads
- * yield null (skipped by the reads, rejected by the ingestion). An
- * unknown page type is tolerated (null) — the page context is
- * informational for the reports.
- */
-
-/**
- * Parses a minimal row of the given shape.
- */
 function parseAnalyticsEventRow(
     string $eventType,
     array $metadata = [],

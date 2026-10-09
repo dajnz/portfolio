@@ -6,12 +6,6 @@ namespace App\Features\Projects\Domain\Entities;
 
 use InvalidArgumentException;
 
-/**
- * A single localized row of `project_detail_item_translations` (PK
- * `(detail_item_id, locale)` — database.md:251-259): the mandatory
- * title (max 200) and description of an engineering detail item.
- * Immutable; carries no identity of its own.
- */
 final readonly class ProjectEngineeringDetailTranslation
 {
     public function __construct(

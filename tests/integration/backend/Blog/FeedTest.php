@@ -19,10 +19,6 @@ beforeEach(function (): void {
     Storage::fake('rustfs');
 });
 
-/**
- * Creates a PUBLISHED fully translated article (helper names are
- * file-scoped per ADR-0029).
- */
 function feedArticle(array $attributes = [], array $translations = []): ArticleModel
 {
     $article = ArticleModel::factory()->published()->create($attributes);
@@ -39,9 +35,6 @@ function feedArticle(array $attributes = [], array $translations = []): ArticleM
     return $article;
 }
 
-/**
- * Creates a translated article tag.
- */
 function feedTag(string $slug = 'php', string $en = 'PHP'): ArticleTagModel
 {
     $tag = ArticleTagModel::factory()->create(['slug' => $slug]);

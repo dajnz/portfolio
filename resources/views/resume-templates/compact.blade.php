@@ -1,8 +1,7 @@
 {{--
-    Resume PDF template: `compact` (content-management.md:352-358) —
-    single column, minimal spacing, small fonts, optimized for the
-    1-page constraint. dompdf-rendered: self-contained CSS only, system
-    fonts (DejaVu — Cyrillic-safe).
+    Resume PDF template: `compact` — single column, minimal spacing, small
+    fonts, optimized for the 1-page constraint. dompdf-rendered:
+    self-contained CSS only, system fonts (DejaVu — Cyrillic-safe).
 --}}
 @php
     $order = collect($data['sections'])
@@ -59,7 +58,7 @@
 <body>
     {{-- The visible sections render in their layout order — `$order` is
          the render sequence, not a visibility gate (the @if blocks below
-         skip empty sections, content-management.md:337-347). --}}
+         skip empty sections). --}}
     @foreach ($order as $section)
         @if ($section === 'header')
             <header>

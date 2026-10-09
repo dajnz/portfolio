@@ -8,10 +8,9 @@ use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
- * The inline featured star toggle (admin-section-ui.md:342): featuring
- * defaults `featured_sort_order` to the next available value (max + 1)
- * when not already set; unfeaturing preserves the value
- * (content-management.md:157).
+ * The inline featured star toggle: featuring defaults
+ * `featured_sort_order` to the next available value (max + 1) when not
+ * already set; unfeaturing preserves the value.
  */
 final class UpdateProjectFeaturedUseCase
 {

@@ -366,7 +366,7 @@ onBeforeUnmount(() => {
 /* The label stays in the accessibility tree but takes no visual space
    (the projects toolbar's sort dropdown — the tag filter and search
    box carry their labels as placeholders, so a visible "Sort by"
-   label pushed the trigger below them; user rework 2026-08-16). */
+   label pushed the trigger below them). */
 .dropdown__label--visually-hidden {
     position: absolute;
     width: 1px;

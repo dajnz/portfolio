@@ -9,14 +9,6 @@ use Tests\Support\Fakes\FakeAnalyticsDailyMetricRepository;
 use Tests\Support\Fakes\FakeAnalyticsEventRepository;
 use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 
-/**
- * `ResetAnalyticsUseCase` — the `analytics:wipe` backing (analytics.md
- * "Data deletion"): clears all three analytics stores (raw events,
- * daily metrics, reports) so manual testing can start from a fresh
- * state. The per-table deleted counts come back as the wipe result
- * DTO; the actual deletion is the repositories' job (integration-
- * covered).
- */
 describe('ResetAnalyticsUseCase', function (): void {
     it('clears all three analytics stores and returns the deleted counts', function (): void {
         $events = new FakeAnalyticsEventRepository(deletedAllCount: 12);

@@ -10,14 +10,12 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
 
 /**
- * `analytics:generate-daily-metrics` (analytics.md:182-184,
- * backup.md:463): the thin scheduler entry point — resolves the date
- * range (the previous day + the in-progress day,
+ * `analytics:generate-daily-metrics`: the thin scheduler entry point —
+ * resolves the date range (the previous day + the in-progress day,
  * `AggregateDailyMetricsUseCase::defaultDateRange()`) and dispatches
  * the queued aggregation job. The job does the work; the command does
  * not block the scheduler. Registered in `routes/console.php` at
- * `0 2 * * *` (dailyAt 02:00), superseding ADR-0012's old every-4-hours
- * analytics cadence.
+ * `0 2 * * *` (dailyAt 02:00).
  */
 final class GenerateDailyMetricsCommand extends Command
 {

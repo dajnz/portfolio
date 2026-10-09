@@ -9,9 +9,9 @@ const DEFAULT_OG_IMAGE_WIDTH = 1200;
 const DEFAULT_OG_IMAGE_HEIGHT = 630;
 
 /**
- * SEO head sync (seo.md:47): on client-side Inertia navigations the
- * composable renders the page's `seo` props into the document head via
- * Inertia's `<Head>` component (title + meta + canonical + robots) and
+ * SEO head sync: on client-side Inertia navigations the composable
+ * renders the page's `seo` props into the document head via Inertia's
+ * `<Head>` component (title + meta + canonical + robots) and
  * inserts/removes the JSON-LD blocks directly (tags `<Head>` cannot
  * express), carrying the current CSP nonce. SSR renders the same props
  * from the Blade layout — the composable is a client-only no-op there.
@@ -118,10 +118,10 @@ function headChildren(seo: SeoProps | null, supportedLocales: string[]): VNode[]
     }
 
     if (seo.canonical_url !== undefined) {
-        // hreflang alternates (seo.md:246-256): locale-prefixed variants
-        // of the slashless canonical + x-default. The Blade layout
-        // renders the same set during SSR from the shared
-        // `supported_locales` prop, so hydration replaces them 1:1.
+        // hreflang alternates: locale-prefixed variants of the slashless
+        // canonical + x-default. The Blade layout renders the same set
+        // during SSR from the shared `supported_locales` prop, so
+        // hydration replaces them 1:1.
         for (const alternate of alternateHrefs(seo.canonical_url, supportedLocales)) {
             nodes.push(
                 h('link', { rel: 'alternate', hreflang: alternate.hreflang, href: alternate.href }),
@@ -135,7 +135,6 @@ function headChildren(seo: SeoProps | null, supportedLocales: string[]): VNode[]
         nodes.push(h('meta', { name: 'robots', content: seo.robots }));
     }
 
-    // Blog-article Open Graph metadata (seo.md:65).
     if (seo.article !== undefined && seo.article !== null) {
         if (seo.article.published_time) {
             nodes.push(

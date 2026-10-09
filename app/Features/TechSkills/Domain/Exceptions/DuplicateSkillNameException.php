@@ -6,7 +6,7 @@ namespace App\Features\TechSkills\Domain\Exceptions;
 
 use DomainException;
 
-/** DuplicateSkillNameException: a skill name collides with another skill; surfaced as a validation error by the controller. */
+/** Thrown when a skill name collides with another skill; surfaced as a validation error. */
 final class DuplicateSkillNameException extends DomainException
 {
 }

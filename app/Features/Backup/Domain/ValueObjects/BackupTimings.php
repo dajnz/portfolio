@@ -8,16 +8,15 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * The timestamps of a `backups` row (database.md:582-585): the
- * creation moment (always set), the completion/failure stamp
- * (backup.yaml:64 — set when the record completes **or** fails) and
- * the soft-delete moment. Ordering invariants: a completion or
- * deletion can only happen after the record was created.
+ * The timestamps of a `backups` row: the creation moment (always set),
+ * the completion/failure stamp (set when the record completes **or**
+ * fails) and the soft-delete moment. Ordering invariants: a completion
+ * or deletion can only happen after the record was created.
  *
  * Immutable — the entity's state transitions replace the instance:
  * `withCompletedAt()` stamps the completion/failure moment,
  * `withoutCompletedAt()` clears it when a completed backup starts
- * re-processing (ADR-0018).
+ * re-processing.
  */
 final class BackupTimings
 {
@@ -52,7 +51,7 @@ final class BackupTimings
 
     /**
      * Stamps the completion or failure moment (the same timestamp
-     * semantics as the DB column, backup.yaml:64).
+     * semantics as the DB column).
      */
     public function withCompletedAt(DateTimeImmutable $completedAt): self
     {
@@ -61,7 +60,7 @@ final class BackupTimings
 
     /**
      * Clears the completion stamp — the re-processing start of a
-     * completed backup (ADR-0018).
+     * completed backup.
      */
     public function withoutCompletedAt(): self
     {

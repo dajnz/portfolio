@@ -10,9 +10,9 @@ use App\Features\Backup\Infra\Models\BackupModel;
 /**
  * Converts between `backups` rows and the `Backup` entity: `toRow`
  * serializes the entity into the stored row (the NOT NULL `path`/
- * `size_bytes` placeholders of pending rows, ADR-0018), `toEntity`
- * materializes a model row through the entity's `fromRow()` — the
- * single row-to-entity path (the placeholders map back to null).
+ * `size_bytes` placeholders of pending rows), `toEntity` materializes a
+ * model row through the entity's `fromRow()` — the single row-to-entity
+ * path (the placeholders map back to null).
  */
 final class BackupMapper
 {

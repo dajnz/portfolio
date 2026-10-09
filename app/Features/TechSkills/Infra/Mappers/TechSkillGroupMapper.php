@@ -11,10 +11,8 @@ use App\Features\Shared\Domain\ValueObjects\TechSkillGroupName;
 use App\Features\Shared\Infra\Models\SkillGroupModel;
 
 /**
- * Converts between `skill_groups` rows (with their translation rows
- * pre-loaded via the `translations` relation) and
- * {@see TechSkillGroup} entities, and back to the row data. Value
- * objects are created here from the raw columns.
+ * Converts between `skill_groups` rows and {@see TechSkillGroup} entities.
+ * Translation rows are read via the `translations` relation.
  */
 final class TechSkillGroupMapper
 {

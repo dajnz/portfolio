@@ -11,16 +11,14 @@ use League\CommonMark\Parser\MarkdownParserStateInterface;
 
 /**
  * Starts a {@see CalloutBlock} when a block-quote line carries the
- * `> [!TYPE]` marker (content-management.md:483-499). The type is
- * validated against the four supported kinds — any other marker falls
- * through to the ordinary blockquote parsing (the parser returns
- * `BlockStart::none()` and the default BlockQuoteStartParser takes
+ * `> [!TYPE]` marker. The type is validated against the four supported kinds —
+ * any other marker falls through to the ordinary blockquote parsing (the parser
+ * returns `BlockStart::none()` and the default BlockQuoteStartParser takes
  * over).
  *
- * The parser consumes the whole first line (the cursor is advanced
- * past the marker + title), so the title never becomes a paragraph
- * child; the body lines are handled by the callout parser's
- * blockquote-style continuation.
+ * The parser consumes the whole first line (the cursor is advanced past the
+ * marker + title), so the title never becomes a paragraph child; the body lines
+ * are handled by the callout parser's blockquote-style continuation.
  */
 final class CalloutBlockStartParser implements BlockStartParserInterface
 {

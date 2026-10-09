@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Features\Projects\App\DTOs;
 
 /**
- * The admin projects list query (admin-section-ui.md:327-346): the
- * filter bar (title search `?q=`, the featured toggle, the tech-tag
- * AND-intersect `?tags=`, the published status and the trashed view)
- * plus the cursor pagination params. The controller extracts the raw
- * query values; the paginator parsing happens in the infra
- * implementation (which rebuilds the HTTP request shape from `url` so
- * the ADR-0024 empty-page redirects keep targeting the real URL).
- * Immutable.
+ * The admin projects list query: the filter bar (title search `?q=`,
+ * the featured toggle, the tech-tag AND-intersect `?tags=`, the
+ * published status and the trashed view) plus the cursor pagination
+ * params. The controller extracts the raw query values; the paginator
+ * parsing happens in the infra implementation (which rebuilds the HTTP
+ * request shape from `url` so the empty-page redirects keep targeting
+ * the real URL).
  */
 final readonly class AdminProjectListQuery
 {

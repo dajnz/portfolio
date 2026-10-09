@@ -7,12 +7,8 @@ import { expectToast } from '../fixtures/admin';
 import { ADMIN_PASSWORD, loginAsAdmin } from '../fixtures/seed';
 
 /**
- * The backup admin flows (testing.md:496, backup.md): create a backup
- * (after generating the first encryption key) and watch it complete,
- * download the archive, delete it, and finally run the disaster-
- * recovery restore from the downloaded archive — the restore truncates
- * and reseeds the whole e2e database, so this spec runs last (its own
- * project after everything else).
+ * The restore truncates and reseeds the whole e2e database, so this spec
+ * runs last (its own project after everything else).
  */
 test.describe.configure({ mode: 'serial' });
 
@@ -77,10 +73,8 @@ test.describe('backup management', () => {
         expect(encryptionKeyValue).not.toBeNull();
         await acknowledgeButton.click();
 
-        // The key row is active.
         await expect(page.getByTestId('backup-list-page-keys-key-1-active')).toBeVisible();
 
-        // Create the backup and wait for the completed status.
         await page.getByTestId('backup-list-page-stats-create').click();
         await expectToast(page, 'Backup creation started.');
 

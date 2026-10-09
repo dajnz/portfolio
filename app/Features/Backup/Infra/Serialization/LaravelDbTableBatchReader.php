@@ -11,15 +11,14 @@ use Illuminate\Support\Facades\DB;
 use function is_array;
 
 /**
- * The query-builder batch reader (backup.md:254-270, 379): streams one
- * table's rows as arrays keyed by column name, in keyset-paginated
- * chunks of `$batchSize` ordered by the key column(s) — `id` by
- * default, `key` for the `settings` table (ADR-0018), and the composite
- * primary-key columns for the translation/pivot tables that have no
- * `id` (the row-value comparison keeps the keyset stable under
- * duplicate first-column values). Keyset pagination (not `offset`)
- * keeps the export stable while rows change concurrently and avoids
- * the offset scan cost on large tables.
+ * The query-builder batch reader: streams one table's rows as arrays
+ * keyed by column name, in keyset-paginated chunks of `$batchSize`
+ * ordered by the key column(s) — `id` by default, `key` for the
+ * `settings` table, and the composite primary-key columns for the
+ * translation/pivot tables that have no `id` (the row-value comparison
+ * keeps the keyset stable under duplicate first-column values). Keyset
+ * pagination (not `offset`) keeps the export stable while rows change
+ * concurrently and avoids the offset scan cost on large tables.
  */
 final class LaravelDbTableBatchReader implements DbTableBatchReadable
 {

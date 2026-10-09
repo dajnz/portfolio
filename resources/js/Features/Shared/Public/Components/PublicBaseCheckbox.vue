@@ -24,14 +24,13 @@ const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>();
 const inputId = useId();
 
 // Indeterminate is a visual state only — the emitted value is always the
-// checked boolean (public-section-components.md:99). Clicking an
-// indeterminate box unchecks it (native checkbox behavior).
+// checked boolean. Clicking an indeterminate box unchecks it (native
+// checkbox behavior).
 const isIndeterminate = computed(() => props.modelValue === 'indeterminate');
 const isChecked = computed(() => props.modelValue === true);
 
 function onChange(event: Event): void {
-    // Indeterminate is a visual state only — clicking it unchecks
-    // (public-section-components.md:105).
+    // Indeterminate is a visual state only — clicking it unchecks.
     const wasIndeterminate = isIndeterminate.value;
     const checked = (event.target as HTMLInputElement).checked;
 

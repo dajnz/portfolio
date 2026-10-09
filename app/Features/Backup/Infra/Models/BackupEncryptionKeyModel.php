@@ -10,10 +10,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `backup_encryption_keys` (database.md:550-565).
- * `key_value` holds the **encrypted** raw key (Crypt, under APP_KEY) —
- * the mapper encrypts on write and decrypts on read, so the entity
- * always carries the raw value (backup.md:495-497).
+ * Eloquent model for `backup_encryption_keys`. `key_value` holds the
+ * **encrypted** raw key (Crypt, under APP_KEY) — the mapper encrypts on
+ * write and decrypts on read, so the entity always carries the raw
+ * value.
  *
  * @property int $id
  * @property string $name

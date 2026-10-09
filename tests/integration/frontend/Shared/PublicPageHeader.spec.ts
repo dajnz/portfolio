@@ -88,7 +88,7 @@ describe('PublicPageHeader', () => {
         expect(hamburger.attributes('aria-expanded')).toBe('true');
 
         // Inline, not teleported: it follows the header in DOM order so
-        // the natural tab order is hamburger → panel links (a11y 13.6 #1).
+        // the natural tab order is hamburger → panel links.
         const panel = document.querySelector('[data-testid="public-header-mobile-menu"]');
         expect(panel).not.toBeNull();
         expect(panel?.id).toBe('public-mobile-menu');

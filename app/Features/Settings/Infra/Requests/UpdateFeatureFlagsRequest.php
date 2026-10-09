@@ -8,8 +8,8 @@ use App\Features\Settings\Domain\Entities\FeatureFlag;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
- * `PATCH /admin/settings/feature-flags` — `{ flags: { key: bool, ... } }`.
- * Keys must be known `FeatureFlagName`s; values must be booleans.
+ * `{ flags: { key: bool, ... } }` — keys must be known `FeatureFlagName`s;
+ * values must be booleans.
  */
 final class UpdateFeatureFlagsRequest extends FormRequest
 {

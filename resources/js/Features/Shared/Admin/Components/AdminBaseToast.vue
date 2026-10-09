@@ -1,4 +1,3 @@
-<!-- AdminBaseToast (admin-section-components.md:85-91) — same contract as PublicBaseToastContainer, Tailwind-styled. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -14,8 +13,8 @@ const props = withDefaults(
         test_id?: string;
     }>(),
     {
-        // Bottom-right (5.2 rework, user request): the top-right position
-        // overlapped the admin header's language/theme controls.
+        // Bottom-right: the top-right position overlapped the admin
+        // header's language/theme controls.
         position: 'bottom-right',
         test_id: 'toast-container',
     },

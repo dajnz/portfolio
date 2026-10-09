@@ -34,7 +34,7 @@ components:
                     Whether at least one published, non-trashed project
                     exists — the header nav's Projects-link condition
                     (ADR-0025; the same signal the experience timeline page
-                    carries, v1.0.16).
+                    carries).
                 seo:
                   $ref: './shared.yaml#/components/schemas/SeoProps'
 
@@ -57,8 +57,7 @@ components:
                   description: |
                     The visitor's reaction state — null when the
                     `social_reactions` feature flag is disabled (no
-                    widget rendered, public-section-components.md:1273)
-                    or on the signed preview (ADR-0004).
+                    widget rendered) or on the signed preview (ADR-0004).
                   properties:
                     user_reaction:
                       type: string
@@ -103,8 +102,7 @@ components:
                     type: integer
                   description: |
                     Distinct publication years of the published, non-trashed
-                    articles, newest first — the year filter options
-                    (admin-section-ui.md:390).
+                    articles, newest first — the year filter options.
 
     BlogFormPageProps:
       allOf:
@@ -245,7 +243,7 @@ components:
           description: |
             The attached tech skills via `article_skill_pivot` —
             rendered as linked TechSkillTag chips
-            (`/blog?skill_tags={id}`, public-section-components.md:812).
+            (`/blog?skill_tags={id}`).
 
     SkillTagData:
       type: object
@@ -272,8 +270,8 @@ components:
           description: |
             The article body rendered server-side by the shared content
             pipeline (safe-mode CommonMark + callouts + syntax
-            highlighting — content-management.md:466-481, ADR-0008). The
-            public page renders it via v-html.
+            highlighting — ADR-0008). The public page renders it via
+            v-html.
         short_description:
           type: string
         published_at:
@@ -303,8 +301,7 @@ components:
           description: |
             The attached tech skills via `article_skill_pivot` —
             rendered as linked TechSkillTag chips
-            (`/blog?skill_tags={id}`, public-section-components.md:
-            1278); the SEO keywords also cover them (seo.md:145-147).
+            (`/blog?skill_tags={id}`); the SEO keywords also cover them.
         related:
           type: array
           items:
@@ -312,10 +309,9 @@ components:
         views_count:
           type: integer
           description: |
-            The pre-increment `article_views` counter
-            (content-management.md:217 — the page renders before the
-            queued increment job completes, a difference of 1 is
-            acceptable).
+            The pre-increment `article_views` counter (the page renders
+            before the queued increment job completes, a difference of 1
+            is acceptable).
 
     ArticleEditData:
       allOf:
@@ -386,8 +382,7 @@ components:
             The number of related articles (the bidirectional
             `related_articles` rows of the article) — the static
             Related column of the admin table; per-row related
-            management lives on the form page only (user request
-            2026-08-13).
+            management lives on the form page only.
         created_at:
           type: string
           format: date-time

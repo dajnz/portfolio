@@ -6,10 +6,6 @@ namespace Tests\Unit\Backend\Blog;
 
 use App\Features\Blog\Domain\ValueObjects\ReadingTime;
 
-/**
- * The reading-time formula (database.md:360, content-management.md:472):
- * `ceil(word_count / 200)` over the content text.
- */
 describe('ReadingTime', function (): void {
     it('computes ceil(word_count / 200) minutes', function (): void {
         expect(ReadingTime::fromText('')->toMinutes())->toBe(0)

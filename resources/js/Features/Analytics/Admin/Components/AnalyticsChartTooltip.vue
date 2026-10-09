@@ -1,4 +1,4 @@
-<!-- AnalyticsChartTooltip — the multi-series hover tooltip (AnalyticsChart sub-component, user request 2026-08-22): a small SVG box near the point showing the series name + the point's value. Positioned above the point when the plot area allows, below otherwise, clamped to the viewBox sides. User data renders as text nodes only (the textContent rule). -->
+<!-- AnalyticsChartTooltip — the multi-series hover tooltip: a small SVG box near the point showing the series name + the point's value. Positioned above the point when the plot area allows, below otherwise, clamped to the viewBox sides. User data renders as text nodes only (the textContent rule). -->
 <script setup lang="ts">
 import { computed } from 'vue';
 
@@ -18,8 +18,6 @@ const props = defineProps<{
     test_id?: string;
 }>();
 
-// The tooltip box near the point — above it when the plot area has
-// room, below otherwise — clamped to the viewBox sides.
 const geometry = computed(() => {
     const marker = props.marker;
     if (marker === null) {

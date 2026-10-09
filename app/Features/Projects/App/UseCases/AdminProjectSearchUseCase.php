@@ -10,11 +10,9 @@ use App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface
 use App\Features\Shared\App\Services\PaginationBuilder;
 
 /**
- * The JSON autocomplete variant of `GET /admin/projects`
- * (admin-section-ui.md:539-572): ILIKE title search over all locales,
- * unpublished included, length-aware pagination — the raw rows are
- * converted to the item DTOs and the pagination facts are built by
- * the app-layer pagination service here.
+ * The JSON autocomplete variant of `GET /admin/projects`: ILIKE title
+ * search over all locales, unpublished included, length-aware
+ * pagination.
  */
 final class AdminProjectSearchUseCase
 {

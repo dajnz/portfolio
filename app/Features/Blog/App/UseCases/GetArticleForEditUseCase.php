@@ -16,14 +16,13 @@ use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
 use Illuminate\Support\Facades\App;
 
 /**
- * The article editor data (the create/edit form, blog.yaml#
- * BlogFormPageProps): the stored article data (null when creating —
- * hydrated with every aggregate part for the tabbed editor and mapped
- * to the data DTOs here), the tag picker options, the published
- * articles of the Related Articles multi-select and the signed 1-hour
- * preview URL (routes.md:155 — the preview button opens it in a new
- * tab; null on the create form). Trashed articles reach the form too
- * (restore happens from the form's own view, ADR-0006).
+ * The article editor data (the create/edit form): the stored article
+ * data (null when creating — hydrated with every aggregate part for the
+ * tabbed editor and mapped to the data DTOs here), the tag picker
+ * options, the published articles of the Related Articles multi-select
+ * and the signed 1-hour preview URL (the preview button opens it in a
+ * new tab; null on the create form). Trashed articles reach the form
+ * too (restore happens from the form's own view).
  */
 final class GetArticleForEditUseCase
 {

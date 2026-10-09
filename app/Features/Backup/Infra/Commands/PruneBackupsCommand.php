@@ -8,11 +8,11 @@ use App\Features\Backup\App\UseCases\PruneBackupsUseCase;
 use Illuminate\Console\Command;
 
 /**
- * `backup:prune` (backup.md:462): the standalone retention cleanup —
- * removes the oldest backups beyond `backup_max_count` (the DB
- * setting wins, `config('backup.max_count')` is the fallback). Also
- * called automatically after every successful backup
- * (`BackupWorkflowService` step 10).
+ * `backup:prune`: the standalone retention cleanup — removes the oldest
+ * backups beyond `backup_max_count` (the DB setting wins,
+ * `config('backup.max_count')` is the fallback). Also called
+ * automatically after every successful backup (`BackupWorkflowService`
+ * step 10).
  */
 final class PruneBackupsCommand extends Command
 {

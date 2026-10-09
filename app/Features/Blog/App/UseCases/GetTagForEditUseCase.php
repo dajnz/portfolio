@@ -9,9 +9,8 @@ use App\Features\Blog\Domain\Exceptions\ArticleTagNotFoundException;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
 
 /**
- * The tag editor data (the create/edit form, blog.yaml#
- * TagFormPageProps): the stored tag with its per-locale names (null
- * when creating).
+ * The tag editor data (the create/edit form): the stored tag with its
+ * per-locale names (null when creating).
  */
 final class GetTagForEditUseCase
 {

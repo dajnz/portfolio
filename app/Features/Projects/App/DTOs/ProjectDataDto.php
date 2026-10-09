@@ -7,14 +7,6 @@ namespace App\Features\Projects\App\DTOs;
 use App\Features\Projects\Domain\Entities\Project;
 use DateTimeImmutable;
 
-/**
- * The full stored project data — every aggregate part as data DTOs:
- * the identity, the per-locale translations (the editor's LocaleTabs
- * maps), the media (preview + gallery), the engineering details, the
- * links, the state flags, the tech-writeup reference and the resolved
- * tech tags. Returned by the read use cases; the controllers prepare
- * their own output shapes from it. Immutable.
- */
 final readonly class ProjectDataDto
 {
     /**

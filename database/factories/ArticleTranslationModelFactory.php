@@ -10,9 +10,7 @@ use App\Features\Blog\Infra\Models\ArticleTranslationModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Test factory for `blog_article_translations` (ADR-0029, both locales
- * covered via the `forLocale()` state). The `reading_time_minutes`
- * follows the domain formula.
+ * The `reading_time_minutes` follows the domain formula.
  */
 final class ArticleTranslationModelFactory extends Factory
 {

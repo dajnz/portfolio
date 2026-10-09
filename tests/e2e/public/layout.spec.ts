@@ -4,10 +4,8 @@ import { expectPublicPageAxeClean } from '../fixtures/audit';
 import { validatePublicHtml } from '../fixtures/htmlValidate';
 
 /**
- * Cross-page layout behaviour (testing.md:482): language switch, theme
- * switch, the custom 404 page and the skip link. All state here is
- * per-browser-context (cookies/localStorage), so the file is safe to
- * run in parallel with the content specs.
+ * All state here is per-browser-context (cookies/localStorage), so the
+ * file is safe to run in parallel with the content specs.
  */
 test.describe('public layout', () => {
     test('toggles the dark theme class on the document root', async ({ page }) => {
@@ -80,7 +78,7 @@ test.describe('public layout', () => {
         await expect(page.getByTestId('error-page-code')).toHaveText('404');
 
         // The self-contained Blade error layout carries the same skip
-        // link as the Inertia layouts (a11y 13.6 #20).
+        // link as the Inertia layouts.
         await expect(page.getByTestId('error-page-skip-link')).toHaveAttribute(
             'href',
             '#main-content',

@@ -1,4 +1,3 @@
-// admin-section-components.md:45-59 — full contract (maintenance switch)
 <script setup lang="ts">
 const props = withDefaults(
     defineProps<{

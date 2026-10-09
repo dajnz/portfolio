@@ -1,4 +1,4 @@
-<!-- RelatedPosts (public-section-components.md:1328-1341, mockup blog-article.html) — the related articles section at the bottom of the article page, spanning the layout's full width above the footer. Renders ArticleCards in the `compact` variant (no images, per the mockup); hidden entirely when there are no related articles (the `empty` state); the loading state shows 2-3 card skeletons. -->
+<!-- RelatedPosts — the related articles section at the bottom of the article page, spanning the layout's full width above the footer. Renders ArticleCards in the `compact` variant (no images); hidden entirely when there are no related articles (the `empty` state); the loading state shows 2-3 card skeletons. -->
 <script setup lang="ts">
 import type { ArticleCardView } from '@blog-shared/Composables/useArticleCards';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -22,8 +22,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 
-// The section is hidden when empty; the skeleton count mirrors the
-// mockup's "2-3 card skeletons".
+// At most three cards render; the section is hidden when empty.
 const visibleArticles = computed(() => props.articles.slice(0, 3));
 </script>
 
@@ -74,9 +73,6 @@ const visibleArticles = computed(() => props.articles.slice(0, 3));
 <style scoped>
 .related-posts {
     grid-column: 1 / -1;
-
-    /* User rework 2026-08-16: the top gap halved (was space-3xl /
-       space-2xl). */
     margin-top: var(--space-2xl);
     padding-top: var(--space-xl);
     border-top: 1px solid var(--color-border);

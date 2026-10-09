@@ -85,7 +85,7 @@ final class TotpController
         return [
             // Always null in practice: the `totp.pending` middleware
             // redirects locked admins to the login page, so this page is
-            // unreachable while a lockout is active (authentication.md:271).
+            // unreachable while a lockout is active.
             'lock_remaining_seconds' => null,
         ];
     }

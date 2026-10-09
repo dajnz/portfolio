@@ -18,10 +18,6 @@ use Tests\Support\Traits\InteractsWithAdmin;
 
 uses(InteractsWithAdmin::class);
 
-/**
- * Seeds a published project with both locales and the given
- * base/translation overrides.
- */
 function publicProject(array $attributes = [], array $translations = []): ProjectModel
 {
     $project = ProjectModel::factory()->published()->create($attributes);
@@ -52,9 +48,6 @@ function decodedProjectCursor(string $cursor): array
     }
 }
 
-/**
- * Seeds a skill in a group and returns its id.
- */
 function publicSkillId(string $name = 'PHP'): int
 {
     $group = SkillGroupModel::factory()->create();
@@ -198,7 +191,6 @@ describe('PublicProjectController', function (): void {
                 ->where('projects.2.id', $newest->id)
                 ->where('next_cursor', null));
 
-        // An invalid direction falls back to the desc default.
         $this->get('/projects?direction=sideways')
             ->assertInertia(fn (Assert $page) => $page
                 ->where('projects.0.id', $newest->id));
@@ -447,7 +439,7 @@ describe('PublicProjectController', function (): void {
 
         // A→B records `slug-a` AGAIN — the upsert re-points the existing
         // row instead of violating the (old_slug, entity_type) unique
-        // constraint (database.md:451).
+        // constraint.
         $update('slug-b');
         expect(DB::table('old_slugs')->where('old_slug', 'slug-a')->where('entity_type', 'project')->count())->toBe(1);
 
@@ -467,7 +459,6 @@ describe('PublicProjectController', function (): void {
         $this->get('/projects/'.$project->slug)
             ->assertInertia(fn (Assert $page) => $page->where('project.tech_writeup', null));
 
-        // Re-publishing the article brings the link back.
         DB::table('blog_articles')->where('id', $articleId)->update(['is_published' => true]);
         DB::table('blog_article_translations')->insert([
             'article_id' => $articleId, 'locale' => 'en',

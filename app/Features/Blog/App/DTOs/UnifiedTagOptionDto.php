@@ -9,7 +9,7 @@ namespace App\Features\Blog\App\DTOs;
  * (`/api/blog-tags/search` — the `UnifiedTagSearchItem` wire shape):
  * an article tag (`type: "tag"`) or a tech skill (`type: "skill"`),
  * discriminated so the filter URL never mixes the independent id
- * spaces (routes.md:198-205). Immutable.
+ * spaces. Immutable.
  */
 final readonly class UnifiedTagOptionDto
 {

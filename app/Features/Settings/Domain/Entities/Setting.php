@@ -100,7 +100,7 @@ final readonly class Setting
 
         // The public site must stay reachable in at least one locale —
         // disabling every locale would leave the portfolio without a
-        // rendered language (i18n-and-theming.md; user request 2026-08-07).
+        // rendered language.
         if ($this->name === SettingName::SupportedLocales && $this->value->asArray() === []) {
             throw new InvalidArgumentException(
                 "Setting 'supported_locales' must contain at least one locale.",

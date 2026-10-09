@@ -1,4 +1,3 @@
-// DataTable (admin-section-components.md:432-481 + admin-section-ui.md:124-210) — generic admin data table: sortable columns, row selection, skeleton loading, AdminEmptyState fallback.
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -15,8 +14,7 @@ type ColumnDefinition = {
     width?: string;
     /** Horizontal alignment of the column header + cells — `left` by
      *  default; the blog list centers its Published/Views columns and
-     *  the tags list centers its Article Count column (user request
-     *  2026-08-13). */
+     *  the tags list centers its Article Count column. */
     align?: 'left' | 'center' | 'right';
 };
 type SortDirection = 'asc' | 'desc';
@@ -34,9 +32,9 @@ const props = withDefaults(
         row_key?: string;
         is_loading?: boolean;
         trashed_ids?: Array<RowId>;
-        /** Per-row extra classes (spec §Styling: the `unread` feedback row
-         *  state overrides the zebra background — admin-section-components
-         *  .md:476). Applied after the built-in state classes. */
+        /** Per-row extra classes (the `unread` feedback row state
+         *  overrides the zebra background). Applied after the built-in
+         *  state classes. */
         row_class?: (row: Record<string, unknown>) => string | Array<string> | undefined;
         /** Centers the actions column header + row action buttons
          *  (projects list — the single-delete actions read better
@@ -115,8 +113,7 @@ function onSortClick(column: ColumnDefinition): void {
     } else if (props.sort_direction === 'asc') {
         emit('update:sort_direction', 'desc');
     } else {
-        // ADR-0024: no unsorted state — a sortable column cycles only
-        // asc → desc → asc (the user dropped the third state).
+        // No unsorted state — a sortable column cycles only asc → desc → asc.
         emit('update:sort_direction', 'asc');
     }
 }

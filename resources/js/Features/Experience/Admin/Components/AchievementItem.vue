@@ -1,4 +1,3 @@
-<!-- AchievementItem (admin-section-components.md:1111-1118, experience-form.html) — one sortable achievement row: locale-tabbed description textarea, shared project-link input, move up/down keyboard alternatives (accessibility.md:37-44) and a remove button. The description is the per-locale map edited under the active locale tab (the backend stores only the locales with a description). -->
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';

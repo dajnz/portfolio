@@ -8,10 +8,6 @@ use App\Features\Projects\Infra\Models\ProjectDetailItemModel;
 use App\Features\Projects\Infra\Models\ProjectDetailItemTranslationModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * Test factory for `project_detail_item_translations` (ADR-0029, both
- * locales covered via the `forLocale()` state).
- */
 final class ProjectDetailItemTranslationModelFactory extends Factory
 {
     protected $model = ProjectDetailItemTranslationModel::class;

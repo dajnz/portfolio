@@ -5,12 +5,6 @@ import { demoProjects } from '../fixtures/content';
 import { validatePublicHtml } from '../fixtures/htmlValidate';
 import { pickFirstSuggestion } from '../fixtures/locators';
 
-/**
- * The public projects section (testing.md:479): the index grid, the tech
- * skill filter intersection, the date sort, the view toggle and the
- * project detail page (overview sections, engineering details, source
- * links).
- */
 test.describe('projects index', () => {
     test('loads the project cards', async ({ page }, testInfo) => {
         await page.addInitScript(() => {
@@ -112,18 +106,14 @@ test.describe('project detail', () => {
             demoProjects.portfolio.titleEn,
         );
 
-        // The markdown overview, problem and solution sections render.
         await expect(page.getByTestId('project-detail-page-overview')).toContainText('Architecture');
         await expect(page.getByTestId('project-detail-page-problem')).not.toBeEmpty();
         await expect(page.getByTestId('project-detail-page-solution')).not.toBeEmpty();
 
-        // The tech chips carry the seeded skill names.
         await expect(page.getByTestId('project-detail-page-tags')).toContainText('Laravel');
 
-        // The two seeded engineering detail items render as list rows.
         await expect(page.locator('[data-testid^="project-detail-page-detail-"]')).toHaveCount(2);
 
-        // The GitHub source link is present; there is no demo link.
         await expect(page.getByTestId('project-detail-page-github')).toHaveAttribute(
             'href',
             demoProjects.portfolio.github,

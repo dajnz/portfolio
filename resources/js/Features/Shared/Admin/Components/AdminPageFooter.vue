@@ -1,4 +1,3 @@
-<!-- AdminPageFooter (admin-section-components.md:312-322) — bottom bar, content always block-centred. -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 

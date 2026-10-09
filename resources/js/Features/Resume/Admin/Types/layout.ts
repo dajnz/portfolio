@@ -1,8 +1,7 @@
 /**
- * The resume layout shape as served by `ResumeEditPageProps.layout`
- * (docs/openapi/inertia/resume.yaml#ResumeLayout) — the template id plus
- * the five fixed sections' visibility/order config. The order range is
- * 0–4 (the request validation, content-management.md:369).
+ * The resume layout shape as served by `ResumeEditPageProps.layout` —
+ * the template id plus the five fixed sections' visibility/order config.
+ * The order range is 0–4 (the request validation).
  */
 
 export const RESUME_SECTION_KEYS = [

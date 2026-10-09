@@ -11,25 +11,23 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\SortOrder;
 
 /**
- * A career timeline item (database.md:285-305, content-management.md:
- * 164-189): its employment {@see WorkPeriod}, publication state, the
- * optional project reference ({@see RelatedProject} — null when the
- * item references no project), resume inclusion, the zero-based
- * `sort_order`, its per-locale translations and the tech-tag skills of
- * the `experience_item_tech_tags` pivot (part of the aggregate).
+ * A career timeline item: its employment {@see WorkPeriod}, publication
+ * state, the optional project reference ({@see RelatedProject} — null when
+ * the item references no project), resume inclusion, the zero-based
+ * `sort_order`, its per-locale translations and the tech-tag skills of the
+ * `experience_item_tech_tags` pivot (part of the aggregate).
  *
  * Invariants are delegated to the embedded value objects and entities:
- * the date order to {@see WorkPeriod}, the project-reference
- * exclusivity to {@see RelatedProject}, the position in the list to
- * {@see SortOrder}, the tag name to {@see TechSkillTag}, and the
- * per-locale field rules to {@see TimelineItemTranslation} — the entity
- * itself is a pure aggregate.
+ * the date order to {@see WorkPeriod}, the project-reference exclusivity
+ * to {@see RelatedProject}, the position in the list to {@see SortOrder},
+ * the tag name to {@see TechSkillTag}, and the per-locale field rules to
+ * {@see TimelineItemTranslation} — the entity itself is a pure aggregate.
  *
  * Localized state is projected per property: `positionFor($locale)`
- * etc. resolve the requested locale with an `en` fallback
- * (content-management.md:415), the `*ByLocale()` maps expose every
- * stored locale for the admin LocaleTabs, and the achievement
- * projections feed the form's merged achievements list.
+ * etc. resolve the requested locale with an `en` fallback, the
+ * `*ByLocale()` maps expose every stored locale for the admin LocaleTabs,
+ * and the achievement projections feed the form's merged achievements
+ * list.
  */
 final class TimelineItem extends BaseEntity
 {
@@ -105,8 +103,7 @@ final class TimelineItem extends BaseEntity
 
     /**
      * Localized position for the given locale, falling back to `en`
-     * when the requested translation is missing (content-management.
-     * md:415).
+     * when the requested translation is missing.
      */
     public function positionFor(string $locale): string
     {
@@ -213,8 +210,7 @@ final class TimelineItem extends BaseEntity
     /**
      * The locales with a stored translation row — the exact set the
      * persistence layer reconciles against the active locales (rows of
-     * disabled locales are preserved untouched, content-management.md:
-     * 419).
+     * disabled locales are preserved untouched).
      *
      * @return string[]
      */
@@ -238,7 +234,7 @@ final class TimelineItem extends BaseEntity
 
     /**
      * Translation for the given locale, falling back to `en` when the
-     * requested one is missing (content-management.md:415).
+     * requested one is missing.
      */
     private function translationFor(string $locale): ?TimelineItemTranslation
     {

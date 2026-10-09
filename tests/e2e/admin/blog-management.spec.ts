@@ -4,11 +4,8 @@ import { expectToast, rowIdByText, rowLocator, setCheckbox, typeMarkdown, unique
 import { demoArticles } from '../fixtures/content';
 
 /**
- * The blog admin CRUD surface (testing.md:491): list filters (status,
- * year, trash), create with both locales, publish → public check,
- * edit → public update, soft delete and the bulk actions. Every created
- * row is soft-deleted at the end, so the public project (which runs
- * after this file's project) still sees the seeded baseline.
+ * Every created row is soft-deleted at the end, so the public project
+ * (which runs after this file's project) still sees the seeded baseline.
  *
  * The file is serial: the tests share the blog table and assert row
  * counts of the seeded baseline.
@@ -23,7 +20,6 @@ test.describe('blog management', () => {
         await expect(page.getByTestId('blog-list-page-table-row-1')).toBeVisible();
         await expect(page.getByTestId('blog-list-page-table-row-4')).toBeVisible();
 
-        // Published-only filter.
         await page.getByTestId('blog-list-page-published-filter').click();
         await page.getByTestId('blog-list-page-published-filter-option-published').click();
 
@@ -31,14 +27,12 @@ test.describe('blog management', () => {
         await expect(rowLocator(page, 'blog-list-page', 1)).toContainText(demoArticles.queues.titleEn);
         await expect(rowLocator(page, 'blog-list-page', 4)).not.toBeVisible();
 
-        // Unpublished-only: the draft.
         await page.getByTestId('blog-list-page-published-filter').click();
         await page.getByTestId('blog-list-page-published-filter-option-unpublished').click();
 
         await expect(page.locator('[data-testid^="blog-list-page-table-row-"]')).toHaveCount(1);
         await expect(rowLocator(page, 'blog-list-page', 4)).toContainText('Draft article never published');
 
-        // Back to all statuses.
         await page.getByTestId('blog-list-page-published-filter').click();
         await page.getByTestId('blog-list-page-published-filter-option-all').click();
 
@@ -61,7 +55,6 @@ test.describe('blog management', () => {
         await expect(page.getByTestId('blog-list-page-restore-5')).toBeVisible();
         await expect(page.getByTestId('blog-list-page-force-delete-5')).toBeVisible();
 
-        // Restoring brings the row back into the live list.
         await page.getByTestId('blog-list-page-restore-5').click();
         await expect(rowLocator(page, 'blog-list-page', 5)).toBeVisible();
     });
@@ -130,7 +123,6 @@ test.describe('blog management', () => {
         await createArticle(page, token, titleEn, `Гайд ${token}`);
         const id = await openCreatedArticle(page, token);
 
-        // Publish the draft, then verify it on the public blog.
         await setCheckbox(page, 'blog-form-page-published', true);
         await page.getByTestId('blog-form-page-save-btn').click();
         await expectToast(page, 'Saved successfully.');

@@ -12,15 +12,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 /**
- * `maintenance` middleware alias (routes.md:248-250) — the setting-based
- * maintenance layer: when the `site_maintenance_mode` setting is enabled,
- * public web requests are short-circuited to the 503 Blade view while
- * `/admin/*` and static assets (Vite `build/`, RustFS `assets/`, `storage/`)
- * keep working so the admin can turn the mode off. The value read is cached
- * by the settings repository (1-minute TTL). `php artisan down` is the
- * ops-level fallback handled by the framework and is independent of this
- * middleware. When the settings table is unavailable (pre-migration), the
- * check is skipped.
+ * `maintenance` middleware alias — the setting-based maintenance layer: when
+ * the `site_maintenance_mode` setting is enabled, public web requests are
+ * short-circuited to the 503 Blade view while `/admin/*` and static assets
+ * (Vite `build/`, RustFS `assets/`, `storage/`) keep working so the admin can
+ * turn the mode off. The value read is cached by the settings repository
+ * (1-minute TTL). `php artisan down` is the ops-level fallback handled by the
+ * framework and is independent of this middleware. When the settings table is
+ * unavailable (pre-migration), the check is skipped.
  */
 final class CheckMaintenanceModeMiddleware
 {

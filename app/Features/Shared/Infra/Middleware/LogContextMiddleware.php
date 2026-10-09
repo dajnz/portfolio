@@ -13,8 +13,8 @@ use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * `log_context` middleware alias (error-handling.md:257-291) — runs first in
- * the `web` and `api` groups so every log entry carries the request context:
+ * `log_context` middleware alias — runs first in the `web` and `api` groups so
+ * every log entry carries the request context:
  *
  * - `request_id`: a UUID per request, propagated as the `X-Request-ID`
  *   response header and a request attribute (read by `HandleInertiaRequests`
@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
  *   with their SQL and bindings; binding values whose column name matches
  *   `SENSITIVE_FIELDS` are replaced with `[REDACTED]`. The same constant is
  *   the single source of truth for the log-channel redaction configured in
- *   step 2.5 (config/logging.php).
+ *   `config/logging.php`.
  */
 final class LogContextMiddleware
 {
@@ -55,9 +55,9 @@ final class LogContextMiddleware
         $response = $next($request);
         $response->headers->set('X-Request-ID', $requestId);
 
-        // The request duration is added to the log context once the
-        // response is generated (kernel terminate) so terminating hooks
-        // and later entries carry it (error-handling.md:285).
+        // The request duration is added to the log context once the response
+        // is generated (kernel terminate) so terminating hooks and later
+        // entries carry it.
         Log::withContext([
             'duration_ms' => (int) round((hrtime(true) - $startedAt) / 1_000_000),
         ]);

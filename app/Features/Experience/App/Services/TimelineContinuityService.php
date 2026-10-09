@@ -9,22 +9,18 @@ use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryIn
 use DateTimeImmutable;
 
 /**
- * The ADR-0024 timeline-continuity rules (the "continuous career" model),
- * extracted from the duplicated private logic of the store/update use
- * cases: an item's period must not overlap its chronological
- * predecessor or successor (next `started_at` >= previous `ended_at`),
- * only the last item may be ongoing — when a new item is appended after
- * an ongoing predecessor, that predecessor's `ended_at` is auto-filled
- * with the new item's `started_at` (it was never explicitly closed).
+ * The timeline-continuity rules (the "continuous career" model): an item's
+ * period must not overlap its chronological predecessor or successor (next
+ * `started_at` >= previous `ended_at`), only the last item may be ongoing —
+ * when a new item is appended after an ongoing predecessor, that
+ * predecessor's `ended_at` is auto-filled with the new item's `started_at`.
  *
- * A domain requirement, living in the App layer per the ADR-0009 precedent
- * (services belong to `App/`, not `Domain/` — the rules stay pure
- * domain logic over the repository interface; only the exception
- * messages resolve translations).
+ * A domain requirement that lives in the App layer: the rules stay pure
+ * domain logic over the repository interface; only the exception messages
+ * resolve translations.
  *
- * Callers must run the assertion inside their transaction — the
- * auto-fill write (`setEndedAt`) and the item's own save must land
- * atomically.
+ * Callers must run the assertion inside their transaction — the auto-fill
+ * write (`setEndedAt`) and the item's own save must land atomically.
  */
 final class TimelineContinuityService
 {
@@ -36,10 +32,7 @@ final class TimelineContinuityService
     /**
      * @param  callable(string): string|null  $translator  Message resolver —
      *                                                     the Laravel `__()`
-     *                                                     by default; unit
-     *                                                     tests inject a stub
-     *                                                     (the app is not
-     *                                                     booted there).
+     *                                                     by default.
      */
     public function __construct(
         private readonly TimelineItemRepositoryInterface $repository,

@@ -1,4 +1,4 @@
-<!-- BlogArticlePage (public-section-ui.md:240-297, public-section-components.md:1244-1341, mockup blog-article.html) — the public article detail: the two-column layout (ArticleContent reading panel | sticky TableOfContents sidebar), the RelatedPosts section spanning the full width. The article's SEO props + JSON-LD (BlogPosting + BreadcrumbList — incl. the skill names in `keywords`) arrive from the backend and are synced via useSeoUpdater (seo.md:119-188). TOC navigation smooth-scrolls to the heading's `scroll-margin-top` offset (respecting the sticky header); the TOC's IntersectionObserver watches the body's headings via the `target_selector`. The mobile variant collapses the sidebar into the floating TOC button. -->
+<!-- BlogArticlePage — the public article detail: the two-column layout (ArticleContent reading panel | sticky TableOfContents sidebar), the RelatedPosts section spanning the full width. The article's SEO props + JSON-LD (BlogPosting + BreadcrumbList — incl. the skill names in `keywords`) arrive from the backend and are synced via useSeoUpdater. TOC navigation smooth-scrolls to the heading's `scroll-margin-top` offset (respecting the sticky header); the TOC's IntersectionObserver watches the body's headings via the `target_selector`. The mobile variant collapses the sidebar into the floating TOC button. -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
@@ -112,19 +112,17 @@ function onTocNavigate(id: string): void {
 </template>
 
 <style scoped>
-/* The two-column layout per the mockup (blog-article.html): the
-   reading panel and the sticky TOC sidebar; the related section spans
-   both columns. Below `--bp-lg` (1024px) the grid falls back to a
-   single column (the mockup's mobile rule). */
+/* The two-column layout: the reading panel and the sticky TOC sidebar;
+   the related section spans both columns. Below `--bp-lg` (1024px) the
+   grid falls back to a single column. */
 .article-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) var(--sidebar-width);
     gap: var(--space-xl);
     align-items: start;
 
-    /* User rework 2026-08-16: the whole page content spans
-       `--layout-content` (1000px — the header/footer width; the
-       mockup's `--wide-max-width` 1200px is dropped). */
+    /* The whole page content spans `--layout-content` (1000px — the
+       header/footer width). */
     max-width: var(--layout-content);
     margin: 0 auto var(--space-2xl);
 }

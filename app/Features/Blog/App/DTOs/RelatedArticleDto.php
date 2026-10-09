@@ -6,8 +6,7 @@ namespace App\Features\Blog\App\DTOs;
 
 /**
  * A related-article row of the admin surfaces — `{id, title}` (the
- * Related column chips and the edit form's light rows; the public
- * detail page builds the full card data in step 8.2). Immutable.
+ * Related column chips and the edit form's light rows). Immutable.
  */
 final readonly class RelatedArticleDto
 {

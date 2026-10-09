@@ -1,4 +1,4 @@
-<!-- ResumeSectionEditor (admin-section-components.md:849-861, resume.html) — the resume layout's section visibility + ordering: a checkbox per section (visible toggle), up/down arrow buttons (the keyboard alternative, accessibility.md:35-44) and native drag-and-drop — all within the visible group only. Visible sections render first (sorted by order), hidden sections snap to the bottom (also sorted, subdued styling, not draggable and not drop targets). Any reorder rewrites the five order values to their display positions (0–4, the permutation invariant — visible-only renumbering could collide with hidden values); toggling visibility keeps the order value (admin-section-ui.md:287). Emits `update:modelValue` on every change plus the contract's `toggle` / `move-up` / `move-down` events; the page auto-saves the changes. -->
+<!-- ResumeSectionEditor — the resume layout's section visibility + ordering: a checkbox per section (visible toggle), up/down arrow buttons (the keyboard alternative) and native drag-and-drop — all within the visible group only. Visible sections render first (sorted by order), hidden sections snap to the bottom (also sorted, subdued styling, not draggable and not drop targets). Any reorder rewrites the five order values to their display positions (0–4, the permutation invariant — visible-only renumbering could collide with hidden values); toggling visibility keeps the order value. Emits `update:modelValue` on every change plus the contract's `toggle` / `move-up` / `move-down` events; the page auto-saves the changes. -->
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminBaseCheckbox from '@shared-admin/AdminBaseCheckbox.vue';
@@ -123,7 +123,6 @@ function moveDown(id: ResumeSectionKey): void {
     emit('move-down', id);
     emit('update:modelValue', renumberedMap([...moveVisibleRow(id, 1), ...hiddenRows.value]));
 }
-// ── Drag-and-drop (visible group only) ───────────────────────────────
 // During a drag the display order is a WORKING COPY — the visible rows
 // shift live as the cursor moves, so the dragged row appears ghosted
 // (opacity-40) in its potential slot (the SortableList pattern). The

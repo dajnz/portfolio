@@ -7,9 +7,8 @@ namespace App\Features\Portfolio\Infra\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `about_info_translations` (database.md:89-99).
- * Composite primary key `(about_info_id, locale)` — no auto-increment,
- * no timestamps.
+ * Eloquent model for `about_info_translations`. Composite primary key
+ * `(about_info_id, locale)` — no auto-increment, no timestamps.
  *
  * @property int $about_info_id
  * @property string $locale

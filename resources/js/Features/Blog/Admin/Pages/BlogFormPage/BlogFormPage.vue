@@ -1,4 +1,4 @@
-<!-- BlogFormPage (admin-section-ui.md:405-412, admin-section-components.md:1203-1227, blog-form.html) — the create/edit article form: the complex component's ORCHESTRATOR (2026-08-14 user request, the BlogListPage pattern): the two-panel layout (the TextEditor left, the BlogFormMetaSidebar right), the page wiring of the `useArticleForm` composable (form state, locale handling, slug auto-generation, save round-trip, uploads). POST /admin/blog on create, PUT on edit; the per-locale maps follow the LocaleTabs convention; the unified tag picker splits into the backend's `tags` (article-tag ids) + `skill_tags` (skill ids) fields; the Related Articles multi-select binds `related_article_ids` (published-only options); Preview opens the signed URL; the editor's image button uploads through /api/upload and inserts the /assets/ URL at the cursor (TextEditor.insertImage); useUnsavedChanges guards the whole form. -->
+<!-- BlogFormPage — the create/edit article form: the complex component's ORCHESTRATOR: the two-panel layout (the TextEditor left, the BlogFormMetaSidebar right), the page wiring of the `useArticleForm` composable (form state, locale handling, slug auto-generation, save round-trip, uploads). POST /admin/blog on create, PUT on edit; the per-locale maps follow the LocaleTabs convention; the unified tag picker splits into the backend's `tags` (article-tag ids) + `skill_tags` (skill ids) fields; the Related Articles multi-select binds `related_article_ids` (published-only options); Preview opens the signed URL; the editor's image button uploads through /api/upload and inserts the /assets/ URL at the cursor (TextEditor.insertImage); useUnsavedChanges guards the whole form. -->
 <script setup lang="ts">
 import type { ArticleEditData, ArticleOption, TagData } from '@blog/Admin/Types/article';
 import { usePage } from '@inertiajs/vue3';
@@ -39,11 +39,10 @@ const { menuGroups } = useAdminMenu();
 const activeLocale = ref('en');
 const editorRef = ref<TextEditorExposed | null>(null);
 
-// The editor reaches almost to the bottom screen edge (the sticky
-// bar + the page title above it, the usual 24-40 px page gap below —
-// measured: the content area sits ~19.5rem below the viewport top) —
-// user request 2026-08-13; the TextEditor applies it as the WYSIWYG
-// baseline and the raw view's fixed height.
+// The editor reaches almost to the bottom screen edge (the sticky bar +
+// the page title above it, the usual 24-40 px page gap below — measured:
+// the content area sits ~19.5rem below the viewport top); the TextEditor
+// applies it as the WYSIWYG baseline and the raw view's fixed height.
 const EDITOR_MIN_HEIGHT = 'calc(100vh - 19.5rem)';
 
 const {
@@ -69,13 +68,12 @@ const {
 
 const locales = computed(() => localeOptionsFromCodes(page.props?.supported_locales));
 
-// The Related Articles dropdown tooltip: the full alphabetical list
-// of the linked article names (the sidebar is too narrow for the
-// truncated trigger label — user request 2026-08-13; newlines render
-// as line breaks in native tooltips). Built from the article's own
-// related rows (`ArticleEditData.related`) — the picker options only
-// cover PUBLISHED articles, while linked-but-unpublished ones are
-// still linked and must be listed.
+// The Related Articles dropdown tooltip: the full alphabetical list of
+// the linked article names (the sidebar is too narrow for the truncated
+// trigger label; newlines render as line breaks in native tooltips).
+// Built from the article's own related rows (`ArticleEditData.related`)
+// — the picker options only cover PUBLISHED articles, while
+// linked-but-unpublished ones are still linked and must be listed.
 const relatedTooltip = computed(() =>
     (props.article?.related ?? [])
         .map((article) => article.title)
@@ -98,9 +96,9 @@ const relatedTooltip = computed(() =>
       class="mx-auto max-w-6xl"
       :data-testid="props.test_id"
     >
-      <!-- Sticky header controls (ADR-0024): back link / locale tabs /
-           preview + save (no Cancel — the back link replaces it, the
-           ADR-0024 convention), spread with space-between. -->
+      <!-- Sticky header controls: back link / locale tabs / preview +
+           save (no Cancel — the back link replaces it), spread with
+           space-between. -->
       <AdminStickyActionBar :test_id="`${props.test_id}-sticky-bar`">
         <AdminBaseButton
           tag="a"
@@ -156,7 +154,6 @@ const relatedTooltip = computed(() =>
         :data-testid="`${props.test_id}-form`"
         @submit.prevent="save"
       >
-        <!-- ══ Left panel: the Markdown editor ══ -->
         <div class="space-y-4">
           <TextEditor
             ref="editorRef"
@@ -172,7 +169,6 @@ const relatedTooltip = computed(() =>
           />
         </div>
 
-        <!-- ══ Right panel: the meta sidebar (BlogFormMetaSidebar) ══ -->
         <BlogFormMetaSidebar
           :title="form.title"
           :slug="form.slug"

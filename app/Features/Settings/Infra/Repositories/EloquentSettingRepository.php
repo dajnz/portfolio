@@ -13,9 +13,9 @@ use App\Features\Settings\Infra\Models\SettingModel;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Eloquent-backed settings repository. Owns the settings cache
- * (architecture.md): values are cached in Redis for 1 minute under
- * `settings:{key}`; writes invalidate the affected key. Missing rows are
+ * Eloquent-backed settings repository. Owns the settings cache:
+ * values are cached in Redis for 1 minute under `settings:{key}`; writes
+ * invalidate the affected key. Missing rows are
  * never cached so the caller's config() fallback cannot go stale.
  *
  * The cache stores the typed value (plain data), not the entity — the

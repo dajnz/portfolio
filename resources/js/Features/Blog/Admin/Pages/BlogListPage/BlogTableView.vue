@@ -58,8 +58,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 // The Tags column collapses after `MAX_VISIBLE_TAGS` chips into a
-// "+N" ellipsis badge — the projects table convention (user request
-// 2026-08-13).
+// "+N" ellipsis badge — the projects table convention.
 const MAX_VISIBLE_TAGS = 3;
 
 function chipVariant(tag: UnifiedTagChip): 'primary' | 'default' {
@@ -141,10 +140,9 @@ function previewUrl(row: ArticleTableRow): string {
       </div>
     </template>
     <template #cell-tags="{ row }">
-      <!-- Static chips — at most 3, the remainder collapse into
-           a "+N" ellipsis badge (the projects table convention,
-           user request 2026-08-13); tag editing lives on the
-           form page. -->
+      <!-- Static chips — at most 3, the remainder collapse into a "+N"
+           ellipsis badge (the projects table convention); tag editing
+           lives on the form page. -->
       <div class="flex flex-wrap gap-1">
         <AdminBaseBadge
           v-for="(tag, index) in visibleTags(row.tags as UnifiedTagChip[])"
@@ -183,9 +181,8 @@ function previewUrl(row: ArticleTableRow): string {
           {{ t('admin.statuses.trashed') }}
         </AdminBaseBadge>
         <!-- The published cell is an active control (the projects
-             convention): a state-styled button whose label is the
-             action — Publish on drafts, Unpublish on live
-             articles (user request 2026-08-13). -->
+             convention): a state-styled button whose label is the action
+             — Publish on drafts, Unpublish on live articles. -->
         <AdminBaseButton
           v-else
           type="button"

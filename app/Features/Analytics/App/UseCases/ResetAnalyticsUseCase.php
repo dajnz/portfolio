@@ -10,13 +10,12 @@ use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsEventRepositoryI
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
 
 /**
- * The `analytics:wipe` backing (analytics.md "Data deletion"): clears
- * ALL raw events, daily metrics and reports so manual testing can
- * start from a fresh state. The reports are transient (rebuilt from
- * metrics on the next generation), the metrics are the long-term store
- * — a wipe is deliberate and destructive, hence the command's
- * confirmation prompt. The per-table deleted counts come back as the
- * result DTO.
+ * The `analytics:wipe` backing: clears ALL raw events, daily metrics
+ * and reports so manual testing can start from a fresh state. The
+ * reports are transient (rebuilt from metrics on the next generation),
+ * the metrics are the long-term store — a wipe is deliberate and
+ * destructive, hence the command's confirmation prompt. The per-table
+ * deleted counts come back as the result DTO.
  */
 final class ResetAnalyticsUseCase
 {

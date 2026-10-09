@@ -1,4 +1,6 @@
-<!-- AdminPageSidebar (admin-section-components.md:409-475, admin-section-ui.md:47-56) — collapsible navigation groups on ONE element that covers both viewport modes (ADR-0024): the sticky w-64 rail at lg+, and below lg the fixed full-width panel directly under the header that shows only while `mobile_open` (id `admin-mobile-menu` — the header hamburger's aria-controls target). The panel's last element is a Logout row (`lg:hidden`, desktop keeps the header Logout only). No icons-only collapse mode. -->
+<!-- Sidebar covering both viewport modes in one element: a sticky w-64 rail
+     at lg+, and below lg a fixed full-width panel (id `admin-mobile-menu`)
+     under the header while `mobile_open`. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { Link, router } from '@inertiajs/vue3';
@@ -80,12 +82,11 @@ function isGroupExpanded(groupId: string): boolean {
     return effectiveExpanded.value.includes(groupId);
 }
 
-// The pages pass the FULL route path (`active_route="/admin/experience"`,
-// ADR-0024) — a prefix match also highlights the section on sub-routes
+// The pages pass the FULL route path (`active_route="/admin/experience"`) —
+// a prefix match also highlights the section on sub-routes
 // (`/admin/experience/create`, `/admin/experience/{id}/edit`). The
 // dashboard link (`/admin`) is EXACT-match only — its prefix would
-// match every admin page (ADR-0024: the dashboard was highlighted on the
-// profile page).
+// match every admin page.
 function isActive(route: string): boolean {
     if (route === '/admin') {
         return props.active_route === '/admin';

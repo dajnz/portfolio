@@ -27,11 +27,11 @@ use Inertia\Response;
 use Inertia\ResponseFactory;
 
 /**
- * Admin profile (authentication.md:197-203,239): profile info + password
- * change, TOTP enrollment/disable/recovery-code regeneration, GitHub
- * unlink. All routes are gated by `auth` + `auth.session_version` + `admin`.
- * The controller accepts/validates input and maps use-case outcomes to
- * responses — the flows live in the use cases.
+ * Admin profile: profile info + password change, TOTP
+ * enrollment/disable/recovery-code regeneration, GitHub unlink. All routes
+ * are gated by `auth` + `auth.session_version` + `admin`. The controller
+ * accepts/validates input and maps use-case outcomes to responses — the
+ * flows live in the use cases.
  */
 final class ProfileController
 {

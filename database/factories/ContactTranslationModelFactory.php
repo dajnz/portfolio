@@ -8,10 +8,6 @@ use App\Features\Portfolio\Infra\Models\ContactModel;
 use App\Features\Portfolio\Infra\Models\ContactTranslationModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * Test factory for `contact_translations` (ADR-0029, both locales covered
- * via the `forLocale()` state).
- */
 final class ContactTranslationModelFactory extends Factory
 {
     protected $model = ContactTranslationModel::class;

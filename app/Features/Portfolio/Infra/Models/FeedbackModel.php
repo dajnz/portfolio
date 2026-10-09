@@ -10,9 +10,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for the `feedback` table (database.md:462-480).
- * Submissions are immutable apart from the read/forwarded flags —
- * `created_at` only, no `updated_at`.
+ * Eloquent model for the `feedback` table. Submissions are immutable apart
+ * from the read/forwarded flags — `created_at` only, no `updated_at`.
  *
  * @property int $id
  * @property string $sender_email

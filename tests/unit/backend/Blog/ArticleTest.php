@@ -13,14 +13,6 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
- * The article aggregate: the publication invariants (required
- * translated fields + the not-yet-published guard), the
- * first-publish `published_at` immutability, the self-relation guard
- * and the translation validation. The helper builders live above the
- * suite.
- */
-
-/**
  * @return ArticleTranslation
  */
 function translation(): ArticleTranslation
@@ -57,7 +49,6 @@ function translatedArticle(PublishedState $published): Article
         ],
     );
 }
-
 
 describe('Article', function (): void {
     it('publishes a fully translated article and sets published_at on the first publish', function (): void {

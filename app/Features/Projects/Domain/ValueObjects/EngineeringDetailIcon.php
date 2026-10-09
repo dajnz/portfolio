@@ -8,11 +8,10 @@ use InvalidArgumentException;
 
 /**
  * Value object: an engineering detail icon (`project_detail_items.icon`)
- * in the Iconify `set:name` form (e.g. `heroicons:shield-check`,
- * content-management.md:645). The set of allowed names is constrained
- * by the strict icon manifests and the restricted picker, not
- * server-side. Immutable; the format invariant lives here, not in the
- * consuming entity.
+ * in the Iconify `set:name` form (e.g. `heroicons:shield-check`). The
+ * set of allowed names is constrained by the strict icon manifests and
+ * the restricted picker, not server-side; the format invariant lives
+ * here, not in the consuming entity.
  */
 final readonly class EngineeringDetailIcon
 {

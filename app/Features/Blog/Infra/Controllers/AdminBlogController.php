@@ -54,15 +54,14 @@ use Illuminate\Support\Facades\Response as ResponseFacade;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
- * Blog admin surface (routes.md:110-128): the cursor-paginated list
- * with its filter bar (search / article tags / skill tags / published
- * status / year / trashed — the dual-response JSON autocomplete
- * variant per admin-section-ui.md:539-572), the create/edit forms
- * (per-locale maps for the translatable fields — the LocaleTabs
- * convention), the CRUD + soft-delete lifecycle, the bulk actions and
- * the quick actions (publish/unpublish, related attach/detach, skill
- * attach/detach — returning the updated row as JSON so the list row
- * updates without a reload, content-management.md:255).
+ * Blog admin surface: the cursor-paginated list with its filter bar
+ * (search / article tags / skill tags / published status / year /
+ * trashed — the dual-response JSON autocomplete variant), the
+ * create/edit forms (per-locale maps for the translatable fields — the
+ * LocaleTabs convention), the CRUD + soft-delete lifecycle, the bulk
+ * actions and the quick actions (publish/unpublish, related
+ * attach/detach, skill attach/detach — returning the updated row as
+ * JSON so the list row updates without a reload).
  * One action → one use case; the controller only translates the HTTP
  * request into app-layer DTOs and the use-case results into the
  * Inertia/JSON output shapes — no repositories, Eloquent or DB calls.
@@ -257,9 +256,8 @@ final class AdminBlogController
     }
 
     /**
-     * The JSON autocomplete variant (admin-section-ui.md:539-572):
-     * ILIKE title search over all locales, unpublished included,
-     * length-aware pagination.
+     * The JSON autocomplete variant: ILIKE title search over all
+     * locales, unpublished included, length-aware pagination.
      */
     private function autocompleteJson(Request $request): JsonResponse
     {
@@ -481,9 +479,8 @@ final class AdminBlogController
             'lead_image_alt' => $article->leadImage?->altLabels ?? [],
             'is_featured' => $article->isFeatured,
             'is_published' => $article->isPublished,
-            // The tag DTOs carry the pivot ids (the review's "tags DTO
-            // includes IDs" point) — the related-ids wire value is
-            // derived from the related rows.
+            // The tag DTOs carry the pivot ids — the related-ids wire
+            // value is derived from the related rows.
             'related_article_ids' => array_map(
                 static fn (RelatedArticleDto $related): int => $related->id,
                 $article->related,
@@ -565,7 +562,7 @@ final class AdminBlogController
 
     /**
      * The admin list `meta` wire shape from the cursor pagination
-     * facts (admin-section-ui.md:169-181).
+     * facts.
      *
      * @return array<string, mixed>
      */
@@ -587,7 +584,7 @@ final class AdminBlogController
 
     /**
      * The length-aware `meta` wire shape of the JSON autocomplete
-     * variants (admin-section-ui.md:539-572, routes.md:172-176).
+     * variants.
      *
      * @return array<string, mixed>
      */

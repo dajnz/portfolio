@@ -9,10 +9,9 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Infra-layer read contracts for the Experience feature (ADR-0003: query-
- * builder reads live in the Infra layer — the domain repository
- * interface stays framework-free). Implemented by
- * {@see EloquentTimelineItemRepository}.
+ * Infra-layer read contracts for the Experience feature (query-builder
+ * reads live in the Infra layer — the domain repository interface stays
+ * framework-free). Implemented by {@see EloquentTimelineItemRepository}.
  */
 interface TimelineItemListQueryRepositoryInterface
 {
@@ -48,16 +47,14 @@ interface TimelineItemListQueryRepositoryInterface
 
     /**
      * Whether at least one published, non-trashed project exists — the
-     * header nav's Projects-link condition (ADR-0025; the experience wire
-     * shape carries no other published-project signal).
+     * header nav's Projects-link condition.
      */
     public function hasPublishedProjects(): bool;
 
     /**
-     * The single about-info row's name, resolved for the requested
-     * locale with the `en` fallback — the SEO title interpolation
-     * (`seo.title_experience`, seo.md:43). `null` when no about row
-     * exists.
+     * The single about-info row's name, resolved for the requested locale
+     * with the `en` fallback — the SEO title interpolation
+     * (`seo.title_experience`). `null` when no about row exists.
      */
     public function aboutNameFor(string $locale): ?string;
 

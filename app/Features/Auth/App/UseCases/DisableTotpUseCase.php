@@ -12,12 +12,11 @@ use App\Features\Shared\App\BaseUseCase;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Disables TOTP (authentication.md:239): requires the current password,
- * removes the secret + recovery codes, and bumps the session version so
- * all existing sessions (authenticated under the old 2FA posture) must
- * re-authenticate. The current session is re-authenticated first (session
- * ID regeneration), then the new version is written into the fresh
- * session.
+ * Disables TOTP: requires the current password, removes the secret +
+ * recovery codes, and bumps the session version so all existing sessions
+ * (authenticated under the old 2FA posture) must re-authenticate. The
+ * current session is re-authenticated first (session ID regeneration),
+ * then the new version is written into the fresh session.
  */
 final class DisableTotpUseCase extends BaseUseCase
 {

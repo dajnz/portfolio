@@ -3,9 +3,9 @@ import { expect, test } from '@playwright/test';
 import { demoArticles, demoProjects } from '../fixtures/content';
 
 /**
- * The SEO feeds (testing.md:483): `/sitemap.xml` lists the public URLs,
- * `/rss` serves the recent articles as valid XML. Pure HTTP checks — no
- * browser rendering needed, hence no data-testid constraints apply.
+ * The SEO feeds: `/sitemap.xml` lists the public URLs, `/rss` serves the
+ * recent articles as valid XML. Pure HTTP checks — no browser rendering
+ * needed, hence no data-testid constraints apply.
  */
 test.describe('public feeds', () => {
     test('sitemap.xml lists the public routes', async ({ request }) => {

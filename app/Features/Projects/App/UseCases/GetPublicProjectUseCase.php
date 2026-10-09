@@ -10,10 +10,9 @@ use App\Features\Projects\Domain\Entities\Project;
 use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface;
 
 /**
- * The public project detail (public-section-ui.md:177-207): the full
- * aggregate resolved by slug, mapped to the data/SEO DTOs with the
- * tech-writeup link gated by the article's CURRENT publication state
- * (content-management.md:133). Old-slug 301 resolution (ADR-0006) lives
+ * The public project detail: the full aggregate resolved by slug,
+ * mapped to the data/SEO DTOs with the tech-writeup link gated by the
+ * article's CURRENT publication state. Old-slug 301 resolution lives
  * here too (`currentSlugFor()`).
  */
 final class GetPublicProjectUseCase
@@ -35,9 +34,8 @@ final class GetPublicProjectUseCase
 
     /**
      * The current slug mapped from an old-slug record — the 301 target
-     * of the public detail controller (ADR-0006, content-management.md:
-     * 454-464). Null when the slug is not recorded (a trashed project's
-     * history resolves to nothing).
+     * of the public detail controller. Null when the slug is not
+     * recorded (a trashed project's history resolves to nothing).
      */
     public function currentSlugFor(string $slug): ?string
     {

@@ -1,9 +1,3 @@
-<!-- ProjectMediaSection — the Media card of the project form: the
-     preview DropzoneUpload with per-locale alt fields and the
-     reorderable screenshots gallery (compact rows by default, expand on
-     click, sticky expand/collapse-all header). Owns the uploads
-     (useJsonApi + toast) and the gallery UI state; the page
-     orchestrator receives the updated values via emits. -->
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
@@ -62,7 +56,7 @@ const { move, canMoveUp, canMoveDown } = useReorder();
 
 const isUploading = ref(false);
 
-// Collapsed-by-default screenshots (user request 2026-08-12): the
+// Collapsed-by-default screenshots: the
 // expanded-uid set; a drag-end click must not toggle a row, so header
 // clicks are suppressed briefly after a drag starts.
 const expandedScreenshots = ref<Set<string>>(new Set());
@@ -170,8 +164,8 @@ function addScreenshot(): void {
 
     emit('update:screenshots', [...props.screenshots, row]);
 
-    // A fresh screenshot opens expanded (the existing ones stay
-    // collapsed by default — user request 2026-08-12).
+    // A fresh screenshot opens expanded; the existing ones stay
+    // collapsed by default.
     expandedScreenshots.value = new Set(expandedScreenshots.value).add(row.uid);
 }
 
@@ -182,7 +176,7 @@ function removeScreenshot(index: number): void {
     );
 }
 
-// Keyboard alternative to drag reordering (accessibility.md:35-44).
+// Keyboard alternative to drag reordering.
 function moveScreenshot(index: number, direction: -1 | 1): void {
     const next = move(props.screenshots, index, direction);
 
@@ -202,8 +196,6 @@ function screenshotLabel(row: ScreenshotRow): string {
 function emptyLocaleMap(): Record<string, string> {
     return Object.fromEntries(SUPPORTED_LOCALES.map((code) => [code, '']));
 }
-
-// ── Screenshot collapse (compact rows by default, expand on click) ──
 
 function isScreenshotExpanded(uid: string): boolean {
     return expandedScreenshots.value.has(uid);
@@ -279,8 +271,7 @@ function onScreenshotHeaderClick(uid: string): void {
 
       <!-- Screenshots gallery — reorderable via SortableList,
            collapsed by default with per-row expand on click and
-           the sticky expand/collapse-all header (user request
-           2026-08-12). -->
+           the sticky expand/collapse-all header. -->
       <div :data-testid="`${props.test_id}-screenshots`">
         <div
           class="sticky top-[130px] z-30 mb-1.5 flex items-center justify-between bg-white py-1 dark:bg-surface-dark-secondary"
@@ -423,8 +414,7 @@ function onScreenshotHeaderClick(uid: string): void {
               </div>
               <!-- Expanded — a small header row collapses the
                    screenshot on click; the delete button lives in
-                   this header, aligned right (user request
-                   2026-08-12). -->
+                   this header, aligned right. -->
               <div v-else>
                 <div
                   class="flex cursor-pointer items-center gap-2 border-b border-slate-100 px-3 py-1.5 dark:border-slate-700"

@@ -21,26 +21,26 @@ use function strlen;
 use function substr;
 
 /**
- * The encrypted `.zip` archive surface (backup.md:308-338): every entry
- * of the staging directory (the `data/` JSONL files, `assets/` and
- * `manifest.json`) is stored with per-entry AES-256 encryption via
+ * The encrypted `.zip` archive surface: every entry of the staging
+ * directory (the `data/` JSONL files, `assets/` and `manifest.json`) is
+ * stored with per-entry AES-256 encryption via
  * `ZipArchive::setEncryptionName(..., ZipArchive::EM_AES_256, ...)`.
  * The encryption key is the raw 44-character base64 value of the active
  * (or imported) `backup_encryption_keys` row.
  *
- * The `encryptionEnabled` flag mirrors `config('backup.encryption_enabled')`
- * (backup.md:503-506): when false, `create()` skips encryption entirely
- * and `validate()`/`readManifest()` accept any key (an unencrypted
- * archive reads with any password). The produced archive follows the
- * ADR-0018 filename convention `backup-{Y-m-d-His}-k{id}.zip` — the key id
- * suffix is passed by the caller (the workflow owns the key record's
- * id); the optional `$filename` lets the create workflow force the
- * exact name the pending `backups` row carries, so the record, the
- * RustFS object key and the offline artifact always agree (ADR-0018).
+ * The `encryptionEnabled` flag mirrors `config('backup.encryption_enabled')`:
+ * when false, `create()` skips encryption entirely and
+ * `validate()`/`readManifest()` accept any key (an unencrypted archive
+ * reads with any password). The produced archive follows the filename
+ * convention `backup-{Y-m-d-His}-k{id}.zip` — the key id suffix is passed
+ * by the caller (the workflow owns the key record's id); the optional
+ * `$filename` lets the create workflow force the exact name the pending
+ * `backups` row carries, so the record, the RustFS object key and the
+ * offline artifact always agree.
  *
  * Failures (unopenable archive, wrong key, corrupt manifest) throw a
  * `RuntimeException` — the DR import's "invalid key or corrupted
- * archive" semantics (backup.md:597).
+ * archive" semantics.
  */
 final class ZipBackupArchive implements BackupArchiveInterface
 {

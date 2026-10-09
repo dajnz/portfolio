@@ -1,4 +1,4 @@
-<!-- TableOfContents (public-section-components.md:1312-1326, mockup blog-article.html) — the sticky sidebar listing the article's h2/h3 headings. Desktop: a sticky glass panel beside the article column; mobile (below `--bp-lg`): a collapsible floating button in the bottom-right corner expanding into a panel with the same list. The heading currently in view gets `.is-active` (IntersectionObserver over the article body's heading elements — matched via `target_selector`, the page's responsibility to keep in sync with the extracted `headings`); clicking a link emits `navigate` with the heading id — the parent scrolls (smooth, `scroll-margin-top` on the headings). Empty headings → the component renders nothing. -->
+<!-- TableOfContents — the sticky sidebar listing the article's h2/h3 headings. Desktop: a sticky glass panel beside the article column; mobile (below `--bp-lg`): a collapsible floating button in the bottom-right corner expanding into a panel with the same list. The heading currently in view gets `.is-active` (IntersectionObserver over the article body's heading elements — matched via `target_selector`, the page's responsibility to keep in sync with the extracted `headings`); clicking a link emits `navigate` with the heading id — the parent scrolls (smooth, `scroll-margin-top` on the headings). Empty headings → the empty message, never hidden. -->
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import PublicBaseButton from '@shared-public/PublicBaseButton.vue';
@@ -30,9 +30,9 @@ const activeId = ref('');
 const isMobileOpen = ref(false);
 // The mobile floating control is teleported to <body> so `position:
 // fixed` escapes the `container-type: inline-size` containing block of
-// the page's centered <main> (a11y 13.6 #19). Client-gated: Vue SSR does
-// not inline Teleport-to-<body> content, so rendering it only after mount
-// avoids a hydration mismatch.
+// the page's centered <main>. Client-gated: Vue SSR does not inline
+// Teleport-to-<body> content, so rendering it only after mount avoids a
+// hydration mismatch.
 const mounted = ref(false);
 const mobileEl = ref<HTMLElement | null>(null);
 let observer: IntersectionObserver | null = null;
@@ -77,8 +77,7 @@ function navigate(id: string): void {
     isMobileOpen.value = false;
 }
 
-// Escape closes the mobile panel and returns focus to its toggle
-// (accessibility.md keyboard navigation).
+// Escape closes the mobile panel and returns focus to its toggle.
 function closeMobile(): void {
     if (!isMobileOpen.value) {
         return;
@@ -105,9 +104,8 @@ onBeforeUnmount(cleanup);
     <h2 class="table-of-contents__title">
       {{ t('blog.table_of_contents') }}
     </h2>
-    <!-- User rework 2026-08-16: the sidebar is NEVER hidden — a
-         headingless article shows the muted empty message instead of
-         the list. -->
+    <!-- The sidebar is NEVER hidden — a headingless article shows the
+         muted empty message instead of the list. -->
     <p
       v-if="props.headings.length === 0"
       class="table-of-contents__empty"
@@ -141,9 +139,8 @@ onBeforeUnmount(cleanup);
   </aside>
 
   <!-- The mobile variant: a floating button expanding into a panel
-       with the same heading list — positioned LEFT of the GoTop button
-       (user rework 2026-08-16). Teleported to <body> so `position:
-       fixed` is viewport-relative (a11y 13.6 #19). -->
+       with the same heading list — positioned LEFT of the GoTop button.
+       Teleported to <body> so `position: fixed` is viewport-relative. -->
   <Teleport
     v-if="mounted"
     to="body"
@@ -259,8 +256,8 @@ onBeforeUnmount(cleanup);
     padding-left: var(--space-lg);
 }
 
-/* The headingless-article state (user rework 2026-08-16): the muted
-   caption replaces the list — the sidebar itself is never hidden. */
+/* The headingless-article state: the muted caption replaces the list —
+   the sidebar itself is never hidden. */
 .table-of-contents__empty {
     margin: 0;
     font-size: var(--font-size-sm);
@@ -276,7 +273,7 @@ onBeforeUnmount(cleanup);
 
 /* The mobile variant: a floating button + panel in the bottom-right
    corner; the desktop sidebar is hidden below `--bp-lg` (1024px) and
-   this block is hidden above it (the mockup's swap). */
+   this block is hidden above it. */
 .toc-mobile {
     display: none;
 }
@@ -290,9 +287,8 @@ onBeforeUnmount(cleanup);
         display: block;
         position: fixed;
 
-        /* User rework 2026-08-16: left-aligned with the same 1rem
-           corner gap as the (repositioned) GoTop button, same 40px
-           height, slightly narrower than GoTop. */
+        /* Left-aligned with the same 1rem corner gap as the GoTop
+           button, same 40px height, slightly narrower than GoTop. */
         left: 1rem;
         bottom: 1rem;
         z-index: var(--z-sticky);

@@ -8,9 +8,9 @@ use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryIn
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 
 /**
- * Restores a soft-deleted timeline item (content-management.md:883) —
- * clears `deleted_at`, making it visible again on the public timeline
- * (when published) and the default admin list.
+ * Restores a soft-deleted timeline item — clears `deleted_at`, making it
+ * visible again on the public timeline (when published) and the default
+ * admin list.
  */
 final class RestoreTimelineItemUseCase
 {

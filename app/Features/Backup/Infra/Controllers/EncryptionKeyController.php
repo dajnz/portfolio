@@ -17,11 +17,10 @@ use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Throwable;
 
 /**
- * The encryption-key surface (routes.md:149-151,
- * admin-section-ui.md:482-489): the JSON list (with the per-key
- * backup reference counts), the generation endpoint — the raw key
- * value is returned exactly once in the response, the UI displays it
- * in the show-once modal (backup.md:588) — and the guarded delete.
+ * The encryption-key surface: the JSON list (with the per-key backup
+ * reference counts), the generation endpoint — the raw key value is
+ * returned exactly once in the response, the UI displays it in the
+ * show-once modal — and the guarded delete.
  */
 final class EncryptionKeyController
 {
@@ -88,7 +87,7 @@ final class EncryptionKeyController
 
     /**
      * The store-response wire shape — includes the raw key value for
-     * the show-once modal (backup.md:588).
+     * the show-once modal.
      *
      * @return array<string, mixed>
      */

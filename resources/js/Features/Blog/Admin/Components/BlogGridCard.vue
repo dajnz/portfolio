@@ -1,9 +1,8 @@
-<!-- BlogGridCard (blog.html — the grid view variant of the blog list):
-     one article card — lead image (or the photo placeholder), title,
-     unified tag chips (at most 3 + a "+N" ellipsis badge), views
-     count, the publish/unpublish toggle button and the quick actions
-     (edit via card click, delete — trashed view: restore / delete
-     permanently). -->
+<!-- BlogGridCard — the grid view variant of the blog list: one article
+     card — lead image (or the photo placeholder), title, unified tag
+     chips (at most 3 + a "+N" ellipsis badge), views count, the
+     publish/unpublish toggle button and the quick actions (edit via card
+     click, delete — trashed view: restore / delete permanently). -->
 <script setup lang="ts">
 import type { ArticleTableRow, UnifiedTagChip } from '@blog/Admin/Types/article';
 import { Icon } from '@iconify/vue';
@@ -34,8 +33,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 // The card collapses the tag chips after `MAX_VISIBLE_TAGS` into a
-// "+N" ellipsis badge — the table convention (user request
-// 2026-08-13, round 2).
+// "+N" ellipsis badge — the table convention.
 const MAX_VISIBLE_TAGS = 3;
 
 function visibleTags(tags: UnifiedTagChip[]): UnifiedTagChip[] {

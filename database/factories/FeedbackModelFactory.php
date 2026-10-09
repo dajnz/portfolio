@@ -8,9 +8,8 @@ use App\Features\Portfolio\Infra\Models\FeedbackModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Test factory for the `feedback` table (ADR-0029). The identifiers are
- * opaque keyed HMAC digests (ADR-0017) — tests pass explicit values where the
- * anonymity invariants matter.
+ * The identifiers are opaque keyed HMAC digests — tests pass explicit
+ * values where the anonymity invariants matter.
  */
 final class FeedbackModelFactory extends Factory
 {

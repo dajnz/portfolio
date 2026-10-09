@@ -9,9 +9,8 @@ use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use App\Features\Backup\Domain\RepositoryInterfaces\EncryptionKeyRepositoryInterface;
 
 /**
- * The `GET /admin/backups/encryption-keys` listing
- * (admin-section-ui.md:482-489): every key, newest first, with the
- * reference count (backup.md:589).
+ * The `GET /admin/backups/encryption-keys` listing: every key, newest
+ * first, with the reference count.
  *
  * @return list<EncryptionKeyListItemDto>
  */

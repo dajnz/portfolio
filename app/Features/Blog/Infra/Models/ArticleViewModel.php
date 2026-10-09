@@ -10,10 +10,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Eloquent model for `article_views` (database.md:422-433): the
- * per-article counter table (`article_id` is the PRIMARY KEY — a view
- * row is born on the first atomic upsert-increment, content-management.
- * md:216). No timestamps.
+ * Eloquent model for `article_views`: the per-article counter table
+ * (`article_id` is the PRIMARY KEY — a view row is born on the first
+ * atomic upsert-increment). No timestamps.
  *
  * @property int $article_id
  * @property int $views

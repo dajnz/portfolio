@@ -2,8 +2,8 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
 /**
- * localStorage key for the admin sidebar's collapsible group state
- * (architecture.md:192 — pure UX preference, no server involvement).
+ * localStorage key for the admin sidebar's collapsible group state (a
+ * pure UX preference — no server involvement).
  */
 export const SIDEBAR_STORAGE_KEY = 'admin_sidebar_collapsed_groups';
 
@@ -28,9 +28,8 @@ function readStoredGroups(): string[] {
 }
 
 /**
- * Admin sidebar collapsible group state
- * (architecture.md:192, admin-section-components.md:340). Persisted in
- * localStorage; SSR renders no state.
+ * Admin sidebar collapsible group state. Persisted in localStorage; SSR
+ * renders no state.
  */
 export const useSidebarStore = defineStore('sidebar', () => {
     const collapsedGroups = ref<string[]>(readStoredGroups());

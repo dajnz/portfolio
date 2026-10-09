@@ -7,10 +7,9 @@ namespace App\Features\Shared\Domain\ValueObjects;
 use InvalidArgumentException;
 
 /**
- * Value object: a contact icon (`contacts.icon`) in the generic Iconify
- * `set:name` form (e.g. `simple-icons:github`, `simple-icons:telegram`).
- * Immutable; the format invariant lives here, not in the consuming
- * entities.
+ * A contact icon (`contacts.icon`) in the generic Iconify `set:name` form
+ * (e.g. `simple-icons:github`, `simple-icons:telegram`). The format
+ * invariant lives here, not in the consuming entities.
  */
 final readonly class ContactIcon
 {

@@ -12,9 +12,9 @@ use function is_string;
 
 /**
  * Converts between `backup_encryption_keys` rows and the `EncryptionKey`
- * entity. The raw key is encrypted at rest via `Crypt` (under APP_KEY,
- * backup.md:495-497): `toRow` encrypts before the row is stored,
- * `toEntity` decrypts so the entity always carries the raw value.
+ * entity. The raw key is encrypted at rest via `Crypt` (under APP_KEY):
+ * `toRow` encrypts before the row is stored, `toEntity` decrypts so the
+ * entity always carries the raw value.
  */
 final class BackupEncryptionKeyMapper
 {

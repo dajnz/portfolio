@@ -1,4 +1,3 @@
-// BulkActionBar (admin-section-components.md:197-214) — selected-count bar with action buttons above admin data tables.
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 

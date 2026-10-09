@@ -8,32 +8,25 @@ use Highlight\Highlighter;
 use Throwable;
 
 /**
- * Server-side code highlighting for the content pipeline
- * (content-management.md:473-481): wraps the pure-PHP
- * `scrivo/highlight.php` port of highlight.js (the same engine family
- * as the admin editor's lowlight — tech-stack.md:42) and renders the
- * tokens as inline-color spans matching the mockup's palette
- * (`docs/mockups/public/blog-article.html` — the "Shiki-processed
- * HTML" of the components spec is replaced by this engine per the
- * step-8.2 deviation; the mockup's visual output — colored tokens,
- * no-JS functionality — is preserved).
+ * Server-side code highlighting for the content pipeline: wraps the pure-PHP
+ * `scrivo/highlight.php` port of highlight.js (the same engine family as the
+ * admin editor's lowlight) and renders the tokens as inline-color spans,
+ * preserving the colored-token, no-JS output.
  *
- * The emitted block carries the progressive-enhancement markers the
- * public `CodeBlock` component mounts on (public-section-components.md:
- * 1285): `<pre data-code-block data-language="..." data-raw="...">`
- * wrapping the highlighted `<code>`. `data-raw` holds the raw source
- * (the copy button's payload) and the wrapper is fully static — no
+ * The emitted block carries the progressive-enhancement markers the public
+ * `CodeBlock` component mounts on: `<pre data-code-block data-language="..."
+ * data-raw="...">` wrapping the highlighted `<code>`. `data-raw` holds the raw
+ * source (the copy button's payload) and the wrapper is fully static — no
  * JavaScript is required to read the highlighted code.
  *
- * Unknown languages degrade to plain escaped text (no token spans),
- * so a typo in a fence info string can never break the render.
+ * Unknown languages degrade to plain escaped text (no token spans), so a typo
+ * in a fence info string can never break the render.
  */
 final class CodeHighlighter
 {
     /**
      * The token class → color map of the inline-style theme — the
-     * mockup's moss/plum/gold palette with sensible defaults for the
-     * token kinds the mockup does not exercise.
+     * moss/plum/gold palette with sensible defaults for uncovered token kinds.
      *
      * @var array<string, string>
      */
@@ -76,12 +69,11 @@ final class CodeHighlighter
     }
 
     /**
-     * Renders the highlighted code block — the `data-code-block`
-     * wrapper with the language + raw-code attributes (the CodeBlock
-     * mount markers) around the inline-colored token spans. Language-
-     * less fences (the editor's "none" option) fall back to
-     * auto-detection (ADR-0008 — the public blocks were plain otherwise;
-     * the default autodetect subset covers the common web languages).
+     * Renders the highlighted code block — the `data-code-block` wrapper with
+     * the language + raw-code attributes (the CodeBlock mount markers) around
+     * the inline-colored token spans. Language-less fences (the editor's
+     * "none" option) fall back to auto-detection (the default autodetect subset
+     * covers the common web languages).
      */
     public function highlight(string $code, string $language): string
     {
@@ -151,8 +143,8 @@ final class CodeHighlighter
     }
 
     /**
-     * Rewrites the engine's `hljs-*` token classes into the mockup's
-     * inline-color theme spans (the palette of `blog-article.html`).
+     * Rewrites the engine's `hljs-*` token classes into the inline-color theme
+     * spans.
      */
     private function colorize(string $html): string
     {

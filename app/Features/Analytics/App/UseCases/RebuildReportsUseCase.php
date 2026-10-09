@@ -15,27 +15,26 @@ use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
 use DateTimeImmutable;
 
 /**
- * The report rebuild (analytics.md:186-212, ADR-0017): deletes all
- * `analytics_reports` rows and rebuilds every span
- * (day/week/month/year/all — `all` = one whole-time row per
+ * The report rebuild: deletes all `analytics_reports` rows and rebuilds
+ * every span (day/week/month/year/all — `all` = one whole-time row per
  * metric+dimension) from `analytics_daily_metrics` via the daily-metric
  * repository's SQL GROUP BY (`aggregateForSpan`). The value derivation
- * follows the catalog rules (analytics.md:172): weighted
- * `SUM(value)/SUM(samples)` for the avg-able metrics, plain MIN/MAX
- * for the `*_min`/`*_max` metrics, SUM otherwise.
+ * follows the catalog rules: weighted `SUM(value)/SUM(samples)` for the
+ * avg-able metrics, plain MIN/MAX for the `*_min`/`*_max` metrics, SUM
+ * otherwise.
  *
  * The full-rebuild mode (`rebuild(recomputeMetrics: true)` — the manual
  * `analytics:generate-reports` command and the dashboard "Generate
- * Now", 11.3.4) additionally recomputes the metrics first: deletes the
- * metric rows for the dates covered by the still-present events (the
- * ~90-day event window) and re-aggregates them from the oldest
- * existing event → today — plus the FULL feedback history
- * (`feedback_submissions` — feedback rows are never pruned, so the
- * metric can be re-derived even for days before the event window).
- * Metrics older than the event window are kept — a rebuild never loses
- * history it cannot re-derive. Called by `RebuildReportsJob` — the
- * daily path (after the metrics were just aggregated) and the
- * full-rebuild path (with the metric recompute).
+ * Now") additionally recomputes the metrics first: deletes the metric
+ * rows for the dates covered by the still-present events (the ~90-day
+ * event window) and re-aggregates them from the oldest existing event →
+ * today — plus the FULL feedback history (`feedback_submissions` —
+ * feedback rows are never pruned, so the metric can be re-derived even
+ * for days before the event window). Metrics older than the event
+ * window are kept — a rebuild never loses history it cannot re-derive.
+ * Called by `RebuildReportsJob` — the daily path (after the metrics
+ * were just aggregated) and the full-rebuild path (with the metric
+ * recompute).
  */
 final class RebuildReportsUseCase
 {
@@ -58,9 +57,9 @@ final class RebuildReportsUseCase
     }
 
     /**
-     * The full-rebuild metric recompute (analytics.md:209): the
-     * deletion covers the event window only; the aggregation extends
-     * back to the oldest feedback row (full feedback history).
+     * The full-rebuild metric recompute: the deletion covers the event
+     * window only; the aggregation extends back to the oldest feedback
+     * row (full feedback history).
      */
     private function recomputeMetricWindow(): void
     {
@@ -135,9 +134,9 @@ final class RebuildReportsUseCase
     }
 
     /**
-     * The per-metric-kind aggregation (analytics.md:172): weighted
-     * average for the avg-able metrics, plain min/max for the
-     * `*_min`/`*_max` metrics, plain sum otherwise.
+     * The per-metric-kind aggregation: weighted average for the avg-able
+     * metrics, plain min/max for the `*_min`/`*_max` metrics, plain sum
+     * otherwise.
      *
      * @param array{
      *     value_sum: float,

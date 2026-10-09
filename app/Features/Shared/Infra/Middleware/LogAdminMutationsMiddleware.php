@@ -11,11 +11,10 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Logs successful admin content changes (error-handling.md:226-240 —
- * "Content CRUD | info | stack | Admin ID, entity type, action"). The
- * request-level entry covers every admin mutation (create/update/
- * delete/restore/bulk/publish) in one place; the authentication flows
- * are excluded — they log their own dedicated events (login/TOTP).
+ * Logs successful admin content changes. The request-level entry covers every
+ * admin mutation (create/update/delete/restore/bulk/publish) in one place; the
+ * authentication flows are excluded — they log their own dedicated events
+ * (login/TOTP).
  */
 final class LogAdminMutationsMiddleware
 {

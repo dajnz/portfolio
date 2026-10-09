@@ -1,27 +1,7 @@
-<!-- TextEditor (admin-section-components.md:217-249) — the complex
-     component's ORCHESTRATOR (2026-08-14 user request): Tiptap Markdown
-     WYSIWYG editor with callouts (`> [!WARNING]` marker syntax,
-     extension in EditorExtensions/Callout.ts), lowlight code blocks
-     with language selector, image upload events, drag-resizable images
-     (Tiptap's built-in ResizableNodeView — the size is an
-     editor-session aid: markdown cannot carry the width without
-     breaking the public safe-mode pipeline, ADR-0024), GFM tables, links,
-     underline/strikethrough/subscript/superscript marks, and the
-     5-group toolbar (block / inline / script / code+quote / media).
-     The root owns the editor instance, the modelValue round trip, the
-     raw/WYSIWYG switch and the placeholder; the toolbar row is
-     `EditorToolbar.vue`, the shared config popup is
-     `EditorConfigPopup.vue`, the popup state machine is
-     `useEditorPopup.ts`, the table-size grid is
-     `useEditorTableGrid.ts`. The `is_loading` prop drives the spec's
-     `loading` skeleton state (gap-fill — the spec documents the state
-     without a triggering prop). -->
 <script lang="ts">
 /** The toolbar buttons the editor can expose — the `buttons` prop
  *  picks a subset (blog-only controls like image/table/callout are
- *  excluded by the projects config; the 2026-08-13 toolbar rework —
- *  ADR-0024 — reorganized the groups and added underline/strike/sub/sup/
- *  table/link). */
+ *  excluded by the projects config). */
 export type TextEditorButton =
     | 'heading'
     | 'bullet-list'
@@ -40,16 +20,15 @@ export type TextEditorButton =
     | 'callout'
     | 'link';
 
-/** The blog-only controls — image upload, GFM tables and callouts. */
+/** The blog-only controls. */
 export type BlogOnlyEditorButton = 'image' | 'table' | 'callout';
 
 /** The projects-specific button subset — the Markdown fields keep the
  *  shared formatting but no blog-only controls: images go through the
  *  Media section (DropzoneUpload + screenshots gallery), tables and
- *  callouts are blog-only (ADR-0024). */
+ *  callouts are blog-only. */
 export type ProjectEditorButton = Exclude<TextEditorButton, BlogOnlyEditorButton>;
 
-/** The blog config — every button the editor can expose. */
 export const BLOG_EDITOR_BUTTONS: TextEditorButton[] = [
     'heading',
     'bullet-list',
@@ -69,7 +48,6 @@ export const BLOG_EDITOR_BUTTONS: TextEditorButton[] = [
     'link',
 ];
 
-/** The projects config — {@link ProjectEditorButton} in full. */
 export const PROJECT_EDITOR_BUTTONS: ProjectEditorButton[] = [
     'heading',
     'bullet-list',
@@ -121,14 +99,14 @@ const props = withDefaults(
          *  instead of ad-hoc lists. */
         buttons?: TextEditorButton[];
         /** Selectable heading level (H1–H6 dropdown) instead of the
-         *  single H button — the blog article editor config (ADR-0024).
+         *  single H button — the blog article editor config.
          *  Default `false` keeps the one-click heading button. */
         selectable_heading?: boolean;
         /** Minimum editor height (CSS length) — the WYSIWYG view
          *  grows with the content from this baseline, the raw view
          *  gets a FIXED height of the same value with its own
-         *  scrollbar (user request 2026-08-13 — the blog form's
-         *  editor reaches nearly to the bottom of the screen). */
+         *  scrollbar (the blog form's editor reaches nearly to the
+         *  bottom of the screen). */
         min_height?: string;
         test_id?: string;
     }>(),
@@ -163,14 +141,6 @@ const popupRef = ref<InstanceType<typeof EditorConfigPopup> | null>(null);
 
 const placeholderText = computed(() => props.placeholder ?? t('admin.editor.placeholder'));
 
-// ── The shared config popup (ADR-0024) — the state machine in
-//    useEditorPopup.ts: one popup at a time, fixed-anchored under the
-//    clicked toolbar button, closed by outside click (capture
-//    listener excluding the toolbar/popup), Escape or applying an
-//    option — NOT by the editor blur (focusing the popup's own input
-//    blurs the editor first, which would instantly close the
-//    just-opened popup). The popup's DOM element is forwarded by
-//    EditorConfigPopup for the outside-click check. ──
 const popup = useEditorPopup({
     popupElement: () => popupRef.value?.rootElement ?? null,
     toolbarElement: () => toolbarRef.value?.$el ?? null,
@@ -178,9 +148,6 @@ const popup = useEditorPopup({
 
 const { mode: popupMode, position: popupPosition } = popup;
 
-// ── The Tiptap instance (useEditorInstance.ts): the editor
-//    lifecycle, the active-state tracking, the raw/WYSIWYG mode and
-//    the content/editable syncs. ──
 const { editor, state, isEmpty, rawValue, toggleMode, onRawInput } =
     useEditorInstance({
         content: () => props.modelValue,
@@ -198,8 +165,6 @@ const { editor, state, isEmpty, rawValue, toggleMode, onRawInput } =
         onBeforeModeSwitch: popup.close,
     });
 
-// ── The editor commands + the toolbar/popup handlers
-//    (useEditorCommands.ts) — the UI events become transactions. ──
 const {
     linkHref,
     toggleBlockquote,
@@ -229,8 +194,7 @@ defineExpose({ insertImage });
 // The min-height style of the content area — the shared container
 // style covers the WYSIWYG view (the ProseMirror content grows from
 // the baseline); the raw textarea needs its own fixed height (with a
-// scrollbar) since it is an independent element (user request
-// 2026-08-13).
+// scrollbar) since it is an independent element.
 const contentMinHeightStyle = computed(() =>
     props.min_height !== undefined ? { minHeight: props.min_height } : undefined,
 );
@@ -282,10 +246,10 @@ function onImageChange(event: Event): void {
            the border's exact inner curve (the toolbar's top corners and
            the content's bottom corners) WITHOUT blocking the sticky
            toolbar, so no per-child radius classes are needed and the
-           stuck toolbar gets square corners by itself (2026-08-14
-           review find). The toolbar's sticky offset is 129 px — the
-           fixed admin header (h-16) + the page's `AdminStickyActionBar`
-           (64 px) — so the stuck row sits flush under it, no gap. -->
+           stuck toolbar gets square corners by itself. The toolbar's
+           sticky offset is 129 px — the fixed admin header (h-16) + the
+           page's `AdminStickyActionBar` (64 px) — so the stuck row sits
+           flush under it, no gap. -->
       <div
         :class="[
           {
@@ -351,10 +315,10 @@ function onImageChange(event: Event): void {
             />
             <!-- The placeholder hides as soon as the editor is focused
                (the cursor sits where the first line starts) and
-               reappears on blur while the content is still empty
-               (ADR-0024 — the focus state also fixes the vertical
-               alignment: the first content line's margin is zeroed
-               via CSS, so both start at the same padding offset). -->
+               reappears on blur while the content is still empty.
+               The focus state also fixes the vertical alignment: the
+               first content line's margin is zeroed via CSS, so both
+               start at the same padding offset. -->
             <p
               v-if="isEmpty && !isFocused && !props.disabled"
               class="absolute top-0 left-0 px-4 py-3 text-sm text-slate-400 dark:text-slate-600 pointer-events-none"
@@ -365,8 +329,6 @@ function onImageChange(event: Event): void {
           </template>
         </div>
 
-        <!-- ══ The shared config popup (ADR-0024) — one mode at a time,
-           fixed-anchored under the clicked toolbar button. ══ -->
         <EditorConfigPopup
           v-if="popupMode !== null"
           ref="popupRef"
@@ -403,15 +365,14 @@ function onImageChange(event: Event): void {
   </div>
 </template>
 
-<!-- Editor-content typography (user request 2026-08-12): the global
-     resets strip heading sizes (Tailwind preflight inherits them), list
-     markers (public-tokens.css `ul, ol { list-style: none }`) and
-     blockquote/quote affordances (universal margin/padding reset), so
-     the ProseMirror content needs its own rules. EditorContent renders
-     a plain wrapper div and moves the ProseMirror view DOM into it, so
-     the rules anchor on the component-unique `.text-editor__content`
-     class instead of Vue's scoped attribute (which cannot reach the
-     moved-in content). -->
+<!-- Editor-content typography: the global resets strip heading sizes
+     (Tailwind preflight inherits them), list markers (public-tokens.css
+     `ul, ol { list-style: none }`) and blockquote/quote affordances
+     (universal margin/padding reset), so the ProseMirror content needs
+     its own rules. EditorContent renders a plain wrapper div and moves
+     the ProseMirror view DOM into it, so the rules anchor on the
+     component-unique `.text-editor__content` class instead of Vue's
+     scoped attribute (which cannot reach the moved-in content). -->
 <style>
 .text-editor__content h1,
 .text-editor__content h2,
@@ -448,7 +409,7 @@ function onImageChange(event: Event): void {
 /* Long unbroken strings (URLs, long words) must wrap inside the editor:
    without `overflow-wrap: anywhere` the content's min-content width
    grows past the box and drags the whole editor (and its grid/flex
-   column) wider than the layout allows (2026-08-14 review find).
+   column) wider than the layout allows.
    `anywhere` (NOT ProseMirror's injected `break-word` — which only
    wraps visually without capping the min-content size) is set on the
    `.ProseMirror` element itself, beating the ProseMirror stylesheet
@@ -462,8 +423,7 @@ function onImageChange(event: Event): void {
 }
 
 /* The first content line starts exactly at the padding offset — the
-   same Y as the placeholder text (ADR-0024; the placeholder previously
-   sat above the cursor line by the first paragraph's top margin). */
+   same Y as the placeholder text. */
 .text-editor__content [contenteditable='true'] > :first-child {
     margin-top: 0;
 }
@@ -498,7 +458,6 @@ function onImageChange(event: Event): void {
     color: #64748b;
 }
 
-/* GFM tables (ADR-0024 — the editor's table button). */
 .text-editor__content table {
     border-collapse: collapse;
     margin: 0.75rem 0;
@@ -533,7 +492,7 @@ function onImageChange(event: Event): void {
     /* Long code lines keep their layout — the inherited
        `overflow-wrap: anywhere` is reset so they scroll horizontally,
        and `contain: inline-size` stops the line's min-content width
-       from growing the editor (2026-08-14 review find). */
+       from growing the editor. */
     overflow-wrap: normal;
     contain: inline-size;
 
@@ -608,9 +567,9 @@ function onImageChange(event: Event): void {
     margin: 0.25rem 0;
 }
 
-/* lowlight syntax theme for the editor's code blocks (ADR-0024 —
+/* lowlight syntax theme for the editor's code blocks —
    CodeBlockLowlight decorates tokens with `hljs-*` spans; without
-   colors they all render as plain text). A compact slate palette
+   colors they all render as plain text. A compact slate palette
    matching the admin surface; the server-side public pipeline uses
    Shiki with its own theme (MarkdownContentPipeline). */
 .text-editor__content pre code .hljs-keyword,
@@ -718,11 +677,11 @@ function onImageChange(event: Event): void {
     color: #38bdf8;
 }
 
-/* The drag-resize handles of the image node view (ADR-0024 — Tiptap's
+/* The drag-resize handles of the image node view — Tiptap's
    built-in ResizableNodeView renders them as bare positioned divs;
    the corners get the grab affordance, visible on hover / while the
-   image is selected / during a resize). The resized width is an
-   editor-session aid — the markdown round trip drops it (ADR-0024). */
+   image is selected / during a resize. The resized width is an
+   editor-session aid — the markdown round trip drops it. */
 .text-editor__content [data-resize-wrapper] {
     display: inline-block;
     max-width: 100%;

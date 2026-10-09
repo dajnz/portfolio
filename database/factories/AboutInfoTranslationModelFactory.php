@@ -8,10 +8,6 @@ use App\Features\Portfolio\Infra\Models\AboutInfoModel;
 use App\Features\Portfolio\Infra\Models\AboutInfoTranslationModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * Test factory for `about_info_translations` (ADR-0029, both locales covered
- * via the `forLocale()` state).
- */
 final class AboutInfoTranslationModelFactory extends Factory
 {
     protected $model = AboutInfoTranslationModel::class;

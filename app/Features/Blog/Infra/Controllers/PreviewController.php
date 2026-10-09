@@ -18,14 +18,12 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
- * The signed preview route `GET /admin/preview/blog/{article}`
- * (routes.md:155, content-management.md:245): excluded from the auth
- * middleware — access is via a signed temporary URL (1-hour expiry,
- * `URL::temporarySignedRoute`), verified here. Renders the PUBLIC
- * article page, bypassing the `is_published` scope: the shared
- * content pipeline HTML, the SEO props with the `noindex` directive
- * and a null reactions widget (ADR-0004 — step 8.2 replaced the raw-data
- * preview with the full public surface).
+ * The signed preview route `GET /admin/preview/blog/{article}`:
+ * excluded from the auth middleware — access is via a signed temporary
+ * URL (1-hour expiry, `URL::temporarySignedRoute`), verified here.
+ * Renders the PUBLIC article page, bypassing the `is_published` scope:
+ * the shared content pipeline HTML, the SEO props with the `noindex`
+ * directive and a null reactions widget.
  */
 final class PreviewController
 {

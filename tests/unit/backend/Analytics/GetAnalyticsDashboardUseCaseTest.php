@@ -15,15 +15,6 @@ use Tests\Support\Fakes\FakeAnalyticsReportDataReader;
 use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 
 /**
- * The dashboard Inertia props (analytics.md:223-227, ADR-0017, 11.3.4):
- * the whole-time blocks per tab (overview/blog/projects), the default
- * chart series (`page_views`, day/week/month/cumulative) and the
- * default rankings (time-on-page top/bottom 10). Block keys are the
- * stable identifiers the frontend maps to i18n labels and to the
- * series/rankings metric parameters (11.3.6/11.3.7).
- */
-
-/**
  * @param list<AnalyticsReport> $rows
  */
 function dashboardProps(array $rows): AnalyticsDashboardDto
@@ -173,9 +164,6 @@ it('builds the default rankings with the top and bottom 10 pages', function (): 
     ]);
 });
 
-/**
- * Builds a whole-time dimension-NULL block row of the given metric.
- */
 function dashboardBlockRow(string $metric, float $value): AnalyticsReport
 {
     return new AnalyticsReport(
@@ -190,9 +178,6 @@ function dashboardBlockRow(string $metric, float $value): AnalyticsReport
     );
 }
 
-/**
- * Builds a whole-time dimension row of the given metric.
- */
 function dashboardRankingRow(string $metric, float $value, string $dimension): AnalyticsReport
 {
     return new AnalyticsReport(
@@ -207,9 +192,6 @@ function dashboardRankingRow(string $metric, float $value, string $dimension): A
     );
 }
 
-/**
- * Builds a dimension-NULL `page_views` series row.
- */
 function dashboardReportRow(MetricSpan $span, string $periodStart, float $value): AnalyticsReport
 {
     return new AnalyticsReport(

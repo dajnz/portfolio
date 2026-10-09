@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Auth\Domain\Enums;
 
 /**
- * Outcome of the GitHub OAuth link intent (authentication.md:179-187).
+ * Outcome of the GitHub OAuth link intent.
  */
 enum GithubLinkOutcome
 {

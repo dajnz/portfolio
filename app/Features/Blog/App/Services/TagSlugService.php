@@ -8,14 +8,13 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
 use App\Features\Shared\Domain\ValueObjects\Slug;
 
 /**
- * The article-tag slug resolution (content-management.md:424-464, ADR-0006 —
- * the same rules as the article/project slugs): the slug is
- * auto-generated from the EN name and editable in the form; the
- * server distinguishes the auto-generated value from a manual
- * override and re-resolves it with a numeric collision suffix when
- * the base slug is taken. The suffix query covers ALL tags (tags are
- * hard-deleted — no trashed rows). The persistence lookup is the
- * repository's `takenSlugs()`.
+ * The article-tag slug resolution (the same rules as the
+ * article/project slugs): the slug is auto-generated from the EN name
+ * and editable in the form; the server distinguishes the auto-generated
+ * value from a manual override and re-resolves it with a numeric
+ * collision suffix when the base slug is taken. The suffix query
+ * covers ALL tags (tags are hard-deleted — no trashed rows). The
+ * persistence lookup is the repository's `takenSlugs()`.
  */
 final class TagSlugService
 {

@@ -7,11 +7,10 @@ namespace App\Features\Backup\Domain\ValueObjects;
 use InvalidArgumentException;
 
 /**
- * One entry of the manifest's `assets` array (backup.md:119-128): a
- * RustFS object path of the portfolio bucket and its byte size. The
- * paths enumerate every asset included in the archive — the restore
- * workflow mirrors the live bucket against them, deleting objects
- * absent from the manifest.
+ * One entry of the manifest's `assets` array: a RustFS object path of
+ * the portfolio bucket and its byte size. The paths enumerate every
+ * asset included in the archive — the restore workflow mirrors the live
+ * bucket against them, deleting objects absent from the manifest.
  */
 final class ManifestAsset
 {

@@ -1,4 +1,4 @@
-<!-- ArticleCard (public-section-components.md:800-816, mockup blog.html + blog-article.html) — the blog article preview card shared by the blog index (default variant) and the article page's related section (compact variant — no image). The card is a container with a stretched Inertia `<Link>` overlay to `/blog/{slug}` (a DOM sibling of the card's own filter-chip links — nested anchors would be invalid HTML); the lead image renders with the resolved per-locale alt (placeholder icon when absent — the `empty_image` state), the search results' `short_description` may carry the FTS `<mark>` snippet (ADR-0007 — server-sanitized, rendered via v-html), the meta row shows the localized date + reading time, the article tags render as accent badges and the skill tags as linked TechSkillTag chips (`/blog?skill_tags={id}`), capped at 3 with a "+N" overflow chip (the ADR-0025 projects convention, mockup parity). Hover prefetches the article page data after the 100 ms linger (architecture.md:1264-1271 — `router.prefetch` is a genuine cache-warming fetch, no navigation; the ADR-0025 hazard does not apply). -->
+<!-- ArticleCard — the blog article preview card shared by the blog index (default variant) and the article page's related section (compact variant — no image). The card is a container with a stretched Inertia `<Link>` overlay to `/blog/{slug}` (a DOM sibling of the card's own filter-chip links — nested anchors would be invalid HTML); the lead image renders with the resolved per-locale alt (placeholder icon when absent — the `empty_image` state), the search results' `short_description` may carry the FTS `<mark>` snippet (server-sanitized, rendered via v-html), the meta row shows the localized date + reading time, the article tags render as accent badges and the skill tags as linked TechSkillTag chips (`/blog?skill_tags={id}`), capped at 3 with a "+N" overflow chip. Hover prefetches the article page data after the 100 ms linger (`router.prefetch` is a genuine cache-warming fetch, no navigation). -->
 <script setup lang="ts">
 import { type ArticleCardView, formatArticleDate } from '@blog-shared/Composables/useArticleCards';
 import { Icon } from '@iconify/vue';
@@ -18,7 +18,7 @@ const props = withDefaults(
         is_loading?: boolean;
         /** The max number of rendered tag chips (article tags + skill
          *  tags combined); the excess collapses into a "+N" chip
-         *  (3 grid / 5 list — user rework 2026-08-16). */
+         *  (3 grid / 5 list). */
         tags_limit?: number;
         test_id?: string;
     }>(),
@@ -33,8 +33,8 @@ const props = withDefaults(
 
 const { t, locale } = useI18n();
 
-// The combined chip list — article tags first, then the skill tags
-// (the mockup's order); the cap applies to the combined total.
+// The combined chip list — article tags first, then the skill tags; the
+// cap applies to the combined total.
 const allTags = computed(() => [
     ...(props.article?.tags ?? []),
     ...(props.article?.skill_tags ?? []),
@@ -53,12 +53,12 @@ const metaDate = computed(() =>
     formatArticleDate(props.article?.published_at ?? null, locale.value),
 );
 
-// Hover-based prefetch (architecture.md:1264-1271): the timer arms on
-// mouseenter and fires `router.prefetch` after the linger — a genuine
-// cache-warming page-data fetch with no navigation. An in-flight
-// prefetch cannot be cancelled (Inertia has no public abort for it —
-// the ADR-0026 `onCancelToken` bridge belongs to visits); leaving early
-// only cancels the pending timer.
+// Hover-based prefetch: the timer arms on mouseenter and fires
+// `router.prefetch` after the linger — a genuine cache-warming
+// page-data fetch with no navigation. An in-flight prefetch cannot be
+// cancelled (Inertia has no public abort for it — the `onCancelToken`
+// bridge belongs to visits); leaving early only cancels the pending
+// timer.
 const prefetchTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 
 function onEnter(): void {
@@ -140,7 +140,7 @@ function onLeave(): void {
         :data-testid="`${props.test_id}-placeholder`"
       >
         <!-- The large, faint photo icon on the tinted surface — the
-             projects card's placeholder look (ADR-0025). -->
+             projects card's placeholder look. -->
         <Icon
           class="article-card__placeholder-icon"
           icon="heroicons:photo"
@@ -152,10 +152,10 @@ function onLeave(): void {
       <h2 class="card__title article-card__title">
         {{ props.article.title }}
       </h2>
-      <!-- The FTS snippet may carry `<mark>` tags (ADR-0007) — the server
-           sanitizes everything else (ArticleCardDto::sanitizeSnippet),
-           so only the highlight survives; eslint accepts the v-html by
-           design (the ProjectDetailPage precedent). -->
+      <!-- The FTS snippet may carry `<mark>` tags — the server sanitizes
+           everything else (ArticleCardDto::sanitizeSnippet), so only the
+           highlight survives; eslint accepts the v-html by design (the
+           ProjectDetailPage precedent). -->
       <!-- eslint-disable vue/no-v-html -->
       <p
         class="card__description article-card__description"
@@ -220,7 +220,7 @@ function onLeave(): void {
     text-decoration: none;
 }
 
-/* The 16/9 lead-image slot (the mockup's `.article-card__image`). */
+/* The 16/9 lead-image slot. */
 .article-card__image {
     display: block;
     width: 100%;
@@ -246,7 +246,7 @@ function onLeave(): void {
 }
 
 /* The no-image placeholder: the tinted surface + dashed frame + faint
-   photo icon of the projects card (ADR-0025 look). */
+   photo icon of the projects card. */
 .article-card__image--placeholder {
     display: flex;
     align-items: center;

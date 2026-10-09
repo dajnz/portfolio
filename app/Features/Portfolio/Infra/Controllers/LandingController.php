@@ -17,11 +17,10 @@ use Inertia\Response;
 use Inertia\ResponseFactory;
 
 /**
- * `GET /` and `GET /{locale}` (routes.md:22,50) — the landing page
- * (public-section-ui.md:56-101): about block, skills, featured projects,
- * contacts, SEO props (seo.md:33-118: Person + WebSite JSON-LD) and the
- * console greeting data (ADR-0023). The `{locale}` path constraint
- * (`en|ru`) is enforced at route registration.
+ * `GET /` and `GET /{locale}` — the landing page: about block, skills,
+ * featured projects, contacts, SEO props (Person + WebSite JSON-LD) and
+ * the console greeting data. The `{locale}` path constraint (`en|ru`) is
+ * enforced at route registration.
  */
 final class LandingController
 {
@@ -182,7 +181,7 @@ final class LandingController
     }
 
     /**
-     * Person + WebSite (with SearchAction) blocks per seo.md:86-118.
+     * Person + WebSite (with SearchAction) blocks.
      *
      * @param  Contact[]  $contacts
      * @return array<int, array<string, mixed>>

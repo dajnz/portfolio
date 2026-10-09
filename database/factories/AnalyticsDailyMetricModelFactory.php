@@ -8,9 +8,8 @@ use App\Features\Analytics\Infra\Models\AnalyticsDailyMetricModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * Test factory for `analytics_daily_metrics` (ADR-0029). The default
- * dimension is NULL (a global metric row) — pass an explicit
- * dimension for entity-keyed rows.
+ * The default dimension is NULL (a global metric row) — pass an
+ * explicit dimension for entity-keyed rows.
  */
 final class AnalyticsDailyMetricModelFactory extends Factory
 {

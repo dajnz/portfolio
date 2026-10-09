@@ -11,8 +11,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 /**
  * Authenticatable model for the `admins` table — the sole credential
- * store (authentication.md:63-96). Extending `Illuminate\Foundation\Auth\User`
- * provides the `Authenticatable` contract plus remember-me support.
+ * store. Extending `Illuminate\Foundation\Auth\User` provides the
+ * `Authenticatable` contract plus remember-me support.
  *
  * Encrypted-at-rest columns (`totp_secret`, `github_token`) are decrypted
  * by `AdminMapper` — the model never exposes plaintext secrets.

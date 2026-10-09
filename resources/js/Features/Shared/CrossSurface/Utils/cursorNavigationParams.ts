@@ -6,13 +6,10 @@ export interface Cursor {
 export type CursorNavigationPayload = { cursor: Cursor } | { page: number };
 
 /**
- * Builds the query params for a cursor-pagination navigation (ADR-0010): a
- * `page` jump produces `?page=N`; a cursor navigation produces
- * `cursor[id]` + `cursor[sort_value]` (when present), plus
- * `cursor[before]=1` when the cursor equals the list's `cursors.first`
- * (the previous-page marker per admin-section-ui.md:181). Shared by the
- * admin list pages (extracted from the duplicated per-page `navigate()`
- * functions, 4.2 rework).
+ * Builds the query params for a cursor-pagination navigation: a `page`
+ * jump produces `?page=N`; a cursor navigation produces `cursor[id]` +
+ * `cursor[sort_value]` (when present), plus `cursor[before]=1` when the
+ * cursor equals the list's `cursors.first` (the previous-page marker).
  */
 export function cursorNavigationParams(
     payload: CursorNavigationPayload,

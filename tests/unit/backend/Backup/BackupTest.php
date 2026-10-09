@@ -11,14 +11,6 @@ use App\Features\Backup\Domain\ValueObjects\BackupTimings;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
-/**
- * The `backups` row entity (backup.md:132-159, database.md:567-587):
- * the lifecycle state machine — `pending → processing → completed`,
- * `pending | processing → failed`, plus `completed → processing` for
- * the restore of an existing backup (ADR-0018) — and the per-status shape
- * invariants (archive stamp on completion, failure time on fail,
- * neither while pending/processing, backup.yaml:55-67).
- */
 describe('Backup', function (): void {
     it('exposes the stored fields of a pending backup', function (): void {
         $backup = new Backup(

@@ -3,11 +3,11 @@ import { expect, test } from '@playwright/test';
 import { expectToast, rowIdByText, setCheckbox, typeMarkdown, unique } from '../fixtures/admin';
 
 /**
- * The project admin CRUD (testing.md:492). The tests are serial and
- * share the created project: the first creates a published, featured
- * project with a screenshot and tech tags, the second pulls its
- * featured order to the front and verifies the landing page, the last
- * soft-deletes it so the public project sees the seeded baseline.
+ * The tests are serial and share the created project: the first creates
+ * a published, featured project with a screenshot and tech tags, the
+ * second pulls its featured order to the front and verifies the landing
+ * page, the last soft-deletes it so the public project sees the seeded
+ * baseline.
  */
 test.describe.configure({ mode: 'serial' });
 
@@ -28,7 +28,6 @@ test.describe('project management', () => {
         await setFeaturedWithOrder(page, '3');
         await saveProjectForm(page);
 
-        // The public projects index shows the new card.
         await page.goto('/projects');
         await expect(page.getByTestId('projects-page-grid')).toContainText(titleEn);
 
@@ -80,7 +79,6 @@ async function landingFeaturedSlugs(page: import('@playwright/test').Page): Prom
         );
 }
 
-/** Fills the bilingual title, brief and the architecture write-up. */
 async function fillBilingualContent(page: import('@playwright/test').Page): Promise<void> {
     await page.getByTestId('project-form-page-title-en').fill(titleEn);
     await page.getByTestId('project-form-page-brief-en').fill(
@@ -104,7 +102,6 @@ async function fillBilingualContent(page: import('@playwright/test').Page): Prom
     );
 }
 
-/** Uploads one screenshot through the media section's file input. */
 async function uploadScreenshot(page: import('@playwright/test').Page): Promise<void> {
     await page.getByTestId('project-form-page-add-screenshot').click();
     await page.getByTestId('project-form-page-screenshot-0-dropzone-input').setInputFiles({
@@ -117,7 +114,6 @@ async function uploadScreenshot(page: import('@playwright/test').Page): Promise<
     await expect(page.getByTestId('project-form-page-screenshot-0-dropzone')).toContainText('.webp');
 }
 
-/** Picks the first two tech-tag suggestions (Laravel + Vue.js). */
 async function attachTechTags(page: import('@playwright/test').Page): Promise<void> {
     for (const tag of ['laravel', 'vue']) {
         await page.getByTestId('project-form-page-tech-tags-input').click();
@@ -126,14 +122,12 @@ async function attachTechTags(page: import('@playwright/test').Page): Promise<vo
     }
 }
 
-/** Marks the project as featured with the given order and publishes it. */
 async function setFeaturedWithOrder(page: import('@playwright/test').Page, order: string): Promise<void> {
     await setCheckbox(page, 'project-form-page-featured', true);
     await page.getByTestId('project-form-page-featured-order').fill(order);
     await setCheckbox(page, 'project-form-page-published', true);
 }
 
-/** Saves the form and waits for the success toast. */
 async function saveProjectForm(page: import('@playwright/test').Page): Promise<void> {
     await page.getByTestId('project-form-page-save-btn').click();
     await expectToast(page, 'Saved successfully.');

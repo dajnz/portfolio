@@ -9,9 +9,6 @@ use App\Features\Analytics\Domain\Enums\CallToActionTarget;
 use DateTimeImmutable;
 use Tests\Support\AnalyticsEventFixture;
 
-/**
- * The plain CTA click events (analytics.md:19-22): the target identity drives the event type.
- */
 describe('CallToActionClickEvent', function (): void {
     it('derives the event type from the target', function (): void {
         expect((new CallToActionClickEvent(

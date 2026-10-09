@@ -11,16 +11,15 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Config;
 
 /*
- * Blog routes (routes.md:27-28,55-56,110-128,149-155,218): the public
- * index/detail (with their locale-prefixed variants — the `{locale}`
- * parameter is constrained to the supported locales so
- * `SetLocaleFromPathMiddleware` never sees an invalid value; the
- * `{article}` detail parameter carries the RAW slug — ADR-0006: the
- * old-slug 301 lookup happens in the controller, implicit model
- * binding cannot do the fallback), the RSS feed, the admin section
- * (gated by the Auth middleware chain — `auth` + `auth.session_version`
- * + `admin`; the `{article}`/`{tag}` parameters carry RAW ids) and
- * the signed preview route (excluded from auth, routes.md:155).
+ * Blog routes: the public index/detail (with their locale-prefixed
+ * variants — the `{locale}` parameter is constrained to the supported
+ * locales so `SetLocaleFromPathMiddleware` never sees an invalid value;
+ * the `{article}` detail parameter carries the RAW slug — the old-slug
+ * 301 lookup happens in the controller, implicit model binding cannot
+ * do the fallback), the RSS feed, the admin section (gated by the Auth
+ * middleware chain — `auth` + `auth.session_version` + `admin`; the
+ * `{article}`/`{tag}` parameters carry RAW ids) and the signed preview
+ * route (excluded from auth).
  */
 
 Route::get('/blog', [PublicBlogController::class, 'index'])
