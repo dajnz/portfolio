@@ -459,17 +459,35 @@ function onImageChange(event: Event): void {
 }
 
 .text-editor__content table {
-    border-collapse: collapse;
-    margin: 0.75rem 0;
     width: 100%;
+    margin: 0.75rem 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    font-size: var(--font-size-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
 }
 
 .text-editor__content th,
 .text-editor__content td {
-    border: 1px solid #cbd5e1;
     padding: 0.375rem 0.75rem;
     text-align: left;
     vertical-align: top;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.text-editor__content th:not(:last-child) {
+    border-right: 1px solid var(--color-border);
+}
+
+.text-editor__content td:not(:last-child) {
+    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+}
+
+.text-editor__content table tr:last-child td {
+    border-bottom: none;
 }
 
 .text-editor__content th {
@@ -738,17 +756,18 @@ function onImageChange(event: Event): void {
     color: #94a3b8;
 }
 
+.dark .text-editor__content table,
 .dark .text-editor__content th,
 .dark .text-editor__content td {
     border-color: #334155;
 }
 
 .dark .text-editor__content th {
-    background: #1e293b;
+    background: #13233e;
 }
 
 .dark .text-editor__content pre {
-    background: #1e293b;
+    background: #172233;
     color: #e2e8f0;
     border-color: #334155;
     scrollbar-color: #475569 transparent;
@@ -759,7 +778,7 @@ function onImageChange(event: Event): void {
 }
 
 .dark .text-editor__content code {
-    background: #1e293b;
+    background: #172233;
 }
 
 .dark .text-editor__content hr {
