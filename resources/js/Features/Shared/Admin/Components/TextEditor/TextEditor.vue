@@ -289,7 +289,7 @@ function onImageChange(event: Event): void {
           @change="onImageChange"
         >
         <div
-          class="relative"
+          class="relative bg-white dark:bg-surface-dark-tertiary"
           :style="contentMinHeightStyle"
           :aria-invalid="props.error !== null || undefined"
           :data-testid="`${props.test_id}-content`"

@@ -262,9 +262,9 @@ onBeforeUnmount(cleanup);
         *
       </span>
     </label>
-    <div class="relative">
+    <div class="relative ">
       <div
-        class="flex min-h-10 w-full flex-wrap items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface-dark-secondary px-2 py-1.5 focus-within:border-primary-500"
+        class="flex min-h-10 w-full flex-wrap items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-surface-secondary dark:bg-surface-dark-tertiary px-2 py-1.5 focus-within:border-primary-500"
         :class="{
           'border-danger-300 dark:border-danger-700': props.error !== null,
           'opacity-45 pointer-events-none': props.disabled,

@@ -102,7 +102,7 @@ defineExpose({
       :min="props.min"
       :max="props.max"
       :step="props.step"
-      class="block w-full h-10 px-3 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-surface-secondary dark:bg-surface-dark-tertiary text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 dark:focus:ring-primary-900 outline-none transition-all"
+      class="block w-full h-10 px-3 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-surface-lighter dark:bg-surface-dark-tertiary text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 dark:focus:ring-primary-900 outline-none transition-all"
       :class="{
         'border-danger-300 dark:border-danger-700 focus:border-danger-500 focus:ring-danger-100 dark:focus:ring-danger-900': props.error !== null,
         'bg-slate-50 dark:bg-slate-900 text-slate-400 dark:text-slate-600 cursor-not-allowed': props.disabled,

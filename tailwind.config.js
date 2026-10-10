@@ -39,11 +39,12 @@ export default {
 
                 surface: {
                     DEFAULT: '#ffffff',
+                    lighter: '#f8fafd',
                     secondary: '#F6F8FC',
                     tertiary: '#EBF0FA',
                     dark: '#0F1830',
                     'dark-secondary': '#16213D',
-                    'dark-tertiary': '#141934',
+                    'dark-tertiary': '#19264b',
                 },
 
                 sidebar: {
