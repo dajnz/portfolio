@@ -43,6 +43,7 @@ export default {
                     tertiary: '#EBF0FA',
                     dark: '#0F1830',
                     'dark-secondary': '#16213D',
+                    'dark-tertiary': '#141934',
                 },
 
                 sidebar: {
