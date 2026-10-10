@@ -82,7 +82,7 @@ function onKeydown(event: KeyboardEvent): void {
       @click.stop="emit('remove')"
     >
       <Icon
-        class="w-3.5 h-3.5"
+        class="w-3.5 h-3.5 cursor-pointer"
         icon="heroicons:x-mark"
         aria-hidden="true"
       />

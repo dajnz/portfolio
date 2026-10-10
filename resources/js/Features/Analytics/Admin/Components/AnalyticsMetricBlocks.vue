@@ -39,7 +39,7 @@ const { t } = useI18n();
       v-for="block in props.blocks"
       :key="block.key"
       type="button"
-      class="rounded-lg border bg-white p-5 text-left shadow-card transition-colors dark:bg-surface-dark-secondary"
+      class="rounded-lg border bg-white p-5 text-left shadow-card transition-colors dark:bg-surface-dark-secondary cursor-pointer"
       :class="
         block.selected
           ? 'border-primary-500 ring-[3px] ring-primary-100 dark:ring-primary-900'

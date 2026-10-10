@@ -68,6 +68,7 @@ function tabAriaLabel(locale: LocaleOption): string {
         isWarned(locale) && locale.code !== props.modelValue
           ? 'border-warning-500 text-warning-700 dark:text-warning-400'
           : '',
+        'cursor-pointer',
       ]"
       class="px-4 py-2 text-sm font-semibold border transition-colors"
       :data-testid="`${props.test_id}-tab-${locale.code}`"

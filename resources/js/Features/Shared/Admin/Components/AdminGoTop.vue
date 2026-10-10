@@ -48,7 +48,7 @@ onBeforeUnmount(() => {
 <template>
   <button
     type="button"
-    class="fixed bottom-2 right-2 z-sticky w-10 h-10 inline-flex items-center justify-center rounded-lg bg-primary-600 hover:bg-primary-700 text-white shadow-card transition-all"
+    class="fixed bottom-2 right-2 z-sticky w-10 h-10 inline-flex items-center justify-center rounded-lg bg-primary-600 hover:bg-primary-700 text-white shadow-card transition-all cursor-pointer"
     :class="{ 'opacity-0 pointer-events-none translate-y-2': !isVisible }"
     :aria-label="props.label ?? t('common.scroll_to_top')"
     :data-testid="props.test_id"

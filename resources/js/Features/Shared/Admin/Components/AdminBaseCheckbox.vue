@@ -47,7 +47,7 @@ function onChange(event: Event): void {
       :checked="isChecked"
       :indeterminate.prop="isIndeterminate"
       :disabled="props.disabled || undefined"
-      class="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+      class="w-4 h-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
       :data-testid="props.test_id"
       @change="onChange"
     >
