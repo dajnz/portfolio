@@ -387,7 +387,7 @@ function isEditing(rowId: number): boolean {
       <template v-if="hasRows || editingId === 'new'">
         <div
           v-if="editingId === 'new'"
-          class="mb-3 flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"
+          class="mb-3 flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary cursor-pointer"
           :data-testid="`${props.test_id}-row-new`"
         >
           <span
@@ -466,7 +466,7 @@ function isEditing(rowId: number): boolean {
           :handle="'.contact-row-handle'"
           :classes="{
             container: 'divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white shadow-card dark:divide-slate-700 dark:border-slate-700 dark:bg-surface-dark-secondary',
-            item: 'px-4 py-3',
+            item: 'px-4 py-3 hover:bg-slate-100 hover:dark:bg-surface-dark-tertiary',
           }"
           :test_id="`${props.test_id}-sortable`"
           @drag-end="reorder"
