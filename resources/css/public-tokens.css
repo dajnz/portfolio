@@ -136,10 +136,11 @@ pre code {
     /* --- Colors — Backgrounds ---
        Soft mist-paper ground: cool, quiet, lets the Moss/Plum/Gold accents
        lead without competing warmth. */
-    --color-bg-primary:    oklch(0.98 0.01 0.06);
-    --color-bg-secondary:  oklch(0.94 0.01 0.11);
-    --color-bg-tertiary:   oklch(0.91 0.01 16.08);
-    --color-surface:       oklch(1 0 0);
+    --color-bg-primary:        oklch(0.98 0.01 0.06);
+    --color-bg-secondary:      oklch(0.94 0.01 0.11);
+    --color-bg-tertiary:       oklch(0.91 0.01 16.08);
+    --color-surface:           oklch(1 0 0);
+    --color-surface-secondary: oklch(0.98 0 0);
 
     /* --- Colors — Text --- */
     --color-text-primary:    oklch(0.24 0.02 89.88);
@@ -322,10 +323,11 @@ pre code {
    -------------------------------------------------------------------------- */
 :root.dark {
     /* --- Colors — Backgrounds — deep forest-ink, not neutral navy/black --- */
-    --color-bg-primary:    oklch(0.18 0.01 17.05);
-    --color-bg-secondary:  oklch(0.23 0.01 0);
-    --color-bg-tertiary:   oklch(0.26 0.01 16.31);
-    --color-surface:       oklch(0.22 0.01 16.75);
+    --color-bg-primary:        oklch(0.18 0.01 17.05);
+    --color-bg-secondary:      oklch(0.23 0.01 0);
+    --color-bg-tertiary:       oklch(0.26 0.01 16.31);
+    --color-surface:           oklch(0.22 0.01 16.75);
+    --color-surface-secondary: oklch(0.21 0.01 15.0);
 
     /* --- Colors — Text --- */
     --color-text-primary:    oklch(0.96 0.01 0);

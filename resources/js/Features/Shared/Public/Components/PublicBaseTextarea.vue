@@ -148,7 +148,7 @@ function onInput(event: Event): void {
     font-size: var(--input-font-size);
     font-family: var(--font-sans);
     color: var(--color-text-primary);
-    background: var(--color-surface);
+    background: var(--color-surface-secondary);
     border: var(--input-border-width) solid var(--color-border);
     border-radius: var(--input-radius);
     transition: var(--input-transition);
