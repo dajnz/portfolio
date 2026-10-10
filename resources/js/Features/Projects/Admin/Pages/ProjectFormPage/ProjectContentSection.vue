@@ -60,7 +60,7 @@ function fieldError(field: string): string | null {
         :error="fieldError('brief_description')"
         :disabled="props.disabled"
         :maxlength="300"
-        :rows="3"
+        :rows="5"
         :test_id="`${props.test_id}-brief-${props.locale}`"
         @update:model-value="(value) => emit('update:brief_description', props.locale, value)"
       />

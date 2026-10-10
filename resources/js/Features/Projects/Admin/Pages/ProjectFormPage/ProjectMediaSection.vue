@@ -258,6 +258,7 @@ function onScreenshotHeaderClick(uid: string): void {
           class="w-full"
         >
           <AdminBaseInput
+            class="pt-3"
             :model-value="props.preview_image_alt[code] ?? ''"
             :label="`${t('admin.projects.alt_text')} [${code}]`"
             :error="fieldError('preview_image_alt')"
