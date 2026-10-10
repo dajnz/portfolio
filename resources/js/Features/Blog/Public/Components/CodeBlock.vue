@@ -88,7 +88,6 @@ async function copy(): Promise<void> {
 .code-block {
     position: relative;
     margin: var(--space-lg) 0;
-    background: var(--color-bg-secondary);
 }
 
 /* The radii live on the header (rounded TOP corners) and the pre (square
@@ -110,7 +109,6 @@ async function copy(): Promise<void> {
 
 .code-block__copy {
     border: none;
-    background: transparent;
     color: var(--color-text-secondary);
     cursor: pointer;
     font-size: var(--font-size-sm);
@@ -146,7 +144,7 @@ async function copy(): Promise<void> {
        --color-bg-tertiary + a border — the block's own
        --color-bg-secondary must show through and the outer border
        belongs to the block only. */
-    background: transparent;
+    background: var(--color-bg-secondary);
     font-family: var(--font-mono);
     font-size: var(--font-size-sm);
     line-height: var(--line-height-normal);
