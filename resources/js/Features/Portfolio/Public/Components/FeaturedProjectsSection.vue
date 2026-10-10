@@ -120,7 +120,7 @@ const skeletonCards = [0, 1, 2];
     font-weight: var(--font-semibold);
     letter-spacing: var(--letter-spacing-tight);
     color: var(--color-text-primary);
-    margin: 0 0 var(--space-md);
+    margin: 0 0 var(--space-lg);
 }
 
 /* 3 cards per row on large content widths, 2 on medium, 1 on mobile.
