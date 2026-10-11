@@ -55,8 +55,8 @@ describe('ConsoleGreeting', () => {
         expect(scripts).toHaveLength(1);
         expect(scripts[0].nonce).toBe('test-nonce');
         expect(scripts[0].textContent).toContain('console.info');
-        expect(scripts[0].textContent).toContain('Hey there!');
-        expect(scripts[0].textContent).toContain('Email: alex@example.com');
+        expect(scripts[0].textContent).toContain('%cHey there!');
+        expect(scripts[0].textContent).toContain('%cEmail: %calex@example.com');
     });
 
     it('renders no visible DOM', () => {
