@@ -158,6 +158,17 @@ describe('AdminBaseDropdown', () => {
         );
     });
 
+    it('highlights the selected option when reopening', async () => {
+        const wrapper = mount(AdminBaseDropdown, {
+            props: { modelValue: 'vue', options: OPTIONS },
+        });
+
+        await wrapper.get('[data-testid="base-dropdown"]').trigger('click');
+        await wrapper.get('[data-testid="base-dropdown"]').trigger('keydown', { key: 'Enter' });
+
+        expect(wrapper.emitted('update:modelValue')).toEqual([['vue']]);
+    });
+
     it('shows skeleton rows while loading', async () => {
         const wrapper = mount(AdminBaseDropdown, {
             props: { modelValue: '', loading: true, options: OPTIONS },
