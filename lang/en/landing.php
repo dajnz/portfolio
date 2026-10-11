@@ -49,7 +49,7 @@ return [
     'feedback_send_another' => 'Send another',
     'feedback_error' => 'Could not send your message. Please try again.',
     'feedback_invalid_email' => 'Please enter a valid email address.',
-    'feedback_errors_summary' => 'Please correct the following {count, plural, one {# error} other {# errors}}:',
+    'feedback_errors_summary' => 'Please correct the following {count, plural, one {# error} other {# errors}}',
 
     'console_greeting' => 'Hey there! Welcome to my portfolio.',
 

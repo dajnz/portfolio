@@ -25,7 +25,7 @@ return [
         'busy' => 'Занят',
     ],
     'work_type' => [
-        'remote' => 'Удалённо',
+        'remote' => 'Только удалённо',
         'hybrid' => 'Гибрид',
         'office' => 'В офисе',
     ],
@@ -44,7 +44,7 @@ return [
     'feedback_send_another' => 'Отправить ещё',
     'feedback_error' => 'Не удалось отправить сообщение. Попробуйте ещё раз.',
     'feedback_invalid_email' => 'Введите корректный email-адрес.',
-    'feedback_errors_summary' => 'Исправьте следующие ошибки ({count}):',
+    'feedback_errors_summary' => 'Исправьте следующие ошибки ({count})',
 
     'console_greeting' => 'Привет! Добро пожаловать в моё портфолио.',
 

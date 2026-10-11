@@ -54,7 +54,7 @@ return [
 
     'login' => [
         'title' => 'Login',
-        'login_placeholder' => 'email or username',
+        'login_placeholder' => 'Email or username',
         'password' => 'Password',
         'remember_me' => 'Remember Me',
         'continue_with_github' => 'Continue with GitHub',
