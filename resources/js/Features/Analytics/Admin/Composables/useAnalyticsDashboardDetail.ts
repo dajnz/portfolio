@@ -18,14 +18,15 @@ import {
 /**
  * The dashboard page's detail-area wiring: owns the active tab + the
  * selected block, the fetch orchestration (default-seed states render
- * from the props without fetching; block clicks and the span/variant
- * dropdowns fetch through `useAnalytics` — AbortController cancellation
- * + per-fetch loading/error refs) and the chart/rankings view models
- * for the detail area. The page keeps only the orchestration (header,
- * tabs, blocks, empty state) and renders `AnalyticsDetailArea` with
- * this API. The default overview chart (total visits, daily) and the
- * default time-on-page top rankings render from the
- * `default_chart`/`default_rankings` props without fetching.
+ * from the props without fetching; every other selection — a block
+ * click or a tab switch — fetches through `useAnalytics` —
+ * AbortController cancellation + per-fetch loading/error refs) and the
+ * chart/rankings view models for the detail area. The page keeps only
+ * the orchestration (header, tabs, blocks, empty state) and renders
+ * `AnalyticsDetailArea` with this API. The default overview chart
+ * (total visits, daily) and the default time-on-page top rankings
+ * render from the `default_chart`/`default_rankings` props without
+ * fetching.
  */
 export type AnalyticsDetailProps = Pick<
     NonNullable<components['schemas']['AnalyticsDashboardPageProps']['props']>,
@@ -120,13 +121,13 @@ export function useAnalyticsDashboardDetail(
     // The default overview detail comes from the props (OpenAPI
     // AnalyticsDefaultChart/AnalyticsDefaultRankings): total visits
     // daily + the time-on-page top 10. No fetch until a span/variant
-    // change or a different block click.
+    // change, a different block click or a tab switch.
     analytics.chartPoints.value = props.default_chart.spans.day.points;
     analytics.rankingRows.value = props.default_rankings.rows.top;
 
     function selectTab(tab: AnalyticsTab): void {
         // Re-seeding must cancel in-flight fetches — a stale response
-        // can never overwrite the fresh default state of the new tab.
+        // can never overwrite the state of the new tab.
         analytics.abortFetches();
         activeTab.value = tab;
         analytics.span.value = 'day';
@@ -134,38 +135,28 @@ export function useAnalyticsDashboardDetail(
         analytics.chartError.value = false;
         analytics.multiChartError.value = false;
         analytics.rankingsError.value = false;
+        analytics.chartPoints.value = [];
+        analytics.rankingRows.value = [];
         analytics.multiChartSeries.value = [];
-        seedDefaultState();
-    }
-
-    // Seeds the prop defaults only when the selected block really is a
-    // default state (total visits daily / time-on-page top); any other
-    // selection clears the detail area — a stale fetch result (or the
-    // default series) must never render under a different block's
-    // title.
-    function seedDefaultState(): void {
-        const key = selectedBlockKey.value;
-        const config = key ? blockConfigFor(activeTab.value, key) : undefined;
-
-        if (config?.kind === 'chart' && isDefaultChartState(config)) {
-            analytics.chartPoints.value = props.default_chart.spans.day.points;
-        } else {
-            analytics.chartPoints.value = [];
-        }
-
-        if (config?.kind === 'rankings' && isDefaultRankingsState(config)) {
-            analytics.rankingRows.value = props.default_rankings.rows.top;
-        } else {
-            analytics.rankingRows.value = [];
-        }
+        loadSelectedDetail();
     }
 
     function onBlockSelect(key: string): void {
-        const tab = activeTab.value;
-        analytics.selectBlock(tab, key);
+        analytics.selectBlock(activeTab.value, key);
+        loadSelectedDetail();
+    }
 
-        const config = blockConfigFor(tab, key);
+    // Renders the currently selected block's detail — the default chart
+    // / rankings come from the props without fetching, every other
+    // selection fetches through `useAnalytics`. Runs on a block click and
+    // on a tab switch (the newly active tab's selected block must show
+    // its data).
+    function loadSelectedDetail(): void {
+        const config = activeConfig.value;
+
         if (config === undefined) {
+            analytics.chartPoints.value = [];
+            analytics.rankingRows.value = [];
             return;
         }
 
@@ -175,27 +166,34 @@ export function useAnalyticsDashboardDetail(
             } else {
                 analytics.fetchSeries(config.metric, analytics.span.value, config.dimension);
             }
-        } else if (config.kind === 'chart-multi') {
+            return;
+        }
+
+        if (config.kind === 'chart-multi') {
             analytics.fetchMultiSeries(
                 config.metric,
                 config.dimensions ?? [],
                 analytics.span.value,
             );
-        } else if (isDefaultRankingsState(config)) {
-            analytics.rankingRows.value = props.default_rankings.rows.top;
-        } else {
-            const options = config.variants ?? TOP_BOTTOM_VARIANTS;
-
-            if (!options.includes(analytics.variant.value)) {
-                analytics.variant.value = options[0];
-            }
-
-            analytics.fetchRankings(
-                rankingsMetricFor(config, analytics.variant.value),
-                analytics.variant.value,
-                config.scope,
-            );
+            return;
         }
+
+        if (isDefaultRankingsState(config)) {
+            analytics.rankingRows.value = props.default_rankings.rows.top;
+            return;
+        }
+
+        const options = config.variants ?? TOP_BOTTOM_VARIANTS;
+
+        if (!options.includes(analytics.variant.value)) {
+            analytics.variant.value = options[0];
+        }
+
+        analytics.fetchRankings(
+            rankingsMetricFor(config, analytics.variant.value),
+            analytics.variant.value,
+            config.scope,
+        );
     }
 
     // The seeded default states render from the props — re-clicking

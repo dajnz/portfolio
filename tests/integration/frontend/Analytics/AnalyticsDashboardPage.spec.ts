@@ -397,6 +397,37 @@ describe('AnalyticsDashboardPage', () => {
         expect(wrapper.get('tbody').text()).toContain('Ledger');
     });
 
+    it('loads the selected metric of a tab on switch without a block click', async () => {
+        fetchMock.mockImplementation((url: string) =>
+            Promise.resolve(
+                url.includes('scope=article')
+                    ? jsonResponse({ rows: [{ id: 1, title: 'Payments Gateway', value: 42 }] })
+                    : jsonResponse({ rows: [{ id: 2, title: 'Ledger', value: 24 }] }),
+            ),
+        );
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="analytics-dashboard-page-tab-blog"]').trigger('click');
+        await flushPromises();
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/admin/analytics/rankings?metric=views&variant=top&scope=article',
+            expect.objectContaining({ signal: expect.any(AbortSignal) }),
+        );
+        expect(wrapper.findAll('thead th').map((th) => th.text())).toEqual(['Article', 'Views']);
+        expect(wrapper.get('tbody').text()).toContain('Payments Gateway');
+
+        await wrapper.get('[data-testid="analytics-dashboard-page-tab-projects"]').trigger('click');
+        await flushPromises();
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            '/admin/analytics/rankings?metric=views&variant=top&scope=project',
+            expect.objectContaining({ signal: expect.any(AbortSignal) }),
+        );
+        expect(wrapper.findAll('thead th').map((th) => th.text())).toEqual(['Project', 'Views']);
+        expect(wrapper.get('tbody').text()).toContain('Ledger');
+    });
+
     it('shows the chart error state on a failed fetch and refetches on block re-click', async () => {
         fetchMock.mockResolvedValue({ ok: false, json: async () => ({}) });
         const wrapper = mountPage();
@@ -436,7 +467,7 @@ describe('AnalyticsDashboardPage', () => {
             .trigger('click');
         await flushPromises();
 
-        expect(fetchMock).toHaveBeenCalledTimes(2);
+        expect(fetchMock).toHaveBeenCalledTimes(3);
     });
 
     it('shows the empty state on a tab without any blocks', async () => {
@@ -463,7 +494,11 @@ describe('AnalyticsDashboardPage', () => {
             .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
             .map((node) => node.text());
         expect(labels).toEqual(['100', '2026-08-19', '150', '2026-08-20']);
-        expect(fetchMock).not.toHaveBeenCalled();
+        // The Overview chart re-seeds from the props — only the Blog
+        // tab's rankings load may have hit the network.
+        expect(
+            fetchMock.mock.calls.some(([url]) => String(url).includes('/series')),
+        ).toBe(false);
     });
 
     it('renders the CTA multi-series chart after a failed single-series fetch', async () => {
@@ -558,7 +593,7 @@ describe('AnalyticsDashboardPage', () => {
             .trigger('click');
         await flushPromises();
 
-        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledTimes(2);
         expect(wrapper.get('tbody').text()).toContain('/about');
     });
 
@@ -591,9 +626,13 @@ describe('AnalyticsDashboardPage', () => {
         ).toEqual(['100', '2026-08-19', '150', '2026-08-20']);
     });
 
-    it('does not render the default page_views series under the non-default block after a tab round-trip', async () => {
-        fetchMock.mockResolvedValue(
-            jsonResponse({ points: [{ label: '2026-08-21', value: 10 }] }),
+    it('refetches the non-default block on the tab round-trip instead of showing the default series', async () => {
+        fetchMock.mockImplementation((url: string) =>
+            Promise.resolve(
+                url.includes('/rankings')
+                    ? jsonResponse({ rows: [] })
+                    : jsonResponse({ points: [{ label: '2026-08-21', value: 10 }] }),
+            ),
         );
         const wrapper = mountPage();
         await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
@@ -607,15 +646,15 @@ describe('AnalyticsDashboardPage', () => {
         await flushPromises();
         await wrapper.get('[data-testid="analytics-dashboard-page-tab-overview"]').trigger('click');
         await flushPromises();
+        await flushUntil(wrapper, '[data-testid="analytics-dashboard-page-chart-svg"]');
 
-        // The unique-visitors block is still selected — the chart must not
-        // show the default page_views series under its title.
-        expect(wrapper.find('[data-testid="analytics-dashboard-page-chart-svg"]').exists()).toBe(
-            false,
-        );
-        expect(wrapper.get('[data-testid="analytics-dashboard-page-chart-empty"]').text()).toBe(
-            'No data available',
-        );
+        // The unique-visitors block is still selected — its own series is
+        // refetched, never the default page_views one under its title.
+        expect(
+            wrapper
+                .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
+                .map((node) => node.text()),
+        ).toEqual(['10', '2026-08-21']);
 
         await wrapper
             .get('[data-testid="analytics-dashboard-page-blocks-block-total_visits"]')
@@ -652,7 +691,7 @@ describe('AnalyticsDashboardPage', () => {
             .trigger('click');
         await flushPromises();
 
-        expect(fetchMock).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledTimes(2);
         expect(wrapper.get('tbody').text()).toContain('/about');
         expect(wrapper.get('tbody').text()).toContain('1 min. 15 sec.');
     });
