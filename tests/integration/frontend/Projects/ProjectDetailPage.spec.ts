@@ -166,13 +166,13 @@ describe('ProjectDetailPage', () => {
         );
     });
 
-    it('renders the tech stack chips linked to the blog skill filter', async () => {
+    it('renders the tech stack chips linked to the project tag filter', async () => {
         const wrapper = mountPage();
         await flush();
 
         const tags = wrapper.get('[data-testid="project-detail-page-tags"]').findAll('a.tech-skill-tag');
         expect(tags).toHaveLength(2);
-        expect(tags[0].attributes('href')).toBe('/blog?skill_tags=11');
+        expect(tags[0].attributes('href')).toBe('/projects?tags=11');
     });
 
     it('renders the bottom block as two columns: the writeup card and the labeled links row', async () => {

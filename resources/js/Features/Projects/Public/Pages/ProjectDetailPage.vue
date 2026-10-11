@@ -11,7 +11,7 @@ import PublicPageLayout from '@shared-public/PublicPageLayout.vue';
 import { computed } from 'vue';
 import EngineeringDetailItem from '../Components/EngineeringDetailItem.vue';
 import ScreenshotsGallery from '../Components/ScreenshotsGallery.vue';
-import { useProjectDetailPage } from '../Composables/useProjectDetailPage';
+import { type TechTagView, useProjectDetailPage } from '../Composables/useProjectDetailPage';
 import { ensureProjectsIcons, useProjectsIconsReady } from '../iconRegistration';
 
 type DetailProps = NonNullable<components['schemas']['ProjectDetailPageProps']['props']>;
@@ -59,6 +59,10 @@ const hasTwoColBottom = computed(
         props.project?.tech_writeup !== undefined &&
         hasExternalLinks.value,
 );
+
+function tagHref(tag: TechTagView): string {
+    return `/projects?tags=${tag.id}`;
+}
 
 function onSourcesClick(): void {
     analytics.track('cta_click_github');
@@ -155,6 +159,7 @@ function onDemoClick(): void {
               v-for="tag in project.tech_tags"
               :key="tag.id"
               :skill="tag"
+              :href="tagHref(tag)"
               linked
             />
           </div>
