@@ -96,10 +96,13 @@ const analytics = useAnalytics();
 // listener must live at the root.
 const routeAnnouncement = useRouteAnnouncement();
 
+let offNavigationStart: (() => void) | undefined;
+let offNavigationSuccess: (() => void) | undefined;
+
 if (typeof window !== 'undefined') {
     showNotification(props.page);
 
-    router.on('start', (event) => {
+    offNavigationStart = router.on('start', (event) => {
         // Prefetches fire `start` too; only a real navigation should
         // dismiss the toast queue.
         if (event.detail.visit.prefetch) {
@@ -108,7 +111,7 @@ if (typeof window !== 'undefined') {
 
         toastStore.dismissAll();
     });
-    router.on('success', (event) => {
+    offNavigationSuccess = router.on('success', (event) => {
         hydrateFromPage(event.detail.page);
         showNotification(event.detail.page);
     });
@@ -117,6 +120,8 @@ if (typeof window !== 'undefined') {
 onUnmounted(() => {
     analytics.cleanup();
     routeAnnouncement.cleanup();
+    offNavigationStart?.();
+    offNavigationSuccess?.();
 });
 
 function reload(): void {
