@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { expectPublicPageAxeClean } from '../fixtures/audit';
 import { validatePublicHtml } from '../fixtures/htmlValidate';
+import { expectStackedAbove } from '../fixtures/stacking';
 
 /**
  * All state here is per-browser-context (cookies/localStorage), so the
@@ -106,4 +107,37 @@ test.describe('public layout', () => {
         await expect(skipLink).toHaveAttribute('href', '#main-content');
         await expect(page.getByTestId('public-layout-main')).toBeVisible();
     });
+});
+
+/**
+ * The mobile menu panel starts at the header's bottom edge, exactly where
+ * the sticky filter toolbars of the index pages pin themselves. Both used
+ * to share the `sticky` z-layer, so the (later-in-DOM) toolbar painted over
+ * the open menu and swallowed its clicks. The panel now sits on the header
+ * layer; these tests pin that the menu stays the topmost element across
+ * the whole menu/toolbar overlap.
+ */
+test.describe('public mobile menu layering', () => {
+    test.use({ viewport: { width: 390, height: 844 } });
+
+    const indexPages = [
+        { path: '/projects', toolbarTestId: 'projects-page-header' },
+        { path: '/blog', toolbarTestId: 'blog-page-header' },
+    ];
+
+    for (const { path, toolbarTestId } of indexPages) {
+        test(`keeps the mobile menu above the filter toolbar on ${path}`, async ({ page }) => {
+            await page.addInitScript(() => {
+                localStorage.setItem('cookies_accepted', '1');
+            });
+            await page.goto(path);
+
+            await page.getByTestId('public-header-hamburger').click();
+
+            const panel = page.getByTestId('public-header-mobile-menu');
+            await expect(panel).toBeVisible();
+
+            await expectStackedAbove(panel, page.getByTestId(toolbarTestId));
+        });
+    }
 });

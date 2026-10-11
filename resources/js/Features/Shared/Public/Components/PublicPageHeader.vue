@@ -191,7 +191,11 @@ function isActive(item: NavItem): boolean {
   <!-- The mobile menu panel is a DOM sibling of the sticky header (NOT
        teleported): it must follow the hamburger in tab order, and as a
        non-descendant of the header it stays outside the header's backdrop
-       root, so its own backdrop-filter still blurs the content below it. -->
+       root, so its own backdrop-filter still blurs the content below it.
+       It sits on the header z-layer — above the sticky content toolbars
+       (filters) at the `sticky` layer, while starting at the header's
+       bottom edge so it never covers the header itself (the admin mobile
+       menu precedent, ADR-0024). -->
   <div
     v-if="menuOpen"
     id="public-mobile-menu"
@@ -340,7 +344,7 @@ function isActive(item: NavItem): boolean {
     top: var(--header-height);
     left: 0;
     right: 0;
-    z-index: var(--z-sticky);
+    z-index: var(--z-header);
     padding: var(--space-sm) var(--space-xl) var(--space-lg);
     background: var(--glass-bg);
     backdrop-filter: blur(var(--glass-blur));
