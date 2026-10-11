@@ -236,6 +236,10 @@ function handleCta(link: CtaLink): void {
     gap: var(--space-xs);
 }
 
+.about-block__meta-col .badge {
+    margin-bottom: 5px;
+}
+
 .about-block__name {
     font-family: var(--font-display);
     font-size: 3.5rem;
