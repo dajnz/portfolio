@@ -11,6 +11,7 @@ import DataTable from '@shared-admin/DataTable.vue';
 import PaginationControls from '@shared-admin/PaginationControls.vue';
 import { useAdminMenu } from '@shared-cross/Composables/useAdminMenu';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
 import { useToast } from '@shared-cross/Composables/useToast';
 import {
     type Cursor,
@@ -18,7 +19,7 @@ import {
     cursorNavigationParams,
 } from '@shared-cross/Utils/cursorNavigationParams';
 import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
-import { computed, nextTick, ref } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 
 interface TimelineItemRow {
     id: number;
@@ -28,7 +29,6 @@ interface TimelineItemRow {
     ended_at: string | null;
     is_published: boolean;
     include_in_resume: boolean;
-    created_at: string;
 }
 
 interface ListMeta {
@@ -60,6 +60,7 @@ const props = withDefaults(
 
 const { t } = useI18n();
 const toast = useToast();
+const { patch } = useJsonApi();
 const page = usePage<{ locale?: string; supported_locales?: string[] }>();
 const { menuGroups } = useAdminMenu();
 
@@ -93,22 +94,33 @@ let sortNavQueued = false;
 
 const hasActiveFilters = computed(() => searchTerm.value !== '' || showTrashed.value);
 
+// Local working copy — the publish toggle updates it optimistically and
+// reverts on server errors; Inertia prop refreshes re-seed it.
+const localItems = ref<TimelineItemRow[]>(props.items.map((item) => ({ ...item })));
+
+watch(
+    () => props.items,
+    (next) => {
+        localItems.value = next.map((item) => ({ ...item }));
+    },
+);
+
 const rows = computed<Array<Record<string, unknown>>>(() =>
-    props.items.map((item) => ({ ...item })),
+    localItems.value.map((item) => ({ ...item })),
 );
 
 // Trashed rows are styled muted/italic (the trashed view lists only
 // soft-deleted items). No selection checkboxes — the list has no bulk
 // operations.
 const trashedIds = computed<Array<number | string>>(() =>
-    showTrashed.value ? props.items.map((item) => item.id) : [],
+    showTrashed.value ? localItems.value.map((item) => item.id) : [],
 );
 
 const columns = computed(() => [
     { key: 'position', label: t('admin.experience.position') },
     { key: 'company_name', label: t('admin.experience.company') },
     { key: 'started_at', label: t('admin.experience.dates'), sortable: true },
-    { key: 'is_published', label: t('admin.experience.published') },
+    { key: 'is_published', label: t('admin.experience.published'), width: '112px' },
     { key: 'include_in_resume', label: t('admin.experience.include_in_resume') },
 ]);
 
@@ -267,6 +279,34 @@ function restoreItem(id: number): void {
     });
 }
 
+function replaceRow(updated: TimelineItemRow): void {
+    const index = localItems.value.findIndex((item) => item.id === updated.id);
+
+    if (index !== -1) {
+        localItems.value[index] = { ...updated };
+    }
+}
+
+async function togglePublication(row: Record<string, unknown>): Promise<void> {
+    const item = row as unknown as TimelineItemRow;
+    const target = !item.is_published;
+    const previous = { ...item };
+
+    localItems.value = localItems.value.map((entry) =>
+        entry.id === item.id ? { ...entry, is_published: target } : entry,
+    );
+
+    try {
+        const response = await patch<{ data: TimelineItemRow }>(
+            `/admin/experience/${item.id}/${target ? 'publish' : 'unpublish'}`,
+        );
+        replaceRow(response.data);
+    } catch {
+        replaceRow(previous);
+        toast.show(t('admin.toasts.failed_to_save'), { variant: 'error' });
+    }
+}
+
 function formatDate(iso: string): string {
     const [year, month, day] = iso.split('-');
 
@@ -377,24 +417,39 @@ function formatDates(row: TimelineItemRow): string {
           </span>
         </template>
         <template #cell-is_published="{ row }">
-          <AdminBaseBadge
-            v-if="showTrashed"
-            variant="default"
-            :test_id="`${props.test_id}-badge-trashed-${String(row.id)}`"
-          >
-            {{ t('admin.experience.trashed') }}
-          </AdminBaseBadge>
-          <AdminBaseBadge
-            v-else
-            :variant="row.is_published === true ? 'success' : 'warning'"
-            :test_id="`${props.test_id}-badge-${String(row.id)}`"
-          >
-            {{
-              row.is_published === true
-                ? t('admin.experience.published')
-                : t('admin.experience.unpublished')
-            }}
-          </AdminBaseBadge>
+          <div @click.stop>
+            <AdminBaseBadge
+              v-if="showTrashed"
+              variant="default"
+              size="sm"
+              :test_id="`${props.test_id}-badge-trashed-${String(row.id)}`"
+            >
+              {{ t('admin.experience.trashed') }}
+            </AdminBaseBadge>
+            <!-- The published cell is an active control (the projects /
+                 blog convention): a state-styled button whose label is
+                 the action — Publish on drafts, Unpublish on live items. -->
+            <AdminBaseButton
+              v-else
+              type="button"
+              variant="secondary"
+              size="sm"
+              :class="
+                row.is_published === true
+                  ? 'bg-success-600! text-white! border-success-600! hover:bg-success-700! dark:border-success-600!'
+                  : 'border-primary-600! text-primary-600! hover:bg-primary-600! hover:text-white!'
+              "
+              :aria-pressed="row.is_published === true"
+              :test_id="`${props.test_id}-publish-toggle-${String(row.id)}`"
+              @click="togglePublication(row)"
+            >
+              {{
+                row.is_published === true
+                  ? t('admin.lists.unpublish')
+                  : t('admin.lists.publish')
+              }}
+            </AdminBaseButton>
+          </div>
         </template>
         <template #cell-include_in_resume="{ row }">
           <AdminBaseBadge
