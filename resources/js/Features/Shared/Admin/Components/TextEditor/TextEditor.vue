@@ -695,6 +695,17 @@ function onImageChange(event: Event): void {
     color: #38bdf8;
 }
 
+/* Tiptap's ResizableNodeView sets an inline `display: flex` on the
+   image's resize container, which collapses the image to zero width:
+   the wrapper is a flex item sized by its content, and the image's
+   percentage `max-width` resolves against that indefinite width. The
+   inline style outranks a plain selector, so the container is forced
+   back to block — matching the block image flow of the public renderer
+   (the editor previews the article as it ships). */
+.text-editor__content [data-resize-container] {
+    display: block !important;
+}
+
 /* The drag-resize handles of the image node view — Tiptap's
    built-in ResizableNodeView renders them as bare positioned divs;
    the corners get the grab affordance, visible on hover / while the
