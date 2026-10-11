@@ -24,8 +24,7 @@ return [
     'back_to_blog' => 'Back to blog',
     'rss_feed' => 'RSS',
 
-    'filter_year' => 'Year',
-    'filter_all' => 'All',
+    'filter_all' => 'All years',
     'show_filters' => 'Show filters',
     'hide_filters' => 'Hide filters',
     'toc_empty' => 'No headings in this article.',

@@ -171,7 +171,6 @@ function onViewModeChange(mode: HeaderViewMode): void {
         class="blog-toolbar__year"
         :model-value="yearModel"
         :options="yearOptions"
-        :label="t('blog.filter_year')"
         :test_id="`${props.test_id}-year`"
         @update:model-value="onYearChange"
       />

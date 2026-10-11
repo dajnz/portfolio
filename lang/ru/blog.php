@@ -24,8 +24,7 @@ return [
     'back_to_blog' => 'Назад к блогу',
     'rss_feed' => 'RSS',
 
-    'filter_year' => 'Год',
-    'filter_all' => 'Все',
+    'filter_all' => 'Все годы',
     'show_filters' => 'Показать фильтры',
     'hide_filters' => 'Скрыть фильтры',
     'toc_empty' => 'В статье нет заголовков.',

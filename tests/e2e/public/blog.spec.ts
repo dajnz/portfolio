@@ -141,7 +141,7 @@ test.describe('blog index', () => {
         await expect(grid).toContainText(demoArticles.postgres.titleEn);
         await expect(grid).not.toContainText(demoArticles.queues.titleEn);
 
-        // Back to all years via the "All" option (its testid carries the
+        // Back to all years via the "All years" option (its testid carries the
         // empty-string suffix — the '' sentinel value).
         await yearTrigger.click();
         await page.locator('[data-testid="blog-page-header-year-option-"]').click();
