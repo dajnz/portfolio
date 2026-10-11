@@ -49,6 +49,7 @@ vi.mock('@shared-cross/Composables/useJsonApi', () => ({
 }));
 
 import ProjectsListPage from '@projects/Admin/Pages/ProjectsListPage/ProjectsListPage.vue';
+import { useToastStore } from '@shared-cross/Stores/toastStore';
 
 const PROJECTS = [
     {
@@ -384,6 +385,22 @@ describe('ProjectsListPage', () => {
 
         expect(postMock).toHaveBeenCalledWith('/admin/projects/reorder-featured', {
             json: { ids: [1] },
+        });
+    });
+
+    it('shows a success toast after the featured reorder is saved', async () => {
+        postMock.mockResolvedValue({});
+        const toastStore = useToastStore();
+        const wrapper = mountPage();
+        const list = wrapper.findComponent({ name: 'SortableList' });
+
+        list.vm.$emit('drag-end', [{ ...PROJECTS[0], id: 1 }], null);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(toastStore.toasts).toHaveLength(1);
+        expect(toastStore.toasts[0]).toMatchObject({
+            variant: 'success',
+            message: 'Featured projects order saved.',
         });
     });
 
