@@ -34,6 +34,15 @@ vi.mock('@shared-cross/Composables/useAnalytics', () => ({
     useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
+vi.mock('@shared-cross/Composables/useJsonApi', () => ({
+    useJsonApi: () => ({
+        get: getMock,
+        post: vi.fn(),
+        patch: patchMock,
+        del: vi.fn(),
+    }),
+}));
+
 import ExperienceListPage from '@experience/Admin/Pages/ExperienceListPage.vue';
 
 const ITEMS = [
@@ -112,7 +121,7 @@ describe('ExperienceListPage', () => {
         expect(wrapper.get('[data-testid="experience-list-page"] h1').text()).toBe('Experience');
     });
 
-    it('renders the rows with position, company, dates and badges', () => {
+    it('renders the rows with position, company, dates and the publish toggle', () => {
         const wrapper = mountPage();
 
         const rows = wrapper.findAll('tbody tr');
@@ -123,13 +132,11 @@ describe('ExperienceListPage', () => {
             '15.01.2023 — 28.02.2026',
         );
 
-        const published = wrapper.get('[data-testid="experience-list-page-badge-1"]');
-        expect(published.text()).toBe('Published');
-        expect(published.classes()).toContain('bg-success-50');
+        const published = wrapper.get('[data-testid="experience-list-page-publish-toggle-1"]');
+        expect(published.text()).toBe('Unpublish');
 
-        const draft = wrapper.get('[data-testid="experience-list-page-badge-2"]');
-        expect(draft.text()).toBe('Draft');
-        expect(draft.classes()).toContain('bg-warning-50');
+        const draft = wrapper.get('[data-testid="experience-list-page-publish-toggle-2"]');
+        expect(draft.text()).toBe('Publish');
     });
 
     it('shows "Present" for current roles and the resume badge only when included', () => {
@@ -174,6 +181,34 @@ describe('ExperienceListPage', () => {
         await wrapper.get('[data-testid="experience-list-page-delete-1"]').trigger('click');
 
         expect(visitMock).not.toHaveBeenCalled();
+    });
+
+    it('toggles publication via the published-column PATCH and updates its label', async () => {
+        patchMock.mockResolvedValue({ data: { ...ITEMS[1], is_published: true } });
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="experience-list-page-publish-toggle-2"]').trigger('click');
+
+        expect(patchMock).toHaveBeenCalledWith('/admin/experience/2/publish');
+
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await nextTick();
+        expect(wrapper.get('[data-testid="experience-list-page-publish-toggle-2"]').text()).toBe(
+            'Unpublish',
+        );
+    });
+
+    it('reverts the optimistic publish toggle and toasts on server error', async () => {
+        patchMock.mockRejectedValue(new Error('nope'));
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="experience-list-page-publish-toggle-2"]').trigger('click');
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await nextTick();
+
+        expect(wrapper.get('[data-testid="experience-list-page-publish-toggle-2"]').text()).toBe(
+            'Publish',
+        );
     });
 
     it('searches with a debounced request carrying the q param', async () => {
@@ -278,9 +313,11 @@ describe('ExperienceListPage', () => {
     it('renders the trashed view: trashed badge, no delete button, no edit navigation', async () => {
         const wrapper = mountTrashedPage();
 
-        expect(wrapper.get('[data-testid="experience-list-page-badge-trashed-1"]').text()).toBe(
-            'Trashed',
-        );
+        const trashedBadge = wrapper.get('[data-testid="experience-list-page-badge-trashed-1"]');
+
+        expect(trashedBadge.text()).toBe('Trashed');
+        // `size="sm"` — the same text size as the resume-inclusion badges.
+        expect(trashedBadge.classes()).toContain('text-xs');
         expect(wrapper.find('[data-testid="experience-list-page-delete-1"]').exists()).toBe(false);
 
         // Trashed rows are not editable (the backend's edit lookup

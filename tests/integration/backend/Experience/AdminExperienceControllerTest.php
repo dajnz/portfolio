@@ -84,6 +84,8 @@ describe('AdminExperienceController', function (): void {
         $this->put('/admin/experience/1', experiencePayload())->assertRedirect('/admin/login');
         $this->delete('/admin/experience/1')->assertRedirect('/admin/login');
         $this->patch('/admin/experience/1/restore')->assertRedirect('/admin/login');
+        $this->patch('/admin/experience/1/publish')->assertRedirect('/admin/login');
+        $this->patch('/admin/experience/1/unpublish')->assertRedirect('/admin/login');
         $this->delete('/admin/experience/1/force')->assertRedirect('/admin/login');
     });
 
@@ -575,6 +577,27 @@ describe('AdminExperienceController', function (): void {
             ->and(DB::table('experience_timeline_item_translations')->where('item_id', $item->id)->exists())->toBeFalse();
     });
 
+    it('publishes and unpublishes an item via the quick actions', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $item = translatedItem(['is_published' => false, 'started_at' => '2020-01-01', 'ended_at' => '2021-06-30']);
+
+        $this->patch("/admin/experience/{$item->id}/publish")
+            ->assertOk()
+            ->assertJsonPath('data.id', $item->id)
+            ->assertJsonPath('data.position', 'Engineer')
+            ->assertJsonPath('data.company_name', 'Example Ltd')
+            ->assertJsonPath('data.is_published', true);
+
+        expect($item->fresh()->is_published)->toBeTrue();
+
+        $this->patch("/admin/experience/{$item->id}/unpublish")
+            ->assertOk()
+            ->assertJsonPath('data.is_published', false);
+
+        expect($item->fresh()->is_published)->toBeFalse();
+    });
+
     it('invalidates the sitemap cache on published-item saves and deletes (ADR-0022)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
@@ -606,6 +629,16 @@ describe('AdminExperienceController', function (): void {
             'ended_at' => '2021-06-30',
         ]))->assertRedirect();
         expect($cache())->toBeTrue();
+
+        // The quick-action publish/unpublish flips `is_published` too —
+        // the instance update fires the model's `saved` event.
+        $prime();
+        $this->patch("/admin/experience/{$item->id}/publish")->assertOk();
+        expect($cache())->toBeFalse();
+
+        $prime();
+        $this->patch("/admin/experience/{$item->id}/unpublish")->assertOk();
+        expect($cache())->toBeFalse();
 
         $second = translatedItem(['is_published' => true, 'started_at' => '2022-01-01', 'ended_at' => '2023-01-01']);
         $prime();

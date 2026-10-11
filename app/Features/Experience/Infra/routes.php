@@ -26,5 +26,7 @@ Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function ():
     Route::put('/admin/experience/{item}', [AdminExperienceController::class, 'update']);
     Route::delete('/admin/experience/{item}', [AdminExperienceController::class, 'destroy']);
     Route::patch('/admin/experience/{item}/restore', [AdminExperienceController::class, 'restore']);
+    Route::patch('/admin/experience/{item}/publish', [AdminExperienceController::class, 'publish']);
+    Route::patch('/admin/experience/{item}/unpublish', [AdminExperienceController::class, 'unpublish']);
     Route::delete('/admin/experience/{item}/force', [AdminExperienceController::class, 'forceDestroy']);
 });
