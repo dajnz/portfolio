@@ -12,6 +12,12 @@ runtime support.
 
 ### Changed
 
+- **Analytics dashboard metric loading described (v1.0.29 inertia):**
+  description-only change. The `/admin/analytics` page description now states
+  that chart/ranking data for the non-default blocks loads from the
+  `series`/`rankings` endpoints on selection (a block click or a tab switch),
+  not only on click. No schema or wire-shape changes.
+
 - **Description references cleaned (v1.0.7 REST, v1.0.28 inertia):**
   description-only change. Implementation-history narration (dates, step
   numbers, "was removed" / "user request" phrasing) and stale

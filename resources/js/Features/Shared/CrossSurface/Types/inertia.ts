@@ -674,7 +674,8 @@ export interface paths {
          *     blocks per tab (overview/blog/projects), the default chart series
          *     (`page_views`, four spans) and the default rankings (time-on-page
          *     top/bottom 10) as Inertia props. Chart and ranking data for other
-         *     blocks load from the `series`/`rankings` endpoints on click.
+         *     blocks load from the `series`/`rankings` endpoints on selection
+         *     (a block click or a tab switch).
          */
         get: operations["analyticsDashboardPage"];
         put?: never;
