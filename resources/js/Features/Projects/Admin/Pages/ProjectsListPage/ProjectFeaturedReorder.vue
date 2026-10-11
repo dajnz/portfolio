@@ -11,7 +11,6 @@ import { ref, watch } from 'vue';
 export type FeaturedRow = {
     id: number;
     title: string;
-    featured_sort_order: number | null;
 };
 
 const props = withDefaults(
@@ -101,9 +100,6 @@ function moveItem(index: number, direction: -1 | 1): void {
           </span>
           <span class="flex-1 text-sm font-medium text-slate-700 dark:text-slate-200">
             {{ item.title }}
-          </span>
-          <span class="text-xs text-slate-400 dark:text-slate-500">
-            {{ item.featured_sort_order }}
           </span>
           <span class="flex shrink-0 items-center gap-1">
             <AdminBaseButton

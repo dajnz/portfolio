@@ -579,6 +579,7 @@
             "delete_failed": "Could not delete feedback.",
             "deleted": "Deleted successfully.",
             "failed_to_save": "Failed to save. Please try again.",
+            "featured_order_saved": "Featured projects order saved.",
             "feedback_deleted": "Feedback deleted.",
             "forward_failed": "Could not forward feedback.",
             "generate_reports_failed": "Could not start report generation.",

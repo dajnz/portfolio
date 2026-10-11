@@ -607,6 +607,7 @@ return [
         'deleted' => 'Deleted successfully.',
         'restored' => 'Restored successfully.',
         'settings_saved' => 'Settings saved successfully.',
+        'featured_order_saved' => 'Featured projects order saved.',
         'feedback_deleted' => 'Feedback deleted.',
         'delete_failed' => 'Could not delete feedback.',
         'mark_read_failed' => 'Could not mark as read',

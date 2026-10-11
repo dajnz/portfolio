@@ -195,12 +195,16 @@ export function useProjectRows(options: {
     }
 
     function onReorderFeatured(ids: number[]): void {
-        post('/admin/projects/reorder-featured', { json: { ids } }).catch(() => {
-            // Roll back to the server order on failure — the props still
-            // hold the last confirmed order.
-            featuredRows.value = options.featuredProjects().map((row) => ({ ...row }));
-            toast.show(t('admin.toasts.failed_to_save'), { variant: 'error' });
-        });
+        post('/admin/projects/reorder-featured', { json: { ids } })
+            .then(() => {
+                toast.show(t('admin.toasts.featured_order_saved'), { variant: 'success' });
+            })
+            .catch(() => {
+                // Roll back to the server order on failure — the props
+                // still hold the last confirmed order.
+                featuredRows.value = options.featuredProjects().map((row) => ({ ...row }));
+                toast.show(t('admin.toasts.failed_to_save'), { variant: 'error' });
+            });
     }
 
     return {
