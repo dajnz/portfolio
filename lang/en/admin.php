@@ -382,6 +382,7 @@ return [
         'mark_read' => 'Mark as read',
         'respond' => 'Respond',
         'no_feedback' => 'No feedback messages yet.',
+        'delete_confirm' => 'Delete this feedback?',
         'back_to_feedback' => 'Back to feedback',
     ],
 

@@ -267,6 +267,7 @@
         "feedback": {
             "back_to_feedback": "Back to feedback",
             "date": "Date",
+            "delete_confirm": "Delete this feedback?",
             "excerpt": "Excerpt",
             "forwarded": "Answered",
             "from": "Feedback from :email",

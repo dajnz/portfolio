@@ -1,18 +1,21 @@
 <script setup lang="ts">
 import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseBadge from '@shared-admin/AdminBaseBadge.vue';
+import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
+import ConfirmationDialog from '@shared-admin/ConfirmationDialog.vue';
 import DataTable from '@shared-admin/DataTable.vue';
 import PaginationControls from '@shared-admin/PaginationControls.vue';
 import { useAdminMenu } from '@shared-cross/Composables/useAdminMenu';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useToast } from '@shared-cross/Composables/useToast';
 import {
     type Cursor,
     type CursorNavigationPayload,
     cursorNavigationParams,
 } from '@shared-cross/Utils/cursorNavigationParams';
 import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 interface FeedbackItem {
     id: number;
@@ -49,8 +52,12 @@ const props = withDefaults(
 );
 
 const { t } = useI18n();
+const toast = useToast();
 const { menuGroups } = useAdminMenu();
 const page = usePage<{ locale?: string; supported_locales?: string[] }>();
+
+const deleteTarget = ref<number | null>(null);
+const isDeleting = ref(false);
 
 const rows = computed<Array<Record<string, unknown>>>(() =>
     props.feedback.map((item) => ({ ...item })),
@@ -61,7 +68,6 @@ const columns = computed(() => [
     { key: 'sender_email', label: t('admin.feedback.sender_email') },
     { key: 'excerpt', label: t('admin.feedback.excerpt') },
     { key: 'status', label: t('admin.feedback.status') },
-    { key: 'actions', label: t('admin.lists.actions') },
 ]);
 
 function excerptOf(message: string): string {
@@ -74,6 +80,36 @@ function formatDate(value: string): string {
 
 function openRow(row: Record<string, unknown>): void {
     router.visit(`/admin/feedback/${Number(row.id)}`);
+}
+
+function requestDelete(id: number): void {
+    deleteTarget.value = id;
+}
+
+function dismissDelete(): void {
+    deleteTarget.value = null;
+}
+
+function confirmDelete(): void {
+    const id = deleteTarget.value;
+
+    if (id === null || isDeleting.value) {
+        return;
+    }
+
+    isDeleting.value = true;
+
+    router.delete(`/admin/feedback/${id}`, {
+        onSuccess: () => {
+            isDeleting.value = false;
+            deleteTarget.value = null;
+        },
+        onError: () => {
+            isDeleting.value = false;
+            deleteTarget.value = null;
+            toast.show(t('admin.toasts.delete_failed'), { variant: 'error' });
+        },
+    });
 }
 
 function navigate(payload: CursorNavigationPayload): void {
@@ -140,6 +176,7 @@ function navigate(payload: CursorNavigationPayload): void {
           <div class="flex flex-wrap gap-1">
             <AdminBaseBadge
               :variant="row.is_read === false ? 'danger' : 'default'"
+              size="sm"
               :test_id="`${props.test_id}-read-badge-${String(row.id)}`"
             >
               {{ row.is_read === false ? t('admin.feedback.unread') : t('admin.feedback.read') }}
@@ -147,20 +184,29 @@ function navigate(payload: CursorNavigationPayload): void {
             <AdminBaseBadge
               v-if="row.is_forwarded === true"
               variant="primary"
+              size="sm"
               :test_id="`${props.test_id}-answered-badge-${String(row.id)}`"
             >
               {{ t('admin.feedback.forwarded') }}
             </AdminBaseBadge>
           </div>
         </template>
-        <template #cell-actions="{ row }">
-          <span
-            class="flex items-center justify-end text-slate-300 dark:text-slate-600"
-            aria-hidden="true"
-            :data-testid="`${props.test_id}-row-chevron-${String(row.id)}`"
+        <template #row-actions="{ row }">
+          <!-- @click.stop — the actions must not bubble into the row's
+               detail-navigation click handler. -->
+          <div
+            class="flex items-center gap-1"
+            @click.stop
           >
-            ›
-          </span>
+            <AdminBaseButton
+              type="button"
+              variant="icon-outline-danger"
+              icon="heroicons:trash"
+              :aria-label="t('common.delete')"
+              :test_id="`${props.test_id}-delete-${String(row.id)}`"
+              @click="requestDelete(Number(row.id))"
+            />
+          </div>
         </template>
       </DataTable>
 
@@ -174,6 +220,18 @@ function navigate(payload: CursorNavigationPayload): void {
         :sort_direction="props.meta.sort_direction"
         :test_id="`${props.test_id}-pagination`"
         @navigate="navigate"
+      />
+
+      <ConfirmationDialog
+        :model-value="deleteTarget !== null"
+        :title="t('admin.feedback.delete_confirm')"
+        :confirm_label="t('common.delete')"
+        :is_loading="isDeleting"
+        :test_id="`${props.test_id}-delete-dialog`"
+        @update:model-value="(open) => {
+          if (!open) dismissDelete();
+        }"
+        @confirm="confirmDelete"
       />
     </section>
   </AdminPageLayout>
