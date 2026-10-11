@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup test-db admin-create admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons lang-export redis cache-clear health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup test-db admin-create admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons lang-export redis cache-clear health secrets-init deploy rollback quick-check
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -324,6 +324,9 @@ format:
 # TypeScript type check (includes API + Inertia type generation)
 typecheck:
 	$(DE) npm run typecheck
+
+# Runs all fast tests and checks
+quick-check: test lint typecheck
 
 # Prepare image assets: optimize/minify resources/images -> public/images + section favicons
 images:

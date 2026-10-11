@@ -103,6 +103,20 @@ function firstEnabledIndex(): number {
     return filteredOptions.value.findIndex((option) => !option.disabled);
 }
 
+function selectedIndex(): number {
+    return filteredOptions.value.findIndex((option) => !option.disabled && isSelected(option));
+}
+
+function initialHighlightIndex(): number {
+    const selected = selectedIndex();
+
+    if (selected !== -1) {
+        return selected;
+    }
+
+    return firstEnabledIndex();
+}
+
 function isSelected(option: DropdownOption): boolean {
     return selectedValues.value.includes(option.value);
 }
@@ -129,7 +143,7 @@ function open(): void {
     }
 
     isOpen.value = true;
-    highlighted.value = firstEnabledIndex();
+    highlighted.value = initialHighlightIndex();
 
     if (props.searchable) {
         nextTick(() => searchEl.value?.focus());
