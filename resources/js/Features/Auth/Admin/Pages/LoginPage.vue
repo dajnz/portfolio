@@ -139,7 +139,7 @@ function startGithubLogin(): void {
       <AdminBaseButton
         type="submit"
         variant="primary"
-        class="w-full h-11"
+        class="w-full h-11 justify-center"
         :loading="isSubmitting"
         :test_id="`${props.test_id}-submit-btn`"
       >

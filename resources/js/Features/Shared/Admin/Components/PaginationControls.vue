@@ -95,7 +95,7 @@ function goToPage(page: number): void {
   >
     <button
       type="button"
-      class="select-none w-9 h-9 inline-flex items-center justify-center leading-none text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      class="select-none w-9 h-9 inline-flex items-center justify-center leading-none text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
       :disabled="props.current_page === 1"
       :aria-label="t('common.previous')"
       :data-testid="`${props.test_id}-prev`"
@@ -129,7 +129,7 @@ function goToPage(page: number): void {
         <button
           v-else
           type="button"
-          class="select-none w-9 h-9 inline-flex items-center justify-center leading-none text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+          class="select-none w-9 h-9 inline-flex items-center justify-center leading-none text-sm font-medium rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
           :data-testid="`${props.test_id}-page-${item.page}`"
           @click="goToPage(item.page)"
         >
@@ -139,7 +139,7 @@ function goToPage(page: number): void {
     </div>
     <button
       type="button"
-      class="select-none w-9 h-9 inline-flex items-center justify-center leading-none text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      class="select-none w-9 h-9 inline-flex items-center justify-center leading-none text-sm font-medium rounded-lg border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
       :disabled="props.current_page === totalPages"
       :aria-label="t('common.next')"
       :data-testid="`${props.test_id}-next`"

@@ -479,15 +479,32 @@ onBeforeUnmount(cleanupMounts);
 
 .article-content__body table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
     font-size: var(--font-size-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
 }
 
 .article-content__body th,
 .article-content__body td {
-    border: 1px solid var(--color-border);
     padding: var(--space-xs) var(--space-sm);
     text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.article-content__body th:not(:last-child) {
+    border-right: 1px solid var(--color-border);
+}
+
+.article-content__body td:not(:last-child) {
+    border-bottom: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+}
+
+.article-content__body table tr:last-child td {
+    border-bottom: none;
 }
 
 .article-content__body th {

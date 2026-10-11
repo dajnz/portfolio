@@ -272,7 +272,7 @@ onBeforeUnmount(() => {
       <button
         ref="triggerEl"
         type="button"
-        class="flex w-full items-center justify-between gap-2 h-10 px-3 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-surface-dark-secondary text-slate-900 dark:text-slate-100 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 dark:focus:ring-primary-900 outline-none transition-all text-left"
+        class="flex w-full items-center justify-between gap-2 h-10 px-3 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-surface-dark-secondary text-slate-900 dark:text-slate-100 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 dark:focus:ring-primary-900 outline-none transition-all text-left cursor-pointer"
         :class="triggerClass"
         :disabled="props.disabled"
         :title="props.title"

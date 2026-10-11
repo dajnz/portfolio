@@ -76,7 +76,10 @@ async function copy(): Promise<void> {
       >{{ copied ? t('blog.copied') : '' }}</span>
     </div>
     <!-- eslint-disable vue/no-v-html -->
-    <pre v-html="props.code_html" />
+    <pre
+      class="code-block__content"
+      v-html="props.code_html"
+    />
     <!-- eslint-enable vue/no-v-html -->
   </div>
 </template>
@@ -85,8 +88,6 @@ async function copy(): Promise<void> {
 .code-block {
     position: relative;
     margin: var(--space-lg) 0;
-    border: 1px solid var(--color-border);
-    background: var(--color-bg-secondary);
 }
 
 /* The radii live on the header (rounded TOP corners) and the pre (square
@@ -98,7 +99,6 @@ async function copy(): Promise<void> {
     justify-content: space-between;
     padding: var(--space-xs) var(--space-md);
     background: var(--color-bg-tertiary);
-    border-bottom: 1px solid var(--color-border);
     border-radius: var(--radius-md) var(--radius-md) 0 0;
     font-size: var(--font-size-xs);
     color: var(--color-text-secondary);
@@ -109,7 +109,6 @@ async function copy(): Promise<void> {
 
 .code-block__copy {
     border: none;
-    background: transparent;
     color: var(--color-text-secondary);
     cursor: pointer;
     font-size: var(--font-size-sm);
@@ -132,18 +131,20 @@ async function copy(): Promise<void> {
     color: var(--color-success);
 }
 
-.code-block pre {
+.code-block__content {
     margin: 0;
     padding: var(--space-md) var(--space-lg);
     overflow-x: auto;
     border-radius: 0 0 var(--radius-md) var(--radius-md);
+    border-left: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
 
     /* The tokens' global `pre` rule (public-tokens.css) paints
        --color-bg-tertiary + a border — the block's own
        --color-bg-secondary must show through and the outer border
        belongs to the block only. */
-    background: transparent;
-    border: none;
+    background: var(--color-bg-secondary);
     font-family: var(--font-mono);
     font-size: var(--font-size-sm);
     line-height: var(--line-height-normal);

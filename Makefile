@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup test-db admin-create admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons redis cache-clear health secrets-init deploy rollback
+.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup test-db admin-create admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons lang-export redis cache-clear health secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -333,6 +333,11 @@ images:
 # (add an SVG and run this — the file name becomes the icon id, e.g. messenger.svg -> custom:messenger)
 custom-icons:
 	$(DE) npm run icons:custom
+
+# Regenerate the frontend translation catalogs (resources/js/lang/{en,ru}.json)
+# from the PHP sources in lang/{en,ru}/ — run after editing the PHP strings
+lang-export:
+	$(DE) php artisan lang:export
 
 # Open an interactive redis-cli against the dev Redis (sessions/cache/rate limits)
 redis:

@@ -79,7 +79,7 @@ const hasLinkButton = computed(() => props.buttons.includes('link'));
 
 <template>
   <div
-    class="thin-scrollbar sticky top-[129px] z-10 flex items-center gap-1 overflow-x-auto px-3 py-2 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900"
+    class="thin-scrollbar sticky top-[129px] z-10 flex items-center gap-1 overflow-x-auto px-3 py-2 border-b border-slate-100 dark:border-slate-700 bg-slate-100 dark:bg-slate-900"
     role="toolbar"
     :aria-label="t('admin.editor.toolbar')"
     :data-testid="`${props.test_id}-toolbar`"

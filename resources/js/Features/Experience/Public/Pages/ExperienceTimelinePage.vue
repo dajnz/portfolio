@@ -126,6 +126,6 @@ function openDetailModal(itemId: number): void {
     letter-spacing: var(--letter-spacing-tight);
     color: var(--color-text-primary);
     max-width: var(--layout-content);
-    margin: var(--space-xl) auto var(--space-lg);
+    margin: var(--space-xl) auto calc(var(--space-lg) + var(--space-md));
 }
 </style>

@@ -55,8 +55,8 @@ ul, ol {
 
 /* Themed selection + marked text — browser defaults clash with both themes */
 ::selection {
-    background: var(--color-accent-muted);
-    color: var(--color-text-primary);
+    background: var(--color-text-selection);
+    color: var(--color-text-inverse);
 }
 
 mark {
@@ -136,16 +136,18 @@ pre code {
     /* --- Colors — Backgrounds ---
        Soft mist-paper ground: cool, quiet, lets the Moss/Plum/Gold accents
        lead without competing warmth. */
-    --color-bg-primary:    oklch(0.98 0.01 0.06);
-    --color-bg-secondary:  oklch(0.94 0.01 0.11);
-    --color-bg-tertiary:   oklch(0.91 0.01 16.08);
-    --color-surface:       oklch(1 0 0);
+    --color-bg-primary:        oklch(0.98 0.01 0.06);
+    --color-bg-secondary:      oklch(0.94 0.01 0.11);
+    --color-bg-tertiary:       oklch(0.91 0.01 16.08);
+    --color-surface:           oklch(1 0 0);
+    --color-surface-secondary: oklch(0.98 0 0);
 
     /* --- Colors — Text --- */
     --color-text-primary:    oklch(0.24 0.02 89.88);
     --color-text-secondary:  oklch(0.37 0.03 101.67);
     --color-text-tertiary:   oklch(0.53 0.02 100);   /* meets 4.5:1 on --color-bg-primary — usable for body text/placeholders */
     --color-text-inverse:    oklch(0.98 0.01 0);
+    --color-text-selection:  var(--color-accent);
 
     /* --- Colors — Accent ---
        "Moss" — confident, legible at both text and fill sizes, calm enough
@@ -322,16 +324,17 @@ pre code {
    -------------------------------------------------------------------------- */
 :root.dark {
     /* --- Colors — Backgrounds — deep forest-ink, not neutral navy/black --- */
-    --color-bg-primary:    oklch(0.18 0.01 17.05);
-    --color-bg-secondary:  oklch(0.23 0.01 0);
-    --color-bg-tertiary:   oklch(0.26 0.01 16.31);
-    --color-surface:       oklch(0.22 0.01 16.75);
+    --color-bg-primary:        oklch(0.18 0.01 17.05);
+    --color-bg-secondary:      oklch(0.23 0.01 0);
+    --color-bg-tertiary:       oklch(0.26 0.01 16.31);
+    --color-surface:           oklch(0.22 0.01 16.75);
+    --color-surface-secondary: oklch(0.21 0.01 15.0);
 
     /* --- Colors — Text --- */
     --color-text-primary:    oklch(0.96 0.01 0);
     --color-text-secondary:  oklch(0.76 0.01 50.93);
     --color-text-tertiary:   oklch(0.68 0.02 100);    /* meets 4.5:1 on --color-bg-primary (dark) */
-    --color-text-inverse:    oklch(0.75 0.04 68.76);
+    --color-text-inverse:    oklch(0.96 0.01 0);
 
     /* --- Colors — Accent --- */
     --color-accent:         oklch(0.5 0.23 266.5);

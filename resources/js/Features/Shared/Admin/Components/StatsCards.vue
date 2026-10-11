@@ -45,7 +45,7 @@ const wideGridClass = computed(() => (props.columns === 4 ? 'xl:grid-cols-4' : '
     <div
       v-for="(stat, index) in props.stats"
       :key="`${stat.label}-${index}`"
-      class="rounded-lg border border-slate-200 border-l-[3px] border-l-primary-600 bg-white p-5 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"
+      class="rounded-lg border border-slate-200 border-l-[4px] border-l-primary-600 bg-white p-5 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"
       :data-testid="`${props.test_id}-card-${index}`"
     >
       <template v-if="stat.isLoading">

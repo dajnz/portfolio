@@ -150,6 +150,17 @@
             background: var(--color-bg-hero);
         }
 
+        .error-page::before {
+            content: "";
+            background: url('/images/tech-stack-tiles.svg') left top / 700px 400px repeat;
+            opacity: 0.05;
+            filter: blur(2px);
+            position: absolute;
+            transform: scale(1.1);
+            z-index: 1;
+            inset: 0;
+        }
+
         .gradient-hero__yellow-blue,
         .gradient-hero__red {
             position: absolute;

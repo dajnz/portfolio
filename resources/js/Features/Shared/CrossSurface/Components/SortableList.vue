@@ -571,7 +571,7 @@ const containerAxisClass = computed(() =>
     padding: 0;
     display: flex;
     flex-flow: column;
-    gap: var(--space-xs);
+    overflow: hidden;
 }
 
 .sortable-list--horizontal {

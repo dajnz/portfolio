@@ -112,6 +112,7 @@ function handleClick(event: MouseEvent): void {
       {
         'animate-pulse cursor-wait': props.loading,
         'flex-row-reverse': !isIconOnly && props.icon_position === 'right',
+        'cursor-pointer': true,
       },
     ]"
     :aria-disabled="isDisabled || undefined"

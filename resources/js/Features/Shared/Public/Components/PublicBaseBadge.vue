@@ -185,7 +185,8 @@ function onKeydown(event: KeyboardEvent): void {
 }
 
 .badge__remove:hover {
-    background: rgb(0 0 0 / 12%);
+    background: var(--color-accent);
+    color: var(--color-surface);
 }
 
 .badge__remove-icon {

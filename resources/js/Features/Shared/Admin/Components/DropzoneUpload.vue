@@ -163,7 +163,7 @@ function previewUrl(): string {
           <div class="flex items-center justify-center gap-2">
             <button
               type="button"
-              class="h-8 px-3 text-xs font-semibold rounded-md bg-white dark:bg-surface-dark-secondary border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              class="h-8 px-3 text-xs font-semibold rounded-md bg-white dark:bg-surface-dark-secondary border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               :data-testid="`${props.test_id}-replace`"
               @click.stop="openPicker()"
             >
@@ -171,7 +171,7 @@ function previewUrl(): string {
             </button>
             <button
               type="button"
-              class="h-8 px-3 text-xs font-semibold rounded-md bg-danger-600 hover:bg-danger-700 text-white transition-colors"
+              class="h-8 px-3 text-xs font-semibold rounded-md bg-danger-600 hover:bg-danger-700 text-white transition-colors cursor-pointer"
               :aria-label="t('admin.upload.remove')"
               :data-testid="`${props.test_id}-remove`"
               @click.stop="removeFile()"

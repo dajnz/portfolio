@@ -142,12 +142,12 @@ const skeletonSkills = [0, 1, 2];
 
 .skills-block__row {
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 3fr 4fr;
     gap: var(--space-xl);
 }
 
 .skills-block__row--wide-first {
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 4fr 3fr;
 }
 
 .skills-block__row--single {

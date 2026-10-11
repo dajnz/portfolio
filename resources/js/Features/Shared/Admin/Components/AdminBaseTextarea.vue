@@ -87,7 +87,7 @@ function onInput(event: Event): void {
       :disabled="props.disabled || undefined"
       :rows="props.rows"
       :maxlength="props.max"
-      class="thin-scrollbar block w-full min-h-[80px] px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-surface-dark-secondary text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 dark:focus:ring-primary-900 outline-none transition-all"
+      class="thin-scrollbar block w-full min-h-[80px] px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-surface-lighter dark:bg-surface-dark-tertiary text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 dark:focus:ring-primary-900 outline-none transition-all"
       :class="{
         'border-danger-300 dark:border-danger-700 focus:border-danger-500 focus:ring-danger-100 dark:focus:ring-danger-900': props.error !== null,
         'bg-slate-50 dark:bg-slate-900 text-slate-400 dark:text-slate-600 cursor-not-allowed': props.disabled,

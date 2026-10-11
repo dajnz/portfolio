@@ -294,7 +294,7 @@
             "publish": "Опубликовать",
             "restore": "Восстановить",
             "show_trashed": "Показать удалённые",
-            "unpublish": "Снять с публикации"
+            "unpublish": "Скрыть"
         },
         "locales": {
             "en": "Английский",
@@ -305,7 +305,7 @@
             "enter_recovery_code": "Введите код восстановления из резервного списка.",
             "enter_totp_code": "Введите 6-значный код из приложения-аутентификатора или код восстановления.",
             "invalid_credentials": "Неверные учётные данные.",
-            "login_placeholder": "email или имя пользователя",
+            "login_placeholder": "Email или имя пользователя",
             "or": "или",
             "password": "Пароль",
             "remember_me": "Запомнить меня",
@@ -762,7 +762,7 @@
         "featured_projects": "Избранные проекты",
         "feedback_email": "Email",
         "feedback_error": "Не удалось отправить сообщение. Попробуйте ещё раз.",
-        "feedback_errors_summary": "Исправьте следующие ошибки ({count}):",
+        "feedback_errors_summary": "Исправьте следующие ошибки ({count})",
         "feedback_invalid_email": "Введите корректный email-адрес.",
         "feedback_message": "Сообщение",
         "feedback_name": "Имя",
@@ -782,7 +782,7 @@
         "work_type": {
             "hybrid": "Гибрид",
             "office": "В офисе",
-            "remote": "Удалённо"
+            "remote": "Только удалённо"
         }
     },
     "mail": {

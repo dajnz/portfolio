@@ -377,7 +377,7 @@ function cancel(): void {
             :error="fieldError('short_pitch')"
             :disabled="isSaving"
             :maxlength="500"
-            :rows="3"
+            :rows="9"
             :test_id="`${props.test_id}-short-pitch-${activeLocale}`"
             @update:model-value="setLocaleValue(activeLocale, form.short_pitch, $event)"
           />
@@ -401,6 +401,7 @@ function cancel(): void {
               class="w-full"
             >
               <AdminBaseInput
+                class="pt-3"
                 :model-value="localeValue(locale, form.photo_alt)"
                 :label="`${t('admin.about.alt_text')} [${locale}]`"
                 :error="fieldError('photo_alt')"

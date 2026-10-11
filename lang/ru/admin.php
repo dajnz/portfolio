@@ -49,7 +49,7 @@ return [
 
     'login' => [
         'title' => 'Вход',
-        'login_placeholder' => 'email или имя пользователя',
+        'login_placeholder' => 'Email или имя пользователя',
         'password' => 'Пароль',
         'remember_me' => 'Запомнить меня',
         'continue_with_github' => 'Продолжить с GitHub',
@@ -626,7 +626,7 @@ return [
         'delete_permanently' => 'Удалить навсегда',
         'restore' => 'Восстановить',
         'publish' => 'Опубликовать',
-        'unpublish' => 'Снять с публикации',
+        'unpublish' => 'Скрыть',
         'actions' => 'Действия',
     ],
 ];

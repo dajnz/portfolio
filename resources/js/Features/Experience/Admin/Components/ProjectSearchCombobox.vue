@@ -255,7 +255,7 @@ function onBlur(): void {
         :value="query"
         :placeholder="props.placeholder ?? t('admin.experience.project_placeholder')"
         :disabled="props.disabled || undefined"
-        class="block w-full h-10 px-3 pr-9 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-surface-dark-secondary text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 dark:focus:ring-primary-900 outline-none transition-all"
+        class="block w-full h-10 px-3 pr-9 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-surface-dark-tertiary text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-primary-500 focus:ring-[3px] focus:ring-primary-100 dark:focus:ring-primary-900 outline-none transition-all"
         :class="{
           'border-danger-300 dark:border-danger-700': props.error !== null,
           'opacity-45 pointer-events-none': props.disabled,

@@ -90,7 +90,7 @@ const logoLetter = computed(() =>
 
         <AdminBaseButton
           variant="secondary"
-          class="mt-4 w-full h-11"
+          class="mt-4 w-full h-11 justify-center"
           :loading="props.is_loading"
           :test_id="`${props.test_id}-github`"
           @click="emit('github-login')"

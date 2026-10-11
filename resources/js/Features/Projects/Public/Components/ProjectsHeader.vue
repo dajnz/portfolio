@@ -242,7 +242,6 @@ function onViewModeChange(mode: HeaderViewMode): void {
     flex-shrink: 0;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    overflow: hidden;
 }
 
 /* PublicBaseButton's root is the `.btn` element — the child component
@@ -255,6 +254,16 @@ function onViewModeChange(mode: HeaderViewMode): void {
     background: var(--color-surface);
     height: 40px;
     width: 40px;
+}
+
+.view-toggle .btn:first-child {
+    border-top-left-radius: var(--radius-md);
+    border-bottom-left-radius: var(--radius-md);
+}
+
+.view-toggle .btn:last-child {
+    border-top-right-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
 }
 
 .view-toggle .btn:hover {

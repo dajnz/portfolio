@@ -163,7 +163,7 @@ onBeforeUnmount(() => {
     font-weight: var(--font-semibold);
     letter-spacing: var(--letter-spacing-tight);
     color: var(--color-text-primary);
-    margin: 0 0 var(--space-md);
+    margin: 0 0 var(--space-lg);
 }
 
 /* Two-column layout: contact links (single column) on the left, the

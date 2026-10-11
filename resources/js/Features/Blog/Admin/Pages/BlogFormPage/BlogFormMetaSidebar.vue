@@ -169,6 +169,7 @@ function nestedFieldError(field: string): string | null {
         class="w-full"
       >
         <AdminBaseInput
+          class="pt-3"
           :model-value="props.lead_image_alt[code] ?? ''"
           :label="`${t('admin.blog.alt_text')} [${code}]`"
           :maxlength="500"
