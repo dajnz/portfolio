@@ -310,11 +310,10 @@ function formatTimezone(iana: string): string {
     }
 
     try {
-        const name = timeZoneName(iana, 'short') || iana;
         const offset = timeZoneName(iana, 'longOffset').replace(/^GMT/, 'UTC');
         const compact = offset.replace(/:00$/, '').replace(/([+-])0+(\d)/, '$1$2');
 
-        return `${name} (${compact})`;
+        return `${compact}`;
     } catch {
         return iana;
     }
