@@ -41,6 +41,12 @@ interface TimelineItemRepositoryInterface
     public function setEndedAt(int $id, DateTimeImmutable $endedAt): void;
 
     /**
+     * Flips `is_published` — an instance update so the model's `saved`
+     * event (sitemap invalidation) fires on both publish and unpublish.
+     */
+    public function setPublished(int $id, bool $published): void;
+
+    /**
      * Soft-deletes the item (its translations and pivot rows stay).
      */
     public function delete(int $id): void;

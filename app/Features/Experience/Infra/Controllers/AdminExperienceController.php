@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace App\Features\Experience\Infra\Controllers;
 
+use App\Features\Experience\App\DTOs\TimelineItemListItemDto;
 use App\Features\Experience\App\UseCases\DestroyTimelineItemUseCase;
 use App\Features\Experience\App\UseCases\ForceDestroyTimelineItemUseCase;
 use App\Features\Experience\App\UseCases\GetTimelineItemForEditUseCase;
+use App\Features\Experience\App\UseCases\GetTimelineListItemUseCase;
 use App\Features\Experience\App\UseCases\ListTimelineItemsUseCase;
 use App\Features\Experience\App\UseCases\RestoreTimelineItemUseCase;
 use App\Features\Experience\App\UseCases\StoreTimelineItemUseCase;
 use App\Features\Experience\App\UseCases\UpdateTimelineItemUseCase;
+use App\Features\Experience\App\UseCases\UpdateTimelinePublicationUseCase;
 use App\Features\Experience\Domain\Entities\TimelineItem;
+use App\Features\Experience\Domain\Exceptions\TimelineItemNotFoundException;
 use App\Features\Experience\Domain\Exceptions\TimelinePeriodConflictException;
 use App\Features\Experience\Infra\Requests\StoreExperienceRequest;
 use App\Features\Shared\Domain\Entities\TechSkill;
@@ -19,6 +23,7 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Infra\Persistence\CursorPage;
 use App\Features\Shared\Infra\Services\PerLocaleValues;
 use DateTimeImmutable;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -43,6 +48,8 @@ final class AdminExperienceController
         private readonly DestroyTimelineItemUseCase $destroyCase,
         private readonly RestoreTimelineItemUseCase $restoreCase,
         private readonly ForceDestroyTimelineItemUseCase $forceDestroyCase,
+        private readonly UpdateTimelinePublicationUseCase $publicationCase,
+        private readonly GetTimelineListItemUseCase $itemCase,
         private readonly PerLocaleValues $localeValues,
     ) {
     }
@@ -115,6 +122,16 @@ final class AdminExperienceController
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
+    public function publish(Request $request, int $item): JsonResponse
+    {
+        return $this->publicationToggle($item, true);
+    }
+
+    public function unpublish(Request $request, int $item): JsonResponse
+    {
+        return $this->publicationToggle($item, false);
+    }
+
     private function formPage(ResponseFactory $inertia, ?int $itemId): Response
     {
         $locale = app()->getLocale();
@@ -159,6 +176,40 @@ final class AdminExperienceController
                 : null,
             'includeInResume' => $request->boolean('include_in_resume'),
             'externalProjectName' => $request->input('external_project_name'),
+        ];
+    }
+
+    private function publicationToggle(int $itemId, bool $published): JsonResponse
+    {
+        $this->publicationCase->set($itemId, $published);
+
+        return response()->json(['data' => self::listItemProps($this->fetchItem($itemId))]);
+    }
+
+    private function fetchItem(int $itemId): TimelineItemListItemDto
+    {
+        try {
+            return $this->itemCase->get($itemId, app()->getLocale());
+        } catch (TimelineItemNotFoundException) {
+            abort(404);
+        }
+    }
+
+    /**
+     * The `TimelineItemTableRowData` wire shape of a list item.
+     *
+     * @return array<string, mixed>
+     */
+    private static function listItemProps(TimelineItemListItemDto $item): array
+    {
+        return [
+            'id' => $item->id,
+            'position' => $item->position,
+            'company_name' => $item->companyName,
+            'started_at' => $item->startedAt->format('Y-m-d'),
+            'ended_at' => $item->endedAt?->format('Y-m-d'),
+            'is_published' => $item->isPublished,
+            'include_in_resume' => $item->includeInResume,
         ];
     }
 

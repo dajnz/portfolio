@@ -81,6 +81,11 @@ final class InMemoryTimelineItemRepository implements TimelineItemRepositoryInte
         }
     }
 
+    public function setPublished(int $id, bool $published): void
+    {
+        throw new \LogicException('Not supported by the in-memory fake.');
+    }
+
     public function delete(int $id): void
     {
         throw new \LogicException('Not supported by the in-memory fake.');

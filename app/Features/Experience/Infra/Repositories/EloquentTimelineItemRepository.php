@@ -112,6 +112,17 @@ final class EloquentTimelineItemRepository implements
             ?->update(['ended_at' => $endedAt->format('Y-m-d')]);
     }
 
+    public function setPublished(int $id, bool $published): void
+    {
+        // Instance update — the model's `saved` event (sitemap
+        // invalidation) fires on both publish and unpublish.
+        TimelineItemModel::query()
+            ->whereKey($id)
+            ->whereNull('deleted_at')
+            ->first()
+            ?->update(['is_published' => $published]);
+    }
+
     public function delete(int $id): void
     {
         // Instance delete — the model's `deleted` event (sitemap
