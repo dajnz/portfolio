@@ -287,7 +287,7 @@ function rowLabel(id: ResumeSectionKey): string {
         :test_id="`${props.test_id}-visible-${row.id}`"
         @update:model-value="toggleVisibility(row.id, $event)"
       />
-      <div class="flex flex-col gap-0.5">
+      <div class="flex shrink-0 items-center gap-1">
         <AdminBaseButton
           variant="icon-only"
           icon="heroicons:arrow-up"
