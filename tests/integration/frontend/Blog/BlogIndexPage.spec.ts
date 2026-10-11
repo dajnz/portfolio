@@ -294,7 +294,7 @@ describe('BlogIndexPage', () => {
         const wrapper = mountPage();
         await flush();
 
-        // The "All" option is the first entry of the dropdown.
+        // The "All years" option is the first entry of the dropdown.
         expect(wrapper.get('[data-testid="blog-page-header-year"]').text()).toContain('All');
 
         await wrapper.get('[data-testid="blog-page-header-year"]').trigger('click');
