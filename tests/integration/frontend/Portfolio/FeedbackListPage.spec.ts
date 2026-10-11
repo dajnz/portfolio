@@ -2,9 +2,10 @@ import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { getMock, visitMock, pageProps } = vi.hoisted(() => ({
+const { getMock, visitMock, deleteMock, pageProps } = vi.hoisted(() => ({
     getMock: vi.fn(),
     visitMock: vi.fn(),
+    deleteMock: vi.fn(),
     pageProps: {
         auth: { user: { name: 'Admin', id: 1 } },
         locale: 'en',
@@ -16,7 +17,7 @@ vi.mock('@inertiajs/vue3', () => ({
         props: ['href'],
         template: '<a :href="href"><slot /></a>',
     },
-    router: { get: getMock, visit: visitMock, on: vi.fn(() => vi.fn()) },
+    router: { get: getMock, visit: visitMock, delete: deleteMock, on: vi.fn(() => vi.fn()) },
     usePage: () => ({ props: pageProps }),
 }));
 
@@ -65,6 +66,9 @@ const META = {
 function mountPage(props: Record<string, unknown> = {}) {
     return mount(FeedbackListPage, {
         props: { feedback: FEEDBACK, meta: META, ...props },
+        // The ConfirmationDialog teleports to body — stub Teleport so the
+        // dialog markup renders inline for assertions.
+        global: { stubs: { Teleport: true } },
     });
 }
 
@@ -73,6 +77,7 @@ describe('FeedbackListPage', () => {
         setActivePinia(createPinia());
         getMock.mockClear();
         visitMock.mockClear();
+        deleteMock.mockClear();
         window.localStorage.clear();
     });
 
@@ -120,6 +125,26 @@ describe('FeedbackListPage', () => {
         await wrapper.findAll('tbody tr')[0].trigger('click');
 
         expect(visitMock).toHaveBeenCalledWith('/admin/feedback/1');
+    });
+
+    it('renders an icon-only delete button instead of the row chevron', () => {
+        const wrapper = mountPage();
+
+        const deleteButton = wrapper.get('[data-testid="feedback-list-page-delete-1"]');
+        expect(deleteButton.attributes('aria-label')).toBe('Delete');
+        expect(wrapper.find('[data-testid="feedback-list-page-row-chevron-1"]').exists()).toBe(false);
+    });
+
+    it('deletes the feedback after confirmation without opening the detail row', async () => {
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="feedback-list-page-delete-1"]').trigger('click');
+        await wrapper
+            .get('[data-testid="feedback-list-page-delete-dialog-confirm"]')
+            .trigger('click');
+
+        expect(visitMock).not.toHaveBeenCalled();
+        expect(deleteMock).toHaveBeenCalledWith('/admin/feedback/1', expect.any(Object));
     });
 
     it('navigates with the cursor params', async () => {
