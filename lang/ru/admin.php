@@ -377,6 +377,7 @@ return [
         'mark_read' => 'Отметить прочитанным',
         'respond' => 'Ответить',
         'no_feedback' => 'Отзывов пока нет.',
+        'delete_confirm' => 'Удалить этот отзыв?',
         'back_to_feedback' => 'Назад к отзывам',
     ],
 

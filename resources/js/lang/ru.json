@@ -267,6 +267,7 @@
         "feedback": {
             "back_to_feedback": "Назад к отзывам",
             "date": "Дата",
+            "delete_confirm": "Удалить этот отзыв?",
             "excerpt": "Фрагмент",
             "forwarded": "Отвечен",
             "from": "Отзыв от :email",
