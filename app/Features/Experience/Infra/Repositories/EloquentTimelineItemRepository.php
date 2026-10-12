@@ -152,9 +152,9 @@ final class EloquentTimelineItemRepository implements
         }
     }
 
-    public function save(TimelineItem $item): void
+    public function save(TimelineItem $item): int
     {
-        DB::transaction(function () use ($item): void {
+        return DB::transaction(function () use ($item): int {
             $model = TimelineItemModel::query()->updateOrCreate(
                 ['id' => $item->toId()],
                 $this->mapper->toRow($item),
@@ -165,6 +165,8 @@ final class EloquentTimelineItemRepository implements
                 static fn (TechSkillTag $tag): int => $tag->toId(),
                 $item->toTechTags(),
             ));
+
+            return (int) $model->id;
         });
     }
 
