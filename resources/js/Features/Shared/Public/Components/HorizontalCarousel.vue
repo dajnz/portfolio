@@ -51,6 +51,7 @@ let pointerStartY = 0;
 let pointerStartTime = 0;
 
 const totalSlides = computed(() => props.items.length);
+const hasMultipleSlides = computed(() => totalSlides.value > 1);
 const viewportStyle = computed(() => ({
     '--carousel-gap': props.gap,
     '--carousel-slides': props.slides_per_view,
@@ -338,7 +339,7 @@ onBeforeUnmount(() => {
         </div>
       </div>
       <button
-        v-if="props.show_arrows"
+        v-if="props.show_arrows && hasMultipleSlides"
         type="button"
         class="carousel__arrow carousel__arrow--prev"
         :disabled="activeIndex === 0"
@@ -355,7 +356,7 @@ onBeforeUnmount(() => {
         />
       </button>
       <button
-        v-if="props.show_arrows"
+        v-if="props.show_arrows && hasMultipleSlides"
         type="button"
         class="carousel__arrow carousel__arrow--next"
         :disabled="activeIndex === totalSlides - 1"
@@ -373,7 +374,7 @@ onBeforeUnmount(() => {
       </button>
     </div>
     <div
-      v-if="props.show_dots && totalSlides > 1"
+      v-if="props.show_dots && hasMultipleSlides"
       class="carousel__dots"
     >
       <button
@@ -431,20 +432,22 @@ onBeforeUnmount(() => {
     justify-content: center;
     width: 32px;
     height: 32px;
-    border: none;
+    border: 1px solid rgb(255 255 255 / 70%);
     border-radius: var(--radius-full);
     background: rgb(22 33 27 / 55%);
     color: #fff;
+    box-shadow: 0 2px 4px rgb(22 33 27 / 35%);
     cursor: pointer;
     transition: opacity var(--transition-fast);
 }
 
-.carousel__arrow:hover {
+.carousel__arrow:hover:not(:disabled) {
     background: rgb(22 33 27 / 75%);
 }
 
 .carousel__arrow:disabled {
-    opacity: 0.35;
+    border-color: rgb(255 255 255 / 25%);
+    color: rgb(255 255 255 / 45%);
     cursor: default;
 }
 
@@ -504,6 +507,15 @@ onBeforeUnmount(() => {
 .carousel--compact-dots .carousel__dot {
     width: 9px;
     height: 9px;
+}
+
+/* Below the small-screen breakpoint the dots are too small to tap and the
+   two arrow buttons already cover navigation, so only large screens keep
+   them. */
+@media (width < 768px) {
+    .carousel__dots {
+        display: none;
+    }
 }
 
 @media (prefers-reduced-motion: no-preference) {

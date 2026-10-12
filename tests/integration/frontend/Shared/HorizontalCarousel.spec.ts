@@ -121,6 +121,15 @@ describe('HorizontalCarousel', () => {
         expect(wrapper.findAll('[data-testid^="carousel-dot-"]')).toHaveLength(0);
     });
 
+    it('hides the arrows for a single item', () => {
+        const wrapper = mount(HorizontalCarousel, {
+            props: { items: [{ id: 1 }] },
+        });
+
+        expect(wrapper.find('[data-testid="carousel-prev"]').exists()).toBe(false);
+        expect(wrapper.find('[data-testid="carousel-next"]').exists()).toBe(false);
+    });
+
     it('auto-advances on the configured interval', async () => {
         const wrapper = mount(HorizontalCarousel, {
             props: { items: ITEMS, auto_advance_ms: 1000 },
