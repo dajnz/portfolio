@@ -26,7 +26,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useI18n } from '@shared-cross/Composables/useI18n';
 
-import { CALLOUT_TYPES } from '../../EditorExtensions/Callout';
+import { CALLOUT_TYPES } from '@shared-admin-extensions/Callout';
 import { useEditorTableGrid } from './useEditorTableGrid';
 import type { EditorPopupMode } from './useEditorPopup';
 

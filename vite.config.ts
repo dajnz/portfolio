@@ -107,6 +107,7 @@ export default defineConfig(({ isSsrBuild }) => ({
             '@resume': featureAlias('Resume'),
             '@shared-public': featureAlias('Shared/Public/Components'),
             '@shared-admin': featureAlias('Shared/Admin/Components'),
+            '@shared-admin-extensions': featureAlias('Shared/Admin/EditorExtensions'),
             '@shared-cross': featureAlias('Shared/CrossSurface'),
             // Root alias for anything outside the Features tree (lang JSON,
             // app entries). Listed last — the longer feature aliases above
