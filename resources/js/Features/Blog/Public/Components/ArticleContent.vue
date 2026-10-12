@@ -314,6 +314,13 @@ onBeforeUnmount(cleanupMounts);
     font-size: var(--font-size-base);
     line-height: var(--line-height-relaxed);
     color: var(--color-text-secondary);
+
+    /* Long unbroken strings (long words, URLs) must wrap inside the
+       reading column: `anywhere` (not `break-word`) also caps the
+       content's min-content width, so the panel never grows past the
+       grid column. Code blocks (`pre`) reset it below to keep their
+       horizontal scroll. */
+    overflow-wrap: anywhere;
 }
 
 .article-content__body > * + * {
@@ -455,6 +462,13 @@ onBeforeUnmount(cleanupMounts);
     background: var(--color-bg-secondary);
     border-radius: var(--radius-sm);
     padding: 0.1em 0.4em;
+}
+
+.article-content__body pre {
+    /* The block's code keeps its layout — the body's inherited
+       `overflow-wrap: anywhere` is reset so long lines scroll
+       horizontally (`overflow-x: auto`) instead of wrapping. */
+    overflow-wrap: normal;
 }
 
 .article-content__body pre code {
