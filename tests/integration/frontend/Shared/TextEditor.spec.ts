@@ -580,6 +580,64 @@ describe('TextEditor', () => {
         expect(wrapper.find('[contenteditable="true"]').element.innerHTML).toContain('<ul>');
     });
 
+    it('round-trips an HTML entity from the raw markdown without escaping it', async () => {
+        const wrapper = mountEditor({ modelValue: 'a&nbsp;b' });
+        await waitForEditable(wrapper);
+
+        expect(wrapper.get('[contenteditable="true"]').text()).toContain('\u00A0');
+
+        await wrapper.get('[data-testid="text-editor-mode-toggle"]').trigger('click');
+
+        expect(
+            (wrapper.get('[data-testid="text-editor-raw"]').element as HTMLTextAreaElement).value,
+        ).toBe('a&nbsp;b');
+
+        await wrapper.get('[data-testid="text-editor-mode-toggle"]').trigger('click');
+        await waitForEditable(wrapper);
+        expect(wrapper.get('[contenteditable="true"]').text()).toContain('\u00A0');
+
+        await wrapper.get('[data-testid="text-editor-mode-toggle"]').trigger('click');
+        expect(
+            (wrapper.get('[data-testid="text-editor-raw"]').element as HTMLTextAreaElement).value,
+        ).toBe('a&nbsp;b');
+    });
+
+    it('decodes named HTML entities and never escapes them back to `&amp;`', async () => {
+        const wrapper = mountEditor({ modelValue: 'x&copy;y' });
+        await waitForEditable(wrapper);
+
+        expect(wrapper.get('[contenteditable="true"]').text()).toContain('\u00A9');
+
+        await wrapper.get('[data-testid="text-editor-mode-toggle"]').trigger('click');
+
+        const raw = (wrapper.get('[data-testid="text-editor-raw"]')
+            .element as HTMLTextAreaElement).value;
+        expect(raw).toContain('\u00A9');
+        expect(raw).not.toContain('&amp;');
+    });
+
+    it('keeps HTML entities inside code spans literal', async () => {
+        const wrapper = mountEditor({ modelValue: '`a&nbsp;b`' });
+        await waitForEditable(wrapper);
+
+        expect(wrapper.get('[contenteditable="true"]').text()).toContain('&nbsp;');
+
+        await wrapper.get('[data-testid="text-editor-mode-toggle"]').trigger('click');
+
+        expect(
+            (wrapper.get('[data-testid="text-editor-raw"]').element as HTMLTextAreaElement).value,
+        ).toContain('`a&nbsp;b`');
+    });
+
+    it('leaves entities outside the allow-list and numeric references literal', async () => {
+        const wrapper = mountEditor({ modelValue: 'a&lrm;b and c&#160;d' });
+        await waitForEditable(wrapper);
+
+        const text = wrapper.get('[contenteditable="true"]').text();
+        expect(text).toContain('&lrm;');
+        expect(text).toContain('&#160;');
+    });
+
     it('emits update:modelValue with markdown on editor changes', async () => {
         // Direct DOM text input relies on ProseMirror's MutationObserver +
         // composition pipeline, which happy-dom delivers asynchronously and
