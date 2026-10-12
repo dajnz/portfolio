@@ -278,6 +278,7 @@ return [
         'grid_view' => 'Сетка',
         'slug' => 'Псевдоним',
         'short_description' => 'Краткое описание',
+        'content' => 'Контент',
         'lead_image' => 'Обложка',
         'alt_text' => 'Альтернативный текст',
         'related_articles' => 'Похожие статьи',
