@@ -51,7 +51,7 @@ return [
     'feedback_invalid_email' => 'Please enter a valid email address.',
     'feedback_errors_summary' => 'Please correct the following {count, plural, one {# error} other {# errors}}',
 
-    'console_greeting' => 'Hey there! Welcome to my portfolio.',
+    'console_greeting' => 'Wow, interested enough to open dev console? Contact me:',
 
     'copy_contact' => 'Copy contact',
     'copied' => 'Copied!',

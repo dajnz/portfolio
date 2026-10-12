@@ -6,7 +6,6 @@ import SkillsBlock from '@portfolio-public/SkillsBlock.vue';
 import { usePageTracking } from '@shared-cross/Composables/usePageTracking';
 import { useSeoUpdater } from '@shared-cross/Composables/useSeoUpdater';
 import type { components } from '@shared-cross/Types/inertia';
-import type { ConsoleGreetingData } from '@shared-public/ConsoleGreeting.vue';
 import PublicPageLayout from '@shared-public/PublicPageLayout.vue';
 import { defineAsyncComponent } from 'vue';
 import { useLandingPage } from '../Composables/useLandingPage';
@@ -24,7 +23,6 @@ const props = withDefaults(
         featured_projects?: LandingProps['featured_projects'];
         has_more?: boolean;
         contacts?: LandingProps['contacts'];
-        console_greeting?: LandingProps['console_greeting'];
         feedback_honeypot_name?: LandingProps['feedback_honeypot_name'];
         seo?: LandingProps['seo'];
         test_id?: string;
@@ -35,17 +33,11 @@ const props = withDefaults(
         featured_projects: undefined,
         has_more: undefined,
         contacts: undefined,
-        console_greeting: undefined,
         feedback_honeypot_name: undefined,
         seo: undefined,
         test_id: 'landing-page',
     },
 );
-
-// The wire type has optional fields; the layout requires the full shape.
-// (The cast must live in the script — a template `as X | Y` would be
-// parsed as a deprecated filter by the Vue template compiler.)
-const greeting = (props.console_greeting ?? null) as ConsoleGreetingData | null;
 
 // The feedback section is dynamically imported (loaded when the user
 // scrolls into view).
@@ -74,7 +66,6 @@ const {
     :nav_items="navItems"
     active_route="#about"
     :logo_text="aboutBlock?.name ?? ''"
-    :console_greeting="greeting"
     :test_id="props.test_id"
   >
     <Head>

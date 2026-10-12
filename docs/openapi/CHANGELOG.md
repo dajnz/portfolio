@@ -12,6 +12,14 @@ runtime support.
 
 ### Changed
 
+- **`console_greeting` moved to the shared Inertia props (v1.0.32 inertia):**
+  the console greeting data now ships with `InertiaSharedProps` instead of
+  `LandingPageProps`, so the public layout renders `ConsoleGreeting` on every
+  public page (not only the landing page). The `InertiaSharedProps`
+  `featureFlags` object also gained `console_greeting` (it was missing).
+  `console_greeting` removed from `LandingPageProps`. Wire shape of the object
+  itself is unchanged; `info.version` bumped to `1.0.32` in `inertia.yaml`.
+
 - **Analytics chart date windows + whole-time adaptive bucketing (v1.0.31 inertia):**
   the `series` endpoint now renders a dense calendar window ending at the current
   period — daily the last 30 days, weekly the last 12 weeks, monthly the last 12

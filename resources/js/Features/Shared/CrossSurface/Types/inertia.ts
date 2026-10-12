@@ -914,6 +914,24 @@ export interface components {
             featureFlags: {
                 github_oauth: boolean;
                 social_reactions: boolean;
+                console_greeting?: boolean;
+            };
+            /**
+             * @description ConsoleGreeting data (ADR-0023) shared to every page: greeting
+             *     text (localized), the owner name and title (locale-resolved
+             *     about values) and the contacts as label/value pairs. The public
+             *     layout renders the component on every public page, and only
+             *     when the `console_greeting` flag is enabled (or the front-end
+             *     runs in development).
+             */
+            console_greeting?: {
+                greeting?: string;
+                name?: string;
+                position?: string;
+                contacts?: {
+                    label?: string;
+                    value?: string;
+                }[];
             };
             /** @description Public settings from SettingsService. */
             settings: {
@@ -1094,22 +1112,6 @@ export interface components {
                 has_more?: boolean;
                 experience_items?: components["schemas"]["TimelineItemData"][];
                 contacts?: components["schemas"]["ContactData"][];
-                /**
-                 * @description ConsoleGreeting data (ADR-0023): greeting text (localized),
-                 *     the developer name and position (locale-resolved about
-                 *     values) and the contacts as label/value pairs. Rendered by
-                 *     the public layout only when passed and the
-                 *     `console_greeting` flag is enabled.
-                 */
-                console_greeting?: {
-                    greeting?: string;
-                    name?: string;
-                    position?: string;
-                    contacts?: {
-                        label?: string;
-                        value?: string;
-                    }[];
-                };
                 /**
                  * @description The randomized honeypot field name for the feedback form,
                  *     derived from the session ID via keyed HMAC-SHA256 and

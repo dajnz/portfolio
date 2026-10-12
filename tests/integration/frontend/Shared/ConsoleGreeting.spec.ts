@@ -23,6 +23,7 @@ describe('ConsoleGreeting', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
         document.head.innerHTML = '';
+        sessionStorage.clear();
         vi.mocked(usePage).mockReturnValue({
             props: {
                 errors: {},
@@ -65,5 +66,27 @@ describe('ConsoleGreeting', () => {
         });
 
         expect(wrapper.html()).toBe('');
+    });
+
+    it('shows the greeting only once per browser session', () => {
+        vi.mocked(usePage).mockReturnValue({
+            props: {
+                errors: {},
+                cspNonce: 'test-nonce',
+                featureFlags: { console_greeting: true },
+            },
+        } as unknown as ReturnType<typeof usePage>);
+
+        const props = {
+            greeting: 'Hi',
+            name: 'Alex',
+            position: 'Dev',
+            contacts: CONTACTS,
+        };
+
+        mount(ConsoleGreeting, { props });
+        mount(ConsoleGreeting, { props });
+
+        expect(document.head.querySelectorAll('script')).toHaveLength(1);
     });
 });

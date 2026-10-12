@@ -87,12 +87,14 @@ use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
+use App\Features\Shared\Domain\RepositoryInterfaces\ContactReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\PublishedArticleReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\SettingsReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 use App\Features\Shared\Infra\Logging\LaravelLogger;
 use App\Features\Shared\Infra\Repositories\EloquentAboutInfoReadRepository;
+use App\Features\Shared\Infra\Repositories\EloquentContactReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentProjectReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentPublishedArticleReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentSettingsReadRepository;
@@ -271,6 +273,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AboutInfoReadRepositoryInterface::class,
             EloquentAboutInfoReadRepository::class,
+        );
+
+        $this->app->bind(
+            ContactReadRepositoryInterface::class,
+            EloquentContactReadRepository::class,
         );
 
         $this->app->bind(

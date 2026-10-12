@@ -60,7 +60,7 @@ describe('LandingController', function (): void {
                 ->has('seo.json_ld', 2)
                 ->where('seo.json_ld.0.@type', 'Person')
                 ->where('seo.json_ld.1.@type', 'WebSite')
-                ->where('console_greeting.greeting', 'Hey there! Welcome to my portfolio.')
+                ->where('console_greeting.greeting', 'Wow, interested enough to open dev console? Contact me:')
                 ->where('console_greeting.name', 'Alex Kovalev')
                 ->where('console_greeting.position', 'Full-Stack Developer')
                 ->where('console_greeting.contacts.0.label', 'GitHub')
