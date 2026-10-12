@@ -140,12 +140,15 @@ export const Callout = Node.create({
     },
     markdownTokenName: 'callout',
     markdownTokenizer: calloutTokenizer(),
-    parseMarkdown: (token, helpers) =>
-        helpers.createNode(
+    parseMarkdown: (token, helpers) => {
+        const parseBlockChildren = helpers.parseBlockChildren ?? helpers.parseChildren;
+
+        return helpers.createNode(
             'callout',
             { type: token.calloutType ?? 'warning' },
-            helpers.parseChildren(token.tokens ?? []),
-        ),
+            parseBlockChildren(token.tokens ?? []),
+        );
+    },
     renderMarkdown: (node, helpers) => {
         const type = String((node.attrs?.type as CalloutType) ?? 'warning').toUpperCase();
         // The "\n\n" separator mirrors the doc node's own join — without

@@ -424,6 +424,44 @@ describe('TextEditor', () => {
         expect(wrapper.get('[contenteditable="true"]').find('[data-callout]').exists()).toBe(true);
     });
 
+    it('preserves blank lines inside a callout across repeated mode switches', async () => {
+        const wrapper = mountEditor({ modelValue: 'Hello world' });
+        await waitForEditable(wrapper);
+
+        await wrapper.get('[data-testid="text-editor-callout"]').trigger('click');
+        await new Promise((resolve) => setTimeout(resolve, 20));
+
+        // The user presses Enter a few times in the WYSIWYG view, creating
+        // blank paragraphs inside the callout.
+        const editable = wrapper.get('[contenteditable="true"]');
+
+        for (let press = 0; press < 3; press += 1) {
+            await editable.trigger('keydown', { key: 'Enter' });
+            await new Promise((resolve) => setTimeout(resolve, 20));
+        }
+
+        const readRaw = async (): Promise<string> => {
+            await wrapper.get('[data-testid="text-editor-mode-toggle"]').trigger('click');
+            await nextTick();
+            const raw = wrapper.get('[data-testid="text-editor-raw"]');
+            const value = (raw.element as HTMLTextAreaElement).value;
+
+            await wrapper.get('[data-testid="text-editor-mode-toggle"]').trigger('click');
+            await waitForEditable(wrapper);
+
+            return value;
+        };
+
+        // The blank paragraphs round-trip through the `&nbsp;` marker.
+        const first = await readRaw();
+        expect(first).toContain('&nbsp;');
+
+        // Each switch must not drop a line: the blank-line tokens inside
+        // the callout used to be discarded on every re-parse.
+        expect(await readRaw()).toBe(first);
+        expect(await readRaw()).toBe(first);
+    });
+
     it('keeps blank lines after a callout across repeated mode switches', async () => {
         // The reported case: blank paragraphs sitting AFTER the callout.
         const wrapper = mountEditor({
