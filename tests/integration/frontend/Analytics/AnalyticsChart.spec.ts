@@ -45,17 +45,17 @@ describe('AnalyticsChart', () => {
         setActivePinia(createPinia());
     });
 
-    it('renders a bar chart with the data values as text nodes', () => {
+    it('renders a bar chart with the x-axis labels as text nodes', () => {
         const wrapper = mountChart({ type: 'bar', title: 'Visits over time' });
 
         expect(wrapper.get('[data-testid="analytics-chart"] h2').text()).toBe('Visits over time');
         const svg = wrapper.get('[data-testid="analytics-chart-svg"]');
         expect(svg.attributes('role')).toBe('img');
         expect(svg.attributes('aria-label')).toBe('Bar chart: Visits over time');
-        expect(svg.findAll('rect')).toHaveLength(3);
+        expect(svg.findAll('rect[fill="#B9CFFB"]')).toHaveLength(3);
         expect(
             svg.findAll('text').map((node) => node.text()),
-        ).toEqual(['842', 'Jun 01', '1200', 'Jun 08', '500', 'Jun 15']);
+        ).toEqual(['Jun 01', 'Jun 08', 'Jun 15']);
     });
 
     it('renders a line chart with the polyline and point markers', () => {
@@ -65,6 +65,32 @@ describe('AnalyticsChart', () => {
         expect(svg.attributes('aria-label')).toBe('Line chart: Submissions over time');
         expect(svg.find('polyline').exists()).toBe(true);
         expect(svg.findAll('circle')).toHaveLength(3);
+    });
+
+    it('shows the value tooltip on hovering a bar column', async () => {
+        const wrapper = mountChart({ type: 'bar' });
+
+        expect(wrapper.find('[data-testid="analytics-chart-tooltip"]').exists()).toBe(false);
+
+        const hit = wrapper.get('[data-testid="analytics-chart-hit-1"]');
+        await hit.trigger('mouseenter');
+
+        const tooltip = wrapper.get('[data-testid="analytics-chart-tooltip"]');
+        expect(tooltip.text()).toContain('Jun 08');
+        expect(tooltip.text()).toContain('1200');
+
+        await hit.trigger('mouseleave');
+        expect(wrapper.find('[data-testid="analytics-chart-tooltip"]').exists()).toBe(false);
+    });
+
+    it('shows the value tooltip on hovering a line column', async () => {
+        const wrapper = mountChart({ type: 'line' });
+
+        await wrapper.get('[data-testid="analytics-chart-hit-0"]').trigger('mouseenter');
+
+        const tooltip = wrapper.get('[data-testid="analytics-chart-tooltip"]');
+        expect(tooltip.text()).toContain('Jun 01');
+        expect(tooltip.text()).toContain('842');
     });
 
     it('shows the skeleton while loading', () => {
@@ -94,16 +120,23 @@ describe('AnalyticsChart', () => {
         );
     });
 
-    it('renders hostile labels as plain text nodes, never as markup (XSS)', () => {
+    it('renders hostile labels as plain text nodes, never as markup (XSS)', async () => {
         const wrapper = mountChart({
             data: [{ label: '<img src=x onerror="window.__xss=1">', value: 1 }],
         });
 
         const svg = wrapper.get('[data-testid="analytics-chart-svg"]');
         expect(svg.find('img').exists()).toBe(false);
-        expect(svg.get('text').text()).toBe('1');
-        expect(svg.findAll('text')[1].text()).toBe('<img src=x onerror="window.__xss=1">');
+        expect(svg.get('text').text()).toBe('<img src=x onerror="window.__xss=1">');
         // Vue escaped the payload into text nodes — no raw markup in the DOM.
+        expect(wrapper.html()).not.toContain('<img src=x');
+        expect((window as unknown as Record<string, unknown>).__xss).toBeUndefined();
+
+        // The tooltip carries the same hostile label as a text node.
+        await wrapper.get('[data-testid="analytics-chart-hit-0"]').trigger('mouseenter');
+        expect(wrapper.get('[data-testid="analytics-chart-tooltip"]').text()).toContain(
+            '<img src=x onerror="window.__xss=1">',
+        );
         expect(wrapper.html()).not.toContain('<img src=x');
         expect((window as unknown as Record<string, unknown>).__xss).toBeUndefined();
     });
@@ -144,7 +177,7 @@ describe('AnalyticsChart', () => {
         expect(dot.attributes('fill')).toBe('#5C87EF');
     });
 
-    it('shows a tooltip with the series name and the point value on hover', async () => {
+    it('shows a tooltip with the series name, date and point value on hover', async () => {
         const wrapper = mountChart({ series: SERIES });
 
         expect(wrapper.find('[data-testid="analytics-chart-tooltip"]').exists()).toBe(false);
@@ -154,6 +187,7 @@ describe('AnalyticsChart', () => {
 
         const tooltip = wrapper.get('[data-testid="analytics-chart-tooltip"]');
         expect(tooltip.text()).toContain('GitHub');
+        expect(tooltip.text()).toContain('Jun 01');
         expect(tooltip.text()).toContain('5');
     });
 
@@ -246,5 +280,46 @@ describe('AnalyticsChart', () => {
         expect(tooltip.text()).toContain('<img src=x onerror="window.__xss=1">');
         expect(wrapper.html()).not.toContain('<img src=x');
         expect((window as unknown as Record<string, unknown>).__xss).toBeUndefined();
+    });
+
+    it('orders the union x-axis labels chronologically even when the series interleave', () => {
+        const wrapper = mountChart({
+            series: [
+                {
+                    name: 'GitHub',
+                    points: [
+                        { label: '2026-10-07', value: 1 },
+                        { label: '2026-10-09', value: 2 },
+                    ],
+                },
+                { name: 'Demo', points: [{ label: '2026-10-08', value: 3 }] },
+            ],
+        });
+
+        const svg = wrapper.get('[data-testid="analytics-chart-svg"]');
+        expect(svg.findAll('text').map((node) => node.text())).toEqual([
+            '2026-10-07',
+            '2026-10-08',
+            '2026-10-09',
+        ]);
+    });
+
+    it('thins the x-axis labels of a dense daily window', () => {
+        const data = Array.from({ length: 30 }, (_, index) => ({
+            label: `2026-09-${String(index + 1).padStart(2, '0')}`,
+            value: index + 1,
+        }));
+        const wrapper = mountChart({ data });
+
+        const texts = wrapper
+            .get('[data-testid="analytics-chart-svg"]')
+            .findAll('text')
+            .map((node) => node.text());
+
+        expect(texts).toContain('2026-09-01');
+        expect(texts).toContain('2026-09-30');
+        expect(texts).not.toContain('2026-09-02');
+        // At most 9 date labels on the 640-wide plot.
+        expect(texts.length).toBeLessThanOrEqual(9);
     });
 });

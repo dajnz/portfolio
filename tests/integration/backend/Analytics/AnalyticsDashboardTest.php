@@ -37,10 +37,13 @@ beforeEach(function (): void {
 
 function seedDashboardReports(AnalyticsReportRepositoryInterface $repository): void
 {
+    $today = new DateTimeImmutable('today');
+    $yesterday = $today->modify('-1 day');
+
     $repository->upsertBatch([
         dashboardReport('page_views', MetricSpan::All, '2026-06-01', '2026-08-21', 100.0),
-        dashboardReport('page_views', MetricSpan::Day, '2026-08-19', '2026-08-19', 10.0),
-        dashboardReport('page_views', MetricSpan::Day, '2026-08-20', '2026-08-20', 20.0),
+        dashboardReport('page_views', MetricSpan::Day, $yesterday->format('Y-m-d'), $yesterday->format('Y-m-d'), 10.0),
+        dashboardReport('page_views', MetricSpan::Day, $today->format('Y-m-d'), $today->format('Y-m-d'), 20.0),
         dashboardReport('unique_visitors', MetricSpan::All, '2026-06-01', '2026-08-21', 42.0),
         dashboardReport('feedback_submissions', MetricSpan::All, '2026-06-01', '2026-08-21', 7.0),
         dashboardReport('time_on_page_seconds', MetricSpan::All, '2026-06-01', '2026-08-21', 45.0),
@@ -62,6 +65,9 @@ it('renders the dashboard with the whole-time blocks, the default chart and the 
     seedDashboardReports($this->repository);
     $this->loginAsAdmin($this->createAdmin());
 
+    $today = new DateTimeImmutable('today');
+    $yesterday = $today->modify('-1 day');
+
     get('/admin/analytics')
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
@@ -78,8 +84,15 @@ it('renders the dashboard with the whole-time blocks, the default chart and the 
             ->where('projects_blocks.1', ['key' => 'unique_views', 'value' => 3])
             ->where('default_chart.metric', 'page_views')
             ->has('default_chart.spans', 4)
-            ->where('default_chart.spans.day.points.0', ['label' => '2026-08-19', 'value' => 10])
-            ->where('default_chart.spans.day.points.1', ['label' => '2026-08-20', 'value' => 20])
+            ->has('default_chart.spans.day.points', 30)
+            ->where('default_chart.spans.day.points.28', [
+                'label' => $yesterday->format('Y-m-d'),
+                'value' => 10,
+            ])
+            ->where('default_chart.spans.day.points.29', [
+                'label' => $today->format('Y-m-d'),
+                'value' => 20,
+            ])
             ->where('default_rankings.metric', 'time_on_page_seconds')
             ->where('default_rankings.scope', 'page')
             ->where('default_rankings.rows.top.0', [
@@ -98,64 +111,73 @@ it('redirects guests — the Inertia page to the login, the JSON endpoints 401',
 });
 
 it('returns the metric series points at the chosen span', function (): void {
+    $monday = dashboardMonday(new DateTimeImmutable('today'));
+    $previousMonday = $monday->modify('-7 days');
+
     $this->repository->upsertBatch([
-        dashboardReport('page_views', MetricSpan::Week, '2026-08-10', '2026-08-16', 40.0),
-        dashboardReport('page_views', MetricSpan::Week, '2026-08-17', '2026-08-23', 60.0),
+        dashboardReport('page_views', MetricSpan::Week, $previousMonday->format('Y-m-d'), $previousMonday->modify('+6 days')->format('Y-m-d'), 40.0),
+        dashboardReport('page_views', MetricSpan::Week, $monday->format('Y-m-d'), $monday->modify('+6 days')->format('Y-m-d'), 60.0),
     ]);
     $this->loginAsAdmin($this->createAdmin());
 
     getJson('/admin/analytics/series?metric=page_views&span=week')
         ->assertOk()
-        ->assertExactJson(['points' => [
-            ['label' => '2026-08-10', 'value' => 40],
-            ['label' => '2026-08-17', 'value' => 60],
-        ]]);
+        ->assertJsonCount(12, 'points')
+        ->assertJsonPath('points.10', ['label' => $previousMonday->format('Y-m-d'), 'value' => 40])
+        ->assertJsonPath('points.11', ['label' => $monday->format('Y-m-d'), 'value' => 60]);
 });
 
-it('returns the cumulative running total for the whole-time span', function (): void {
+it('returns the whole-time cumulative running total as a daily fold for a short history', function (): void {
+    $today = new DateTimeImmutable('today');
+    $yesterday = $today->modify('-1 day');
+
     $this->repository->upsertBatch([
-        dashboardReport('page_views', MetricSpan::Day, '2026-08-19', '2026-08-19', 10.0),
-        dashboardReport('page_views', MetricSpan::Day, '2026-08-20', '2026-08-20', 20.0),
+        dashboardReport('page_views', MetricSpan::Day, $yesterday->format('Y-m-d'), $yesterday->format('Y-m-d'), 10.0),
+        dashboardReport('page_views', MetricSpan::Day, $today->format('Y-m-d'), $today->format('Y-m-d'), 20.0),
     ]);
     $this->loginAsAdmin($this->createAdmin());
 
     getJson('/admin/analytics/series?metric=page_views&span=all')
         ->assertOk()
         ->assertExactJson(['points' => [
-            ['label' => '2026-08-19', 'value' => 10],
-            ['label' => '2026-08-20', 'value' => 30],
+            ['label' => $yesterday->format('Y-m-d'), 'value' => 10],
+            ['label' => $today->format('Y-m-d'), 'value' => 30],
         ]]);
 });
 
 it('returns the per-target cumulative running total for the whole-time span', function (): void {
+    $today = new DateTimeImmutable('today');
+    $yesterday = $today->modify('-1 day');
+
     $this->repository->upsertBatch([
-        dashboardReport('cta_clicks', MetricSpan::Day, '2026-08-19', '2026-08-19', 3.0, 'github'),
-        dashboardReport('cta_clicks', MetricSpan::Day, '2026-08-20', '2026-08-20', 4.0, 'github'),
-        dashboardReport('cta_clicks', MetricSpan::Day, '2026-08-19', '2026-08-19', 2.0, 'language'),
-        dashboardReport('cta_clicks', MetricSpan::Day, '2026-08-20', '2026-08-20', 6.0, 'language'),
+        dashboardReport('cta_clicks', MetricSpan::Day, $yesterday->format('Y-m-d'), $yesterday->format('Y-m-d'), 3.0, 'github'),
+        dashboardReport('cta_clicks', MetricSpan::Day, $today->format('Y-m-d'), $today->format('Y-m-d'), 4.0, 'github'),
+        dashboardReport('cta_clicks', MetricSpan::Day, $yesterday->format('Y-m-d'), $yesterday->format('Y-m-d'), 2.0, 'language'),
+        dashboardReport('cta_clicks', MetricSpan::Day, $today->format('Y-m-d'), $today->format('Y-m-d'), 6.0, 'language'),
     ]);
     $this->loginAsAdmin($this->createAdmin());
 
     getJson('/admin/analytics/series?metric=cta_clicks&span=all&dimension=github')
         ->assertOk()
         ->assertExactJson(['points' => [
-            ['label' => '2026-08-19', 'value' => 3],
-            ['label' => '2026-08-20', 'value' => 7],
+            ['label' => $yesterday->format('Y-m-d'), 'value' => 3],
+            ['label' => $today->format('Y-m-d'), 'value' => 7],
         ]]);
 });
 
 it('returns the per-target cta_clicks series for the given dimension', function (): void {
+    $monday = dashboardMonday(new DateTimeImmutable('today'));
+
     $this->repository->upsertBatch([
-        dashboardReport('cta_clicks', MetricSpan::Week, '2026-08-17', '2026-08-23', 5.0, 'github'),
-        dashboardReport('cta_clicks', MetricSpan::Week, '2026-08-17', '2026-08-23', 3.0, 'language'),
+        dashboardReport('cta_clicks', MetricSpan::Week, $monday->format('Y-m-d'), $monday->modify('+6 days')->format('Y-m-d'), 5.0, 'github'),
+        dashboardReport('cta_clicks', MetricSpan::Week, $monday->format('Y-m-d'), $monday->modify('+6 days')->format('Y-m-d'), 3.0, 'language'),
     ]);
     $this->loginAsAdmin($this->createAdmin());
 
     getJson('/admin/analytics/series?metric=cta_clicks&span=week&dimension=language')
         ->assertOk()
-        ->assertExactJson(['points' => [
-            ['label' => '2026-08-17', 'value' => 3],
-        ]]);
+        ->assertJsonCount(12, 'points')
+        ->assertJsonPath('points.11', ['label' => $monday->format('Y-m-d'), 'value' => 3]);
 });
 
 it('rejects invalid series parameters with 422', function (string $query, string $errorKey, ?string $message = null): void {
@@ -357,4 +379,9 @@ function dashboardReport(
         value: $value,
         createdAt: new DateTimeImmutable('2026-08-21 02:00:00'),
     );
+}
+
+function dashboardMonday(DateTimeImmutable $date): DateTimeImmutable
+{
+    return $date->setTime(0, 0)->modify(sprintf('-%d days', (int) $date->format('N') - 1));
 }

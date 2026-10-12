@@ -74,10 +74,11 @@ components:
       type: object
       description: |
         The default chart (total visits): the `page_views` series at
-        the four span options — daily/weekly/monthly points
-        (chronological, `period_start` date labels, up to 90) and the
-        cumulative running total for `all` (ADR-0017). The frontend renders
-        the `day` series initially and fetches on span change.
+        the four span options — the daily/weekly/monthly calendar
+        windows (chronological, `period_start` date labels, zero-filled)
+        and the whole-time cumulative running total for `all`
+        (ADR-0017). The frontend renders the `day` series initially and
+        fetches on span change.
       properties:
         metric:
           type: string
@@ -128,13 +129,18 @@ components:
       type: object
       description: |
         The chart points of one metric at one span: chronological
-        `period_start` date labels (the `span=all` response is the
-        cumulative running total over the day rows, ADR-0017). For
-        `metric=cta_clicks` the caller passes a `dimension` (one of the
-        seven targets) and receives that target's series — the per-target
-        day rows, cumulative at `span=all` (the CTA multi-chart is seven
-        such calls — whole-time included — the frontend names each
-        series by the requested target).
+        `period_start` date labels over a dense calendar window ending at
+        the current period — daily the last 30 days, weekly the last 12
+        weeks, monthly the last 12 months, yearly the last 12 years — with
+        the periods without stored rows rendered as 0. The `span=all`
+        response is the whole-time cumulative running total, bucketed at
+        the finest of day/week/month/year whose full history fits 30
+        points (ADR-0017). For `metric=cta_clicks` the caller passes a
+        `dimension` (one of the seven targets) and receives that target's
+        series — the per-target day rows, cumulative at `span=all` over
+        the same shared bucket sequence (the CTA multi-chart is such calls
+        — whole-time included — the frontend names each series by the
+        requested target).
       properties:
         points:
           type: array
@@ -268,12 +274,16 @@ paths:
       summary: Analytics metric series
       description: |
         The chart points of one metric at one span (ADR-0017) —
-        chronological `period_start` labels, the last 90 rows; `span=all`
-        returns the cumulative running total (of the dimension-NULL day
-        rows — or of the selected target's day rows when `dimension` is
-        given). The `dimension` parameter selects one `cta_clicks` target
-        (the CTA multi-chart series — required for `cta_clicks`, rejected
-        for every other metric).
+        chronological `period_start` labels over a dense calendar window
+        ending at the current period: daily the last 30 days, weekly the
+        last 12 weeks, monthly the last 12 months (yearly the last 12
+        years), zero-filling the periods without stored rows. `span=all`
+        returns the whole-time cumulative running total, bucketed at the
+        finest of day/week/month/year whose full history fits 30 points
+        (of the dimension-NULL day rows — or of the selected target's
+        day rows when `dimension` is given). The `dimension` parameter
+        selects one `cta_clicks` target (the CTA multi-chart series —
+        required for `cta_clicks`, rejected for every other metric).
       operationId: analyticsMetricSeries
       parameters:
         - name: metric

@@ -8,14 +8,15 @@ use App\Features\Analytics\Domain\Entities\AnalyticsReport;
 use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
+use DateTimeImmutable;
 
 /**
  * In-memory `AnalyticsReportRepositoryInterface` double: records the
  * replaced/upserted rows (the rebuild suite) and serves the dashboard
- * read shapes from the seeded rows — blocks, last-N series (with the
- * optional dimension filter), the top/bottom rankings (with the optional
- * dimension-prefix filter), the whole-time dimension rows and the
- * cumulative day fold.
+ * read shapes from the seeded rows — blocks, the date-windowed series
+ * (with the optional dimension filter), the top/bottom rankings (with
+ * the optional dimension-prefix filter), the whole-time dimension rows
+ * and the raw day rows.
  */
 final class FakeAnalyticsReportRepository implements AnalyticsReportRepositoryInterface
 {
@@ -67,20 +68,50 @@ final class FakeAnalyticsReportRepository implements AnalyticsReportRepositoryIn
         );
     }
 
-    public function series(MetricName $metric, MetricSpan $span, int $limit, ?string $dimension = null): array
+    public function series(MetricName $metric, MetricSpan $span, DateTimeImmutable $from, ?string $dimension = null): array
     {
         $rows = $this->matching(
             static fn (AnalyticsReport $row): bool => $row->toMetric() === $metric
                 && $row->toSpan() === $span
+                && $row->toDimension() === $dimension
+                && $row->toPeriodStart() >= $from,
+        );
+
+        usort(
+            $rows,
+            static fn (AnalyticsReport $a, AnalyticsReport $b): int => $a->toPeriodStart() <=> $b->toPeriodStart(),
+        );
+
+        return $rows;
+    }
+
+    public function daySeries(MetricName $metric, ?string $dimension = null): array
+    {
+        $rows = $this->matching(
+            static fn (AnalyticsReport $row): bool => $row->toMetric() === $metric
+                && $row->toSpan() === MetricSpan::Day
                 && $row->toDimension() === $dimension,
         );
 
         usort(
             $rows,
-            static fn (AnalyticsReport $a, AnalyticsReport $b): int => $b->toPeriodStart() <=> $a->toPeriodStart(),
+            static fn (AnalyticsReport $a, AnalyticsReport $b): int => $a->toPeriodStart() <=> $b->toPeriodStart(),
         );
 
-        return array_slice($rows, 0, $limit);
+        return $rows;
+    }
+
+    public function oldestDayStart(MetricName $metric): ?DateTimeImmutable
+    {
+        $starts = array_map(
+            static fn (AnalyticsReport $row): DateTimeImmutable => $row->toPeriodStart(),
+            $this->matching(
+                static fn (AnalyticsReport $row): bool => $row->toMetric() === $metric
+                    && $row->toSpan() === MetricSpan::Day,
+            ),
+        );
+
+        return $starts === [] ? null : min($starts);
     }
 
     public function rankings(MetricName $metric, string $direction, int $limit, ?string $dimensionPrefix = null): array
@@ -110,40 +141,6 @@ final class FakeAnalyticsReportRepository implements AnalyticsReportRepositoryIn
             MetricSpan::cases(),
             static fn (MetricSpan $span): bool => in_array($span, $present, true),
         ));
-    }
-
-    public function cumulativeSeries(MetricName $metric, ?string $dimension = null): array
-    {
-        $rows = $this->matching(
-            static fn (AnalyticsReport $row): bool => $row->toMetric() === $metric
-                && $row->toSpan() === MetricSpan::Day
-                && $row->toDimension() === $dimension,
-        );
-
-        usort(
-            $rows,
-            static fn (AnalyticsReport $a, AnalyticsReport $b): int => $a->toPeriodStart() <=> $b->toPeriodStart(),
-        );
-
-        $runningTotal = 0.0;
-
-        return array_map(
-            static function (AnalyticsReport $row) use (&$runningTotal): AnalyticsReport {
-                $runningTotal += $row->toValue();
-
-                return new AnalyticsReport(
-                    id: $row->toId(),
-                    metric: $row->toMetric(),
-                    span: $row->toSpan(),
-                    dimension: $row->toDimension(),
-                    periodStart: $row->toPeriodStart(),
-                    periodEnd: $row->toPeriodEnd(),
-                    value: $runningTotal,
-                    createdAt: $row->toCreatedAt(),
-                );
-            },
-            $rows,
-        );
     }
 
     public function dimensionRows(MetricName $metric, ?string $dimensionPrefix = null): array

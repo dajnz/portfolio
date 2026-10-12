@@ -1,4 +1,4 @@
-<!-- AnalyticsChart — the root of the lightweight hand-drawn SVG chart (bar/line), no charting library. Orchestrates the states (loading / loaded / empty / error) and the mode switch; the geometry lives in `useAnalyticsChart`, the marks in the plot sub-components (AnalyticsChartBarPlot / AnalyticsChartLinePlot / AnalyticsChartSeriesPlot + AnalyticsChartTooltip). Multi-series mode via the `series` prop (one line per series + a legend with the series names — the CTA multi-chart): `series` is mutually exclusive with `data` — when both are given the runtime guard prefers `series` (the page never passes both). A non-array `data` or `series` (the page passes `null` on fetch error) drives the error state. Every multi-series point renders a visible marker (a lone polyline would be invisible) with a hover tooltip — the series name + the point's value. Chart data is set via textContent exclusively — never innerHTML or string concatenation: labels/values render through Vue interpolation into text nodes; only numeric coordinates are composed into attributes. -->
+<!-- AnalyticsChart — the root of the lightweight hand-drawn SVG chart (bar/line), no charting library. Orchestrates the states (loading / loaded / empty / error) and the mode switch; the geometry lives in `useAnalyticsChart`, the marks in the plot sub-components (AnalyticsChartBarPlot / AnalyticsChartLinePlot / AnalyticsChartSeriesPlot + AnalyticsChartTooltip). Multi-series mode via the `series` prop (one line per series + a legend with the series names — the CTA multi-chart): `series` is mutually exclusive with `data` — when both are given the runtime guard prefers `series` (the page never passes both). A non-array `data` or `series` (the page passes `null` on fetch error) drives the error state. Point values render through hover tooltips on every chart kind — the single-series plots open the tooltip from a full-column hit area (date + value), the multi-series markers from the point (series name + date + value); a lone multi-series point still renders a visible marker. Chart data is set via textContent exclusively — never innerHTML or string concatenation: labels/values render through Vue interpolation into text nodes; only numeric coordinates are composed into attributes. -->
 <script setup lang="ts">
 import AdminBaseSkeleton from '@shared-admin/AdminBaseSkeleton.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
@@ -66,9 +66,12 @@ const isEmpty = computed(() =>
 
 const {
     barWidth,
+    slotWidth,
     geometries,
     linePoints,
     unionLabels,
+    labelIndices,
+    xLabelIndices,
     multiLinePoints,
     multiLinePointMarkers,
     multiXPosition,
@@ -154,6 +157,7 @@ const svgLabel = computed(() =>
           :markers="multiLinePointMarkers"
           :x_labels="unionLabels"
           :x_positions="xPositions"
+          :x_label_indices="xLabelIndices"
           :test_id="props.test_id"
         />
       </svg>
@@ -189,11 +193,17 @@ const svgLabel = computed(() =>
           v-if="props.type === 'bar'"
           :geometries="geometries"
           :bar_width="barWidth"
+          :slot_width="slotWidth"
+          :label_indices="labelIndices"
+          :test_id="props.test_id"
         />
         <AnalyticsChartLinePlot
           v-else
           :line_points="linePoints"
           :geometries="geometries"
+          :slot_width="slotWidth"
+          :label_indices="labelIndices"
+          :test_id="props.test_id"
         />
       </svg>
     </template>

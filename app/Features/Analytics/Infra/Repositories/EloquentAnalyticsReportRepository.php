@@ -10,6 +10,8 @@ use App\Features\Analytics\Domain\Enums\MetricSpan;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
 use App\Features\Analytics\Infra\Mappers\AnalyticsReportMapper;
 use App\Features\Analytics\Infra\Models\AnalyticsReportModel;
+use DateTimeImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -69,12 +71,40 @@ final class EloquentAnalyticsReportRepository implements AnalyticsReportReposito
             ->all();
     }
 
-    public function series(MetricName $metric, MetricSpan $span, int $limit, ?string $dimension = null): array
+    public function series(MetricName $metric, MetricSpan $span, DateTimeImmutable $from, ?string $dimension = null): array
+    {
+        return $this->seriesQuery($metric, $span, $dimension)
+            ->where('period_start', '>=', $from->format('Y-m-d'))
+            ->orderBy('period_start')
+            ->get()
+            ->map(fn (AnalyticsReportModel $model): AnalyticsReport => $this->mapper->toEntity($model))
+            ->all();
+    }
+
+    public function daySeries(MetricName $metric, ?string $dimension = null): array
+    {
+        return $this->seriesQuery($metric, MetricSpan::Day, $dimension)
+            ->orderBy('period_start')
+            ->get()
+            ->map(fn (AnalyticsReportModel $model): AnalyticsReport => $this->mapper->toEntity($model))
+            ->all();
+    }
+
+    public function oldestDayStart(MetricName $metric): ?DateTimeImmutable
+    {
+        $oldest = AnalyticsReportModel::query()
+            ->where('metric', $metric->value)
+            ->where('span', MetricSpan::Day->value)
+            ->min('period_start');
+
+        return $oldest === null ? null : new DateTimeImmutable((string) $oldest);
+    }
+
+    private function seriesQuery(MetricName $metric, MetricSpan $span, ?string $dimension): Builder
     {
         $query = AnalyticsReportModel::query()
             ->where('metric', $metric->value)
-            ->where('span', $span->value)
-            ->orderByDesc('period_start');
+            ->where('span', $span->value);
 
         if ($dimension === null) {
             $query->whereNull('dimension');
@@ -82,11 +112,7 @@ final class EloquentAnalyticsReportRepository implements AnalyticsReportReposito
             $query->where('dimension', $dimension);
         }
 
-        return $query
-            ->limit($limit)
-            ->get()
-            ->map(fn (AnalyticsReportModel $model): AnalyticsReport => $this->mapper->toEntity($model))
-            ->all();
+        return $query;
     }
 
     public function rankings(MetricName $metric, string $direction, int $limit, ?string $dimensionPrefix = null): array
@@ -144,41 +170,5 @@ final class EloquentAnalyticsReportRepository implements AnalyticsReportReposito
             MetricSpan::cases(),
             static fn (MetricSpan $span): bool => in_array($span, $present, true),
         ));
-    }
-
-    public function cumulativeSeries(MetricName $metric, ?string $dimension = null): array
-    {
-        $query = AnalyticsReportModel::query()
-            ->where('metric', $metric->value)
-            ->where('span', MetricSpan::Day->value)
-            ->orderBy('period_start');
-
-        if ($dimension === null) {
-            $query->whereNull('dimension');
-        } else {
-            $query->where('dimension', $dimension);
-        }
-
-        $dayModels = $query->get();
-
-        $runningTotal = 0.0;
-
-        return $dayModels
-            ->map(function (AnalyticsReportModel $model) use (&$runningTotal): AnalyticsReport {
-                $day = $this->mapper->toEntity($model);
-                $runningTotal += $day->toValue();
-
-                return new AnalyticsReport(
-                    id: 0,
-                    metric: $day->toMetric(),
-                    span: $day->toSpan(),
-                    dimension: $day->toDimension(),
-                    periodStart: $day->toPeriodStart(),
-                    periodEnd: $day->toPeriodEnd(),
-                    value: $runningTotal,
-                    createdAt: $day->toCreatedAt(),
-                );
-            })
-            ->all();
     }
 }
