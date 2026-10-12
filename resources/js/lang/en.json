@@ -145,6 +145,7 @@
             "back_to_list": "Back to blog list",
             "bulk_delete_confirm": "Delete the selected articles?",
             "bulk_force_delete_confirm": "Delete the selected articles permanently?",
+            "content": "Content",
             "create": "Create Article",
             "delete_confirm": "Delete this article?",
             "edit": "Edit Article",

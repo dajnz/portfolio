@@ -283,6 +283,7 @@ return [
         'grid_view' => 'Grid view',
         'slug' => 'Slug',
         'short_description' => 'Short Description',
+        'content' => 'Content',
         'lead_image' => 'Lead Image',
         'alt_text' => 'Alt Text',
         'related_articles' => 'Related Articles',

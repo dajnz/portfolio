@@ -79,7 +79,7 @@ final class StoreArticleRequest extends FormRequest
         $attributes = ['slug' => __('admin.blog.slug')];
         foreach ($this->activeLocales() as $locale) {
             $suffix = ' ['.strtoupper($locale).']';
-            $attributes["title.$locale"] = __('admin.blog.title').$suffix;
+            $attributes["title.$locale"] = __('common.title').$suffix;
             $attributes["short_description.$locale"] = __('admin.blog.short_description').$suffix;
             $attributes["content.$locale"] = __('admin.blog.content').$suffix;
             $attributes["lead_image_alt.$locale"] = __('admin.blog.alt_text').$suffix;
