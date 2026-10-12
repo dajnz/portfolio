@@ -181,7 +181,7 @@ final class StoreProjectRequest extends FormRequest
             $attributes["full_description.$locale"] = __('admin.projects.full_description').$suffix;
             $attributes["problem.$locale"] = __('admin.projects.problem').$suffix;
             $attributes["solution.$locale"] = __('admin.projects.solution').$suffix;
-            $attributes["preview_image_alt.$locale"] = __('admin.alt_text').$suffix;
+            $attributes["preview_image_alt.$locale"] = __('admin.projects.alt_text').$suffix;
         }
 
         return $attributes;
