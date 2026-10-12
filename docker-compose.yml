@@ -15,10 +15,16 @@ services:
         # (make exports `id -u`/`id -g`) or from .env; default 1000.
         HOST_UID: ${HOST_UID:-1000}
         HOST_GID: ${HOST_GID:-1000}
+        # Dev-only Xdebug (trigger mode) for debugging web requests through
+        # php-fpm. Requires Docker's `host-gateway` below so Xdebug can reach
+        # the IDE on `host.docker.internal`. Production builds omit this arg.
+        INSTALL_XDEBUG: "1"
     restart: unless-stopped
     logging: *default-logging
     volumes:
       - .:/var/www/html
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - db
       - redis
