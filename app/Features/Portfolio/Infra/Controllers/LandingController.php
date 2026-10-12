@@ -18,9 +18,9 @@ use Inertia\ResponseFactory;
 
 /**
  * `GET /` and `GET /{locale}` — the landing page: about block, skills,
- * featured projects, contacts, SEO props (Person + WebSite JSON-LD) and
- * the console greeting data. The `{locale}` path constraint (`en|ru`) is
- * enforced at route registration.
+ * featured projects, contacts and SEO props (Person + WebSite JSON-LD).
+ * The `{locale}` path constraint (`en|ru`) is enforced at route
+ * registration.
  */
 final class LandingController
 {
@@ -51,18 +51,6 @@ final class LandingController
             'has_more' => $data['has_more_projects'],
             'contacts' => $this->contactsProps($contacts),
             'seo' => $this->seoProps($about, $contacts, $request),
-            'console_greeting' => [
-                'greeting' => __('landing.console_greeting'),
-                'name' => $about?->translationFor($locale)?->toName() ?? '',
-                'position' => $about?->translationFor($locale)?->toTitle() ?? '',
-                'contacts' => array_map(
-                    fn (Contact $contact): array => [
-                        'label' => $contact->nameFor($locale),
-                        'value' => $contact->toValue(),
-                    ],
-                    $contacts,
-                ),
-            ],
             'feedback_honeypot_name' => SubmitFeedbackRequest::honeypotFieldName(),
         ]);
     }

@@ -11,8 +11,14 @@ use App\Features\Settings\Domain\Enums\FeatureFlagName;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
+use App\Features\Shared\Domain\RepositoryInterfaces\ContactReadRepositoryInterface;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Lang;
 use Inertia\Middleware;
 use Throwable;
 use Tighten\Ziggy\Ziggy;
@@ -29,6 +35,8 @@ final class HandleInertiaRequests extends Middleware
         private readonly AdminMapper $adminMapper,
         private readonly SettingRepositoryInterface $settings,
         private readonly FeatureFlagRepositoryInterface $flags,
+        private readonly AboutInfoReadRepositoryInterface $aboutInfo,
+        private readonly ContactReadRepositoryInterface $contacts,
         private readonly ActiveLocaleService $locales,
     ) {
     }
@@ -36,7 +44,7 @@ final class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         return array_merge(parent::share($request), [
-            'locale' => app()->getLocale(),
+            'locale' => App::getLocale(),
             // Only active locales (the `supported_locales` setting) are shown
             // in the language selector and per-locale editing tabs; disabled
             // locales are neither editable nor deleted.
@@ -51,12 +59,13 @@ final class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
             ],
             'notification' => $request->session()->get('notification'),
-            'cspNonce' => app()->bound(CspNonce::class) ? app(CspNonce::class)->getValue() : '',
+            'cspNonce' => App::bound(CspNonce::class) ? App::make(CspNonce::class)->getValue() : '',
             'featureFlags' => $this->featureFlags(),
+            'console_greeting' => $this->consoleGreeting(),
             'settings' => [
-                'locale' => $request->attributes->get('locale', app()->getLocale()),
+                'locale' => $request->attributes->get('locale', App::getLocale()),
                 'theme' => $request->attributes->get('theme', 'light'),
-                'items_per_page' => $this->settings->value(SettingName::ItemsPerPage, config('portfolio.items_per_page', 12)),
+                'items_per_page' => $this->settings->value(SettingName::ItemsPerPage, Config::get('portfolio.items_per_page', 12)),
             ],
             'request_id' => $request->attributes->get('request_id'),
         ]);
@@ -64,7 +73,7 @@ final class HandleInertiaRequests extends Middleware
 
     private function adminUser(): ?array
     {
-        $model = auth()->user();
+        $model = Auth::user();
 
         if (! $model instanceof AdminModel) {
             return null;
@@ -104,5 +113,35 @@ final class HandleInertiaRequests extends Middleware
         } catch (Throwable) {
             return [];
         }
+    }
+
+    /**
+     * The console greeting rendered by the public layout on every public
+     * page: localized greeting text plus the locale-resolved owner
+     * name/title and the contacts as label/value pairs.
+     *
+     * @return array{
+     *     greeting: string,
+     *     name: string,
+     *     position: string,
+     *     contacts: array<int, array{label: string, value: string}>,
+     * }
+     */
+    private function consoleGreeting(): array
+    {
+        $locale = App::getLocale();
+
+        return [
+            'greeting' => Lang::string('landing.console_greeting'),
+            'name' => $this->aboutInfo->findSiteName($locale),
+            'position' => $this->aboutInfo->findSiteTitle($locale),
+            'contacts' => array_map(
+                static fn (array $contact): array => [
+                    'label' => $contact['name'],
+                    'value' => $contact['value'],
+                ],
+                $this->contacts->findAll($locale),
+            ),
+        ];
     }
 }

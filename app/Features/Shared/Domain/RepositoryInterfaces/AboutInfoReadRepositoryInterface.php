@@ -17,6 +17,13 @@ interface AboutInfoReadRepositoryInterface
     public function findSiteName(string $locale): string;
 
     /**
+     * The site title (the owner's position/role) for the given locale,
+     * falling back to `en` (and to an empty string when no about row
+     * exists).
+     */
+    public function findSiteTitle(string $locale): string;
+
+    /**
      * The stored RustFS path of the admin's profile photo (the
      * BlogPosting `publisher.logo`), or `null` when no photo is set.
      */
