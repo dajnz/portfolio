@@ -297,6 +297,12 @@ describe('AdminBlogController', function (): void {
             'short_description' => ['ru' => ''],
             'content' => ['ru' => 'too short'],
         ]))->assertSessionHasErrors(['slug', 'title.en', 'short_description.ru', 'content.ru']);
+
+        $messages = session('errors')->getBag('default');
+
+        expect($messages->get('title.en')[0])->toContain('Title [EN]')
+            ->and($messages->get('content.ru')[0])->toContain('Content [RU]')
+            ->and($messages->get('content.ru')[0])->not->toContain('admin.blog.content');
     });
 
     it('rejects a manual slug override that collides with another article', function (): void {
