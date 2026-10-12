@@ -21,7 +21,7 @@ use DateTimeImmutable;
  * the override's uniqueness and the related-link targets are checked
  * by {@see ArticleDraftValidator} first), the shared fields, the
  * per-locale translations (title + short description + content required
- * per ACTIVE locale), the lead image, the featured flag, the
+ * per ACTIVE locale), the lead image, the
  * `article_tag_pivot` / `article_skill_pivot` rows and the
  * bidirectional `related_articles` pairs. A form-save with
  * `is_published` set publishes the fresh aggregate

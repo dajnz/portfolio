@@ -1360,7 +1360,6 @@ export interface components {
         };
         ArticleEditData: components["schemas"]["ArticleDetailData"] & {
             is_published?: boolean;
-            is_featured?: boolean;
             related_article_ids?: number[];
             /** @description The tech skills attached via `article_skill_pivot` (the unified picker's pills). */
             skill_tags?: {

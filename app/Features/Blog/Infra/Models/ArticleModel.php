@@ -30,7 +30,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property array<string, string>|null $lead_image_alt
  * @property bool $is_published
  * @property \Illuminate\Support\Carbon|null $published_at
- * @property bool $is_featured
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
@@ -51,7 +50,6 @@ final class ArticleModel extends Model
         'lead_image_alt',
         'is_published',
         'published_at',
-        'is_featured',
     ];
 
     /** @return HasMany<ArticleTranslationModel, $this> */
@@ -91,7 +89,6 @@ final class ArticleModel extends Model
             'lead_image_alt' => 'array',
             'is_published' => 'boolean',
             'published_at' => 'datetime',
-            'is_featured' => 'boolean',
         ];
     }
 }

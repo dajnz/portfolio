@@ -46,7 +46,6 @@ final class ArticleMapper
             id: new ArticleId((int) $model->id),
             slug: new Slug($model->slug),
             leadImage: $this->leadImage($model),
-            isFeatured: (bool) $model->is_featured,
             published: new PublishedState(
                 isPublished: (bool) $model->is_published,
                 publishedAt: $model->published_at === null
@@ -70,7 +69,6 @@ final class ArticleMapper
      *     slug: string,
      *     lead_image: string|null,
      *     lead_image_alt: array<string, string>|null,
-     *     is_featured: bool,
      *     is_published: bool,
      *     published_at: string|null,
      * }
@@ -85,7 +83,6 @@ final class ArticleMapper
             'lead_image_alt' => $leadImage === null || $leadImage->altLabelsMap() === []
                 ? null
                 : $leadImage->altLabelsMap(),
-            'is_featured' => $article->toIsFeatured(),
             'is_published' => $article->toIsPublished(),
             'published_at' => $article->toPublishedAt()?->format('Y-m-d H:i:s'),
         ];

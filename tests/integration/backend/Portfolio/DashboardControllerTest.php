@@ -23,15 +23,15 @@ describe('DashboardController', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
         $publishedId = DB::table('blog_articles')->insertGetId([
-            'slug' => 'published', 'is_published' => true, 'is_featured' => false,
+            'slug' => 'published', 'is_published' => true,
             'published_at' => now(), 'created_at' => now(), 'updated_at' => now(),
         ]);
         $unpublishedId = DB::table('blog_articles')->insertGetId([
-            'slug' => 'unpublished', 'is_published' => false, 'is_featured' => false,
+            'slug' => 'unpublished', 'is_published' => false,
             'created_at' => now(), 'updated_at' => now(),
         ]);
         $trashedId = DB::table('blog_articles')->insertGetId([
-            'slug' => 'trashed', 'is_published' => true, 'is_featured' => false,
+            'slug' => 'trashed', 'is_published' => true,
             'deleted_at' => now(), 'created_at' => now(), 'updated_at' => now(),
         ]);
         DB::table('article_views')->insert([

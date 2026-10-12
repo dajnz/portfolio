@@ -15,7 +15,7 @@ use InvalidArgumentException;
 /**
  * A blog article: the unique kebab-case slug, the optional lead image
  * ({@see StoredPicture} — the RustFS path + per-locale alt labels),
- * the featured flag, the publication state ({@see PublishedState} —
+ * the publication state ({@see PublishedState} —
  * `published_at` immutable after the first publish) and the aggregate
  * parts: the per-locale translations (title + short description +
  * Markdown content — required per active locale), the article-tag ids
@@ -54,7 +54,6 @@ final class Article extends BaseEntity
         private ArticleId $id,
         private Slug $slug,
         private ?StoredPicture $leadImage,
-        private bool $isFeatured,
         private PublishedState $published,
         private array $translations,
         private array $articleTagIds = [],
@@ -92,11 +91,6 @@ final class Article extends BaseEntity
     public function toLeadImage(): ?StoredPicture
     {
         return $this->leadImage;
-    }
-
-    public function toIsFeatured(): bool
-    {
-        return $this->isFeatured;
     }
 
     public function toIsPublished(): bool

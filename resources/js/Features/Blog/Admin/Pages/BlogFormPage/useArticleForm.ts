@@ -21,7 +21,6 @@ export interface BlogFormValues {
     // submit.
     tags: Array<{ id: number; name: string; type: 'tag' | 'skill' }>;
     related_article_ids: number[];
-    is_featured: boolean;
     is_published: boolean;
 }
 
@@ -91,7 +90,6 @@ function buildForm(article: ArticleEditData | null | undefined): BlogFormValues 
             })),
         ],
         related_article_ids: article?.related_article_ids ?? [],
-        is_featured: article?.is_featured ?? false,
         is_published: article?.is_published ?? false,
     };
 }
@@ -263,7 +261,6 @@ export function useArticleForm(options: UseArticleFormOptions): UseArticleFormAp
             content: form.content,
             lead_image: form.lead_image,
             lead_image_alt: form.lead_image_alt,
-            is_featured: form.is_featured,
             is_published: form.is_published,
             tags: form.tags.filter((tag) => tag.type === 'tag').map((tag) => tag.id),
             skill_tags: form.tags.filter((tag) => tag.type === 'skill').map((tag) => tag.id),

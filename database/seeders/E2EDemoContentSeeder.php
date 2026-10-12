@@ -498,7 +498,6 @@ final class E2EDemoContentSeeder extends Seeder
                 'slug' => $article['slug'],
                 'is_published' => true,
                 'published_at' => $article['published_at'],
-                'is_featured' => false,
             ]);
 
             foreach (['en', 'ru'] as $locale) {
@@ -530,7 +529,6 @@ final class E2EDemoContentSeeder extends Seeder
             'slug' => 'e2e-draft-article',
             'is_published' => false,
             'published_at' => null,
-            'is_featured' => false,
         ]);
 
         ArticleTranslationModel::query()->create([
@@ -547,7 +545,6 @@ final class E2EDemoContentSeeder extends Seeder
             'slug' => 'e2e-trashed-article',
             'is_published' => false,
             'published_at' => null,
-            'is_featured' => false,
         ]);
 
         $trashed->delete();

@@ -22,7 +22,6 @@ final class ArticleModelFactory extends Factory
             'lead_image_alt' => null,
             'is_published' => false,
             'published_at' => null,
-            'is_featured' => false,
         ];
     }
 
@@ -32,11 +31,6 @@ final class ArticleModelFactory extends Factory
             'is_published' => $published,
             'published_at' => $published ? now() : null,
         ]);
-    }
-
-    public function featured(bool $featured = true): static
-    {
-        return $this->state(['is_featured' => $featured]);
     }
 
     public function trashed(): static

@@ -76,7 +76,6 @@ const ARTICLE = {
     reading_time_minutes: 6,
     lead_image: 'blog/5/lead.png',
     lead_image_alt: { en: 'Composable diagram', ru: 'Схема композаблов' },
-    is_featured: true,
     is_published: true,
     related_article_ids: [3],
     tags: TAGS,
@@ -158,14 +157,11 @@ describe('BlogFormPage', () => {
         );
     });
 
-    it('renders the featured/published states as switch toggles', () => {
+    it('renders the published state as a switch toggle', () => {
         const wrapper = mountPage({ article: ARTICLE });
 
-        const featured = wrapper.get('[data-testid="blog-form-page-featured"]');
         const published = wrapper.get('[data-testid="blog-form-page-published"]');
 
-        expect(featured.attributes('role')).toBe('switch');
-        expect(featured.attributes('aria-checked')).toBe('true');
         expect(published.attributes('role')).toBe('switch');
         expect(published.attributes('aria-checked')).toBe('true');
     });
@@ -243,7 +239,6 @@ describe('BlogFormPage', () => {
                 title: { en: 'Hello World Article', ru: '' },
                 short_description: { en: 'A short description of the article.', ru: '' },
                 content: { en: 'x'.repeat(60), ru: '' },
-                is_featured: false,
                 is_published: false,
                 lead_image: null,
                 tags: [1],
