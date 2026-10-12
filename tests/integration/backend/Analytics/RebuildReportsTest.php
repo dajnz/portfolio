@@ -109,15 +109,15 @@ describe('RebuildReportsUseCase (integration)', function (): void {
         seedRebuildFixture();
         app(RebuildReportsUseCase::class)->rebuild();
 
-        // The day rows (the series read is newest-first).
+        // The day rows (the series read is chronological).
         $daySeries = app(AnalyticsReportRepositoryInterface::class)
-            ->series(MetricName::PageViews, MetricSpan::Day, 10);
+            ->series(MetricName::PageViews, MetricSpan::Day, new DateTimeImmutable('2026-06-01'));
 
         expect($daySeries)->toHaveCount(4)
             ->and(array_map(
                 static fn ($r): string => $r->toPeriodStart()->format('Y-m-d'),
                 $daySeries,
-            ))->toBe(['2026-07-06', '2026-07-05', '2026-07-01', '2026-06-29']);
+            ))->toBe(['2026-06-29', '2026-07-01', '2026-07-05', '2026-07-06']);
     });
 
     it('buckets the week span across the Monday boundary', function (): void {
@@ -126,15 +126,15 @@ describe('RebuildReportsUseCase (integration)', function (): void {
 
         // The week rows span their Monday–Sunday calendar bounds.
         $weekSeries = app(AnalyticsReportRepositoryInterface::class)
-            ->series(MetricName::PageViews, MetricSpan::Week, 10);
+            ->series(MetricName::PageViews, MetricSpan::Week, new DateTimeImmutable('2026-06-01'));
 
         expect($weekSeries)->toHaveCount(2)
             ->and(array_map(
                 static fn ($r): string => $r->toPeriodStart()->format('Y-m-d'),
                 $weekSeries,
-            ))->toBe(['2026-07-06', '2026-06-29'])
-            ->and($weekSeries[0]->toPeriodEnd()->format('Y-m-d'))->toBe('2026-07-12')
-            ->and($weekSeries[1]->toPeriodEnd()->format('Y-m-d'))->toBe('2026-07-05');
+            ))->toBe(['2026-06-29', '2026-07-06'])
+            ->and($weekSeries[0]->toPeriodEnd()->format('Y-m-d'))->toBe('2026-07-05')
+            ->and($weekSeries[1]->toPeriodEnd()->format('Y-m-d'))->toBe('2026-07-12');
     });
 
     it('sums the whole-time block over the stored history', function (): void {
@@ -156,11 +156,11 @@ describe('RebuildReportsUseCase (integration)', function (): void {
 
         $reports = app(AnalyticsReportRepositoryInterface::class);
 
-        // Per-day rows (120/2 = 60 on the 10th) and the whole-time
-        // block (130/3).
-        $avgDay = $reports->series(MetricName::TimeOnPageSeconds, MetricSpan::Day, 10);
+        // Per-day rows (120/2 = 60 on the 10th), chronological, and the
+        // whole-time block (130/3).
+        $avgDay = $reports->series(MetricName::TimeOnPageSeconds, MetricSpan::Day, new DateTimeImmutable('2026-07-01'));
 
-        expect(array_map(static fn ($r): float => $r->toValue(), $avgDay))->toBe([60.0, 10.0]);
+        expect(array_map(static fn ($r): float => $r->toValue(), $avgDay))->toBe([10.0, 60.0]);
 
         $avgBlock = $reports->wholeTimeScalarValues([MetricName::TimeOnPageSeconds]);
 
@@ -203,15 +203,15 @@ describe('RebuildReportsUseCase (integration)', function (): void {
         app(RebuildReportsUseCase::class)->rebuild();
 
         $yearSeries = app(AnalyticsReportRepositoryInterface::class)
-            ->series(MetricName::PageViews, MetricSpan::Year, 10);
+            ->series(MetricName::PageViews, MetricSpan::Year, new DateTimeImmutable('2026-01-01'));
 
         expect($yearSeries)->toHaveCount(2)
             ->and(array_map(
                 static fn ($r): string => $r->toPeriodStart()->format('Y-m-d'),
                 $yearSeries,
-            ))->toBe(['2027-01-01', '2026-01-01'])
-            ->and($yearSeries[0]->toPeriodEnd()->format('Y-m-d'))->toBe('2027-12-31')
-            ->and($yearSeries[1]->toPeriodEnd()->format('Y-m-d'))->toBe('2026-12-31');
+            ))->toBe(['2026-01-01', '2027-01-01'])
+            ->and($yearSeries[0]->toPeriodEnd()->format('Y-m-d'))->toBe('2026-12-31')
+            ->and($yearSeries[1]->toPeriodEnd()->format('Y-m-d'))->toBe('2027-12-31');
     });
 
     it('rebuilds into an empty report set when no metrics are stored', function (): void {

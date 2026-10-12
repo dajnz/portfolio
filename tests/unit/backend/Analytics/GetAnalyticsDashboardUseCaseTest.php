@@ -7,6 +7,7 @@ namespace Tests\Unit\Backend\Analytics;
 use App\Features\Analytics\App\DTOs\AnalyticsDashboardDto;
 use App\Features\Analytics\App\UseCases\GetAnalyticsDashboardUseCase;
 use App\Features\Analytics\App\UseCases\GetMetricRankingsUseCase;
+use App\Features\Analytics\App\UseCases\GetMetricSeriesUseCase;
 use App\Features\Analytics\Domain\Entities\AnalyticsReport;
 use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
@@ -17,12 +18,13 @@ use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 /**
  * @param list<AnalyticsReport> $rows
  */
-function dashboardProps(array $rows): AnalyticsDashboardDto
+function dashboardProps(array $rows, string $now = '2026-08-21'): AnalyticsDashboardDto
 {
     $reports = new FakeAnalyticsReportRepository($rows);
     $rankings = new GetMetricRankingsUseCase($reports, new FakeAnalyticsReportDataReader());
+    $series = new GetMetricSeriesUseCase($reports);
 
-    return (new GetAnalyticsDashboardUseCase($reports, $rankings))->get();
+    return (new GetAnalyticsDashboardUseCase($reports, $rankings, $series))->get(new DateTimeImmutable($now));
 }
 
 it('builds the overview blocks in order with the values, min and max', function (): void {
@@ -117,24 +119,21 @@ it('builds the default chart with the page_views series at the four spans', func
         dashboardReportRow(MetricSpan::Month, '2026-08-01', 40.0),
     ]);
 
+    $spans = $props->defaultChart['spans'];
+
     expect($props->defaultChart['metric'])->toBe('page_views')
-        ->and($props->defaultChart['spans']['day'])->toBe([
-            'points' => [
-                ['label' => '2026-08-19', 'value' => 10.0],
-                ['label' => '2026-08-20', 'value' => 20.0],
-            ],
-        ])
-        ->and($props->defaultChart['spans']['week'])->toBe([
-            'points' => [['label' => '2026-08-17', 'value' => 30.0]],
-        ])
-        ->and($props->defaultChart['spans']['month'])->toBe([
-            'points' => [['label' => '2026-08-01', 'value' => 40.0]],
-        ])
-        ->and($props->defaultChart['spans']['all'])->toBe([
-            'points' => [
-                ['label' => '2026-08-19', 'value' => 10.0],
-                ['label' => '2026-08-20', 'value' => 30.0],
-            ],
+        ->and($spans['day']['points'])->toHaveCount(30)
+        ->and($spans['day']['points'][0])->toBe(['label' => '2026-07-23', 'value' => 0.0])
+        ->and($spans['day']['points'][27])->toBe(['label' => '2026-08-19', 'value' => 10.0])
+        ->and($spans['day']['points'][28])->toBe(['label' => '2026-08-20', 'value' => 20.0])
+        ->and($spans['week']['points'])->toHaveCount(12)
+        ->and($spans['week']['points'][11])->toBe(['label' => '2026-08-17', 'value' => 30.0])
+        ->and($spans['month']['points'])->toHaveCount(12)
+        ->and($spans['month']['points'][11])->toBe(['label' => '2026-08-01', 'value' => 40.0])
+        ->and($spans['all']['points'])->toBe([
+            ['label' => '2026-08-19', 'value' => 10.0],
+            ['label' => '2026-08-20', 'value' => 30.0],
+            ['label' => '2026-08-21', 'value' => 30.0],
         ]);
 });
 

@@ -31,7 +31,7 @@ describe('EloquentAnalyticsReportRepository', function (): void {
         ]);
 
         $blocks = $this->repository->wholeTimeScalarValues([MetricName::PageViews]);
-        $series = $this->repository->series(MetricName::PageViews, MetricSpan::Day, 2);
+        $series = $this->repository->series(MetricName::PageViews, MetricSpan::Day, new DateTimeImmutable('2026-08-01'));
 
         expect($blocks)->toHaveCount(1)
             ->and($blocks[0]->toSpan())->toBe(MetricSpan::All)
@@ -41,7 +41,7 @@ describe('EloquentAnalyticsReportRepository', function (): void {
             ->and(array_map(
                 static fn (AnalyticsReport $r): string => $r->toPeriodStart()->format('Y-m-d'),
                 $series,
-            ))->toBe(['2026-08-20', '2026-08-19']);
+            ))->toBe(['2026-08-19', '2026-08-20']);
     });
 
     it('upserts on the unique key — re-aggregating a period overwrites the value', function (): void {
@@ -147,7 +147,7 @@ describe('EloquentAnalyticsReportRepository', function (): void {
         ]);
 
         $blocks = $this->repository->wholeTimeScalarValues([MetricName::PageViews, MetricName::UniqueVisitors]);
-        $series = $this->repository->series(MetricName::PageViews, MetricSpan::Day, 10);
+        $series = $this->repository->series(MetricName::PageViews, MetricSpan::Day, new DateTimeImmutable('2026-08-01'));
 
         expect($blocks)->toHaveCount(1)
             ->and($blocks[0]->toValue())->toBe(200.0)
@@ -157,13 +157,14 @@ describe('EloquentAnalyticsReportRepository', function (): void {
 
     it('returns empty reads when nothing is stored', function (): void {
         expect($this->repository->wholeTimeScalarValues([MetricName::PageViews]))->toBe([])
-            ->and($this->repository->series(MetricName::PageViews, MetricSpan::Day, 10))->toBe([])
+            ->and($this->repository->series(MetricName::PageViews, MetricSpan::Day, new DateTimeImmutable('2026-08-01')))->toBe([])
             ->and($this->repository->rankings(MetricName::PageViews, 'top', 10))->toBe([])
             ->and($this->repository->metricSpans(MetricName::PageViews))->toBe([])
-            ->and($this->repository->cumulativeSeries(MetricName::PageViews))->toBe([]);
+            ->and($this->repository->daySeries(MetricName::PageViews))->toBe([])
+            ->and($this->repository->oldestDayStart(MetricName::PageViews))->toBeNull();
     });
 
-    it('computes the cumulative running total over the day rows', function (): void {
+    it('returns the raw day rows chronologically, excluding the non-day spans and dimensions', function (): void {
         $this->repository->upsertBatch([
             analyticsReport('page_views', MetricSpan::Day, '2026-08-19', '2026-08-19', 10.0),
             analyticsReport('page_views', MetricSpan::Day, '2026-08-21', '2026-08-21', 30.0),
@@ -174,7 +175,7 @@ describe('EloquentAnalyticsReportRepository', function (): void {
             analyticsReport('views', MetricSpan::Day, '2026-08-20', '2026-08-20', 5.0, 'article:42'),
         ]);
 
-        $series = $this->repository->cumulativeSeries(MetricName::PageViews);
+        $series = $this->repository->daySeries(MetricName::PageViews);
 
         expect($series)->toHaveCount(3)
             ->and(array_map(
@@ -184,9 +185,9 @@ describe('EloquentAnalyticsReportRepository', function (): void {
             ->and(array_map(
                 static fn (AnalyticsReport $r): float => $r->toValue(),
                 $series,
-            ))->toBe([10.0, 30.0, 60.0])
-            ->and($series[0]->toSpan())->toBe(MetricSpan::Day)
-            ->and($series[0]->toDimension())->toBeNull();
+            ))->toBe([10.0, 20.0, 30.0])
+            ->and($series[0]->toDimension())->toBeNull()
+            ->and($this->repository->oldestDayStart(MetricName::PageViews)->format('Y-m-d'))->toBe('2026-08-19');
     });
 });
 
@@ -221,14 +222,19 @@ describe('dashboard reads (11.3.4)', function (): void {
             analyticsReport('cta_clicks', MetricSpan::Week, '2026-08-17', '2026-08-23', 3.0, 'language'),
         ]);
 
-        $series = $this->repository->series(MetricName::CtaClicks, MetricSpan::Week, 10, 'language');
+        $series = $this->repository->series(
+            MetricName::CtaClicks,
+            MetricSpan::Week,
+            new DateTimeImmutable('2026-08-01'),
+            'language',
+        );
 
         expect($series)->toHaveCount(1)
             ->and($series[0]->toDimension())->toBe('language')
             ->and($series[0]->toValue())->toBe(3.0);
     });
 
-    it('filters the cumulative series to the given dimension — the per-target cta_clicks dynamics', function (): void {
+    it('filters the raw day series to the given dimension — the per-target cta_clicks dynamics', function (): void {
         $this->repository->upsertBatch([
             analyticsReport('cta_clicks', MetricSpan::Day, '2026-08-19', '2026-08-19', 3.0, 'github'),
             analyticsReport('cta_clicks', MetricSpan::Day, '2026-08-20', '2026-08-20', 4.0, 'github'),
@@ -236,7 +242,7 @@ describe('dashboard reads (11.3.4)', function (): void {
             analyticsReport('cta_clicks', MetricSpan::Day, '2026-08-20', '2026-08-20', 6.0, 'language'),
         ]);
 
-        $series = $this->repository->cumulativeSeries(MetricName::CtaClicks, 'github');
+        $series = $this->repository->daySeries(MetricName::CtaClicks, 'github');
 
         expect($series)->toHaveCount(2)
             ->and(array_map(
@@ -246,7 +252,7 @@ describe('dashboard reads (11.3.4)', function (): void {
             ->and(array_map(
                 static fn (AnalyticsReport $r): float => $r->toValue(),
                 $series,
-            ))->toBe([3.0, 7.0])
+            ))->toBe([3.0, 4.0])
             ->and($series[0]->toDimension())->toBe('github');
     });
 

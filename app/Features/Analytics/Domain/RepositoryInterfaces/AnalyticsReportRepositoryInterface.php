@@ -7,14 +7,15 @@ namespace App\Features\Analytics\Domain\RepositoryInterfaces;
 use App\Features\Analytics\Domain\Entities\AnalyticsReport;
 use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
+use DateTimeImmutable;
 
 /**
  * Persistence for `analytics_reports`: per-metric aggregates over the
  * daily metrics, pre-computed for every supported span and fully
  * rebuilt on every metrics generation — the read shapes power the
  * dashboard: whole-time blocks (`span = 'all'`, dimension NULL), chart
- * series (the last-N dimension-NULL rows of a span) and rankings
- * (`span = 'all'`, dimension rows, ordered by value).
+ * series (the dimension-NULL rows of a span from a given date) and
+ * rankings (`span = 'all'`, dimension rows, ordered by value).
  */
 interface AnalyticsReportRepositoryInterface
 {
@@ -52,15 +53,15 @@ interface AnalyticsReportRepositoryInterface
     public function wholeTimeScalarValues(array $metricNames): array;
 
     /**
-     * The last `$limit` rows for the metric at the span, newest period
-     * first (chart series — the caller reverses them for chronological
-     * display). A null `$dimension` reads the dimension-NULL rows (the
-     * global series); a given dimension filters to that exact
-     * dimension — the per-target `cta_clicks` series.
+     * The rows of the metric at the span with `period_start` on or
+     * after `$from`, chronological (chart series — the caller fills the
+     * missing window buckets). A null `$dimension` reads the
+     * dimension-NULL rows (the global series); a given dimension filters
+     * to that exact dimension — the per-target `cta_clicks` series.
      *
      * @return list<AnalyticsReport>
      */
-    public function series(MetricName $metric, MetricSpan $span, int $limit, ?string $dimension = null): array;
+    public function series(MetricName $metric, MetricSpan $span, DateTimeImmutable $from, ?string $dimension = null): array;
 
     /**
      * The `span = 'all'` dimension rows for the metric ordered by
@@ -94,15 +95,22 @@ interface AnalyticsReportRepositoryInterface
     public function metricSpans(MetricName $metric): array;
 
     /**
-     * The cumulative running total of the metric's day rows — the
-     * "whole time" chart source: every `span = 'day'` row in
-     * chronological order, each carrying the running total of its value
-     * (a pure fold over the day rows — no window functions). A null
-     * `$dimension` folds the dimension-NULL rows (the global series); a
-     * given dimension folds that exact dimension's day rows — the
-     * per-target `cta_clicks` cumulative.
+     * Every `span = 'day'` row of the metric, chronological — the raw
+     * day values the whole-time chart buckets and folds into its running
+     * total. A null `$dimension` reads the dimension-NULL rows (the
+     * global series); a given dimension filters to that exact dimension
+     * — the per-target `cta_clicks` dynamics.
      *
      * @return list<AnalyticsReport>
      */
-    public function cumulativeSeries(MetricName $metric, ?string $dimension = null): array;
+    public function daySeries(MetricName $metric, ?string $dimension = null): array;
+
+    /**
+     * The oldest `span = 'day'` `period_start` of the metric across all
+     * dimensions, or null when the metric has no day rows. Anchors the
+     * whole-time chart's adaptive bucketing — the metric-wide history
+     * length, so every dimension of a multi-series chart resolves to the
+     * same bucket size.
+     */
+    public function oldestDayStart(MetricName $metric): ?DateTimeImmutable;
 }

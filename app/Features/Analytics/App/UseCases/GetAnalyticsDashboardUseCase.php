@@ -5,37 +5,38 @@ declare(strict_types=1);
 namespace App\Features\Analytics\App\UseCases;
 
 use App\Features\Analytics\App\DTOs\AnalyticsDashboardDto;
-use App\Features\Analytics\Domain\Entities\AnalyticsReport;
 use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
+use DateTimeImmutable;
 
 /**
  * The admin analytics dashboard props for `GET /admin/analytics`: the
  * whole-time metric blocks per tab (overview/blog/projects —
  * `{key, value, min?, max?}`, keys are the stable identifiers the
  * frontend maps to i18n labels and to the series/rankings parameters),
- * the default chart series (`page_views`, day/week/month + the
- * cumulative `all`) and the default rankings (time-on-page top/bottom
- * 10 pages). Metrics without stored rows fall back to a zero block.
+ * the default chart series (`page_views`, the four span windows) and
+ * the default rankings (time-on-page top/bottom 10 pages). Metrics
+ * without stored rows fall back to a zero block. The chart series come
+ * from `GetMetricSeriesUseCase` so the page props and the JSON endpoint
+ * always agree.
  */
 final class GetAnalyticsDashboardUseCase
 {
-    private const SERIES_POINT_LIMIT = 90;
-
     public function __construct(
         private readonly AnalyticsReportRepositoryInterface $reports,
         private readonly GetMetricRankingsUseCase $rankings,
+        private readonly GetMetricSeriesUseCase $series,
     ) {
     }
 
-    public function get(): AnalyticsDashboardDto
+    public function get(?DateTimeImmutable $now = null): AnalyticsDashboardDto
     {
         return new AnalyticsDashboardDto(
             overviewBlocks: $this->overviewBlocks(),
             blogBlocks: $this->blogBlocks(),
             projectsBlocks: $this->projectsBlocks(),
-            defaultChart: $this->defaultChart(),
+            defaultChart: $this->defaultChart($now),
             defaultRankings: $this->defaultRankings(),
         );
     }
@@ -135,17 +136,17 @@ final class GetAnalyticsDashboardUseCase
     /**
      * @return array{metric: string, spans: array<string, array{points: list<array{label: string, value: float}>}>}
      */
-    private function defaultChart(): array
+    private function defaultChart(?DateTimeImmutable $now): array
     {
         $metric = MetricName::PageViews;
 
         return [
             'metric' => $metric->value,
             'spans' => [
-                'day' => $this->points($this->spanRows($metric, MetricSpan::Day)),
-                'week' => $this->points($this->spanRows($metric, MetricSpan::Week)),
-                'month' => $this->points($this->spanRows($metric, MetricSpan::Month)),
-                'all' => $this->points($this->reports->cumulativeSeries($metric)),
+                'day' => $this->series->series($metric, MetricSpan::Day, now: $now),
+                'week' => $this->series->series($metric, MetricSpan::Week, now: $now),
+                'month' => $this->series->series($metric, MetricSpan::Month, now: $now),
+                'all' => $this->series->series($metric, MetricSpan::All, now: $now),
             ],
         ];
     }
@@ -214,35 +215,5 @@ final class GetAnalyticsDashboardUseCase
         }
 
         return $block;
-    }
-
-    /**
-     * @return list<AnalyticsReport>
-     */
-    private function spanRows(MetricName $metric, MetricSpan $span): array
-    {
-        return array_reverse($this->reports->series(
-            metric: $metric,
-            span: $span,
-            limit: self::SERIES_POINT_LIMIT,
-        ));
-    }
-
-    /**
-     * @param list<AnalyticsReport> $rows
-     *
-     * @return array{points: list<array{label: string, value: float}>}
-     */
-    private function points(array $rows): array
-    {
-        return [
-            'points' => array_map(
-                static fn (AnalyticsReport $row): array => [
-                    'label' => $row->toPeriodStart()->format('Y-m-d'),
-                    'value' => $row->toValue(),
-                ],
-                $rows,
-            ),
-        ];
     }
 }
