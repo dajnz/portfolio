@@ -316,6 +316,12 @@ function onDemoClick(): void {
     font-size: var(--font-size-base);
     line-height: var(--line-height-relaxed);
     color: var(--color-text-secondary);
+
+    /* Long unbroken strings (long words, URLs) must wrap inside the
+       content panel: `anywhere` (not `break-word`) also caps the
+       content's min-content width, so the panel never overflows. Code
+       blocks (`pre`) reset it below to keep their horizontal scroll. */
+    overflow-wrap: anywhere;
 }
 
 .markdown-body > * + * {
@@ -494,6 +500,11 @@ function onDemoClick(): void {
     border-radius: var(--radius-md);
     padding: var(--space-md);
     overflow-x: auto;
+
+    /* The block's code keeps its layout — the body's inherited
+       `overflow-wrap: anywhere` is reset so long lines scroll
+       horizontally instead of wrapping. */
+    overflow-wrap: normal;
 }
 
 .markdown-body pre code {
