@@ -34,30 +34,6 @@ components:
                   type: array
                   items:
                     $ref: '#/components/schemas/ContactData'
-                console_greeting:
-                  type: object
-                  description: |
-                    ConsoleGreeting data (ADR-0023): greeting text (localized),
-                    the developer name and position (locale-resolved about
-                    values) and the contacts as label/value pairs. Rendered by
-                    the public layout only when passed and the
-                    `console_greeting` flag is enabled.
-                  properties:
-                    greeting:
-                      type: string
-                    name:
-                      type: string
-                    position:
-                      type: string
-                    contacts:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          label:
-                            type: string
-                          value:
-                            type: string
                 feedback_honeypot_name:
                   type: string
                   nullable: true

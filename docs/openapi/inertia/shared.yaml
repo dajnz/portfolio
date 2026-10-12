@@ -83,8 +83,35 @@ components:
               type: boolean
             social_reactions:
               type: boolean
+            console_greeting:
+              type: boolean
           required: [github_oauth, social_reactions]
           description: Feature flags from FeatureFlagMiddleware.
+        console_greeting:
+          type: object
+          description: |
+            ConsoleGreeting data (ADR-0023) shared to every page: greeting
+            text (localized), the owner name and title (locale-resolved
+            about values) and the contacts as label/value pairs. The public
+            layout renders the component on every public page, and only
+            when the `console_greeting` flag is enabled (or the front-end
+            runs in development).
+          properties:
+            greeting:
+              type: string
+            name:
+              type: string
+            position:
+              type: string
+            contacts:
+              type: array
+              items:
+                type: object
+                properties:
+                  label:
+                    type: string
+                  value:
+                    type: string
         settings:
           type: object
           properties:
