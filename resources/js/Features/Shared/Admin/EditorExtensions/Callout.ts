@@ -82,10 +82,6 @@ function calloutTokenizer(): MarkdownTokenizer {
                 break;
             }
 
-            if (index >= lines.length && !src.endsWith('\n')) {
-                consumed -= 1;
-            }
-
             const marker = CALLOUT_INLINE_MARKER.exec(contentLines[0] ?? '');
 
             if (marker === null) {
@@ -98,7 +94,7 @@ function calloutTokenizer(): MarkdownTokenizer {
             return {
                 type: 'callout',
                 calloutType: type,
-                raw: src.slice(0, Math.max(consumed, 0)),
+                raw: src.slice(0, Math.max(consumed, 0)).replace(/\n+$/, ''),
                 tokens: lexer.blockTokens(contentLines.join('\n')),
             };
         },
@@ -144,12 +140,15 @@ export const Callout = Node.create({
     },
     markdownTokenName: 'callout',
     markdownTokenizer: calloutTokenizer(),
-    parseMarkdown: (token, helpers) =>
-        helpers.createNode(
+    parseMarkdown: (token, helpers) => {
+        const parseBlockChildren = helpers.parseBlockChildren ?? helpers.parseChildren;
+
+        return helpers.createNode(
             'callout',
             { type: token.calloutType ?? 'warning' },
-            helpers.parseChildren(token.tokens ?? []),
-        ),
+            parseBlockChildren(token.tokens ?? []),
+        );
+    },
     renderMarkdown: (node, helpers) => {
         const type = String((node.attrs?.type as CalloutType) ?? 'warning').toUpperCase();
         // The "\n\n" separator mirrors the doc node's own join — without
