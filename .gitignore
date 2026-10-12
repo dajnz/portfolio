@@ -44,6 +44,7 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /storage/api-docs
+.php-path-mappings.json
 
 # LLM superpowers design docs (repo uses docs/detailed-spec instead)
 docs/superpowers
