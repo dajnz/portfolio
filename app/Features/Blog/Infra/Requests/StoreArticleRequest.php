@@ -39,7 +39,6 @@ final class StoreArticleRequest extends FormRequest
         $rules = [
             'slug' => ['required', 'string', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', 'max:200'],
             'lead_image' => ['nullable', 'string', 'max:255'],
-            'is_featured' => ['nullable', 'boolean'],
             'is_published' => ['nullable', 'boolean'],
             'tags' => ['nullable', 'array'],
             'tags.*' => ['integer', 'exists:article_tags,id'],

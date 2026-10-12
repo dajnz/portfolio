@@ -288,7 +288,6 @@ return [
         'alt_text' => 'Alt Text',
         'related_articles' => 'Related Articles',
         'related_hint' => 'Only published articles can be linked.',
-        'featured' => 'Featured',
         'published' => 'Published',
         'published_at' => 'Published At',
         'published_at_hint' => 'Set automatically on first publish.',

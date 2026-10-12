@@ -23,7 +23,6 @@ final readonly class ArticleDraftDto
         public string $submittedSlug,
         public ArticleTranslationsDto $translations,
         public ?ArticleImageDto $leadImage,
-        public bool $isFeatured = false,
         public bool $isPublished = false,
         public array $tagIds = [],
         public array $skillTagIds = [],

@@ -31,7 +31,6 @@ final class ArticleEntityFactory
             id: $id,
             slug: $slug,
             leadImage: $this->leadImage($draft),
-            isFeatured: $draft->isFeatured,
             published: $published,
             translations: $this->translations($draft),
             articleTagIds: $this->distinctPositiveIds($draft->tagIds),

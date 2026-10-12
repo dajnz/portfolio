@@ -352,7 +352,6 @@ final class AdminBlogController
                     altLabels: $this->nullableLocaleMap((array) $request->input('lead_image_alt', [])),
                 )
                 : null,
-            isFeatured: $request->boolean('is_featured'),
             isPublished: $request->boolean('is_published'),
             tagIds: array_map('intval', (array) $request->input('tags', [])),
             skillTagIds: array_map('intval', (array) $request->input('skill_tags', [])),
@@ -481,7 +480,6 @@ final class AdminBlogController
             'reading_time_minutes' => $article->readingTimeMinutes,
             'lead_image' => $article->leadImage?->url,
             'lead_image_alt' => $article->leadImage?->altLabels ?? [],
-            'is_featured' => $article->isFeatured,
             'is_published' => $article->isPublished,
             // The tag DTOs carry the pivot ids — the related-ids wire
             // value is derived from the related rows.

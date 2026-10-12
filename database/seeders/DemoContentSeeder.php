@@ -171,7 +171,6 @@ final class DemoContentSeeder extends Seeder
             'slug' => 'demo-draft-article',
             'is_published' => false,
             'published_at' => null,
-            'is_featured' => false,
         ]);
 
         foreach (['en', 'ru'] as $locale) {
@@ -190,7 +189,6 @@ final class DemoContentSeeder extends Seeder
             'slug' => 'demo-trashed-article',
             'is_published' => false,
             'published_at' => null,
-            'is_featured' => false,
         ]);
 
         $trashed->delete();
@@ -216,7 +214,6 @@ final class DemoContentSeeder extends Seeder
             ],
             'is_published' => true,
             'published_at' => $article['published_at'],
-            'is_featured' => false,
         ]);
 
         foreach (['en', 'ru'] as $locale) {
