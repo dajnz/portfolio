@@ -58,6 +58,13 @@ FROM php:8.5-fpm-alpine
 # uid 1000 (e.g. a VM).
 ARG HOST_UID=1000
 ARG HOST_GID=1000
+# Xdebug is a non-production-only debugging aid: the dev compose passes "1",
+# production omits it and the default 0 keeps the image unchanged. When set,
+# the extension source build must run here — before docker-php-ext-install,
+# which purges $PHPIZE_DEPS (ADR-0027/B41).
+ARG INSTALL_XDEBUG=0
+
+COPY devops/docker/xdebug.ini /tmp/xdebug.ini
 
 RUN apk add --no-cache \
         $PHPIZE_DEPS \
@@ -85,6 +92,23 @@ RUN apk add --no-cache \
     && make install \
     && cd / \
     && rm -rf /tmp/build \
+    && if [ "$INSTALL_XDEBUG" = "1" ]; then \
+        apk add --no-cache linux-headers \
+        && mkdir -p /tmp/build/xdebug \
+        && curl -fsSL -o /tmp/build/xdebug.tar.gz \
+            https://github.com/xdebug/xdebug/archive/refs/tags/3.5.3.tar.gz \
+        && tar -xzf /tmp/build/xdebug.tar.gz -C /tmp/build/xdebug --strip-components=1 \
+        && cd /tmp/build/xdebug \
+        && phpize \
+        && ./configure \
+        && make -j"$(nproc)" \
+        && make install \
+        && cd / \
+        && rm -rf /tmp/build \
+        && docker-php-ext-enable xdebug \
+        && cp /tmp/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini; \
+    fi \
+    && rm -f /tmp/xdebug.ini \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp --with-avif \
     && docker-php-ext-install \
         pdo pdo_pgsql mbstring xml zip bcmath intl gd exif pcntl \

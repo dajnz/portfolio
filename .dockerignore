@@ -14,7 +14,6 @@ node_modules/
 vendor/
 devops/docker/dev/
 !devops/docker/dev/Dockerfile
-!devops/docker/dev/xdebug.ini
 !devops/docker/dev/php.ini
 phpunit.xml*
 .env.testing
