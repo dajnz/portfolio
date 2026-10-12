@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { computed } from 'vue';
 import ConsoleGreeting, { type ConsoleGreetingData } from './ConsoleGreeting.vue';
 import CookiesNotice from './CookiesNotice.vue';
 import PublicBaseToastContainer from './PublicBaseToastContainer.vue';
@@ -17,7 +19,6 @@ const props = withDefaults(
         copyright_year?: string;
         copyright_name?: string;
         centered?: boolean;
-        console_greeting?: ConsoleGreetingData | null;
         test_id?: string;
     }>(),
     {
@@ -28,12 +29,23 @@ const props = withDefaults(
         copyright_year: undefined,
         copyright_name: undefined,
         centered: true,
-        console_greeting: null,
         test_id: 'public-layout',
     },
 );
 
 const { t } = useI18n();
+
+type PublicPageProps = {
+    console_greeting?: ConsoleGreetingData | null;
+};
+
+const page = usePage<PublicPageProps>();
+
+const greeting = computed((): ConsoleGreetingData | null => {
+    const consoleGreeting = page.props?.console_greeting;
+
+    return consoleGreeting ?? null;
+});
 </script>
 
 <template>
@@ -77,8 +89,8 @@ const { t } = useI18n();
     <PublicGoTop />
     <CookiesNotice />
     <ConsoleGreeting
-      v-if="props.console_greeting !== null"
-      v-bind="props.console_greeting"
+      v-if="greeting !== null"
+      v-bind="greeting"
     />
     <PublicBaseToastContainer />
   </div>
