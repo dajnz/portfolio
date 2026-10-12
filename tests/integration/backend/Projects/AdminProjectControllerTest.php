@@ -489,6 +489,17 @@ describe('AdminProjectController', function (): void {
         $this->post('/admin/projects', projectPayload(['slug' => 'taken-slug']))
             ->assertRedirect()
             ->assertSessionHasErrors('slug');
+
+        $this->post('/admin/projects', projectPayload([
+            'preview_image_alt' => ['en' => str_repeat('x', 501)],
+        ]))->assertRedirect()
+            ->assertSessionHasErrors(['preview_image_alt.en']);
+
+        $messages = session('errors')->getBag('default');
+
+        expect($messages->get('preview_image_alt.en')[0])
+            ->toContain('Alt Text [EN]')
+            ->not->toContain('admin.alt_text');
     });
 
     it('rejects a featured project without a featured sort order', function (): void {

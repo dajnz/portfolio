@@ -101,14 +101,14 @@ it('rejects batches larger than 100 events', function (): void {
     $events = array_fill(0, 101, ['event_type' => 'page_view', 'session_id' => 's']);
 
     trackBatch($events)->assertStatus(422)
-        ->assertJsonValidationErrors(['batch']);
+        ->assertJsonValidationErrors(['batch' => 'The event batch must not contain more than 100 events.']);
 
     $this->assertDatabaseCount('analytics_events', 0);
 });
 
 it('rejects an empty batch', function (): void {
     trackBatch([])->assertStatus(422)
-        ->assertJsonValidationErrors(['batch']);
+        ->assertJsonValidationErrors(['batch' => 'The event batch must contain at least one event.']);
 
     $this->assertDatabaseCount('analytics_events', 0);
 });
@@ -117,7 +117,7 @@ it('rejects a non-list batch body', function (): void {
     $this->postJson('/api/analytics/track', [
         'events' => [['event_type' => 'page_view', 'session_id' => 's-1']],
     ], ['User-Agent' => BROWSER_USER_AGENT])->assertStatus(422)
-        ->assertJsonValidationErrors(['batch']);
+        ->assertJsonValidationErrors(['batch' => 'The event batch must be an array of events.']);
 
     $this->assertDatabaseCount('analytics_events', 0);
 });
@@ -127,7 +127,7 @@ it('rejects batches with unknown event types', function (): void {
         ['event_type' => 'garbage_type', 'session_id' => 's-1'],
         ['event_type' => 'page_view', 'session_id' => 's-2'],
     ])->assertStatus(422)
-        ->assertJsonValidationErrors(['batch']);
+        ->assertJsonValidationErrors(['batch' => 'The event batch contains an unknown event type or malformed event payload.']);
 
     $this->assertDatabaseCount('analytics_events', 0);
 });
@@ -136,7 +136,7 @@ it('rejects payloads larger than 50 KB', function (): void {
     trackBatch([
         ['event_type' => 'page_view', 'session_id' => 's', 'metadata' => ['blob' => str_repeat('x', 60000)]],
     ])->assertStatus(422)
-        ->assertJsonValidationErrors(['batch']);
+        ->assertJsonValidationErrors(['batch' => 'The event batch must not exceed 50 KB.']);
 
     $this->assertDatabaseCount('analytics_events', 0);
 });

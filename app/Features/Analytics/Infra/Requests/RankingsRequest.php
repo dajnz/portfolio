@@ -58,15 +58,15 @@ final class RankingsRequest extends FormRequest
             $scope = (string) $this->input('scope');
 
             if ($metric !== '' && $scope !== '' && ! in_array($metric, self::ALLOWED_PAIRS[$scope] ?? [], true)) {
-                $validator->errors()->add('metric', __('validation.analytics_rankings_metric_not_allowed'));
+                $validator->errors()->add('metric', __('validation.analytics.rankings_metric_not_allowed'));
             }
 
             if ($variant === 'liked' && $metric !== MetricName::ReactionsLikes->value) {
-                $validator->errors()->add('variant', __('validation.analytics_rankings_liked_metric'));
+                $validator->errors()->add('variant', __('validation.analytics.rankings_liked_metric'));
             }
 
             if ($variant === 'disliked' && $metric !== MetricName::ReactionsDislikes->value) {
-                $validator->errors()->add('variant', __('validation.analytics_rankings_disliked_metric'));
+                $validator->errors()->add('variant', __('validation.analytics.rankings_disliked_metric'));
             }
         });
     }

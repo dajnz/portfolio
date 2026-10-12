@@ -66,7 +66,7 @@ final class TrackEventUseCase
 
             if ($entity === null) {
                 throw ValidationException::withMessages([
-                    'batch' => [__('validation.analytics_event_invalid')],
+                    'batch' => [__('validation.analytics.event_invalid')],
                 ]);
             }
 

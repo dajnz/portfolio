@@ -26,7 +26,7 @@ final class TrackEventsRequest extends FormRequest
 
         if ($batch === []) {
             throw ValidationException::withMessages([
-                'batch' => [__('validation.analytics_batch_empty')],
+                'batch' => [__('validation.analytics.batch_empty')],
             ]);
         }
 
@@ -34,19 +34,19 @@ final class TrackEventsRequest extends FormRequest
         // rules and crash the use case's event mapping.
         if (! array_is_list($batch)) {
             throw ValidationException::withMessages([
-                'batch' => [__('validation.analytics_batch_shape')],
+                'batch' => [__('validation.analytics.batch_shape')],
             ]);
         }
 
         if (count($batch) > self::MAX_BATCH_SIZE) {
             throw ValidationException::withMessages([
-                'batch' => [__('validation.analytics_batch_too_large')],
+                'batch' => [__('validation.analytics.batch_too_large')],
             ]);
         }
 
         if (strlen($this->getContent()) > self::MAX_PAYLOAD_BYTES) {
             throw ValidationException::withMessages([
-                'batch' => [__('validation.analytics_payload_too_large')],
+                'batch' => [__('validation.analytics.payload_too_large')],
             ]);
         }
 
