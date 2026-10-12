@@ -43,7 +43,6 @@ function blogPayload(array $overrides = []): array
         ],
         'lead_image' => 'blog/payments.png',
         'lead_image_alt' => ['en' => 'Gateway dashboard', 'ru' => 'Панель шлюза'],
-        'is_featured' => false,
         'is_published' => false,
         'tags' => [],
         'skill_tags' => [],
@@ -259,7 +258,6 @@ describe('AdminBlogController', function (): void {
         $related = blogItem(['slug' => 'related-post', 'is_published' => true, 'published_at' => now()]);
 
         $this->post('/admin/blog', blogPayload([
-            'is_featured' => true,
             'is_published' => true,
             'tags' => [$tag->id],
             'skill_tags' => [$skillId],
@@ -273,7 +271,6 @@ describe('AdminBlogController', function (): void {
             ->and($article->slug)->toBe('payments-gateway')
             ->and($article->is_published)->toBeTrue()
             ->and($article->published_at)->not->toBeNull()
-            ->and($article->is_featured)->toBeTrue()
             ->and($article->lead_image)->toBe('blog/payments.png')
             ->and($article->lead_image_alt)->toBe(['en' => 'Gateway dashboard', 'ru' => 'Панель шлюза']);
 
@@ -581,7 +578,7 @@ describe('AdminBlogController', function (): void {
     it('renders the edit form with the stored article data and the picker options', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
-        $article = blogItem(['is_featured' => true]);
+        $article = blogItem();
         $related = blogItem(['slug' => 'related-post', 'is_published' => true, 'published_at' => now()]);
         $tag = blogTagItem();
         $skillId = blogSkillId('PHP', null);
@@ -599,7 +596,6 @@ describe('AdminBlogController', function (): void {
                 ->component('Blog/Admin/Pages/BlogFormPage')
                 ->where('article.id', $article->id)
                 ->where('article.title', ['en' => 'Payments Gateway', 'ru' => 'Платёжный шлюз'])
-                ->where('article.is_featured', true)
                 ->where('article.tags', [['id' => $tag->id, 'slug' => 'php', 'name' => 'PHP']])
                 ->where('article.skill_tags', [['id' => $skillId, 'name' => 'PHP', 'icon' => null]])
                 ->where('article.related_article_ids', [$related->id])

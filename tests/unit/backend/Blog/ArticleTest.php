@@ -31,7 +31,6 @@ function translatedArticle(PublishedState $published): Article
         id: new ArticleId(1),
         slug: new Slug('my-post'),
         leadImage: null,
-        isFeatured: false,
         published: $published,
         translations: [
             new ArticleTranslation(
@@ -68,7 +67,6 @@ describe('Article', function (): void {
             id: new ArticleId(1),
             slug: new Slug('my-post'),
             leadImage: null,
-            isFeatured: false,
             published: PublishedState::unpublished(),
             translations: [
                 new ArticleTranslation(
@@ -105,7 +103,6 @@ describe('Article', function (): void {
             id: new ArticleId(1),
             slug: new Slug('my-post'),
             leadImage: null,
-            isFeatured: false,
             published: PublishedState::unpublished(),
             translations: [],
         ))->toThrow(InvalidArgumentException::class, 'at least one translation');
@@ -116,7 +113,6 @@ describe('Article', function (): void {
             id: new ArticleId(5),
             slug: new Slug('my-post'),
             leadImage: null,
-            isFeatured: false,
             published: PublishedState::unpublished(),
             translations: [translation()],
             relatedArticleIds: [5],
