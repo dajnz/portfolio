@@ -118,11 +118,16 @@ final class PublicBlogController
             throw new NotFoundHttpException();
         }
 
-        Bus::dispatch(new IncrementArticleViewJob(
-            articleId: $detail->id,
-            ip: (string) $request->ip(),
-            userAgent: $request->userAgent(),
-        ));
+        // Inertia hover prefetches (`ArticleCard`) hit this action with a
+        // `Purpose: prefetch` header; they warm the page cache without a
+        // real visit, so they must not increment the view counter.
+        if (! $request->prefetch()) {
+            Bus::dispatch(new IncrementArticleViewJob(
+                articleId: $detail->id,
+                ip: (string) $request->ip(),
+                userAgent: $request->userAgent(),
+            ));
+        }
 
         return $inertia->render('Blog/Public/Pages/BlogArticlePage', [
             'article' => self::detailProps($detail),
