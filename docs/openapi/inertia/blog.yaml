@@ -320,8 +320,6 @@ components:
           properties:
             is_published:
               type: boolean
-            is_featured:
-              type: boolean
             related_article_ids:
               type: array
               items:

@@ -53,6 +53,16 @@ runtime support.
   `language`, `theme`); `analytics.yaml` descriptions updated. No schema
   changes.
 
+### Removed
+
+- **`ArticleEditData.is_featured` removed (v1.0.30 inertia):** the blog
+  article `featured` flag was write-only — persisted and editable in the
+  admin form but never read by any surface (no public featured section, no
+  admin list column or filter). The `blog_articles.is_featured` column, the
+  form toggle and the payload field are removed. Wire-shape change:
+  `ArticleEditData` no longer carries `is_featured`, and the store/update
+  payload no longer accepts it.
+
 ### Added
 
 - **`SeoProps.article` blog-article Open Graph metadata (v1.0.26, step 13.8):**
