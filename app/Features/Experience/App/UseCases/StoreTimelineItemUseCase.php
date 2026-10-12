@@ -30,6 +30,9 @@ use Illuminate\Support\Facades\DB;
  * Timeline continuity (the "continuous career" model) is asserted by
  * {@see TimelineContinuityService} inside the same transaction as the
  * save so the auto-filled predecessor and the new row land atomically.
+ * Returns the created item's id so the controller can redirect to its
+ * edit page (a create must not leave the form in create mode — a
+ * second save would insert another item).
  */
 final class StoreTimelineItemUseCase
 {
@@ -63,8 +66,8 @@ final class StoreTimelineItemUseCase
         ?int $projectId,
         bool $includeInResume,
         ?string $externalProjectName,
-    ): void {
-        DB::transaction(function () use (
+    ): int {
+        $itemId = DB::transaction(function () use (
             $position,
             $companyName,
             $companyCountry,
@@ -78,10 +81,10 @@ final class StoreTimelineItemUseCase
             $projectId,
             $includeInResume,
             $externalProjectName,
-        ): void {
+        ): int {
             $this->continuity->assertContinuity($startedAt, $endedAt, null);
 
-            $this->repository->save(new TimelineItem(
+            return $this->repository->save(new TimelineItem(
                 id: 0,
                 period: new WorkPeriod($startedAt, $endedAt),
                 isPublished: $isPublished,
@@ -100,6 +103,8 @@ final class StoreTimelineItemUseCase
         });
 
         AdminCursorPaginator::invalidateCountCache('experience');
+
+        return $itemId;
     }
 
     private function relatedProject(?int $projectId, ?string $externalProjectName): ?RelatedProject

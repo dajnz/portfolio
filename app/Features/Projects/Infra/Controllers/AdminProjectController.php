@@ -41,6 +41,7 @@ use App\Features\Shared\Infra\Services\PerLocaleValues;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -108,9 +109,13 @@ final class AdminProjectController
 
     public function store(StoreProjectRequest $request): RedirectResponse
     {
-        $this->storeCase->store($this->buildDraft($request));
+        $projectId = $this->storeCase->store($this->buildDraft($request));
 
-        return redirect()->back()
+        // Redirect to the edit page of the created project: staying on
+        // the create form would keep the client in create mode (Inertia
+        // preserves the component across the POST redirect), so the next
+        // save would create a duplicate instead of updating.
+        return Redirect::to("/admin/projects/{$projectId->toValue()}/edit")
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 

@@ -87,8 +87,9 @@ final class FakeArticleRepository implements ArticleRepositoryInterface
         return [];
     }
 
-    public function save(Article $article): void
+    public function save(Article $article): int
     {
+        return 0;
     }
 
     public function delete(int $id): void

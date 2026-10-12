@@ -366,6 +366,16 @@ describe('AdminProjectController', function (): void {
             ->and($translations->get('en')->solution)->toBe('Queued processing.');
     });
 
+    it('starts the edit form after a successful create so a re-save updates instead of duplicating', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $response = $this->post('/admin/projects', projectPayload());
+
+        $project = ProjectModel::query()->firstOrFail();
+
+        $response->assertRedirect("/admin/projects/{$project->id}/edit");
+    });
+
     it('rejects a Markdown field filled in one language but not another', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 

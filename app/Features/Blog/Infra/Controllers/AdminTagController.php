@@ -84,12 +84,16 @@ final class AdminTagController
     public function store(StoreTagRequest $request): RedirectResponse
     {
         try {
-            $this->storeCase->store($this->buildDraft($request));
+            $tag = $this->storeCase->store($this->buildDraft($request));
         } catch (DuplicateArticleTagNameException) {
             throw ValidationException::withMessages(['name' => __('validation.unique', ['attribute' => __('admin.tags.name')])]);
         }
 
-        return Redirect::back()
+        // Redirect to the edit page of the created tag: staying on the
+        // create form would keep the client in create mode (Inertia
+        // preserves the component across the POST redirect), so the next
+        // save would create a duplicate instead of updating.
+        return Redirect::to("/admin/tags/{$tag->toId()}/edit")
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 

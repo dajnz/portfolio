@@ -29,7 +29,9 @@ use DateTimeImmutable;
  * asserts the publication invariants). The repository persists the
  * aggregate in one transaction. A published article enters the
  * sitemap — the cache is invalidated here (the app layer owns the
- * invalidation decisions).
+ * invalidation decisions). Returns the created article's id so the
+ * controller can redirect to its edit page (a create must not leave
+ * the form in create mode — a second save would duplicate the row).
  */
 final class StoreArticleUseCase
 {
@@ -43,7 +45,7 @@ final class StoreArticleUseCase
     ) {
     }
 
-    public function store(ArticleDraftDto $draft): void
+    public function store(ArticleDraftDto $draft): ArticleId
     {
         $this->validator->assertSlugOverrideAvailable(
             $draft->submittedSlug,
@@ -71,12 +73,14 @@ final class StoreArticleUseCase
             $article->publish(new DateTimeImmutable('now'));
         }
 
-        $this->repository->save($article);
+        $articleId = $this->repository->save($article);
 
         if ($article->toIsPublished()) {
             $this->sitemap->invalidate();
         }
 
         $this->countCache->invalidate('articles');
+
+        return new ArticleId($articleId);
     }
 }

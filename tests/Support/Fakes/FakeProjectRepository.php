@@ -73,8 +73,9 @@ final class FakeProjectRepository implements ProjectRepositoryInterface
         return [];
     }
 
-    public function save(Project $project): void
+    public function save(Project $project): int
     {
+        return 0;
     }
 
     public function delete(int $id): void

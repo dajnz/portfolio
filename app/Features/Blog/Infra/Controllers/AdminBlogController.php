@@ -114,14 +114,18 @@ final class AdminBlogController
     public function store(StoreArticleRequest $request): RedirectResponse
     {
         try {
-            $this->storeCase->store($this->buildDraft($request));
+            $articleId = $this->storeCase->store($this->buildDraft($request));
         } catch (ArticleSlugOccupiedException $e) {
             throw ValidationException::withMessages(['slug' => $e->getMessage()]);
         } catch (RelatedArticleNotLinkableException $e) {
             throw ValidationException::withMessages(['related_articles' => $e->getMessage()]);
         }
 
-        return Redirect::back()
+        // Redirect to the edit page of the created article: staying on
+        // the create form would keep the client in create mode (Inertia
+        // preserves the component across the POST redirect), so the next
+        // save would create a duplicate instead of updating.
+        return Redirect::to("/admin/blog/{$articleId->toValue()}/edit")
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 

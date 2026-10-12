@@ -26,6 +26,7 @@ use DateTimeImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -72,12 +73,16 @@ final class AdminExperienceController
     public function store(StoreExperienceRequest $request): RedirectResponse
     {
         try {
-            $this->storeCase->store(...$this->payload($request));
+            $itemId = $this->storeCase->store(...$this->payload($request));
         } catch (TimelinePeriodConflictException $e) {
             throw ValidationException::withMessages([$e->toField() => $e->getMessage()]);
         }
 
-        return redirect()->back()
+        // Redirect to the edit page of the created item: staying on the
+        // create form would keep the client in create mode (Inertia
+        // preserves the component across the POST redirect), so the next
+        // save would insert another item instead of updating.
+        return Redirect::to("/admin/experience/{$itemId}/edit")
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 

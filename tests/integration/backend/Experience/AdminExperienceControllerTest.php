@@ -252,6 +252,16 @@ describe('AdminExperienceController', function (): void {
             ->pluck('skill_id')->all())->toBe([$php->id]);
     });
 
+    it('starts the edit form after a successful create so a re-save updates instead of duplicating', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $response = $this->post('/admin/experience', experiencePayload());
+
+        $item = TimelineItemModel::query()->firstOrFail();
+
+        $response->assertRedirect("/admin/experience/{$item->id}/edit");
+    });
+
     it('treats a null ended_at as the ongoing position (no is_current flag)', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 

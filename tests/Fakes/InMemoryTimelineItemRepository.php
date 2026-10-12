@@ -101,7 +101,7 @@ final class InMemoryTimelineItemRepository implements TimelineItemRepositoryInte
         throw new \LogicException('Not supported by the in-memory fake.');
     }
 
-    public function save(TimelineItem $item): void
+    public function save(TimelineItem $item): int
     {
         throw new \LogicException('Not supported by the in-memory fake.');
     }

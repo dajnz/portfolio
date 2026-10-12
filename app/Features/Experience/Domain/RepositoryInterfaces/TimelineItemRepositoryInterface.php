@@ -65,7 +65,8 @@ interface TimelineItemRepositoryInterface
     /**
      * Inserts or updates the item, syncing its translations (upsert for
      * active locales, preserving rows of disabled locales) and the
-     * tech-tag pivot.
+     * tech-tag pivot. Returns the persisted id so the caller can route
+     * to the created item.
      */
-    public function save(TimelineItem $item): void;
+    public function save(TimelineItem $item): int;
 }
