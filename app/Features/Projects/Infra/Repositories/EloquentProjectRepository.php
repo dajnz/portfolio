@@ -173,9 +173,9 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
         return $paths;
     }
 
-    public function save(Project $project): void
+    public function save(Project $project): int
     {
-        DB::transaction(function () use ($project): void {
+        return DB::transaction(function () use ($project): int {
             $existing = $this->existingRow($project);
             $model = ProjectModel::query()->updateOrCreate(
                 ['id' => $project->toId()],
@@ -197,6 +197,8 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
             // events, so the sitemap invalidation is applied once here:
             // translation changes are reflected in lastmod.
             app(SitemapService::class)->invalidate();
+
+            return $projectId;
         });
     }
 

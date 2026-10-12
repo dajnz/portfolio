@@ -23,7 +23,10 @@ use DateTimeImmutable;
  * form-save with `is_published` set publishes the fresh aggregate
  * ({@see \App\Features\Projects\Domain\Entities\Project::publish()}
  * asserts the publication invariants). The repository persists the
- * aggregate in one transaction.
+ * aggregate in one transaction. Returns the created project's id so
+ * the controller can redirect to its edit page (a create must not
+ * leave the form in create mode — a second save would duplicate the
+ * row).
  */
 final class StoreProjectUseCase
 {
@@ -35,7 +38,7 @@ final class StoreProjectUseCase
     ) {
     }
 
-    public function store(ProjectDraftDto $draft): void
+    public function store(ProjectDraftDto $draft): ProjectId
     {
         $slug = $this->slugs->resolve(
             $draft->submittedSlug,
@@ -55,8 +58,10 @@ final class StoreProjectUseCase
             $project->publish(new DateTimeImmutable('now'));
         }
 
-        $this->repository->save($project);
+        $projectId = $this->repository->save($project);
 
         $this->countCache->invalidate('projects');
+
+        return new ProjectId($projectId);
     }
 }

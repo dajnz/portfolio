@@ -105,9 +105,10 @@ interface ProjectRepositoryInterface
      * updated, new rows created, absent rows deleted with their RustFS
      * files), the detail-item reconcile (same, no files) and the
      * tech-tag pivot sync (so the `tech_tags_count` stays consistent).
-     * A slug change records the old slug in `old_slugs`.
+     * A slug change records the old slug in `old_slugs`. Returns the
+     * persisted id so the caller can route to the created aggregate.
      */
-    public function save(Project $project): void;
+    public function save(Project $project): int;
 
     public function delete(int $id): void;
 
