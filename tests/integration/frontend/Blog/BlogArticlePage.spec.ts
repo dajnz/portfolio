@@ -1,4 +1,4 @@
-import { flushPromises, mount } from '@vue/test-utils';
+import { flushPromises, mount, type DOMWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { reactive } from 'vue';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -111,6 +111,45 @@ async function flush(): Promise<void> {
     await flushPromises();
 }
 
+/**
+ * A controllable IntersectionObserver stand-in: the TOC scroll-spy
+ * creates one per mount, and tests drive its callback with synthetic
+ * entries to assert which heading takes the highlight.
+ */
+class TocIntersectionObserverMock {
+    static instances: TocIntersectionObserverMock[] = [];
+    static init: IntersectionObserverInit[] = [];
+
+    private readonly callback: IntersectionObserverCallback;
+
+    constructor(callback: IntersectionObserverCallback, init?: IntersectionObserverInit) {
+        this.callback = callback;
+        TocIntersectionObserverMock.instances.push(this);
+        TocIntersectionObserverMock.init.push(init ?? {});
+    }
+
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+
+    intersect(target: Element, isIntersecting: boolean): void {
+        this.callback(
+            [{ target, isIntersecting }] as unknown as IntersectionObserverEntry[],
+            this as unknown as IntersectionObserver,
+        );
+    }
+}
+
+function tocHeadings(): HTMLElement[] {
+    return [
+        ...document.querySelectorAll('#article-body h2[id], #article-body h3[id]'),
+    ] as HTMLElement[];
+}
+
+function tocLinkClasses(toc: Omit<DOMWrapper<Element>, 'exists'>, id: string): string[] {
+    return toc.get(`[data-testid="blog-article-page-toc-link-${id}"]`).classes();
+}
+
 describe('BlogArticlePage', () => {
     beforeEach(() => {
         setActivePinia(createPinia());
@@ -132,12 +171,22 @@ describe('BlogArticlePage', () => {
             observe() {}
             disconnect() {}
         });
+        TocIntersectionObserverMock.instances = [];
+        TocIntersectionObserverMock.init = [];
     });
 
     afterEach(() => {
         vi.restoreAllMocks();
         vi.unstubAllGlobals();
     });
+
+    async function mountWithTocObserver() {
+        vi.stubGlobal('IntersectionObserver', TocIntersectionObserverMock);
+        const wrapper = mountPage();
+        await flush();
+
+        return { wrapper, tocObserver: TocIntersectionObserverMock.instances[0] };
+    }
 
     it('renders the layout, the nav with Blog active and the article content', async () => {
         const wrapper = mountPage();
@@ -203,6 +252,42 @@ describe('BlogArticlePage', () => {
         // Focus lands on the heading so screen readers announce it and the
         // position is not lost when the panel closes.
         expect(document.activeElement?.id).toBe('conclusion');
+    });
+
+    it('watches the headings with an activation band that starts at the viewport top', async () => {
+        await mountWithTocObserver();
+
+        // A clicked heading lands under the sticky header — above the old
+        // 20% inset — and was never highlighted because of it.
+        expect(TocIntersectionObserverMock.init[0]?.rootMargin).toBe('0px 0px -65% 0px');
+    });
+
+    it('marks the heading inside the reading band active, not the next one down', async () => {
+        const { wrapper, tocObserver } = await mountWithTocObserver();
+        const toc = wrapper.get('[data-testid="blog-article-page-toc"]');
+        const [first, second] = tocHeadings();
+
+        tocObserver.intersect(first, true);
+        await flush();
+
+        expect(tocLinkClasses(toc, first.id)).toContain('is-active');
+        expect(tocLinkClasses(toc, second.id)).not.toContain('is-active');
+    });
+
+    it('gives the highlight to the lowest heading in the band and restores the one above', async () => {
+        const { wrapper, tocObserver } = await mountWithTocObserver();
+        const toc = wrapper.get('[data-testid="blog-article-page-toc"]');
+        const [first, second] = tocHeadings();
+
+        tocObserver.intersect(first, true);
+        tocObserver.intersect(second, true);
+        await flush();
+        expect(tocLinkClasses(toc, second.id)).toContain('is-active');
+        expect(tocLinkClasses(toc, first.id)).not.toContain('is-active');
+
+        tocObserver.intersect(second, false);
+        await flush();
+        expect(tocLinkClasses(toc, first.id)).toContain('is-active');
     });
 
     it('mounts the CodeBlock over the data-code-block marker with the copy button', async () => {
