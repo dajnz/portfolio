@@ -177,9 +177,9 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
         return $paths;
     }
 
-    public function save(Article $article): void
+    public function save(Article $article): int
     {
-        DB::transaction(function () use ($article): void {
+        return DB::transaction(function () use ($article): int {
             $existing = $this->existingRow($article);
             $model = ArticleModel::query()->updateOrCreate(
                 ['id' => $article->toId()],
@@ -196,6 +196,8 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
             $this->syncArticleTags($articleId, $article->toArticleTagIds());
             $this->syncSkillTags($articleId, $article->toSkillTagIds());
             $this->syncRelatedArticles($articleId, $article->toRelatedArticleIds());
+
+            return $articleId;
         });
     }
 

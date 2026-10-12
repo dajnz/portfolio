@@ -288,6 +288,16 @@ describe('AdminBlogController', function (): void {
             ->and(DB::table('related_articles')->where('article_id', $article->id)->pluck('related_article_id')->all())->toBe([$related->id]);
     });
 
+    it('starts the edit form after a successful create so a re-save updates instead of duplicating', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $response = $this->post('/admin/blog', blogPayload());
+
+        $article = ArticleModel::where('slug', 'payments-gateway')->firstOrFail();
+
+        $response->assertRedirect("/admin/blog/{$article->id}/edit");
+    });
+
     it('validates the per-locale required fields and the slug rules', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 

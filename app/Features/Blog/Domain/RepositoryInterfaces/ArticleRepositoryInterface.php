@@ -126,9 +126,10 @@ interface ArticleRepositoryInterface
      * `article_tag_pivot` / `article_skill_pivot` syncs and the
      * `related_articles` reconcile (the bidirectional pairs of the
      * removed/added ids). A slug change records the old slug in
-     * `old_slugs`.
+     * `old_slugs`. Returns the persisted id so the caller can route to
+     * the created aggregate.
      */
-    public function save(Article $article): void;
+    public function save(Article $article): int;
 
     public function delete(int $id): void;
 

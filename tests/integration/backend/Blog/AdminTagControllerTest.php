@@ -134,6 +134,19 @@ describe('AdminTagController', function (): void {
                 ->toBe(['en' => 'Laravel', 'ru' => 'Ларавел']);
     });
 
+    it('starts the edit form after a successful create so a re-save updates instead of duplicating', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $response = $this->post('/admin/tags', [
+            'slug' => 'laravel',
+            'name' => ['en' => 'Laravel', 'ru' => 'Ларавел'],
+        ]);
+
+        $tag = ArticleTagModel::query()->firstOrFail();
+
+        $response->assertRedirect("/admin/tags/{$tag->id}/edit");
+    });
+
     it('rejects a tag name that matches an existing skill', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
