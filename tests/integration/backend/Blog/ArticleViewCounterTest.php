@@ -35,6 +35,15 @@ describe('article view counter', function (): void {
         Queue::assertPushed(IncrementArticleViewJob::class, fn (IncrementArticleViewJob $job): bool => $job->articleId === $article->id);
     });
 
+    it('skips the increment on Inertia prefetch requests', function (): void {
+        Queue::fake();
+        $article = $this->publicBlogArticle();
+
+        $this->get('/blog/'.$article->slug, ['Purpose' => 'prefetch'])->assertOk();
+
+        Queue::assertNotPushed(IncrementArticleViewJob::class);
+    });
+
     it('skips bot User-Agents and missing ones', function (): void {
         $article = $this->publicBlogArticle();
 
