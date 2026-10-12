@@ -36,6 +36,7 @@ const isMobileOpen = ref(false);
 const mounted = ref(false);
 const mobileEl = ref<HTMLElement | null>(null);
 let observer: IntersectionObserver | null = null;
+const intersecting = new Set<Element>();
 
 function observe(): void {
     if (typeof IntersectionObserver === 'undefined' || props.target_selector === '') {
@@ -52,14 +53,23 @@ function observe(): void {
         (entries) => {
             for (const entry of entries) {
                 if (entry.isIntersecting) {
-                    activeId.value = entry.target.getAttribute('id') ?? activeId.value;
+                    intersecting.add(entry.target);
+                } else {
+                    intersecting.delete(entry.target);
                 }
             }
+
+            const active = lastIntersectingId(elements);
+
+            if (active !== null) {
+                activeId.value = active;
+            }
         },
-        // The active band: below the sticky header region and above the
-        // bottom quarter — the heading crossing into it takes the
-        // highlight.
-        { rootMargin: '-20% 0px -65% 0px' },
+        // The activation band starts at the viewport top so a heading
+        // scrolled to its `scroll-margin-top` offset — just below the
+        // sticky header — still counts as active, and ends above the
+        // bottom third.
+        { rootMargin: '0px 0px -65% 0px' },
     );
 
     for (const element of elements) {
@@ -67,9 +77,24 @@ function observe(): void {
     }
 }
 
+// Several headings can sit inside the band at once (short sections): the
+// last one in document order owns the highlight.
+function lastIntersectingId(elements: Element[]): string | null {
+    for (let index = elements.length - 1; index >= 0; index -= 1) {
+        const element = elements[index];
+
+        if (intersecting.has(element)) {
+            return element.getAttribute('id');
+        }
+    }
+
+    return null;
+}
+
 function cleanup(): void {
     observer?.disconnect();
     observer = null;
+    intersecting.clear();
 }
 
 function navigate(id: string): void {
