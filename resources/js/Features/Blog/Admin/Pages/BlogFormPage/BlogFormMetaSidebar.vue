@@ -2,7 +2,7 @@
      layout's meta sidebar): the locale-tabbed Title / Short Description,
      the shared Slug (the auto-generation hint), the Lead Image dropzone
      with per-locale alt text, the unified tag picker, the Related
-     Articles multi-select, the Featured/Published toggles and the
+     Articles multi-select, the Published toggle and the
      read-only published_at block. A presentational component: the fields
      bind their model values as props and emit raw updates; the page
      orchestrator (BlogFormPage + useArticleForm) owns the state, the
@@ -37,7 +37,6 @@ const props = withDefaults(
         related_ids: number[];
         articles?: ArticleOption[];
         related_tooltip?: string;
-        is_featured: boolean;
         is_published: boolean;
         published_at?: string | null;
         errors: Record<string, string>;
@@ -62,7 +61,6 @@ const emit = defineEmits<{
     'update:lead_image_alt': [locale: string, value: string];
     'update:tags': [tags: UnifiedTagValue[]];
     'update:related': [ids: number[]];
-    'update:featured': [value: boolean];
     'update:published': [value: boolean];
     'upload-lead': [file: File];
     'remove-lead': [];
@@ -206,13 +204,6 @@ function nestedFieldError(field: string): string | null {
       {{ t('admin.blog.related_hint') }}
     </p>
     <div class="flex flex-wrap gap-4">
-      <AdminBaseToggle
-        :model-value="props.is_featured"
-        :label="t('admin.blog.featured')"
-        :disabled="props.is_saving"
-        :test_id="`${props.test_id}-featured`"
-        @update:model-value="(checked) => emit('update:featured', checked)"
-      />
       <AdminBaseToggle
         :model-value="props.is_published"
         :label="t('admin.blog.published')"

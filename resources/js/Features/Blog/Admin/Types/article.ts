@@ -59,7 +59,6 @@ export interface ArticleEditData {
     reading_time_minutes: number;
     lead_image: string | null;
     lead_image_alt: Record<string, string | null>;
-    is_featured: boolean;
     is_published: boolean;
     related_article_ids: number[];
     tags: TagData[];
