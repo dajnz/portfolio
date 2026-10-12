@@ -424,6 +424,34 @@ describe('TextEditor', () => {
         expect(wrapper.get('[contenteditable="true"]').find('[data-callout]').exists()).toBe(true);
     });
 
+    it('keeps blank lines after a callout across repeated mode switches', async () => {
+        // The reported case: blank paragraphs sitting AFTER the callout.
+        const wrapper = mountEditor({
+            modelValue: '> [!WARNING]\n> aaaa\n\n\n\n&nbsp;\n\nbbbbbbbb',
+        });
+        await waitForEditable(wrapper);
+
+        const readRaw = async (): Promise<string> => {
+            await wrapper.get('[data-testid="text-editor-mode-toggle"]').trigger('click');
+            await nextTick();
+            const raw = wrapper.get('[data-testid="text-editor-raw"]');
+            const value = (raw.element as HTMLTextAreaElement).value;
+
+            await wrapper.get('[data-testid="text-editor-mode-toggle"]').trigger('click');
+            await waitForEditable(wrapper);
+
+            return value;
+        };
+
+        const first = await readRaw();
+        expect(first).toContain('&nbsp;');
+
+        // The callout token used to swallow the newline after its last line,
+        // shortening the following blank run by one paragraph per switch.
+        expect(await readRaw()).toBe(first);
+        expect(await readRaw()).toBe(first);
+    });
+
     it('keeps the placeholder hidden for an empty TABLE on blur (the block is content, not "nothing")', async () => {
         const wrapper = mountEditor();
         await waitForEditable(wrapper);

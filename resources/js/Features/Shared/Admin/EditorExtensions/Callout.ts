@@ -82,10 +82,6 @@ function calloutTokenizer(): MarkdownTokenizer {
                 break;
             }
 
-            if (index >= lines.length && !src.endsWith('\n')) {
-                consumed -= 1;
-            }
-
             const marker = CALLOUT_INLINE_MARKER.exec(contentLines[0] ?? '');
 
             if (marker === null) {
@@ -98,7 +94,7 @@ function calloutTokenizer(): MarkdownTokenizer {
             return {
                 type: 'callout',
                 calloutType: type,
-                raw: src.slice(0, Math.max(consumed, 0)),
+                raw: src.slice(0, Math.max(consumed, 0)).replace(/\n+$/, ''),
                 tokens: lexer.blockTokens(contentLines.join('\n')),
             };
         },
