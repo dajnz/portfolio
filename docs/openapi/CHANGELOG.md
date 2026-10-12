@@ -12,6 +12,17 @@ runtime support.
 
 ### Changed
 
+- **Analytics chart date windows + whole-time adaptive bucketing (v1.0.31 inertia):**
+  the `series` endpoint now renders a dense calendar window ending at the current
+  period — daily the last 30 days, weekly the last 12 weeks, monthly the last 12
+  months (yearly the last 12 years) — with periods without stored rows rendered as
+  `0`; the previous 90-row cap is gone. `span=all` returns the whole-time cumulative
+  running total bucketed at the finest of day/week/month/year whose full history fits
+  30 points, anchored on the metric-wide oldest day so all dimensions of the CTA
+  multi-chart share one label sequence. `AnalyticsSeriesResponse`,
+  `AnalyticsDefaultChart` and the `analyticsMetricSeries` descriptions updated. No
+  schema or wire-shape changes; `info.version` bumped to `1.0.31` in `inertia.yaml`.
+
 - **Analytics dashboard metric loading described (v1.0.29 inertia):**
   description-only change. The `/admin/analytics` page description now states
   that chart/ranking data for the non-default blocks loads from the
