@@ -42,11 +42,11 @@ final class SeriesRequest extends FormRequest
             $dimension = $this->input('dimension');
 
             if ($metric === MetricName::CtaClicks->value && $dimension === null) {
-                $validator->errors()->add('dimension', __('validation.analytics_series_dimension_required'));
+                $validator->errors()->add('dimension', __('validation.analytics.series_dimension_required'));
             }
 
             if ($metric !== MetricName::CtaClicks->value && $dimension !== null) {
-                $validator->errors()->add('dimension', __('validation.analytics_series_dimension_forbidden'));
+                $validator->errors()->add('dimension', __('validation.analytics.series_dimension_forbidden'));
             }
         });
     }
