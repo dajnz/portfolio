@@ -99,15 +99,37 @@ function buildGreetingScript(nonce: string): HTMLScriptElement {
     return script;
 }
 
+// The greeting shows once per browser session so reloads and Inertia
+// navigations do not spam the console. Storage may be unavailable (private
+// mode, blocked cookies) — on any failure the greeting still shows.
+const GREETING_SEEN_KEY = 'console_greeting_seen';
+
+function hasGreetingBeenShown(): boolean {
+    try {
+        return sessionStorage.getItem(GREETING_SEEN_KEY) !== null;
+    } catch {
+        return false;
+    }
+}
+
+function rememberGreetingShown(): void {
+    try {
+        sessionStorage.setItem(GREETING_SEEN_KEY, '1');
+    } catch {
+        return;
+    }
+}
+
 // Side-effect only — the nonced inline script is injected into <head>
 // after mount.
 onMounted(() => {
-    if (!isActive()) {
+    if (!isActive() || hasGreetingBeenShown()) {
         return;
     }
 
     const nonce = usePage<PageProps>().props.cspNonce ?? '';
 
     document.head.appendChild(buildGreetingScript(nonce));
+    rememberGreetingShown();
 });
 </script>
