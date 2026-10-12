@@ -45,7 +45,7 @@ RUN apk add --no-cache \
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-COPY devops/docker/dev/xdebug.ini /usr/local/etc/php/conf.d/
+COPY devops/docker/xdebug.ini /usr/local/etc/php/conf.d/
 COPY devops/docker/dev/php.ini /usr/local/etc/php/conf.d/
 # The container runs as the host user so npm/composer/artisan artifacts keep
 # the host's ownership on the bind-mounted repo. The uid/gid default to 1000
