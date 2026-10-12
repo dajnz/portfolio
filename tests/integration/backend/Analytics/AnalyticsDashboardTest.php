@@ -158,18 +158,22 @@ it('returns the per-target cta_clicks series for the given dimension', function 
         ]]);
 });
 
-it('rejects invalid series parameters with 422', function (string $query, string $errorKey): void {
+it('rejects invalid series parameters with 422', function (string $query, string $errorKey, ?string $message = null): void {
     $this->loginAsAdmin($this->createAdmin());
 
-    getJson('/admin/analytics/series'.$query)
+    $response = getJson('/admin/analytics/series'.$query)
         ->assertStatus(422)
         ->assertJsonValidationErrors([$errorKey]);
+
+    if ($message !== null) {
+        $response->assertJsonValidationErrors([$errorKey => $message]);
+    }
 })->with([
     'unknown metric' => ['?metric=not_a_metric&span=day', 'metric'],
     'missing span' => ['?metric=page_views', 'span'],
     'unknown span' => ['?metric=page_views&span=decade', 'span'],
-    'cta without dimension' => ['?metric=cta_clicks&span=week', 'dimension'],
-    'dimension without cta' => ['?metric=page_views&span=week&dimension=github', 'dimension'],
+    'cta without dimension' => ['?metric=cta_clicks&span=week', 'dimension', 'The cta_clicks series requires a dimension.'],
+    'dimension without cta' => ['?metric=page_views&span=week&dimension=github', 'dimension', 'The dimension filter is only available for the cta_clicks metric.'],
     'unknown dimension' => ['?metric=cta_clicks&span=week&dimension=newsletter', 'dimension'],
 ]);
 
@@ -300,21 +304,25 @@ it('returns the most liked and most disliked articles for the reactions variants
         ->assertJsonPath('rows.0.value', 7);
 });
 
-it('rejects invalid rankings parameters with 422', function (string $query, string $errorKey): void {
+it('rejects invalid rankings parameters with 422', function (string $query, string $errorKey, ?string $message = null): void {
     $this->loginAsAdmin($this->createAdmin());
 
-    getJson('/admin/analytics/rankings'.$query)
+    $response = getJson('/admin/analytics/rankings'.$query)
         ->assertStatus(422)
         ->assertJsonValidationErrors([$errorKey]);
+
+    if ($message !== null) {
+        $response->assertJsonValidationErrors([$errorKey => $message]);
+    }
 })->with([
     'unknown metric' => ['?metric=not_a_metric&variant=top&scope=page', 'metric'],
     'missing variant' => ['?metric=views&scope=article', 'variant'],
     'unknown variant' => ['?metric=views&variant=sideways&scope=article', 'variant'],
     'missing scope' => ['?metric=views&variant=top', 'scope'],
     'unknown scope' => ['?metric=views&variant=top&scope=tag', 'scope'],
-    'metric not allowed at the scope' => ['?metric=views&variant=top&scope=page', 'metric'],
-    'liked without the likes metric' => ['?metric=views&variant=liked&scope=article', 'variant'],
-    'disliked without the dislikes metric' => ['?metric=views&variant=disliked&scope=article', 'variant'],
+    'metric not allowed at the scope' => ['?metric=views&variant=top&scope=page', 'metric', 'The metric cannot be ranked at the given scope.'],
+    'liked without the likes metric' => ['?metric=views&variant=liked&scope=article', 'variant', 'The liked variant requires the reactions_likes metric.'],
+    'disliked without the dislikes metric' => ['?metric=views&variant=disliked&scope=article', 'variant', 'The disliked variant requires the reactions_dislikes metric.'],
 ]);
 
 it('dispatches the full-rebuild job and answers 202', function (): void {
