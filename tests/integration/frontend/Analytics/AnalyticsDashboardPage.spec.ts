@@ -210,7 +210,7 @@ describe('AnalyticsDashboardPage', () => {
         expect(svg.attributes('aria-label')).toBe('Bar chart: Visits over time');
         expect(
             svg.findAll('text').map((node) => node.text()),
-        ).toEqual(['100', '2026-08-19', '150', '2026-08-20']);
+        ).toEqual(['2026-08-19', '2026-08-20']);
         expect(fetchMock).not.toHaveBeenCalled();
     });
 
@@ -231,7 +231,7 @@ describe('AnalyticsDashboardPage', () => {
         const labels = wrapper
             .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
             .map((node) => node.text());
-        expect(labels).toContain('10');
+        expect(labels).toContain('2026-08-21');
     });
 
     it('refetches the chart at the chosen span', async () => {
@@ -250,7 +250,7 @@ describe('AnalyticsDashboardPage', () => {
         const labels = wrapper
             .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
             .map((node) => node.text());
-        expect(labels).toContain('700');
+        expect(labels).toContain('2026-08-10');
     });
 
     it('renders the CTA multi-series chart with a legend of the seven targets', async () => {
@@ -493,7 +493,7 @@ describe('AnalyticsDashboardPage', () => {
         const labels = wrapper
             .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
             .map((node) => node.text());
-        expect(labels).toEqual(['100', '2026-08-19', '150', '2026-08-20']);
+        expect(labels).toEqual(['2026-08-19', '2026-08-20']);
         // The Overview chart re-seeds from the props — only the Blog
         // tab's rankings load may have hit the network.
         expect(
@@ -560,7 +560,7 @@ describe('AnalyticsDashboardPage', () => {
         const labels = wrapper
             .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
             .map((node) => node.text());
-        expect(labels).toEqual(['100', '2026-08-19', '150', '2026-08-20']);
+        expect(labels).toEqual(['2026-08-19', '2026-08-20']);
     });
 
     it('aborts an in-flight rankings fetch on tab switch and keeps the re-seeded rows', async () => {
@@ -612,7 +612,7 @@ describe('AnalyticsDashboardPage', () => {
             wrapper
                 .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
                 .map((node) => node.text()),
-        ).toEqual(['10', '2026-08-21']);
+        ).toEqual(['2026-08-21']);
 
         await wrapper
             .get('[data-testid="analytics-dashboard-page-blocks-block-total_visits"]')
@@ -623,7 +623,7 @@ describe('AnalyticsDashboardPage', () => {
             wrapper
                 .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
                 .map((node) => node.text()),
-        ).toEqual(['100', '2026-08-19', '150', '2026-08-20']);
+        ).toEqual(['2026-08-19', '2026-08-20']);
     });
 
     it('refetches the non-default block on the tab round-trip instead of showing the default series', async () => {
@@ -654,7 +654,7 @@ describe('AnalyticsDashboardPage', () => {
             wrapper
                 .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
                 .map((node) => node.text()),
-        ).toEqual(['10', '2026-08-21']);
+        ).toEqual(['2026-08-21']);
 
         await wrapper
             .get('[data-testid="analytics-dashboard-page-blocks-block-total_visits"]')
@@ -667,7 +667,7 @@ describe('AnalyticsDashboardPage', () => {
             wrapper
                 .findAll('[data-testid="analytics-dashboard-page-chart-svg"] text')
                 .map((node) => node.text()),
-        ).toEqual(['100', '2026-08-19', '150', '2026-08-20']);
+        ).toEqual(['2026-08-19', '2026-08-20']);
     });
 
     it('re-seeds the default time-on-page rows when the default block is re-clicked after another ranking fetch', async () => {

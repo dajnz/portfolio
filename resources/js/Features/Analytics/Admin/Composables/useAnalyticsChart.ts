@@ -33,7 +33,10 @@ export interface HoveredMarker {
     x: number;
     y: number;
     value: number;
+    /** The prominent context — the series name (multi) or the date (single). */
     name: string;
+    /** An optional secondary line — the point's date (multi-series). */
+    label?: string;
 }
 
 // Plot geometry: viewBox 640×260, 20 px side padding, value labels in
@@ -53,6 +56,29 @@ export function seriesColor(index: number): string {
     return SERIES_COLORS[index % SERIES_COLORS.length];
 }
 
+// The most x-axis/value labels a 640-wide plot renders legibly (~60 px
+// per ISO date label). Denser windows thin to an even stride.
+const MAX_LABELS = 8;
+
+function visibleLabelIndices(count: number): Array<number> {
+    if (count <= MAX_LABELS) {
+        return Array.from({ length: count }, (_, index) => index);
+    }
+
+    const stride = Math.ceil((count - 1) / (MAX_LABELS - 1));
+    const indices: Array<number> = [];
+
+    for (let index = 0; index < count; index += stride) {
+        indices.push(index);
+    }
+
+    if (indices[indices.length - 1] !== count - 1) {
+        indices.push(count - 1);
+    }
+
+    return indices;
+}
+
 /**
  * The AnalyticsChart geometry: the pure coordinate math for the
  * single-series plot (bars/line) and the multi-series plot (the union
@@ -65,9 +91,12 @@ export function useAnalyticsChart(
     series: ComputedRef<Array<ChartSeries>>,
 ): {
     barWidth: ComputedRef<number>;
+    slotWidth: ComputedRef<number>;
     geometries: ComputedRef<Array<PointGeometry>>;
     linePoints: ComputedRef<string>;
     unionLabels: ComputedRef<Array<string>>;
+    labelIndices: ComputedRef<Array<number>>;
+    xLabelIndices: ComputedRef<Array<number>>;
     multiLineGeometries: ComputedRef<Array<Array<LinePointGeometry | null>>>;
     multiLinePoints: ComputedRef<Array<string>>;
     multiLinePointMarkers: ComputedRef<Array<Array<SeriesMarker>>>;
@@ -91,6 +120,11 @@ export function useAnalyticsChart(
         return Math.min(30, slot / count - 8);
     });
 
+    // The full x-slot of a point — the invisible hover hit area width.
+    const slotWidth = computed(
+        () => (VIEWBOX_WIDTH - PADDING_X * 2) / Math.max(1, data.value.length),
+    );
+
     const geometries = computed<Array<PointGeometry>>(() => {
         const points = data.value;
         const count = Math.max(1, points.length);
@@ -113,24 +147,21 @@ export function useAnalyticsChart(
         geometries.value.map((geometry) => `${geometry.x},${geometry.y}`).join(' '),
     );
 
-    // The union of every series' point labels, in first-seen order. The
-    // per-target CTA series are cumulative and start on different days,
-    // so plotting each series by its own index would time-distort them
-    // — every series plots against the same union slots instead.
+    // The union of every series' point labels, chronological. The
+    // labels are ISO dates (ADR-0017 series contract), so a lexical
+    // sort keeps the x-axis left-to-right. Building it in first-seen
+    // order instead would interleave the per-target series — each only
+    // carries the dates it has data for.
     const unionLabels = computed<Array<string>>(() => {
-        const labels: Array<string> = [];
-        const seen = new Set<string>();
+        const labels = new Set<string>();
 
         for (const entry of series.value) {
             for (const point of entry.points) {
-                if (!seen.has(point.label)) {
-                    seen.add(point.label);
-                    labels.push(point.label);
-                }
+                labels.add(point.label);
             }
         }
 
-        return labels;
+        return [...labels].sort();
     });
 
     // Each series maps its points onto the union slots; a series
@@ -195,11 +226,21 @@ export function useAnalyticsChart(
         return PADDING_X + multiSlot.value * index + multiSlot.value / 2;
     }
 
+    const labelIndices = computed<Array<number>>(() =>
+        visibleLabelIndices(geometries.value.length),
+    );
+    const xLabelIndices = computed<Array<number>>(() =>
+        visibleLabelIndices(unionLabels.value.length),
+    );
+
     return {
         barWidth,
+        slotWidth,
         geometries,
         linePoints,
         unionLabels,
+        labelIndices,
+        xLabelIndices,
         multiLineGeometries,
         multiLinePoints,
         multiLinePointMarkers,

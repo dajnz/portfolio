@@ -17,6 +17,7 @@ const props = defineProps<{
     markers: Array<Array<SeriesMarker>>;
     x_labels: Array<string>;
     x_positions: Array<number>;
+    x_label_indices: Array<number>;
     test_id?: string;
 }>();
 
@@ -33,6 +34,7 @@ function showPointTooltip(seriesIndex: number, pointIndex: number): void {
         y: marker.y,
         value: marker.value,
         name: props.series[seriesIndex].name,
+        label: marker.label,
     };
 }
 
@@ -96,6 +98,7 @@ watch(
     :key="index"
   >
     <text
+      v-if="props.x_label_indices.includes(index)"
       :x="props.x_positions[index]"
       :y="VIEWBOX_HEIGHT - 10"
       text-anchor="middle"
