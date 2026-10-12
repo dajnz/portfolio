@@ -10,10 +10,9 @@
  * editor transactions.
  */
 
+import { CALLOUT_TYPES, type CalloutType } from '@shared-admin-extensions/Callout';
 import type { Editor as CoreEditor } from '@tiptap/core';
 import { type ComputedRef, computed } from 'vue';
-
-import { CALLOUT_TYPES, type CalloutType } from '../../EditorExtensions/Callout';
 import type { EditorActiveState } from './useEditorInstance';
 import type { UseEditorPopupApi } from './useEditorPopup';
 

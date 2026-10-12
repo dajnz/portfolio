@@ -110,6 +110,9 @@
             "@shared-admin/*": [
                 "./resources/js/Features/Shared/Admin/Components/*"
             ],
+            "@shared-admin-extensions/*": [
+                "./resources/js/Features/Shared/Admin/EditorExtensions/*"
+            ],
             "@shared-cross/*": [
                 "./resources/js/Features/Shared/CrossSurface/*"
             ],

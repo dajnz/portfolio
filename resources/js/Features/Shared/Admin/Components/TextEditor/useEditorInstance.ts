@@ -10,6 +10,9 @@
  * modelValue source of truth while visible; switching back re-parses it into
  * the editor).
  */
+
+import { Callout, type CalloutType } from '@shared-admin-extensions/Callout';
+import { encodeSpacingEntities, HtmlEntity } from '@shared-admin-extensions/HtmlEntity';
 import type { Editor as CoreEditor } from '@tiptap/core';
 import { isNodeEmpty } from '@tiptap/core';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
@@ -32,8 +35,6 @@ import {
     shallowRef,
     watch,
 } from 'vue';
-
-import { Callout, type CalloutType } from '../../EditorExtensions/Callout';
 
 /** The toolbar's active-state snapshot — the reactive object the
  *  toolbar binds for its pressed states. */
@@ -183,6 +184,7 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
                           },
                       }),
                       Callout,
+                      HtmlEntity,
                       SubscriptWithMarkdown,
                       SuperscriptWithMarkdown,
                       TextStyle,
@@ -209,7 +211,7 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
                       // clobber the form's content on submit (isSaving
                       // disables the editor).
                       if (!state.isRawMode) {
-                          options.onUpdate(instance.getMarkdown());
+                          options.onUpdate(encodeSpacingEntities(instance.getMarkdown()));
                       }
                       refreshState(instance);
                   },
@@ -248,7 +250,7 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
             return;
         }
 
-        if (editor.value !== null && editor.value.getMarkdown() !== value) {
+        if (editor.value !== null && encodeSpacingEntities(editor.value.getMarkdown()) !== value) {
             setContent(value);
         }
     });
@@ -272,7 +274,7 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
             return;
         }
 
-        rawValue.value = editor.value?.getMarkdown() ?? options.content();
+        rawValue.value = encodeSpacingEntities(editor.value?.getMarkdown() ?? options.content());
         state.isRawMode = true;
     }
 
