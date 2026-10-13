@@ -110,7 +110,7 @@ function onPublishedChange(value: string | string[]): void {
         </AdminBaseButton>
       </div>
       <div
-        class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2"
+        class="flex flex-wrap items-center justify-between gap-3"
         :data-testid="`${props.test_id}-filters-row-2`"
       >
         <AdminTechSkillPicker
