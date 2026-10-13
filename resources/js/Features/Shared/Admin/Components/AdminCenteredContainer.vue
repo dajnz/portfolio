@@ -29,7 +29,7 @@ const SIZE_MAX_WIDTHS: Record<ContainerSize, string> = {
 
 const containerClass = computed(() => [
     props.centered ? `mx-auto ${SIZE_MAX_WIDTHS[props.size]}` : '',
-    props.padding ? 'px-4 sm:px-6' : 'px-0',
+    props.padding ? 'px-4 sm:px-6 lg:px-8' : 'px-0',
 ]);
 </script>
 
