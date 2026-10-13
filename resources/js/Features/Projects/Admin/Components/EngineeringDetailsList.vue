@@ -201,7 +201,7 @@ function compactTitle(row: EngineeringDetailRow): string {
             @click="expand((item as unknown as EngineeringDetailRow).uid)"
           >
             <span
-              class="engineering-detail-handle cursor-grab text-sm text-slate-300 dark:text-slate-600"
+              class="engineering-detail-handle hidden cursor-grab text-sm text-slate-300 sm:block dark:text-slate-600"
               aria-hidden="true"
               @click.stop
             >
@@ -276,7 +276,7 @@ function compactTitle(row: EngineeringDetailRow): string {
               @click="onHeaderClick((item as unknown as EngineeringDetailRow).uid)"
             >
               <span
-                class="engineering-detail-handle cursor-grab text-sm text-slate-300 dark:text-slate-600"
+                class="engineering-detail-handle hidden cursor-grab text-sm text-slate-300 sm:block dark:text-slate-600"
                 aria-hidden="true"
                 @click.stop
               >

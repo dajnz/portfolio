@@ -330,7 +330,7 @@ function onScreenshotHeaderClick(uid: string): void {
                 @click="expandScreenshot((item as unknown as ScreenshotRow).uid)"
               >
                 <span
-                  class="screenshot-handle cursor-grab text-sm text-slate-300 dark:text-slate-600"
+                  class="screenshot-handle hidden cursor-grab text-sm text-slate-300 sm:block dark:text-slate-600"
                   aria-hidden="true"
                   @click.stop
                 >
@@ -423,7 +423,7 @@ function onScreenshotHeaderClick(uid: string): void {
                   @click="onScreenshotHeaderClick((item as unknown as ScreenshotRow).uid)"
                 >
                   <span
-                    class="screenshot-handle cursor-grab text-sm text-slate-300 dark:text-slate-600"
+                    class="screenshot-handle hidden cursor-grab text-sm text-slate-300 sm:block dark:text-slate-600"
                     aria-hidden="true"
                     @click.stop
                   >
