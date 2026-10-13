@@ -30,6 +30,19 @@ describe('BulkActionBar', () => {
         expect(mountBar({ selected_count: 3 }).text()).toContain('3 items selected');
     });
 
+    it('hides the count from view on small screens and scrolls the controls', () => {
+        const wrapper = mountBar();
+
+        const label = wrapper.get('[data-testid="bulk-action-bar"] > span');
+        const controls = wrapper.get('[data-testid="bulk-action-bar"] > div');
+
+        expect(label.classes()).toContain('sr-only');
+        expect(label.classes()).toContain('sm:not-sr-only');
+        expect(controls.classes()).toContain('min-w-0');
+        expect(controls.classes()).toContain('overflow-x-auto');
+        expect(controls.classes()).toContain('sm:overflow-visible');
+    });
+
     it('renders the action buttons with their labels', () => {
         const wrapper = mountBar();
 
