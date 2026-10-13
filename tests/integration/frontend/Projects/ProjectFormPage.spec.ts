@@ -455,6 +455,15 @@ describe('ProjectFormPage', () => {
         ).toBe('Listing');
     });
 
+    it('hides the screenshot drag knob below sm (mobile uses the move buttons)', () => {
+        const wrapper = mountForm();
+
+        const knob = wrapper.get('.screenshot-handle');
+
+        expect(knob.classes()).toContain('hidden');
+        expect(knob.classes()).toContain('sm:block');
+    });
+
     it('expands a collapsed screenshot on click', async () => {
         const wrapper = mountForm();
 
@@ -598,6 +607,15 @@ describe('ProjectFormPage', () => {
         expect(
             wrapper.get('[data-testid="project-form-page-engineering-details-item-0-compact-title"]').text(),
         ).toBe('Horizontal scaling');
+    });
+
+    it('hides the engineering detail drag knob below sm (mobile uses the move buttons)', () => {
+        const wrapper = mountForm();
+
+        const knob = wrapper.get('.engineering-detail-handle');
+
+        expect(knob.classes()).toContain('hidden');
+        expect(knob.classes()).toContain('sm:block');
     });
 
     it('expands a collapsed engineering detail on click', async () => {

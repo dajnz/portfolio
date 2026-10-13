@@ -277,7 +277,7 @@ function rowLabel(id: ResumeSectionKey): string {
       @dragend="onDragEnd"
     >
       <span
-        class="cursor-grab text-sm text-slate-300 dark:text-slate-600"
+        class="hidden cursor-grab text-sm text-slate-300 sm:block dark:text-slate-600"
         aria-hidden="true"
       >⠿</span>
       <AdminBaseCheckbox

@@ -77,6 +77,15 @@ describe('ResumeSectionEditor', () => {
         );
     });
 
+    it('hides the drag knob below sm (mobile uses the move buttons)', () => {
+        const wrapper = mountEditor();
+
+        const knob = wrapper.get('[data-testid="section-editor-row-header"] .cursor-grab');
+
+        expect(knob.classes()).toContain('hidden');
+        expect(knob.classes()).toContain('sm:block');
+    });
+
     it('disables Up on the first visible section and Down on the last visible one', () => {
         const wrapper = mountEditor();
 
