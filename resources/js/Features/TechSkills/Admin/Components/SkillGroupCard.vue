@@ -105,24 +105,24 @@ function nameError(): string | null {
     :data-testid="`${props.test_id}-group-${props.group.id}`"
   >
     <header
-      class="flex items-center gap-3 border-b border-slate-100 px-4 py-3 transition-colors dark:border-slate-700"
+      class="flex gap-3 rounded-t-lg border-b border-slate-100 px-4 py-3 transition-colors dark:border-slate-700"
       :class="
         props.editing
-          ? 'bg-slate-100/80 dark:bg-slate-800/60'
-          : 'cursor-pointer bg-slate-100/70 hover:bg-slate-200/70 dark:bg-slate-800/50 dark:hover:bg-slate-800/70'
+          ? 'items-start bg-slate-100/80 sm:items-center dark:bg-slate-800/60'
+          : 'items-center cursor-pointer bg-slate-100/70 hover:bg-slate-200/70 dark:bg-slate-800/50 dark:hover:bg-slate-800/70'
       "
       :data-testid="`${props.test_id}-group-${props.group.id}-header`"
       @click="onHeaderClick"
     >
       <span
-        class="group-card-handle flex shrink-0 cursor-grab select-none justify-center text-sm text-slate-300 dark:text-slate-600"
+        class="group-card-handle hidden shrink-0 cursor-grab select-none justify-center text-sm text-slate-300 sm:flex dark:text-slate-600"
         aria-hidden="true"
         @click.stop
       >⠿</span>
 
       <template v-if="props.editing">
         <div
-          class="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-4"
+          class="grid w-full grid-cols-1 items-start gap-4 sm:grid-cols-[auto_minmax(0,1fr)_auto]"
         >
           <!-- Column 1: icon selector (label + control + empty cell —
                grid rows keep all three columns aligned). -->
@@ -144,7 +144,7 @@ function nameError(): string | null {
                   })
               "
             />
-            <div class="h-9" />
+            <div class="hidden h-9 sm:block" />
           </div>
 
           <!-- Column 2: per-locale name (label + input + tabs below). -->
@@ -173,7 +173,7 @@ function nameError(): string | null {
           <!-- Column 3: Save/Cancel (icon-only — the user-facing look is
                the same width; empty label cell keeps the rows aligned). -->
           <div class="flex flex-col gap-1.5">
-            <div class="h-5" />
+            <div class="hidden h-5 sm:block" />
             <div class="flex items-center gap-2">
               <AdminBaseButton
                 type="button"
@@ -194,7 +194,7 @@ function nameError(): string | null {
                 @click.stop="emit('cancel-group', props.group.id)"
               />
             </div>
-            <div class="h-9" />
+            <div class="hidden h-9 sm:block" />
           </div>
         </div>
       </template>
@@ -248,7 +248,7 @@ function nameError(): string | null {
     <slot />
 
     <footer
-      class="border-t border-slate-100 bg-slate-100/70 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/50"
+      class="rounded-b-lg border-t border-slate-100 bg-slate-100/70 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/50"
     >
       <AdminBaseButton
         variant="secondary"
