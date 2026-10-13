@@ -110,6 +110,7 @@ const skeletonCards = [0, 1, 2];
 <style scoped>
 .featured-projects {
     background: var(--color-bg-projects-block);
+
     /* Halved top padding — keeps the section heading from floating
    4rem below the previous block. */
     padding: var(--space-xl) 0 var(--space-3xl);
