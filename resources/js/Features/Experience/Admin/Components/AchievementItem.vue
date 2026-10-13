@@ -43,17 +43,50 @@ function onDescriptionInput(value: string): void {
 
 <template>
   <div
-    class="flex items-start gap-3 rounded-lg border border-slate-200 p-3 dark:border-slate-700"
+    class="rounded-lg border border-slate-200 p-3 dark:border-slate-700"
     :class="{ 'border-danger-300 dark:border-danger-700': props.error !== null }"
     :data-component="'achievement-item'"
     :data-testid="props.test_id"
   >
-    <span
-      class="achievement-handle mt-2 cursor-grab select-none text-sm text-slate-300 dark:text-slate-600"
-      aria-hidden="true"
-      :data-testid="`${props.test_id}-handle`"
-    >⠿</span>
-    <div class="flex-1 space-y-3">
+    <div class="mb-3 flex items-center gap-3">
+      <span
+        class="achievement-handle hidden cursor-grab select-none text-sm text-slate-300 sm:inline dark:text-slate-600"
+        aria-hidden="true"
+        :data-testid="`${props.test_id}-handle`"
+      >⠿</span>
+      <div class="ml-auto flex w-full items-center justify-between gap-1 sm:w-auto sm:justify-end">
+        <div class="flex items-center gap-1">
+          <AdminBaseButton
+            type="button"
+            variant="icon-only"
+            icon="heroicons:chevron-up"
+            :aria-label="t('common.move_item_up', { item_name: t('admin.experience.achievements') })"
+            :disabled="props.disabled || props.can_move_up === false"
+            :test_id="`${props.test_id}-move-up`"
+            @click="emit('move-up')"
+          />
+          <AdminBaseButton
+            type="button"
+            variant="icon-only"
+            icon="heroicons:chevron-down"
+            :aria-label="t('common.move_item_down', { item_name: t('admin.experience.achievements') })"
+            :disabled="props.disabled || props.can_move_down === false"
+            :test_id="`${props.test_id}-move-down`"
+            @click="emit('move-down')"
+          />
+        </div>
+        <AdminBaseButton
+          type="button"
+          variant="icon-only"
+          icon="heroicons:x-mark"
+          :aria-label="t('common.remove')"
+          :disabled="props.disabled"
+          :test_id="`${props.test_id}-remove`"
+          @click="emit('remove')"
+        />
+      </div>
+    </div>
+    <div class="space-y-3">
       <AdminBaseTextarea
         :model-value="props.modelValue.description[props.locale] ?? ''"
         :label="t('admin.experience.description')"
@@ -72,35 +105,6 @@ function onDescriptionInput(value: string): void {
         :maxlength="500"
         :test_id="`${props.test_id}-project-link`"
         @update:model-value="(value) => emit('update:projectLink', value)"
-      />
-    </div>
-    <div class="flex shrink-0 flex-col items-center gap-1">
-      <AdminBaseButton
-        type="button"
-        variant="icon-only"
-        icon="heroicons:chevron-up"
-        :aria-label="t('common.move_item_up', { item_name: t('admin.experience.achievements') })"
-        :disabled="props.disabled || props.can_move_up === false"
-        :test_id="`${props.test_id}-move-up`"
-        @click="emit('move-up')"
-      />
-      <AdminBaseButton
-        type="button"
-        variant="icon-only"
-        icon="heroicons:chevron-down"
-        :aria-label="t('common.move_item_down', { item_name: t('admin.experience.achievements') })"
-        :disabled="props.disabled || props.can_move_down === false"
-        :test_id="`${props.test_id}-move-down`"
-        @click="emit('move-down')"
-      />
-      <AdminBaseButton
-        type="button"
-        variant="icon-only"
-        icon="heroicons:x-mark"
-        :aria-label="t('common.remove')"
-        :disabled="props.disabled"
-        :test_id="`${props.test_id}-remove`"
-        @click="emit('remove')"
       />
     </div>
   </div>
