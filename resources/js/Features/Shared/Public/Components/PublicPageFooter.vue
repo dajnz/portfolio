@@ -88,6 +88,7 @@ function copyrightText(): string {
     border-top: 1px solid var(--color-border);
     font-size: var(--font-size-sm);
     color: var(--color-text-tertiary);
+    background-color: var(--color-bg-footer);
 }
 
 /*

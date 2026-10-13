@@ -150,7 +150,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .contacts-block {
-    background: var(--color-bg-secondary);
+    background: var(--color-bg-contacts-block);
 
     /* Halved top padding — keeps the section heading from floating
    4rem below the previous block. */

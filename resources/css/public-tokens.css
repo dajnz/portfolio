@@ -136,11 +136,16 @@ pre code {
     /* --- Colors — Backgrounds ---
        Soft mist-paper ground: cool, quiet, lets the Moss/Plum/Gold accents
        lead without competing warmth. */
-    --color-bg-primary:        oklch(0.98 0.01 0.06);
-    --color-bg-secondary:      oklch(0.94 0.01 0.11);
-    --color-bg-tertiary:       oklch(0.91 0.01 16.08);
+    --color-bg-primary:        oklch(0.98 0.01 260.46);
+    --color-bg-secondary:      oklch(0.96 0.02 248.01);
+    --color-bg-tertiary:       oklch(0.9 0.06 247.97);
     --color-surface:           oklch(1 0 0);
     --color-surface-secondary: oklch(0.98 0 0);
+    --color-bg-skills-block:   oklch(0.98 0.01 267.67);
+    --color-bg-projects-block: oklch(0.94 0.02 252.28);
+    --color-bg-contacts-block: oklch(0.96 0.01 279.7);
+    --color-bg-footer:         #fff;
+    --color-bg-inactive:       oklch(0.94 0.01 0);
 
     /* --- Colors — Text --- */
     --color-text-primary:    oklch(0.24 0.02 89.88);
@@ -170,7 +175,7 @@ pre code {
     --color-accent-3-muted:  oklch(0.85 0.02 45.37);
 
     /* --- Colors — Borders --- */
-    --color-border:         oklch(0.86 0.02 17.5);
+    --color-border:         oklch(0.79 0.04 256.28);
     --color-border-light:   #E6EBE1;
     --color-border-strong:  #B9C6B2;
 
@@ -214,7 +219,7 @@ pre code {
        bars/panels read as a distinct shade even over flat (non-hero)
        content. The border is a dark-ink hairline — a white hairline is
        invisible on the near-white page. Dark theme keeps its own values. */
-    --glass-bg:      color-mix(in oklab, var(--color-bg-secondary) 85%, transparent);
+    --glass-bg:      color-mix(in oklab, var(--color-surface) 85%, transparent);
     --glass-bg-hover: rgb(239 239 244 / 84%);
     --glass-border:  rgba(22, 33, 27, 0.10);
     --glass-blur:    16px;
@@ -329,6 +334,11 @@ pre code {
     --color-bg-tertiary:       oklch(0.26 0.01 16.31);
     --color-surface:           oklch(0.22 0.01 16.75);
     --color-surface-secondary: oklch(0.21 0.01 15.0);
+    --color-bg-skills-block:   var(--color-bg-secondary);
+    --color-bg-projects-block: transparent;
+    --color-bg-contacts-block: var(--color-bg-secondary);
+    --color-bg-footer:         transparent;
+    --color-bg-inactive:       var(--color-bg-tertiary);
 
     /* --- Colors — Text --- */
     --color-text-primary:    oklch(0.96 0.01 0);
@@ -415,6 +425,12 @@ pre code {
         filter: grayscale(1) blur(1.5px);
     }
 
+    .gradient-hero__yellow-blue::before,
+    .gradient-hero__yellow-blue::after,
+    .gradient-hero__red::before {
+        opacity: 1;
+    }
+
 
     /* --- Skeleton --- */
     --skeleton-base:    oklch(0.27 0.02 16.79);
@@ -446,6 +462,7 @@ pre code {
     inset: 0;
     content: "";
     position: absolute;
+    opacity: 0.6;
 }
 .gradient-hero__yellow-blue::before {
     background:
