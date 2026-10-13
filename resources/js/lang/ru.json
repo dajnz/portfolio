@@ -536,6 +536,7 @@
             "proficiency_value": "Уровень: {value} из {max}",
             "resume": "В резюме",
             "search_placeholder": "Поиск навыков...",
+            "skill_name_placeholder": "Название навыка",
             "title": "Навыки"
         },
         "statuses": {

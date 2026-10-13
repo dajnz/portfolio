@@ -134,6 +134,19 @@ describe('SkillsListPage', () => {
         expect(wrapper.find('[data-testid="skills-list-page-new-group"]').exists()).toBe(true);
     });
 
+    it('renders the new-group editor after the groups list (appended, not prepended)', async () => {
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="skills-list-page-add-group"]').trigger('click');
+
+        const list = wrapper.get('[data-testid="skills-list-page-groups-sortable"]');
+        const editor = wrapper.get('[data-testid="skills-list-page-new-group"]');
+        expect(
+            list.element.compareDocumentPosition(editor.element) &
+                Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
+    });
+
     it('creates a group with the per-locale names map (POST /admin/skill-groups)', async () => {
         const wrapper = mountPage();
 
@@ -291,6 +304,51 @@ describe('SkillsListPage', () => {
                 include_in_resume: true,
                 sort_order: 2,
             }),
+            expect.any(Object),
+        );
+    });
+
+    it('appends a new skill after the group maximum sort_order, not the row count', async () => {
+        // `sort_order` is a single global sequence (dragging flattens every
+        // group), so a group's rows may carry non-zero-based values — the new
+        // skill must still land after its group's maximum.
+        const wrapper = mountPage({
+            skillGroups: [
+                {
+                    id: 1,
+                    name: 'Backend',
+                    names: { en: 'Backend', ru: 'Бэкенд' },
+                    icon: null,
+                    sort_order: 0,
+                    skills: [
+                        {
+                            id: 1,
+                            name: 'PHP',
+                            icon: null,
+                            proficiency: 3,
+                            sort_order: 5,
+                            include_in_resume: false,
+                        },
+                        {
+                            id: 2,
+                            name: 'Laravel',
+                            icon: null,
+                            proficiency: 3,
+                            sort_order: 6,
+                            include_in_resume: false,
+                        },
+                    ],
+                },
+            ],
+        });
+
+        await wrapper.get('[data-testid="skills-list-page-group-1-add-skill"]').trigger('click');
+        await wrapper.get('[data-testid="skills-list-page-new-skill-1-name"]').setValue('Redis');
+        await wrapper.get('[data-testid="skills-list-page-new-skill-1-save"]').trigger('click');
+
+        expect(postMock).toHaveBeenCalledWith(
+            '/admin/skills',
+            expect.objectContaining({ name: 'Redis', sort_order: 7 }),
             expect.any(Object),
         );
     });
