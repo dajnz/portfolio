@@ -268,7 +268,7 @@ function onBlur(): void {
       >
       <span
         v-if="state === 'portfolio_project'"
-        class="absolute right-3 top-2.5 inline-flex items-center gap-1 rounded-full bg-primary-50 px-2 py-0.5 text-2xs font-semibold text-primary-700 dark:bg-primary-950 dark:text-primary-300"
+        class="absolute right-3 top-2.5 hidden sm:inline-flex items-center gap-1 rounded-full bg-primary-50 px-2 py-0.5 text-2xs font-semibold text-primary-700 dark:bg-primary-950 dark:text-primary-300"
         :data-testid="`${props.test_id}-portfolio-badge`"
       >
         {{ t('admin.experience.portfolio_project') }}

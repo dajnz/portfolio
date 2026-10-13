@@ -388,7 +388,7 @@ function save(): void {
           @update:model-value="setLocaleValue(activeLocale, form.short_description, $event)"
         />
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <AdminDatePicker
             :model-value="form.started_at"
             :label="t('admin.experience.started_at')"
