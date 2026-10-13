@@ -47,8 +47,8 @@ const props = withDefaults(
 
 .image-placeholder--patterned {
     background:
-        linear-gradient(135deg, var(--color-bg-tertiary) 25%, transparent 25%) 0 0 / 16px 16px,
-        var(--color-bg-secondary);
+        linear-gradient(135deg, var(--color-image-placeholder-fg) 25%, transparent 25%) 0 0 / 16px 16px,
+        var(--color-image-placeholder-bg);
     border: 1px dashed var(--color-border-strong);
 }
 
