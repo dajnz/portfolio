@@ -48,6 +48,16 @@ export function useSkillItems(groups: Ref<SkillGroupData[]>, persistSkillOrder: 
         return { name: '', icon: null, proficiency: 3, includeInResume: false };
     }
 
+    // The new skill must land at the BOTTOM of its group. `sort_order` is a
+    // single global sequence (the drag reorder flattens every group's rows),
+    // so the per-group row count is NOT the next slot — the group's current
+    // maximum + 1 is.
+    function nextSkillSortOrder(groupId: number): number {
+        const skills = groups.value.find((group) => group.id === groupId)?.skills ?? [];
+
+        return skills.reduce((max, skill) => Math.max(max, skill.sort_order), -1) + 1;
+    }
+
     function startAddSkill(groupId: number): void {
         Object.assign(newSkillDraft, emptyNewSkill());
         skillErrors.value = {};
@@ -112,7 +122,7 @@ export function useSkillItems(groups: Ref<SkillGroupData[]>, persistSkillOrder: 
                 proficiency: newSkillDraft.proficiency,
                 skill_group_id: groupId,
                 include_in_resume: newSkillDraft.includeInResume,
-                sort_order: groups.value.find((group) => group.id === groupId)?.skills.length ?? 0,
+                sort_order: nextSkillSortOrder(groupId),
             },
             {
                 preserveScroll: true,

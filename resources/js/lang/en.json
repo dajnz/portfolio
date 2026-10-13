@@ -536,6 +536,7 @@
             "proficiency_value": "Proficiency: {value} of {max}",
             "resume": "Resume",
             "search_placeholder": "Search skills...",
+            "skill_name_placeholder": "Skill name",
             "title": "Skills"
         },
         "statuses": {

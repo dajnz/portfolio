@@ -18,7 +18,7 @@ import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
 import type { SkillGroupData } from '@techskills-admin/SkillGroupCard.vue';
 import SkillGroupCard from '@techskills-admin/SkillGroupCard.vue';
 import SkillItem, { type SkillRow } from '@techskills-admin/SkillItem.vue';
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import deviconJson from '@/iconSubsets/devicon.json';
 
 import { useEditorExits } from './useEditorExits';
@@ -131,6 +131,30 @@ watch(
         }
     },
 );
+
+// The transient editors render below their list/group, so on a long page
+// they can open off-screen — scroll them into view when they open.
+const newGroupEditorEl = ref<HTMLElement | null>(null);
+
+watch(editingGroupId, async (value) => {
+    if (value !== 'new') {
+        return;
+    }
+
+    await nextTick();
+    newGroupEditorEl.value?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
+
+watch(editingSkill, async (value) => {
+    if (value?.skillId !== 'new') {
+        return;
+    }
+
+    await nextTick();
+    document
+        .querySelector<HTMLElement>(`[data-testid="${props.test_id}-new-skill-${value.groupId}"]`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+});
 </script>
 
 <template>
@@ -162,76 +186,6 @@ watch(
           {{ t('admin.skills.add_group') }}
         </AdminBaseButton>
       </AdminStickyActionBar>
-
-      <!-- Inline new-group editor (opened by "Create Group"); same 3×3 grid
-           as the group edit header. -->
-      <div
-        v-if="editingGroupId === 'new'"
-        class="mb-3 rounded-lg border border-slate-200 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"
-        :data-testid="`${props.test_id}-new-group`"
-      >
-        <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-4">
-          <div class="flex flex-col gap-1.5">
-            <label class="h-5 text-xs font-semibold text-slate-500 dark:text-slate-400">
-              {{ t('admin.skills.icon') }}
-            </label>
-            <AdminIconPicker
-              v-model="groupDraft.icon"
-              icon_set="technical"
-              :placeholder="t('admin.icon_picker.select_placeholder')"
-              :test_id="`${props.test_id}-new-group-icon`"
-            />
-            <div class="h-9" />
-          </div>
-          <div class="flex flex-col gap-1.5">
-            <label class="h-5 text-xs font-semibold text-slate-500 dark:text-slate-400">
-              {{ t('admin.skills.group_name') }}
-            </label>
-            <AdminBaseInput
-              :model-value="groupDraft.names[editingGroupLocale] ?? ''"
-              :error="groupNameError()"
-              :disabled="savingGroup"
-              :maxlength="100"
-              :test_id="`${props.test_id}-new-group-name-${editingGroupLocale}`"
-              @update:model-value="
-                (value) => (groupDraft.names[editingGroupLocale] = value)
-              "
-              @keydown.enter="saveNewGroup"
-              @keydown.escape="cancelGroupEdit"
-            />
-            <LocaleTabs
-              v-model="editingGroupLocale"
-              :locales="locales"
-              :warned_locales="warnedGroupLocales"
-              :test_id="`${props.test_id}-new-group-tabs`"
-            />
-          </div>
-          <div class="flex flex-col gap-1.5">
-            <div class="h-5" />
-            <div class="flex items-center gap-2">
-              <AdminBaseButton
-                type="button"
-                variant="icon-only"
-                icon="heroicons:check"
-                :aria-label="t('common.save')"
-                :disabled="savingGroup"
-                :test_id="`${props.test_id}-new-group-save`"
-                @click="saveNewGroup"
-              />
-              <AdminBaseButton
-                type="button"
-                variant="icon-only"
-                icon="heroicons:x-mark"
-                :aria-label="t('common.cancel')"
-                :disabled="savingGroup"
-                :test_id="`${props.test_id}-new-group-cancel`"
-                @click="cancelGroupEdit"
-              />
-            </div>
-            <div class="h-9" />
-          </div>
-        </div>
-      </div>
 
       <template v-if="groups.length > 0 || editingGroupId === 'new'">
         <SortableList
@@ -370,74 +324,150 @@ watch(
                    buttons. -->
               <div
                 v-if="isNewSkillEditorOpen((item as SkillGroupData).id)"
-                class="flex items-center gap-2.5 border-t border-slate-100 bg-slate-50/60 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/30"
+                class="flex items-start gap-2.5 border-t border-slate-100 bg-slate-50/60 px-4 py-3 sm:items-center dark:border-slate-700 dark:bg-slate-800/30"
                 :data-testid="`${props.test_id}-new-skill-${(item as SkillGroupData).id}`"
               >
                 <span
-                  class="flex w-14 shrink-0 cursor-grab select-none justify-center text-sm text-slate-300 dark:text-slate-600"
+                  class="hidden shrink-0 cursor-grab select-none justify-center text-sm text-slate-300 sm:flex sm:w-14 dark:text-slate-600"
                   aria-hidden="true"
                 >⠿</span>
-                <span class="w-28 shrink-0">
-                  <AdminIconPicker
-                    :model-value="newSkillDraft.icon"
-                    icon_set="brands"
-                    :placeholder="t('admin.icon_picker.select_placeholder')"
-                    :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-icon`"
-                    @update:model-value="(value) => (newSkillDraft.icon = value)"
-                  />
-                </span>
-                <AdminBaseInput
-                  :model-value="newSkillDraft.name"
-                  :error="skillErrors.name ?? null"
-                  :disabled="savingSkill"
-                  :maxlength="100"
-                  class="min-w-64 flex-1"
-                  :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-name`"
-                  @update:model-value="(value) => (newSkillDraft.name = value)"
-                  @keydown.enter="saveNewSkill((item as SkillGroupData).id)"
-                  @keydown.escape="cancelSkillEdit((item as SkillGroupData).id, 'new')"
-                />
-                <span class="w-28 shrink-0">
-                  <AdminBaseDropdown
-                    :model-value="String(newSkillDraft.proficiency)"
-                    :options="proficiencyOptions"
-                    :aria-label="t('admin.skills.proficiency')"
-                    :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-proficiency`"
-                    @update:model-value="(value) => (newSkillDraft.proficiency = Number(value))"
-                  />
-                </span>
-                <span class="mx-6 flex shrink-0 items-center">
-                  <AdminBaseCheckbox
-                    :model-value="newSkillDraft.includeInResume"
-                    :label="t('admin.skills.resume')"
-                    :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-resume`"
-                    @update:model-value="(value) => (newSkillDraft.includeInResume = Boolean(value))"
-                  />
-                </span>
-                <span class="mx-6 flex shrink-0 items-center gap-2.5">
-                  <AdminBaseButton
-                    type="button"
-                    variant="icon-only"
-                    icon="heroicons:check"
-                    :aria-label="t('common.save')"
+
+                <div class="flex min-w-0 flex-1 flex-col gap-2.5 sm:flex-row sm:items-center">
+                  <span class="w-full shrink-0 sm:w-28">
+                    <AdminIconPicker
+                      :model-value="newSkillDraft.icon"
+                      icon_set="brands"
+                      :placeholder="t('admin.icon_picker.select_placeholder')"
+                      :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-icon`"
+                      @update:model-value="(value) => (newSkillDraft.icon = value)"
+                    />
+                  </span>
+                  <AdminBaseInput
+                    :model-value="newSkillDraft.name"
+                    :error="skillErrors.name ?? null"
                     :disabled="savingSkill"
-                    :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-save`"
-                    @click="saveNewSkill((item as SkillGroupData).id)"
+                    :maxlength="100"
+                    :placeholder="t('admin.skills.skill_name_placeholder')"
+                    class="min-w-0 flex-1 sm:min-w-64"
+                    :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-name`"
+                    @update:model-value="(value) => (newSkillDraft.name = value)"
+                    @keydown.enter="saveNewSkill((item as SkillGroupData).id)"
+                    @keydown.escape="cancelSkillEdit((item as SkillGroupData).id, 'new')"
                   />
-                  <AdminBaseButton
-                    type="button"
-                    variant="icon-only"
-                    icon="heroicons:x-mark"
-                    :aria-label="t('common.cancel')"
-                    :disabled="savingSkill"
-                    :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-cancel`"
-                    @click="cancelSkillEdit((item as SkillGroupData).id, 'new')"
-                  />
-                </span>
+                  <span class="w-full shrink-0 sm:w-28">
+                    <AdminBaseDropdown
+                      :model-value="String(newSkillDraft.proficiency)"
+                      :options="proficiencyOptions"
+                      :aria-label="t('admin.skills.proficiency')"
+                      :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-proficiency`"
+                      @update:model-value="(value) => (newSkillDraft.proficiency = Number(value))"
+                    />
+                  </span>
+                  <span class="mx-0 flex shrink-0 items-center sm:mx-6">
+                    <AdminBaseCheckbox
+                      :model-value="newSkillDraft.includeInResume"
+                      :label="t('admin.skills.resume')"
+                      :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-resume`"
+                      @update:model-value="(value) => (newSkillDraft.includeInResume = Boolean(value))"
+                    />
+                  </span>
+                  <span class="mx-0 flex shrink-0 items-center gap-2.5 sm:mx-6">
+                    <AdminBaseButton
+                      type="button"
+                      variant="icon-only"
+                      icon="heroicons:check"
+                      :aria-label="t('common.save')"
+                      :disabled="savingSkill"
+                      :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-save`"
+                      @click="saveNewSkill((item as SkillGroupData).id)"
+                    />
+                    <AdminBaseButton
+                      type="button"
+                      variant="icon-only"
+                      icon="heroicons:x-mark"
+                      :aria-label="t('common.cancel')"
+                      :disabled="savingSkill"
+                      :test_id="`${props.test_id}-new-skill-${(item as SkillGroupData).id}-cancel`"
+                      @click="cancelSkillEdit((item as SkillGroupData).id, 'new')"
+                    />
+                  </span>
+                </div>
               </div>
             </SkillGroupCard>
           </template>
         </SortableList>
+
+        <!-- Inline new-group editor (opened by "Create Group") — rendered
+             AFTER the list so the pending group sits where the saved one
+             lands (appended at the bottom). -->
+        <div
+          v-if="editingGroupId === 'new'"
+          ref="newGroupEditorEl"
+          class="mt-4 rounded-lg border border-slate-200 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"
+          :data-testid="`${props.test_id}-new-group`"
+        >
+          <div class="grid grid-cols-1 items-start gap-4 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
+            <div class="flex flex-col gap-1.5">
+              <label class="h-5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                {{ t('admin.skills.icon') }}
+              </label>
+              <AdminIconPicker
+                v-model="groupDraft.icon"
+                icon_set="technical"
+                :placeholder="t('admin.icon_picker.select_placeholder')"
+                :test_id="`${props.test_id}-new-group-icon`"
+              />
+              <div class="hidden h-9 sm:block" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="h-5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                {{ t('admin.skills.group_name') }}
+              </label>
+              <AdminBaseInput
+                :model-value="groupDraft.names[editingGroupLocale] ?? ''"
+                :error="groupNameError()"
+                :disabled="savingGroup"
+                :maxlength="100"
+                :test_id="`${props.test_id}-new-group-name-${editingGroupLocale}`"
+                @update:model-value="
+                  (value) => (groupDraft.names[editingGroupLocale] = value)
+                "
+                @keydown.enter="saveNewGroup"
+                @keydown.escape="cancelGroupEdit"
+              />
+              <LocaleTabs
+                v-model="editingGroupLocale"
+                :locales="locales"
+                :warned_locales="warnedGroupLocales"
+                :test_id="`${props.test_id}-new-group-tabs`"
+              />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <div class="hidden h-5 sm:block" />
+              <div class="flex items-center gap-2">
+                <AdminBaseButton
+                  type="button"
+                  variant="icon-only"
+                  icon="heroicons:check"
+                  :aria-label="t('common.save')"
+                  :disabled="savingGroup"
+                  :test_id="`${props.test_id}-new-group-save`"
+                  @click="saveNewGroup"
+                />
+                <AdminBaseButton
+                  type="button"
+                  variant="icon-only"
+                  icon="heroicons:x-mark"
+                  :aria-label="t('common.cancel')"
+                  :disabled="savingGroup"
+                  :test_id="`${props.test_id}-new-group-cancel`"
+                  @click="cancelGroupEdit"
+                />
+              </div>
+              <div class="hidden h-9 sm:block" />
+            </div>
+          </div>
+        </div>
       </template>
 
       <AdminEmptyState

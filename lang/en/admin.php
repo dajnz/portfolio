@@ -147,6 +147,7 @@ return [
     'skills' => [
         'title' => 'Skills',
         'group_name' => 'Group Name',
+        'skill_name_placeholder' => 'Skill name',
         'icon' => 'Icon',
         'add_group' => 'Create Group',
         'add_skill' => 'Add Skill',

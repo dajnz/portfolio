@@ -142,6 +142,7 @@ return [
     'skills' => [
         'title' => 'Навыки',
         'group_name' => 'Название группы',
+        'skill_name_placeholder' => 'Название навыка',
         'icon' => 'Иконка',
         'add_group' => 'Создать группу',
         'add_skill' => 'Добавить навык',

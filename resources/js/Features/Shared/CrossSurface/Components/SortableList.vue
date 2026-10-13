@@ -580,7 +580,7 @@ const containerAxisClass = computed(() =>
 
 .sortable-list__item {
     transition: transform var(--transition-fast) var(--ease-default), opacity var(--transition-fast);
-    touch-action: none;
+    touch-action: pan-y;
 }
 
 .sortable-list__item.is-dragging {
