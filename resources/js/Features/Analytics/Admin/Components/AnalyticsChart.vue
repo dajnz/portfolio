@@ -2,8 +2,7 @@
 <script setup lang="ts">
 import AdminBaseSkeleton from '@shared-admin/AdminBaseSkeleton.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
-import { computed } from 'vue';
-
+import { computed, ref } from 'vue';
 import {
     type ChartPoint,
     type ChartSeries,
@@ -12,9 +11,14 @@ import {
     VIEWBOX_HEIGHT,
     VIEWBOX_WIDTH,
 } from '../Composables/useAnalyticsChart';
+import { useElementWidth } from '../Composables/useElementWidth';
 import AnalyticsChartBarPlot from './AnalyticsChartBarPlot.vue';
 import AnalyticsChartLinePlot from './AnalyticsChartLinePlot.vue';
 import AnalyticsChartSeriesPlot from './AnalyticsChartSeriesPlot.vue';
+
+// A narrow plot still keeps a usable hit area; below this the viewBox
+// stops shrinking and the plot scales down slightly instead.
+const MIN_VIEWBOX_WIDTH = 240;
 
 type ChartType = 'bar' | 'line';
 
@@ -40,6 +44,15 @@ const props = withDefaults(
 );
 
 const { t } = useI18n();
+
+// The plot tracks its container width so the SVG viewBox matches the
+// rendered pixels and labels never scale down past legibility on small
+// screens.
+const chartArea = ref<HTMLElement | null>(null);
+const measuredWidth = useElementWidth(chartArea, VIEWBOX_WIDTH);
+const viewboxWidth = computed(() =>
+    Math.min(VIEWBOX_WIDTH, Math.max(MIN_VIEWBOX_WIDTH, Math.round(measuredWidth.value))),
+);
 
 // The error state fires when the active data source is unusable: `data`
 // is not an array (the single-series contract guard), or `series` was
@@ -75,7 +88,7 @@ const {
     multiLinePoints,
     multiLinePointMarkers,
     multiXPosition,
-} = useAnalyticsChart(chartData, chartSeries);
+} = useAnalyticsChart(chartData, chartSeries, viewboxWidth);
 
 // The union x-axis label positions of the multi-series plot.
 const xPositions = computed(() => unionLabels.value.map((_, index) => multiXPosition(index)));
@@ -94,118 +107,123 @@ const svgLabel = computed(() =>
 
 <template>
   <div
-    class="mt-6 rounded-lg border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"
+    class="mt-6 rounded-lg border border-slate-200 bg-white p-4 shadow-card sm:p-6 dark:border-slate-700 dark:bg-surface-dark-secondary"
     :data-testid="props.test_id"
   >
-    <h2
-      v-if="props.title"
-      class="mb-4 text-lg font-medium text-slate-600 dark:text-slate-400"
-    >
-      {{ props.title }}
-    </h2>
+    <div ref="chartArea">
+      <h2
+        v-if="props.title"
+        class="mb-4 text-lg font-medium text-slate-600 dark:text-slate-400"
+      >
+        {{ props.title }}
+      </h2>
 
-    <template v-if="props.is_loading">
-      <div
-        :style="{ height: `${props.height}px` }"
-        :data-testid="`${props.test_id}-loading`"
-      >
-        <AdminBaseSkeleton
-          shape="rectangle"
-          width="100%"
-          :height="`${props.height}px`"
-          :test_id="`${props.test_id}-skeleton`"
-        />
-      </div>
-    </template>
-
-    <template v-else-if="isError">
-      <div
-        class="flex items-center justify-center"
-        :style="{ height: `${props.height}px` }"
-        :data-testid="`${props.test_id}-error`"
-      >
-        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">
-          {{ t('admin.analytics.could_not_load_chart') }}
-        </p>
-      </div>
-    </template>
-
-    <template v-else-if="isEmpty">
-      <div
-        class="flex items-center justify-center"
-        :style="{ height: `${props.height}px` }"
-        :data-testid="`${props.test_id}-empty`"
-      >
-        <p class="text-sm font-medium text-slate-500 dark:text-slate-400">
-          {{ t('admin.analytics.no_data') }}
-        </p>
-      </div>
-    </template>
-
-    <template v-else-if="seriesMode">
-      <svg
-        :viewBox="`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`"
-        class="w-full"
-        :style="{ height: `${props.height}px` }"
-        role="img"
-        :aria-label="svgLabel"
-        :data-testid="`${props.test_id}-svg`"
-      >
-        <AnalyticsChartSeriesPlot
-          :series="chartSeries"
-          :lines="multiLinePoints"
-          :markers="multiLinePointMarkers"
-          :x_labels="unionLabels"
-          :x_positions="xPositions"
-          :x_label_indices="xLabelIndices"
-          :test_id="props.test_id"
-        />
-      </svg>
-      <ul
-        class="mt-4 flex flex-wrap gap-x-6 gap-y-2"
-        :data-testid="`${props.test_id}-legend`"
-      >
-        <li
-          v-for="(entry, index) in chartSeries"
-          :key="entry.name"
-          class="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300"
-          :data-testid="`${props.test_id}-legend-item-${index}`"
+      <template v-if="props.is_loading">
+        <div
+          :style="{ height: `${props.height}px` }"
+          :data-testid="`${props.test_id}-loading`"
         >
-          <span
-            class="inline-block h-2.5 w-2.5 rounded-full"
-            :style="{ backgroundColor: seriesColor(index) }"
+          <AdminBaseSkeleton
+            shape="rectangle"
+            width="100%"
+            :height="`${props.height}px`"
+            :test_id="`${props.test_id}-skeleton`"
           />
-          <span>{{ entry.name }}</span>
-        </li>
-      </ul>
-    </template>
+        </div>
+      </template>
 
-    <template v-else>
-      <svg
-        :viewBox="`0 0 ${VIEWBOX_WIDTH} ${VIEWBOX_HEIGHT}`"
-        class="w-full"
-        :style="{ height: `${props.height}px` }"
-        role="img"
-        :aria-label="svgLabel"
-        :data-testid="`${props.test_id}-svg`"
-      >
-        <AnalyticsChartBarPlot
-          v-if="props.type === 'bar'"
-          :geometries="geometries"
-          :bar_width="barWidth"
-          :slot_width="slotWidth"
-          :label_indices="labelIndices"
-          :test_id="props.test_id"
-        />
-        <AnalyticsChartLinePlot
-          v-else
-          :line_points="linePoints"
-          :geometries="geometries"
-          :slot_width="slotWidth"
-          :label_indices="labelIndices"
-          :test_id="props.test_id"
-        />
-      </svg>
-    </template>
+      <template v-else-if="isError">
+        <div
+          class="flex items-center justify-center"
+          :style="{ height: `${props.height}px` }"
+          :data-testid="`${props.test_id}-error`"
+        >
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">
+            {{ t('admin.analytics.could_not_load_chart') }}
+          </p>
+        </div>
+      </template>
+
+      <template v-else-if="isEmpty">
+        <div
+          class="flex items-center justify-center"
+          :style="{ height: `${props.height}px` }"
+          :data-testid="`${props.test_id}-empty`"
+        >
+          <p class="text-sm font-medium text-slate-500 dark:text-slate-400">
+            {{ t('admin.analytics.no_data') }}
+          </p>
+        </div>
+      </template>
+
+      <template v-else-if="seriesMode">
+        <svg
+          :viewBox="`0 0 ${viewboxWidth} ${VIEWBOX_HEIGHT}`"
+          class="w-full overflow-visible"
+          :style="{ height: `${props.height}px` }"
+          role="img"
+          :aria-label="svgLabel"
+          :data-testid="`${props.test_id}-svg`"
+        >
+          <AnalyticsChartSeriesPlot
+            :series="chartSeries"
+            :lines="multiLinePoints"
+            :markers="multiLinePointMarkers"
+            :x_labels="unionLabels"
+            :x_positions="xPositions"
+            :x_label_indices="xLabelIndices"
+            :viewbox_width="viewboxWidth"
+            :test_id="props.test_id"
+          />
+        </svg>
+        <ul
+          class="mt-4 flex flex-wrap gap-x-6 gap-y-2"
+          :data-testid="`${props.test_id}-legend`"
+        >
+          <li
+            v-for="(entry, index) in chartSeries"
+            :key="entry.name"
+            class="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300"
+            :data-testid="`${props.test_id}-legend-item-${index}`"
+          >
+            <span
+              class="inline-block h-2.5 w-2.5 rounded-full"
+              :style="{ backgroundColor: seriesColor(index) }"
+            />
+            <span>{{ entry.name }}</span>
+          </li>
+        </ul>
+      </template>
+
+      <template v-else>
+        <svg
+          :viewBox="`0 0 ${viewboxWidth} ${VIEWBOX_HEIGHT}`"
+          class="w-full overflow-visible"
+          :style="{ height: `${props.height}px` }"
+          role="img"
+          :aria-label="svgLabel"
+          :data-testid="`${props.test_id}-svg`"
+        >
+          <AnalyticsChartBarPlot
+            v-if="props.type === 'bar'"
+            :geometries="geometries"
+            :bar_width="barWidth"
+            :slot_width="slotWidth"
+            :label_indices="labelIndices"
+            :viewbox_width="viewboxWidth"
+            :test_id="props.test_id"
+          />
+          <AnalyticsChartLinePlot
+            v-else
+            :line_points="linePoints"
+            :geometries="geometries"
+            :slot_width="slotWidth"
+            :label_indices="labelIndices"
+            :viewbox_width="viewboxWidth"
+            :test_id="props.test_id"
+          />
+        </svg>
+      </template>
+    </div>
   </div>
 </template>

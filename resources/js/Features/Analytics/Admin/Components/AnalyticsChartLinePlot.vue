@@ -16,6 +16,7 @@ const props = defineProps<{
     geometries: Array<PointGeometry>;
     slot_width: number;
     label_indices: Array<number>;
+    viewbox_width: number;
     test_id?: string;
 }>();
 
@@ -86,6 +87,7 @@ watch(
 
   <AnalyticsChartTooltip
     :marker="hovered"
+    :viewbox_width="props.viewbox_width"
     :test_id="props.test_id"
   />
 </template>

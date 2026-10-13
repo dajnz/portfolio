@@ -39,8 +39,10 @@ export interface HoveredMarker {
     label?: string;
 }
 
-// Plot geometry: viewBox 640×260, 20 px side padding, value labels in
-// the top 40 px, x-labels in the bottom 30 px.
+// Plot geometry defaults: a 640×260 viewBox with 20 px side padding,
+// value labels in the top 40 px and x-labels in the bottom 30 px. The
+// rendered width tracks the container (capped at VIEWBOX_WIDTH) so small
+// screens keep 1 viewBox unit ≈ 1 CSS pixel and labels stay legible.
 export const VIEWBOX_WIDTH = 640;
 export const VIEWBOX_HEIGHT = 260;
 export const PADDING_X = 20;
@@ -57,15 +59,22 @@ export function seriesColor(index: number): string {
 }
 
 // The most x-axis/value labels a 640-wide plot renders legibly (~60 px
-// per ISO date label). Denser windows thin to an even stride.
+// per ISO date label); a narrower plot thins further so labels never
+// collide.
 const MAX_LABELS = 8;
+const MIN_LABELS = 3;
+const LABEL_SPACING = 60;
 
-function visibleLabelIndices(count: number): Array<number> {
-    if (count <= MAX_LABELS) {
+function maxLabelsFor(width: number): number {
+    return Math.max(MIN_LABELS, Math.min(MAX_LABELS, Math.floor(width / LABEL_SPACING)));
+}
+
+function visibleLabelIndices(count: number, maxLabels: number): Array<number> {
+    if (count <= maxLabels) {
         return Array.from({ length: count }, (_, index) => index);
     }
 
-    const stride = Math.ceil((count - 1) / (MAX_LABELS - 1));
+    const stride = Math.ceil((count - 1) / (maxLabels - 1));
     const indices: Array<number> = [];
 
     for (let index = 0; index < count; index += stride) {
@@ -82,13 +91,16 @@ function visibleLabelIndices(count: number): Array<number> {
 /**
  * The AnalyticsChart geometry: the pure coordinate math for the
  * single-series plot (bars/line) and the multi-series plot (the union
- * x-axis, per-series polylines and point markers). Numeric coordinates
- * only — the labels/values render through Vue interpolation into text
- * nodes (the textContent rule).
+ * x-axis, per-series polylines and point markers). `viewboxWidth` is the
+ * rendered container width — a small screen gets a narrow viewBox so the
+ * labels stay legible. Numeric coordinates only — the labels/values
+ * render through Vue interpolation into text nodes (the textContent
+ * rule).
  */
 export function useAnalyticsChart(
     data: ComputedRef<Array<ChartPoint>>,
     series: ComputedRef<Array<ChartSeries>>,
+    viewboxWidth: ComputedRef<number>,
 ): {
     barWidth: ComputedRef<number>;
     slotWidth: ComputedRef<number>;
@@ -115,20 +127,20 @@ export function useAnalyticsChart(
 
     const barWidth = computed(() => {
         const count = Math.max(1, data.value.length);
-        const slot = VIEWBOX_WIDTH - PADDING_X * 2;
+        const slot = (viewboxWidth.value - PADDING_X * 2) / count;
 
-        return Math.min(30, slot / count - 8);
+        return Math.min(30, Math.max(1, slot * 0.6));
     });
 
     // The full x-slot of a point — the invisible hover hit area width.
     const slotWidth = computed(
-        () => (VIEWBOX_WIDTH - PADDING_X * 2) / Math.max(1, data.value.length),
+        () => (viewboxWidth.value - PADDING_X * 2) / Math.max(1, data.value.length),
     );
 
     const geometries = computed<Array<PointGeometry>>(() => {
         const points = data.value;
         const count = Math.max(1, points.length);
-        const slot = (VIEWBOX_WIDTH - PADDING_X * 2) / count;
+        const slot = (viewboxWidth.value - PADDING_X * 2) / count;
 
         return points.map((point, index) => {
             const barHeight = (point.value / maxValue.value) * PLOT_HEIGHT;
@@ -169,7 +181,7 @@ export function useAnalyticsChart(
     // gap but the slot stays (the x-axis keeps the full union).
     const multiLineGeometries = computed<Array<Array<LinePointGeometry | null>>>(() => {
         const count = Math.max(1, unionLabels.value.length);
-        const slot = (VIEWBOX_WIDTH - PADDING_X * 2) / count;
+        const slot = (viewboxWidth.value - PADDING_X * 2) / count;
 
         return series.value.map((entry) => {
             const pointsByLabel = new Map(entry.points.map((point) => [point.label, point]));
@@ -219,7 +231,7 @@ export function useAnalyticsChart(
     const multiSlot = computed(() => {
         const count = Math.max(1, unionLabels.value.length);
 
-        return (VIEWBOX_WIDTH - PADDING_X * 2) / count;
+        return (viewboxWidth.value - PADDING_X * 2) / count;
     });
 
     function multiXPosition(index: number): number {
@@ -227,10 +239,10 @@ export function useAnalyticsChart(
     }
 
     const labelIndices = computed<Array<number>>(() =>
-        visibleLabelIndices(geometries.value.length),
+        visibleLabelIndices(geometries.value.length, maxLabelsFor(viewboxWidth.value)),
     );
     const xLabelIndices = computed<Array<number>>(() =>
-        visibleLabelIndices(unionLabels.value.length),
+        visibleLabelIndices(unionLabels.value.length, maxLabelsFor(viewboxWidth.value)),
     );
 
     return {

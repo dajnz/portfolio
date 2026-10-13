@@ -2,12 +2,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import {
-    type HoveredMarker,
-    PADDING_X,
-    TOP_AREA,
-    VIEWBOX_WIDTH,
-} from '../Composables/useAnalyticsChart';
+import { type HoveredMarker, PADDING_X, TOP_AREA } from '../Composables/useAnalyticsChart';
 
 const TOOLTIP_CHAR_WIDTH = 6;
 const TOOLTIP_OFFSET = 8;
@@ -16,6 +11,7 @@ const TOOLTIP_PADDING = 16;
 
 const props = defineProps<{
     marker: HoveredMarker | null;
+    viewbox_width: number;
     test_id?: string;
 }>();
 
@@ -35,7 +31,7 @@ const geometry = computed(() => {
     const height = lines * LINE_HEIGHT + TOOLTIP_PADDING;
     const x = Math.max(
         PADDING_X,
-        Math.min(marker.x - width / 2, VIEWBOX_WIDTH - PADDING_X - width),
+        Math.min(marker.x - width / 2, props.viewbox_width - PADDING_X - width),
     );
     const above = marker.y - height - TOOLTIP_OFFSET >= TOP_AREA;
     const y = above ? marker.y - height - TOOLTIP_OFFSET : marker.y + TOOLTIP_OFFSET + 4;
