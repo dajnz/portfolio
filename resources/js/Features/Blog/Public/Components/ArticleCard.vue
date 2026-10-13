@@ -1,12 +1,12 @@
 <!-- ArticleCard — the blog article preview card shared by the blog index (default variant) and the article page's related section (compact variant — no image). The card is a container with a stretched Inertia `<Link>` overlay to `/blog/{slug}` (a DOM sibling of the card's own filter-chip links — nested anchors would be invalid HTML); the lead image renders with the resolved per-locale alt (placeholder icon when absent — the `empty_image` state), the search results' `short_description` may carry the FTS `<mark>` snippet (server-sanitized, rendered via v-html), the meta row shows the localized date + reading time, the article tags render as accent badges and the skill tags as linked TechSkillTag chips (`/blog?skill_tags={id}`), capped at 3 with a "+N" overflow chip. Hover prefetches the article page data after the 100 ms linger (`router.prefetch` is a genuine cache-warming fetch, no navigation). -->
 <script setup lang="ts">
 import { type ArticleCardView, formatArticleDate } from '@blog-shared/Composables/useArticleCards';
-import { Icon } from '@iconify/vue';
 import { Link, router } from '@inertiajs/vue3';
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import PublicBaseBadge from '@shared-public/PublicBaseBadge.vue';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
+import PublicImagePlaceholder from '@shared-public/PublicImagePlaceholder.vue';
 import { computed, ref } from 'vue';
 
 const HOVER_PREFETCH_DELAY_MS = 100;
@@ -135,17 +135,9 @@ function onLeave(): void {
       >
       <div
         v-else
-        class="article-card__image article-card__image--placeholder"
-        aria-hidden="true"
-        :data-testid="`${props.test_id}-placeholder`"
+        class="article-card__image"
       >
-        <!-- The large, faint photo icon on the tinted surface — the
-             projects card's placeholder look. -->
-        <Icon
-          class="article-card__placeholder-icon"
-          icon="heroicons:photo"
-          aria-hidden="true"
-        />
+        <PublicImagePlaceholder :test_id="`${props.test_id}-placeholder`" />
       </div>
     </template>
     <div class="card__content article-card__content">
@@ -243,25 +235,6 @@ function onLeave(): void {
 .article-card__tags {
     position: relative;
     z-index: 2;
-}
-
-/* The no-image placeholder: the tinted surface + dashed frame + faint
-   photo icon of the projects card. */
-.article-card__image--placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background:
-        linear-gradient(135deg, var(--color-bg-tertiary) 25%, transparent 25%) 0 0 / 16px 16px,
-        var(--color-bg-secondary);
-    border: 1px dashed var(--color-border-strong);
-}
-
-.article-card__placeholder-icon {
-    width: 5.25em;
-    height: 5.25em;
-    color: var(--color-text-tertiary);
-    opacity: 0.5;
 }
 
 /* The "+N" overflow chip mirrors the TechSkillTag look. */

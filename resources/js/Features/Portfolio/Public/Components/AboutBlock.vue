@@ -5,6 +5,7 @@ import PublicBaseBadge from '@shared-public/PublicBaseBadge.vue';
 import PublicBaseButton from '@shared-public/PublicBaseButton.vue';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
 import PublicCenteredContainer from '@shared-public/PublicCenteredContainer.vue';
+import PublicImagePlaceholder from '@shared-public/PublicImagePlaceholder.vue';
 import type { AboutBlockData, CtaLink } from '../Composables/useLandingPage';
 import { usePublicIconsReady } from '../iconRegistration';
 
@@ -102,10 +103,13 @@ function handleCta(link: CtaLink): void {
           >
           <div
             v-else
-            class="about-block__photo about-block__photo--placeholder"
-            aria-hidden="true"
-            :data-testid="`${props.test_id}-photo-placeholder`"
-          />
+            class="about-block__photo"
+          >
+            <PublicImagePlaceholder
+              variant="plain"
+              :test_id="`${props.test_id}-photo-placeholder`"
+            />
+          </div>
 
           <div class="about-block__meta-col">
             <PublicBaseBadge
@@ -209,13 +213,6 @@ function handleCta(link: CtaLink): void {
     object-fit: cover;
     box-shadow: var(--shadow-lg);
     border: 3px solid var(--glass-border);
-}
-
-.about-block__photo--placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-bg-tertiary);
 }
 
 /* Availability → work type → location, stacked one below another under

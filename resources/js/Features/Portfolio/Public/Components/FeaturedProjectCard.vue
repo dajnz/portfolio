@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue';
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
+import PublicImagePlaceholder from '@shared-public/PublicImagePlaceholder.vue';
 
 import type { FeaturedProjectView } from '../Composables/useLandingPage';
 import { usePublicIconsReady } from '../iconRegistration';
@@ -46,17 +46,9 @@ const iconsReady = usePublicIconsReady();
     >
     <div
       v-else
-      class="card__image project-card__image project-card__image--placeholder"
-      aria-hidden="true"
-      :data-testid="`${props.test_id}-placeholder`"
+      class="card__image project-card__image"
     >
-      <!-- Same placeholder as the projects index: the large faint photo
-           icon, no text label. -->
-      <Icon
-        class="project-card__placeholder-icon"
-        icon="heroicons:photo"
-        aria-hidden="true"
-      />
+      <PublicImagePlaceholder :test_id="`${props.test_id}-placeholder`" />
     </div>
     <div class="card__content project-card__content">
       <h3 class="card__title project-card__title">
@@ -106,23 +98,5 @@ const iconsReady = usePublicIconsReady();
    16/9 frame, this crops non-16:9 uploads. */
 .project-card__image {
     object-fit: cover;
-}
-
-/* The placeholder image slot: the global `.card__image` supplies the
-   aspect ratio, radius and background — this swaps the fill for the same
-   look as the projects index placeholder (tinted surface with a dashed
-   inner frame + the large faint photo icon). */
-.project-card__image--placeholder {
-    background:
-        linear-gradient(135deg, var(--color-bg-tertiary) 25%, transparent 25%) 0 0 / 16px 16px,
-        var(--color-bg-secondary);
-    border: 1px dashed var(--color-border-strong);
-}
-
-.project-card__placeholder-icon {
-    width: 5.25em;
-    height: 5.25em;
-    color: var(--color-text-tertiary);
-    opacity: 0.5;
 }
 </style>
