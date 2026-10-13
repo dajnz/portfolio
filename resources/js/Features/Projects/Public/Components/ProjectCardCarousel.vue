@@ -81,7 +81,7 @@ const activeScreenshot = computed(() => props.screenshots[0] ?? null);
     border-radius: var(--radius-md);
     overflow: hidden;
     margin-bottom: var(--space-md);
-    background: var(--color-bg-tertiary);
+    background: var(--color-bg-inactive);
 }
 
 .project-card-carousel__image img {

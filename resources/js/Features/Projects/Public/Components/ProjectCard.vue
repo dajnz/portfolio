@@ -244,7 +244,7 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
     font-size: var(--font-size-sm);
     font-weight: var(--font-medium);
     color: var(--color-text-secondary);
-    background: var(--color-bg-secondary);
+    background: var(--color-bg-inactive);
     border: 1px dashed var(--color-border);
     border-radius: var(--radius-full);
     white-space: nowrap;

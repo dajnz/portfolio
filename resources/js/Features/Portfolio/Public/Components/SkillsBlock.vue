@@ -118,7 +118,7 @@ const skeletonSkills = [0, 1, 2];
 
 <style scoped>
 .skills-block {
-    background: var(--color-bg-secondary);
+    background: var(--color-bg-skills-block);
 
     /* Halved top padding — keeps the section heading from floating
    4rem below the previous block. */
