@@ -80,6 +80,35 @@ describe('POST /api/feedback', function (): void {
             ->assertJsonValidationErrors('message');
     });
 
+    it('localizes validation messages from the locale cookie', function (): void {
+        $this->withCredentials()
+            ->withUnencryptedCookie('locale', 'ru')
+            ->postJson('/api/feedback', [
+                'sender_name' => '',
+                'sender_email' => 'not-an-email',
+                'message' => 'short',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonPath('errors.sender_name.0', 'Поле Имя обязательно для заполнения.')
+            ->assertJsonPath('errors.sender_email.0', 'Поле Email должно быть действительным электронным адресом.')
+            ->assertJsonPath('errors.message.0', 'Длина поля Сообщение должна быть не менее 10 символов.');
+    });
+
+    it('localizes validation messages from Accept-Language when no locale cookie is sent', function (): void {
+        $this->withHeader('Accept-Language', 'ru')
+            ->postJson('/api/feedback', ['sender_name' => ''])
+            ->assertUnprocessable()
+            ->assertJsonPath('errors.sender_name.0', 'Поле Имя обязательно для заполнения.');
+    });
+
+    it('falls back to the default locale for unsupported locales', function (): void {
+        $this->withCredentials()
+            ->withUnencryptedCookie('locale', 'de')
+            ->postJson('/api/feedback', ['sender_name' => ''])
+            ->assertUnprocessable()
+            ->assertJsonPath('errors.sender_name.0', 'The Name field is required.');
+    });
+
     it('rejects a filled honeypot silently (200, nothing stored)', function (): void {
         $response = $this->get('/');
         $honeypot = \App\Features\Portfolio\Infra\Requests\SubmitFeedbackRequest::honeypotFieldName();
