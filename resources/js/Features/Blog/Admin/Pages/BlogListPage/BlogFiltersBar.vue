@@ -82,7 +82,7 @@ function onYearChange(value: string | string[]): void {
       :data-testid="`${props.test_id}-filters`"
     >
       <div
-        class="flex items-center gap-3"
+        class="flex flex-wrap items-center gap-3"
         :data-testid="`${props.test_id}-filters-row-1`"
       >
         <div
@@ -110,7 +110,7 @@ function onYearChange(value: string | string[]): void {
             @click="emit('update:view_mode', 'grid')"
           />
         </div>
-        <div class="min-w-0 flex-1">
+        <div class="order-last w-full min-w-0 sm:order-none sm:w-auto sm:flex-1">
           <AdminSearchAutocomplete
             :fetch_url="'/admin/blog'"
             :result_url_prefix="'/admin/blog/'"
@@ -130,7 +130,7 @@ function onYearChange(value: string | string[]): void {
         </AdminBaseButton>
       </div>
       <div
-        class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2"
+        class="flex flex-wrap items-center justify-between gap-3"
         :data-testid="`${props.test_id}-filters-row-2`"
       >
         <AdminBlogTagPicker
