@@ -18,6 +18,7 @@ const props = defineProps<{
     x_labels: Array<string>;
     x_positions: Array<number>;
     x_label_indices: Array<number>;
+    viewbox_width: number;
     test_id?: string;
 }>();
 
@@ -90,6 +91,7 @@ watch(
 
   <AnalyticsChartTooltip
     :marker="hoveredMarker"
+    :viewbox_width="props.viewbox_width"
     :test_id="props.test_id"
   />
 

@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 
 import AnalyticsChart from '@analytics-admin/AnalyticsChart.vue';
 
@@ -321,5 +322,28 @@ describe('AnalyticsChart', () => {
         expect(texts).not.toContain('2026-09-02');
         // At most 9 date labels on the 640-wide plot.
         expect(texts.length).toBeLessThanOrEqual(9);
+    });
+
+    it('shrinks the viewBox to the container width so small screens keep labels legible', async () => {
+        const data = Array.from({ length: 30 }, (_, index) => ({
+            label: `2026-09-${String(index + 1).padStart(2, '0')}`,
+            value: index + 1,
+        }));
+        const rect = vi
+            .spyOn(Element.prototype, 'getBoundingClientRect')
+            .mockReturnValue({ width: 320 } as DOMRect);
+
+        const wrapper = mountChart({ data });
+        await nextTick();
+        rect.mockRestore();
+
+        const svg = wrapper.get('[data-testid="analytics-chart-svg"]');
+        expect(svg.attributes('viewBox')).toBe('0 0 320 260');
+
+        const texts = svg.findAll('text').map((node) => node.text());
+        // A ~60 px stride per ISO date label caps a 320-wide plot at 5.
+        expect(texts.length).toBeLessThanOrEqual(5);
+        expect(texts).toContain('2026-09-01');
+        expect(texts).toContain('2026-09-30');
     });
 });
