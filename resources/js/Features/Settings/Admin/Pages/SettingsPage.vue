@@ -415,7 +415,7 @@ async function testMail(): Promise<void> {
         @submit.prevent="save"
       >
         <template v-if="activeTab === 'general'">
-          <fieldset class="space-y-4">
+          <fieldset class="min-w-0 space-y-4">
             <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
               {{ t('admin.settings.site_status') }}
             </legend>
@@ -428,7 +428,7 @@ async function testMail(): Promise<void> {
                   {{ t('admin.settings.maintenance_hint') }}
                 </p>
               </div>
-              <div class="flex shrink-0 items-center gap-3">
+              <div class="flex min-w-0 items-center gap-3">
                 <span
                   class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400"
                   :data-testid="`${props.test_id}-maintenance-status`"
