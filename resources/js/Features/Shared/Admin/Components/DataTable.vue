@@ -206,14 +206,14 @@ function formatCellValue(value: unknown): string {
 </script>
 
 <template>
+  <slot
+    v-if="props.selectable && props.selected_ids.length > 0 && $slots['bulk-actions']"
+    name="bulk-actions"
+  />
   <div
     class="overflow-x-auto border border-slate-200 dark:border-slate-700 bg-white dark:bg-surface-dark rounded-xl"
     :data-testid="props.test_id"
   >
-    <slot
-      v-if="props.selectable && props.selected_ids.length > 0 && $slots['bulk-actions']"
-      name="bulk-actions"
-    />
     <table class="w-full text-sm">
       <thead>
         <tr class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">

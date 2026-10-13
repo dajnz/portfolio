@@ -227,4 +227,16 @@ describe('DataTable', () => {
         await wrapper.setProps({ selectable: false });
         expect(wrapper.find('[data-testid="bulk-bar"]').exists()).toBe(false);
     });
+
+    it('keeps the bulk-actions slot outside the horizontal scroll wrapper', () => {
+        const wrapper = mountTable({ selectable: true, selected_ids: [1] }, {
+            'bulk-actions': '<div data-testid="bulk-bar">Bulk bar</div>',
+        });
+
+        const bar = wrapper.get('[data-testid="bulk-bar"]').element;
+        const scrollWrapper = wrapper.get('.overflow-x-auto').element;
+
+        expect(scrollWrapper.contains(bar)).toBe(false);
+        expect(scrollWrapper.previousElementSibling).toBe(bar);
+    });
 });
