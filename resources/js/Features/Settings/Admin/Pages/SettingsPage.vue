@@ -387,7 +387,7 @@ async function testMail(): Promise<void> {
       </h1>
 
       <div
-        class="mb-6 flex border-b border-slate-200 dark:border-slate-700"
+        class="thin-scrollbar mb-6 flex overflow-x-auto border-b border-slate-200 dark:border-slate-700"
         :data-testid="`${props.test_id}-tabs`"
       >
         <AdminBaseButton
@@ -397,8 +397,8 @@ async function testMail(): Promise<void> {
           :type="'button'"
           :class="
             activeTab === tab.id
-              ? '-mb-px rounded-none border-b-2 border-primary-600 text-primary-600 dark:text-primary-400'
-              : 'rounded-none'
+              ? '-mb-px shrink-0 whitespace-nowrap rounded-none border-b-2 border-primary-600 text-primary-600 dark:text-primary-400'
+              : 'shrink-0 whitespace-nowrap rounded-none'
           "
           :test_id="`${props.test_id}-tab-${tab.id}`"
           @click="selectTab(tab.id)"
@@ -415,7 +415,7 @@ async function testMail(): Promise<void> {
         @submit.prevent="save"
       >
         <template v-if="activeTab === 'general'">
-          <fieldset class="space-y-4">
+          <fieldset class="min-w-0 space-y-4">
             <legend class="text-lg font-medium text-slate-600 dark:text-slate-400">
               {{ t('admin.settings.site_status') }}
             </legend>
@@ -428,7 +428,7 @@ async function testMail(): Promise<void> {
                   {{ t('admin.settings.maintenance_hint') }}
                 </p>
               </div>
-              <div class="flex shrink-0 items-center gap-3">
+              <div class="flex min-w-0 items-center gap-3">
                 <span
                   class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400"
                   :data-testid="`${props.test_id}-maintenance-status`"
