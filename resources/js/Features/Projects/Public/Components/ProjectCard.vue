@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { Icon } from '@iconify/vue';
 import { Link } from '@inertiajs/vue3';
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
 import { useAnalytics } from '@shared-cross/Composables/useAnalytics';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import PublicBaseButton from '@shared-public/PublicBaseButton.vue';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
+import PublicImagePlaceholder from '@shared-public/PublicImagePlaceholder.vue';
 import { computed } from 'vue';
 
 import type { ProjectCardView } from '../Composables/useProjectsIndexPage';
@@ -118,17 +118,9 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
     </div>
     <div
       v-else
-      class="card__image project-card__image project-card__image--placeholder"
-      aria-hidden="true"
-      :data-testid="`${props.test_id}-placeholder`"
+      class="card__image project-card__image"
     >
-      <!-- The large, faint photo icon on the tinted surface — no text
-           label. -->
-      <Icon
-        class="project-card__placeholder-icon"
-        icon="heroicons:photo"
-        aria-hidden="true"
-      />
+      <PublicImagePlaceholder :test_id="`${props.test_id}-placeholder`" />
     </div>
     <div class="card__content project-card__content">
       <h2 class="card__title project-card__title">
@@ -214,24 +206,6 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
     width: 100%;
     height: 100%;
     object-fit: cover;
-}
-
-/* The no-image placeholder: a tinted surface with a dashed inner frame
-   and a large, faint photo icon at reduced opacity so it reads as a
-   subtle watermark, no text label. */
-.project-card__image--placeholder {
-    flex-direction: column;
-    background:
-        linear-gradient(135deg, var(--color-bg-tertiary) 25%, transparent 25%) 0 0 / 16px 16px,
-        var(--color-bg-secondary);
-    border: 1px dashed var(--color-border-strong);
-}
-
-.project-card__placeholder-icon {
-    width: 5.25em;
-    height: 5.25em;
-    color: var(--color-text-tertiary);
-    opacity: 0.5;
 }
 
 /* The "+N" overflow chip mirrors the TechSkillTag look (the shared

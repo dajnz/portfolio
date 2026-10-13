@@ -97,7 +97,7 @@ describe('ProjectCard', () => {
         expect(img.attributes('alt')).toBe('Ledger preview');
 
         const placeholder = mountCard();
-        expect(placeholder.find('.project-card__image--placeholder').exists()).toBe(true);
+        expect(placeholder.find('[data-testid="project-card-placeholder"]').exists()).toBe(true);
     });
 
     it('links the tech tags to the projects tag filter', () => {
@@ -144,10 +144,10 @@ describe('ProjectCard', () => {
     it('renders the neat placeholder (large faint icon, no label) when the project has no images', () => {
         const wrapper = mountCard();
 
-        const placeholder = wrapper.get('.project-card__image--placeholder');
+        const placeholder = wrapper.get('[data-testid="project-card-placeholder"]');
         expect(placeholder.attributes('aria-hidden')).toBe('true');
-        expect(placeholder.find('.project-card__placeholder-icon').exists()).toBe(true);
-        expect(placeholder.find('.project-card__placeholder-label').exists()).toBe(false);
+        expect(placeholder.find('.image-placeholder__icon').exists()).toBe(true);
+        expect(placeholder.find('.image-placeholder__label').exists()).toBe(false);
         expect(placeholder.text()).toBe('');
     });
 

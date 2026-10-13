@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import HorizontalCarousel from '@shared-public/HorizontalCarousel.vue';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
+import PublicImagePlaceholder from '@shared-public/PublicImagePlaceholder.vue';
 import { computed } from 'vue';
 
 import type { ScreenshotView } from '../Composables/useProjectsIndexPage';
@@ -71,8 +72,9 @@ const activeScreenshot = computed(() => props.screenshots[0] ?? null);
     <div
       v-else
       class="project-card-carousel__image project-card-carousel__image--placeholder"
-      aria-hidden="true"
-    />
+    >
+      <PublicImagePlaceholder variant="plain" />
+    </div>
   </div>
 </template>
 
@@ -93,6 +95,5 @@ const activeScreenshot = computed(() => props.screenshots[0] ?? null);
 
 .project-card-carousel__image--placeholder {
     aspect-ratio: 16 / 9;
-    background: var(--color-bg-tertiary);
 }
 </style>

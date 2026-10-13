@@ -309,7 +309,7 @@ describe('LandingPage', () => {
             '[data-testid="landing-featured-section-card-1-placeholder"]',
         );
         expect(placeholder.attributes('aria-hidden')).toBe('true');
-        expect(placeholder.find('.project-card__placeholder-icon').exists()).toBe(true);
+        expect(placeholder.find('.image-placeholder__icon').exists()).toBe(true);
         expect(placeholder.text()).toBe('');
         // No preview image renders.
         expect(wrapper.find('[data-testid="landing-featured-section-card-1"] img').exists()).toBe(
