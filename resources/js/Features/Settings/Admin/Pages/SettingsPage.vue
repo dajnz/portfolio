@@ -387,7 +387,7 @@ async function testMail(): Promise<void> {
       </h1>
 
       <div
-        class="mb-6 flex border-b border-slate-200 dark:border-slate-700"
+        class="thin-scrollbar mb-6 flex overflow-x-auto border-b border-slate-200 dark:border-slate-700"
         :data-testid="`${props.test_id}-tabs`"
       >
         <AdminBaseButton
@@ -397,8 +397,8 @@ async function testMail(): Promise<void> {
           :type="'button'"
           :class="
             activeTab === tab.id
-              ? '-mb-px rounded-none border-b-2 border-primary-600 text-primary-600 dark:text-primary-400'
-              : 'rounded-none'
+              ? '-mb-px shrink-0 whitespace-nowrap rounded-none border-b-2 border-primary-600 text-primary-600 dark:text-primary-400'
+              : 'shrink-0 whitespace-nowrap rounded-none'
           "
           :test_id="`${props.test_id}-tab-${tab.id}`"
           @click="selectTab(tab.id)"
