@@ -18,6 +18,7 @@ describe('AdminCenteredContainer', () => {
         expect(root.classes()).toContain('mx-auto');
         expect(root.classes()).toContain('max-w-container-xl');
         expect(root.classes()).toContain('px-4');
+        expect(root.classes()).toContain('lg:px-8');
     });
 
     it('applies the requested size class', () => {
