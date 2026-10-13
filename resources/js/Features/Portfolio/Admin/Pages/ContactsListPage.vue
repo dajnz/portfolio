@@ -387,11 +387,11 @@ function isEditing(rowId: number): boolean {
       <template v-if="hasRows || editingId === 'new'">
         <div
           v-if="editingId === 'new'"
-          class="mb-3 flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary cursor-pointer"
+          class="mb-3 flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary cursor-pointer sm:flex-row sm:items-center"
           :data-testid="`${props.test_id}-row-new`"
         >
           <span
-            class="cursor-grab text-sm text-slate-300 dark:text-slate-600"
+            class="hidden cursor-grab text-sm text-slate-300 sm:block dark:text-slate-600"
             aria-hidden="true"
           >⠿</span>
           <AdminIconPicker
@@ -434,7 +434,7 @@ function isEditing(rowId: number): boolean {
               :test_id="`${props.test_id}-url-new`"
             />
           </div>
-          <div class="flex flex-col items-end gap-2">
+          <div class="flex items-center justify-between gap-2 sm:flex-col sm:items-end sm:justify-start">
             <AdminBaseButton
               type="button"
               size="sm"
@@ -473,13 +473,17 @@ function isEditing(rowId: number): boolean {
         >
           <template #default="{ item, index }">
             <div
-              class="flex items-center gap-3"
-              :class="{ 'cursor-pointer': editingId === null }"
+              class="flex gap-3"
+              :class="{
+                'cursor-pointer': editingId === null,
+                'flex-col sm:flex-row sm:items-center': isEditing(Number(item.id)),
+                'items-center': !isEditing(Number(item.id)),
+              }"
               :data-testid="`${props.test_id}-row-${Number(item.id)}`"
               @click="onRowClick(item)"
             >
               <span
-                class="contact-row-handle cursor-grab select-none text-sm text-slate-300 dark:text-slate-600"
+                class="contact-row-handle hidden cursor-grab select-none text-sm text-slate-300 sm:block dark:text-slate-600"
                 aria-hidden="true"
                 @click.stop
               >⠿</span>
@@ -492,12 +496,26 @@ function isEditing(rowId: number): boolean {
                   :test_id="`${props.test_id}-icon-picker-${Number(item.id)}`"
                 />
                 <div class="min-w-0 flex-1 space-y-2">
-                  <LocaleTabs
-                    v-model="editingLocale"
-                    :locales="locales"
-                    :warned_locales="warnedLocales"
-                    :test_id="`${props.test_id}-name-tabs-${Number(item.id)}`"
-                  />
+                  <div class="flex items-center justify-between gap-2">
+                    <LocaleTabs
+                      v-model="editingLocale"
+                      :locales="locales"
+                      :warned_locales="warnedLocales"
+                      :test_id="`${props.test_id}-name-tabs-${Number(item.id)}`"
+                    />
+                    <span
+                      class="sm:hidden"
+                      @click.stop
+                    >
+                      <AdminBaseButton
+                        variant="icon-outline-danger"
+                        icon="heroicons:trash"
+                        :aria-label="`${t('common.delete')} ${(item.name as string) ?? ''}`"
+                        :test_id="`${props.test_id}-delete-edit-mobile-${Number(item.id)}`"
+                        @click="requestDelete(item as unknown as ContactRow)"
+                      />
+                    </span>
+                  </div>
                   <AdminBaseInput
                     :model-value="draftName(editingLocale)"
                     :label="t('admin.contacts.name')"
@@ -525,7 +543,7 @@ function isEditing(rowId: number): boolean {
                     :test_id="`${props.test_id}-url-${Number(item.id)}`"
                   />
                 </div>
-                <div class="flex flex-col items-end gap-2">
+                <div class="flex items-center justify-between gap-2 sm:flex-col sm:items-end sm:justify-start">
                   <span @click.stop>
                     <AdminBaseButton
                       type="button"
@@ -551,6 +569,18 @@ function isEditing(rowId: number): boolean {
                     >
                       {{ t('common.cancel') }}
                     </AdminBaseButton>
+                  </span>
+                  <span
+                    class="hidden sm:block sm:self-center"
+                    @click.stop
+                  >
+                    <AdminBaseButton
+                      variant="icon-outline-danger"
+                      icon="heroicons:trash"
+                      :aria-label="`${t('common.delete')} ${(item.name as string) ?? ''}`"
+                      :test_id="`${props.test_id}-delete-edit-${Number(item.id)}`"
+                      @click="requestDelete(item as unknown as ContactRow)"
+                    />
                   </span>
                 </div>
               </template>
@@ -602,9 +632,12 @@ function isEditing(rowId: number): boolean {
                     @click="moveContact(index, 1)"
                   />
                 </span>
-                <span @click.stop>
+                <span
+                  class="hidden sm:block"
+                  @click.stop
+                >
                   <AdminBaseButton
-                    variant="icon-only"
+                    variant="icon-outline-danger"
                     icon="heroicons:trash"
                     :aria-label="`${t('common.delete')} ${(item.name as string) ?? ''}`"
                     :test_id="`${props.test_id}-delete-${Number(item.id)}`"
