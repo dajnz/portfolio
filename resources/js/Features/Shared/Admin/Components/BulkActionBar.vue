@@ -41,10 +41,12 @@ function onClear(): void {
     :class="{ 'opacity-60': props.disabled }"
     :data-testid="props.test_id"
   >
-    <span class="text-sm font-semibold text-primary-700 dark:text-primary-300">
+    <span class="sr-only text-sm font-semibold text-primary-700 dark:text-primary-300 sm:not-sr-only">
       {{ t('admin.lists.items_selected', { count: props.selected_count }) }}
     </span>
-    <div class="flex items-center gap-2">
+    <div
+      class="thin-scrollbar flex min-w-0 items-center gap-2 overflow-x-auto sm:overflow-visible"
+    >
       <AdminBaseButton
         variant="ghost"
         size="sm"
