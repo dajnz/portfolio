@@ -11,7 +11,12 @@ use Illuminate\Support\Facades\Route;
  * `rate_limit.fingerprint` (3/h per IP+UA key); the honeypot check runs in
  * the controller. Returns 201 with no body on success. Note: the `api` group
  * prefixes these paths with `/api`.
+ *
+ * `locale` is applied per route (the `api` group itself omits it) so the 422
+ * validation messages render in the visitor's language — the cookie/Accept-
+ * Language resolution of `SetLocaleMiddleware`. This is the only public API
+ * endpoint whose error messages reach the user.
  */
 
 Route::post('/feedback', [FeedbackController::class, 'store'])
-    ->middleware(['throttle:feedback', 'rate_limit.fingerprint']);
+    ->middleware(['throttle:feedback', 'rate_limit.fingerprint', 'locale']);

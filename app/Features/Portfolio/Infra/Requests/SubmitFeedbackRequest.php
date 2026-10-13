@@ -26,6 +26,22 @@ final class SubmitFeedbackRequest extends FormRequest
     }
 
     /**
+     * Localized field names matching the public form labels — without this
+     * the raw keys leak into the messages ("Поле sender name обязательно
+     * для заполнения.").
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'sender_name' => __('landing.feedback_name'),
+            'sender_email' => __('landing.feedback_email'),
+            'message' => __('landing.feedback_message'),
+        ];
+    }
+
+    /**
      * The expected honeypot field name for the current session —
      * `hash_hmac('sha256', 'honeypot_'.session()->getId(), app_key)`
      * truncated to the first 32 hex characters. Null when the session ID
