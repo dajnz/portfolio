@@ -169,6 +169,20 @@ describe('AdminPageSidebar', () => {
         expect(posts.attributes('data-inertia-stub')).toBe('/admin/posts');
     });
 
+    it('hides the /horizon item below lg (Horizon is desktop-only)', () => {
+        const wrapper = mountSidebar({ expanded_groups: ['content'] });
+
+        const horizon = wrapper.get('[data-testid="admin-sidebar-group-content-item-/horizon"]');
+
+        expect(horizon.classes()).toContain('hidden');
+        expect(horizon.classes()).toContain('lg:flex');
+        expect(horizon.classes()).not.toContain('flex');
+
+        const posts = wrapper.get('[data-testid="admin-sidebar-group-content-item-/admin/posts"]');
+        expect(posts.classes()).toContain('flex');
+        expect(posts.classes()).not.toContain('hidden');
+    });
+
     it('emits close-mobile when a nav item or the dashboard link is activated', async () => {
         const wrapper = mountSidebar({
             dashboard: DASHBOARD,

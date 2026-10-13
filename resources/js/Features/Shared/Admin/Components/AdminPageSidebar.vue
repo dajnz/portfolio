@@ -103,9 +103,9 @@ function groupHeaderClass(): string {
     ].join(' ');
 }
 
-function navItemClass(route: string): string {
+function navItemClass(route: string, displayClass = 'flex'): string {
     return [
-        'flex items-center gap-3 rounded-lg text-sm font-medium text-sidebar-text',
+        `${displayClass} items-center gap-3 rounded-lg text-sm font-medium text-sidebar-text`,
         'hover:text-sidebar-text-active hover:bg-sidebar-hover transition-colors px-4 py-2.5 mx-2',
         isActive(route) ? 'bg-sidebar-active text-white font-semibold' : '',
     ]
@@ -193,7 +193,7 @@ function handleMobileLogout(): void {
             </Link>
             <a
               v-else
-              :class="navItemClass(item.route)"
+              :class="navItemClass(item.route, 'hidden lg:flex')"
               :href="item.route"
               :data-testid="`${props.test_id}-group-${group.id}-item-${item.route}`"
               @click="emit('close-mobile')"
