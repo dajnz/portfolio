@@ -101,6 +101,8 @@ use App\Features\Shared\Infra\Repositories\EloquentSettingsReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
 use App\Features\Shared\Infra\Services\AdminListCountCacheInvalidator;
 use App\Features\Shared\Infra\Services\AdminListPaginator;
+use App\Features\Shared\Infra\Services\AppVersion;
+use App\Features\Shared\Infra\Services\GitVersionReader;
 use App\Features\Shared\Infra\Services\LaravelCacheClearer;
 use App\Features\Shared\Infra\Services\LaravelMaintenanceMode;
 use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
@@ -514,6 +516,16 @@ class AppServiceProvider extends ServiceProvider
                 settings: $app->make(SettingsReadRepositoryInterface::class),
                 backupsTransfer: $app->make(StorageBatchTransferable::class),
                 fallbackMaxCount: (int) config('backup.max_count', 30),
+            ),
+        );
+
+        // The footer version needs the repository path, which cannot be
+        // auto-wired as a scalar — it is resolved from the app root.
+        $this->app->bind(
+            AppVersion::class,
+            fn ($app): AppVersion => new AppVersion(
+                reader: $app->make(GitVersionReader::class),
+                basePath: $app->basePath(),
             ),
         );
     }

@@ -14,6 +14,7 @@ use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ContactReadRepositoryInterface;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
+use App\Features\Shared\Infra\Services\AppVersion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +39,7 @@ final class HandleInertiaRequests extends Middleware
         private readonly AboutInfoReadRepositoryInterface $aboutInfo,
         private readonly ContactReadRepositoryInterface $contacts,
         private readonly ActiveLocaleService $locales,
+        private readonly AppVersion $appVersion,
     ) {
     }
 
@@ -67,6 +69,7 @@ final class HandleInertiaRequests extends Middleware
             'copyright' => [
                 'owner_name' => $ownerName,
             ],
+            'version' => $this->appVersion->value(),
             'console_greeting' => $this->consoleGreeting($locale, $ownerName),
             'settings' => [
                 'locale' => $request->attributes->get('locale', App::getLocale()),

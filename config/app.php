@@ -19,6 +19,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | The version shown in the admin footer. Production bakes the deployed git
+    | tag (or short commit SHA) at image build time (build-php-images.sh); when
+    | unset, the AppVersion service falls back to the repository's git state.
+    |
+    */
+
+    'version' => env('APP_VERSION', ''),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
