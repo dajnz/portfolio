@@ -6,6 +6,7 @@ namespace Database\Factories;
 
 use App\Features\Projects\Infra\Models\ProjectModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Date;
 
 final class ProjectModelFactory extends Factory
 {
@@ -35,7 +36,7 @@ final class ProjectModelFactory extends Factory
     {
         return $this->state(fn (): array => [
             'is_published' => $published,
-            'published_at' => $published ? now() : null,
+            'published_at' => $published ? Date::now() : null,
         ]);
     }
 
@@ -49,6 +50,6 @@ final class ProjectModelFactory extends Factory
 
     public function trashed(): static
     {
-        return $this->state(['deleted_at' => now()]);
+        return $this->state(['deleted_at' => Date::now()]);
     }
 }
