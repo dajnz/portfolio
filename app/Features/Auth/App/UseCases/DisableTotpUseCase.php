@@ -10,6 +10,7 @@ use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterfa
 use App\Features\Auth\App\Services\SessionVersionSynchronizer;
 use App\Features\Shared\App\BaseUseCase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Disables TOTP: requires the current password, removes the secret +
@@ -37,7 +38,7 @@ final class DisableTotpUseCase extends BaseUseCase
 
         $this->otpRepository->saveForAdmin($admin->toId(), $admin->toTimedOtp()->disable());
 
-        session()->forget(['totp.pending_admin_id', 'totp.pending_until']);
+        Session::forget(['totp.pending_admin_id', 'totp.pending_until']);
         $this->sessionVersion->bumpAndReauthenticate($admin->toId());
     }
 }

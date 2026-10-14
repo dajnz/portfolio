@@ -14,6 +14,7 @@ use App\Features\Auth\Domain\Exceptions\TotpLockedException;
 use App\Features\Auth\Domain\Exceptions\TotpPendingInvalidException;
 use App\Features\Auth\Infra\Requests\VerifyTotpRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
@@ -48,14 +49,14 @@ final class TotpController
         try {
             $this->verifyLoginTotpCase->verify($request->input('code', ''));
         } catch (TotpPendingInvalidException) {
-            return redirect()->route('login');
+            return Redirect::route('login');
         } catch (InvalidTotpCodeException) {
-            return back()->withErrors(['code' => __('auth.invalid_totp_code')]);
+            return Redirect::back()->withErrors(['code' => __('auth.invalid_totp_code')]);
         } catch (TotpLockedException $exception) {
-            return redirect()->route('login')->with('notification', ['type' => 'error', 'message' => $exception->getMessage()]);
+            return Redirect::route('login')->with('notification', ['type' => 'error', 'message' => $exception->getMessage()]);
         }
 
-        return redirect()->intended('/admin');
+        return Redirect::intended('/admin');
     }
 
     public function verifyGithubLink(VerifyTotpRequest $request): RedirectResponse
@@ -63,18 +64,18 @@ final class TotpController
         try {
             $this->verifyGithubLinkTotpCase->verify($request->input('code', ''));
         } catch (GithubLinkPendingInvalidException) {
-            return redirect()->route('profile');
+            return Redirect::route('profile');
         } catch (InvalidTotpCodeException) {
-            return back()->withErrors(['code' => __('auth.invalid_totp_code')]);
+            return Redirect::back()->withErrors(['code' => __('auth.invalid_totp_code')]);
         } catch (TotpLockedException $exception) {
-            return redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => $exception->getMessage()]);
+            return Redirect::route('profile')->with('notification', ['type' => 'error', 'message' => $exception->getMessage()]);
         } catch (GithubAlreadyLinkedException) {
-            return redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_already_linked')]);
+            return Redirect::route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_already_linked')]);
         } catch (GithubConflictException) {
-            return redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_conflict')]);
+            return Redirect::route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_conflict')]);
         }
 
-        return redirect()->route('profile')->with('notification', ['type' => 'success', 'message' => __('auth.github_linked')]);
+        return Redirect::route('profile')->with('notification', ['type' => 'success', 'message' => __('auth.github_linked')]);
     }
 
     /**

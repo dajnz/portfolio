@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Infra\Services;
 
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use RuntimeException;
@@ -25,7 +26,7 @@ final class PasswordGenerator
         for ($attempt = 1; $attempt <= self::MAX_ATTEMPTS; $attempt++) {
             $password = Str::random(24);
 
-            if (validator(['password' => $password], ['password' => $rule])->passes()) {
+            if (Validator::make(['password' => $password], ['password' => $rule])->passes()) {
                 return $password;
             }
         }

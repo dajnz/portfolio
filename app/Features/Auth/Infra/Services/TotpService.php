@@ -6,6 +6,7 @@ namespace App\Features\Auth\Infra\Services;
 
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\SvgWriter;
+use Illuminate\Support\Facades\Config;
 use PragmaRX\Google2FA\Google2FA as Google2FAService;
 
 /**
@@ -50,7 +51,7 @@ final class TotpService
      */
     public function qrCodeSvg(string $secret, string $account): string
     {
-        $issuer = config('app.name') ?: 'Portfolio';
+        $issuer = Config::get('app.name') ?: 'Portfolio';
 
         $otpauth = 'otpauth://totp/'
             .rawurlencode($issuer).':'.rawurlencode($account)

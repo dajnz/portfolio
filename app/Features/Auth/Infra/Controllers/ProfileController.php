@@ -22,6 +22,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response as ResponseFacade;
 use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -78,7 +80,7 @@ final class ProfileController
             throw ValidationException::withMessages(['current_password' => __('auth.current_password_incorrect')]);
         }
 
-        return back()->with('notification', ['type' => 'success', 'message' => __('auth.profile_updated')]);
+        return Redirect::back()->with('notification', ['type' => 'success', 'message' => __('auth.profile_updated')]);
     }
 
     public function enableTotp(TotpEnableRequest $request): JsonResponse
@@ -86,7 +88,7 @@ final class ProfileController
         $admin = $this->repository->findById((int) $request->user()->getAuthIdentifier());
 
         if ($request->input('code') === null) {
-            return response()->json(['data' => $this->enableTotpCase->start($admin)]);
+            return ResponseFacade::json(['data' => $this->enableTotpCase->start($admin)]);
         }
 
         try {
@@ -97,7 +99,7 @@ final class ProfileController
             throw ValidationException::withMessages(['code' => __('auth.totp_enrollment_expired')]);
         }
 
-        return response()->json(['data' => ['recovery_codes' => $recoveryCodes]]);
+        return ResponseFacade::json(['data' => ['recovery_codes' => $recoveryCodes]]);
     }
 
     public function disableTotp(RequireCurrentPasswordRequest $request): RedirectResponse
@@ -111,7 +113,7 @@ final class ProfileController
             throw ValidationException::withMessages(['current_password' => __('auth.current_password_incorrect')]);
         }
 
-        return back()->with('notification', ['type' => 'success', 'message' => __('auth.totp_disabled')]);
+        return Redirect::back()->with('notification', ['type' => 'success', 'message' => __('auth.totp_disabled')]);
     }
 
     public function regenerateRecoveryCodes(RequireCurrentPasswordRequest $request): JsonResponse
@@ -125,7 +127,7 @@ final class ProfileController
             throw ValidationException::withMessages(['current_password' => __('auth.current_password_incorrect')]);
         }
 
-        return response()->json(['data' => ['recovery_codes' => $recoveryCodes]]);
+        return ResponseFacade::json(['data' => ['recovery_codes' => $recoveryCodes]]);
     }
 
     public function unlinkGithub(Request $request): RedirectResponse
@@ -134,6 +136,6 @@ final class ProfileController
             $this->repository->findById((int) $request->user()->getAuthIdentifier()),
         );
 
-        return back()->with('notification', ['type' => 'success', 'message' => __('auth.github_unlinked')]);
+        return Redirect::back()->with('notification', ['type' => 'success', 'message' => __('auth.github_unlinked')]);
     }
 }

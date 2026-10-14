@@ -12,6 +12,7 @@ use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Auth\Infra\Services\AdminAuthService;
 use App\Features\Shared\App\BaseUseCase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 /**
  * GitHub-link TOTP re-authentication: resolves the pending link data from
@@ -38,7 +39,7 @@ final class VerifyGithubLinkTotpUseCase extends BaseUseCase
      */
     public function verify(string $code): void
     {
-        $admin = $this->repository->findById((int) session('github_link.pending_admin_id'));
+        $admin = $this->repository->findById((int) Session::get('github_link.pending_admin_id'));
 
         if ($admin === null || ! Auth::check() || (int) Auth::id() !== $admin->toId()) {
             $this->clearPending();
@@ -54,8 +55,8 @@ final class VerifyGithubLinkTotpUseCase extends BaseUseCase
             throw new TotpLockedException($this->auth->totpLockoutFlash($admin));
         }
 
-        $githubId = (string) session()->pull('github_link.pending_github_id');
-        $githubToken = (string) session()->pull('github_link.pending_token');
+        $githubId = (string) Session::pull('github_link.pending_github_id');
+        $githubToken = (string) Session::pull('github_link.pending_token');
         $this->clearPending();
 
         $this->linkGithub->link($admin, $githubId, $githubToken);
@@ -63,7 +64,7 @@ final class VerifyGithubLinkTotpUseCase extends BaseUseCase
 
     private function clearPending(): void
     {
-        session()->forget([
+        Session::forget([
             'github_link.pending_admin_id',
             'github_link.pending_github_id',
             'github_link.pending_token',

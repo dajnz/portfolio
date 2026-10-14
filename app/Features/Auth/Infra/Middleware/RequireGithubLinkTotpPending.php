@@ -7,6 +7,7 @@ namespace App\Features\Auth\Infra\Middleware;
 use App\Features\Auth\Infra\Services\AdminAuthService;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -28,19 +29,19 @@ final class RequireGithubLinkTotpPending
         // Session expired mid-flow — the pending state implies an
         // authenticated admin.
         if (! $request->user()) {
-            return redirect()->route('login');
+            return Redirect::route('login');
         }
 
         if (! $this->auth->githubLinkPendingForCurrentAdmin()) {
             $this->auth->clearPendingGithubLink();
 
-            return redirect()->route('profile');
+            return Redirect::route('profile');
         }
 
         if ($this->auth->pendingGithubLinkExpired()) {
             $this->auth->clearPendingGithubLink();
 
-            return redirect()->route('profile');
+            return Redirect::route('profile');
         }
 
         $admin = $this->auth->pendingGithubLinkAdmin();
@@ -48,13 +49,13 @@ final class RequireGithubLinkTotpPending
         if ($admin === null) {
             $this->auth->clearPendingGithubLink();
 
-            return redirect()->route('profile');
+            return Redirect::route('profile');
         }
 
         if ($this->auth->adminIsTotpLocked($admin)) {
             $this->auth->clearPendingGithubLink();
 
-            return redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => $this->auth->totpLockoutFlash($admin)]);
+            return Redirect::route('profile')->with('notification', ['type' => 'error', 'message' => $this->auth->totpLockoutFlash($admin)]);
         }
 
         return $next($request);

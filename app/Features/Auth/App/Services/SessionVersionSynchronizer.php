@@ -6,6 +6,7 @@ namespace App\Features\Auth\App\Services;
 
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Increments `admins.session_version` and keeps the current session in sync.
@@ -35,7 +36,7 @@ final class SessionVersionSynchronizer
     {
         $version = $this->repository->incrementSessionVersion($adminId);
 
-        session(['session_version' => $version]);
+        Session::put(['session_version' => $version]);
     }
 
     public function bumpAndReauthenticate(int $adminId): void
@@ -43,6 +44,6 @@ final class SessionVersionSynchronizer
         $version = $this->repository->incrementSessionVersion($adminId);
 
         Auth::loginUsingId($adminId);
-        session(['session_version' => $version]);
+        Session::put(['session_version' => $version]);
     }
 }
