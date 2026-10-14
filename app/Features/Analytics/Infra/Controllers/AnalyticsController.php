@@ -15,6 +15,7 @@ use App\Features\Analytics\Infra\Requests\RankingsRequest;
 use App\Features\Analytics\Infra\Requests\SeriesRequest;
 use App\Features\Analytics\Infra\Requests\TrackEventsRequest;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Response as ResponseFacade;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -51,7 +52,7 @@ final class AnalyticsController
             userAgent: $request->userAgent(),
         );
 
-        return response()->noContent();
+        return ResponseFacade::noContent();
     }
 
     public function index(ResponseFactory $inertia): Response
@@ -87,7 +88,7 @@ final class AnalyticsController
 
     public function series(SeriesRequest $request): JsonResponse
     {
-        return response()->json($this->seriesCase->series(
+        return ResponseFacade::json($this->seriesCase->series(
             metric: MetricName::from($request->validated('metric')),
             span: MetricSpan::from($request->validated('span')),
             dimension: $request->validated('dimension'),
@@ -96,7 +97,7 @@ final class AnalyticsController
 
     public function rankings(RankingsRequest $request): JsonResponse
     {
-        return response()->json($this->rankingsCase->rankings(
+        return ResponseFacade::json($this->rankingsCase->rankings(
             metric: MetricName::from($request->validated('metric')),
             variant: (string) $request->validated('variant'),
             scope: (string) $request->validated('scope'),
@@ -107,6 +108,6 @@ final class AnalyticsController
     {
         Bus::dispatch(new RebuildReportsJob(recomputeMetrics: true));
 
-        return response()->json(['dispatched' => true], HttpResponse::HTTP_ACCEPTED);
+        return ResponseFacade::json(['dispatched' => true], HttpResponse::HTTP_ACCEPTED);
     }
 }
