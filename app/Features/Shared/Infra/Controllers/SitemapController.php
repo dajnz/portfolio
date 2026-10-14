@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Shared\Infra\Controllers;
 
 use App\Features\Shared\Infra\Services\SitemapService;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Response as ResponseFacade;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -14,14 +16,14 @@ final class SitemapController
 {
     public function index(SitemapService $sitemap): Response
     {
-        return response($sitemap->getXml(), 200, [
+        return ResponseFacade::make($sitemap->getXml(), 200, [
             'Content-Type' => 'application/xml',
         ]);
     }
 
     public function robots(): Response
     {
-        $siteUrl = rtrim((string) config('app.url'), '/');
+        $siteUrl = rtrim((string) Config::get('app.url'), '/');
 
         $content = implode("\n", [
             'User-agent: *',
@@ -31,7 +33,7 @@ final class SitemapController
             'Sitemap: '.$siteUrl.'/sitemap.xml',
         ]);
 
-        return response($content, 200, [
+        return ResponseFacade::make($content, 200, [
             'Content-Type' => 'text/plain',
         ]);
     }

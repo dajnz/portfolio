@@ -6,6 +6,7 @@ namespace App\Features\Shared\Infra\Services;
 
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Active-locale helpers for the Infra/app layers: the locales enabled in the
@@ -30,7 +31,7 @@ final class ActiveLocaleService
     {
         $locales = $this->settings->value(
             SettingName::SupportedLocales,
-            config('portfolio.supported_locales', ['en', 'ru']),
+            Config::get('portfolio.supported_locales', ['en', 'ru']),
         );
 
         return array_values(array_unique(array_map('strval', (array) $locales)));

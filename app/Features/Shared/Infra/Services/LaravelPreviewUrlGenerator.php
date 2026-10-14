@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Shared\Infra\Services;
 
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\URL;
 
 /**
@@ -17,7 +18,7 @@ final class LaravelPreviewUrlGenerator implements PreviewUrlGeneratorInterface
     {
         return URL::temporarySignedRoute(
             $routeName,
-            now()->addSeconds($expiresInSeconds),
+            Date::now()->addSeconds($expiresInSeconds),
             $parameters,
         );
     }

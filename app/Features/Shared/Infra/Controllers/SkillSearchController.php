@@ -9,6 +9,7 @@ use App\Features\Shared\Domain\Entities\TechSkill;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Response;
 
 /**
  * Autocomplete endpoint for tech skills (`GET /api/skills/search`).
@@ -24,7 +25,7 @@ final class SkillSearchController
     {
         $skills = $this->searchSkillsCase->search($request->string('q', '')->toString(), (string) App::getLocale());
 
-        return response()->json([
+        return Response::json([
             'data' => array_map(
                 static fn (TechSkill $skill): array => [
                     'id' => $skill->toId(),

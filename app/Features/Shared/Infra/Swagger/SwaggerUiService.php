@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Shared\Infra\Swagger;
 
 use App\Features\Shared\Infra\OpenApi\OpenApiSpecDocument;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Keeps the l5-swagger docs file (`storage/api-docs/api-docs.json`, per
@@ -28,12 +30,12 @@ final class SwaggerUiService
      */
     public function sync(): ?string
     {
-        if (empty(config('l5-swagger'))) {
+        if (empty(Config::get('l5-swagger'))) {
             return null;
         }
 
-        $docsDir = (string) config('l5-swagger.documentations.default.paths.docs', storage_path('api-docs'));
-        $docsFile = (string) config('l5-swagger.documentations.default.paths.docs_json', 'api-docs.json');
+        $docsDir = (string) Config::get('l5-swagger.documentations.default.paths.docs', App::storagePath('api-docs'));
+        $docsFile = (string) Config::get('l5-swagger.documentations.default.paths.docs_json', 'api-docs.json');
 
         $path = rtrim($docsDir, '/').'/'.$docsFile;
 

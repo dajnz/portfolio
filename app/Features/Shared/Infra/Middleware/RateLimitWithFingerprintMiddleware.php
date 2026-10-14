@@ -7,6 +7,8 @@ namespace App\Features\Shared\Infra\Middleware;
 use Closure;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Response as ResponseFacade;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -44,7 +46,7 @@ final class RateLimitWithFingerprintMiddleware
 
     private function fingerprintKey(Request $request): string
     {
-        $hashKey = config('analytics.ip_hash_key', config('app.key'));
+        $hashKey = Config::get('analytics.ip_hash_key', Config::get('app.key'));
 
         return 'feedback|'
             .hash_hmac('sha256', (string) $request->ip(), (string) $hashKey)
@@ -56,7 +58,7 @@ final class RateLimitWithFingerprintMiddleware
     {
         $retryAfter = $this->limiter->availableIn($key);
 
-        return response()->json(
+        return ResponseFacade::json(
             ['message' => 'Too many requests.'],
             Response::HTTP_TOO_MANY_REQUESTS,
             ['Retry-After' => $retryAfter],

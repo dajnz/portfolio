@@ -6,6 +6,8 @@ namespace App\Features\Shared\Infra\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -22,7 +24,7 @@ final class SetLocaleMiddleware
     {
         $locale = $this->resolveLocale($request);
 
-        app()->setLocale($locale);
+        App::setLocale($locale);
         $request->attributes->set('locale', $locale);
 
         $response = $next($request);
@@ -33,7 +35,7 @@ final class SetLocaleMiddleware
 
     private function resolveLocale(Request $request): string
     {
-        $supported = config('portfolio.supported_locales', ['en', 'ru']);
+        $supported = Config::get('portfolio.supported_locales', ['en', 'ru']);
         $default = $supported[0] ?? 'en';
 
         $cookie = $request->cookie('locale');

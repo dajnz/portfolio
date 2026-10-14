@@ -12,7 +12,9 @@ use App\Features\Shared\Infra\Requests\UploadRequest;
 use App\Features\Shared\Infra\Services\UploadedImageProcessor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -55,17 +57,17 @@ final class UploadController
         } catch (Throwable $exception) {
             Log::error('Upload failed', [
                 'file_name' => $file->getClientOriginalName(),
-                'bucket' => config('filesystems.disks.rustfs.bucket'),
+                'bucket' => Config::get('filesystems.disks.rustfs.bucket'),
                 'exception' => $exception->getMessage(),
             ]);
 
             throw $exception;
         }
 
-        return response()->json([
+        return Response::json([
             'data' => [
                 'path' => $path,
-                'url' => rtrim((string) config('app.url'), '/').'/assets/'.$path,
+                'url' => rtrim((string) Config::get('app.url'), '/').'/assets/'.$path,
                 'name' => $file->getClientOriginalName(),
                 'size' => Storage::disk('rustfs')->size($path),
             ],
@@ -77,12 +79,12 @@ final class UploadController
         $path = (string) $request->json()->get('path');
 
         if (! Storage::disk('rustfs')->exists($path)) {
-            return response()->json(['message' => 'File not found.'], 404);
+            return Response::json(['message' => 'File not found.'], 404);
         }
 
         Storage::disk('rustfs')->delete($path);
 
-        return response()->json();
+        return Response::json();
     }
 
     private function storeProcessed(string $entityType, UploadedFile $file): string
@@ -119,7 +121,7 @@ final class UploadController
     {
         return (int) $this->settings->value(
             SettingName::ImageMaxDimension->value,
-            config('portfolio.image_max_dimension'),
+            Config::get('portfolio.image_max_dimension'),
         );
     }
 }
