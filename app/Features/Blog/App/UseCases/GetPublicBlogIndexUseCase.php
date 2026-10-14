@@ -5,19 +5,14 @@ declare(strict_types=1);
 namespace App\Features\Blog\App\UseCases;
 
 use App\Features\Blog\App\DTOs\ArticleCardDto;
-use App\Features\Blog\App\DTOs\BlogSeoDto;
 use App\Features\Blog\App\DTOs\PaginatedPublicBlogListDto;
 use App\Features\Blog\App\DTOs\PublicBlogListDto;
 use App\Features\Blog\App\DTOs\PublicBlogListQuery;
 use App\Features\Blog\App\DTOs\TagOptionDto;
+use App\Features\Blog\App\Services\BlogSeoFactory;
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
-use App\Features\Settings\Domain\Enums\SettingName;
-use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
-use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
-use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
-use App\Features\Shared\App\Contracts\TranslatorInterface;
+use App\Features\Shared\App\Services\PageSizeResolver;
 use App\Features\Shared\App\Services\PaginationBuilder;
-use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 
 /**
@@ -41,12 +36,9 @@ final class GetPublicBlogIndexUseCase
 {
     public function __construct(
         private readonly PublicArticleReadRepositoryInterface $repository,
-        private readonly SettingRepositoryInterface $settings,
-        private readonly AboutInfoReadRepositoryInterface $about,
         private readonly PaginationBuilder $pagination,
-        private readonly PaginationDefaultsInterface $paginationDefaults,
-        private readonly ApplicationUrlInterface $applicationUrl,
-        private readonly TranslatorInterface $translator,
+        private readonly PageSizeResolver $pageSize,
+        private readonly BlogSeoFactory $seo,
     ) {
     }
 
@@ -64,17 +56,7 @@ final class GetPublicBlogIndexUseCase
             nextCursor: $this->nextCursorFor($rows, $reconstructed['last_batch_full'], $searching),
             tags: $this->tagOptions($this->repository->findAllTags($query->locale)),
             years: $this->repository->yearsOfPublishedArticles(),
-            seo: BlogSeoDto::forIndex(
-                title: $this->translator->translate(
-                    'seo.title_blog_index',
-                    ['name' => $this->about->findSiteName($query->locale)],
-                ),
-                description: $this->translator->translate(
-                    'seo.description_blog_index',
-                    ['name' => $this->about->findSiteName($query->locale)],
-                ),
-                baseUrl: $this->applicationUrl->baseUrl(),
-            ),
+            seo: $this->seo->forIndex($query->locale),
             hasProjects: $this->repository->hasPublishedProjects(),
         );
     }
@@ -276,10 +258,7 @@ final class GetPublicBlogIndexUseCase
 
     private function resolvePerPage(): int
     {
-        return (int) $this->settings->value(
-            SettingName::ArticlesPerPage,
-            $this->paginationDefaults->articlesPerPage(),
-        );
+        return $this->pageSize->articlesPerPage();
     }
 
     /**

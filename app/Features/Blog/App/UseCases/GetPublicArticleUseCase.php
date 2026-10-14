@@ -5,20 +5,15 @@ declare(strict_types=1);
 namespace App\Features\Blog\App\UseCases;
 
 use App\Features\Blog\App\DTOs\ArticleCardDto;
-use App\Features\Blog\App\DTOs\BlogSeoDto;
 use App\Features\Blog\App\DTOs\PublicArticleDto;
 use App\Features\Blog\App\DTOs\TagOptionDto;
+use App\Features\Blog\App\Services\ArticleReactionState;
+use App\Features\Blog\App\Services\BlogSeoFactory;
 use App\Features\Blog\Domain\Entities\Article;
 use App\Features\Blog\Domain\Exceptions\ArticleNotFoundException;
-use App\Features\Blog\Domain\RepositoryInterfaces\ArticleReactionRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
-use App\Features\Settings\Domain\Enums\FeatureFlagName;
-use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
-use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
-use App\Features\Shared\App\Contracts\TranslatorInterface;
-use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 
 /**
  * The public blog article detail: the published aggregate resolved by
@@ -36,12 +31,9 @@ final class GetPublicArticleUseCase
     public function __construct(
         private readonly ArticleRepositoryInterface $repository,
         private readonly PublicArticleReadRepositoryInterface $listQuery,
-        private readonly ArticleReactionRepositoryInterface $reactions,
-        private readonly FeatureFlagRepositoryInterface $flags,
-        private readonly AboutInfoReadRepositoryInterface $about,
         private readonly MarkdownContentPipelineInterface $pipeline,
-        private readonly ApplicationUrlInterface $applicationUrl,
-        private readonly TranslatorInterface $translator,
+        private readonly BlogSeoFactory $seo,
+        private readonly ArticleReactionState $reactionState,
     ) {
     }
 
@@ -88,7 +80,6 @@ final class GetPublicArticleUseCase
         }
 
         $articleId = $article->toId();
-        $siteName = $this->about->findSiteName($locale);
         $tagRows = $this->listQuery->articleTagsFor([$articleId])[$articleId] ?? [];
         $skillTags = $this->listQuery->skillTagsFor([$articleId])[$articleId] ?? [];
 
@@ -116,19 +107,13 @@ final class GetPublicArticleUseCase
             skillTags: $skillTags,
             related: $this->relatedCards($articleId, $locale),
             views: $this->listQuery->viewsOf($articleId),
-            reactions: $this->reactionsFor($articleId, $fingerprint),
-            seo: BlogSeoDto::forDetail(
+            reactions: $this->reactionState->forArticle($articleId, $fingerprint),
+            seo: $this->seo->forDetail(
+                locale: $locale,
                 title: $article->titleFor($locale),
                 description: $article->shortDescriptionFor($locale),
                 slug: $article->toSlug(),
                 leadImagePath: $article->toLeadImage()?->url,
-                siteName: $siteName,
-                baseUrl: $this->applicationUrl->baseUrl(),
-                seoTitle: $this->translator->translate(
-                    'seo.title_blog_article',
-                    ['article_title' => $article->titleFor($locale), 'name' => $siteName],
-                ),
-                blogLabel: $this->translator->translate('nav.blog'),
                 tagNames: array_map(static fn (object $tag): string => $tag->name, $tagRows),
                 skillNames: array_map(
                     static fn ($skill): string => $skill->toSkillName(),
@@ -136,33 +121,9 @@ final class GetPublicArticleUseCase
                 ),
                 publishedAt: $article->toPublishedAt(),
                 updatedAt: $article->toUpdatedAt(),
-                sitePhotoPath: $this->about->findSitePhotoPath(),
             ),
             hasProjects: $this->listQuery->hasPublishedProjects(),
         );
-    }
-
-    /**
-     * The reaction state: `null` when the flag is off or the
-     * fingerprint is missing (the widget is not rendered); otherwise
-     * the visitor's current reaction plus the totals.
-     *
-     * @return array{user_reaction: string|null, likes: int, dislikes: int}|null
-     */
-    private function reactionsFor(int $articleId, ?string $fingerprint): ?array
-    {
-        if ($fingerprint === null || ! $this->flags->isEnabled(FeatureFlagName::SocialReactions)) {
-            return null;
-        }
-
-        $existing = $this->reactions->findByArticleAndFingerprint($articleId, $fingerprint);
-        $counts = $this->reactions->countsFor($articleId);
-
-        return [
-            'user_reaction' => $existing?->toReaction()->value,
-            'likes' => $counts['likes'],
-            'dislikes' => $counts['dislikes'],
-        ];
     }
 
     /**
