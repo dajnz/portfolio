@@ -7,10 +7,9 @@ namespace App\Features\Auth\App\UseCases;
 use App\Features\Auth\Domain\Entities\Admin;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Shared\App\BaseUseCase;
-use App\Features\Shared\App\Contracts\AuthGuardInterface;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use App\Features\Shared\App\Contracts\PasswordHasherInterface;
-use App\Features\Shared\App\Contracts\SessionStoreInterface;
+use App\Features\Shared\App\Contracts\AdminSessionInterface;
 use DateTimeImmutable;
 
 /**
@@ -25,8 +24,7 @@ final class LoginUseCase extends BaseUseCase
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
         private readonly LoggerInterface $logger,
-        private readonly AuthGuardInterface $auth,
-        private readonly SessionStoreInterface $sessions,
+        private readonly AdminSessionInterface $sessions,
         private readonly PasswordHasherInterface $hasher,
     ) {
     }
@@ -61,7 +59,7 @@ final class LoginUseCase extends BaseUseCase
     /** Completes authentication: session login + version + ID regeneration. */
     public function completeLogin(Admin $admin, string $ip, bool $remember = false): void
     {
-        $this->auth->loginUsingId($admin->toId(), $remember);
+        $this->sessions->loginUsingId($admin->toId(), $remember);
         $this->sessions->put(['session_version' => $admin->toSessionVersion()]);
 
         $this->logger->info('Successful login', [

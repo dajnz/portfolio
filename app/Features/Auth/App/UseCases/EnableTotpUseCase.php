@@ -14,7 +14,7 @@ use App\Features\Auth\Domain\ValueObjects\RecoveryCode;
 use App\Features\Auth\Domain\ValueObjects\TotpSecret;
 use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Shared\App\BaseUseCase;
-use App\Features\Shared\App\Contracts\SessionStoreInterface;
+use App\Features\Shared\App\Contracts\AdminSessionInterface;
 
 /**
  * TOTP enrollment via the dual-purpose `POST /admin/profile/totp-enable`
@@ -32,7 +32,7 @@ final class EnableTotpUseCase extends BaseUseCase
         private readonly AdminTimedOtpRepositoryInterface $otpRepository,
         private readonly TotpService $totpService,
         private readonly SessionVersionSynchronizer $sessionVersion,
-        private readonly SessionStoreInterface $sessions,
+        private readonly AdminSessionInterface $sessions,
     ) {
     }
 

@@ -90,11 +90,11 @@ use App\Features\Settings\Infra\Repositories\EloquentSettingRepository;
 use App\Features\Settings\Infra\Services\HttpMailTransportTester;
 use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
+use App\Features\Shared\App\Contracts\AdminSessionInterface;
 use App\Features\Shared\App\Contracts\AnalyticsConfigInterface;
 use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
 use App\Features\Shared\App\Contracts\AssetStorageInterface;
-use App\Features\Shared\App\Contracts\AuthGuardInterface;
 use App\Features\Shared\App\Contracts\CacheClearerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use App\Features\Shared\App\Contracts\EncrypterInterface;
@@ -104,7 +104,6 @@ use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\App\Contracts\PasswordHasherInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
-use App\Features\Shared\App\Contracts\SessionStoreInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use App\Features\Shared\App\Contracts\TransactionManagerInterface;
 use App\Features\Shared\App\Contracts\TranslatorInterface;
@@ -127,16 +126,15 @@ use App\Features\Shared\Infra\Services\AdminListCountCacheInvalidator;
 use App\Features\Shared\Infra\Services\AdminListPaginator;
 use App\Features\Shared\Infra\Services\AppVersion;
 use App\Features\Shared\Infra\Services\GitVersionReader;
+use App\Features\Shared\Infra\Services\LaravelAdminSession;
 use App\Features\Shared\Infra\Services\LaravelAnalyticsConfig;
 use App\Features\Shared\Infra\Services\LaravelApplicationUrl;
-use App\Features\Shared\Infra\Services\LaravelAuthGuard;
 use App\Features\Shared\Infra\Services\LaravelCacheClearer;
 use App\Features\Shared\Infra\Services\LaravelEncrypter;
 use App\Features\Shared\Infra\Services\LaravelMaintenanceMode;
 use App\Features\Shared\Infra\Services\LaravelPaginationDefaults;
 use App\Features\Shared\Infra\Services\LaravelPasswordHasher;
 use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
-use App\Features\Shared\Infra\Services\LaravelSessionStore;
 use App\Features\Shared\Infra\Services\LaravelTransactionManager;
 use App\Features\Shared\Infra\Services\LaravelTranslator;
 use App\Features\Shared\Infra\Services\LaravelUrlGenerator;
@@ -397,13 +395,8 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            SessionStoreInterface::class,
-            LaravelSessionStore::class,
-        );
-
-        $this->app->bind(
-            AuthGuardInterface::class,
-            LaravelAuthGuard::class,
+            AdminSessionInterface::class,
+            LaravelAdminSession::class,
         );
 
         $this->app->bind(

@@ -10,7 +10,7 @@ use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterfa
 use App\Features\Auth\App\Services\SessionVersionSynchronizer;
 use App\Features\Shared\App\BaseUseCase;
 use App\Features\Shared\App\Contracts\PasswordHasherInterface;
-use App\Features\Shared\App\Contracts\SessionStoreInterface;
+use App\Features\Shared\App\Contracts\AdminSessionInterface;
 
 /**
  * Disables TOTP: requires the current password, removes the secret +
@@ -25,7 +25,7 @@ final class DisableTotpUseCase extends BaseUseCase
         private readonly AdminTimedOtpRepositoryInterface $otpRepository,
         private readonly SessionVersionSynchronizer $sessionVersion,
         private readonly PasswordHasherInterface $hasher,
-        private readonly SessionStoreInterface $sessions,
+        private readonly AdminSessionInterface $sessions,
     ) {
     }
 

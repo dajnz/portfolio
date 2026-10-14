@@ -11,7 +11,7 @@ use App\Features\Auth\Domain\Exceptions\GithubAlreadyLinkedException;
 use App\Features\Auth\Domain\Exceptions\GithubConflictException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Shared\App\BaseUseCase;
-use App\Features\Shared\App\Contracts\SessionStoreInterface;
+use App\Features\Shared\App\Contracts\AdminSessionInterface;
 use DateTimeImmutable;
 
 /**
@@ -28,7 +28,7 @@ final class LinkGithubUseCase extends BaseUseCase
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
         private readonly SessionVersionSynchronizer $sessionVersion,
-        private readonly SessionStoreInterface $sessions,
+        private readonly AdminSessionInterface $sessions,
     ) {
     }
 

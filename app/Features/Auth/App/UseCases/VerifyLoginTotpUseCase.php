@@ -9,7 +9,7 @@ use App\Features\Auth\Domain\Exceptions\TotpPendingInvalidException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Auth\Infra\Services\AdminAuthService;
 use App\Features\Shared\App\BaseUseCase;
-use App\Features\Shared\App\Contracts\SessionStoreInterface;
+use App\Features\Shared\App\Contracts\AdminSessionInterface;
 
 /**
  * Login-flow TOTP verification: resolves the half-auth admin from the
@@ -24,7 +24,7 @@ final class VerifyLoginTotpUseCase extends BaseUseCase
         private readonly VerifyTotpUseCase $verifyTotp,
         private readonly LoginUseCase $login,
         private readonly AdminAuthService $auth,
-        private readonly SessionStoreInterface $sessions,
+        private readonly AdminSessionInterface $sessions,
     ) {
     }
 

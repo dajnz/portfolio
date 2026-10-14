@@ -10,7 +10,7 @@ use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Auth\App\Services\SessionVersionSynchronizer;
 use App\Features\Shared\App\BaseUseCase;
 use App\Features\Shared\App\Contracts\PasswordHasherInterface;
-use App\Features\Shared\App\Contracts\SessionStoreInterface;
+use App\Features\Shared\App\Contracts\AdminSessionInterface;
 
 /**
  * Profile update incl. password change. The current-password check happens
@@ -26,7 +26,7 @@ final class UpdateProfileUseCase extends BaseUseCase
         private readonly AdminRepositoryInterface $repository,
         private readonly SessionVersionSynchronizer $sessionVersion,
         private readonly PasswordHasherInterface $hasher,
-        private readonly SessionStoreInterface $sessions,
+        private readonly AdminSessionInterface $sessions,
     ) {
     }
 

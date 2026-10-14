@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Auth\App\Services;
 
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
-use App\Features\Shared\App\Contracts\AuthGuardInterface;
-use App\Features\Shared\App\Contracts\SessionStoreInterface;
+use App\Features\Shared\App\Contracts\AdminSessionInterface;
 
 /**
  * Increments `admins.session_version` and keeps the current session in sync.
@@ -29,8 +28,7 @@ final class SessionVersionSynchronizer
 {
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
-        private readonly SessionStoreInterface $sessions,
-        private readonly AuthGuardInterface $guard,
+        private readonly AdminSessionInterface $sessions,
     ) {
     }
 
@@ -45,7 +43,7 @@ final class SessionVersionSynchronizer
     {
         $version = $this->repository->incrementSessionVersion($adminId);
 
-        $this->guard->loginUsingId($adminId);
+        $this->sessions->loginUsingId($adminId);
         $this->sessions->put(['session_version' => $version]);
     }
 }

@@ -11,8 +11,7 @@ use App\Features\Auth\Domain\Exceptions\TotpLockedException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Auth\Infra\Services\AdminAuthService;
 use App\Features\Shared\App\BaseUseCase;
-use App\Features\Shared\App\Contracts\AuthGuardInterface;
-use App\Features\Shared\App\Contracts\SessionStoreInterface;
+use App\Features\Shared\App\Contracts\AdminSessionInterface;
 
 /**
  * GitHub-link TOTP re-authentication: resolves the pending link data from
@@ -27,8 +26,7 @@ final class VerifyGithubLinkTotpUseCase extends BaseUseCase
         private readonly VerifyTotpUseCase $verifyTotp,
         private readonly LinkGithubUseCase $linkGithub,
         private readonly AdminAuthService $auth,
-        private readonly SessionStoreInterface $sessions,
-        private readonly AuthGuardInterface $guard,
+        private readonly AdminSessionInterface $sessions,
     ) {
     }
 
@@ -43,7 +41,7 @@ final class VerifyGithubLinkTotpUseCase extends BaseUseCase
     {
         $admin = $this->repository->findById((int) $this->sessions->get('github_link.pending_admin_id'));
 
-        if ($admin === null || ! $this->guard->check() || $this->guard->id() !== $admin->toId()) {
+        if ($admin === null || ! $this->sessions->check() || $this->sessions->id() !== $admin->toId()) {
             $this->clearPending();
 
             throw new GithubLinkPendingInvalidException();
