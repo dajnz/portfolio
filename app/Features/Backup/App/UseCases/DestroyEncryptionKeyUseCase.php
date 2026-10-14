@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Backup\App\UseCases;
 
-use App\Features\Backup\Domain\Entities\EncryptionKey;
+use App\Features\Backup\Domain\Exceptions\EncryptionKeyNotFoundException;
 use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use App\Features\Backup\Domain\RepositoryInterfaces\EncryptionKeyRepositoryInterface;
 use RuntimeException;
@@ -24,8 +24,9 @@ final class DestroyEncryptionKeyUseCase
     ) {
     }
 
-    public function destroy(EncryptionKey $key): void
+    public function destroy(int $keyId): void
     {
+        $key = $this->keys->find($keyId) ?? throw EncryptionKeyNotFoundException::forId($keyId);
         $references = $this->backups->countForEncryptionKey($key->toId());
 
         if ($references > 0) {

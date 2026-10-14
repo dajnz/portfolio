@@ -8,11 +8,10 @@ use App\Features\Backup\App\UseCases\DestroyEncryptionKeyUseCase;
 use App\Features\Backup\App\UseCases\GenerateEncryptionKeyUseCase;
 use App\Features\Backup\App\UseCases\ListEncryptionKeysUseCase;
 use App\Features\Backup\Domain\Entities\EncryptionKey;
-use App\Features\Backup\Domain\RepositoryInterfaces\EncryptionKeyRepositoryInterface;
+use App\Features\Backup\Domain\Exceptions\EncryptionKeyNotFoundException;
+use App\Features\Backup\Infra\Requests\StoreEncryptionKeyRequest;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 use Throwable;
@@ -29,7 +28,6 @@ final class EncryptionKeyController
         private readonly ListEncryptionKeysUseCase $listCase,
         private readonly GenerateEncryptionKeyUseCase $generateCase,
         private readonly DestroyEncryptionKeyUseCase $destroyCase,
-        private readonly EncryptionKeyRepositoryInterface $keys,
     ) {
     }
 
@@ -49,13 +47,9 @@ final class EncryptionKeyController
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreEncryptionKeyRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100', Rule::unique('backup_encryption_keys', 'name')],
-        ]);
-
-        $key = $this->generateCase->generate((string) $validated['name']);
+        $key = $this->generateCase->generate((string) $request->validated('name'));
 
         return Response::json([
             'data' => self::keyProps($key),
@@ -64,26 +58,15 @@ final class EncryptionKeyController
 
     public function destroy(int $key): JsonResponse
     {
-        $entity = $this->findKey($key);
-
         try {
-            $this->destroyCase->destroy($entity);
+            $this->destroyCase->destroy($key);
+        } catch (EncryptionKeyNotFoundException) {
+            abort(HttpResponse::HTTP_NOT_FOUND);
         } catch (Throwable $exception) {
             throw ValidationException::withMessages(['key' => $exception->getMessage()]);
         }
 
         return Response::json(null, HttpResponse::HTTP_NO_CONTENT);
-    }
-
-    private function findKey(int $id): EncryptionKey
-    {
-        $key = $this->keys->find($id);
-
-        if ($key === null) {
-            abort(HttpResponse::HTTP_NOT_FOUND);
-        }
-
-        return $key;
     }
 
     /**
