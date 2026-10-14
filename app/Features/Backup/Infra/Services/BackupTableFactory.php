@@ -9,8 +9,7 @@ use App\Features\Backup\App\DTOs\BackupTableImport;
 use App\Features\Backup\Infra\Serialization\JsonlTableSerializer;
 use App\Features\Backup\Infra\Serialization\LaravelDbTableBatchReader;
 use App\Features\Backup\Infra\Serialization\LaravelDbTableBatchWriter;
-
-use function config;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Builds the per-table workflow bundles from `config('backup.tables')` +
@@ -29,10 +28,10 @@ final class BackupTableFactory
     {
         $tables = [];
 
-        foreach (config('backup.tables', []) as $table) {
+        foreach (Config::get('backup.tables', []) as $table) {
             $tables[] = new BackupTableExport(
                 name: $table,
-                reader: new LaravelDbTableBatchReader($table, config('backup.table_keys')[$table] ?? 'id'),
+                reader: new LaravelDbTableBatchReader($table, Config::get('backup.table_keys')[$table] ?? 'id'),
                 exporter: new JsonlTableSerializer($table),
             );
         }
@@ -47,7 +46,7 @@ final class BackupTableFactory
     {
         $tables = [];
 
-        foreach (config('backup.tables', []) as $table) {
+        foreach (Config::get('backup.tables', []) as $table) {
             $tables[] = new BackupTableImport(
                 name: $table,
                 importer: new JsonlTableSerializer($table),

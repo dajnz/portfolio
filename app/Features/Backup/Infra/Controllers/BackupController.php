@@ -20,6 +20,8 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response as ResponseFacade;
 use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -72,7 +74,7 @@ final class BackupController
         // The async create only STARTS here: the flash announces the
         // start, the UI fires the "Backup created." toast when its
         // status poll observes the completed record.
-        return back()->with('notification', ['type' => 'success', 'message' => __('admin.toasts.backup_creation_started')]);
+        return Redirect::back()->with('notification', ['type' => 'success', 'message' => __('admin.toasts.backup_creation_started')]);
     }
 
     public function destroy(int $backup): HttpResponse
@@ -82,10 +84,10 @@ final class BackupController
         try {
             $this->destroyCase->destroy($entity);
         } catch (Throwable $exception) {
-            return back()->with('notification', ['type' => 'error', 'message' => $exception->getMessage()]);
+            return Redirect::back()->with('notification', ['type' => 'error', 'message' => $exception->getMessage()]);
         }
 
-        return back()->with('notification', ['type' => 'success', 'message' => __('admin.toasts.backup_deleted')]);
+        return Redirect::back()->with('notification', ['type' => 'success', 'message' => __('admin.toasts.backup_deleted')]);
     }
 
     public function restore(RestoreBackupRequest $request): HttpResponse
@@ -93,7 +95,7 @@ final class BackupController
         $entity = $this->findBackup((int) $request->validated('backup_id'));
 
         if (! $entity->canDownload()) {
-            return back()->with('notification', [
+            return Redirect::back()->with('notification', [
                 'type' => 'error',
                 'message' => __('admin.toasts.backup_restore_failed'),
             ]);
@@ -101,7 +103,7 @@ final class BackupController
 
         Bus::dispatch(new RestoreBackupJob($entity->toId()));
 
-        return back()->with('notification', [
+        return Redirect::back()->with('notification', [
             'type' => 'success',
             'message' => __('admin.toasts.backup_restore_started'),
         ]);
@@ -121,7 +123,7 @@ final class BackupController
 
         Bus::dispatch(new RestoreBackupJob($imported->toId()));
 
-        return redirect('/admin/backups')->with('notification', [
+        return Redirect::to('/admin/backups')->with('notification', [
             'type' => 'success',
             'message' => __('admin.toasts.backup_restore_started'),
         ]);
@@ -143,7 +145,7 @@ final class BackupController
             abort(HttpResponse::HTTP_NOT_FOUND);
         }
 
-        return response()->streamDownload(function () use ($stream): void {
+        return ResponseFacade::streamDownload(function () use ($stream): void {
             while (! feof($stream)) {
                 echo fread($stream, 8192);
             }
@@ -156,7 +158,7 @@ final class BackupController
     {
         $entity = $this->findBackup($backup);
 
-        return response()->json([
+        return ResponseFacade::json([
             'data' => [
                 'id' => $entity->toId(),
                 'status' => $entity->toStatus()->value,

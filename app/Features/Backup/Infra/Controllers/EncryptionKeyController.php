@@ -11,6 +11,7 @@ use App\Features\Backup\Domain\Entities\EncryptionKey;
 use App\Features\Backup\Domain\RepositoryInterfaces\EncryptionKeyRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -34,7 +35,7 @@ final class EncryptionKeyController
 
     public function index(): JsonResponse
     {
-        return response()->json([
+        return Response::json([
             'data' => array_map(
                 static fn ($item): array => [
                     'id' => $item->id,
@@ -56,7 +57,7 @@ final class EncryptionKeyController
 
         $key = $this->generateCase->generate((string) $validated['name']);
 
-        return response()->json([
+        return Response::json([
             'data' => self::keyProps($key),
         ], HttpResponse::HTTP_CREATED);
     }
@@ -71,7 +72,7 @@ final class EncryptionKeyController
             throw ValidationException::withMessages(['key' => $exception->getMessage()]);
         }
 
-        return response()->json(null, HttpResponse::HTTP_NO_CONTENT);
+        return Response::json(null, HttpResponse::HTTP_NO_CONTENT);
     }
 
     private function findKey(int $id): EncryptionKey
