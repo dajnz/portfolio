@@ -207,6 +207,10 @@ describe('BlogIndexPage', () => {
         const link = wrapper.get('[data-testid="footer-rss-link"]');
         expect(link.attributes('href')).toBe('/rss');
         expect(link.text()).toBe('RSS');
+
+        // The RSS link sits above the copyright note on the blog index.
+        const inner = wrapper.get('.footer__inner').element.innerHTML;
+        expect(inner.indexOf('footer-rss-link')).toBeLessThan(inner.indexOf('footer__copyright'));
     });
 
     it('hides the Projects nav link when no published project exists', async () => {

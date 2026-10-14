@@ -12,6 +12,13 @@ runtime support.
 
 ### Changed
 
+- **Footer copyright owner name shared (v1.0.34 inertia):** `InertiaSharedProps`
+  gained a `copyright` object with the locale-resolved `owner_name` from the
+  about section (`about_info_translations.name`, `en` fallback), so every
+  public and admin footer can render the owner name after the copyright
+  year/range without per-page props. No other schema changes; `info.version`
+  bumped to `1.0.34` in `inertia.yaml`.
+
 - **Blog tag search localized (v1.0.8 REST, v1.0.33 inertia):** the
   `/api/tags/search` and `/api/blog-tags/search` descriptions now state
   that the query matches every localized tag name and that the returned

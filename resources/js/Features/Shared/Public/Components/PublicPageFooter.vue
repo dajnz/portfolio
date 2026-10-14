@@ -1,24 +1,20 @@
 <script setup lang="ts">
-import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useCopyrightNotice } from '@shared-cross/Composables/useCopyrightNotice';
 import { Comment, Fragment, Text, useSlots, type VNode } from 'vue';
 
 import PublicCenteredContainer from './PublicCenteredContainer.vue';
 
 const props = withDefaults(
     defineProps<{
-        copyright_year?: string;
-        copyright_name?: string;
         test_id?: string;
     }>(),
     {
-        copyright_year: undefined,
-        copyright_name: undefined,
         test_id: 'public-footer',
     },
 );
 
-const { t } = useI18n();
 const slots = useSlots();
+const copyrightText = useCopyrightNotice();
 
 // The layout always forwards its `footer` slot (empty when the page
 // provides nothing), so presence is checked by rendering the slot and
@@ -46,14 +42,6 @@ function isEmptyVNode(vnode: VNode): boolean {
 
     return false;
 }
-
-function copyrightText(): string {
-    const year = props.copyright_year ?? String(new Date().getFullYear());
-    const name = props.copyright_name ?? '';
-    const ownerYear = name !== '' ? `${year} ${name}` : year;
-
-    return t('landing.footer_copyright', { owner_year: ownerYear });
-}
 </script>
 
 <template>
@@ -66,15 +54,15 @@ function copyrightText(): string {
       size="content"
       class="footer__inner"
     >
-      <p class="footer__copyright">
-        {{ copyrightText() }}
-      </p>
       <div
         v-if="hasExtras()"
         class="footer__extras"
       >
         <slot />
       </div>
+      <p class="footer__copyright">
+        {{ copyrightText }}
+      </p>
     </PublicCenteredContainer>
   </footer>
 </template>
@@ -95,7 +83,7 @@ function copyrightText(): string {
  * When the extras row is present the block padding shrinks (12px per
  * side vs the 24px of the copyright-only state) so the footer keeps the
  * same overall height: the ~24px given back are consumed by the extra
- * row (xs font) plus the sm gap between the rows.
+ * row (xs font) plus the xs gap between the rows.
  */
 .footer--has-extras {
     padding-block: calc(var(--space-md) - var(--space-xs));
@@ -106,7 +94,7 @@ function copyrightText(): string {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
 }
 
 .footer__copyright {

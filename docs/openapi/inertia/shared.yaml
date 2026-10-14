@@ -13,6 +13,7 @@ components:
         - cspNonce
         - featureFlags
         - settings
+        - copyright
       properties:
         locale:
           type: string
@@ -112,6 +113,18 @@ components:
                     type: string
                   value:
                     type: string
+        copyright:
+          type: object
+          required: [owner_name]
+          description: |
+            Footer copyright data shared to every page (public and admin):
+            the owner's display name, locale-resolved from the about section
+            (`about_info_translations.name`, `en` fallback, empty when no
+            about row exists). The footer renders it after the copyright
+            year/range.
+          properties:
+            owner_name:
+              type: string
         settings:
           type: object
           properties:

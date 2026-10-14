@@ -56,8 +56,6 @@ const props = withDefaults(
         locale_props?: LocaleProps;
         theme_props?: Record<string, string>;
         language_classes?: Record<string, string>;
-        copyright_year?: string;
-        copyright_name?: string;
         dashboard?: DashboardItem | null;
         test_id?: string;
     }>(),
@@ -72,8 +70,6 @@ const props = withDefaults(
         locale_props: () => ({ active_locale: 'en', supported_locales: [] }),
         theme_props: () => ({}),
         language_classes: () => ({}),
-        copyright_year: undefined,
-        copyright_name: undefined,
         dashboard: null,
         test_id: 'admin-layout',
     },
@@ -221,10 +217,7 @@ useAdminShortcuts();
         <slot />
       </AdminCenteredContainer>
     </div>
-    <AdminPageFooter
-      :copyright_year="props.copyright_year"
-      :copyright_name="props.copyright_name"
-    >
+    <AdminPageFooter>
       <slot name="footer" />
     </AdminPageFooter>
     <AdminGoTop />

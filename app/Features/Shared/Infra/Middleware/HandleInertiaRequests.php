@@ -43,8 +43,11 @@ final class HandleInertiaRequests extends Middleware
 
     public function share(Request $request): array
     {
+        $locale = App::getLocale();
+        $ownerName = $this->aboutInfo->findSiteName($locale);
+
         return array_merge(parent::share($request), [
-            'locale' => App::getLocale(),
+            'locale' => $locale,
             // Only active locales (the `supported_locales` setting) are shown
             // in the language selector and per-locale editing tabs; disabled
             // locales are neither editable nor deleted.
@@ -61,7 +64,10 @@ final class HandleInertiaRequests extends Middleware
             'notification' => $request->session()->get('notification'),
             'cspNonce' => App::bound(CspNonce::class) ? App::make(CspNonce::class)->getValue() : '',
             'featureFlags' => $this->featureFlags(),
-            'console_greeting' => $this->consoleGreeting(),
+            'copyright' => [
+                'owner_name' => $ownerName,
+            ],
+            'console_greeting' => $this->consoleGreeting($locale, $ownerName),
             'settings' => [
                 'locale' => $request->attributes->get('locale', App::getLocale()),
                 'theme' => $request->attributes->get('theme', 'light'),
@@ -127,13 +133,11 @@ final class HandleInertiaRequests extends Middleware
      *     contacts: array<int, array{label: string, value: string}>,
      * }
      */
-    private function consoleGreeting(): array
+    private function consoleGreeting(string $locale, string $ownerName): array
     {
-        $locale = App::getLocale();
-
         return [
             'greeting' => Lang::string('landing.console_greeting'),
-            'name' => $this->aboutInfo->findSiteName($locale),
+            'name' => $ownerName,
             'position' => $this->aboutInfo->findSiteTitle($locale),
             'contacts' => array_map(
                 static fn (array $contact): array => [

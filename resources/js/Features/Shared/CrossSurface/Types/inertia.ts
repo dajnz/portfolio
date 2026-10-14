@@ -933,6 +933,16 @@ export interface components {
                     value?: string;
                 }[];
             };
+            /**
+             * @description Footer copyright data shared to every page (public and admin):
+             *     the owner's display name, locale-resolved from the about section
+             *     (`about_info_translations.name`, `en` fallback, empty when no
+             *     about row exists). The footer renders it after the copyright
+             *     year/range.
+             */
+            copyright: {
+                owner_name: string;
+            };
             /** @description Public settings from SettingsService. */
             settings: {
                 locale?: string;

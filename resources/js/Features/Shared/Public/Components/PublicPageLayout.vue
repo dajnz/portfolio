@@ -16,8 +16,6 @@ const props = withDefaults(
         active_route?: string;
         logo_url?: string;
         logo_text?: string;
-        copyright_year?: string;
-        copyright_name?: string;
         centered?: boolean;
         test_id?: string;
     }>(),
@@ -26,8 +24,6 @@ const props = withDefaults(
         active_route: undefined,
         logo_url: '/',
         logo_text: undefined,
-        copyright_year: undefined,
-        copyright_name: undefined,
         centered: true,
         test_id: 'public-layout',
     },
@@ -80,10 +76,7 @@ const greeting = computed((): ConsoleGreetingData | null => {
     >
       <slot />
     </PublicCenteredContainer>
-    <PublicPageFooter
-      :copyright_year="props.copyright_year"
-      :copyright_name="props.copyright_name"
-    >
+    <PublicPageFooter>
       <slot name="footer" />
     </PublicPageFooter>
     <PublicGoTop />
