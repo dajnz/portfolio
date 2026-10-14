@@ -12,6 +12,15 @@ runtime support.
 
 ### Changed
 
+- **Blog tag search localized (v1.0.8 REST, v1.0.33 inertia):** the
+  `/api/tags/search` and `/api/blog-tags/search` descriptions now state
+  that the query matches every localized tag name and that the returned
+  `name` resolves to the request locale (`locale` cookie /
+  `Accept-Language`, `en` fallback); the `ArticleCardData` and
+  `ArticleDetailData` `tags` descriptions note that article tags render
+  as linked chips (`/blog?article_tags={id}`), the same chip as
+  `skill_tags`. No schema or wire-shape changes.
+
 - **`console_greeting` moved to the shared Inertia props (v1.0.32 inertia):**
   the console greeting data now ships with `InertiaSharedProps` instead of
   `LandingPageProps`, so the public layout renders `ConsoleGreeting` on every
