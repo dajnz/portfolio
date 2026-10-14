@@ -8,6 +8,7 @@ use App\Features\Experience\Domain\Entities\TimelineItem;
 use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The public experience timeline: published, non-trashed items ordered
@@ -180,7 +181,7 @@ final class GetPublicTimelineUseCase
     {
         return (int) $this->settings->value(
             SettingName::ExperienceItemsPerPage,
-            config('portfolio.experience_items_per_page', 15),
+            Config::get('portfolio.experience_items_per_page', 15),
         );
     }
 

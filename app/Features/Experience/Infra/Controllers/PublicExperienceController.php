@@ -10,6 +10,8 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Infra\Persistence\Cursor;
 use App\Features\Shared\Infra\Persistence\PublicCursorCodec;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
@@ -35,7 +37,7 @@ final class PublicExperienceController
 
     public function index(ResponseFactory $inertia, Request $request): Response
     {
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
         $cursor = $this->cursorCodec->decode((string) $request->query('cursor', ''));
 
         $data = $this->timelineCase->get(
@@ -154,8 +156,8 @@ final class PublicExperienceController
         return [
             'title' => __('seo.title_experience', ['name' => $aboutName]),
             'description' => __('seo.description_experience'),
-            'canonical_url' => url('/experience'),
-            'og_url' => url('/experience'),
+            'canonical_url' => URL::to('/experience'),
+            'og_url' => URL::to('/experience'),
             'og_type' => 'website',
         ];
     }

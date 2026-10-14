@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Features\Experience\Infra\Controllers\AdminExperienceController;
 use App\Features\Experience\Infra\Controllers\PublicExperienceController;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/experience', [PublicExperienceController::class, 'index']);
 Route::get('/{locale}/experience', [PublicExperienceController::class, 'index'])
-    ->whereIn('locale', config('portfolio.supported_locales', ['en', 'ru']));
+    ->whereIn('locale', Config::get('portfolio.supported_locales', ['en', 'ru']));
 
 Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function (): void {
     Route::get('/admin/experience', [AdminExperienceController::class, 'index']);
