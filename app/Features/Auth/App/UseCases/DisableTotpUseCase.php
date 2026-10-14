@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\App\UseCases;
 
-use App\Features\Auth\Domain\Entities\Admin;
 use App\Features\Auth\Domain\Exceptions\InvalidCurrentPasswordException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterface;
+use App\Features\Auth\App\Services\AdminResolver;
 use App\Features\Auth\App\Services\SessionVersionSynchronizer;
 use App\Features\Shared\App\BaseUseCase;
 use App\Features\Shared\App\Contracts\PasswordHasherInterface;
@@ -23,6 +23,7 @@ final class DisableTotpUseCase extends BaseUseCase
 {
     public function __construct(
         private readonly AdminTimedOtpRepositoryInterface $otpRepository,
+        private readonly AdminResolver $admins,
         private readonly SessionVersionSynchronizer $sessionVersion,
         private readonly PasswordHasherInterface $hasher,
         private readonly AdminSessionInterface $sessions,
@@ -32,8 +33,10 @@ final class DisableTotpUseCase extends BaseUseCase
     /**
      * @throws InvalidCurrentPasswordException
      */
-    public function disable(Admin $admin, string $currentPassword): void
+    public function disable(int $adminId, string $currentPassword): void
     {
+        $admin = $this->admins->require($adminId);
+
         if (! $this->hasher->verify($currentPassword, $admin->toPasswordHash())) {
             throw new InvalidCurrentPasswordException();
         }

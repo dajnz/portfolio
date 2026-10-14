@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\App\UseCases;
 
+use App\Features\Auth\App\Services\AdminResolver;
 use App\Features\Auth\App\Services\SessionVersionSynchronizer;
 use App\Features\Auth\Domain\Entities\Admin;
 use App\Features\Auth\Domain\Enums\GithubLinkOutcome;
@@ -27,14 +28,17 @@ final class LinkGithubUseCase extends BaseUseCase
 
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
+        private readonly AdminResolver $admins,
         private readonly SessionVersionSynchronizer $sessionVersion,
         private readonly AdminSessionInterface $sessions,
     ) {
     }
 
     /** Runs the link intent flow and reports its outcome (no exceptions). */
-    public function linkOrPrepare(Admin $admin, string $githubId, string $githubToken): GithubLinkOutcome
+    public function linkOrPrepare(int $adminId, string $githubId, string $githubToken): GithubLinkOutcome
     {
+        $admin = $this->admins->require($adminId);
+
         if ($admin->hasGithubId($githubId)) {
             return GithubLinkOutcome::AlreadyLinked;
         }
@@ -49,7 +53,7 @@ final class LinkGithubUseCase extends BaseUseCase
             return GithubLinkOutcome::TotpRequired;
         }
 
-        $this->link($admin, $githubId, $githubToken);
+        $this->link($adminId, $githubId, $githubToken);
 
         return GithubLinkOutcome::Linked;
     }
@@ -60,8 +64,10 @@ final class LinkGithubUseCase extends BaseUseCase
      * @throws GithubAlreadyLinkedException when the ID is already bound to this admin
      * @throws GithubConflictException      when the ID is bound to a different admin
      */
-    public function link(Admin $admin, string $githubId, string $githubToken): void
+    public function link(int $adminId, string $githubId, string $githubToken): void
     {
+        $admin = $this->admins->require($adminId);
+
         if ($admin->hasGithubId($githubId)) {
             throw new GithubAlreadyLinkedException();
         }
@@ -74,8 +80,10 @@ final class LinkGithubUseCase extends BaseUseCase
         $this->sessionVersion->bumpAndSync($admin->toId());
     }
 
-    public function unlink(Admin $admin): void
+    public function unlink(int $adminId): void
     {
+        $admin = $this->admins->require($adminId);
+
         $this->repository->save($admin->withoutGithubLink());
         $this->sessionVersion->bumpAndSync($admin->toId());
     }

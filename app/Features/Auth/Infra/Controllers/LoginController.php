@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Infra\Controllers;
 
+use App\Features\Auth\App\UseCases\GetLoginPageDataUseCase;
 use App\Features\Auth\App\UseCases\LoginUseCase;
-use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Auth\Infra\Requests\LoginRequest;
 use App\Features\Auth\Infra\Services\AdminAuthService;
-use App\Features\Settings\Domain\Enums\FeatureFlagName;
-use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,9 +23,8 @@ final class LoginController
 {
     public function __construct(
         private readonly LoginUseCase $loginCase,
-        private readonly FeatureFlagRepositoryInterface $flags,
+        private readonly GetLoginPageDataUseCase $loginPageData,
         private readonly AdminAuthService $auth,
-        private readonly AdminRepositoryInterface $admins,
     ) {
     }
 
@@ -37,11 +34,7 @@ final class LoginController
         $this->auth->clearPendingTotpLogin();
 
         return $inertia->render('Auth/Admin/Pages/LoginPage', [
-            // The GitHub button is shown only when the flag is ON AND at
-            // least one admin account is linked — the OAuth login flow can
-            // only fail otherwise.
-            'github_login_available' => $this->flags->isEnabled(FeatureFlagName::GithubOauth)
-                && $this->admins->hasGithubLinkedAdmin(),
+            'github_login_available' => $this->loginPageData->get()->githubLoginAvailable,
             'loginPage' => true,
         ]);
     }

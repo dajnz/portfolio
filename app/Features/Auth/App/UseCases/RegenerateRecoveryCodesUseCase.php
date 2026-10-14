@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\App\UseCases;
 
-use App\Features\Auth\Domain\Entities\Admin;
+use App\Features\Auth\App\Services\AdminResolver;
 use App\Features\Auth\Domain\Entities\AdminTimedOtp;
 use App\Features\Auth\Domain\Exceptions\InvalidCurrentPasswordException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterface;
@@ -22,6 +22,7 @@ final class RegenerateRecoveryCodesUseCase extends BaseUseCase
 {
     public function __construct(
         private readonly AdminTimedOtpRepositoryInterface $otpRepository,
+        private readonly AdminResolver $admins,
         private readonly PasswordHasherInterface $hasher,
     ) {
     }
@@ -31,8 +32,10 @@ final class RegenerateRecoveryCodesUseCase extends BaseUseCase
      *
      * @throws InvalidCurrentPasswordException
      */
-    public function regenerate(Admin $admin, string $currentPassword): array
+    public function regenerate(int $adminId, string $currentPassword): array
     {
+        $admin = $this->admins->require($adminId);
+
         if (! $this->hasher->verify($currentPassword, $admin->toPasswordHash())) {
             throw new InvalidCurrentPasswordException();
         }

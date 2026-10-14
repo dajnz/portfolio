@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\App\UseCases;
 
-use App\Features\Auth\Domain\Entities\Admin;
 use App\Features\Auth\Domain\Exceptions\InvalidCurrentPasswordException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
+use App\Features\Auth\App\Services\AdminResolver;
 use App\Features\Auth\App\Services\SessionVersionSynchronizer;
 use App\Features\Shared\App\BaseUseCase;
 use App\Features\Shared\App\Contracts\PasswordHasherInterface;
@@ -24,6 +24,7 @@ final class UpdateProfileUseCase extends BaseUseCase
 {
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
+        private readonly AdminResolver $admins,
         private readonly SessionVersionSynchronizer $sessionVersion,
         private readonly PasswordHasherInterface $hasher,
         private readonly AdminSessionInterface $sessions,
@@ -33,8 +34,10 @@ final class UpdateProfileUseCase extends BaseUseCase
     /**
      * @throws InvalidCurrentPasswordException when a new password is submitted with a wrong current one
      */
-    public function update(Admin $admin, string $name, string $email, string $login, ?string $newPassword, ?string $currentPassword): void
+    public function update(int $adminId, string $name, string $email, string $login, ?string $newPassword, ?string $currentPassword): void
     {
+        $admin = $this->admins->require($adminId);
+
         if ($newPassword !== null && ! $this->hasher->verify((string) $currentPassword, $admin->toPasswordHash())) {
             throw new InvalidCurrentPasswordException();
         }

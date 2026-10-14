@@ -6,18 +6,16 @@ namespace App\Features\Auth\Infra\Controllers;
 
 use App\Features\Auth\App\UseCases\DisableTotpUseCase;
 use App\Features\Auth\App\UseCases\EnableTotpUseCase;
+use App\Features\Auth\App\UseCases\GetAdminProfileUseCase;
 use App\Features\Auth\App\UseCases\LinkGithubUseCase;
 use App\Features\Auth\App\UseCases\RegenerateRecoveryCodesUseCase;
 use App\Features\Auth\App\UseCases\UpdateProfileUseCase;
 use App\Features\Auth\Domain\Exceptions\InvalidCurrentPasswordException;
 use App\Features\Auth\Domain\Exceptions\InvalidTotpCodeException;
 use App\Features\Auth\Domain\Exceptions\TotpEnrollmentExpiredException;
-use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Auth\Infra\Requests\RequireCurrentPasswordRequest;
 use App\Features\Auth\Infra\Requests\TotpEnableRequest;
 use App\Features\Auth\Infra\Requests\UpdateProfileRequest;
-use App\Features\Settings\Domain\Enums\FeatureFlagName;
-use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -38,30 +36,29 @@ use Inertia\ResponseFactory;
 final class ProfileController
 {
     public function __construct(
-        private readonly AdminRepositoryInterface $repository,
+        private readonly GetAdminProfileUseCase $profileCase,
         private readonly UpdateProfileUseCase $updateProfileCase,
         private readonly EnableTotpUseCase $enableTotpCase,
         private readonly DisableTotpUseCase $disableTotpCase,
         private readonly RegenerateRecoveryCodesUseCase $regenerateRecoveryCodesCase,
         private readonly LinkGithubUseCase $linkGithubCase,
-        private readonly FeatureFlagRepositoryInterface $flags,
     ) {
     }
 
     public function edit(ResponseFactory $inertia): Response
     {
-        $admin = $this->repository->findById((int) Auth::id());
+        $profile = $this->profileCase->get((int) Auth::id());
 
         return $inertia->render('Auth/Admin/Pages/ProfilePage', [
             'admin' => [
-                'login' => $admin->toLogin(),
-                'email' => $admin->toEmail(),
-                'github_linked' => $admin->isGithubLinked(),
-                'totp_enabled' => $admin->toTimedOtp()->isEnabled(),
-                'recovery_codes_remaining' => $admin->toTimedOtp()->toRecoveryCodesRemaining(),
-                'session_version' => $admin->toSessionVersion(),
+                'login' => $profile->login,
+                'email' => $profile->email,
+                'github_linked' => $profile->githubLinked,
+                'totp_enabled' => $profile->totpEnabled,
+                'recovery_codes_remaining' => $profile->recoveryCodesRemaining,
+                'session_version' => $profile->sessionVersion,
             ],
-            'github_oauth_enabled' => $this->flags->isEnabled(FeatureFlagName::GithubOauth),
+            'github_oauth_enabled' => $profile->githubOauthEnabled,
         ]);
     }
 
@@ -69,7 +66,7 @@ final class ProfileController
     {
         try {
             $this->updateProfileCase->update(
-                $this->repository->findById((int) $request->user()->getAuthIdentifier()),
+                (int) $request->user()->getAuthIdentifier(),
                 $request->input('name', ''),
                 $request->input('email', ''),
                 $request->input('login', ''),
@@ -85,14 +82,14 @@ final class ProfileController
 
     public function enableTotp(TotpEnableRequest $request): JsonResponse
     {
-        $admin = $this->repository->findById((int) $request->user()->getAuthIdentifier());
+        $adminId = (int) $request->user()->getAuthIdentifier();
 
         if ($request->input('code') === null) {
-            return ResponseFacade::json(['data' => $this->enableTotpCase->start($admin)]);
+            return ResponseFacade::json(['data' => $this->enableTotpCase->start($adminId)]);
         }
 
         try {
-            $recoveryCodes = $this->enableTotpCase->verifyAndEnable($admin, (string) $request->input('code'));
+            $recoveryCodes = $this->enableTotpCase->verifyAndEnable($adminId, (string) $request->input('code'));
         } catch (InvalidTotpCodeException) {
             throw ValidationException::withMessages(['code' => __('auth.invalid_totp_code')]);
         } catch (TotpEnrollmentExpiredException) {
@@ -106,7 +103,7 @@ final class ProfileController
     {
         try {
             $this->disableTotpCase->disable(
-                $this->repository->findById((int) $request->user()->getAuthIdentifier()),
+                (int) $request->user()->getAuthIdentifier(),
                 $request->input('current_password', ''),
             );
         } catch (InvalidCurrentPasswordException) {
@@ -120,7 +117,7 @@ final class ProfileController
     {
         try {
             $recoveryCodes = $this->regenerateRecoveryCodesCase->regenerate(
-                $this->repository->findById((int) $request->user()->getAuthIdentifier()),
+                (int) $request->user()->getAuthIdentifier(),
                 $request->input('current_password', ''),
             );
         } catch (InvalidCurrentPasswordException) {
@@ -133,7 +130,7 @@ final class ProfileController
     public function unlinkGithub(Request $request): RedirectResponse
     {
         $this->linkGithubCase->unlink(
-            $this->repository->findById((int) $request->user()->getAuthIdentifier()),
+            (int) $request->user()->getAuthIdentifier(),
         );
 
         return Redirect::back()->with('notification', ['type' => 'success', 'message' => __('auth.github_unlinked')]);

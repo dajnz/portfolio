@@ -59,7 +59,7 @@ final class VerifyGithubLinkTotpUseCase extends BaseUseCase
         $githubToken = (string) $this->sessions->pull('github_link.pending_token');
         $this->clearPending();
 
-        $this->linkGithub->link($admin, $githubId, $githubToken);
+        $this->linkGithub->link($admin->toId(), $githubId, $githubToken);
     }
 
     private function clearPending(): void
