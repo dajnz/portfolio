@@ -16,6 +16,7 @@ use App\Features\Projects\Domain\ValueObjects\ProjectId;
 use App\Features\Projects\Domain\ValueObjects\ProjectLinks;
 use App\Features\Projects\Domain\ValueObjects\ProjectPictures;
 use App\Features\Projects\Domain\ValueObjects\ProjectSlugs;
+use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\Domain\ValueObjects\PublishedState;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
@@ -23,7 +24,6 @@ use App\Features\Shared\Domain\ValueObjects\SkillIcon;
 use App\Features\Shared\Domain\ValueObjects\Slug;
 use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use App\Features\Shared\Domain\ValueObjects\StoredPicture;
-use Illuminate\Support\Facades\App as AppFacade;
 
 /**
  * Builds {@see Project} aggregates from the app-layer draft DTO — shared
@@ -37,6 +37,7 @@ final class ProjectEntityFactory
 {
     public function __construct(
         private readonly TechSkillReadRepositoryInterface $skills,
+        private readonly ActiveLocaleInterface $locales,
     ) {
     }
 
@@ -109,7 +110,7 @@ final class ProjectEntityFactory
                 skillName: $skill->toName(),
                 icon: $skill->toIcon() === null ? null : new SkillIcon($skill->toIcon()),
             ),
-            $this->skills->findByIds($techTagIds, AppFacade::getLocale()),
+            $this->skills->findByIds($techTagIds, $this->locales->current()),
         );
     }
 

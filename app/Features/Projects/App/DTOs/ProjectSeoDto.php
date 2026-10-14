@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace App\Features\Projects\App\DTOs;
 
-use Illuminate\Support\Facades\Config;
-
+/**
+ * The project pages' SEO data: the title/description, the canonical URL, the
+ * Open Graph type + image, the optional robots directive and the JSON-LD
+ * blocks. The callers supply the localized strings; the controller maps this
+ * into the wire `SeoProps` shape.
+ */
 final readonly class ProjectSeoDto
 {
     /**
@@ -22,28 +26,34 @@ final readonly class ProjectSeoDto
     ) {
     }
 
-    public static function forIndex(string $locale, string $siteName): self
+    public static function forIndex(string $title, string $description, string $baseUrl): self
     {
         return new self(
-            title: __('seo.title_projects_index', ['name' => $siteName]),
-            description: __('seo.description_projects_index', ['name' => $siteName]),
-            canonicalUrl: self::baseUrl().'/projects',
+            title: $title,
+            description: $description,
+            canonicalUrl: $baseUrl.'/projects',
             ogType: 'website',
         );
     }
 
-    public static function forDetail(ProjectDataDto $project, string $locale, string $siteName): self
-    {
+    /**
+     * @param  string  $seoTitle  The localized `<project> — <site>` title.
+     * @param  string  $projectsLabel  The localized breadcrumb label of the projects index.
+     */
+    public static function forDetail(
+        ProjectDataDto $project,
+        string $locale,
+        string $baseUrl,
+        string $seoTitle,
+        string $projectsLabel,
+    ): self {
         return new self(
-            title: __('seo.title_project_detail', [
-                'project_title' => self::localeText($project->translations->titles, $locale),
-                'name' => $siteName,
-            ]),
+            title: $seoTitle,
             description: self::localeText($project->translations->briefDescriptions, $locale),
-            canonicalUrl: self::baseUrl().'/projects/'.$project->slug,
+            canonicalUrl: $baseUrl.'/projects/'.$project->slug,
             ogType: 'article',
-            ogImage: self::imageUrl($project),
-            jsonLd: self::jsonLd($project, $locale),
+            ogImage: self::imageUrl($project, $baseUrl),
+            jsonLd: self::jsonLd($project, $locale, $baseUrl, $projectsLabel),
         );
     }
 
@@ -51,17 +61,18 @@ final readonly class ProjectSeoDto
      * The signed preview: the same title/description with the `noindex`
      * robots directive — preview pages must never enter the index.
      */
-    public static function forPreview(ProjectDataDto $project, string $locale): self
-    {
+    public static function forPreview(
+        ProjectDataDto $project,
+        string $locale,
+        string $baseUrl,
+        string $seoTitle,
+    ): self {
         return new self(
-            title: __('seo.title_project_detail', [
-                'project_title' => self::localeText($project->translations->titles, $locale),
-                'name' => '',
-            ]),
+            title: $seoTitle,
             description: self::localeText($project->translations->briefDescriptions, $locale),
-            canonicalUrl: self::baseUrl().'/projects/'.$project->slug,
+            canonicalUrl: $baseUrl.'/projects/'.$project->slug,
             ogType: 'article',
-            ogImage: self::imageUrl($project),
+            ogImage: self::imageUrl($project, $baseUrl),
             robots: 'noindex',
         );
     }
@@ -71,18 +82,22 @@ final readonly class ProjectSeoDto
      * `null` when no preview is set (the frontend falls back to the
      * default OG image).
      */
-    private static function imageUrl(ProjectDataDto $project): ?string
+    private static function imageUrl(ProjectDataDto $project, string $baseUrl): ?string
     {
         $path = $project->preview?->url;
 
-        return $path === null || $path === '' ? null : self::baseUrl().'/assets/'.$path;
+        return $path === null || $path === '' ? null : $baseUrl.'/assets/'.$path;
     }
 
     /**
      * @return array<int, array<string, mixed>>
      */
-    private static function jsonLd(ProjectDataDto $project, string $locale): array
-    {
+    private static function jsonLd(
+        ProjectDataDto $project,
+        string $locale,
+        string $baseUrl,
+        string $projectsLabel,
+    ): array {
         $sourceCode = [
             '@context' => 'https://schema.org',
             '@type' => 'SoftwareSourceCode',
@@ -107,8 +122,8 @@ final readonly class ProjectSeoDto
                     [
                         '@type' => 'ListItem',
                         'position' => 1,
-                        'name' => __('nav.projects'),
-                        'item' => self::baseUrl().'/projects',
+                        'name' => $projectsLabel,
+                        'item' => $baseUrl.'/projects',
                     ],
                     [
                         '@type' => 'ListItem',
@@ -121,19 +136,16 @@ final readonly class ProjectSeoDto
     }
 
     /**
-     * The locale-resolved text with the `en` fallback.
+     * The locale-resolved text with the `en` fallback — the resolution the
+     * SEO title and JSON-LD use. Exposed so callers composing the localized
+     * title apply the same fallback.
      *
      * @param  array<string, string|null>  $map
      */
-    private static function localeText(array $map, string $locale): string
+    public static function localeText(array $map, string $locale): string
     {
         $value = $map[$locale] ?? $map['en'] ?? null;
 
         return is_string($value) ? $value : '';
-    }
-
-    private static function baseUrl(): string
-    {
-        return rtrim((string) Config::get('app.url'), '/');
     }
 }

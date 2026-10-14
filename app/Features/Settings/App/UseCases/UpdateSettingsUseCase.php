@@ -6,8 +6,8 @@ namespace App\Features\Settings\App\UseCases;
 
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\DB;
+use App\Features\Shared\App\Contracts\EncrypterInterface;
+use App\Features\Shared\App\Contracts\TransactionManagerInterface;
 
 /**
  * Persists a batch of settings (`{ key: value, ... }`) atomically; the
@@ -22,6 +22,8 @@ final class UpdateSettingsUseCase
 {
     public function __construct(
         private readonly SettingRepositoryInterface $repository,
+        private readonly TransactionManagerInterface $transactionManager,
+        private readonly EncrypterInterface $encrypter,
     ) {
     }
 
@@ -30,7 +32,7 @@ final class UpdateSettingsUseCase
      */
     public function update(array $settings): void
     {
-        DB::transaction(function () use ($settings): void {
+        $this->transactionManager->transaction(function () use ($settings): void {
             foreach ($settings as $key => $value) {
                 $name = SettingName::from((string) $key);
 
@@ -49,6 +51,6 @@ final class UpdateSettingsUseCase
             return $value;
         }
 
-        return Crypt::encryptString((string) $value);
+        return $this->encrypter->encrypt((string) $value);
     }
 }

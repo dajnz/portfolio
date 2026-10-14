@@ -11,9 +11,9 @@ use App\Features\Blog\App\DTOs\RelatedArticleDto;
 use App\Features\Blog\App\DTOs\TagOptionDto;
 use App\Features\Blog\Domain\Entities\Article;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\App\Contracts\ArticleListQueryRepositoryInterface;
+use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
-use Illuminate\Support\Facades\App;
 
 /**
  * The article editor data (the create/edit form): the stored article
@@ -30,6 +30,7 @@ final class GetArticleForEditUseCase
         private readonly ArticleRepositoryInterface $repository,
         private readonly ArticleListQueryRepositoryInterface $listQuery,
         private readonly PreviewUrlGeneratorInterface $previewUrls,
+        private readonly ActiveLocaleInterface $locales,
     ) {
     }
 
@@ -93,7 +94,7 @@ final class GetArticleForEditUseCase
                 slug: $tag->slug,
                 name: $tag->name,
             ),
-            $this->listQuery->findAllTags($this->locale()),
+            $this->listQuery->findAllTags($this->locales->current()),
         );
     }
 
@@ -112,10 +113,5 @@ final class GetArticleForEditUseCase
             ),
             $this->listQuery->articleTagsFor([$articleId])[$articleId] ?? [],
         );
-    }
-
-    private function locale(): string
-    {
-        return App::getLocale();
     }
 }

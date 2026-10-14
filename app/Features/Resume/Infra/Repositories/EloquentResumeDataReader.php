@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Resume\Infra\Repositories;
 
+use App\Features\Resume\App\Contracts\ResumeDataReaderInterface;
 use Illuminate\Support\Facades\DB;
 use stdClass;
 

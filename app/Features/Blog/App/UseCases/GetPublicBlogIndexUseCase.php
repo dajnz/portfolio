@@ -5,18 +5,15 @@ declare(strict_types=1);
 namespace App\Features\Blog\App\UseCases;
 
 use App\Features\Blog\App\DTOs\ArticleCardDto;
-use App\Features\Blog\App\DTOs\BlogSeoDto;
 use App\Features\Blog\App\DTOs\PaginatedPublicBlogListDto;
 use App\Features\Blog\App\DTOs\PublicBlogListDto;
 use App\Features\Blog\App\DTOs\PublicBlogListQuery;
 use App\Features\Blog\App\DTOs\TagOptionDto;
+use App\Features\Blog\App\Services\BlogSeoFactory;
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
-use App\Features\Settings\Domain\Enums\SettingName;
-use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\App\Services\PageSizeResolver;
 use App\Features\Shared\App\Services\PaginationBuilder;
-use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
-use Illuminate\Support\Facades\Config;
 
 /**
  * The public blog index: published, non-trashed articles ordered
@@ -39,9 +36,9 @@ final class GetPublicBlogIndexUseCase
 {
     public function __construct(
         private readonly PublicArticleReadRepositoryInterface $repository,
-        private readonly SettingRepositoryInterface $settings,
-        private readonly AboutInfoReadRepositoryInterface $about,
         private readonly PaginationBuilder $pagination,
+        private readonly PageSizeResolver $pageSize,
+        private readonly BlogSeoFactory $seo,
     ) {
     }
 
@@ -59,7 +56,7 @@ final class GetPublicBlogIndexUseCase
             nextCursor: $this->nextCursorFor($rows, $reconstructed['last_batch_full'], $searching),
             tags: $this->tagOptions($this->repository->findAllTags($query->locale)),
             years: $this->repository->yearsOfPublishedArticles(),
-            seo: BlogSeoDto::forIndex($query->locale, $this->about->findSiteName($query->locale)),
+            seo: $this->seo->forIndex($query->locale),
             hasProjects: $this->repository->hasPublishedProjects(),
         );
     }
@@ -261,10 +258,7 @@ final class GetPublicBlogIndexUseCase
 
     private function resolvePerPage(): int
     {
-        return (int) $this->settings->value(
-            SettingName::ArticlesPerPage,
-            Config::get('portfolio.articles_per_page', 10),
-        );
+        return $this->pageSize->articlesPerPage();
     }
 
     /**

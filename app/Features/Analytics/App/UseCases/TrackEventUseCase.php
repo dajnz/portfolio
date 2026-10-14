@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Features\Analytics\App\UseCases;
 
+use App\Features\Analytics\App\Exceptions\InvalidAnalyticsEventException;
 use App\Features\Analytics\Domain\Entities\AnalyticsEvent;
 use App\Features\Analytics\Domain\Enums\PageType;
 use App\Features\Analytics\Domain\Factories\AnalyticsEventFactory;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsEventRepositoryInterface;
 use App\Features\Analytics\Domain\ValueObjects\ClientIds;
 use App\Features\Analytics\Domain\ValueObjects\PageDetails;
+use App\Features\Shared\App\Contracts\AnalyticsConfigInterface;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use DateTimeImmutable;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use TypeError;
 
@@ -33,6 +33,7 @@ final class TrackEventUseCase
     public function __construct(
         private readonly AnalyticsEventRepositoryInterface $repository,
         private readonly LoggerInterface $logger,
+        private readonly AnalyticsConfigInterface $analyticsConfig,
     ) {
     }
 
@@ -56,7 +57,7 @@ final class TrackEventUseCase
         $ipHash = hash_hmac(
             'sha256',
             $ip,
-            (string) Config::get('analytics.ip_hash_key', Config::get('app.key')),
+            $this->analyticsConfig->ipHashKey(),
         );
         $createdAt = new DateTimeImmutable();
 
@@ -66,9 +67,7 @@ final class TrackEventUseCase
             $entity = $this->parseEvent($event, $ipHash, $userAgent, $createdAt);
 
             if ($entity === null) {
-                throw ValidationException::withMessages([
-                    'batch' => [__('validation.analytics.event_invalid')],
-                ]);
+                throw new InvalidAnalyticsEventException();
             }
 
             $entities[] = $entity;
@@ -123,7 +122,7 @@ final class TrackEventUseCase
         }
 
         return preg_match(
-            (string) Config::get('analytics.not_bot_user_agent_pattern'),
+            $this->analyticsConfig->botUserAgentPattern(),
             $userAgent,
         ) === 1;
     }

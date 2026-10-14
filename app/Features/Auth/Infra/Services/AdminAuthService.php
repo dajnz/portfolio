@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Infra\Services;
 
+use App\Features\Auth\App\Contracts\TotpLockoutMessengerInterface;
 use App\Features\Auth\Domain\Entities\Admin;
 use App\Features\Auth\Domain\Entities\AdminTimedOtp;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Session;
  * current request/session; the middleware layers stay thin redirect+flash
  * shells on top of these.
  */
-final class AdminAuthService
+final class AdminAuthService implements TotpLockoutMessengerInterface
 {
     public function __construct(
         private readonly AdminRepositoryInterface $repository,

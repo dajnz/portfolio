@@ -21,7 +21,7 @@ final class HandleGithubCallbackUseCase extends BaseUseCase
     ) {
     }
 
-    public function handle(string $githubId): GithubLoginOutcome
+    public function handle(string $githubId, string $ip): GithubLoginOutcome
     {
         $admin = $this->repository->findByGithubId($githubId);
 
@@ -35,7 +35,7 @@ final class HandleGithubCallbackUseCase extends BaseUseCase
             return GithubLoginOutcome::TotpRequired;
         }
 
-        $this->login->completeLogin($admin);
+        $this->login->completeLogin($admin, $ip);
 
         return GithubLoginOutcome::Authenticated;
     }

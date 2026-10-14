@@ -4,15 +4,21 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Features\Auth\App\Contracts\TotpLockoutMessengerInterface;
+use App\Features\Auth\App\Contracts\TotpServiceInterface;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterface;
 use App\Features\Auth\Infra\Listeners\LoginListener;
 use App\Features\Auth\Infra\Repositories\EloquentAdminRepository;
 use App\Features\Auth\Infra\Repositories\EloquentAdminTimedOtpRepository;
+use App\Features\Auth\Infra\Services\AdminAuthService;
+use App\Features\Auth\Infra\Services\TotpService;
+use App\Features\Analytics\App\Contracts\AnalyticsDigestMailerInterface;
 use App\Features\Analytics\App\Contracts\AnalyticsReportDataReaderInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsDailyMetricRepositoryInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsEventRepositoryInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
+use App\Features\Analytics\Infra\Mail\LaravelAnalyticsDigestMailer;
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsDailyMetricRepository;
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsEventRepository;
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsReportRepository;
@@ -45,47 +51,73 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleReactionRepositoryInter
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\App\Contracts\ArticleListQueryRepositoryInterface;
 use App\Features\Blog\Infra\Repositories\EloquentArticleListQueryRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleReactionRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleTagRepository;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
+use App\Features\Experience\App\Services\TimelineContinuityService;
 use App\Features\Experience\Infra\Repositories\EloquentTimelineItemRepository;
-use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
+use App\Features\Experience\App\Contracts\TimelineItemListQueryRepositoryInterface;
+use App\Features\Experience\App\UseCases\ListTimelineItemsUseCase;
+use App\Features\Portfolio\App\Contracts\DashboardStatsReaderInterface;
+use App\Features\Portfolio\App\Contracts\FeedbackNotificationMailerInterface;
+use App\Features\Portfolio\App\Contracts\ResumeModeReaderInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\AboutInfoRepositoryInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\FeedbackRepositoryInterface;
-use App\Features\Portfolio\Infra\Repositories\ContactListQueryRepositoryInterface;
+use App\Features\Portfolio\Infra\Mail\LaravelFeedbackNotificationMailer;
+use App\Features\Portfolio\App\Contracts\ContactListQueryRepositoryInterface;
+use App\Features\Portfolio\App\UseCases\ListContactsUseCase;
 use App\Features\Portfolio\Infra\Repositories\EloquentAboutInfoRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentContactRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentFeedbackRepository;
-use App\Features\Portfolio\Infra\Repositories\FeedbackListQueryRepositoryInterface;
+use App\Features\Portfolio\App\Contracts\FeedbackListQueryRepositoryInterface;
+use App\Features\Portfolio\Infra\Services\DashboardStatsReader;
+use App\Features\Portfolio\Infra\Services\ResumeModeReader;
 use App\Features\Projects\App\Contracts\PublishedArticleReaderInterface;
 use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface;
 use App\Features\Projects\Infra\Repositories\EloquentProjectListQueryRepository;
 use App\Features\Projects\Infra\Repositories\EloquentProjectRepository;
-use App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface;
+use App\Features\Projects\App\Contracts\ProjectListQueryRepositoryInterface;
 use App\Features\Projects\Infra\Services\PublishedArticleReader;
+use App\Features\Resume\App\Contracts\ResumePdfCacheInterface;
+use App\Features\Resume\App\Contracts\ResumePdfCacheInvalidatorInterface;
 use App\Features\Resume\App\Contracts\ResumePdfRendererInterface;
 use App\Features\Resume\Domain\RepositoryInterfaces\ResumeConfigRepositoryInterface;
 use App\Features\Resume\Infra\Repositories\EloquentResumeConfigRepository;
 use App\Features\Resume\Infra\Repositories\EloquentResumeDataReader;
-use App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface;
+use App\Features\Resume\App\Contracts\ResumeDataReaderInterface;
+use App\Features\Resume\Infra\Services\LaravelResumePdfCache;
+use App\Features\Resume\Infra\Services\ResumePdfCacheInvalidator;
 use App\Features\Resume\Infra\Services\ResumePdfRenderer;
+use App\Features\Settings\App\Contracts\MailTransportTesterInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Settings\Infra\Repositories\EloquentFeatureFlagRepository;
 use App\Features\Settings\Infra\Repositories\EloquentSettingRepository;
+use App\Features\Settings\Infra\Services\HttpMailTransportTester;
+use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
+use App\Features\Shared\App\Contracts\AdminSessionInterface;
+use App\Features\Shared\App\Contracts\AnalyticsConfigInterface;
+use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
+use App\Features\Shared\App\Contracts\AssetStorageInterface;
 use App\Features\Shared\App\Contracts\CacheClearerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
+use App\Features\Shared\App\Contracts\EncrypterInterface;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use App\Features\Shared\App\Contracts\MaintenanceModeInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
+use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
+use App\Features\Shared\App\Contracts\PasswordHasherInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
+use App\Features\Shared\App\Contracts\TransactionManagerInterface;
+use App\Features\Shared\App\Contracts\TranslatorInterface;
+use App\Features\Shared\App\Contracts\UrlGeneratorInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ContactReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
@@ -99,15 +131,26 @@ use App\Features\Shared\Infra\Repositories\EloquentProjectReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentPublishedArticleReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentSettingsReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
+use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\Shared\Infra\Services\AdminListCountCacheInvalidator;
 use App\Features\Shared\Infra\Services\AdminListPaginator;
 use App\Features\Shared\Infra\Services\AppVersion;
 use App\Features\Shared\Infra\Services\GitVersionReader;
+use App\Features\Shared\Infra\Services\LaravelAdminSession;
+use App\Features\Shared\Infra\Services\LaravelAnalyticsConfig;
+use App\Features\Shared\Infra\Services\LaravelApplicationUrl;
 use App\Features\Shared\Infra\Services\LaravelCacheClearer;
+use App\Features\Shared\Infra\Services\LaravelEncrypter;
 use App\Features\Shared\Infra\Services\LaravelMaintenanceMode;
+use App\Features\Shared\Infra\Services\LaravelPaginationDefaults;
+use App\Features\Shared\Infra\Services\LaravelPasswordHasher;
 use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
+use App\Features\Shared\Infra\Services\LaravelTransactionManager;
+use App\Features\Shared\Infra\Services\LaravelTranslator;
+use App\Features\Shared\Infra\Services\LaravelUrlGenerator;
 use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
 use App\Features\Shared\Infra\Services\RustFsAssetCleaner;
+use App\Features\Shared\Infra\Services\RustFsAssetStorage;
 use App\Features\Shared\Infra\Services\SitemapService;
 use App\Features\Shared\Infra\Services\UploadedImageProcessor;
 use App\Features\Shared\Infra\Swagger\SwaggerUiService;
@@ -298,6 +341,23 @@ class AppServiceProvider extends ServiceProvider
             ),
         );
 
+        // The lists whose sort differs from the id default get their own
+        // configured paginator: the timeline defaults to date desc and
+        // allows the date column, the reorderable contacts list allows
+        // `sort_order`.
+        $this->app->when(ListTimelineItemsUseCase::class)
+            ->needs(AdminListPaginatorInterface::class)
+            ->give(fn (): AdminListPaginator => new AdminListPaginator(
+                allowedSortColumns: ['started_at'],
+                defaultSortColumn: 'started_at',
+            ));
+
+        $this->app->when(ListContactsUseCase::class)
+            ->needs(AdminListPaginatorInterface::class)
+            ->give(fn (): AdminListPaginator => new AdminListPaginator(
+                allowedSortColumns: ['sort_order'],
+            ));
+
         $this->app->bind(
             AssetCleanerInterface::class,
             RustFsAssetCleaner::class,
@@ -306,6 +366,128 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             SitemapInvalidatorInterface::class,
             SitemapService::class,
+        );
+
+        // Framework-capability contracts the app layer consumes instead of
+        // reading configuration, the locale or the connection directly: the
+        // pagination defaults, the site's base URL, the analytics pipeline
+        // configuration, the transactional connection, the active locale
+        // context, absolute path URLs, the session store, the auth guard, the
+        // password hasher, the encrypter, the asset storage and the
+        // translator.
+        $this->app->bind(
+            PaginationDefaultsInterface::class,
+            LaravelPaginationDefaults::class,
+        );
+
+        $this->app->bind(
+            ApplicationUrlInterface::class,
+            LaravelApplicationUrl::class,
+        );
+
+        $this->app->bind(
+            AnalyticsConfigInterface::class,
+            LaravelAnalyticsConfig::class,
+        );
+
+        $this->app->bind(
+            TransactionManagerInterface::class,
+            LaravelTransactionManager::class,
+        );
+
+        $this->app->bind(
+            ActiveLocaleInterface::class,
+            ActiveLocaleService::class,
+        );
+
+        $this->app->bind(
+            UrlGeneratorInterface::class,
+            LaravelUrlGenerator::class,
+        );
+
+        $this->app->bind(
+            TranslatorInterface::class,
+            LaravelTranslator::class,
+        );
+
+        // The continuity service takes an explicit message resolver (kept as a
+        // callable so unit tests stay framework-free); the container wires it
+        // to the app-layer translator.
+        $this->app->bind(
+            TimelineContinuityService::class,
+            fn ($app): TimelineContinuityService => new TimelineContinuityService(
+                $app->make(TimelineItemRepositoryInterface::class),
+                fn (string $key): string => $app->make(TranslatorInterface::class)->translate($key),
+            ),
+        );
+
+        $this->app->bind(
+            AdminSessionInterface::class,
+            LaravelAdminSession::class,
+        );
+
+        $this->app->bind(
+            PasswordHasherInterface::class,
+            LaravelPasswordHasher::class,
+        );
+
+        $this->app->bind(
+            EncrypterInterface::class,
+            LaravelEncrypter::class,
+        );
+
+        $this->app->bind(
+            AssetStorageInterface::class,
+            RustFsAssetStorage::class,
+        );
+
+        // Feature-level framework-capability ports: the analytics digest
+        // and feedback notification mailers, the resume PDF cache (and its
+        // invalidator), the mail-transport probe, the TOTP service and its
+        // lockout messenger, and the Portfolio cross-feature reads.
+        $this->app->bind(
+            AnalyticsDigestMailerInterface::class,
+            LaravelAnalyticsDigestMailer::class,
+        );
+
+        $this->app->bind(
+            FeedbackNotificationMailerInterface::class,
+            LaravelFeedbackNotificationMailer::class,
+        );
+
+        $this->app->bind(
+            ResumePdfCacheInterface::class,
+            LaravelResumePdfCache::class,
+        );
+
+        $this->app->bind(
+            ResumePdfCacheInvalidatorInterface::class,
+            ResumePdfCacheInvalidator::class,
+        );
+
+        $this->app->bind(
+            MailTransportTesterInterface::class,
+            HttpMailTransportTester::class,
+        );
+
+        $this->app->bind(
+            TotpServiceInterface::class,
+            TotpService::class,
+        );
+
+        $this->app->bind(
+            TotpLockoutMessengerInterface::class,
+            AdminAuthService::class,
+        );
+
+        $this->app->bind(
+            ResumeModeReaderInterface::class,
+            ResumeModeReader::class,
+        );
+
+        $this->app->bind(
+            DashboardStatsReaderInterface::class,
+            DashboardStatsReader::class,
         );
 
         // The content pipeline is a singleton: the underlying

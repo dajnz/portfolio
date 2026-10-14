@@ -6,12 +6,11 @@ namespace App\Features\Resume\App\UseCases;
 
 use App\Features\Resume\App\Contracts\ResumePdfRendererInterface;
 use App\Features\Resume\App\DTOs\ResumePdfDto;
+use App\Features\Resume\App\Services\ResumePdfStore;
+use App\Features\Resume\App\Services\ResumeSkillsAssembler;
 use App\Features\Resume\Domain\Entities\ResumeConfig;
 use App\Features\Resume\Domain\RepositoryInterfaces\ResumeConfigRepositoryInterface;
-use App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface;
-use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
+use App\Features\Resume\App\Contracts\ResumeDataReaderInterface;
 
 /**
  * The `/cv` on-demand pipeline. In
@@ -36,8 +35,9 @@ final class GetResumePdfUseCase
     public function __construct(
         private readonly ResumeConfigRepositoryInterface $configs,
         private readonly ResumeDataReaderInterface $reader,
-        private readonly TechSkillReadRepositoryInterface $skills,
         private readonly ResumePdfRendererInterface $renderer,
+        private readonly ResumePdfStore $store,
+        private readonly ResumeSkillsAssembler $skills,
     ) {
     }
 
@@ -66,16 +66,10 @@ final class GetResumePdfUseCase
         $path = "about/resume_{$locale}_{$hash}.pdf";
         $cacheKey = "resume:pdf:{$locale}:{$hash}";
 
-        $cached = Cache::store('redis')->get($cacheKey);
+        $existing = $this->store->find($cacheKey, $path);
 
-        if (is_string($cached) && Storage::disk('rustfs')->exists($cached)) {
-            return new ResumePdfDto($cached, 'resume.pdf', 'application/pdf');
-        }
-
-        if (Storage::disk('rustfs')->exists($path)) {
-            Cache::store('redis')->put($cacheKey, $path);
-
-            return new ResumePdfDto($path, 'resume.pdf', 'application/pdf');
+        if ($existing !== null) {
+            return new ResumePdfDto($existing, 'resume.pdf', 'application/pdf');
         }
 
         $pdf = $this->renderer->render(
@@ -84,8 +78,7 @@ final class GetResumePdfUseCase
             $this->assemblyData($config, $locale),
         );
 
-        Storage::disk('rustfs')->put($path, $pdf);
-        Cache::store('redis')->put($cacheKey, $path);
+        $this->store->write($cacheKey, $path, $pdf);
 
         return new ResumePdfDto($path, 'resume.pdf', 'application/pdf');
     }
@@ -129,7 +122,7 @@ final class GetResumePdfUseCase
         }
 
         if ($sections['skills']['visible']) {
-            $data['skills'] = $this->skillsData($locale);
+            $data['skills'] = $this->skills->forLocale($locale);
         }
 
         if ($sections['experience']['visible']) {
@@ -141,42 +134,5 @@ final class GetResumePdfUseCase
         }
 
         return $data;
-    }
-
-    /**
-     * The resume skills: `include_in_resume = true`, grouped by
-     * `skill_groups.sort_order`, skills ordered by `skills.sort_order` —
-     * the Shared read repository's native shape.
-     *
-     * @return array<int, array{group: string, skills: array<int, array{name: string, proficiency: int, proficiency_label: string}>}>
-     */
-    private function skillsData(string $locale): array
-    {
-        $groups = [];
-
-        foreach ($this->skills->findAllGrouped($locale) as $group) {
-            $skills = [];
-
-            foreach ($group->toSkills() as $skill) {
-                if (! $skill->toIncludeInResume()) {
-                    continue;
-                }
-
-                $skills[] = [
-                    'name' => $skill->toName(),
-                    'proficiency' => $skill->toProficiency(),
-                    'proficiency_label' => __($skill->toProficiencyLabelKey()),
-                ];
-            }
-
-            if ($skills !== []) {
-                $groups[] = [
-                    'group' => $group->nameFor($locale),
-                    'skills' => $skills,
-                ];
-            }
-        }
-
-        return $groups;
     }
 }

@@ -6,22 +6,30 @@ namespace App\Features\Shared\Infra\Services;
 
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 
 /**
- * Active-locale helpers for the Infra/app layers: the locales enabled in the
- * `supported_locales` setting (falling back to the committed
- * `config('portfolio.supported_locales')`), normalized to a deduplicated list
- * of strings. Shared by the per-locale form requests, the translation-building
- * use cases and the SEO helpers. Per-locale *value* projection helpers (input
- * normalization, entity value maps) live in the separate
+ * Active-locale helpers for the Infra/app layers: the locale of the current
+ * request and the locales enabled in the `supported_locales` setting (falling
+ * back to the committed `config('portfolio.supported_locales')`), normalized to
+ * a deduplicated list of strings. Shared by the per-locale form requests, the
+ * translation-building use cases and the SEO helpers. Implements the app-layer
+ * {@see ActiveLocaleInterface} contract. Per-locale *value* projection helpers
+ * (input normalization, entity value maps) live in the separate
  * {@see PerLocaleValues} service.
  */
-final class ActiveLocaleService
+final class ActiveLocaleService implements ActiveLocaleInterface
 {
     public function __construct(
         private readonly SettingRepositoryInterface $settings,
     ) {
+    }
+
+    public function current(): string
+    {
+        return App::getLocale();
     }
 
     /**

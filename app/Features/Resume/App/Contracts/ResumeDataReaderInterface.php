@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Resume\Infra\Repositories;
+namespace App\Features\Resume\App\Contracts;
 
 /**
- * Query-builder reads of the resume PDF's source data inside the Resume
- * Infra layer (no cross-feature class imports). The `skills` source comes
- * from the Shared `TechSkillReadRepositoryInterface`; about info, contacts
- * and experience items are read here, locale-resolved with the `en`
- * fallback.
+ * App-layer read contract for the resume PDF's source data. The `skills`
+ * source comes from the Shared `TechSkillReadRepositoryInterface`; about
+ * info, contacts and experience items come from this contract,
+ * locale-resolved with the `en` fallback. Implemented by the Eloquent
+ * data reader on the Infra layer.
  */
 interface ResumeDataReaderInterface
 {

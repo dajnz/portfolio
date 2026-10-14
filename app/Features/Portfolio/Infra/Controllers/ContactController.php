@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Portfolio\Infra\Controllers;
 
+use App\Features\Portfolio\App\DTOs\AdminContactListQueryDto;
 use App\Features\Portfolio\App\UseCases\DestroyContactUseCase;
 use App\Features\Portfolio\App\UseCases\ListContactsUseCase;
 use App\Features\Portfolio\App\UseCases\ReorderContactsUseCase;
@@ -12,7 +13,8 @@ use App\Features\Portfolio\App\UseCases\UpdateContactUseCase;
 use App\Features\Portfolio\Infra\Models\ContactModel;
 use App\Features\Portfolio\Infra\Requests\ReorderContactsRequest;
 use App\Features\Portfolio\Infra\Requests\StoreContactRequest;
-use App\Features\Shared\Infra\Persistence\CursorPage;
+use App\Features\Shared\App\DTOs\CursorDto;
+use App\Features\Shared\App\DTOs\CursorPaginationDto;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -38,11 +40,11 @@ final class ContactController
 
     public function index(ResponseFactory $inertia, Request $request): Response
     {
-        $page = $this->listCase->list($request);
+        $result = $this->listCase->list($this->buildListQuery($request));
 
         return $inertia->render('Portfolio/Admin/Pages/ContactsListPage', [
-            'contacts' => $this->items($page),
-            'meta' => $this->meta($page),
+            'contacts' => $this->items($result->rows),
+            'meta' => $this->meta($result->pagination),
         ]);
     }
 
@@ -94,9 +96,40 @@ final class ContactController
     }
 
     /**
+     * The app-layer admin list query — the raw query values are
+     * extracted here, the paginator parsing happens in the infra
+     * paginator implementation.
+     */
+    private function buildListQuery(Request $request): AdminContactListQueryDto
+    {
+        return new AdminContactListQueryDto(
+            page: max(1, (int) $request->query('page', 1)),
+            cursorParams: is_array($request->input('cursor')) ? $request->input('cursor') : null,
+            sortColumn: $this->sortColumn($request),
+            sortDirection: $this->sortDirection($request),
+            url: $request->fullUrl(),
+        );
+    }
+
+    private function sortColumn(Request $request): ?string
+    {
+        $column = trim((string) $request->query('sort_column', ''));
+
+        return $column === '' ? null : $column;
+    }
+
+    private function sortDirection(Request $request): ?string
+    {
+        $direction = strtolower(trim((string) $request->query('sort_direction', '')));
+
+        return $direction === '' ? null : $direction;
+    }
+
+    /**
+     * @param  array<int, mixed>  $models  Raw rows from the paginator result.
      * @return array<int, array<string, mixed>>
      */
-    private function items(CursorPage $page): array
+    private function items(array $models): array
     {
         $locale = App::getLocale();
 
@@ -113,7 +146,7 @@ final class ContactController
             'include_in_resume' => $model->include_in_resume,
             'sort_order' => $model->sort_order,
             ],
-            $page->items,
+            $models,
         );
     }
 
@@ -127,17 +160,37 @@ final class ContactController
     }
 
     /**
+     * The admin list `meta` wire shape from the cursor pagination
+     * facts.
+     *
      * @return array<string, mixed>
      */
-    private function meta(CursorPage $page): array
+    private function meta(CursorPaginationDto $pagination): array
     {
         return [
-            'total' => $page->total,
-            'per_page' => $page->perPage,
-            'current_page' => $page->currentPage,
-            'sort_column' => $page->sorting->sortColumn,
-            'sort_direction' => $page->sorting->sortDirection,
-            'cursors' => $page->cursors->toArray(),
+            'total' => $pagination->total,
+            'per_page' => $pagination->perPage,
+            'current_page' => $pagination->currentPage,
+            'sort_column' => $pagination->sortColumn,
+            'sort_direction' => $pagination->sortDirection,
+            'cursors' => [
+                'first' => self::cursorProps($pagination->cursors->first),
+                'last' => self::cursorProps($pagination->cursors->last),
+                'page' => $pagination->cursors->page,
+            ],
         ];
+    }
+
+    /**
+     * @return array{id: int, sort_value: mixed}|null
+     */
+    private static function cursorProps(?CursorDto $cursor): ?array
+    {
+        return $cursor === null
+            ? null
+            : [
+                'id' => $cursor->id,
+                'sort_value' => $cursor->sortValue,
+            ];
     }
 }

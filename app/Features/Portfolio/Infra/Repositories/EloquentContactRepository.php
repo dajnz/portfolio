@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Portfolio\Infra\Repositories;
 
+use App\Features\Portfolio\App\Contracts\ContactListQueryRepositoryInterface;
 use App\Features\Portfolio\Domain\Entities\Contact;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
 use App\Features\Portfolio\Infra\Mappers\ContactMapper;

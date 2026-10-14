@@ -4,24 +4,23 @@ declare(strict_types=1);
 
 namespace App\Features\Analytics\App\UseCases;
 
-use App\Features\Analytics\Infra\Mail\SendAnalyticsReportMail;
+use App\Features\Analytics\App\Contracts\AnalyticsDigestMailerInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use DateTimeImmutable;
-use Illuminate\Support\Facades\Mail;
 
 /**
- * The daily digest email: queues `SendAnalyticsReportMail` for the day
- * when the analytics email setting is enabled with a recipient set —
- * otherwise the digest is skipped silently. The decision lives here
- * (not in the aggregation job) so the job stays a thin orchestration
- * shell.
+ * The daily digest email: sends the day's digest through the mailer port when
+ * the analytics email setting is enabled with a recipient set — otherwise the
+ * digest is skipped silently. The decision lives here (not in the aggregation
+ * job) so the job stays a thin orchestration shell.
  */
 final class SendDailyDigestUseCase
 {
     public function __construct(
         private readonly GetDailyDigestUseCase $digest,
         private readonly SettingRepositoryInterface $settings,
+        private readonly AnalyticsDigestMailerInterface $mailer,
     ) {
     }
 
@@ -34,6 +33,6 @@ final class SendDailyDigestUseCase
             return;
         }
 
-        Mail::to($recipient)->send(new SendAnalyticsReportMail($this->digest->digest($day)));
+        $this->mailer->sendDailyDigest($recipient, $this->digest->digest($day));
     }
 }

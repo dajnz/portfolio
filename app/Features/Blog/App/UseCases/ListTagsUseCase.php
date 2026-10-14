@@ -7,12 +7,12 @@ namespace App\Features\Blog\App\UseCases;
 use App\Features\Blog\App\DTOs\AdminTagListDto;
 use App\Features\Blog\App\DTOs\AdminTagListQueryDto;
 use App\Features\Blog\App\DTOs\TagListItemDto;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\App\Contracts\ArticleListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
+use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\App\DTOs\PaginationQuery;
-use Illuminate\Support\Facades\Config;
 
 /**
  * The admin tags list: cursor-paginated via the shared app-layer
@@ -26,6 +26,7 @@ final class ListTagsUseCase
         private readonly ArticleListQueryRepositoryInterface $repository,
         private readonly SettingRepositoryInterface $settings,
         private readonly AdminListPaginatorInterface $paginator,
+        private readonly PaginationDefaultsInterface $paginationDefaults,
     ) {
     }
 
@@ -41,7 +42,7 @@ final class ListTagsUseCase
             ),
             perPage: (int) $this->settings->value(
                 SettingName::ItemsPerPage,
-                Config::get('portfolio.items_per_page', 12),
+                $this->paginationDefaults->itemsPerPage(),
             ),
             countCacheKey: 'tags:q='.md5($query->search),
             requestUrl: $query->url,

@@ -12,16 +12,17 @@ use App\Features\Shared\App\DTOs\PaginationResultDto;
  * paginates a filtered query with the requested page/cursor/sort and
  * returns the raw rows plus the pagination facts. The implementation lives
  * on the infra layer (it drives the framework paginator); the app layer
- * never touches Eloquent builders or HTTP requests — the query is supplied
- * as a factory callable (invoked by the implementation) and the request
- * shape is rebuilt from the passed URL, so the paginator's empty-page
- * redirects keep targeting the real URL.
+ * never touches the framework query builder or the HTTP request — the query
+ * is supplied as a factory callable (invoked by the implementation) and the
+ * request shape is rebuilt from the passed URL, so the paginator's
+ * empty-page redirects keep targeting the real URL.
  */
 interface AdminListPaginatorInterface
 {
     /**
-     * @param  callable(): \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder  $queryFactory
-     *        Builds the filtered base query (no order, limit or offset).
+     * @param  callable(): mixed  $queryFactory
+     *        Builds the filtered base query — a framework query builder supplied by
+     *        the Infra implementation (no order, limit or offset).
      * @param  string|null  $countCacheKey  Per-filter-combination key for the cached total; null disables caching.
      */
     public function paginate(

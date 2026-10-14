@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Blog\Infra\Repositories;
+namespace App\Features\Blog\App\Contracts;
 
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
- * Infra-level read contract for the Blog lists — the cursor-paginated
+ * App-layer read contract for the Blog lists — the cursor-paginated
  * admin article list (with its filter bar and the JSON autocomplete
  * variant), the tag list and the picker option sources of the admin
  * forms. Separate from the domain
@@ -21,7 +20,8 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * rows (stdClass projections) and {@see TechSkillTag} entities — the
  * DTO conversion is the use cases' responsibility. The admin list
  * pagination itself lives behind the shared app-layer paginator
- * abstraction (the filters-only queries are supplied here).
+ * abstraction (the filters-only queries are supplied here; their
+ * framework query builders are typed as `mixed` at this boundary).
  */
 interface ArticleListQueryRepositoryInterface
 {
@@ -38,7 +38,7 @@ interface ArticleListQueryRepositoryInterface
      *
      * @param  int[]  $articleTagIds
      * @param  int[]  $skillTagIds
-     * @return QueryBuilder
+     * @return mixed  The filtered base query (framework builder).
      */
     public function adminListQuery(
         string $search,
@@ -47,7 +47,7 @@ interface ArticleListQueryRepositoryInterface
         ?bool $published,
         ?int $year,
         bool $trashed,
-    ): QueryBuilder;
+    ): mixed;
 
     /**
      * The single admin list row of an article — the quick actions'
@@ -130,9 +130,9 @@ interface ArticleListQueryRepositoryInterface
      * and the cross-locale name search (`?q=`). The cursor pagination
      * is applied by the shared paginator.
      *
-     * @return QueryBuilder
+     * @return mixed  The filtered base query (framework builder).
      */
-    public function tagsListQuery(string $search, string $locale): QueryBuilder;
+    public function tagsListQuery(string $search, string $locale): mixed;
 
     /**
      * The public blog index rows: published, non-trashed articles

@@ -8,7 +8,7 @@ use App\Features\Blog\App\DTOs\ArticleListItemDto;
 use App\Features\Blog\App\DTOs\ArticleTagOptionDto;
 use App\Features\Blog\App\DTOs\TagOptionDto;
 use App\Features\Blog\Domain\Exceptions\ArticleNotFoundException;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\App\Contracts\ArticleListQueryRepositoryInterface;
 
 /**
  * The single admin list item after a quick action (publish/unpublish,

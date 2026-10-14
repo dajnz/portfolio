@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Features\Portfolio\App\UseCases\SubmitFeedbackUseCase;
 use App\Features\Settings\Domain\Enums\SettingName;
+use App\Features\Portfolio\Infra\Mail\LaravelFeedbackNotificationMailer;
 use App\Features\Portfolio\Infra\Mail\NotifyAdminOfFeedbackMail;
+use App\Features\Shared\Infra\Services\LaravelAnalyticsConfig;
 use Illuminate\Support\Facades\Mail;
 use Tests\Fakes\InMemoryFeedbackRepository;
 use Tests\Fakes\InMemorySettingRepository;
@@ -12,7 +14,12 @@ use Tests\Fakes\InMemorySettingRepository;
 beforeEach(function (): void {
     $this->feedback = new InMemoryFeedbackRepository();
     $this->settings = InMemorySettingRepository::withDefaults();
-    $this->useCase = new SubmitFeedbackUseCase($this->feedback, $this->settings);
+    $this->useCase = new SubmitFeedbackUseCase(
+        $this->feedback,
+        $this->settings,
+        new LaravelAnalyticsConfig(),
+        new LaravelFeedbackNotificationMailer(),
+    );
 });
 
 describe('SubmitFeedbackUseCase', function (): void {

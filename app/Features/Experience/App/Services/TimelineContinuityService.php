@@ -30,15 +30,14 @@ final class TimelineContinuityService
     private $translator;
 
     /**
-     * @param  callable(string): string|null  $translator  Message resolver —
-     *                                                     the Laravel `__()`
-     *                                                     by default.
+     * @param  callable(string): string  $translator  Resolves a message key into
+     *                                                the localized exception message.
      */
     public function __construct(
         private readonly TimelineItemRepositoryInterface $repository,
-        ?callable $translator = null,
+        callable $translator,
     ) {
-        $this->translator = $translator ?? static fn (string $key): string => __($key);
+        $this->translator = $translator;
     }
 
     /**

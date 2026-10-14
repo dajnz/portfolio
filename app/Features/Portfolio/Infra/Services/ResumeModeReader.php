@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Portfolio\Infra\Services;
 
+use App\Features\Portfolio\App\Contracts\ResumeModeReaderInterface;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\DB;
  * inside the Portfolio Infra layer (no cross-feature class imports). The
  * column default is `manual`, so an absent row reads as `manual` too.
  */
-final class ResumeModeReader
+final class ResumeModeReader implements ResumeModeReaderInterface
 {
     public function read(): string
     {

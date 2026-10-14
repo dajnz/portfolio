@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Projects\Infra\Repositories;
 
+use App\Features\Projects\App\Contracts\ProjectListQueryRepositoryInterface;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;

@@ -10,7 +10,7 @@ use App\Features\Auth\Domain\Exceptions\InvalidCurrentPasswordException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\RecoveryCode;
 use App\Features\Shared\App\BaseUseCase;
-use Illuminate\Support\Facades\Hash;
+use App\Features\Shared\App\Contracts\PasswordHasherInterface;
 
 /**
  * Regenerates the 10 recovery codes: requires the current password,
@@ -22,6 +22,7 @@ final class RegenerateRecoveryCodesUseCase extends BaseUseCase
 {
     public function __construct(
         private readonly AdminTimedOtpRepositoryInterface $otpRepository,
+        private readonly PasswordHasherInterface $hasher,
     ) {
     }
 
@@ -32,7 +33,7 @@ final class RegenerateRecoveryCodesUseCase extends BaseUseCase
      */
     public function regenerate(Admin $admin, string $currentPassword): array
     {
-        if (! Hash::check($currentPassword, $admin->toPasswordHash())) {
+        if (! $this->hasher->verify($currentPassword, $admin->toPasswordHash())) {
             throw new InvalidCurrentPasswordException();
         }
 

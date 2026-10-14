@@ -51,20 +51,20 @@ final class GithubController
         $socialiteUser = Socialite::driver('github')->user();
 
         return match ($intent) {
-            'login' => $this->handleLoginIntent($socialiteUser),
+            'login' => $this->handleLoginIntent($socialiteUser, $request->ip()),
             'link' => $this->handleLinkIntent($socialiteUser),
             default => Redirect::route('login')->with('notification', ['type' => 'error', 'message' => __('auth.github_invalid_intent')]),
         };
     }
 
-    private function handleLoginIntent(SocialiteUser $socialiteUser): RedirectResponse
+    private function handleLoginIntent(SocialiteUser $socialiteUser, string $ip): RedirectResponse
     {
         // Guard against an authenticated user with a login intent.
         if (Auth::check()) {
             abort(400, 'Authenticated user with login OAuth intent.');
         }
 
-        return match ($this->githubCallbackCase->handle((string) $socialiteUser->getId())) {
+        return match ($this->githubCallbackCase->handle((string) $socialiteUser->getId(), $ip)) {
             GithubLoginOutcome::NoAccount => Redirect::route('login')
                 ->with('notification', ['type' => 'error', 'message' => __('auth.github_no_account')]),
             GithubLoginOutcome::TotpRequired => Redirect::route('login.totp'),

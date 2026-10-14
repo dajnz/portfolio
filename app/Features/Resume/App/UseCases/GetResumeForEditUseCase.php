@@ -6,8 +6,8 @@ namespace App\Features\Resume\App\UseCases;
 
 use App\Features\Resume\App\DTOs\ResumeEditDataDto;
 use App\Features\Resume\Domain\RepositoryInterfaces\ResumeConfigRepositoryInterface;
-use App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface;
-use App\Features\Shared\Infra\Services\ActiveLocaleService;
+use App\Features\Resume\App\Contracts\ResumeDataReaderInterface;
+use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 
 /**
  * Reads the resume configuration for the admin edit form: mode, layout,
@@ -20,7 +20,7 @@ final class GetResumeForEditUseCase
     public function __construct(
         private readonly ResumeConfigRepositoryInterface $repository,
         private readonly ResumeDataReaderInterface $dataReader,
-        private readonly ActiveLocaleService $locales,
+        private readonly ActiveLocaleInterface $locales,
     ) {
     }
 

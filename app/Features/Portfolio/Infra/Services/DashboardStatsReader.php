@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Portfolio\Infra\Services;
 
+use App\Features\Portfolio\App\Contracts\DashboardStatsReaderInterface;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\DB;
  * - "Blog Views" = the same sum restricted to `is_published = true`,
  *   non-soft-deleted articles.
  */
-final class DashboardStatsReader
+final class DashboardStatsReader implements DashboardStatsReaderInterface
 {
     /**
      * @return array{

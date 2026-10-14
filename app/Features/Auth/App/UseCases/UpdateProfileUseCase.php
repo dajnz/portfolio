@@ -9,15 +9,14 @@ use App\Features\Auth\Domain\Exceptions\InvalidCurrentPasswordException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Auth\App\Services\SessionVersionSynchronizer;
 use App\Features\Shared\App\BaseUseCase;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Session;
+use App\Features\Shared\App\Contracts\PasswordHasherInterface;
+use App\Features\Shared\App\Contracts\AdminSessionInterface;
 
 /**
  * Profile update incl. password change. The current-password check happens
  * here — the request only shapes input. On a password change the session
  * version is bumped (invalidating all other sessions) and the current
- * session is re-authenticated under the new version — `Auth::loginUsingId()`
+ * session is re-authenticated under the new version — the guard login
  * regenerates the session first, then `bumpAndSync()` writes the version
  * into the fresh session.
  */
@@ -26,6 +25,8 @@ final class UpdateProfileUseCase extends BaseUseCase
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
         private readonly SessionVersionSynchronizer $sessionVersion,
+        private readonly PasswordHasherInterface $hasher,
+        private readonly AdminSessionInterface $sessions,
     ) {
     }
 
@@ -34,7 +35,7 @@ final class UpdateProfileUseCase extends BaseUseCase
      */
     public function update(Admin $admin, string $name, string $email, string $login, ?string $newPassword, ?string $currentPassword): void
     {
-        if ($newPassword !== null && ! Hash::check((string) $currentPassword, $admin->toPasswordHash())) {
+        if ($newPassword !== null && ! $this->hasher->verify((string) $currentPassword, $admin->toPasswordHash())) {
             throw new InvalidCurrentPasswordException();
         }
 
@@ -46,7 +47,7 @@ final class UpdateProfileUseCase extends BaseUseCase
 
         $this->repository->changePassword($admin->toId(), $newPassword);
 
-        Session::forget(['totp.pending_admin_id', 'totp.pending_until']);
+        $this->sessions->forget(['totp.pending_admin_id', 'totp.pending_until']);
         $this->sessionVersion->bumpAndReauthenticate($admin->toId());
     }
 }

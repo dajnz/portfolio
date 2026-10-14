@@ -7,9 +7,9 @@ namespace App\Features\Portfolio\App\UseCases;
 use App\Features\Portfolio\Domain\Entities\Contact;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
 use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
-use App\Features\Shared\Infra\Services\ActiveLocaleService;
-use App\Features\Shared\Infra\Services\AdminCursorPaginator;
-use Illuminate\Support\Facades\DB;
+use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
+use App\Features\Shared\App\Contracts\TransactionManagerInterface;
+use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
  * Creates a contact with its per-locale names (only the locales active
@@ -20,7 +20,9 @@ final class StoreContactUseCase
 {
     public function __construct(
         private readonly ContactRepositoryInterface $repository,
-        private readonly ActiveLocaleService $locales,
+        private readonly ActiveLocaleInterface $locales,
+        private readonly TransactionManagerInterface $transactionManager,
+        private readonly CountCacheInvalidatorInterface $countCacheInvalidator,
     ) {
     }
 
@@ -37,7 +39,7 @@ final class StoreContactUseCase
     ): void {
         $translations = $this->translations($names);
 
-        DB::transaction(function () use ($value, $icon, $includeInResume, $url, $sortOrder, $translations): void {
+        $this->transactionManager->transaction(function () use ($value, $icon, $includeInResume, $url, $sortOrder, $translations): void {
             $this->repository->save(new Contact(
                 id: 0,
                 value: $value,
@@ -49,7 +51,7 @@ final class StoreContactUseCase
             ));
         });
 
-        AdminCursorPaginator::invalidateCountCache('contacts');
+        $this->countCacheInvalidator->invalidate('contacts');
     }
 
     /**

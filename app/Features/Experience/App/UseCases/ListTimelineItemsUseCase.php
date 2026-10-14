@@ -4,55 +4,51 @@ declare(strict_types=1);
 
 namespace App\Features\Experience\App\UseCases;
 
-use App\Features\Experience\Domain\Entities\TimelineItem;
-use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
+use App\Features\Experience\App\Contracts\TimelineItemListQueryRepositoryInterface;
+use App\Features\Experience\App\DTOs\AdminTimelineListQueryDto;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
-use App\Features\Shared\Infra\Persistence\CursorDecoder;
-use App\Features\Shared\Infra\Persistence\CursorPage;
-use App\Features\Shared\Infra\Services\AdminCursorPaginator;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
+use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
+use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
+use App\Features\Shared\App\DTOs\PaginationQuery;
+use App\Features\Shared\App\DTOs\PaginationResultDto;
 
 /**
- * The admin experience list: cursor-paginated via the shared paginator,
- * sortable by date (`?sort_column=started_at`, forward/reverse — `id`
- * stays the fallback), searchable by content (ILIKE over the per-locale
- * position/company/short-description — no FTS at admin list scale) and
- * toggled to the trash via `?trashed=1` (only soft-deleted items).
+ * The admin experience list: cursor-paginated via the shared app-layer
+ * paginator abstraction, sortable by date (`?sort_column=started_at`,
+ * forward/reverse — `id` stays the fallback), searchable by content (the
+ * filtered query comes from the list query repository) and toggled to
+ * the trash via `?trashed=1` (only soft-deleted items).
  */
 final class ListTimelineItemsUseCase
 {
-    private readonly AdminCursorPaginator $paginator;
-
     public function __construct(
         private readonly TimelineItemListQueryRepositoryInterface $repository,
         private readonly SettingRepositoryInterface $settings,
-        CursorDecoder $cursorDecoder = new CursorDecoder(),
+        private readonly AdminListPaginatorInterface $paginator,
+        private readonly PaginationDefaultsInterface $paginationDefaults,
     ) {
-        $this->paginator = new AdminCursorPaginator(
-            cursorDecoder: $cursorDecoder,
-            allowedSortColumns: ['started_at'],
-            // The admin list defaults to date desc (no unsorted state —
-            // the dates header cycles only asc/desc).
-            defaultSortColumn: 'started_at',
-        );
     }
 
-    public function list(Request $request): CursorPage
+    public function list(AdminTimelineListQueryDto $query): PaginationResultDto
     {
-        $query = $this->repository->listQuery();
-
-        $trashed = $request->boolean('trashed');
-        $this->applyTrashedFilter($query, $trashed);
-        $search = $this->applySearch($query, $request);
-
         return $this->paginator->paginate(
-            $query,
-            $request,
-            (int) $this->settings->value(SettingName::ItemsPerPage, Config::get('portfolio.items_per_page', 12)),
-            $this->countCacheKey($trashed, $search),
+            queryFactory: fn (): mixed => $this->repository->adminListQuery(
+                $query->trashed,
+                $query->search,
+            ),
+            query: new PaginationQuery(
+                page: $query->page,
+                cursorParams: $query->cursorParams,
+                sortColumn: $query->sortColumn,
+                sortDirection: $query->sortDirection,
+            ),
+            perPage: (int) $this->settings->value(
+                SettingName::ItemsPerPage,
+                $this->paginationDefaults->itemsPerPage(),
+            ),
+            countCacheKey: $this->countCacheKey($query),
+            requestUrl: $query->url,
         );
     }
 
@@ -60,48 +56,8 @@ final class ListTimelineItemsUseCase
      * The 30 s count cache is per filter combination — the trashed toggle
      * and the search term both change the counted set.
      */
-    private function countCacheKey(bool $trashed, string $search): string
+    private function countCacheKey(AdminTimelineListQueryDto $query): string
     {
-        return 'experience:'.($trashed ? 'trashed' : 'live').':q='.md5($search);
-    }
-
-    /**
-     * @param  Builder<TimelineItem>  $query
-     */
-    private function applyTrashedFilter(Builder $query, bool $trashed): void
-    {
-        if ($trashed) {
-            $query->onlyTrashed();
-
-            return;
-        }
-
-        $query->whereNull('deleted_at');
-    }
-
-    /**
-     * Content search — ILIKE over the per-locale text columns. Returns
-     * the normalized search term for the count-cache key.
-     *
-     * @param  Builder<TimelineItem>  $query
-     */
-    private function applySearch(Builder $query, Request $request): string
-    {
-        $search = trim((string) $request->query('q', ''));
-
-        if ($search === '') {
-            return '';
-        }
-
-        $query->whereHas('translations', function (Builder $translations) use ($search): void {
-            $translations->where(function (Builder $columns) use ($search): void {
-                $columns->where('position', 'ilike', "%{$search}%")
-                    ->orWhere('company_name', 'ilike', "%{$search}%")
-                    ->orWhere('company_country', 'ilike', "%{$search}%")
-                    ->orWhere('short_description', 'ilike', "%{$search}%");
-            });
-        });
-
-        return $search;
+        return 'experience:'.($query->trashed ? 'trashed' : 'live').':q='.md5($query->search);
     }
 }

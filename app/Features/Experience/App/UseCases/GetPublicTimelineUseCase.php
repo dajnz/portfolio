@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Features\Experience\App\UseCases;
 
 use App\Features\Experience\Domain\Entities\TimelineItem;
-use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
+use App\Features\Experience\App\Contracts\TimelineItemListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
-use Illuminate\Support\Facades\Config;
+use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 
 /**
  * The public experience timeline: published, non-trashed items ordered
@@ -47,6 +47,7 @@ final class GetPublicTimelineUseCase
     public function __construct(
         private readonly TimelineItemListQueryRepositoryInterface $repository,
         private readonly SettingRepositoryInterface $settings,
+        private readonly PaginationDefaultsInterface $paginationDefaults,
     ) {
     }
 
@@ -181,7 +182,7 @@ final class GetPublicTimelineUseCase
     {
         return (int) $this->settings->value(
             SettingName::ExperienceItemsPerPage,
-            Config::get('portfolio.experience_items_per_page', 15),
+            $this->paginationDefaults->experienceItemsPerPage(),
         );
     }
 

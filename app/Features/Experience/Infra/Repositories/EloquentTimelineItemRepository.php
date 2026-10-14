@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Experience\Infra\Repositories;
 
+use App\Features\Experience\App\Contracts\TimelineItemListQueryRepositoryInterface;
 use App\Features\Experience\Domain\Entities\TimelineItem;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
 use App\Features\Experience\Infra\Mappers\TimelineItemMapper;
@@ -19,8 +20,8 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Eloquent-backed repository for the Experience feature: entity-based
- * CRUD over `experience_timeline_items` plus the Infra-level read
- * contracts ({@see TimelineItemListQueryRepositoryInterface}).
+ * CRUD over `experience_timeline_items` plus the app-layer list read
+ * contract ({@see TimelineItemListQueryRepositoryInterface}).
  *
  * Writes go through a transaction with the translation sync and the
  * tech-tag pivot sync (reconciliation by `sync`). The translation rows
@@ -173,9 +174,28 @@ final class EloquentTimelineItemRepository implements
     /**
      * @return Builder<TimelineItem>
      */
-    public function listQuery(): Builder
+    public function adminListQuery(bool $trashed, string $search): Builder
     {
-        return TimelineItemModel::query()->with('translations');
+        $query = TimelineItemModel::query()->with('translations');
+
+        if ($trashed) {
+            $query->onlyTrashed();
+        } else {
+            $query->whereNull('deleted_at');
+        }
+
+        if ($search === '') {
+            return $query;
+        }
+
+        return $query->whereHas('translations', function (Builder $translations) use ($search): void {
+            $translations->where(function (Builder $columns) use ($search): void {
+                $columns->where('position', 'ilike', "%{$search}%")
+                    ->orWhere('company_name', 'ilike', "%{$search}%")
+                    ->orWhere('company_country', 'ilike', "%{$search}%")
+                    ->orWhere('short_description', 'ilike', "%{$search}%");
+            });
+        });
     }
 
     /**

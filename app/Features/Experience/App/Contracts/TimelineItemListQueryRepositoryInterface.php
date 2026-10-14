@@ -2,26 +2,30 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Experience\Infra\Repositories;
+namespace App\Features\Experience\App\Contracts;
 
 use App\Features\Experience\Domain\Entities\TimelineItem;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
-use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Infra-layer read contracts for the Experience feature (query-builder
- * reads live in the Infra layer — the domain repository interface stays
- * framework-free). Implemented by {@see EloquentTimelineItemRepository}.
+ * App-layer read contract for the Experience feature. The
+ * `adminListQuery()` base query is consumed through the shared app-layer
+ * paginator, so its framework builder is typed as `mixed` at this
+ * boundary; implemented by the Eloquent timeline repository on the Infra
+ * layer.
  */
 interface TimelineItemListQueryRepositoryInterface
 {
     /**
-     * Base query for the admin cursor-paginated list, with the
-     * translations eager-loaded for the list hydration.
+     * The filtered admin list query, with the translations
+     * eager-loaded for the list hydration: the trashed view
+     * (`?trashed=1`, only soft-deleted items) and the content search
+     * over the per-locale text columns (ILIKE — no FTS at admin list
+     * scale).
      *
-     * @return Builder<TimelineItem>
+     * @return mixed  The filtered base query (framework builder).
      */
-    public function listQuery(): Builder;
+    public function adminListQuery(bool $trashed, string $search): mixed;
 
     /**
      * One keyset batch of the public timeline: published, non-trashed
