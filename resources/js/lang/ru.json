@@ -280,6 +280,7 @@
             "title": "Отзывы",
             "unread": "Не прочитан"
         },
+        "footer_version": "Версия: :version",
         "icon_picker": {
             "no_icons_match": "Иконки не найдены",
             "search_placeholder": "Поиск иконок...",

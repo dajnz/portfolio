@@ -12,6 +12,12 @@ runtime support.
 
 ### Changed
 
+- **Footer version shared (v1.0.35 inertia):** `InertiaSharedProps` gained a
+  `version` string — the deployed git tag (or short commit SHA) rendered on
+  the left side of the admin footer. Production bakes the deployed ref into
+  the image at build time (`APP_VERSION`); development reads the repository's
+  git state. `info.version` bumped to `1.0.35` in `inertia.yaml`.
+
 - **Footer copyright owner name shared (v1.0.34 inertia):** `InertiaSharedProps`
   gained a `copyright` object with the locale-resolved `owner_name` from the
   about section (`about_info_translations.name`, `en` fallback), so every

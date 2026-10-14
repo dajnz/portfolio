@@ -943,6 +943,13 @@ export interface components {
             copyright: {
                 owner_name: string;
             };
+            /**
+             * @description Application version shown in the admin footer — the deployed git
+             *     tag when the release ref is tagged, otherwise the short commit SHA.
+             *     Baked into the image at build time in production, read from the
+             *     repository's git state in development; `dev` when neither applies.
+             */
+            version: string;
             /** @description Public settings from SettingsService. */
             settings: {
                 locale?: string;

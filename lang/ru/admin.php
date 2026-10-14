@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 return [
     'section_title' => 'Раздел администрирования',
+    'footer_version' => 'Версия: :version',
 
     'nav' => [
         'sidebar' => 'Панель администратора',

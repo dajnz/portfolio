@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 return [
     'section_title' => 'Admin Section',
+    'footer_version' => 'Version: :version',
 
     'nav' => [
         'sidebar' => 'Admin sidebar',
