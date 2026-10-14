@@ -54,10 +54,14 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Blog\App\Contracts\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\App\Contracts\ArticleViewRecorderInterface;
+use App\Features\Blog\App\Contracts\VisitorFingerprintInterface;
 use App\Features\Blog\Infra\Repositories\EloquentArticleListQueryRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleReactionRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleTagRepository;
+use App\Features\Blog\Infra\Services\LaravelArticleViewRecorder;
+use App\Features\Blog\Infra\Services\LaravelVisitorFingerprint;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
 use App\Features\Experience\App\Services\TimelineContinuityService;
 use App\Features\Experience\Infra\Repositories\EloquentTimelineItemRepository;
@@ -462,6 +466,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ReportsRebuildSchedulerInterface::class,
             LaravelReportsRebuildScheduler::class,
+        );
+
+        $this->app->bind(
+            ArticleViewRecorderInterface::class,
+            LaravelArticleViewRecorder::class,
+        );
+
+        $this->app->bind(
+            VisitorFingerprintInterface::class,
+            LaravelVisitorFingerprint::class,
         );
 
         $this->app->bind(

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Blog\Infra\Controllers;
 
+use App\Features\Blog\App\Contracts\VisitorFingerprintInterface;
 use App\Features\Blog\App\DTOs\ArticleCardDto;
 use App\Features\Blog\App\DTOs\BlogSeoDto;
 use App\Features\Blog\App\DTOs\PublicArticleDto;
@@ -11,10 +12,10 @@ use App\Features\Blog\App\DTOs\PublicBlogListQuery;
 use App\Features\Blog\App\DTOs\TagOptionDto;
 use App\Features\Blog\App\UseCases\GetPublicArticleUseCase;
 use App\Features\Blog\App\UseCases\GetPublicBlogIndexUseCase;
+use App\Features\Blog\App\UseCases\RecordArticleViewUseCase;
 use App\Features\Blog\App\UseCases\ToggleArticleReactionUseCase;
 use App\Features\Blog\Domain\Exceptions\ArticleNotFoundException;
 use App\Features\Blog\Domain\ValueObjects\ReactionType;
-use App\Features\Blog\Infra\Jobs\IncrementArticleViewJob;
 use App\Features\Blog\Infra\Requests\StoreReactionRequest;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
@@ -26,10 +27,8 @@ use Illuminate\Http\Request;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Response as ResponseFacade;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -66,6 +65,8 @@ final class PublicBlogController
         private readonly GetPublicBlogIndexUseCase $listCase,
         private readonly GetPublicArticleUseCase $detailCase,
         private readonly ToggleArticleReactionUseCase $reactionCase,
+        private readonly RecordArticleViewUseCase $recordView,
+        private readonly VisitorFingerprintInterface $visitorFingerprint,
         private readonly PublicCursorCodec $cursorCodec,
     ) {
     }
@@ -105,7 +106,7 @@ final class PublicBlogController
             $slug,
             includeUnpublished: false,
             locale: App::getLocale(),
-            fingerprint: $this->fingerprint($request),
+            fingerprint: $this->visitorFingerprint->for((string) $request->ip(), $request->userAgent()),
         );
 
         if ($detail === null) {
@@ -122,11 +123,7 @@ final class PublicBlogController
         // `Purpose: prefetch` header; they warm the page cache without a
         // real visit, so they must not increment the view counter.
         if (! $request->prefetch()) {
-            Bus::dispatch(new IncrementArticleViewJob(
-                articleId: $detail->id,
-                ip: (string) $request->ip(),
-                userAgent: $request->userAgent(),
-            ));
+            $this->recordView->record($detail->id, (string) $request->ip(), $request->userAgent());
         }
 
         return $inertia->render('Blog/Public/Pages/BlogArticlePage', [
@@ -143,7 +140,7 @@ final class PublicBlogController
             $outcome = $this->reactionCase->toggle(
                 articleId: (int) $request->route('article'),
                 reaction: ReactionType::from($request->validated('reaction')),
-                fingerprint: $this->fingerprint($request),
+                fingerprint: $this->visitorFingerprint->for((string) $request->ip(), $request->userAgent()),
             );
         } catch (ArticleNotFoundException) {
             throw new NotFoundHttpException();
@@ -310,17 +307,6 @@ final class PublicBlogController
             'json_ld' => $seo->jsonLd,
             'robots' => $seo->robots,
         ];
-    }
-
-    /**
-     * The keyed-HMAC visitor fingerprint:
-     * `hash_hmac('sha256', ip.'|'.user_agent, key)`.
-     */
-    private function fingerprint(Request $request): string
-    {
-        $key = Config::get('analytics.ip_hash_key') ?: Config::get('app.key');
-
-        return hash_hmac('sha256', (string) $request->ip().'|'.$request->userAgent(), (string) $key);
     }
 
     /**
