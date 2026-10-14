@@ -17,6 +17,7 @@ use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use DateTimeImmutable;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -135,7 +136,7 @@ final class StoreTimelineItemUseCase
                 skillName: $skill->toName(),
                 icon: $skill->toIcon() === null ? null : new SkillIcon($skill->toIcon()),
             ),
-            $this->skills->findByIds($techTagIds, app()->getLocale()),
+            $this->skills->findByIds($techTagIds, App::getLocale()),
         );
     }
 

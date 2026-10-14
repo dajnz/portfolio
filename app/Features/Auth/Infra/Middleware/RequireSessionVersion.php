@@ -7,6 +7,7 @@ namespace App\Features\Auth\Infra\Middleware;
 use App\Features\Auth\Infra\Services\AdminAuthService;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -27,7 +28,7 @@ final class RequireSessionVersion
         if (! $this->auth->sessionVersionMatches()) {
             $this->auth->forceLogout();
 
-            return redirect()->route('login')->with('notification', ['type' => 'error', 'message' => __('auth.session_expired')]);
+            return Redirect::route('login')->with('notification', ['type' => 'error', 'message' => __('auth.session_expired')]);
         }
 
         return $next($request);

@@ -9,6 +9,8 @@ use Database\Factories\ProjectTranslationModelFactory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -59,7 +61,7 @@ final class ProjectTranslationModel extends Model
     protected static function booted(): void
     {
         static::saved(function (self $model): void {
-            $locales = config('portfolio.fts.locales', []);
+            $locales = Config::get('portfolio.fts.locales', []);
             $dictionary = is_array($locales) && isset($locales[$model->locale])
                 ? (string) $locales[$model->locale]
                 : 'english';
@@ -79,7 +81,7 @@ final class ProjectTranslationModel extends Model
                 ]
             );
 
-            app(SitemapService::class)->invalidate();
+            App::make(SitemapService::class)->invalidate();
         });
     }
 }

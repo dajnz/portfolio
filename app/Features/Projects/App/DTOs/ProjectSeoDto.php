@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Features\Projects\App\DTOs;
 
+use Illuminate\Support\Facades\Config;
+
 final readonly class ProjectSeoDto
 {
     /**
@@ -132,6 +134,6 @@ final readonly class ProjectSeoDto
 
     private static function baseUrl(): string
     {
-        return rtrim((string) config('app.url'), '/');
+        return rtrim((string) Config::get('app.url'), '/');
     }
 }

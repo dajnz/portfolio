@@ -7,6 +7,7 @@ namespace App\Features\Auth\Infra\Middleware;
 use App\Features\Auth\Infra\Services\AdminAuthService;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -27,13 +28,13 @@ final class RequireTotpPending
     public function handle(Request $request, Closure $next): Response
     {
         if (! $this->auth->hasPendingTotpLogin()) {
-            return redirect()->route('login');
+            return Redirect::route('login');
         }
 
         if ($this->auth->pendingTotpLoginExpired()) {
             $this->auth->clearPendingTotpLogin();
 
-            return redirect()->route('login')->with('notification', ['type' => 'error', 'message' => __('auth.totp_verification_expired')]);
+            return Redirect::route('login')->with('notification', ['type' => 'error', 'message' => __('auth.totp_verification_expired')]);
         }
 
         $admin = $this->auth->pendingTotpLoginAdmin();
@@ -41,13 +42,13 @@ final class RequireTotpPending
         if ($admin === null) {
             $this->auth->clearPendingTotpLogin();
 
-            return redirect()->route('login');
+            return Redirect::route('login');
         }
 
         if ($this->auth->adminIsTotpLocked($admin)) {
             $this->auth->clearPendingTotpLogin();
 
-            return redirect()->route('login')->with('notification', ['type' => 'error', 'message' => $this->auth->totpLockoutFlash($admin)]);
+            return Redirect::route('login')->with('notification', ['type' => 'error', 'message' => $this->auth->totpLockoutFlash($admin)]);
         }
 
         return $next($request);

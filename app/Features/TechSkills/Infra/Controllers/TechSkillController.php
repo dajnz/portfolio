@@ -16,6 +16,8 @@ use App\Features\TechSkills\Infra\Requests\ReorderSkillsRequest;
 use App\Features\TechSkills\Infra\Requests\StoreSkillRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -62,7 +64,7 @@ final class TechSkillController
             throw ValidationException::withMessages(['name' => __('validation.unique', ['attribute' => __('common.name')])]);
         }
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -82,7 +84,7 @@ final class TechSkillController
             throw ValidationException::withMessages(['name' => __('validation.unique', ['attribute' => __('common.name')])]);
         }
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -90,7 +92,7 @@ final class TechSkillController
     {
         $this->destroyCase->destroy($skill);
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
@@ -98,7 +100,7 @@ final class TechSkillController
     {
         $this->reorderCase->reorder($request->input('skills', []));
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -109,7 +111,7 @@ final class TechSkillController
     {
         return [
             'id' => $group->toId(),
-            'name' => $group->nameFor(app()->getLocale()),
+            'name' => $group->nameFor(App::getLocale()),
             // Per-locale names map — the inline LocaleTabs editor PUTs the
             // full map back (StoreSkillGroupRequest requires every active
             // locale's name).

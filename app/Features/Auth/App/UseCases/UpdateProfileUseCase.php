@@ -11,6 +11,7 @@ use App\Features\Auth\App\Services\SessionVersionSynchronizer;
 use App\Features\Shared\App\BaseUseCase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Profile update incl. password change. The current-password check happens
@@ -45,7 +46,7 @@ final class UpdateProfileUseCase extends BaseUseCase
 
         $this->repository->changePassword($admin->toId(), $newPassword);
 
-        session()->forget(['totp.pending_admin_id', 'totp.pending_until']);
+        Session::forget(['totp.pending_admin_id', 'totp.pending_until']);
         $this->sessionVersion->bumpAndReauthenticate($admin->toId());
     }
 }

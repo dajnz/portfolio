@@ -13,6 +13,7 @@ use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInter
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
@@ -53,18 +54,18 @@ final class LoginController
         );
 
         if ($admin === null) {
-            return back()->withErrors(['login' => __('auth.login_failed')]);
+            return Redirect::back()->withErrors(['login' => __('auth.login_failed')]);
         }
 
         if ($admin->toTimedOtp()->isEnabled()) {
             $this->loginCase->beginTotpVerification($admin);
 
-            return redirect()->route('login.totp');
+            return Redirect::route('login.totp');
         }
 
         $this->loginCase->completeLogin($admin, (bool) $request->boolean('remember'));
 
-        return redirect()->intended('/admin');
+        return Redirect::intended('/admin');
     }
 
     public function destroy(Request $request): RedirectResponse
@@ -76,6 +77,6 @@ final class LoginController
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return Redirect::route('login');
     }
 }

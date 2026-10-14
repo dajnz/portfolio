@@ -13,6 +13,8 @@ use App\Features\Settings\Infra\Requests\UpdateFeatureFlagsRequest;
 use App\Features\Settings\Infra\Requests\UpdateSettingsRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response as ResponseFacade;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
@@ -37,7 +39,7 @@ final class SettingsController
     {
         $this->updateSettingsCase->update($request->input('settings', []));
 
-        return redirect()->back();
+        return Redirect::back();
     }
 
     public function updateFeatureFlags(UpdateFeatureFlagsRequest $request): JsonResponse
@@ -46,13 +48,13 @@ final class SettingsController
 
         $this->updateFeatureFlagsCase->update($flags);
 
-        return response()->json(['data' => ['flags' => $flags]]);
+        return ResponseFacade::json(['data' => ['flags' => $flags]]);
     }
 
     public function testMail(TestMailRequest $request): JsonResponse
     {
         $result = $this->testMailCase->test($request->input('settings', []));
 
-        return response()->json(['data' => $result]);
+        return ResponseFacade::json(['data' => $result]);
     }
 }

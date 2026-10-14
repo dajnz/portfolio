@@ -10,6 +10,7 @@ use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface
 use App\Features\Shared\Infra\Persistence\CursorPage;
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The admin feedback list: cursor-paginated via the shared paginator,
@@ -29,7 +30,7 @@ final class ListFeedbackUseCase
         return $this->paginator->paginate(
             $this->repository->listQuery(),
             $request,
-            $this->settings->value(SettingName::ItemsPerPage, config('portfolio.items_per_page', 12)),
+            $this->settings->value(SettingName::ItemsPerPage, Config::get('portfolio.items_per_page', 12)),
             'feedback',
         );
     }

@@ -8,6 +8,7 @@ use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use stdClass;
 
@@ -52,7 +53,7 @@ final class SitemapService implements SitemapInvalidatorInterface
 
     public function generate(): string
     {
-        $baseUrl = rtrim((string) config('app.url'), '/');
+        $baseUrl = rtrim((string) Config::get('app.url'), '/');
         $locales = $this->enabledLocales();
 
         $urls = [
@@ -87,7 +88,7 @@ final class SitemapService implements SitemapInvalidatorInterface
      */
     private function enabledLocales(): array
     {
-        $locales = $this->settings->value(SettingName::SupportedLocales, config('portfolio.supported_locales', ['en', 'ru']));
+        $locales = $this->settings->value(SettingName::SupportedLocales, Config::get('portfolio.supported_locales', ['en', 'ru']));
 
         return is_array($locales) ? array_values(array_filter($locales, 'is_string')) : ['en'];
     }

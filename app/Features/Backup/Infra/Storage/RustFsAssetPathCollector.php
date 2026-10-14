@@ -6,10 +6,10 @@ namespace App\Features\Backup\Infra\Storage;
 
 use App\Features\Backup\App\Contracts\AssetPathCollectorInterface;
 use Illuminate\Filesystem\FilesystemManager;
+use Illuminate\Support\Facades\Config;
 use InvalidArgumentException;
 
 use function array_keys;
-use function config;
 use function is_string;
 
 /**
@@ -61,8 +61,8 @@ final class RustFsAssetPathCollector implements AssetPathCollectorInterface
 
     private function diskNameFor(string $bucket): string
     {
-        foreach (array_keys(config('filesystems.disks')) as $diskName) {
-            if ((string) config("filesystems.disks.{$diskName}.bucket") === $bucket) {
+        foreach (array_keys(Config::get('filesystems.disks')) as $diskName) {
+            if ((string) Config::get("filesystems.disks.{$diskName}.bucket") === $bucket) {
                 return $diskName;
             }
         }

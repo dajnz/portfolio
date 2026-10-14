@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Seeders\Concerns;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
@@ -19,11 +20,11 @@ trait ProvisionsDemoImages
 {
     protected function provisionDemoImage(string $key, string $sourceFile, string $contentType): bool
     {
-        if (app()->runningUnitTests()) {
+        if (App::runningUnitTests()) {
             return false;
         }
 
-        $source = database_path('seeders/assets/'.$sourceFile);
+        $source = App::databasePath('seeders/assets/'.$sourceFile);
 
         try {
             Storage::disk('rustfs')->put(

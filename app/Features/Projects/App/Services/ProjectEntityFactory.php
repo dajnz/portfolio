@@ -23,6 +23,7 @@ use App\Features\Shared\Domain\ValueObjects\SkillIcon;
 use App\Features\Shared\Domain\ValueObjects\Slug;
 use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use App\Features\Shared\Domain\ValueObjects\StoredPicture;
+use Illuminate\Support\Facades\App as AppFacade;
 
 /**
  * Builds {@see Project} aggregates from the app-layer draft DTO — shared
@@ -108,7 +109,7 @@ final class ProjectEntityFactory
                 skillName: $skill->toName(),
                 icon: $skill->toIcon() === null ? null : new SkillIcon($skill->toIcon()),
             ),
-            $this->skills->findByIds($techTagIds, app()->getLocale()),
+            $this->skills->findByIds($techTagIds, AppFacade::getLocale()),
         );
     }
 

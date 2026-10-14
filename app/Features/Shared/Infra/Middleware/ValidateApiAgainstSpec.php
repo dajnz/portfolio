@@ -7,6 +7,7 @@ namespace App\Features\Shared\Infra\Middleware;
 use App\Features\Shared\Infra\OpenApi\OpenApiSpecDocument;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use League\OpenAPIValidation\PSR7\PathFinder;
 use League\OpenAPIValidation\PSR7\ResponseValidator;
@@ -33,7 +34,7 @@ final class ValidateApiAgainstSpec
     {
         $response = $next($request);
 
-        if (! app()->hasDebugModeEnabled()) {
+        if (! App::hasDebugModeEnabled()) {
             return $response;
         }
 
@@ -74,7 +75,7 @@ final class ValidateApiAgainstSpec
 
     private function document(): OpenApiSpecDocument
     {
-        return app(OpenApiSpecDocument::class);
+        return App::make(OpenApiSpecDocument::class);
     }
 
     private function toPsr7(Response $response): ResponseInterface

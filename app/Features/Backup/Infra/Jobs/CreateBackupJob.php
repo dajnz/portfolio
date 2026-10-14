@@ -12,11 +12,11 @@ use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use App\Features\Backup\Domain\RepositoryInterfaces\EncryptionKeyRepositoryInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Throwable;
 
-use function config;
 use function in_array;
 
 /**
@@ -80,7 +80,7 @@ final class CreateBackupJob implements ShouldQueue
         $keyId = $backup->toEncryptionKeyId();
 
         if ($keyId === null) {
-            if (config('backup.encryption_enabled')) {
+            if (Config::get('backup.encryption_enabled')) {
                 throw new RuntimeException('No active backup encryption key — generate one first.');
             }
 

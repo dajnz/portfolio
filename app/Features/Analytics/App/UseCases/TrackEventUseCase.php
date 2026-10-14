@@ -12,6 +12,7 @@ use App\Features\Analytics\Domain\ValueObjects\ClientIds;
 use App\Features\Analytics\Domain\ValueObjects\PageDetails;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use DateTimeImmutable;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use TypeError;
@@ -55,7 +56,7 @@ final class TrackEventUseCase
         $ipHash = hash_hmac(
             'sha256',
             $ip,
-            (string) config('analytics.ip_hash_key', config('app.key')),
+            (string) Config::get('analytics.ip_hash_key', Config::get('app.key')),
         );
         $createdAt = new DateTimeImmutable();
 
@@ -122,7 +123,7 @@ final class TrackEventUseCase
         }
 
         return preg_match(
-            (string) config('analytics.not_bot_user_agent_pattern'),
+            (string) Config::get('analytics.not_bot_user_agent_pattern'),
             $userAgent,
         ) === 1;
     }

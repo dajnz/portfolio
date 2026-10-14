@@ -13,6 +13,7 @@ use App\Features\Shared\Infra\Persistence\CursorPage;
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The admin experience list: cursor-paginated via the shared paginator,
@@ -50,7 +51,7 @@ final class ListTimelineItemsUseCase
         return $this->paginator->paginate(
             $query,
             $request,
-            (int) $this->settings->value(SettingName::ItemsPerPage, config('portfolio.items_per_page', 12)),
+            (int) $this->settings->value(SettingName::ItemsPerPage, Config::get('portfolio.items_per_page', 12)),
             $this->countCacheKey($trashed, $search),
         );
     }

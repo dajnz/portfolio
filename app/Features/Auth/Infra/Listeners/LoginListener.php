@@ -7,6 +7,7 @@ namespace App\Features\Auth\Infra\Listeners;
 use App\Features\Auth\Infra\Models\AdminModel;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Remember-me compatibility: when a recaller cookie re-authenticates the
@@ -24,7 +25,7 @@ final class LoginListener
         }
 
         if ($event->user instanceof AdminModel) {
-            session(['session_version' => (int) $event->user->session_version]);
+            Session::put(['session_version' => (int) $event->user->session_version]);
         }
     }
 }

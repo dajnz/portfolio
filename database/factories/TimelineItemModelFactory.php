@@ -6,6 +6,7 @@ namespace Database\Factories;
 
 use App\Features\Experience\Infra\Models\TimelineItemModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Date;
 
 final class TimelineItemModelFactory extends Factory
 {
@@ -39,6 +40,6 @@ final class TimelineItemModelFactory extends Factory
 
     public function trashed(): static
     {
-        return $this->state(['deleted_at' => now()]);
+        return $this->state(['deleted_at' => Date::now()]);
     }
 }

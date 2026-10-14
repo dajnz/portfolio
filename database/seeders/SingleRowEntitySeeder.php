@@ -6,6 +6,7 @@ namespace Database\Seeders;
 
 use App\Features\Resume\Infra\Models\ResumeConfigModel;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -91,11 +92,11 @@ final class SingleRowEntitySeeder extends Seeder
      */
     private function provisionDemoPhoto(): ?string
     {
-        if (app()->runningUnitTests()) {
+        if (App::runningUnitTests()) {
             return null;
         }
 
-        $source = database_path('seeders/assets/demo-avatar.svg');
+        $source = App::databasePath('seeders/assets/demo-avatar.svg');
 
         try {
             Storage::disk('rustfs')->put(

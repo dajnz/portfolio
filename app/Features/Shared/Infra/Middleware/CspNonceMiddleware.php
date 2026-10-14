@@ -6,6 +6,7 @@ namespace App\Features\Shared\Infra\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -18,12 +19,12 @@ final class CspNonceMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->is('api/*') || app()->environment('local')) {
+        if ($request->is('api/*') || App::environment('local')) {
             return $next($request);
         }
 
         $nonce = base64_encode(random_bytes(18));
-        app()->instance(CspNonce::class, new CspNonce($nonce));
+        App::instance(CspNonce::class, new CspNonce($nonce));
 
         $response = $next($request);
 

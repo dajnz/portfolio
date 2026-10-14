@@ -9,6 +9,7 @@ use App\Features\Auth\Domain\Exceptions\TotpPendingInvalidException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Auth\Infra\Services\AdminAuthService;
 use App\Features\Shared\App\BaseUseCase;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Login-flow TOTP verification: resolves the half-auth admin from the
@@ -33,7 +34,7 @@ final class VerifyLoginTotpUseCase extends BaseUseCase
      */
     public function verify(string $code): void
     {
-        $admin = $this->repository->findById((int) session('totp.pending_admin_id'));
+        $admin = $this->repository->findById((int) Session::get('totp.pending_admin_id'));
 
         if ($admin === null) {
             throw new TotpPendingInvalidException();
@@ -42,12 +43,12 @@ final class VerifyLoginTotpUseCase extends BaseUseCase
         try {
             $this->verifyTotp->verify($admin, $code);
         } catch (TotpLockedException $exception) {
-            session()->forget(['totp.pending_admin_id', 'totp.pending_until']);
+            Session::forget(['totp.pending_admin_id', 'totp.pending_until']);
 
             throw new TotpLockedException($this->auth->totpLockoutFlash($admin));
         }
 
-        session()->forget(['totp.pending_admin_id', 'totp.pending_until']);
+        Session::forget(['totp.pending_admin_id', 'totp.pending_until']);
         $this->login->completeLogin($admin);
     }
 }

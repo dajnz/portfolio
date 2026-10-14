@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
@@ -25,7 +26,7 @@ final class HealthController
 
     public function up(): JsonResponse
     {
-        return response()->json(['status' => 'ok']);
+        return Response::json(['status' => 'ok']);
     }
 
     public function health(): JsonResponse
@@ -42,7 +43,7 @@ final class HealthController
 
         $allOk = $checks['db'] === 'ok' && $checks['redis'] === 'ok' && $checks['rustfs'] === 'ok';
 
-        return response()->json([
+        return Response::json([
             'status' => $allOk ? 'ok' : 'error',
             'checks' => $checks,
         ], $allOk ? 200 : 503);

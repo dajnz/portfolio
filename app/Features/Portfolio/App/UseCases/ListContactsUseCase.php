@@ -11,6 +11,7 @@ use App\Features\Shared\Infra\Persistence\CursorDecoder;
 use App\Features\Shared\Infra\Persistence\CursorPage;
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The admin contacts list: cursor-paginated via the shared paginator. The
@@ -38,7 +39,7 @@ final class ListContactsUseCase
         return $this->paginator->paginate(
             $this->repository->listQuery(),
             $request,
-            $this->settings->value(SettingName::ItemsPerPage, config('portfolio.items_per_page', 12)),
+            $this->settings->value(SettingName::ItemsPerPage, Config::get('portfolio.items_per_page', 12)),
             'contacts',
         );
     }

@@ -6,6 +6,7 @@ namespace App\Features\Shared\Infra\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -24,7 +25,7 @@ final class TrailingSlashRedirectMiddleware
             $target = rtrim($path, '/');
             $query = $request->getQueryString();
 
-            return redirect($query === null ? $target : $target.'?'.$query, 301);
+            return Redirect::to($query === null ? $target : $target.'?'.$query, 301);
         }
 
         return $next($request);

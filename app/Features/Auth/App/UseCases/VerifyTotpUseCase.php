@@ -13,6 +13,7 @@ use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Shared\App\BaseUseCase;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use DateTimeImmutable;
+use Illuminate\Support\Facades\Request;
 
 /**
  * TOTP + recovery-code verification with the per-account escalating
@@ -80,7 +81,7 @@ final class VerifyTotpUseCase extends BaseUseCase
         );
 
         $context = [
-            'ip' => request()->ip(),
+            'ip' => Request::ip(),
             'admin_id' => $adminId,
             'attempt_count' => $attempts,
         ];

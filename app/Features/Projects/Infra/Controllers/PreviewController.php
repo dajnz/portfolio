@@ -7,6 +7,7 @@ namespace App\Features\Projects\Infra\Controllers;
 use App\Features\Projects\App\UseCases\GetProjectPreviewUseCase;
 use App\Features\Projects\Infra\Services\ProjectDetailPropsBuilder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
@@ -32,14 +33,14 @@ final class PreviewController
             abort(403);
         }
 
-        $detail = $this->previewCase->get($project, app()->getLocale());
+        $detail = $this->previewCase->get($project, App::getLocale());
 
         if ($detail === null) {
             abort(404);
         }
 
         return $inertia->render('Projects/Public/Pages/ProjectDetailPage', [
-            'project' => $this->props->detail($detail->project, $detail->bodies, $detail->techWriteup, app()->getLocale()),
+            'project' => $this->props->detail($detail->project, $detail->bodies, $detail->techWriteup, App::getLocale()),
             'seo' => $this->props->seo($detail->seo),
         ]);
     }

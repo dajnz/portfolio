@@ -26,7 +26,9 @@ use DateTimeImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response as ResponseFacade;
 use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -99,7 +101,7 @@ final class AdminExperienceController
             throw ValidationException::withMessages([$e->toField() => $e->getMessage()]);
         }
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -107,7 +109,7 @@ final class AdminExperienceController
     {
         $this->destroyCase->destroy($item);
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
@@ -115,7 +117,7 @@ final class AdminExperienceController
     {
         $this->restoreCase->restore($item);
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.restored')]);
     }
 
@@ -123,7 +125,7 @@ final class AdminExperienceController
     {
         $this->forceDestroyCase->forceDestroy($item);
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
@@ -139,7 +141,7 @@ final class AdminExperienceController
 
     private function formPage(ResponseFactory $inertia, ?int $itemId): Response
     {
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
         $data = $this->editCase->get($itemId, $locale);
 
         /** @var TimelineItem|null $item */
@@ -188,13 +190,13 @@ final class AdminExperienceController
     {
         $this->publicationCase->set($itemId, $published);
 
-        return response()->json(['data' => self::listItemProps($this->fetchItem($itemId))]);
+        return ResponseFacade::json(['data' => self::listItemProps($this->fetchItem($itemId))]);
     }
 
     private function fetchItem(int $itemId): TimelineItemListItemDto
     {
         try {
-            return $this->itemCase->get($itemId, app()->getLocale());
+            return $this->itemCase->get($itemId, App::getLocale());
         } catch (TimelineItemNotFoundException) {
             abort(404);
         }
@@ -224,7 +226,7 @@ final class AdminExperienceController
      */
     private function tableRows(array $models): array
     {
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
 
         return array_map(function (mixed $model) use ($locale): array {
             $rows = $model->translations->keyBy('locale');

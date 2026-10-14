@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Response as ResponseFacade;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -60,11 +62,11 @@ final class ErrorResponseFactory
 
         [$status, $message] = $this->statusAndMessage($exception);
 
-        if ($status >= 500 && app()->hasDebugModeEnabled()) {
+        if ($status >= 500 && App::hasDebugModeEnabled()) {
             return null;
         }
 
-        return response()->json(['message' => $message], $status);
+        return ResponseFacade::json(['message' => $message], $status);
     }
 
     private function inertiaResponse(Throwable $exception, Request $request): ?Response
@@ -75,7 +77,7 @@ final class ErrorResponseFactory
 
         [$status, $message] = $this->statusAndMessage($exception);
 
-        if ($status >= 500 && app()->hasDebugModeEnabled()) {
+        if ($status >= 500 && App::hasDebugModeEnabled()) {
             return null;
         }
 

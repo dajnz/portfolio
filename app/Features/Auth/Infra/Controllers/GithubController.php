@@ -12,6 +12,7 @@ use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 
@@ -52,7 +53,7 @@ final class GithubController
         return match ($intent) {
             'login' => $this->handleLoginIntent($socialiteUser),
             'link' => $this->handleLinkIntent($socialiteUser),
-            default => redirect()->route('login')->with('notification', ['type' => 'error', 'message' => __('auth.github_invalid_intent')]),
+            default => Redirect::route('login')->with('notification', ['type' => 'error', 'message' => __('auth.github_invalid_intent')]),
         };
     }
 
@@ -64,10 +65,10 @@ final class GithubController
         }
 
         return match ($this->githubCallbackCase->handle((string) $socialiteUser->getId())) {
-            GithubLoginOutcome::NoAccount => redirect()->route('login')
+            GithubLoginOutcome::NoAccount => Redirect::route('login')
                 ->with('notification', ['type' => 'error', 'message' => __('auth.github_no_account')]),
-            GithubLoginOutcome::TotpRequired => redirect()->route('login.totp'),
-            GithubLoginOutcome::Authenticated => redirect()->intended('/admin'),
+            GithubLoginOutcome::TotpRequired => Redirect::route('login.totp'),
+            GithubLoginOutcome::Authenticated => Redirect::intended('/admin'),
         };
     }
 
@@ -75,20 +76,20 @@ final class GithubController
     {
         // Session expired mid-flow.
         if (! Auth::check()) {
-            return redirect()->route('login');
+            return Redirect::route('login');
         }
 
         $admin = $this->repository->findById((int) Auth::id());
 
         if ($admin === null) {
-            return redirect()->route('login');
+            return Redirect::route('login');
         }
 
         return match ($this->linkGithubCase->linkOrPrepare($admin, (string) $socialiteUser->getId(), (string) $socialiteUser->token)) {
-            GithubLinkOutcome::AlreadyLinked => redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_already_linked')]),
-            GithubLinkOutcome::Conflict => redirect()->route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_conflict')]),
-            GithubLinkOutcome::TotpRequired => redirect()->route('profile.github-link.totp'),
-            GithubLinkOutcome::Linked => redirect()->route('profile')->with('notification', ['type' => 'success', 'message' => __('auth.github_linked')]),
+            GithubLinkOutcome::AlreadyLinked => Redirect::route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_already_linked')]),
+            GithubLinkOutcome::Conflict => Redirect::route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_conflict')]),
+            GithubLinkOutcome::TotpRequired => Redirect::route('profile.github-link.totp'),
+            GithubLinkOutcome::Linked => Redirect::route('profile')->with('notification', ['type' => 'success', 'message' => __('auth.github_linked')]),
         };
     }
 }

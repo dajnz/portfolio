@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
 
 /**
@@ -28,7 +29,7 @@ class ExportLangCommand extends Command
         foreach ($locales as $locale) {
             $locale = trim($locale);
 
-            if (! is_dir(lang_path($locale))) {
+            if (! is_dir(App::langPath($locale))) {
                 $this->warn("Locale directory lang/{$locale} does not exist — skipped.");
 
                 continue;
@@ -36,7 +37,7 @@ class ExportLangCommand extends Command
 
             $catalog = [];
 
-            foreach (glob(lang_path($locale).'/*.php') ?: [] as $file) {
+            foreach (glob(App::langPath($locale).'/*.php') ?: [] as $file) {
                 $catalog[basename($file, '.php')] = require $file;
             }
 
@@ -60,7 +61,7 @@ class ExportLangCommand extends Command
                 return self::FAILURE;
             }
 
-            $path = resource_path("js/lang/{$locale}.json");
+            $path = App::resourcePath("js/lang/{$locale}.json");
 
             File::ensureDirectoryExists(dirname($path));
 

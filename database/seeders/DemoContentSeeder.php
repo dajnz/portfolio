@@ -22,6 +22,7 @@ use App\Features\Shared\Infra\Models\SkillGroupTranslationModel;
 use App\Features\Shared\Infra\Models\SkillModel;
 use Database\Seeders\Concerns\ProvisionsDemoImages;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -46,7 +47,7 @@ final class DemoContentSeeder extends Seeder
 
     public function run(): void
     {
-        if (app()->environment('production')) {
+        if (App::environment('production')) {
             throw new RuntimeException('DemoContentSeeder must never run in production.');
         }
 
@@ -466,13 +467,13 @@ final class DemoContentSeeder extends Seeder
      */
     private function data(string $name): array
     {
-        return require database_path('seeders/data/'.$name.'.php');
+        return require App::databasePath('seeders/data/'.$name.'.php');
     }
 
     private function articleContent(string $locale, string $slug): string
     {
         return (string) file_get_contents(
-            database_path("seeders/data/articles/{$locale}/{$slug}.md"),
+            App::databasePath("seeders/data/articles/{$locale}/{$slug}.md"),
         );
     }
 }

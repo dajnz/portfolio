@@ -10,6 +10,7 @@ use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Auth\Infra\Models\AdminModel;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 /**
  * Semantic auth-state checks shared by the auth middleware and the TOTP
@@ -39,7 +40,7 @@ final class AdminAuthService
         $user = Auth::guard('web')->user();
 
         return $user instanceof AdminModel
-            && (int) session('session_version', -1) === (int) $user->session_version;
+            && (int) Session::get('session_version', -1) === (int) $user->session_version;
     }
 
     public function forceLogout(): void
@@ -51,26 +52,26 @@ final class AdminAuthService
 
     public function hasPendingTotpLogin(): bool
     {
-        return session('totp.pending_admin_id') !== null;
+        return Session::get('totp.pending_admin_id') !== null;
     }
 
     /** Whether the half-auth state exceeded its 5-minute expiry. */
     public function pendingTotpLoginExpired(): bool
     {
-        return (int) session('totp.pending_until', 0) < (new DateTimeImmutable())->getTimestamp();
+        return (int) Session::get('totp.pending_until', 0) < (new DateTimeImmutable())->getTimestamp();
     }
 
     /** The admin whose credentials passed verification, or null. */
     public function pendingTotpLoginAdmin(): ?Admin
     {
-        $adminId = session('totp.pending_admin_id');
+        $adminId = Session::get('totp.pending_admin_id');
 
         return $adminId === null ? null : $this->repository->findById((int) $adminId);
     }
 
     public function clearPendingTotpLogin(): void
     {
-        session()->forget(['totp.pending_admin_id', 'totp.pending_until']);
+        Session::forget(['totp.pending_admin_id', 'totp.pending_until']);
     }
 
     /* `totp.pending.github_link` middleware (RequireGithubLinkTotpPending) */
@@ -78,26 +79,26 @@ final class AdminAuthService
     public function githubLinkPendingForCurrentAdmin(): bool
     {
         return Auth::check()
-            && (int) session('github_link.pending_admin_id', 0) === (int) Auth::id();
+            && (int) Session::get('github_link.pending_admin_id', 0) === (int) Auth::id();
     }
 
     /** Whether the pending GitHub-link state exceeded its 5-minute expiry. */
     public function pendingGithubLinkExpired(): bool
     {
-        return (int) session('github_link.pending_until', 0) < (new DateTimeImmutable())->getTimestamp();
+        return (int) Session::get('github_link.pending_until', 0) < (new DateTimeImmutable())->getTimestamp();
     }
 
     /** The admin who initiated the pending GitHub link, or null. */
     public function pendingGithubLinkAdmin(): ?Admin
     {
-        $adminId = session('github_link.pending_admin_id');
+        $adminId = Session::get('github_link.pending_admin_id');
 
         return $adminId === null ? null : $this->repository->findById((int) $adminId);
     }
 
     public function clearPendingGithubLink(): void
     {
-        session()->forget([
+        Session::forget([
             'github_link.pending_admin_id',
             'github_link.pending_github_id',
             'github_link.pending_token',

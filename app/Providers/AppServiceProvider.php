@@ -123,6 +123,8 @@ use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
+use Illuminate\Support\Facades\App as AppFacade;
+use Illuminate\Support\Facades\Config;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -379,7 +381,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             BackupArchiveInterface::class,
             fn (): ZipBackupArchive => new ZipBackupArchive(
-                encryptionEnabled: config('backup.encryption_enabled', true),
+                encryptionEnabled: Config::get('backup.encryption_enabled', true),
             ),
         );
 
@@ -388,7 +390,7 @@ class AppServiceProvider extends ServiceProvider
             fn ($app): StorageEstimator => new StorageEstimator(
                 assetCollector: $app->make(AssetPathCollectorInterface::class),
                 assetsDisk: $app->make('backup.assets-disk'),
-                stagingPath: config('backup.staging_path'),
+                stagingPath: Config::get('backup.staging_path'),
             ),
         );
 
@@ -441,8 +443,8 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $backupSources = fn (): BackupSources => new BackupSources(
-            stagingPath: config('backup.staging_path'),
-            assetsBucket: config('filesystems.disks.rustfs.bucket'),
+            stagingPath: Config::get('backup.staging_path'),
+            assetsBucket: Config::get('filesystems.disks.rustfs.bucket'),
         );
 
         $this->app->bind(
@@ -465,7 +467,7 @@ class AppServiceProvider extends ServiceProvider
             DatabaseRestoreService::class,
             fn ($app): DatabaseRestoreService => new DatabaseRestoreService(
                 truncator: $app->make(TableTruncatorInterface::class),
-                truncateOrder: config('backup.truncate_order'),
+                truncateOrder: Config::get('backup.truncate_order'),
                 tables: $app->make(BackupTableFactory::class)->importTables(),
             ),
         );
@@ -495,7 +497,7 @@ class AppServiceProvider extends ServiceProvider
                 backups: $app->make(BackupRepositoryInterface::class),
                 keys: $app->make(EncryptionKeyRepositoryInterface::class),
                 dispatcher: $app->make(BackupJobDispatcherInterface::class),
-                encryptionEnabled: (bool) config('backup.encryption_enabled', true),
+                encryptionEnabled: (bool) Config::get('backup.encryption_enabled', true),
             ),
         );
 
@@ -505,7 +507,7 @@ class AppServiceProvider extends ServiceProvider
                 backups: $app->make(BackupRepositoryInterface::class),
                 keys: $app->make(EncryptionKeyRepositoryInterface::class),
                 workflow: $app->make(RestoreWorkflowService::class),
-                legacyEncryptionKey: config('backup.encryption_key') ?: null,
+                legacyEncryptionKey: Config::get('backup.encryption_key') ?: null,
             ),
         );
 
@@ -515,7 +517,7 @@ class AppServiceProvider extends ServiceProvider
                 backups: $app->make(BackupRepositoryInterface::class),
                 settings: $app->make(SettingsReadRepositoryInterface::class),
                 backupsTransfer: $app->make(StorageBatchTransferable::class),
-                fallbackMaxCount: (int) config('backup.max_count', 30),
+                fallbackMaxCount: (int) Config::get('backup.max_count', 30),
             ),
         );
 
@@ -561,8 +563,8 @@ class AppServiceProvider extends ServiceProvider
         // The Swagger UI (l5-swagger) serves the
         // dereferenced `docs/openapi/openapi.yaml` contract. Production
         // skips the sync (the package is a require-dev dependency).
-        if (! app()->isProduction()) {
-            app(SwaggerUiService::class)->sync();
+        if (! AppFacade::isProduction()) {
+            AppFacade::make(SwaggerUiService::class)->sync();
         }
 
         $this->commands([

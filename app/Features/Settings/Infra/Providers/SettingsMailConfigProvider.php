@@ -7,6 +7,7 @@ namespace App\Features\Settings\Infra\Providers;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Settings\Infra\Mail\ApiMailTransport;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
@@ -47,21 +48,21 @@ final class SettingsMailConfigProvider extends ServiceProvider
 
         $repository = $this->app->make(SettingRepositoryInterface::class);
 
-        $endpoint = $repository->value(SettingName::MailApiEndpoint, config('mail.mailers.api.endpoint', ''));
+        $endpoint = $repository->value(SettingName::MailApiEndpoint, Config::get('mail.mailers.api.endpoint', ''));
 
         if ($endpoint !== null && $endpoint !== '') {
             $token = $this->decryptToken($repository->value(SettingName::MailApiToken))
-                ?? config('mail.mailers.api.token', null);
+                ?? Config::get('mail.mailers.api.token', null);
 
-            config()->set('mail.default', 'api');
-            config()->set('mail.mailers.api', array_merge(config('mail.mailers.api', []), [
+            Config::set('mail.default', 'api');
+            Config::set('mail.mailers.api', array_merge(Config::get('mail.mailers.api', []), [
                 'endpoint' => $endpoint,
                 'token' => $token,
             ]));
         }
 
-        config()->set('mail.from.address', $repository->value(SettingName::MailFromAddress, config('mail.from.address')));
-        config()->set('mail.from.name', $repository->value(SettingName::MailFromName, config('mail.from.name')));
+        Config::set('mail.from.address', $repository->value(SettingName::MailFromAddress, Config::get('mail.from.address')));
+        Config::set('mail.from.name', $repository->value(SettingName::MailFromName, Config::get('mail.from.name')));
     }
 
     private function settingsTableExists(): bool

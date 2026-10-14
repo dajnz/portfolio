@@ -17,6 +17,7 @@ use App\Features\TechSkills\Infra\Mappers\TechSkillGroupMapper;
 use App\Features\TechSkills\Infra\Mappers\TechSkillMapper;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Date;
 
 /**
  * Eloquent-backed write repository for the TechSkills feature, over the
@@ -153,7 +154,7 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
                 ->update([
                     'sort_order' => DB::raw('CASE id '.implode(' ', $orderCases).' END'),
                     'skill_group_id' => DB::raw('CASE id '.implode(' ', $groupCases).' END'),
-                    'updated_at' => now(),
+                    'updated_at' => Date::now(),
                 ]);
         });
     }
@@ -178,7 +179,7 @@ final class EloquentTechSkillWriteRepository implements TechSkillWriteRepository
                 'sort_order' => DB::raw('CASE id '.implode(' ', $cases).' END'),
                 // See reorderSkills: the resume hash rotation depends on
                 // this stamp.
-                'updated_at' => now(),
+                'updated_at' => Date::now(),
             ]);
     }
 

@@ -14,6 +14,7 @@ use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\DTOs\PaginationQuery;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
+use Illuminate\Support\Facades\Config;
 
 final class ListProjectsUseCase
 {
@@ -42,7 +43,7 @@ final class ListProjectsUseCase
             ),
             perPage: (int) $this->settings->value(
                 SettingName::ItemsPerPage,
-                config('portfolio.items_per_page', 12),
+                Config::get('portfolio.items_per_page', 12),
             ),
             countCacheKey: $this->countCacheKey($query),
             requestUrl: $query->url,

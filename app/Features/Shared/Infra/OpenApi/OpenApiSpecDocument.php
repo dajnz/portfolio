@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Shared\Infra\OpenApi;
 
+use Illuminate\Support\Facades\App;
 use League\OpenAPIValidation\PSR7\PathFinder;
 use League\OpenAPIValidation\PSR7\ResponseValidator;
 use League\OpenAPIValidation\PSR7\ValidatorBuilder;
@@ -35,7 +36,7 @@ final class OpenApiSpecDocument
 
     public function specPath(): string
     {
-        return base_path('docs/openapi/openapi.yaml');
+        return App::basePath('docs/openapi/openapi.yaml');
     }
 
     /**

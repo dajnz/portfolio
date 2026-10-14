@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Features\Resume\Infra\Controllers\PublicResumeController;
 use App\Features\Resume\Infra\Controllers\ResumeController;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/cv', [PublicResumeController::class, 'download']);
 Route::get('/{locale}/cv', [PublicResumeController::class, 'download'])
-    ->whereIn('locale', config('portfolio.supported_locales', ['en', 'ru']));
+    ->whereIn('locale', Config::get('portfolio.supported_locales', ['en', 'ru']));
 
 Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function (): void {
     Route::get('/admin/resume', [ResumeController::class, 'edit']);

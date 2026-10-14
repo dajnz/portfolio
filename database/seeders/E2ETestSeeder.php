@@ -9,6 +9,7 @@ use App\Features\Portfolio\Infra\Models\AboutInfoModel;
 use App\Features\Portfolio\Infra\Models\AboutInfoTranslationModel;
 use App\Features\Resume\Infra\Models\ResumeConfigModel;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -47,7 +48,7 @@ final class E2ETestSeeder extends Seeder
     {
         $database = DB::connection()->getDatabaseName();
 
-        if (app()->environment('production')) {
+        if (App::environment('production')) {
             throw new \RuntimeException('E2ETestSeeder must never run in production.');
         }
 

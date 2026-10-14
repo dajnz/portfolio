@@ -13,6 +13,8 @@ use App\Features\Shared\Domain\Entities\TechSkillGroup;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
@@ -32,7 +34,7 @@ final class LandingController
 
     public function index(ResponseFactory $inertia, Request $request): Response
     {
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
         $data = $this->landingPageCase->get($locale);
 
         /** @var AboutInfo|null $about */
@@ -128,7 +130,7 @@ final class LandingController
      */
     private function contactsProps(array $contacts): array
     {
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
 
         return array_map(static fn (Contact $contact): array => [
             'id' => $contact->toId(),
@@ -144,7 +146,7 @@ final class LandingController
      */
     private function seoProps(?AboutInfo $about, array $contacts, Request $request): array
     {
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
         $translation = $about?->translationFor($locale);
         $name = $translation?->toName() ?? '';
 
@@ -165,7 +167,7 @@ final class LandingController
             return null;
         }
 
-        return url('/assets/'.$about->toPhoto()->url);
+        return URL::to('/assets/'.$about->toPhoto()->url);
     }
 
     /**
@@ -176,7 +178,7 @@ final class LandingController
      */
     private function jsonLd(?AboutInfo $about, array $contacts): array
     {
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
         $translation = $about?->translationFor($locale);
         $name = $translation?->toName() ?? '';
 
@@ -193,7 +195,7 @@ final class LandingController
                 '@type' => 'Person',
                 'name' => $name,
                 'jobTitle' => __('seo.jsonld_person_job_title'),
-                'url' => url('/'),
+                'url' => URL::to('/'),
                 'image' => $this->aboutImageUrl($about),
                 'sameAs' => $sameAs,
             ],
@@ -201,14 +203,14 @@ final class LandingController
                 '@context' => 'https://schema.org',
                 '@type' => 'WebSite',
                 'name' => $name,
-                'url' => url('/'),
+                'url' => URL::to('/'),
                 'description' => $translation?->toShortPitch() ?? '',
                 'inLanguage' => $this->locales->activeLocales(),
                 'potentialAction' => [
                     '@type' => 'SearchAction',
                     'target' => [
                         '@type' => 'EntryPoint',
-                        'urlTemplate' => url('/blog?q={search_term_string}'),
+                        'urlTemplate' => URL::to('/blog?q={search_term_string}'),
                     ],
                     'query-input' => 'required name=search_term_string',
                 ],

@@ -7,6 +7,7 @@ namespace App\Features\Shared\Infra\Commands;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -172,7 +173,7 @@ final class CleanupOrphanedFilesCommand extends Command
     {
         $locales = $this->settings->value(
             SettingName::SupportedLocales,
-            config('portfolio.supported_locales', ['en', 'ru']),
+            Config::get('portfolio.supported_locales', ['en', 'ru']),
         );
 
         return array_values(array_unique(array_map('strval', (array) $locales)));

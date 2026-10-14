@@ -7,8 +7,7 @@ namespace App\Features\Backup\Infra\Requests;
 use App\Features\Backup\Infra\Rules\CurrentPasswordRule;
 use App\Features\Shared\Domain\RepositoryInterfaces\SettingsReadRepositoryInterface;
 use Illuminate\Foundation\Http\FormRequest;
-
-use function config;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The disaster-recovery upload payload: the downloaded `.zip`, the
@@ -30,7 +29,7 @@ final class UploadRestoreRequest extends FormRequest
     /** @return array<string, mixed> */
     public function rules(): array
     {
-        $maxKb = (int) $this->settings->value('backup_upload_max_size', config('backup.upload_max_size_kb', 102400));
+        $maxKb = (int) $this->settings->value('backup_upload_max_size', Config::get('backup.upload_max_size_kb', 102400));
 
         return [
             'file' => ['required', 'file', 'mimes:zip', "max:{$maxKb}"],

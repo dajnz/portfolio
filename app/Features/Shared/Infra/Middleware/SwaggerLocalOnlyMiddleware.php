@@ -6,6 +6,7 @@ namespace App\Features\Shared\Infra\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -18,7 +19,7 @@ final class SwaggerLocalOnlyMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        abort_unless(app()->environment('local'), 404);
+        abort_unless(App::environment('local'), 404);
 
         return $next($request);
     }

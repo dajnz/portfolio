@@ -6,6 +6,8 @@ namespace App\Features\Shared\Infra\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -22,13 +24,13 @@ final class SetLocaleFromPathMiddleware
     {
         $locale = $request->route('locale');
 
-        if (is_string($locale) && in_array($locale, config('portfolio.supported_locales', ['en', 'ru']), true)) {
-            app()->setLocale($locale);
+        if (is_string($locale) && in_array($locale, Config::get('portfolio.supported_locales', ['en', 'ru']), true)) {
+            App::setLocale($locale);
             $request->attributes->set('locale', $locale);
         }
 
         $response = $next($request);
-        $response->headers->set('Content-Language', (string) $request->attributes->get('locale', app()->getLocale()));
+        $response->headers->set('Content-Language', (string) $request->attributes->get('locale', App::getLocale()));
 
         return $response;
     }
