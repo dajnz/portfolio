@@ -1,30 +1,18 @@
 <script setup lang="ts">
-import { useI18n } from '@shared-cross/Composables/useI18n';
+import { useCopyrightNotice } from '@shared-cross/Composables/useCopyrightNotice';
 
 import AdminCenteredContainer from './AdminCenteredContainer.vue';
 
 const props = withDefaults(
     defineProps<{
-        copyright_year?: string;
-        copyright_name?: string;
         test_id?: string;
     }>(),
     {
-        copyright_year: undefined,
-        copyright_name: undefined,
         test_id: 'admin-footer',
     },
 );
 
-const { t } = useI18n();
-
-function copyrightText(): string {
-    const year = props.copyright_year ?? String(new Date().getFullYear());
-    const name = props.copyright_name ?? '';
-    const ownerYear = name !== '' ? `${year} ${name}` : year;
-
-    return t('landing.footer_copyright', { owner_year: ownerYear });
-}
+const copyrightText = useCopyrightNotice();
 </script>
 
 <template>
@@ -35,7 +23,7 @@ function copyrightText(): string {
     <AdminCenteredContainer size="xl">
       <div class="flex items-center justify-center gap-2 h-14">
         <p class="text-sm text-slate-500 dark:text-slate-400">
-          {{ copyrightText() }}
+          {{ copyrightText }}
         </p>
         <slot />
       </div>
