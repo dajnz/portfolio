@@ -3,14 +3,14 @@ import type { components } from '@shared-cross/Types/inertia';
 export type WireArticleCard = components['schemas']['ArticleCardData'];
 export type WireTag = components['schemas']['TagData'];
 
-/** The article tags of a card — `PublicBaseBadge` (accent) chips. */
+/** The article tags of a card — linked `TechSkillTag` chips (`?article_tags={id}`). */
 export interface ArticleTagView {
     id: number;
     slug: string;
     name: string;
 }
 
-/** The skill tags of a card — linked `TechSkillTag` chips. */
+/** The skill tags of a card — linked `TechSkillTag` chips (`?skill_tags={id}`). */
 export interface ArticleSkillTagView {
     id: number;
     name: string;
