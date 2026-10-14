@@ -7,6 +7,7 @@ namespace App\Features\Resume\Infra\Controllers;
 use App\Features\Resume\App\UseCases\GetResumePdfUseCase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -57,7 +58,7 @@ final class PublicResumeController
         $queryLocale = $request->query('locale');
 
         if (is_string($queryLocale)
-            && in_array($queryLocale, config('portfolio.supported_locales', ['en', 'ru']), true)
+            && in_array($queryLocale, Config::get('portfolio.supported_locales', ['en', 'ru']), true)
         ) {
             return $queryLocale;
         }
