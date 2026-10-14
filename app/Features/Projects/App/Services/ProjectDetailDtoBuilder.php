@@ -10,6 +10,7 @@ use App\Features\Projects\App\DTOs\ProjectDetailDto;
 use App\Features\Projects\App\DTOs\ProjectSeoDto;
 use App\Features\Projects\App\DTOs\TechWriteupLinkDto;
 use App\Features\Projects\Domain\Entities\Project;
+use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\PublishedArticleReadRepositoryInterface;
@@ -29,6 +30,7 @@ final class ProjectDetailDtoBuilder
         private readonly PublishedArticleReadRepositoryInterface $articles,
         private readonly AboutInfoReadRepositoryInterface $about,
         private readonly MarkdownContentPipelineInterface $pipeline,
+        private readonly ApplicationUrlInterface $applicationUrl,
     ) {
     }
 
@@ -40,7 +42,12 @@ final class ProjectDetailDtoBuilder
             project: $data,
             bodies: $this->bodiesOf($project, $locale),
             techWriteup: $this->techWriteupOf($project),
-            seo: ProjectSeoDto::forDetail($data, $locale, $this->about->findSiteName($locale)),
+            seo: ProjectSeoDto::forDetail(
+                $data,
+                $locale,
+                $this->about->findSiteName($locale),
+                $this->applicationUrl->baseUrl(),
+            ),
         );
     }
 
@@ -52,7 +59,7 @@ final class ProjectDetailDtoBuilder
             project: $data,
             bodies: $this->bodiesOf($project, $locale),
             techWriteup: $this->techWriteupOf($project),
-            seo: ProjectSeoDto::forPreview($data, $locale),
+            seo: ProjectSeoDto::forPreview($data, $locale, $this->applicationUrl->baseUrl()),
         );
     }
 

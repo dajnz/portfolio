@@ -13,10 +13,11 @@ use App\Features\Blog\App\DTOs\TagOptionDto;
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
+use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\App\Services\PaginationBuilder;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
-use Illuminate\Support\Facades\Config;
 
 /**
  * The public blog index: published, non-trashed articles ordered
@@ -42,6 +43,8 @@ final class GetPublicBlogIndexUseCase
         private readonly SettingRepositoryInterface $settings,
         private readonly AboutInfoReadRepositoryInterface $about,
         private readonly PaginationBuilder $pagination,
+        private readonly PaginationDefaultsInterface $paginationDefaults,
+        private readonly ApplicationUrlInterface $applicationUrl,
     ) {
     }
 
@@ -59,7 +62,11 @@ final class GetPublicBlogIndexUseCase
             nextCursor: $this->nextCursorFor($rows, $reconstructed['last_batch_full'], $searching),
             tags: $this->tagOptions($this->repository->findAllTags($query->locale)),
             years: $this->repository->yearsOfPublishedArticles(),
-            seo: BlogSeoDto::forIndex($query->locale, $this->about->findSiteName($query->locale)),
+            seo: BlogSeoDto::forIndex(
+                $query->locale,
+                $this->about->findSiteName($query->locale),
+                $this->applicationUrl->baseUrl(),
+            ),
             hasProjects: $this->repository->hasPublishedProjects(),
         );
     }
@@ -263,7 +270,7 @@ final class GetPublicBlogIndexUseCase
     {
         return (int) $this->settings->value(
             SettingName::ArticlesPerPage,
-            Config::get('portfolio.articles_per_page', 10),
+            $this->paginationDefaults->articlesPerPage(),
         );
     }
 

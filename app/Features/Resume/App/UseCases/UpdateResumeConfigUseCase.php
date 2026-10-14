@@ -6,8 +6,8 @@ namespace App\Features\Resume\App\UseCases;
 
 use App\Features\Resume\Domain\Entities\ResumeConfig;
 use App\Features\Resume\Domain\RepositoryInterfaces\ResumeConfigRepositoryInterface;
+use App\Features\Shared\App\Contracts\TransactionManagerInterface;
 use DateTimeImmutable;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Persists the resume configuration (`PUT /admin/resume` — the single
@@ -21,6 +21,7 @@ final class UpdateResumeConfigUseCase
 {
     public function __construct(
         private readonly ResumeConfigRepositoryInterface $repository,
+        private readonly TransactionManagerInterface $transactionManager,
     ) {
     }
 
@@ -34,7 +35,7 @@ final class UpdateResumeConfigUseCase
         ?string $customResumeFile,
         array $aboutTexts,
     ): void {
-        DB::transaction(function () use ($mode, $layout, $customResumeFile, $aboutTexts): void {
+        $this->transactionManager->transaction(function () use ($mode, $layout, $customResumeFile, $aboutTexts): void {
             $existing = $this->repository->find();
 
             $config = $existing ?? new ResumeConfig(

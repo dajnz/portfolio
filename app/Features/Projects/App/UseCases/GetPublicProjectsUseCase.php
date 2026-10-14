@@ -13,13 +13,14 @@ use App\Features\Projects\App\DTOs\SkillOptionDto;
 use App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
+use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\App\Services\PaginationBuilder;
 use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
-use Illuminate\Support\Facades\Config;
 
 /**
  * The public projects page: published, non-trashed projects with
@@ -48,6 +49,8 @@ final class GetPublicProjectsUseCase
         private readonly TechSkillReadRepositoryInterface $skills,
         private readonly AboutInfoReadRepositoryInterface $about,
         private readonly PaginationBuilder $pagination,
+        private readonly PaginationDefaultsInterface $paginationDefaults,
+        private readonly ApplicationUrlInterface $applicationUrl,
     ) {
     }
 
@@ -75,7 +78,11 @@ final class GetPublicProjectsUseCase
                 ),
                 $this->skills->findAll($query->locale),
             ),
-            seo: ProjectSeoDto::forIndex($query->locale, $this->about->findSiteName($query->locale)),
+            seo: ProjectSeoDto::forIndex(
+                $query->locale,
+                $this->about->findSiteName($query->locale),
+                $this->applicationUrl->baseUrl(),
+            ),
         );
     }
 
@@ -236,7 +243,7 @@ final class GetPublicProjectsUseCase
     {
         return (int) $this->settings->value(
             SettingName::ProjectsPerPage,
-            Config::get('portfolio.projects_per_page', 12),
+            $this->paginationDefaults->projectsPerPage(),
         );
     }
 

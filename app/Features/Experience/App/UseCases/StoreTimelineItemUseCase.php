@@ -10,6 +10,7 @@ use App\Features\Experience\Domain\Entities\TimelineItemTranslation;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
 use App\Features\Experience\Domain\ValueObjects\RelatedProject;
 use App\Features\Experience\Domain\ValueObjects\WorkPeriod;
+use App\Features\Shared\App\Contracts\TransactionManagerInterface;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;
@@ -18,7 +19,6 @@ use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Creates a timeline item: the {@see WorkPeriod} (a null `ended_at` =
@@ -42,6 +42,7 @@ final class StoreTimelineItemUseCase
         private readonly TechSkillReadRepositoryInterface $skills,
         private readonly ActiveLocaleService $locales,
         private readonly TimelineContinuityService $continuity,
+        private readonly TransactionManagerInterface $transactionManager,
     ) {
     }
 
@@ -68,7 +69,7 @@ final class StoreTimelineItemUseCase
         bool $includeInResume,
         ?string $externalProjectName,
     ): int {
-        $itemId = DB::transaction(function () use (
+        $itemId = $this->transactionManager->transaction(function () use (
             $position,
             $companyName,
             $companyCountry,

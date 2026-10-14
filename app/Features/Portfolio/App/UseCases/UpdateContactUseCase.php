@@ -7,9 +7,9 @@ namespace App\Features\Portfolio\App\UseCases;
 use App\Features\Portfolio\Domain\Entities\Contact;
 use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
+use App\Features\Shared\App\Contracts\TransactionManagerInterface;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
-use Illuminate\Support\Facades\DB;
 
 /**
  * Updates a contact: the non-translatable columns plus the per-locale
@@ -21,6 +21,7 @@ final class UpdateContactUseCase
     public function __construct(
         private readonly ContactRepositoryInterface $repository,
         private readonly ActiveLocaleService $locales,
+        private readonly TransactionManagerInterface $transactionManager,
     ) {
     }
 
@@ -38,7 +39,7 @@ final class UpdateContactUseCase
     ): void {
         $translations = $this->translations($names);
 
-        DB::transaction(function () use ($id, $value, $icon, $includeInResume, $url, $sortOrder, $translations): void {
+        $this->transactionManager->transaction(function () use ($id, $value, $icon, $includeInResume, $url, $sortOrder, $translations): void {
             $this->repository->save(new Contact(
                 id: $id,
                 value: $value,

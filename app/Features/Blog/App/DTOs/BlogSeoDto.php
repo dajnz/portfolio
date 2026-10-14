@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Features\Blog\App\DTOs;
 
 use DateTimeImmutable;
-use Illuminate\Support\Facades\Config;
 
 /**
  * The blog pages' SEO data: the localized title/description, the
@@ -40,12 +39,12 @@ final readonly class BlogSeoDto
      * The blog index: the localized site-title pattern, no
      * page-specific image.
      */
-    public static function forIndex(string $locale, string $siteName): self
+    public static function forIndex(string $locale, string $siteName, string $baseUrl): self
     {
         return new self(
             title: __('seo.title_blog_index', ['name' => $siteName]),
             description: __('seo.description_blog_index', ['name' => $siteName]),
-            canonicalUrl: self::baseUrl().'/blog',
+            canonicalUrl: $baseUrl.'/blog',
             ogType: 'website',
         );
     }
@@ -64,15 +63,16 @@ final readonly class BlogSeoDto
         string $slug,
         ?string $leadImagePath,
         string $siteName,
+        string $baseUrl,
         array $tagNames,
         array $skillNames,
         ?DateTimeImmutable $publishedAt,
         ?DateTimeImmutable $updatedAt,
         ?string $sitePhotoPath = null,
     ): self {
-        $canonical = self::baseUrl().'/blog/'.$slug;
-        $imageUrl = $leadImagePath === null ? null : self::assetUrl($leadImagePath);
-        $logoUrl = $sitePhotoPath === null ? null : self::assetUrl($sitePhotoPath);
+        $canonical = $baseUrl.'/blog/'.$slug;
+        $imageUrl = $leadImagePath === null ? null : self::assetUrl($leadImagePath, $baseUrl);
+        $logoUrl = $sitePhotoPath === null ? null : self::assetUrl($sitePhotoPath, $baseUrl);
 
         return new self(
             title: __('seo.title_blog_article', ['article_title' => $title, 'name' => $siteName]),
@@ -91,6 +91,7 @@ final readonly class BlogSeoDto
                 $updatedAt,
                 $imageUrl,
                 $logoUrl,
+                $baseUrl,
             ),
             article: [
                 'published_time' => $publishedAt?->format('c'),
@@ -116,6 +117,7 @@ final readonly class BlogSeoDto
         ?DateTimeImmutable $updatedAt,
         ?string $imageUrl,
         ?string $logoUrl,
+        string $baseUrl,
     ): array {
         $publisher = [
             '@type' => 'Organization',
@@ -166,7 +168,7 @@ final readonly class BlogSeoDto
                         '@type' => 'ListItem',
                         'position' => 1,
                         'name' => __('nav.blog'),
-                        'item' => self::baseUrl().'/blog',
+                        'item' => $baseUrl.'/blog',
                     ],
                     [
                         '@type' => 'ListItem',
@@ -178,13 +180,8 @@ final readonly class BlogSeoDto
         ];
     }
 
-    private static function baseUrl(): string
+    private static function assetUrl(string $path, string $baseUrl): string
     {
-        return rtrim((string) Config::get('app.url'), '/');
-    }
-
-    private static function assetUrl(string $path): string
-    {
-        return self::baseUrl().'/assets/'.$path;
+        return $baseUrl.'/assets/'.$path;
     }
 }

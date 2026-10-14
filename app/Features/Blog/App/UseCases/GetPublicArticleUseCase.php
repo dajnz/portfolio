@@ -15,6 +15,7 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Settings\Domain\Enums\FeatureFlagName;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
+use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 
@@ -38,6 +39,7 @@ final class GetPublicArticleUseCase
         private readonly FeatureFlagRepositoryInterface $flags,
         private readonly AboutInfoReadRepositoryInterface $about,
         private readonly MarkdownContentPipelineInterface $pipeline,
+        private readonly ApplicationUrlInterface $applicationUrl,
     ) {
     }
 
@@ -119,6 +121,7 @@ final class GetPublicArticleUseCase
                 slug: $article->toSlug(),
                 leadImagePath: $article->toLeadImage()?->url,
                 siteName: $siteName,
+                baseUrl: $this->applicationUrl->baseUrl(),
                 tagNames: array_map(static fn (object $tag): string => $tag->name, $tagRows),
                 skillNames: array_map(
                     static fn ($skill): string => $skill->toSkillName(),

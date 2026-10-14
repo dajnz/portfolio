@@ -7,11 +7,11 @@ namespace App\Features\Portfolio\App\UseCases;
 use App\Features\Portfolio\Infra\Repositories\ContactListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\Infra\Persistence\CursorDecoder;
 use App\Features\Shared\Infra\Persistence\CursorPage;
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
 
 /**
  * The admin contacts list: cursor-paginated via the shared paginator. The
@@ -26,6 +26,7 @@ final class ListContactsUseCase
     public function __construct(
         private readonly ContactListQueryRepositoryInterface $repository,
         private readonly SettingRepositoryInterface $settings,
+        private readonly PaginationDefaultsInterface $paginationDefaults,
         CursorDecoder $cursorDecoder = new CursorDecoder(),
     ) {
         $this->paginator = new AdminCursorPaginator(
@@ -39,7 +40,7 @@ final class ListContactsUseCase
         return $this->paginator->paginate(
             $this->repository->listQuery(),
             $request,
-            $this->settings->value(SettingName::ItemsPerPage, Config::get('portfolio.items_per_page', 12)),
+            $this->settings->value(SettingName::ItemsPerPage, $this->paginationDefaults->itemsPerPage()),
             'contacts',
         );
     }

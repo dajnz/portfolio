@@ -13,10 +13,10 @@ use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
+use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\App\DTOs\PaginationQuery;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Config;
 
 /**
  * The admin articles list: cursor-paginated via the shared app-layer
@@ -36,6 +36,7 @@ final class ListArticlesUseCase
         private readonly ArticleListQueryRepositoryInterface $repository,
         private readonly SettingRepositoryInterface $settings,
         private readonly AdminListPaginatorInterface $paginator,
+        private readonly PaginationDefaultsInterface $paginationDefaults,
     ) {
     }
 
@@ -58,7 +59,7 @@ final class ListArticlesUseCase
             ),
             perPage: (int) $this->settings->value(
                 SettingName::ItemsPerPage,
-                Config::get('portfolio.items_per_page', 12),
+                $this->paginationDefaults->itemsPerPage(),
             ),
             countCacheKey: $this->countCacheKey($query),
             requestUrl: $query->url,

@@ -8,12 +8,12 @@ use App\Features\Experience\Domain\Entities\TimelineItem;
 use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\Infra\Persistence\CursorDecoder;
 use App\Features\Shared\Infra\Persistence\CursorPage;
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
 
 /**
  * The admin experience list: cursor-paginated via the shared paginator,
@@ -29,6 +29,7 @@ final class ListTimelineItemsUseCase
     public function __construct(
         private readonly TimelineItemListQueryRepositoryInterface $repository,
         private readonly SettingRepositoryInterface $settings,
+        private readonly PaginationDefaultsInterface $paginationDefaults,
         CursorDecoder $cursorDecoder = new CursorDecoder(),
     ) {
         $this->paginator = new AdminCursorPaginator(
@@ -51,7 +52,7 @@ final class ListTimelineItemsUseCase
         return $this->paginator->paginate(
             $query,
             $request,
-            (int) $this->settings->value(SettingName::ItemsPerPage, Config::get('portfolio.items_per_page', 12)),
+            (int) $this->settings->value(SettingName::ItemsPerPage, $this->paginationDefaults->itemsPerPage()),
             $this->countCacheKey($trashed, $search),
         );
     }

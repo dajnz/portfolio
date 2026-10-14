@@ -7,10 +7,10 @@ namespace App\Features\Portfolio\App\UseCases;
 use App\Features\Portfolio\Infra\Repositories\FeedbackListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\Infra\Persistence\CursorPage;
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
 
 /**
  * The admin feedback list: cursor-paginated via the shared paginator,
@@ -21,6 +21,7 @@ final class ListFeedbackUseCase
     public function __construct(
         private readonly FeedbackListQueryRepositoryInterface $repository,
         private readonly SettingRepositoryInterface $settings,
+        private readonly PaginationDefaultsInterface $paginationDefaults,
         private readonly AdminCursorPaginator $paginator = new AdminCursorPaginator(),
     ) {
     }
@@ -30,7 +31,7 @@ final class ListFeedbackUseCase
         return $this->paginator->paginate(
             $this->repository->listQuery(),
             $request,
-            $this->settings->value(SettingName::ItemsPerPage, Config::get('portfolio.items_per_page', 12)),
+            $this->settings->value(SettingName::ItemsPerPage, $this->paginationDefaults->itemsPerPage()),
             'feedback',
         );
     }
