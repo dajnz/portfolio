@@ -15,6 +15,7 @@ use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
 use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
+use App\Features\Shared\App\Contracts\TranslatorInterface;
 use App\Features\Shared\App\Services\PaginationBuilder;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
@@ -45,6 +46,7 @@ final class GetPublicBlogIndexUseCase
         private readonly PaginationBuilder $pagination,
         private readonly PaginationDefaultsInterface $paginationDefaults,
         private readonly ApplicationUrlInterface $applicationUrl,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -63,9 +65,15 @@ final class GetPublicBlogIndexUseCase
             tags: $this->tagOptions($this->repository->findAllTags($query->locale)),
             years: $this->repository->yearsOfPublishedArticles(),
             seo: BlogSeoDto::forIndex(
-                $query->locale,
-                $this->about->findSiteName($query->locale),
-                $this->applicationUrl->baseUrl(),
+                title: $this->translator->translate(
+                    'seo.title_blog_index',
+                    ['name' => $this->about->findSiteName($query->locale)],
+                ),
+                description: $this->translator->translate(
+                    'seo.description_blog_index',
+                    ['name' => $this->about->findSiteName($query->locale)],
+                ),
+                baseUrl: $this->applicationUrl->baseUrl(),
             ),
             hasProjects: $this->repository->hasPublishedProjects(),
         );

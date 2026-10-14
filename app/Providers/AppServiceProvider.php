@@ -53,6 +53,7 @@ use App\Features\Blog\Infra\Repositories\EloquentArticleReactionRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleTagRepository;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
+use App\Features\Experience\App\Services\TimelineContinuityService;
 use App\Features\Experience\Infra\Repositories\EloquentTimelineItemRepository;
 use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
 use App\Features\Portfolio\App\Contracts\FeedbackNotificationMailerInterface;
@@ -106,6 +107,7 @@ use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
 use App\Features\Shared\App\Contracts\SessionStoreInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use App\Features\Shared\App\Contracts\TransactionManagerInterface;
+use App\Features\Shared\App\Contracts\TranslatorInterface;
 use App\Features\Shared\App\Contracts\UrlGeneratorInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ContactReadRepositoryInterface;
@@ -136,6 +138,7 @@ use App\Features\Shared\Infra\Services\LaravelPasswordHasher;
 use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
 use App\Features\Shared\Infra\Services\LaravelSessionStore;
 use App\Features\Shared\Infra\Services\LaravelTransactionManager;
+use App\Features\Shared\Infra\Services\LaravelTranslator;
 use App\Features\Shared\Infra\Services\LaravelUrlGenerator;
 use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
 use App\Features\Shared\Infra\Services\RustFsAssetCleaner;
@@ -345,7 +348,8 @@ class AppServiceProvider extends ServiceProvider
         // pagination defaults, the site's base URL, the analytics pipeline
         // configuration, the transactional connection, the active locale
         // context, absolute path URLs, the session store, the auth guard, the
-        // password hasher, the encrypter and the asset storage.
+        // password hasher, the encrypter, the asset storage and the
+        // translator.
         $this->app->bind(
             PaginationDefaultsInterface::class,
             LaravelPaginationDefaults::class,
@@ -374,6 +378,22 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             UrlGeneratorInterface::class,
             LaravelUrlGenerator::class,
+        );
+
+        $this->app->bind(
+            TranslatorInterface::class,
+            LaravelTranslator::class,
+        );
+
+        // The continuity service takes an explicit message resolver (kept as a
+        // callable so unit tests stay framework-free); the container wires it
+        // to the app-layer translator.
+        $this->app->bind(
+            TimelineContinuityService::class,
+            fn ($app): TimelineContinuityService => new TimelineContinuityService(
+                $app->make(TimelineItemRepositoryInterface::class),
+                fn (string $key): string => $app->make(TranslatorInterface::class)->translate($key),
+            ),
         );
 
         $this->app->bind(

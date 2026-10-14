@@ -17,6 +17,7 @@ use App\Features\Settings\Domain\Enums\FeatureFlagName;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
+use App\Features\Shared\App\Contracts\TranslatorInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 
 /**
@@ -40,6 +41,7 @@ final class GetPublicArticleUseCase
         private readonly AboutInfoReadRepositoryInterface $about,
         private readonly MarkdownContentPipelineInterface $pipeline,
         private readonly ApplicationUrlInterface $applicationUrl,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -122,6 +124,11 @@ final class GetPublicArticleUseCase
                 leadImagePath: $article->toLeadImage()?->url,
                 siteName: $siteName,
                 baseUrl: $this->applicationUrl->baseUrl(),
+                seoTitle: $this->translator->translate(
+                    'seo.title_blog_article',
+                    ['article_title' => $article->titleFor($locale), 'name' => $siteName],
+                ),
+                blogLabel: $this->translator->translate('nav.blog'),
                 tagNames: array_map(static fn (object $tag): string => $tag->name, $tagRows),
                 skillNames: array_map(
                     static fn ($skill): string => $skill->toSkillName(),

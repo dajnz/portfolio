@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Blog\App\UseCases;
 
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
+use App\Features\Shared\App\Contracts\TranslatorInterface;
 use App\Features\Shared\App\Contracts\UrlGeneratorInterface;
 use App\Features\Shared\App\DTOs\RssFeedDto;
 use App\Features\Shared\App\DTOs\RssItemDto;
@@ -27,6 +28,7 @@ final class GetRssFeedUseCase
         private readonly PublicArticleReadRepositoryInterface $repository,
         private readonly AboutInfoReadRepositoryInterface $about,
         private readonly UrlGeneratorInterface $urls,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -40,8 +42,8 @@ final class GetRssFeedUseCase
         $skillsByArticle = $this->repository->skillTagsFor($articleIds);
 
         return new RssFeedDto(
-            title: __('seo.title_blog_index', ['name' => $siteName]),
-            description: __('seo.description_blog_index', ['name' => $siteName]),
+            title: $this->translator->translate('seo.title_blog_index', ['name' => $siteName]),
+            description: $this->translator->translate('seo.description_blog_index', ['name' => $siteName]),
             link: $this->urls->to('/'),
             items: array_map(
                 fn (object $row): RssItemDto => new RssItemDto(

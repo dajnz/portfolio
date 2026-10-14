@@ -11,6 +11,7 @@ use App\Features\Resume\Domain\Entities\ResumeConfig;
 use App\Features\Resume\Domain\RepositoryInterfaces\ResumeConfigRepositoryInterface;
 use App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface;
 use App\Features\Shared\App\Contracts\AssetStorageInterface;
+use App\Features\Shared\App\Contracts\TranslatorInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 
 /**
@@ -40,6 +41,7 @@ final class GetResumePdfUseCase
         private readonly ResumePdfRendererInterface $renderer,
         private readonly ResumePdfCacheInterface $cache,
         private readonly AssetStorageInterface $storage,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -167,7 +169,7 @@ final class GetResumePdfUseCase
                 $skills[] = [
                     'name' => $skill->toName(),
                     'proficiency' => $skill->toProficiency(),
-                    'proficiency_label' => __($skill->toProficiencyLabelKey()),
+                    'proficiency_label' => $this->translator->translate($skill->toProficiencyLabelKey()),
                 ];
             }
 

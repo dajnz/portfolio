@@ -12,6 +12,7 @@ use App\Features\Projects\App\DTOs\TechWriteupLinkDto;
 use App\Features\Projects\Domain\Entities\Project;
 use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
+use App\Features\Shared\App\Contracts\TranslatorInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\PublishedArticleReadRepositoryInterface;
 
@@ -31,6 +32,7 @@ final class ProjectDetailDtoBuilder
         private readonly AboutInfoReadRepositoryInterface $about,
         private readonly MarkdownContentPipelineInterface $pipeline,
         private readonly ApplicationUrlInterface $applicationUrl,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -43,10 +45,11 @@ final class ProjectDetailDtoBuilder
             bodies: $this->bodiesOf($project, $locale),
             techWriteup: $this->techWriteupOf($project),
             seo: ProjectSeoDto::forDetail(
-                $data,
-                $locale,
-                $this->about->findSiteName($locale),
-                $this->applicationUrl->baseUrl(),
+                project: $data,
+                locale: $locale,
+                baseUrl: $this->applicationUrl->baseUrl(),
+                seoTitle: $this->seoTitle($data, $locale, $this->about->findSiteName($locale)),
+                projectsLabel: $this->translator->translate('nav.projects'),
             ),
         );
     }
@@ -59,8 +62,21 @@ final class ProjectDetailDtoBuilder
             project: $data,
             bodies: $this->bodiesOf($project, $locale),
             techWriteup: $this->techWriteupOf($project),
-            seo: ProjectSeoDto::forPreview($data, $locale, $this->applicationUrl->baseUrl()),
+            seo: ProjectSeoDto::forPreview(
+                project: $data,
+                locale: $locale,
+                baseUrl: $this->applicationUrl->baseUrl(),
+                seoTitle: $this->seoTitle($data, $locale, ''),
+            ),
         );
+    }
+
+    private function seoTitle(ProjectDataDto $data, string $locale, string $siteName): string
+    {
+        return $this->translator->translate('seo.title_project_detail', [
+            'project_title' => ProjectSeoDto::localeText($data->translations->titles, $locale),
+            'name' => $siteName,
+        ]);
     }
 
     private function bodiesOf(Project $project, string $locale): ProjectDetailBodiesDto

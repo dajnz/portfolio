@@ -15,6 +15,7 @@ use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
 use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
+use App\Features\Shared\App\Contracts\TranslatorInterface;
 use App\Features\Shared\App\Services\PaginationBuilder;
 use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
@@ -51,6 +52,7 @@ final class GetPublicProjectsUseCase
         private readonly PaginationBuilder $pagination,
         private readonly PaginationDefaultsInterface $paginationDefaults,
         private readonly ApplicationUrlInterface $applicationUrl,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -79,9 +81,15 @@ final class GetPublicProjectsUseCase
                 $this->skills->findAll($query->locale),
             ),
             seo: ProjectSeoDto::forIndex(
-                $query->locale,
-                $this->about->findSiteName($query->locale),
-                $this->applicationUrl->baseUrl(),
+                title: $this->translator->translate(
+                    'seo.title_projects_index',
+                    ['name' => $this->about->findSiteName($query->locale)],
+                ),
+                description: $this->translator->translate(
+                    'seo.description_projects_index',
+                    ['name' => $this->about->findSiteName($query->locale)],
+                ),
+                baseUrl: $this->applicationUrl->baseUrl(),
             ),
         );
     }
