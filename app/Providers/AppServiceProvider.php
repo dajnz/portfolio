@@ -60,6 +60,7 @@ use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryIn
 use App\Features\Experience\App\Services\TimelineContinuityService;
 use App\Features\Experience\Infra\Repositories\EloquentTimelineItemRepository;
 use App\Features\Experience\App\Contracts\TimelineItemListQueryRepositoryInterface;
+use App\Features\Experience\App\UseCases\ListTimelineItemsUseCase;
 use App\Features\Portfolio\App\Contracts\DashboardStatsReaderInterface;
 use App\Features\Portfolio\App\Contracts\FeedbackNotificationMailerInterface;
 use App\Features\Portfolio\App\Contracts\ResumeModeReaderInterface;
@@ -68,6 +69,7 @@ use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterfac
 use App\Features\Portfolio\Domain\RepositoryInterfaces\FeedbackRepositoryInterface;
 use App\Features\Portfolio\Infra\Mail\LaravelFeedbackNotificationMailer;
 use App\Features\Portfolio\App\Contracts\ContactListQueryRepositoryInterface;
+use App\Features\Portfolio\App\UseCases\ListContactsUseCase;
 use App\Features\Portfolio\Infra\Repositories\EloquentAboutInfoRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentContactRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentFeedbackRepository;
@@ -338,6 +340,23 @@ class AppServiceProvider extends ServiceProvider
                 allowedSortColumns: [],
             ),
         );
+
+        // The lists whose sort differs from the id default get their own
+        // configured paginator: the timeline defaults to date desc and
+        // allows the date column, the reorderable contacts list allows
+        // `sort_order`.
+        $this->app->when(ListTimelineItemsUseCase::class)
+            ->needs(AdminListPaginatorInterface::class)
+            ->give(fn (): AdminListPaginator => new AdminListPaginator(
+                allowedSortColumns: ['started_at'],
+                defaultSortColumn: 'started_at',
+            ));
+
+        $this->app->when(ListContactsUseCase::class)
+            ->needs(AdminListPaginatorInterface::class)
+            ->give(fn (): AdminListPaginator => new AdminListPaginator(
+                allowedSortColumns: ['sort_order'],
+            ));
 
         $this->app->bind(
             AssetCleanerInterface::class,

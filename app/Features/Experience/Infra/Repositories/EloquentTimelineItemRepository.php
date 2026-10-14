@@ -174,9 +174,28 @@ final class EloquentTimelineItemRepository implements
     /**
      * @return Builder<TimelineItem>
      */
-    public function listQuery(): Builder
+    public function adminListQuery(bool $trashed, string $search): Builder
     {
-        return TimelineItemModel::query()->with('translations');
+        $query = TimelineItemModel::query()->with('translations');
+
+        if ($trashed) {
+            $query->onlyTrashed();
+        } else {
+            $query->whereNull('deleted_at');
+        }
+
+        if ($search === '') {
+            return $query;
+        }
+
+        return $query->whereHas('translations', function (Builder $translations) use ($search): void {
+            $translations->where(function (Builder $columns) use ($search): void {
+                $columns->where('position', 'ilike', "%{$search}%")
+                    ->orWhere('company_name', 'ilike', "%{$search}%")
+                    ->orWhere('company_country', 'ilike', "%{$search}%")
+                    ->orWhere('short_description', 'ilike', "%{$search}%");
+            });
+        });
     }
 
     /**

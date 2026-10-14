@@ -20,18 +20,6 @@ const APP_LAYER_ALLOWED_IMPORT_PATTERN = '/^App\\\\Features\\\\[A-Za-z]+\\\\(App
  * full mirror of the domain-layer purity guard.
  */
 const APP_LAYER_PURITY_BASELINE = [
-    'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: framework type `Illuminate\Database\Eloquent\Builder`',
-    'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: framework type `Illuminate\Http\Request`',
-    'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorDecoder`',
-    'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorPage`',
-    'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Services\AdminCursorPaginator`',
-    'app/Features/Portfolio/App/UseCases/ListContactsUseCase.php: framework type `Illuminate\Http\Request`',
-    'app/Features/Portfolio/App/UseCases/ListContactsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorDecoder`',
-    'app/Features/Portfolio/App/UseCases/ListContactsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorPage`',
-    'app/Features/Portfolio/App/UseCases/ListContactsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Services\AdminCursorPaginator`',
-    'app/Features/Portfolio/App/UseCases/ListFeedbackUseCase.php: framework type `Illuminate\Http\Request`',
-    'app/Features/Portfolio/App/UseCases/ListFeedbackUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorPage`',
-    'app/Features/Portfolio/App/UseCases/ListFeedbackUseCase.php: non-app-layer import `App\Features\Shared\Infra\Services\AdminCursorPaginator`',
 ];
 
 function appLayerForbiddenImport(string $imported): ?string

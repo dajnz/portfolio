@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Experience\Infra\Controllers;
 
+use App\Features\Experience\App\DTOs\AdminTimelineListQueryDto;
 use App\Features\Experience\App\DTOs\TimelineItemListItemDto;
 use App\Features\Experience\App\UseCases\DestroyTimelineItemUseCase;
 use App\Features\Experience\App\UseCases\ForceDestroyTimelineItemUseCase;
@@ -18,9 +19,10 @@ use App\Features\Experience\Domain\Entities\TimelineItem;
 use App\Features\Experience\Domain\Exceptions\TimelineItemNotFoundException;
 use App\Features\Experience\Domain\Exceptions\TimelinePeriodConflictException;
 use App\Features\Experience\Infra\Requests\StoreExperienceRequest;
+use App\Features\Shared\App\DTOs\CursorDto;
+use App\Features\Shared\App\DTOs\CursorPaginationDto;
 use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
-use App\Features\Shared\Infra\Persistence\CursorPage;
 use App\Features\Shared\Infra\Services\PerLocaleValues;
 use DateTimeImmutable;
 use Illuminate\Http\JsonResponse;
@@ -59,11 +61,11 @@ final class AdminExperienceController
 
     public function index(ResponseFactory $inertia, Request $request): Response
     {
-        $page = $this->listCase->list($request);
+        $result = $this->listCase->list($this->buildListQuery($request));
 
         return $inertia->render('Experience/Admin/Pages/ExperienceListPage', [
-            'items' => $this->tableRows($page->items),
-            'meta' => $this->meta($page),
+            'items' => $this->tableRows($result->rows),
+            'meta' => $this->meta($result->pagination),
         ]);
     }
 
@@ -152,6 +154,38 @@ final class AdminExperienceController
             'skills' => $this->skillProps($data['skills']),
             'projects' => $data['projects'],
         ]);
+    }
+
+    /**
+     * The app-layer admin list query — the raw query values are
+     * extracted here, the paginator parsing happens in the infra
+     * paginator implementation.
+     */
+    private function buildListQuery(Request $request): AdminTimelineListQueryDto
+    {
+        return new AdminTimelineListQueryDto(
+            trashed: $request->boolean('trashed'),
+            search: trim((string) $request->query('q', '')),
+            page: max(1, (int) $request->query('page', 1)),
+            cursorParams: is_array($request->input('cursor')) ? $request->input('cursor') : null,
+            sortColumn: $this->sortColumn($request),
+            sortDirection: $this->sortDirection($request),
+            url: $request->fullUrl(),
+        );
+    }
+
+    private function sortColumn(Request $request): ?string
+    {
+        $column = trim((string) $request->query('sort_column', ''));
+
+        return $column === '' ? null : $column;
+    }
+
+    private function sortDirection(Request $request): ?string
+    {
+        $direction = strtolower(trim((string) $request->query('sort_direction', '')));
+
+        return $direction === '' ? null : $direction;
     }
 
     /**
@@ -246,18 +280,38 @@ final class AdminExperienceController
     }
 
     /**
+     * The admin list `meta` wire shape from the cursor pagination
+     * facts.
+     *
      * @return array<string, mixed>
      */
-    private function meta(CursorPage $page): array
+    private function meta(CursorPaginationDto $pagination): array
     {
         return [
-            'total' => $page->total,
-            'per_page' => $page->perPage,
-            'current_page' => $page->currentPage,
-            'sort_column' => $page->sorting->sortColumn,
-            'sort_direction' => $page->sorting->sortDirection,
-            'cursors' => $page->cursors->toArray(),
+            'total' => $pagination->total,
+            'per_page' => $pagination->perPage,
+            'current_page' => $pagination->currentPage,
+            'sort_column' => $pagination->sortColumn,
+            'sort_direction' => $pagination->sortDirection,
+            'cursors' => [
+                'first' => self::cursorProps($pagination->cursors->first),
+                'last' => self::cursorProps($pagination->cursors->last),
+                'page' => $pagination->cursors->page,
+            ],
         ];
+    }
+
+    /**
+     * @return array{id: int, sort_value: mixed}|null
+     */
+    private static function cursorProps(?CursorDto $cursor): ?array
+    {
+        return $cursor === null
+            ? null
+            : [
+                'id' => $cursor->id,
+                'sort_value' => $cursor->sortValue,
+            ];
     }
 
     /**
