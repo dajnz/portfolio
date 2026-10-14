@@ -117,6 +117,7 @@ use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use App\Features\Shared\App\Contracts\TransactionManagerInterface;
 use App\Features\Shared\App\Contracts\TranslatorInterface;
+use App\Features\Shared\App\Contracts\UploadDefaultsInterface;
 use App\Features\Shared\App\Contracts\UrlGeneratorInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ContactReadRepositoryInterface;
@@ -147,6 +148,7 @@ use App\Features\Shared\Infra\Services\LaravelPasswordHasher;
 use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
 use App\Features\Shared\Infra\Services\LaravelTransactionManager;
 use App\Features\Shared\Infra\Services\LaravelTranslator;
+use App\Features\Shared\Infra\Services\LaravelUploadDefaults;
 use App\Features\Shared\Infra\Services\LaravelUrlGenerator;
 use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
 use App\Features\Shared\Infra\Services\RustFsAssetCleaner;
@@ -378,6 +380,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             PaginationDefaultsInterface::class,
             LaravelPaginationDefaults::class,
+        );
+
+        $this->app->bind(
+            UploadDefaultsInterface::class,
+            LaravelUploadDefaults::class,
         );
 
         $this->app->bind(
