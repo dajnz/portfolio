@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\App\UseCases;
 
+use App\Features\Auth\App\Contracts\TotpServiceInterface;
 use App\Features\Auth\App\Services\SessionVersionSynchronizer;
 use App\Features\Auth\Domain\Entities\Admin;
 use App\Features\Auth\Domain\Entities\AdminTimedOtp;
@@ -12,7 +13,6 @@ use App\Features\Auth\Domain\Exceptions\TotpEnrollmentExpiredException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterface;
 use App\Features\Auth\Domain\ValueObjects\RecoveryCode;
 use App\Features\Auth\Domain\ValueObjects\TotpSecret;
-use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Shared\App\BaseUseCase;
 use App\Features\Shared\App\Contracts\AdminSessionInterface;
 
@@ -30,7 +30,7 @@ final class EnableTotpUseCase extends BaseUseCase
 {
     public function __construct(
         private readonly AdminTimedOtpRepositoryInterface $otpRepository,
-        private readonly TotpService $totpService,
+        private readonly TotpServiceInterface $totpService,
         private readonly SessionVersionSynchronizer $sessionVersion,
         private readonly AdminSessionInterface $sessions,
     ) {

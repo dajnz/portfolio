@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Features\Portfolio\App\UseCases;
 
+use App\Features\Portfolio\App\Contracts\ResumeModeReaderInterface;
 use App\Features\Portfolio\Domain\Entities\AboutInfo;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\AboutInfoRepositoryInterface;
-use App\Features\Portfolio\Infra\Services\ResumeModeReader;
 
 /**
  * Reads the single-row about entity for the admin edit form — all
@@ -20,7 +20,7 @@ final class GetAboutForEditUseCase
 {
     public function __construct(
         private readonly AboutInfoRepositoryInterface $repository,
-        private readonly ResumeModeReader $resumeMode,
+        private readonly ResumeModeReaderInterface $resumeMode,
     ) {
     }
 

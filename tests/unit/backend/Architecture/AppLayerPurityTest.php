@@ -20,10 +20,6 @@ const APP_LAYER_ALLOWED_IMPORT_PATTERN = '/^App\\\\Features\\\\[A-Za-z]+\\\\(App
  * full mirror of the domain-layer purity guard.
  */
 const APP_LAYER_PURITY_BASELINE = [
-    'app/Features/Auth/App/UseCases/EnableTotpUseCase.php: non-app-layer import `App\Features\Auth\Infra\Services\TotpService`',
-    'app/Features/Auth/App/UseCases/VerifyGithubLinkTotpUseCase.php: non-app-layer import `App\Features\Auth\Infra\Services\AdminAuthService`',
-    'app/Features/Auth/App/UseCases/VerifyLoginTotpUseCase.php: non-app-layer import `App\Features\Auth\Infra\Services\AdminAuthService`',
-    'app/Features/Auth/App/UseCases/VerifyTotpUseCase.php: non-app-layer import `App\Features\Auth\Infra\Services\TotpService`',
     'app/Features/Blog/App/UseCases/AdminArticleSearchUseCase.php: non-app-layer import `App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface`',
     'app/Features/Blog/App/UseCases/GetArticleForEditUseCase.php: non-app-layer import `App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface`',
     'app/Features/Blog/App/UseCases/GetArticleListItemUseCase.php: non-app-layer import `App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface`',
@@ -37,8 +33,6 @@ const APP_LAYER_PURITY_BASELINE = [
     'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorDecoder`',
     'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorPage`',
     'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Services\AdminCursorPaginator`',
-    'app/Features/Portfolio/App/UseCases/GetAboutForEditUseCase.php: non-app-layer import `App\Features\Portfolio\Infra\Services\ResumeModeReader`',
-    'app/Features/Portfolio/App/UseCases/GetDashboardStatsUseCase.php: non-app-layer import `App\Features\Portfolio\Infra\Services\DashboardStatsReader`',
     'app/Features/Portfolio/App/UseCases/ListContactsUseCase.php: framework type `Illuminate\Http\Request`',
     'app/Features/Portfolio/App/UseCases/ListContactsUseCase.php: non-app-layer import `App\Features\Portfolio\Infra\Repositories\ContactListQueryRepositoryInterface`',
     'app/Features/Portfolio/App/UseCases/ListContactsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorDecoder`',

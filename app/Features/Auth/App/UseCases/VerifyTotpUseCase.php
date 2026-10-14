@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\App\UseCases;
 
+use App\Features\Auth\App\Contracts\TotpServiceInterface;
 use App\Features\Auth\Domain\Entities\Admin;
 use App\Features\Auth\Domain\Entities\AdminTimedOtp;
 use App\Features\Auth\Domain\Exceptions\InvalidTotpCodeException;
 use App\Features\Auth\Domain\Exceptions\TotpLockedException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterface;
-use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Shared\App\BaseUseCase;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use DateTimeImmutable;
@@ -25,7 +25,7 @@ final class VerifyTotpUseCase extends BaseUseCase
 {
     public function __construct(
         private readonly AdminTimedOtpRepositoryInterface $otpRepository,
-        private readonly TotpService $totpService,
+        private readonly TotpServiceInterface $totpService,
         private readonly LoggerInterface $logger,
     ) {
     }

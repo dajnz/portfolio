@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\App\UseCases;
 
+use App\Features\Auth\App\Contracts\TotpLockoutMessengerInterface;
 use App\Features\Auth\Domain\Exceptions\GithubAlreadyLinkedException;
 use App\Features\Auth\Domain\Exceptions\GithubConflictException;
 use App\Features\Auth\Domain\Exceptions\GithubLinkPendingInvalidException;
 use App\Features\Auth\Domain\Exceptions\TotpLockedException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
-use App\Features\Auth\Infra\Services\AdminAuthService;
 use App\Features\Shared\App\BaseUseCase;
 use App\Features\Shared\App\Contracts\AdminSessionInterface;
 
@@ -25,7 +25,7 @@ final class VerifyGithubLinkTotpUseCase extends BaseUseCase
         private readonly AdminRepositoryInterface $repository,
         private readonly VerifyTotpUseCase $verifyTotp,
         private readonly LinkGithubUseCase $linkGithub,
-        private readonly AdminAuthService $auth,
+        private readonly TotpLockoutMessengerInterface $lockoutMessages,
         private readonly AdminSessionInterface $sessions,
     ) {
     }
@@ -52,7 +52,7 @@ final class VerifyGithubLinkTotpUseCase extends BaseUseCase
         } catch (TotpLockedException $exception) {
             $this->clearPending();
 
-            throw new TotpLockedException($this->auth->totpLockoutFlash($admin));
+            throw new TotpLockedException($this->lockoutMessages->totpLockoutFlash($admin));
         }
 
         $githubId = (string) $this->sessions->pull('github_link.pending_github_id');

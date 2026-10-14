@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Portfolio\App\UseCases;
 
-use App\Features\Portfolio\Infra\Services\DashboardStatsReader;
+use App\Features\Portfolio\App\Contracts\DashboardStatsReaderInterface;
 
 /**
  * The admin dashboard stat cards. The reads live in the feature's Infra
@@ -13,7 +13,7 @@ use App\Features\Portfolio\Infra\Services\DashboardStatsReader;
 final class GetDashboardStatsUseCase
 {
     public function __construct(
-        private readonly DashboardStatsReader $stats,
+        private readonly DashboardStatsReaderInterface $stats,
     ) {
     }
 

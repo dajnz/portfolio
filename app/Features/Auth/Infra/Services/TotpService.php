@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Infra\Services;
 
+use App\Features\Auth\App\Contracts\TotpServiceInterface;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\SvgWriter;
 use Illuminate\Support\Facades\Config;
@@ -14,7 +15,7 @@ use PragmaRX\Google2FA\Google2FA as Google2FAService;
  * provisioning QR). TOTP verification uses a ±1 time-step window
  * (90-second acceptance).
  */
-final class TotpService
+final class TotpService implements TotpServiceInterface
 {
     private const WINDOW = 1;
 

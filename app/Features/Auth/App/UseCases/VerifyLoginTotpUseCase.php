@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\App\UseCases;
 
+use App\Features\Auth\App\Contracts\TotpLockoutMessengerInterface;
 use App\Features\Auth\Domain\Exceptions\TotpLockedException;
 use App\Features\Auth\Domain\Exceptions\TotpPendingInvalidException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
-use App\Features\Auth\Infra\Services\AdminAuthService;
 use App\Features\Shared\App\BaseUseCase;
 use App\Features\Shared\App\Contracts\AdminSessionInterface;
 
@@ -23,7 +23,7 @@ final class VerifyLoginTotpUseCase extends BaseUseCase
         private readonly AdminRepositoryInterface $repository,
         private readonly VerifyTotpUseCase $verifyTotp,
         private readonly LoginUseCase $login,
-        private readonly AdminAuthService $auth,
+        private readonly TotpLockoutMessengerInterface $lockoutMessages,
         private readonly AdminSessionInterface $sessions,
     ) {
     }
@@ -46,7 +46,7 @@ final class VerifyLoginTotpUseCase extends BaseUseCase
         } catch (TotpLockedException $exception) {
             $this->sessions->forget(['totp.pending_admin_id', 'totp.pending_until']);
 
-            throw new TotpLockedException($this->auth->totpLockoutFlash($admin));
+            throw new TotpLockedException($this->lockoutMessages->totpLockoutFlash($admin));
         }
 
         $this->sessions->forget(['totp.pending_admin_id', 'totp.pending_until']);

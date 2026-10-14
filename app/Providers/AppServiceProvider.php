@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Features\Auth\App\Contracts\TotpLockoutMessengerInterface;
+use App\Features\Auth\App\Contracts\TotpServiceInterface;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterface;
 use App\Features\Auth\Infra\Listeners\LoginListener;
 use App\Features\Auth\Infra\Repositories\EloquentAdminRepository;
 use App\Features\Auth\Infra\Repositories\EloquentAdminTimedOtpRepository;
+use App\Features\Auth\Infra\Services\AdminAuthService;
+use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Analytics\App\Contracts\AnalyticsDigestMailerInterface;
 use App\Features\Analytics\App\Contracts\AnalyticsReportDataReaderInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsDailyMetricRepositoryInterface;
@@ -56,7 +60,9 @@ use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryIn
 use App\Features\Experience\App\Services\TimelineContinuityService;
 use App\Features\Experience\Infra\Repositories\EloquentTimelineItemRepository;
 use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
+use App\Features\Portfolio\App\Contracts\DashboardStatsReaderInterface;
 use App\Features\Portfolio\App\Contracts\FeedbackNotificationMailerInterface;
+use App\Features\Portfolio\App\Contracts\ResumeModeReaderInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\AboutInfoRepositoryInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\FeedbackRepositoryInterface;
@@ -66,6 +72,8 @@ use App\Features\Portfolio\Infra\Repositories\EloquentAboutInfoRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentContactRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentFeedbackRepository;
 use App\Features\Portfolio\Infra\Repositories\FeedbackListQueryRepositoryInterface;
+use App\Features\Portfolio\Infra\Services\DashboardStatsReader;
+use App\Features\Portfolio\Infra\Services\ResumeModeReader;
 use App\Features\Projects\App\Contracts\PublishedArticleReaderInterface;
 use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface;
 use App\Features\Projects\Infra\Repositories\EloquentProjectListQueryRepository;
@@ -414,9 +422,10 @@ class AppServiceProvider extends ServiceProvider
             RustFsAssetStorage::class,
         );
 
-        // Feature-level framework-capability ports: the analytics digest and
-        // feedback notification mailers, the resume PDF cache (and its
-        // invalidator) and the mail-transport probe.
+        // Feature-level framework-capability ports: the analytics digest
+        // and feedback notification mailers, the resume PDF cache (and its
+        // invalidator), the mail-transport probe, the TOTP service and its
+        // lockout messenger, and the Portfolio cross-feature reads.
         $this->app->bind(
             AnalyticsDigestMailerInterface::class,
             LaravelAnalyticsDigestMailer::class,
@@ -440,6 +449,26 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             MailTransportTesterInterface::class,
             HttpMailTransportTester::class,
+        );
+
+        $this->app->bind(
+            TotpServiceInterface::class,
+            TotpService::class,
+        );
+
+        $this->app->bind(
+            TotpLockoutMessengerInterface::class,
+            AdminAuthService::class,
+        );
+
+        $this->app->bind(
+            ResumeModeReaderInterface::class,
+            ResumeModeReader::class,
+        );
+
+        $this->app->bind(
+            DashboardStatsReaderInterface::class,
+            DashboardStatsReader::class,
         );
 
         // The content pipeline is a singleton: the underlying
