@@ -15,6 +15,7 @@ use App\Features\Auth\Infra\Services\AdminAuthService;
 use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Analytics\App\Contracts\AnalyticsDigestMailerInterface;
 use App\Features\Analytics\App\Contracts\AnalyticsReportDataReaderInterface;
+use App\Features\Analytics\App\Contracts\ReportsRebuildSchedulerInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsDailyMetricRepositoryInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsEventRepositoryInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
@@ -23,6 +24,7 @@ use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsDailyMetricReposi
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsEventRepository;
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsReportRepository;
 use App\Features\Analytics\Infra\Services\EloquentAnalyticsReportDataReader;
+use App\Features\Analytics\Infra\Services\LaravelReportsRebuildScheduler;
 use App\Features\Backup\App\Contracts\AssetPathCollectorInterface;
 use App\Features\Backup\App\Contracts\BackupArchiveInterface;
 use App\Features\Backup\App\Contracts\BackupJobDispatcherInterface;
@@ -52,10 +54,14 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Blog\App\Contracts\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\App\Contracts\ArticleViewRecorderInterface;
+use App\Features\Blog\App\Contracts\VisitorFingerprintInterface;
 use App\Features\Blog\Infra\Repositories\EloquentArticleListQueryRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleReactionRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleTagRepository;
+use App\Features\Blog\Infra\Services\LaravelArticleViewRecorder;
+use App\Features\Blog\Infra\Services\LaravelVisitorFingerprint;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
 use App\Features\Experience\App\Services\TimelineContinuityService;
 use App\Features\Experience\Infra\Repositories\EloquentTimelineItemRepository;
@@ -117,6 +123,7 @@ use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use App\Features\Shared\App\Contracts\TransactionManagerInterface;
 use App\Features\Shared\App\Contracts\TranslatorInterface;
+use App\Features\Shared\App\Contracts\UploadDefaultsInterface;
 use App\Features\Shared\App\Contracts\UrlGeneratorInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ContactReadRepositoryInterface;
@@ -147,6 +154,7 @@ use App\Features\Shared\Infra\Services\LaravelPasswordHasher;
 use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
 use App\Features\Shared\Infra\Services\LaravelTransactionManager;
 use App\Features\Shared\Infra\Services\LaravelTranslator;
+use App\Features\Shared\Infra\Services\LaravelUploadDefaults;
 use App\Features\Shared\Infra\Services\LaravelUrlGenerator;
 use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
 use App\Features\Shared\Infra\Services\RustFsAssetCleaner;
@@ -381,6 +389,11 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
+            UploadDefaultsInterface::class,
+            LaravelUploadDefaults::class,
+        );
+
+        $this->app->bind(
             ApplicationUrlInterface::class,
             LaravelApplicationUrl::class,
         );
@@ -448,6 +461,21 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AnalyticsDigestMailerInterface::class,
             LaravelAnalyticsDigestMailer::class,
+        );
+
+        $this->app->bind(
+            ReportsRebuildSchedulerInterface::class,
+            LaravelReportsRebuildScheduler::class,
+        );
+
+        $this->app->bind(
+            ArticleViewRecorderInterface::class,
+            LaravelArticleViewRecorder::class,
+        );
+
+        $this->app->bind(
+            VisitorFingerprintInterface::class,
+            LaravelVisitorFingerprint::class,
         );
 
         $this->app->bind(

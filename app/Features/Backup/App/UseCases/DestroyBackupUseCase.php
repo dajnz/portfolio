@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Backup\App\UseCases;
 
 use App\Features\Backup\App\Contracts\StorageBatchTransferable;
-use App\Features\Backup\Domain\Entities\Backup;
+use App\Features\Backup\Domain\Exceptions\BackupNotFoundException;
 use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use RuntimeException;
 
@@ -23,8 +23,10 @@ final class DestroyBackupUseCase
     ) {
     }
 
-    public function destroy(Backup $backup): void
+    public function destroy(int $backupId): void
     {
+        $backup = $this->backups->find($backupId) ?? throw BackupNotFoundException::forId($backupId);
+
         if (! $backup->canDelete()) {
             throw new RuntimeException('This backup is currently being processed and cannot be deleted.');
         }

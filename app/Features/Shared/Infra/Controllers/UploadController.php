@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Shared\Infra\Controllers;
 
-use App\Features\Settings\Domain\Enums\SettingName;
-use App\Features\Shared\Domain\RepositoryInterfaces\SettingsReadRepositoryInterface;
+use App\Features\Shared\App\UseCases\ResolveImageMaxDimensionUseCase;
 use App\Features\Shared\Infra\Exceptions\InvalidUploadedImageException;
 use App\Features\Shared\Infra\Requests\UploadDeleteRequest;
 use App\Features\Shared\Infra\Requests\UploadRequest;
@@ -38,7 +37,7 @@ final class UploadController
 
     public function __construct(
         private readonly UploadedImageProcessor $processor,
-        private readonly SettingsReadRepositoryInterface $settings,
+        private readonly ResolveImageMaxDimensionUseCase $maxDimension,
     ) {
     }
 
@@ -119,9 +118,6 @@ final class UploadController
 
     private function maxImageDimension(): int
     {
-        return (int) $this->settings->value(
-            SettingName::ImageMaxDimension->value,
-            Config::get('portfolio.image_max_dimension'),
-        );
+        return $this->maxDimension->resolve();
     }
 }

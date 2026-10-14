@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Auth\App\UseCases;
 
 use App\Features\Auth\App\Contracts\TotpServiceInterface;
+use App\Features\Auth\App\Services\AdminResolver;
 use App\Features\Auth\App\Services\SessionVersionSynchronizer;
-use App\Features\Auth\Domain\Entities\Admin;
 use App\Features\Auth\Domain\Entities\AdminTimedOtp;
 use App\Features\Auth\Domain\Exceptions\InvalidTotpCodeException;
 use App\Features\Auth\Domain\Exceptions\TotpEnrollmentExpiredException;
@@ -30,6 +30,7 @@ final class EnableTotpUseCase extends BaseUseCase
 {
     public function __construct(
         private readonly AdminTimedOtpRepositoryInterface $otpRepository,
+        private readonly AdminResolver $admins,
         private readonly TotpServiceInterface $totpService,
         private readonly SessionVersionSynchronizer $sessionVersion,
         private readonly AdminSessionInterface $sessions,
@@ -37,13 +38,13 @@ final class EnableTotpUseCase extends BaseUseCase
     }
 
     /** @return array{qr_code_svg: string, manual_key: string} */
-    public function start(Admin $admin): array
+    public function start(int $adminId): array
     {
         $secret = $this->totpService->generateSecret();
         $this->sessions->put(['totp_enroll.pending_secret' => $secret]);
 
         return [
-            'qr_code_svg' => $this->totpService->qrCodeSvg($secret, $admin->toEmail()),
+            'qr_code_svg' => $this->totpService->qrCodeSvg($secret, $this->admins->require($adminId)->toEmail()),
             'manual_key' => $secret,
         ];
     }
@@ -54,8 +55,9 @@ final class EnableTotpUseCase extends BaseUseCase
      * @throws InvalidTotpCodeException
      * @throws TotpEnrollmentExpiredException
      */
-    public function verifyAndEnable(Admin $admin, string $code): array
+    public function verifyAndEnable(int $adminId, string $code): array
     {
+        $admin = $this->admins->require($adminId);
         $secret = $this->sessions->get('totp_enroll.pending_secret');
 
         if (! is_string($secret) || $secret === '') {

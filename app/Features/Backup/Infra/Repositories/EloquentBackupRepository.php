@@ -8,6 +8,7 @@ use App\Features\Backup\Domain\Entities\Backup;
 use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use App\Features\Backup\Infra\Mappers\BackupMapper;
 use App\Features\Backup\Infra\Models\BackupModel;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Eloquent-backed `backups` storage. All writes go through the model
@@ -50,6 +51,13 @@ final class EloquentBackupRepository implements BackupRepositoryInterface
         $model = BackupModel::query()->where('filename', $filename)->first();
 
         return $model === null ? null : $this->mapper->toEntity($model);
+    }
+
+    public function errorMessageOf(int $id): ?string
+    {
+        $message = Cache::get("backup:error:{$id}");
+
+        return is_string($message) ? $message : null;
     }
 
     /**

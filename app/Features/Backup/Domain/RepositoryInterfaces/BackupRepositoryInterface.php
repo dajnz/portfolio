@@ -30,6 +30,13 @@ interface BackupRepositoryInterface
     public function find(int $id): ?Backup;
 
     /**
+     * The failure message cached by the create/restore jobs for a
+     * `failed` backup — read by the status endpoint. Null when none was
+     * recorded (or its TTL elapsed).
+     */
+    public function errorMessageOf(int $id): ?string;
+
+    /**
      * The restore target of `backup:restore {filename}`.
      */
     public function findByFilename(string $filename): ?Backup;

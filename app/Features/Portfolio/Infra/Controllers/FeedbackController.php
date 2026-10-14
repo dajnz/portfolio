@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Portfolio\Infra\Controllers;
 
 use App\Features\Portfolio\App\DTOs\AdminFeedbackListQueryDto;
+use App\Features\Portfolio\App\DTOs\FeedbackListItemDto;
 use App\Features\Portfolio\App\UseCases\DestroyFeedbackUseCase;
 use App\Features\Portfolio\App\UseCases\ListFeedbackUseCase;
 use App\Features\Portfolio\App\UseCases\MarkFeedbackForwardedUseCase;
@@ -12,7 +13,6 @@ use App\Features\Portfolio\App\UseCases\MarkFeedbackReadUseCase;
 use App\Features\Portfolio\App\UseCases\ShowFeedbackUseCase;
 use App\Features\Portfolio\App\UseCases\SubmitFeedbackUseCase;
 use App\Features\Portfolio\Domain\Entities\Feedback;
-use App\Features\Portfolio\Infra\Models\FeedbackModel;
 use App\Features\Portfolio\Infra\Requests\SubmitFeedbackRequest;
 use App\Features\Shared\App\DTOs\CursorDto;
 use App\Features\Shared\App\DTOs\CursorPaginationDto;
@@ -140,22 +140,22 @@ final class FeedbackController
     }
 
     /**
-     * @param  array<int, mixed>  $models  Raw rows from the paginator result.
+     * @param  FeedbackListItemDto[]  $rows
      * @return array<int, array<string, mixed>>
      */
-    private function items(array $models): array
+    private function items(array $rows): array
     {
         return array_map(
-            static fn (FeedbackModel $model): array => [
-                'id' => $model->id,
-                'sender_name' => $model->sender_name,
-                'sender_email' => $model->sender_email,
-                'message' => $model->message,
-                'is_read' => $model->is_read,
-                'is_forwarded' => $model->is_forwarded,
-                'created_at' => $model->created_at->toISO8601String(),
+            static fn (FeedbackListItemDto $row): array => [
+                'id' => $row->id,
+                'sender_name' => $row->senderName,
+                'sender_email' => $row->senderEmail,
+                'message' => $row->message,
+                'is_read' => $row->isRead,
+                'is_forwarded' => $row->isForwarded,
+                'created_at' => $row->createdAt->format(DATE_ATOM),
             ],
-            $models,
+            $rows,
         );
     }
 

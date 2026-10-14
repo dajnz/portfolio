@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Features\Experience\App\UseCases;
 
 use App\Features\Experience\App\Contracts\TimelineItemListQueryRepositoryInterface;
+use App\Features\Experience\App\DTOs\AdminTimelineListDto;
 use App\Features\Experience\App\DTOs\AdminTimelineListQueryDto;
+use App\Features\Experience\App\DTOs\TimelineItemRowDto;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\App\DTOs\PaginationQuery;
-use App\Features\Shared\App\DTOs\PaginationResultDto;
 
 /**
  * The admin experience list: cursor-paginated via the shared app-layer
@@ -30,9 +31,9 @@ final class ListTimelineItemsUseCase
     ) {
     }
 
-    public function list(AdminTimelineListQueryDto $query): PaginationResultDto
+    public function list(AdminTimelineListQueryDto $query, string $locale): AdminTimelineListDto
     {
-        return $this->paginator->paginate(
+        $result = $this->paginator->paginate(
             queryFactory: fn (): mixed => $this->repository->adminListQuery(
                 $query->trashed,
                 $query->search,
@@ -49,6 +50,14 @@ final class ListTimelineItemsUseCase
             ),
             countCacheKey: $this->countCacheKey($query),
             requestUrl: $query->url,
+        );
+
+        return new AdminTimelineListDto(
+            rows: array_map(
+                static fn (object $row): TimelineItemRowDto => TimelineItemRowDto::fromRow($row, $locale),
+                $result->rows,
+            ),
+            pagination: $result->pagination,
         );
     }
 

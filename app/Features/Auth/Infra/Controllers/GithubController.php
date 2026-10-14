@@ -8,7 +8,7 @@ use App\Features\Auth\App\UseCases\HandleGithubCallbackUseCase;
 use App\Features\Auth\App\UseCases\LinkGithubUseCase;
 use App\Features\Auth\Domain\Enums\GithubLinkOutcome;
 use App\Features\Auth\Domain\Enums\GithubLoginOutcome;
-use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
+use App\Features\Auth\Domain\Exceptions\AdminNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +25,6 @@ use Laravel\Socialite\Two\User as SocialiteUser;
 final class GithubController
 {
     public function __construct(
-        private readonly AdminRepositoryInterface $repository,
         private readonly HandleGithubCallbackUseCase $githubCallbackCase,
         private readonly LinkGithubUseCase $linkGithubCase,
     ) {
@@ -79,13 +78,13 @@ final class GithubController
             return Redirect::route('login');
         }
 
-        $admin = $this->repository->findById((int) Auth::id());
-
-        if ($admin === null) {
+        try {
+            $outcome = $this->linkGithubCase->linkOrPrepare((int) Auth::id(), (string) $socialiteUser->getId(), (string) $socialiteUser->token);
+        } catch (AdminNotFoundException) {
             return Redirect::route('login');
         }
 
-        return match ($this->linkGithubCase->linkOrPrepare($admin, (string) $socialiteUser->getId(), (string) $socialiteUser->token)) {
+        return match ($outcome) {
             GithubLinkOutcome::AlreadyLinked => Redirect::route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_already_linked')]),
             GithubLinkOutcome::Conflict => Redirect::route('profile')->with('notification', ['type' => 'error', 'message' => __('auth.github_conflict')]),
             GithubLinkOutcome::TotpRequired => Redirect::route('profile.github-link.totp'),

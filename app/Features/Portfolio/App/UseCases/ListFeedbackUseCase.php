@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Features\Portfolio\App\UseCases;
 
 use App\Features\Portfolio\App\Contracts\FeedbackListQueryRepositoryInterface;
+use App\Features\Portfolio\App\DTOs\AdminFeedbackListDto;
 use App\Features\Portfolio\App\DTOs\AdminFeedbackListQueryDto;
+use App\Features\Portfolio\App\DTOs\FeedbackListItemDto;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\App\DTOs\PaginationQuery;
-use App\Features\Shared\App\DTOs\PaginationResultDto;
 
 /**
  * The admin feedback list: cursor-paginated via the shared app-layer
@@ -27,9 +28,9 @@ final class ListFeedbackUseCase
     ) {
     }
 
-    public function list(AdminFeedbackListQueryDto $query): PaginationResultDto
+    public function list(AdminFeedbackListQueryDto $query): AdminFeedbackListDto
     {
-        return $this->paginator->paginate(
+        $result = $this->paginator->paginate(
             queryFactory: fn (): mixed => $this->repository->listQuery(),
             query: new PaginationQuery(
                 page: $query->page,
@@ -43,6 +44,14 @@ final class ListFeedbackUseCase
             ),
             countCacheKey: 'feedback',
             requestUrl: $query->url,
+        );
+
+        return new AdminFeedbackListDto(
+            rows: array_map(
+                static fn (object $row): FeedbackListItemDto => FeedbackListItemDto::fromRow($row),
+                $result->rows,
+            ),
+            pagination: $result->pagination,
         );
     }
 }

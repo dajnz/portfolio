@@ -6,6 +6,7 @@ namespace App\Features\Experience\Infra\Controllers;
 
 use App\Features\Experience\App\DTOs\AdminTimelineListQueryDto;
 use App\Features\Experience\App\DTOs\TimelineItemListItemDto;
+use App\Features\Experience\App\DTOs\TimelineItemRowDto;
 use App\Features\Experience\App\UseCases\DestroyTimelineItemUseCase;
 use App\Features\Experience\App\UseCases\ForceDestroyTimelineItemUseCase;
 use App\Features\Experience\App\UseCases\GetTimelineItemForEditUseCase;
@@ -61,7 +62,7 @@ final class AdminExperienceController
 
     public function index(ResponseFactory $inertia, Request $request): Response
     {
-        $result = $this->listCase->list($this->buildListQuery($request));
+        $result = $this->listCase->list($this->buildListQuery($request), App::getLocale());
 
         return $inertia->render('Experience/Admin/Pages/ExperienceListPage', [
             'items' => $this->tableRows($result->rows),
@@ -255,28 +256,24 @@ final class AdminExperienceController
     }
 
     /**
-     * @param  array<int, mixed>  $models  Raw rows from the paginator page.
+     * @param  TimelineItemRowDto[]  $rows
      * @return array<int, array<string, mixed>>
      */
-    private function tableRows(array $models): array
+    private function tableRows(array $rows): array
     {
-        $locale = App::getLocale();
-
-        return array_map(function (mixed $model) use ($locale): array {
-            $rows = $model->translations->keyBy('locale');
-            $row = $rows->get($locale) ?? $rows->get('en');
-
-            return [
-                'id' => $model->id,
-                'position' => $row?->position ?? '',
-                'company_name' => $row?->company_name ?? '',
-                'started_at' => $model->started_at->format('Y-m-d'),
-                'ended_at' => $model->ended_at?->format('Y-m-d'),
-                'is_published' => (bool) $model->is_published,
-                'include_in_resume' => (bool) $model->include_in_resume,
-                'created_at' => $model->created_at->toIso8601String(),
-            ];
-        }, $models);
+        return array_map(
+            static fn (TimelineItemRowDto $row): array => [
+                'id' => $row->id,
+                'position' => $row->position,
+                'company_name' => $row->companyName,
+                'started_at' => $row->startedAt->format('Y-m-d'),
+                'ended_at' => $row->endedAt?->format('Y-m-d'),
+                'is_published' => $row->isPublished,
+                'include_in_resume' => $row->includeInResume,
+                'created_at' => $row->createdAt->format(DATE_ATOM),
+            ],
+            $rows,
+        );
     }
 
     /**
