@@ -12,6 +12,7 @@ use App\Features\TechSkills\Infra\Requests\ReorderSkillGroupsRequest;
 use App\Features\TechSkills\Infra\Requests\StoreSkillGroupRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 
 /**
  * Skill group admin surface: group CRUD plus the `{ "ids": [...] }`
@@ -35,7 +36,7 @@ final class TechSkillGroupController
             names: $request->input('name', []),
         );
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -48,7 +49,7 @@ final class TechSkillGroupController
             names: $request->input('name', []),
         );
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -56,7 +57,7 @@ final class TechSkillGroupController
     {
         $this->destroyCase->destroy($skillGroup);
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
@@ -64,7 +65,7 @@ final class TechSkillGroupController
     {
         $this->reorderCase->reorder(array_map('intval', $request->input('ids', [])));
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 }
