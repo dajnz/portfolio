@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\App;
 
 /**
  * Eloquent model for `projects` — DB-table code only: the fillable
@@ -124,13 +125,13 @@ final class ProjectModel extends Model
     {
         static::saved(function (self $model): void {
             if ($model->is_published || $model->wasChanged('is_published')) {
-                app(SitemapService::class)->invalidate();
+                App::make(SitemapService::class)->invalidate();
             }
         });
 
         static::deleted(function (self $model): void {
             if ($model->is_published) {
-                app(SitemapService::class)->invalidate();
+                App::make(SitemapService::class)->invalidate();
             }
         });
     }

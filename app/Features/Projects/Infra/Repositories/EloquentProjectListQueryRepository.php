@@ -8,6 +8,8 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -198,7 +200,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
      */
     private function adminRowsQuery(): QueryBuilder
     {
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
 
         return DB::table('projects as p')
             ->leftJoin('project_translations as pl', function ($join) use ($locale): void {
@@ -298,7 +300,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
      */
     private function applyFtsSearch(QueryBuilder $query, string $search): QueryBuilder
     {
-        $dictionary = $this->dictionaryFor(app()->getLocale());
+        $dictionary = $this->dictionaryFor(App::getLocale());
         $queryExpression = 'plainto_tsquery(?, ?)';
 
         $query->whereRaw(
@@ -408,7 +410,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
      */
     private function rankBindings(string $search): array
     {
-        return [$this->dictionaryFor(app()->getLocale()), $search];
+        return [$this->dictionaryFor(App::getLocale()), $search];
     }
 
     /**
@@ -443,7 +445,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
 
     private function dictionaryFor(string $locale): string
     {
-        $locales = config('portfolio.fts.locales', []);
+        $locales = Config::get('portfolio.fts.locales', []);
 
         return is_array($locales) && isset($locales[$locale])
             ? (string) $locales[$locale]

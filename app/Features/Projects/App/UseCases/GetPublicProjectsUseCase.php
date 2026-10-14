@@ -19,6 +19,7 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
+use Illuminate\Support\Facades\Config;
 
 /**
  * The public projects page: published, non-trashed projects with
@@ -235,7 +236,7 @@ final class GetPublicProjectsUseCase
     {
         return (int) $this->settings->value(
             SettingName::ProjectsPerPage,
-            config('portfolio.projects_per_page', 12),
+            Config::get('portfolio.projects_per_page', 12),
         );
     }
 

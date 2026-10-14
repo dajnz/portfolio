@@ -17,6 +17,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Response;
 use Inertia\ResponseFactory;
+use Illuminate\Support\Facades\App as AppFacade;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response as ResponseFacade;
+use Illuminate\Support\Facades\URL;
 
 /**
  * `GET /projects` and `GET /{locale}/projects` — the public projects
@@ -56,7 +60,7 @@ final class PublicProjectController
         }
 
         $result = $this->listCase->get(new ProjectListQuery(
-            locale: app()->getLocale(),
+            locale: AppFacade::getLocale(),
             sort: $this->sortFromRequest($request),
             sortDirection: $this->sortDirectionFromRequest($request),
             tagIds: $this->tagIdsFromRequest($request),
@@ -83,20 +87,20 @@ final class PublicProjectController
         // would land in a `$project` method parameter.
         $project = (string) $request->route('project');
 
-        $detail = $this->detailCase->get($project, includeUnpublished: false, locale: app()->getLocale());
+        $detail = $this->detailCase->get($project, includeUnpublished: false, locale: AppFacade::getLocale());
 
         if ($detail === null) {
             $currentSlug = $this->detailCase->currentSlugFor($project);
 
             if ($currentSlug !== null) {
-                return redirect()->to($this->projectPath($currentSlug, $request), 301);
+                return Redirect::to($this->projectPath($currentSlug, $request), 301);
             }
 
             abort(404);
         }
 
         return $inertia->render('Projects/Public/Pages/ProjectDetailPage', [
-            'project' => $this->props->detail($detail->project, $detail->bodies, $detail->techWriteup, app()->getLocale()),
+            'project' => $this->props->detail($detail->project, $detail->bodies, $detail->techWriteup, AppFacade::getLocale()),
             'seo' => $this->props->seo($detail->seo),
         ]);
     }
@@ -112,7 +116,7 @@ final class PublicProjectController
         $page = max(1, (int) $request->query('page', 1));
 
         $result = $this->listCase->jsonPage(new ProjectListQuery(
-            locale: app()->getLocale(),
+            locale: AppFacade::getLocale(),
             sort: $this->sortFromRequest($request),
             sortDirection: $this->sortDirectionFromRequest($request),
             tagIds: $this->tagIdsFromRequest($request),
@@ -121,7 +125,7 @@ final class PublicProjectController
             perPage: $perPage,
         ));
 
-        return response()->json([
+        return ResponseFacade::json([
             'data' => $this->jsonItems($result),
             'meta' => [
                 'current_page' => $result->pagination->currentPage,
@@ -197,8 +201,8 @@ final class PublicProjectController
         $locale = $request->route('locale');
 
         return is_string($locale) && $locale !== ''
-            ? url('/'.$locale.'/projects/'.$slug)
-            : url('/projects/'.$slug);
+            ? URL::to('/'.$locale.'/projects/'.$slug)
+            : URL::to('/projects/'.$slug);
     }
 
     private function sortFromRequest(Request $request): string

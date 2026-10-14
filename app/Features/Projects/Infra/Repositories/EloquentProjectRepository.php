@@ -23,6 +23,9 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\Shared\Infra\Services\SitemapService;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -196,7 +199,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
             // The batched translation sync bypasses the per-row `saved`
             // events, so the sitemap invalidation is applied once here:
             // translation changes are reflected in lastmod.
-            app(SitemapService::class)->invalidate();
+            App::make(SitemapService::class)->invalidate();
 
             return $projectId;
         });
@@ -213,7 +216,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     {
         ProjectModel::query()->whereIn('id', $ids)->delete();
 
-        app(SitemapService::class)->invalidate();
+        App::make(SitemapService::class)->invalidate();
     }
 
     public function restore(int $id): void
@@ -231,7 +234,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     {
         ProjectModel::withTrashed()->whereIn('id', $ids)->restore();
 
-        app(SitemapService::class)->invalidate();
+        App::make(SitemapService::class)->invalidate();
     }
 
     public function forceDelete(int $id): void
@@ -261,7 +264,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
 
         ProjectModel::withTrashed()->whereIn('id', $ids)->forceDelete();
 
-        app(SitemapService::class)->invalidate();
+        App::make(SitemapService::class)->invalidate();
     }
 
     public function setPublicationMany(array $ids, bool $published): void
@@ -284,7 +287,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
             $query->update(['is_published' => false]);
         }
 
-        app(SitemapService::class)->invalidate();
+        App::make(SitemapService::class)->invalidate();
     }
 
     public function setFeatured(int $id, bool $featured): void
@@ -404,7 +407,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
         $row = $this->mapper->toRow($project);
 
         if ($project->toIsPublished() && $project->toPublishedAt() === null) {
-            $row['published_at'] = now()->format('Y-m-d H:i:s');
+            $row['published_at'] = Date::now()->format('Y-m-d H:i:s');
         }
 
         return $row;
@@ -450,7 +453,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
      */
     private function rebuildSearchVectors(int $projectId): void
     {
-        $dictionaries = config('portfolio.fts.locales', []);
+        $dictionaries = Config::get('portfolio.fts.locales', []);
 
         $sql = 'UPDATE project_translations SET search_vector = to_tsvector((CASE locale';
         $bindings = [];
@@ -516,7 +519,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
      */
     private function screenshotRows(int $projectId, array $submitted): array
     {
-        $now = now()->format('Y-m-d H:i:s');
+        $now = Date::now()->format('Y-m-d H:i:s');
         $upsertRows = [];
         $insertRows = [];
 
@@ -583,7 +586,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
      */
     private function upsertDetailItems(int $projectId, array $items): array
     {
-        $now = now()->format('Y-m-d H:i:s');
+        $now = Date::now()->format('Y-m-d H:i:s');
         $upsertRows = [];
         $dbIdByItem = [];
 

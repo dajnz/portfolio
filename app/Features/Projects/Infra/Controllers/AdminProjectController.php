@@ -41,7 +41,9 @@ use App\Features\Shared\Infra\Services\PerLocaleValues;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App as AppFacade;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response as ResponseFacade;
 use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 use Inertia\ResponseFactory;
@@ -132,7 +134,7 @@ final class AdminProjectController
             abort(404);
         }
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -140,7 +142,7 @@ final class AdminProjectController
     {
         $this->destroyCase->destroy($project);
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
@@ -152,7 +154,7 @@ final class AdminProjectController
             throw ValidationException::withMessages(['slug' => $e->getMessage()]);
         }
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.restored')]);
     }
 
@@ -160,7 +162,7 @@ final class AdminProjectController
     {
         $this->forceDestroyCase->forceDestroy($project);
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
@@ -168,7 +170,7 @@ final class AdminProjectController
     {
         $this->reorderCase->reorder(array_map('intval', $request->validated('ids')));
 
-        return response()->json();
+        return ResponseFacade::json();
     }
 
     public function feature(Request $request, int $project): JsonResponse
@@ -190,7 +192,7 @@ final class AdminProjectController
             $articleId === null ? null : new BlogArticleId((int) $articleId),
         );
 
-        return response()->json(['data' => self::listItemProps($this->fetchItem($project))]);
+        return ResponseFacade::json(['data' => self::listItemProps($this->fetchItem($project))]);
     }
 
     public function attachTag(AttachProjectTagRequest $request, int $project): JsonResponse
@@ -198,17 +200,17 @@ final class AdminProjectController
         try {
             $this->attachTagCase->attach($project, (int) $request->validated('skill_id'));
         } catch (ProjectTagAlreadyAttachedException $e) {
-            return response()->json(['message' => $e->getMessage()], 409);
+            return ResponseFacade::json(['message' => $e->getMessage()], 409);
         }
 
-        return response()->json(['data' => self::listItemProps($this->fetchItem($project))]);
+        return ResponseFacade::json(['data' => self::listItemProps($this->fetchItem($project))]);
     }
 
     public function detachTag(Request $request, int $project, int $skill): JsonResponse
     {
         $this->detachTagCase->detach($project, $skill);
 
-        return response()->json(['data' => self::listItemProps($this->fetchItem($project))]);
+        return ResponseFacade::json(['data' => self::listItemProps($this->fetchItem($project))]);
     }
 
     public function publish(Request $request, int $project): JsonResponse
@@ -235,7 +237,7 @@ final class AdminProjectController
     {
         $this->destroyCase->destroyMany($this->ids($request));
 
-        return response()->json();
+        return ResponseFacade::json();
     }
 
     public function bulkRestore(BulkActionRequest $request): JsonResponse
@@ -246,14 +248,14 @@ final class AdminProjectController
             throw ValidationException::withMessages(['slug' => $e->getMessage()]);
         }
 
-        return response()->json();
+        return ResponseFacade::json();
     }
 
     public function bulkForceDestroy(BulkActionRequest $request): JsonResponse
     {
         $this->forceDestroyCase->forceDestroyMany($this->ids($request));
 
-        return response()->json();
+        return ResponseFacade::json();
     }
 
     /**
@@ -268,7 +270,7 @@ final class AdminProjectController
 
         $result = $this->searchCase->search($search, $page, $perPage);
 
-        return response()->json([
+        return ResponseFacade::json([
             'data' => array_map(
                 static fn (ProjectListItemDto $item): array => [
                     'id' => $item->id,
@@ -286,7 +288,7 @@ final class AdminProjectController
 
     private function formPage(ResponseFactory $inertia, ?int $projectId): Response
     {
-        $data = $this->editCase->get($projectId, app()->getLocale());
+        $data = $this->editCase->get($projectId, AppFacade::getLocale());
 
         return $inertia->render('Projects/Admin/Pages/ProjectFormPage', [
             'project' => $data->project === null ? null : self::editProps($data->project),
@@ -464,14 +466,14 @@ final class AdminProjectController
     {
         $this->featuredCase->set($projectId, $featured);
 
-        return response()->json(['data' => self::listItemProps($this->fetchItem($projectId))]);
+        return ResponseFacade::json(['data' => self::listItemProps($this->fetchItem($projectId))]);
     }
 
     private function publicationToggle(int $projectId, bool $published): JsonResponse
     {
         $this->publicationCase->set($projectId, $published);
 
-        return response()->json(['data' => self::listItemProps($this->fetchItem($projectId))]);
+        return ResponseFacade::json(['data' => self::listItemProps($this->fetchItem($projectId))]);
     }
 
     private function fetchItem(int $projectId): ProjectListItemDto
@@ -495,7 +497,7 @@ final class AdminProjectController
     {
         $this->publicationCase->setMany($this->ids($request), $published);
 
-        return response()->json();
+        return ResponseFacade::json();
     }
 
     /**

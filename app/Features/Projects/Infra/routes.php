@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Features\Projects\Infra\Controllers\AdminProjectController;
 use App\Features\Projects\Infra\Controllers\PreviewController;
 use App\Features\Projects\Infra\Controllers\PublicProjectController;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,9 +24,9 @@ Route::get('/projects', [PublicProjectController::class, 'index'])
     ->middleware('validate_api_spec');
 Route::get('/projects/{project}', [PublicProjectController::class, 'show']);
 Route::get('/{locale}/projects', [PublicProjectController::class, 'index'])
-    ->whereIn('locale', config('portfolio.supported_locales', ['en', 'ru']));
+    ->whereIn('locale', Config::get('portfolio.supported_locales', ['en', 'ru']));
 Route::get('/{locale}/projects/{project}', [PublicProjectController::class, 'show'])
-    ->whereIn('locale', config('portfolio.supported_locales', ['en', 'ru']));
+    ->whereIn('locale', Config::get('portfolio.supported_locales', ['en', 'ru']));
 
 Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function (): void {
     Route::get('/admin/projects', [AdminProjectController::class, 'index']);
