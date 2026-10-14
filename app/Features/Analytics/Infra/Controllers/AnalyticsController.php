@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Analytics\Infra\Controllers;
 
+use App\Features\Analytics\App\Exceptions\InvalidAnalyticsEventException;
 use App\Features\Analytics\App\UseCases\GetAnalyticsDashboardUseCase;
 use App\Features\Analytics\App\UseCases\GetMetricRankingsUseCase;
 use App\Features\Analytics\App\UseCases\GetMetricSeriesUseCase;
@@ -16,6 +17,7 @@ use App\Features\Analytics\Infra\Requests\SeriesRequest;
 use App\Features\Analytics\Infra\Requests\TrackEventsRequest;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Response as ResponseFacade;
+use Illuminate\Validation\ValidationException;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -46,11 +48,17 @@ final class AnalyticsController
         // fields like `title`/`article_id` have no validation rules and
         // would be dropped) — the whole request body is the batch, its
         // shape was already capped by the request.
-        $this->trackEvents->track(
-            events: $request->all(),
-            ip: (string) $request->ip(),
-            userAgent: $request->userAgent(),
-        );
+        try {
+            $this->trackEvents->track(
+                events: $request->all(),
+                ip: (string) $request->ip(),
+                userAgent: $request->userAgent(),
+            );
+        } catch (InvalidAnalyticsEventException) {
+            throw ValidationException::withMessages([
+                'batch' => [__('validation.analytics.event_invalid')],
+            ]);
+        }
 
         return ResponseFacade::noContent();
     }

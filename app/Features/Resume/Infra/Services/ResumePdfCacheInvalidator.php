@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Resume\Infra\Services;
 
+use App\Features\Resume\App\Contracts\ResumePdfCacheInvalidatorInterface;
 use Illuminate\Cache\RedisStore;
 use Illuminate\Support\Facades\Cache;
 
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Cache;
  * matched names must be stripped back to the store-level key before
  * deletion (the client re-applies its prefix to `del` arguments).
  */
-final class ResumePdfCacheInvalidator
+final class ResumePdfCacheInvalidator implements ResumePdfCacheInvalidatorInterface
 {
     public function clear(): void
     {

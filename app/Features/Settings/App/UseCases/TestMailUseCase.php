@@ -4,30 +4,27 @@ declare(strict_types=1);
 
 namespace App\Features\Settings\App\UseCases;
 
+use App\Features\Settings\App\Contracts\MailTransportTesterInterface;
+use App\Features\Settings\App\Enums\MailTransportProbeStatus;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Http;
+use App\Features\Shared\App\Contracts\EncrypterInterface;
 use Throwable;
 
 /**
- * The "Test Connection" probe: checks that the 3rd-party mail
- * API is reachable and accepts the token — without sending any email.
+ * The "Test Connection" probe: checks that the 3rd-party mail API is reachable
+ * and accepts the token — without sending any email.
  *
- * The submitted Mail-tab values override the stored settings (so the
- * probe works on unsaved form state); an empty token submission falls
- * back to the stored token. The probe is a `GET {endpoint}` with the
- * bearer token (10 s timeout):
- *  - 401/403  -> `unauthorized` (token rejected);
- *  - network/timeout errors -> `unreachable`;
- *  - any other response -> `ok` (endpoint reachable, credentials
- *    accepted — 404/405/429 etc. still prove connectivity).
+ * The submitted Mail-tab values override the stored settings (so the probe
+ * works on unsaved form state); an empty token submission falls back to the
+ * stored token.
  */
 final class TestMailUseCase
 {
     public function __construct(
         private readonly SettingRepositoryInterface $repository,
+        private readonly MailTransportTesterInterface $tester,
+        private readonly EncrypterInterface $encrypter,
     ) {
     }
 
@@ -50,25 +47,12 @@ final class TestMailUseCase
         }
 
         if ($endpoint === '') {
-            return ['ok' => false, 'status' => 'unreachable'];
+            return ['ok' => false, 'status' => MailTransportProbeStatus::Unreachable->value];
         }
 
-        try {
-            $response = Http::withToken($token)
-                ->timeout(10)
-                ->acceptJson()
-                ->get($endpoint);
-        } catch (ConnectionException) {
-            return ['ok' => false, 'status' => 'unreachable'];
-        } catch (Throwable) {
-            return ['ok' => false, 'status' => 'unreachable'];
-        }
+        $status = $this->tester->probe($endpoint, $token);
 
-        if ($response->unauthorized() || $response->forbidden()) {
-            return ['ok' => false, 'status' => 'unauthorized'];
-        }
-
-        return ['ok' => true, 'status' => 'ok'];
+        return ['ok' => $status === MailTransportProbeStatus::Ok, 'status' => $status->value];
     }
 
     private function storedToken(): string
@@ -80,7 +64,7 @@ final class TestMailUseCase
         }
 
         try {
-            return (string) Crypt::decryptString($raw);
+            return $this->encrypter->decrypt($raw);
         } catch (Throwable) {
             return $raw;
         }

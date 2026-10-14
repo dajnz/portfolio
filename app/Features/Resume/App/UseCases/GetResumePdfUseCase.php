@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Features\Resume\App\UseCases;
 
+use App\Features\Resume\App\Contracts\ResumePdfCacheInterface;
 use App\Features\Resume\App\Contracts\ResumePdfRendererInterface;
 use App\Features\Resume\App\DTOs\ResumePdfDto;
 use App\Features\Resume\Domain\Entities\ResumeConfig;
 use App\Features\Resume\Domain\RepositoryInterfaces\ResumeConfigRepositoryInterface;
 use App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface;
+use App\Features\Shared\App\Contracts\AssetStorageInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * The `/cv` on-demand pipeline. In
@@ -38,6 +38,8 @@ final class GetResumePdfUseCase
         private readonly ResumeDataReaderInterface $reader,
         private readonly TechSkillReadRepositoryInterface $skills,
         private readonly ResumePdfRendererInterface $renderer,
+        private readonly ResumePdfCacheInterface $cache,
+        private readonly AssetStorageInterface $storage,
     ) {
     }
 
@@ -66,14 +68,14 @@ final class GetResumePdfUseCase
         $path = "about/resume_{$locale}_{$hash}.pdf";
         $cacheKey = "resume:pdf:{$locale}:{$hash}";
 
-        $cached = Cache::store('redis')->get($cacheKey);
+        $cached = $this->cache->cachedPath($cacheKey);
 
-        if (is_string($cached) && Storage::disk('rustfs')->exists($cached)) {
+        if ($cached !== null && $this->storage->exists($cached)) {
             return new ResumePdfDto($cached, 'resume.pdf', 'application/pdf');
         }
 
-        if (Storage::disk('rustfs')->exists($path)) {
-            Cache::store('redis')->put($cacheKey, $path);
+        if ($this->storage->exists($path)) {
+            $this->cache->storePath($cacheKey, $path);
 
             return new ResumePdfDto($path, 'resume.pdf', 'application/pdf');
         }
@@ -84,8 +86,8 @@ final class GetResumePdfUseCase
             $this->assemblyData($config, $locale),
         );
 
-        Storage::disk('rustfs')->put($path, $pdf);
-        Cache::store('redis')->put($cacheKey, $path);
+        $this->storage->write($path, $pdf);
+        $this->cache->storePath($cacheKey, $path);
 
         return new ResumePdfDto($path, 'resume.pdf', 'application/pdf');
     }

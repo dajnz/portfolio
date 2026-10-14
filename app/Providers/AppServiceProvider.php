@@ -9,10 +9,12 @@ use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterfa
 use App\Features\Auth\Infra\Listeners\LoginListener;
 use App\Features\Auth\Infra\Repositories\EloquentAdminRepository;
 use App\Features\Auth\Infra\Repositories\EloquentAdminTimedOtpRepository;
+use App\Features\Analytics\App\Contracts\AnalyticsDigestMailerInterface;
 use App\Features\Analytics\App\Contracts\AnalyticsReportDataReaderInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsDailyMetricRepositoryInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsEventRepositoryInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
+use App\Features\Analytics\Infra\Mail\LaravelAnalyticsDigestMailer;
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsDailyMetricRepository;
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsEventRepository;
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsReportRepository;
@@ -53,9 +55,11 @@ use App\Features\Blog\Infra\Repositories\EloquentArticleTagRepository;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
 use App\Features\Experience\Infra\Repositories\EloquentTimelineItemRepository;
 use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
+use App\Features\Portfolio\App\Contracts\FeedbackNotificationMailerInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\AboutInfoRepositoryInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\FeedbackRepositoryInterface;
+use App\Features\Portfolio\Infra\Mail\LaravelFeedbackNotificationMailer;
 use App\Features\Portfolio\Infra\Repositories\ContactListQueryRepositoryInterface;
 use App\Features\Portfolio\Infra\Repositories\EloquentAboutInfoRepository;
 use App\Features\Portfolio\Infra\Repositories\EloquentContactRepository;
@@ -67,24 +71,32 @@ use App\Features\Projects\Infra\Repositories\EloquentProjectListQueryRepository;
 use App\Features\Projects\Infra\Repositories\EloquentProjectRepository;
 use App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface;
 use App\Features\Projects\Infra\Services\PublishedArticleReader;
+use App\Features\Resume\App\Contracts\ResumePdfCacheInterface;
+use App\Features\Resume\App\Contracts\ResumePdfCacheInvalidatorInterface;
 use App\Features\Resume\App\Contracts\ResumePdfRendererInterface;
 use App\Features\Resume\Domain\RepositoryInterfaces\ResumeConfigRepositoryInterface;
 use App\Features\Resume\Infra\Repositories\EloquentResumeConfigRepository;
 use App\Features\Resume\Infra\Repositories\EloquentResumeDataReader;
 use App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface;
+use App\Features\Resume\Infra\Services\LaravelResumePdfCache;
+use App\Features\Resume\Infra\Services\ResumePdfCacheInvalidator;
 use App\Features\Resume\Infra\Services\ResumePdfRenderer;
+use App\Features\Settings\App\Contracts\MailTransportTesterInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Settings\Infra\Repositories\EloquentFeatureFlagRepository;
 use App\Features\Settings\Infra\Repositories\EloquentSettingRepository;
+use App\Features\Settings\Infra\Services\HttpMailTransportTester;
 use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\Contracts\AnalyticsConfigInterface;
 use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
+use App\Features\Shared\App\Contracts\AssetStorageInterface;
 use App\Features\Shared\App\Contracts\AuthGuardInterface;
 use App\Features\Shared\App\Contracts\CacheClearerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
+use App\Features\Shared\App\Contracts\EncrypterInterface;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use App\Features\Shared\App\Contracts\MaintenanceModeInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
@@ -117,6 +129,7 @@ use App\Features\Shared\Infra\Services\LaravelAnalyticsConfig;
 use App\Features\Shared\Infra\Services\LaravelApplicationUrl;
 use App\Features\Shared\Infra\Services\LaravelAuthGuard;
 use App\Features\Shared\Infra\Services\LaravelCacheClearer;
+use App\Features\Shared\Infra\Services\LaravelEncrypter;
 use App\Features\Shared\Infra\Services\LaravelMaintenanceMode;
 use App\Features\Shared\Infra\Services\LaravelPaginationDefaults;
 use App\Features\Shared\Infra\Services\LaravelPasswordHasher;
@@ -126,6 +139,7 @@ use App\Features\Shared\Infra\Services\LaravelTransactionManager;
 use App\Features\Shared\Infra\Services\LaravelUrlGenerator;
 use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
 use App\Features\Shared\Infra\Services\RustFsAssetCleaner;
+use App\Features\Shared\Infra\Services\RustFsAssetStorage;
 use App\Features\Shared\Infra\Services\SitemapService;
 use App\Features\Shared\Infra\Services\UploadedImageProcessor;
 use App\Features\Shared\Infra\Swagger\SwaggerUiService;
@@ -330,8 +344,8 @@ class AppServiceProvider extends ServiceProvider
         // reading configuration, the locale or the connection directly: the
         // pagination defaults, the site's base URL, the analytics pipeline
         // configuration, the transactional connection, the active locale
-        // context, absolute path URLs, the session store, the auth guard and
-        // the password hasher.
+        // context, absolute path URLs, the session store, the auth guard, the
+        // password hasher, the encrypter and the asset storage.
         $this->app->bind(
             PaginationDefaultsInterface::class,
             LaravelPaginationDefaults::class,
@@ -375,6 +389,44 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             PasswordHasherInterface::class,
             LaravelPasswordHasher::class,
+        );
+
+        $this->app->bind(
+            EncrypterInterface::class,
+            LaravelEncrypter::class,
+        );
+
+        $this->app->bind(
+            AssetStorageInterface::class,
+            RustFsAssetStorage::class,
+        );
+
+        // Feature-level framework-capability ports: the analytics digest and
+        // feedback notification mailers, the resume PDF cache (and its
+        // invalidator) and the mail-transport probe.
+        $this->app->bind(
+            AnalyticsDigestMailerInterface::class,
+            LaravelAnalyticsDigestMailer::class,
+        );
+
+        $this->app->bind(
+            FeedbackNotificationMailerInterface::class,
+            LaravelFeedbackNotificationMailer::class,
+        );
+
+        $this->app->bind(
+            ResumePdfCacheInterface::class,
+            LaravelResumePdfCache::class,
+        );
+
+        $this->app->bind(
+            ResumePdfCacheInvalidatorInterface::class,
+            ResumePdfCacheInvalidator::class,
+        );
+
+        $this->app->bind(
+            MailTransportTesterInterface::class,
+            HttpMailTransportTester::class,
         );
 
         // The content pipeline is a singleton: the underlying

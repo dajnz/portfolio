@@ -20,10 +20,6 @@ const APP_LAYER_ALLOWED_IMPORT_PATTERN = '/^App\\\\Features\\\\[A-Za-z]+\\\\(App
  * full mirror of the domain-layer purity guard.
  */
 const APP_LAYER_PURITY_BASELINE = [
-    'app/Features/Analytics/App/UseCases/SendDailyDigestUseCase.php: framework type `Illuminate\Support\Facades\Mail`',
-    'app/Features/Analytics/App/UseCases/SendDailyDigestUseCase.php: non-app-layer import `App\Features\Analytics\Infra\Mail\SendAnalyticsReportMail`',
-    'app/Features/Analytics/App/UseCases/TrackEventUseCase.php: Laravel helper `__()`',
-    'app/Features/Analytics/App/UseCases/TrackEventUseCase.php: framework type `Illuminate\Validation\ValidationException`',
     'app/Features/Auth/App/UseCases/EnableTotpUseCase.php: non-app-layer import `App\Features\Auth\Infra\Services\TotpService`',
     'app/Features/Auth/App/UseCases/VerifyGithubLinkTotpUseCase.php: non-app-layer import `App\Features\Auth\Infra\Services\AdminAuthService`',
     'app/Features/Auth/App/UseCases/VerifyLoginTotpUseCase.php: non-app-layer import `App\Features\Auth\Infra\Services\AdminAuthService`',
@@ -63,9 +59,6 @@ const APP_LAYER_PURITY_BASELINE = [
     'app/Features/Portfolio/App/UseCases/ListFeedbackUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorPage`',
     'app/Features/Portfolio/App/UseCases/ListFeedbackUseCase.php: non-app-layer import `App\Features\Shared\Infra\Services\AdminCursorPaginator`',
     'app/Features/Portfolio/App/UseCases/StoreContactUseCase.php: non-app-layer import `App\Features\Shared\Infra\Services\AdminCursorPaginator`',
-    'app/Features/Portfolio/App/UseCases/SubmitFeedbackUseCase.php: framework type `Illuminate\Support\Facades\Config`',
-    'app/Features/Portfolio/App/UseCases/SubmitFeedbackUseCase.php: framework type `Illuminate\Support\Facades\Mail`',
-    'app/Features/Portfolio/App/UseCases/SubmitFeedbackUseCase.php: non-app-layer import `App\Features\Portfolio\Infra\Mail\NotifyAdminOfFeedbackMail`',
     'app/Features/Portfolio/App/UseCases/UpdateContactUseCase.php: non-app-layer import `App\Features\Shared\Infra\Services\AdminCursorPaginator`',
     'app/Features/Projects/App/DTOs/ProjectSeoDto.php: Laravel helper `__()`',
     'app/Features/Projects/App/UseCases/AdminProjectSearchUseCase.php: non-app-layer import `App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface`',
@@ -74,15 +67,7 @@ const APP_LAYER_PURITY_BASELINE = [
     'app/Features/Projects/App/UseCases/ListProjectsUseCase.php: non-app-layer import `App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface`',
     'app/Features/Resume/App/UseCases/GetResumeForEditUseCase.php: non-app-layer import `App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface`',
     'app/Features/Resume/App/UseCases/GetResumePdfUseCase.php: Laravel helper `__()`',
-    'app/Features/Resume/App/UseCases/GetResumePdfUseCase.php: framework type `Illuminate\Support\Facades\Cache`',
-    'app/Features/Resume/App/UseCases/GetResumePdfUseCase.php: framework type `Illuminate\Support\Facades\Storage`',
     'app/Features/Resume/App/UseCases/GetResumePdfUseCase.php: non-app-layer import `App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface`',
-    'app/Features/Resume/App/UseCases/RegenerateResumePdfUseCase.php: framework type `Illuminate\Support\Facades\Storage`',
-    'app/Features/Resume/App/UseCases/RegenerateResumePdfUseCase.php: non-app-layer import `App\Features\Resume\Infra\Services\ResumePdfCacheInvalidator`',
-    'app/Features/Settings/App/UseCases/TestMailUseCase.php: framework type `Illuminate\Http\Client\ConnectionException`',
-    'app/Features/Settings/App/UseCases/TestMailUseCase.php: framework type `Illuminate\Support\Facades\Crypt`',
-    'app/Features/Settings/App/UseCases/TestMailUseCase.php: framework type `Illuminate\Support\Facades\Http`',
-    'app/Features/Settings/App/UseCases/UpdateSettingsUseCase.php: framework type `Illuminate\Support\Facades\Crypt`',
 ];
 
 function appLayerForbiddenImport(string $imported): ?string

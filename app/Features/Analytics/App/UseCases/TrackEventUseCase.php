@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Analytics\App\UseCases;
 
+use App\Features\Analytics\App\Exceptions\InvalidAnalyticsEventException;
 use App\Features\Analytics\Domain\Entities\AnalyticsEvent;
 use App\Features\Analytics\Domain\Enums\PageType;
 use App\Features\Analytics\Domain\Factories\AnalyticsEventFactory;
@@ -13,7 +14,6 @@ use App\Features\Analytics\Domain\ValueObjects\PageDetails;
 use App\Features\Shared\App\Contracts\AnalyticsConfigInterface;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use DateTimeImmutable;
-use Illuminate\Validation\ValidationException;
 use InvalidArgumentException;
 use TypeError;
 
@@ -67,9 +67,7 @@ final class TrackEventUseCase
             $entity = $this->parseEvent($event, $ipHash, $userAgent, $createdAt);
 
             if ($entity === null) {
-                throw ValidationException::withMessages([
-                    'batch' => [__('validation.analytics.event_invalid')],
-                ]);
+                throw new InvalidAnalyticsEventException();
             }
 
             $entities[] = $entity;
