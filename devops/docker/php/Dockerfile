@@ -42,6 +42,12 @@ WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --no-progress --optimize-autoloader --no-scripts
 COPY . .
+
+# `config:cache` below freezes env() values, so the admin footer version is
+# supplied as a build arg (the deployed git tag or short commit SHA —
+# devops/deploy/scripts/build-php-images.sh) and baked into the cached config.
+# Empty in dev builds, where AppVersion reads the mounted repository instead.
+ARG APP_VERSION=""
 RUN rm -f bootstrap/cache/packages.php bootstrap/cache/services.php \
     && php artisan package:discover --ansi \
     && php artisan config:cache \

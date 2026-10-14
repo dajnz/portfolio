@@ -26,8 +26,16 @@ set -a
 . "$env_file"
 set +a
 
+# The admin footer version: the deployed git tag when the checked-out ref is
+# tagged, otherwise the short commit SHA. Baked into the cached config via the
+# Dockerfile's APP_VERSION build arg (config:cache freezes env() values).
+app_version="$(git describe --tags --exact-match 2>/dev/null \
+    || git rev-parse --short HEAD 2>/dev/null \
+    || printf '%s' "$app_tag")"
+
 docker build \
     -f devops/docker/php/Dockerfile \
+    --build-arg APP_VERSION="$app_version" \
     -t "127.0.0.1:5000/portfolio-app:$app_tag" \
     .
 
