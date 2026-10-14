@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Experience\App\UseCases;
 
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
-use App\Features\Shared\Infra\Services\AdminCursorPaginator;
+use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
  * Restores a soft-deleted timeline item — clears `deleted_at`, making it
@@ -16,13 +16,14 @@ final class RestoreTimelineItemUseCase
 {
     public function __construct(
         private readonly TimelineItemRepositoryInterface $repository,
+        private readonly CountCacheInvalidatorInterface $countCacheInvalidator,
     ) {
     }
 
     public function restore(int $id): void
     {
         $this->repository->restore($id);
-        AdminCursorPaginator::invalidateCountCache('experience');
+        $this->countCacheInvalidator->invalidate('experience');
 
     }
 }

@@ -9,7 +9,7 @@ use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
 use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\App\Contracts\TransactionManagerInterface;
-use App\Features\Shared\Infra\Services\AdminCursorPaginator;
+use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
  * Updates a contact: the non-translatable columns plus the per-locale
@@ -22,6 +22,7 @@ final class UpdateContactUseCase
         private readonly ContactRepositoryInterface $repository,
         private readonly ActiveLocaleInterface $locales,
         private readonly TransactionManagerInterface $transactionManager,
+        private readonly CountCacheInvalidatorInterface $countCacheInvalidator,
     ) {
     }
 
@@ -50,7 +51,7 @@ final class UpdateContactUseCase
                 translations: $translations,
             ));
         });
-        AdminCursorPaginator::invalidateCountCache('contacts');
+        $this->countCacheInvalidator->invalidate('contacts');
 
     }
 

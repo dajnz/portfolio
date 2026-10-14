@@ -9,7 +9,7 @@ use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterfac
 use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
 use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\App\Contracts\TransactionManagerInterface;
-use App\Features\Shared\Infra\Services\AdminCursorPaginator;
+use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 
 /**
  * Creates a contact with its per-locale names (only the locales active
@@ -22,6 +22,7 @@ final class StoreContactUseCase
         private readonly ContactRepositoryInterface $repository,
         private readonly ActiveLocaleInterface $locales,
         private readonly TransactionManagerInterface $transactionManager,
+        private readonly CountCacheInvalidatorInterface $countCacheInvalidator,
     ) {
     }
 
@@ -50,7 +51,7 @@ final class StoreContactUseCase
             ));
         });
 
-        AdminCursorPaginator::invalidateCountCache('contacts');
+        $this->countCacheInvalidator->invalidate('contacts');
     }
 
     /**

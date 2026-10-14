@@ -16,7 +16,7 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;
 use App\Features\Shared\Domain\ValueObjects\SortOrder;
-use App\Features\Shared\Infra\Services\AdminCursorPaginator;
+use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use DateTimeImmutable;
 
 /**
@@ -35,6 +35,7 @@ final class UpdateTimelineItemUseCase
         private readonly ActiveLocaleInterface $locales,
         private readonly TimelineContinuityService $continuity,
         private readonly TransactionManagerInterface $transactionManager,
+        private readonly CountCacheInvalidatorInterface $countCacheInvalidator,
     ) {
     }
 
@@ -98,7 +99,7 @@ final class UpdateTimelineItemUseCase
             ));
         });
 
-        AdminCursorPaginator::invalidateCountCache('experience');
+        $this->countCacheInvalidator->invalidate('experience');
     }
 
     private function relatedProject(?int $projectId, ?string $externalProjectName): ?RelatedProject
