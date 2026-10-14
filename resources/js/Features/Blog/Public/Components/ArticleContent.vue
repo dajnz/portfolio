@@ -1,4 +1,4 @@
-<!-- ArticleContent — the article's reading column: title, "Published: {date} · {n} min read" meta, the article-tag badges + linked skill chips, the pipeline-rendered body (v-html) and the stats row (views + the feature-flagged ArticleReactions — rendered only when `article.reactions` is non-null).
+<!-- ArticleContent — the article's reading column: title, "Published: {date} · {n} min read" meta, the interactive article/skill tag chips (all linked to the matching blog filter), the pipeline-rendered body (v-html) and the stats row (views + the feature-flagged ArticleReactions — rendered only when `article.reactions` is non-null).
 
 The body is the server-rendered safe-mode Markdown HTML: code blocks arrive as `<pre data-code-block data-language data-raw>` (highlight.php tokens — no-JS functional) and callouts as `<aside data-callout-type>`. After mounting, the progressive-enhancement pass mounts real CodeBlock/CalloutBlock components in place of those markers — the copy buttons and the per-type callout icons; the pass re-runs whenever `content_html` changes (article navigation) after removing the previous mounts.
 
@@ -9,9 +9,17 @@ import { Icon } from '@iconify/vue';
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useReadingProgress } from '@shared-cross/Composables/useReadingProgress';
-import PublicBaseBadge from '@shared-public/PublicBaseBadge.vue';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
-import { createVNode, nextTick, onBeforeUnmount, onMounted, ref, render, watch } from 'vue';
+import {
+    computed,
+    createVNode,
+    nextTick,
+    onBeforeUnmount,
+    onMounted,
+    ref,
+    render,
+    watch,
+} from 'vue';
 
 import type { ArticleDetailView } from '../Composables/useBlogArticlePage';
 import ArticleReactions from './ArticleReactions.vue';
@@ -41,6 +49,35 @@ const props = withDefaults(
 );
 
 const { t, locale } = useI18n();
+
+// The article's tags as one interactive chip list — article tags
+// (`?article_tags=`) and skill tags (`?skill_tags=`) render identically
+// (the shared TechSkillTag chip); only the filter destination differs.
+interface ArticleChip {
+    id: number;
+    name: string;
+    icon: string;
+    type: 'tag' | 'skill';
+}
+
+const tagChips = computed<ArticleChip[]>(() => [
+    ...(props.article?.tags ?? []).map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        icon: '',
+        type: 'tag' as const,
+    })),
+    ...(props.article?.skill_tags ?? []).map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        icon: tag.icon,
+        type: 'skill' as const,
+    })),
+]);
+
+function tagHref(tag: ArticleChip): string {
+    return tag.type === 'skill' ? `/blog?skill_tags=${tag.id}` : `/blog?article_tags=${tag.id}`;
+}
 
 const bodyEl = ref<HTMLElement | null>(null);
 const mountedHosts: { host: HTMLElement; dispose: () => void }[] = [];
@@ -206,24 +243,17 @@ onBeforeUnmount(cleanupMounts);
       </div>
 
       <div
-        v-if="props.article.tags.length > 0 || props.article.skill_tags.length > 0"
+        v-if="tagChips.length > 0"
         class="article-content__tags"
         :data-testid="`${props.test_id}-tags`"
       >
-        <PublicBaseBadge
-          v-for="tag in props.article.tags"
-          :key="tag.id"
-          variant="primary"
-          :test_id="`${props.test_id}-tag-${tag.id}`"
-        >
-          {{ tag.name }}
-        </PublicBaseBadge>
         <TechSkillTag
-          v-for="tag in props.article.skill_tags"
-          :key="tag.id"
+          v-for="tag in tagChips"
+          :key="`${tag.type}-${tag.id}`"
           :skill="tag"
           linked
-          :test_id="`${props.test_id}-skill-${tag.id}`"
+          :href="tagHref(tag)"
+          :test_id="`${props.test_id}-${tag.type}-${tag.id}`"
         />
       </div>
 

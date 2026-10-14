@@ -14,8 +14,11 @@ use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInter
  * case-insensitive name contains-match over BOTH article tags
  * (`type: "tag"`) and tech skills (`type: "skill"`) — the `type`
  * discriminator keeps the independent id spaces unambiguous when the
- * filter URL is built (`?article_tags=` vs `?skill_tags=`). Each source
- * is ordered by name ascending; the merged result is capped at 20.
+ * filter URL is built (`?article_tags=` vs `?skill_tags=`). Article tags
+ * match every locale name (found by any localized name) with the
+ * returned name resolved to the request locale; skills carry a single
+ * name. Each source is ordered by name ascending; the merged result is
+ * capped at 20.
  */
 final class SearchUnifiedBlogTagsUseCase
 {
@@ -36,12 +39,9 @@ final class SearchUnifiedBlogTagsUseCase
             return [];
         }
 
-        $needle = mb_strtolower($query);
+        $tags = $this->articleTags->searchTags($query, $locale, self::MAX_RESULTS);
 
-        $tags = array_values(array_filter(
-            $this->articleTags->findAllTags($locale),
-            static fn (object $tag): bool => str_contains(mb_strtolower($tag->name), $needle),
-        ));
+        $needle = mb_strtolower($query);
 
         $skills = array_values(array_filter(
             $this->skills->findAll($locale),

@@ -203,10 +203,12 @@ describe('BlogArticlePage', () => {
         );
         expect(content.text()).toContain('Published: Jan 15, 2026');
         expect(content.text()).toContain('5 min read');
-        expect(content.get('[data-testid="blog-article-page-content-tag-11"]').text()).toBe('Vue');
-        expect(content.get('[data-testid="blog-article-page-content-tag-12"]').text()).toBe(
-            'TypeScript',
-        );
+        const articleChip = content.get('[data-testid="blog-article-page-content-tag-11"]');
+        expect(articleChip.text()).toBe('Vue');
+        expect(articleChip.attributes('href')).toBe('/blog?article_tags=11');
+        const secondArticleChip = content.get('[data-testid="blog-article-page-content-tag-12"]');
+        expect(secondArticleChip.text()).toBe('TypeScript');
+        expect(secondArticleChip.attributes('href')).toBe('/blog?article_tags=12');
         const skillChip = content.get('[data-testid="blog-article-page-content-skill-21"]');
         expect(skillChip.attributes('href')).toBe('/blog?skill_tags=21');
         expect(content.text()).toContain('Views: 142');

@@ -229,6 +229,16 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
             ->all();
     }
 
+    public function searchTags(string $query, string $locale, int $limit): array
+    {
+        return $this->tagRowsQuery($locale)
+            ->when($query !== '', fn (QueryBuilder $q): QueryBuilder => $this->applyTagNameSearch($q, $query))
+            ->orderBy('name')
+            ->limit($limit)
+            ->get()
+            ->all();
+    }
+
     public function tagsListQuery(string $search, string $locale): QueryBuilder
     {
         return $this->tagRowsQuery($locale)

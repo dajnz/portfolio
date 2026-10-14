@@ -1230,6 +1230,11 @@ export interface components {
                 en?: string;
                 ru?: string;
             } | null;
+            /**
+             * @description The attached article tags via `article_tag_pivot` — rendered
+             *     as linked chips (`/blog?article_tags={id}`), the same chip
+             *     as `skill_tags`.
+             */
             tags?: components["schemas"]["TagData"][];
             /**
              * @description The attached tech skills via `article_skill_pivot` —
@@ -1277,6 +1282,11 @@ export interface components {
                 en?: string;
                 ru?: string;
             };
+            /**
+             * @description The attached article tags via `article_tag_pivot` — rendered
+             *     as linked chips (`/blog?article_tags={id}`), the same chip
+             *     as `skill_tags`.
+             */
             tags?: components["schemas"]["TagData"][];
             /**
              * @description The attached tech skills via `article_skill_pivot` —

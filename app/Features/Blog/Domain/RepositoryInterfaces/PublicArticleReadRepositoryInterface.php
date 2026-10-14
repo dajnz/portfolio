@@ -126,6 +126,16 @@ interface PublicArticleReadRepositoryInterface
     public function findAllTags(string $locale): array;
 
     /**
+     * The article-tag autocomplete source: locale-resolved names with
+     * the `en` fallback, matching the query against EVERY locale name
+     * (case-insensitive contains — a tag is found by any of its
+     * localized names), ordered by resolved name, capped at `$limit`.
+     *
+     * @return array<int, object>  Rows `{id, slug, name}`.
+     */
+    public function searchTags(string $query, string $locale, int $limit): array;
+
+    /**
      * Whether at least one published, non-trashed project exists —
      * the public pages' header nav Projects-link condition. A
      * query-builder read in the Infra layer (the projects table is not

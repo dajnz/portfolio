@@ -219,4 +219,39 @@ describe('AdminTagController', function (): void {
             'name' => ['en' => 'PHP'],
         ])->assertStatus(422)->assertJsonValidationErrors(['name']);
     });
+
+    it('finds article tags by any localized name and resolves the display name per request locale', function (): void {
+        articleTagItem('testing', ['en' => 'Testing', 'ru' => 'Тестирование']);
+        articleTagItem('design', ['en' => 'Design', 'ru' => 'Дизайн']);
+
+        // The Russian name matches even with the default (English) locale.
+        $this->getJson('/api/tags/search?q='.rawurlencode('Тест'))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.name', 'Testing');
+
+        // The request locale resolves the returned name.
+        $this->withCredentials()
+            ->withUnencryptedCookie('locale', 'ru')
+            ->getJson('/api/tags/search?q='.rawurlencode('Тест'))
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.name', 'Тестирование');
+    });
+
+    it('finds article tags by any localized name in the unified blog-tag search', function (): void {
+        articleTagItem('testing', ['en' => 'Testing', 'ru' => 'Тестирование']);
+        articleSkillId('Тестовый набор');
+
+        $names = collect(
+            $this->withCredentials()
+                ->withUnencryptedCookie('locale', 'ru')
+                ->getJson('/api/blog-tags/search?q='.rawurlencode('Тест'))
+                ->assertOk()
+                ->json('data'),
+        )->pluck('name')->all();
+
+        expect($names)->toContain('Тестирование')
+            ->toContain('Тестовый набор');
+    });
 });

@@ -217,7 +217,7 @@ describe('BlogIndexPage', () => {
         expect(wrapper.find('[data-testid="public-header-nav-/blog"]').exists()).toBe(true);
     });
 
-    it('renders the cards with resolved asset URLs, alt texts, badges and linked skill chips', async () => {
+    it('renders the cards with resolved asset URLs, alt texts and linked article/skill chips', async () => {
         const wrapper = mountPage();
         await flush();
 
@@ -226,8 +226,10 @@ describe('BlogIndexPage', () => {
         expect(first.get('h2').text()).toBe('Building Reusable Vue Composables');
         expect(first.get('img').attributes('src')).toBe('/assets/blog/vue-composables.png');
         expect(first.get('img').attributes('alt')).toBe('Code editor with a composable');
-        expect(first.get('[data-testid="blog-page-card-1-tag-11"]').text()).toBe('Vue');
-        // The skill chip is a linked TechSkillTag to the skill filter.
+        // Both tag types are links into the matching blog filter.
+        const articleChip = first.get('[data-testid="blog-page-card-1-tag-11"]');
+        expect(articleChip.text()).toBe('Vue');
+        expect(articleChip.attributes('href')).toBe('/blog?article_tags=11');
         const skillChip = first.get('[data-testid="blog-page-card-1-skill-21"]');
         expect(skillChip.attributes('href')).toBe('/blog?skill_tags=21');
         // The meta row: the localized date + the reading time.

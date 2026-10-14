@@ -9,9 +9,10 @@ use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInt
 
 /**
  * The article-tags autocomplete (`GET /api/tags/search`):
- * case-insensitive name contains-match over ALL article tags (the
- * article-tags-only source of the admin tag form and the blog filter),
- * ordered by name ascending, capped at 20 results.
+ * case-insensitive name contains-match over ALL article tags — matched
+ * against every locale name (a tag is found by any of its localized
+ * names) while the returned name is resolved to the request locale (the
+ * `en` fallback). Ordered by name ascending, capped at 20 results.
  */
 final class SearchArticleTagsUseCase
 {
@@ -31,25 +32,13 @@ final class SearchArticleTagsUseCase
             return [];
         }
 
-        $needle = mb_strtolower($query);
-
-        $matches = array_values(array_filter(
-            $this->repository->findAllTags($locale),
-            static fn (object $tag): bool => str_contains(mb_strtolower($tag->name), $needle),
-        ));
-
-        usort(
-            $matches,
-            static fn (object $a, object $b): int => strcmp(mb_strtolower($a->name), mb_strtolower($b->name)),
-        );
-
         return array_map(
             static fn (object $tag): TagOptionDto => new TagOptionDto(
                 id: (int) $tag->id,
                 slug: $tag->slug,
                 name: $tag->name,
             ),
-            array_slice($matches, 0, self::MAX_RESULTS),
+            $this->repository->searchTags($query, $locale, self::MAX_RESULTS),
         );
     }
 }

@@ -236,6 +236,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TagData'
+          description: |
+            The attached article tags via `article_tag_pivot` — rendered
+            as linked chips (`/blog?article_tags={id}`), the same chip
+            as `skill_tags`.
         skill_tags:
           type: array
           items:
@@ -294,6 +298,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TagData'
+          description: |
+            The attached article tags via `article_tag_pivot` — rendered
+            as linked chips (`/blog?article_tags={id}`), the same chip
+            as `skill_tags`.
         skill_tags:
           type: array
           items:

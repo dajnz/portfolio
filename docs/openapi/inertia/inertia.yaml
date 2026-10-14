@@ -10,7 +10,7 @@ info:
     Locale-prefixed public routes (`/{locale}/...`) are not listed here —
     they render the same page components with the same props as their
     non-prefixed counterparts (only the locale resolution differs).
-  version: '1.0.32'
+  version: '1.0.33'
   contact:
     name: Portfolio Administrator
     url: 'https://portfolio.dev.lan'

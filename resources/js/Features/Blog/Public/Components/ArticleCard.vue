@@ -1,10 +1,9 @@
-<!-- ArticleCard — the blog article preview card shared by the blog index (default variant) and the article page's related section (compact variant — no image). The card is a container with a stretched Inertia `<Link>` overlay to `/blog/{slug}` (a DOM sibling of the card's own filter-chip links — nested anchors would be invalid HTML); the lead image renders with the resolved per-locale alt (placeholder icon when absent — the `empty_image` state), the search results' `short_description` may carry the FTS `<mark>` snippet (server-sanitized, rendered via v-html), the meta row shows the localized date + reading time, the article tags render as accent badges and the skill tags as linked TechSkillTag chips (`/blog?skill_tags={id}`), capped at 3 with a "+N" overflow chip. Hover prefetches the article page data after the 100 ms linger (`router.prefetch` is a genuine cache-warming fetch, no navigation). -->
+<!-- ArticleCard — the blog article preview card shared by the blog index (default variant) and the article page's related section (compact variant — no image). The card is a container with a stretched Inertia `<Link>` overlay to `/blog/{slug}` (a DOM sibling of the card's own filter-chip links — nested anchors would be invalid HTML); the lead image renders with the resolved per-locale alt (placeholder icon when absent — the `empty_image` state), the search results' `short_description` may carry the FTS `<mark>` snippet (server-sanitized, rendered via v-html), the meta row shows the localized date + reading time, and the article tags + skill tags render as the same linked chip (article tags → `/blog?article_tags={id}`, skill tags → `/blog?skill_tags={id}`), capped at 3 with a "+N" overflow chip. Hover prefetches the article page data after the 100 ms linger (`router.prefetch` is a genuine cache-warming fetch, no navigation). -->
 <script setup lang="ts">
 import { type ArticleCardView, formatArticleDate } from '@blog-shared/Composables/useArticleCards';
 import { Link, router } from '@inertiajs/vue3';
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
-import PublicBaseBadge from '@shared-public/PublicBaseBadge.vue';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
 import PublicImagePlaceholder from '@shared-public/PublicImagePlaceholder.vue';
 import { computed, ref } from 'vue';
@@ -34,10 +33,29 @@ const props = withDefaults(
 const { t, locale } = useI18n();
 
 // The combined chip list — article tags first, then the skill tags; the
-// cap applies to the combined total.
-const allTags = computed(() => [
-    ...(props.article?.tags ?? []),
-    ...(props.article?.skill_tags ?? []),
+// cap applies to the combined total. Both tag types render as the same
+// interactive chip (only the filter destination differs: `?article_tags=`
+// vs `?skill_tags=`).
+interface ArticleCardChip {
+    id: number;
+    name: string;
+    icon: string;
+    type: 'tag' | 'skill';
+}
+
+const allTags = computed<ArticleCardChip[]>(() => [
+    ...(props.article?.tags ?? []).map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        icon: '',
+        type: 'tag' as const,
+    })),
+    ...(props.article?.skill_tags ?? []).map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        icon: tag.icon,
+        type: 'skill' as const,
+    })),
 ]);
 const visibleTags = computed(() => allTags.value.slice(0, props.tags_limit));
 const overflowCount = computed(() => Math.max(0, allTags.value.length - props.tags_limit));
@@ -48,6 +66,10 @@ const overflowNames = computed(
             .map((tag) => tag.name)
             .join(', ') ?? '',
 );
+
+function tagHref(tag: ArticleCardChip): string {
+    return tag.type === 'skill' ? `/blog?skill_tags=${tag.id}` : `/blog?article_tags=${tag.id}`;
+}
 
 const metaDate = computed(() =>
     formatArticleDate(props.article?.published_at ?? null, locale.value),
@@ -170,26 +192,17 @@ function onLeave(): void {
         </span>
       </div>
       <div
-        v-if="visibleTags.length > 0 || props.article.skill_tags.length > 0"
+        v-if="visibleTags.length > 0"
         class="card__tags article-card__tags"
       >
-        <template v-for="tag in visibleTags">
-          <PublicBaseBadge
-            v-if="'slug' in tag"
-            :key="tag.id"
-            variant="primary"
-            :test_id="`${props.test_id}-tag-${tag.id}`"
-          >
-            {{ tag.name }}
-          </PublicBaseBadge>
-          <TechSkillTag
-            v-else
-            :key="tag.id"
-            :skill="tag"
-            linked
-            :test_id="`${props.test_id}-skill-${tag.id}`"
-          />
-        </template>
+        <TechSkillTag
+          v-for="tag in visibleTags"
+          :key="`${tag.type}-${tag.id}`"
+          :skill="tag"
+          linked
+          :href="tagHref(tag)"
+          :test_id="`${props.test_id}-${tag.type}-${tag.id}`"
+        />
         <span
           v-if="overflowCount > 0"
           class="article-card__tag-overflow"

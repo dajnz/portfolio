@@ -156,7 +156,11 @@ export interface paths {
         /**
          * Search article tags for autocomplete
          * @description No auth required. Autocomplete endpoint for article tags.
-         *     Returns matching tags by name with id, name, and slug.
+         *     Returns matching tags by name with id, name, and slug. The
+         *     query matches every localized name (a tag is found by any of
+         *     its translations); the returned `name` is resolved to the
+         *     request locale (`locale` cookie / `Accept-Language`, `en`
+         *     fallback).
          */
         get: operations["searchTags"];
         put?: never;
@@ -180,7 +184,11 @@ export interface paths {
          *     Searches both article_tags and tech skills, returning results
          *     with a type discriminator (`skill` or `tag`).
          *     Used by the blog filter UI to populate a single autocomplete
-         *     dropdown with results from both sources.
+         *     dropdown with results from both sources. Article tags match
+         *     every localized name (found by any translation) and their
+         *     returned `name` is resolved to the request locale (`locale`
+         *     cookie / `Accept-Language`, `en` fallback); skills carry a
+         *     single name.
          */
         get: operations["searchUnifiedBlogTags"];
         put?: never;
