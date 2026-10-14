@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Experience\App\UseCases;
 
 use App\Features\Experience\Domain\Entities\TimelineItem;
-use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
+use App\Features\Experience\App\Contracts\TimelineItemListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;

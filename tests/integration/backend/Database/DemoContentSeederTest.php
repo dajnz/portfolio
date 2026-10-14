@@ -7,7 +7,7 @@ namespace Tests\Integration\Backend\Database;
 use App\Features\Blog\Infra\Models\ArticleModel;
 use App\Features\Blog\Infra\Models\ArticleTagModel;
 use App\Features\Experience\Infra\Models\TimelineItemModel;
-use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
+use App\Features\Experience\App\Contracts\TimelineItemListQueryRepositoryInterface;
 use App\Features\Portfolio\Infra\Models\ContactModel;
 use App\Features\Projects\Infra\Models\ProjectDetailItemModel;
 use App\Features\Projects\Infra\Models\ProjectModel;

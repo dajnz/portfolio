@@ -6,7 +6,7 @@ namespace App\Features\Projects\App\UseCases;
 
 use App\Features\Projects\App\DTOs\ProjectListItemDto;
 use App\Features\Projects\App\DTOs\ProjectSearchResultDto;
-use App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface;
+use App\Features\Projects\App\Contracts\ProjectListQueryRepositoryInterface;
 use App\Features\Shared\App\Services\PaginationBuilder;
 
 /**

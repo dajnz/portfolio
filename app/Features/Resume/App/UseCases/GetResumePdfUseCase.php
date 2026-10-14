@@ -10,7 +10,7 @@ use App\Features\Resume\App\Services\ResumePdfStore;
 use App\Features\Resume\App\Services\ResumeSkillsAssembler;
 use App\Features\Resume\Domain\Entities\ResumeConfig;
 use App\Features\Resume\Domain\RepositoryInterfaces\ResumeConfigRepositoryInterface;
-use App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface;
+use App\Features\Resume\App\Contracts\ResumeDataReaderInterface;
 
 /**
  * The `/cv` on-demand pipeline. In

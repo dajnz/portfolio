@@ -11,7 +11,7 @@ use App\Features\Blog\App\DTOs\RelatedArticleDto;
 use App\Features\Blog\App\DTOs\TagOptionDto;
 use App\Features\Blog\Domain\Entities\Article;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\App\Contracts\ArticleListQueryRepositoryInterface;
 use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
 

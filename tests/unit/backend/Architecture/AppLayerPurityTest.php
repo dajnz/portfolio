@@ -20,34 +20,18 @@ const APP_LAYER_ALLOWED_IMPORT_PATTERN = '/^App\\\\Features\\\\[A-Za-z]+\\\\(App
  * full mirror of the domain-layer purity guard.
  */
 const APP_LAYER_PURITY_BASELINE = [
-    'app/Features/Blog/App/UseCases/AdminArticleSearchUseCase.php: non-app-layer import `App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface`',
-    'app/Features/Blog/App/UseCases/GetArticleForEditUseCase.php: non-app-layer import `App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface`',
-    'app/Features/Blog/App/UseCases/GetArticleListItemUseCase.php: non-app-layer import `App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface`',
-    'app/Features/Blog/App/UseCases/ListArticlesUseCase.php: non-app-layer import `App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface`',
-    'app/Features/Blog/App/UseCases/ListTagsUseCase.php: non-app-layer import `App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface`',
-    'app/Features/Experience/App/UseCases/GetPublicTimelineUseCase.php: non-app-layer import `App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface`',
-    'app/Features/Experience/App/UseCases/GetTimelineItemForEditUseCase.php: non-app-layer import `App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface`',
     'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: framework type `Illuminate\Database\Eloquent\Builder`',
     'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: framework type `Illuminate\Http\Request`',
-    'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: non-app-layer import `App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface`',
     'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorDecoder`',
     'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorPage`',
     'app/Features/Experience/App/UseCases/ListTimelineItemsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Services\AdminCursorPaginator`',
     'app/Features/Portfolio/App/UseCases/ListContactsUseCase.php: framework type `Illuminate\Http\Request`',
-    'app/Features/Portfolio/App/UseCases/ListContactsUseCase.php: non-app-layer import `App\Features\Portfolio\Infra\Repositories\ContactListQueryRepositoryInterface`',
     'app/Features/Portfolio/App/UseCases/ListContactsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorDecoder`',
     'app/Features/Portfolio/App/UseCases/ListContactsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorPage`',
     'app/Features/Portfolio/App/UseCases/ListContactsUseCase.php: non-app-layer import `App\Features\Shared\Infra\Services\AdminCursorPaginator`',
     'app/Features/Portfolio/App/UseCases/ListFeedbackUseCase.php: framework type `Illuminate\Http\Request`',
-    'app/Features/Portfolio/App/UseCases/ListFeedbackUseCase.php: non-app-layer import `App\Features\Portfolio\Infra\Repositories\FeedbackListQueryRepositoryInterface`',
     'app/Features/Portfolio/App/UseCases/ListFeedbackUseCase.php: non-app-layer import `App\Features\Shared\Infra\Persistence\CursorPage`',
     'app/Features/Portfolio/App/UseCases/ListFeedbackUseCase.php: non-app-layer import `App\Features\Shared\Infra\Services\AdminCursorPaginator`',
-    'app/Features/Projects/App/UseCases/AdminProjectSearchUseCase.php: non-app-layer import `App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface`',
-    'app/Features/Projects/App/UseCases/GetProjectListItemUseCase.php: non-app-layer import `App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface`',
-    'app/Features/Projects/App/UseCases/GetPublicProjectsUseCase.php: non-app-layer import `App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface`',
-    'app/Features/Projects/App/UseCases/ListProjectsUseCase.php: non-app-layer import `App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface`',
-    'app/Features/Resume/App/UseCases/GetResumeForEditUseCase.php: non-app-layer import `App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface`',
-    'app/Features/Resume/App/UseCases/GetResumePdfUseCase.php: non-app-layer import `App\Features\Resume\Infra\Repositories\ResumeDataReaderInterface`',
 ];
 
 function appLayerForbiddenImport(string $imported): ?string

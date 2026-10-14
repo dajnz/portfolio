@@ -9,7 +9,7 @@ use App\Features\Blog\App\DTOs\AdminArticleListQueryDto;
 use App\Features\Blog\App\DTOs\ArticleListItemDto;
 use App\Features\Blog\App\DTOs\ArticleTagOptionDto;
 use App\Features\Blog\App\DTOs\TagOptionDto;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\App\Contracts\ArticleListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\ActiveLocaleInterface;

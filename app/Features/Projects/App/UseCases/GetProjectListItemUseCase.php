@@ -7,7 +7,7 @@ namespace App\Features\Projects\App\UseCases;
 use App\Features\Projects\App\DTOs\ProjectListItemDto;
 use App\Features\Projects\App\DTOs\SkillOptionDto;
 use App\Features\Projects\Domain\Exceptions\ProjectNotFoundException;
-use App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface;
+use App\Features\Projects\App\Contracts\ProjectListQueryRepositoryInterface;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 
 /**

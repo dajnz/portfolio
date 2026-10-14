@@ -7,7 +7,7 @@ namespace App\Features\Blog\App\UseCases;
 use App\Features\Blog\App\DTOs\AdminTagListDto;
 use App\Features\Blog\App\DTOs\AdminTagListQueryDto;
 use App\Features\Blog\App\DTOs\TagListItemDto;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\App\Contracts\ArticleListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;

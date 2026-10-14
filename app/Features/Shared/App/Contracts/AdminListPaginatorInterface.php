@@ -20,8 +20,9 @@ use App\Features\Shared\App\DTOs\PaginationResultDto;
 interface AdminListPaginatorInterface
 {
     /**
-     * @param  callable(): \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder  $queryFactory
-     *        Builds the filtered base query (no order, limit or offset).
+     * @param  callable(): mixed  $queryFactory
+     *        Builds the filtered base query — a framework query builder supplied by
+     *        the Infra implementation (no order, limit or offset).
      * @param  string|null  $countCacheKey  Per-filter-combination key for the cached total; null disables caching.
      */
     public function paginate(

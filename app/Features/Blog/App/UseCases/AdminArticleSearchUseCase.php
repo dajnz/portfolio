@@ -6,7 +6,7 @@ namespace App\Features\Blog\App\UseCases;
 
 use App\Features\Blog\App\DTOs\ArticleListItemDto;
 use App\Features\Blog\App\DTOs\ArticleSearchResultDto;
-use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\App\Contracts\ArticleListQueryRepositoryInterface;
 use App\Features\Shared\App\Services\PaginationBuilder;
 
 /**

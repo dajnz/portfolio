@@ -8,7 +8,7 @@ use App\Features\Projects\App\DTOs\AdminProjectListDto;
 use App\Features\Projects\App\DTOs\AdminProjectListQuery;
 use App\Features\Projects\App\DTOs\ProjectListItemDto;
 use App\Features\Projects\App\DTOs\SkillOptionDto;
-use App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface;
+use App\Features\Projects\App\Contracts\ProjectListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;

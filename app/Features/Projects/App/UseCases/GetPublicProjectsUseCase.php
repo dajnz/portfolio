@@ -10,7 +10,7 @@ use App\Features\Projects\App\DTOs\ProjectListDto;
 use App\Features\Projects\App\DTOs\ProjectListQuery;
 use App\Features\Projects\App\DTOs\SkillOptionDto;
 use App\Features\Projects\App\Services\ProjectSeoFactory;
-use App\Features\Projects\Infra\Repositories\ProjectListQueryRepositoryInterface;
+use App\Features\Projects\App\Contracts\ProjectListQueryRepositoryInterface;
 use App\Features\Shared\App\Services\PageSizeResolver;
 use App\Features\Shared\App\Services\PaginationBuilder;
 use App\Features\Shared\Domain\Entities\TechSkill;

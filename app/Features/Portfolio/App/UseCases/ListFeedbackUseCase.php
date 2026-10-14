@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Portfolio\App\UseCases;
 
-use App\Features\Portfolio\Infra\Repositories\FeedbackListQueryRepositoryInterface;
+use App\Features\Portfolio\App\Contracts\FeedbackListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;

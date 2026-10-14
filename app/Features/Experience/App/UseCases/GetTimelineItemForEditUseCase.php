@@ -6,7 +6,7 @@ namespace App\Features\Experience\App\UseCases;
 
 use App\Features\Experience\Domain\Entities\TimelineItem;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
-use App\Features\Experience\Infra\Repositories\TimelineItemListQueryRepositoryInterface;
+use App\Features\Experience\App\Contracts\TimelineItemListQueryRepositoryInterface;
 use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 

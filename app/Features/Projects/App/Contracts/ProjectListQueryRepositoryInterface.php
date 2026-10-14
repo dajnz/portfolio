@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Projects\Infra\Repositories;
+namespace App\Features\Projects\App\Contracts;
 
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
-use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
- * Infra-level read contract for the Projects lists — the cursor-
+ * App-layer read contract for the Projects lists — the cursor-
  * paginated admin list (with its filter bar and the JSON autocomplete
  * variant) and the public infinite-scroll page (with tag intersect +
  * FTS search + date sort). Separate from the domain
@@ -21,7 +20,8 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * rows (stdClass projections) and {@see TechSkillTag} entities — the
  * DTO conversion is the use cases' responsibility. The admin list
  * pagination itself lives behind the shared app-layer paginator
- * abstraction (the filters-only query is supplied here).
+ * abstraction (the filters-only query is supplied here; its framework
+ * query builder is typed as `mixed` at this boundary).
  */
 interface ProjectListQueryRepositoryInterface
 {
@@ -32,7 +32,7 @@ interface ProjectListQueryRepositoryInterface
      * the published status and the trashed view. The cursor pagination
      * (order, seek, count) is applied by the shared paginator.
      *
-     * @return \Illuminate\Database\Query\Builder
+     * @return mixed  The filtered base query (framework builder).
      */
     public function adminListQuery(
         string $search,
@@ -40,7 +40,7 @@ interface ProjectListQueryRepositoryInterface
         array $tags,
         ?bool $published,
         bool $trashed,
-    ): QueryBuilder;
+    ): mixed;
 
     /**
      * The single admin list row of a project — the quick actions'
