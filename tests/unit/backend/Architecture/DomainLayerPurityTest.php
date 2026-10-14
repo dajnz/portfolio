@@ -6,6 +6,7 @@ namespace Tests\Unit\Backend\Architecture;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Tests\Support\Architecture\PhpTokenStream;
 
 const LARAVEL_HELPER_PATHS = [
     'vendor/laravel/framework/src/Illuminate/Collections/helpers.php',
@@ -16,8 +17,6 @@ const LARAVEL_HELPER_PATHS = [
 
 const FRAMEWORK_NAMESPACE_PATTERN = '/(^|\\\\)(Illuminate|Carbon)(\\\\|$)/';
 
-const SKIPPED_TOKENS = [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT];
-
 const FUNCTION_NAME_BOUNDARY_TOKENS = [
     T_WHITESPACE,
     T_COMMENT,
@@ -27,17 +26,6 @@ const FUNCTION_NAME_BOUNDARY_TOKENS = [
 ];
 
 const QUALIFIED_NAME_TOKENS = [T_STRING, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED];
-
-const CALL_PRECEDER_TOKENS = [
-    T_OBJECT_OPERATOR,
-    T_NULLSAFE_OBJECT_OPERATOR,
-    T_DOUBLE_COLON,
-    T_FUNCTION,
-    T_NEW,
-    T_NS_SEPARATOR,
-    T_NAME_QUALIFIED,
-    T_NAME_FULLY_QUALIFIED,
-];
 
 /**
  * Every global function declared by the framework's helper files, derived from
@@ -96,34 +84,6 @@ function isSkippedForFunctionName(mixed $token): bool
     return is_array($token) && in_array($token[0], FUNCTION_NAME_BOUNDARY_TOKENS, true);
 }
 
-function significantTokenAfter(array $tokens, int $from): int
-{
-    $count = count($tokens);
-
-    for ($i = $from; $i < $count; $i++) {
-        if (is_array($tokens[$i]) && in_array($tokens[$i][0], SKIPPED_TOKENS, true)) {
-            continue;
-        }
-
-        return $i;
-    }
-
-    return -1;
-}
-
-function significantTokenBefore(array $tokens, int $from): int
-{
-    for ($i = $from; $i >= 0; $i--) {
-        if (is_array($tokens[$i]) && in_array($tokens[$i][0], SKIPPED_TOKENS, true)) {
-            continue;
-        }
-
-        return $i;
-    }
-
-    return -1;
-}
-
 /**
  * Framework dependencies in one domain-layer source: framework namespace
  * references, Laravel helper calls and non-domain `App\` imports. Comments and
@@ -179,7 +139,7 @@ function frameworkReferenceViolation(array $token): ?string
 
 function nonDomainImportViolation(array $tokens, int $index): ?string
 {
-    $target = significantTokenAfter($tokens, $index + 1);
+    $target = PhpTokenStream::significantAfter($tokens, $index + 1);
 
     if ($target === -1 || !is_array($tokens[$target])) {
         return null;
@@ -208,22 +168,17 @@ function laravelHelperCallViolation(array $tokens, int $index, array $laravelHel
         return null;
     }
 
-    $open = significantTokenAfter($tokens, $index + 1);
+    $open = PhpTokenStream::significantAfter($tokens, $index + 1);
     if ($open === -1 || $tokens[$open] !== '(') {
         return null;
     }
 
-    $before = significantTokenBefore($tokens, $index - 1);
-    if ($before !== -1 && precedesFunctionCall($tokens[$before])) {
+    $before = PhpTokenStream::significantBefore($tokens, $index - 1);
+    if ($before !== -1 && PhpTokenStream::precedesFunctionCall($tokens[$before])) {
         return null;
     }
 
     return "line {$token[2]}: Laravel helper `{$token[1]}()`";
-}
-
-function precedesFunctionCall(mixed $token): bool
-{
-    return is_array($token) && in_array($token[0], CALL_PRECEDER_TOKENS, true);
 }
 
 /**
