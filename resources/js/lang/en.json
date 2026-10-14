@@ -280,6 +280,7 @@
             "title": "Feedback",
             "unread": "Unread"
         },
+        "footer_version": "Version: :version",
         "icon_picker": {
             "no_icons_match": "No icons match",
             "search_placeholder": "Search icons...",

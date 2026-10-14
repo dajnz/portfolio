@@ -15,6 +15,12 @@ function setOwnerName(name: string): void {
     } as unknown as ReturnType<typeof usePage>);
 }
 
+function setVersion(version: string): void {
+    vi.mocked(usePage).mockReturnValue({
+        props: { copyright: { owner_name: 'John Doe' }, version },
+    } as unknown as ReturnType<typeof usePage>);
+}
+
 function pinTo(year: number): void {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(year, 5, 15));
@@ -62,5 +68,26 @@ describe('AdminPageFooter', () => {
         });
 
         expect(wrapper.find('[data-testid="footer-link"]').exists()).toBe(true);
+    });
+
+    it('centers the version above the copyright on mobile and pins it left on desktop', () => {
+        pinTo(2026);
+        setVersion('v1.4.0');
+
+        const wrapper = mount(AdminPageFooter);
+        const version = wrapper.find('[data-testid="admin-footer-version"]');
+
+        expect(version.exists()).toBe(true);
+        expect(version.text()).toBe('Version: v1.4.0');
+        expect(version.classes()).toContain('text-center');
+        expect(version.classes()).toContain('lg:text-left');
+        expect(version.classes()).toContain('lg:absolute');
+        expect(version.element.parentElement?.className).toContain('flex-col');
+    });
+
+    it('omits the version label when none is shared', () => {
+        const wrapper = mount(AdminPageFooter);
+
+        expect(wrapper.find('[data-testid="admin-footer-version"]').exists()).toBe(false);
     });
 });
