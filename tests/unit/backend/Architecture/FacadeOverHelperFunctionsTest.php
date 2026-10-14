@@ -6,6 +6,7 @@ namespace Tests\Unit\Backend\Architecture;
 
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Tests\Support\Architecture\PhpTokenStream;
 
 const FACADE_BACKED_HELPERS = [
     'app',
@@ -27,11 +28,12 @@ const FACADE_BACKED_HELPERS = [
     'validator',
 ];
 
+const SCANNED_DIRECTORIES = ['app', 'routes', 'database'];
+
 /**
- * Returns the source lines where a facade-backed Laravel global helper is
- * called. Tokens preceded by `->`, `::`, `function`, `new` or a namespace
- * separator are method/static/definition calls, not helper calls; comments and
- * string literals never produce tokens matching T_STRING.
+ * Source lines where a facade-backed Laravel global helper is called. Method,
+ * static and definition calls are ignored, and comments/strings never produce
+ * a token matching T_STRING.
  *
  * @return list<int>
  */
@@ -39,58 +41,74 @@ function findFacadeHelperCalls(string $source): array
 {
     $tokens = token_get_all($source);
     $count = count($tokens);
-    $skippable = [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT];
-    $skipBefore = [T_OBJECT_OPERATOR, T_NULLSAFE_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION, T_NEW, T_NS_SEPARATOR, T_NAME_QUALIFIED, T_NAME_FULLY_QUALIFIED];
-
     $lines = [];
+
     for ($i = 0; $i < $count; $i++) {
-        $token = $tokens[$i];
-        if (!is_array($token) || $token[0] !== T_STRING || !in_array($token[1], FACADE_BACKED_HELPERS, true)) {
-            continue;
-        }
+        $line = facadeHelperCallLine($tokens, $i);
 
-        $next = $i + 1;
-        while ($next < $count && is_array($tokens[$next]) && in_array($tokens[$next][0], $skippable, true)) {
-            $next++;
+        if ($line !== null) {
+            $lines[] = $line;
         }
-        if (($tokens[$next] ?? null) !== '(') {
-            continue;
-        }
-
-        $previous = $i - 1;
-        while ($previous >= 0 && is_array($tokens[$previous]) && in_array($tokens[$previous][0], $skippable, true)) {
-            $previous--;
-        }
-        $before = $tokens[$previous] ?? null;
-        if (is_array($before) && in_array($before[0], $skipBefore, true)) {
-            continue;
-        }
-
-        $lines[] = $token[2];
     }
 
     return $lines;
 }
 
-it('uses imported Laravel facades instead of global helper functions', function (): void {
-    $root = dirname(__DIR__, 4);
+function facadeHelperCallLine(array $tokens, int $index): ?int
+{
+    $token = $tokens[$index];
+
+    if (!is_array($token) || $token[0] !== T_STRING) {
+        return null;
+    }
+
+    if (!in_array($token[1], FACADE_BACKED_HELPERS, true)) {
+        return null;
+    }
+
+    $open = PhpTokenStream::significantAfter($tokens, $index + 1);
+    if ($open === -1 || $tokens[$open] !== '(') {
+        return null;
+    }
+
+    $before = PhpTokenStream::significantBefore($tokens, $index - 1);
+    if ($before !== -1 && PhpTokenStream::precedesFunctionCall($tokens[$before])) {
+        return null;
+    }
+
+    return $token[2];
+}
+
+/**
+ * @return list<string>
+ */
+function facadeHelperViolations(string $root): array
+{
     $violations = [];
 
-    foreach (['app', 'routes', 'database'] as $directory) {
-        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("{$root}/{$directory}"));
+    foreach (SCANNED_DIRECTORIES as $directory) {
+        $directoryPath = "{$root}/{$directory}";
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directoryPath));
 
         foreach ($files as $file) {
             if (!$file->isFile() || $file->getExtension() !== 'php') {
                 continue;
             }
 
-            $relative = substr($file->getPathname(), strlen($root) + 1);
+            $relativePath = substr($file->getPathname(), strlen($root) + 1);
+            $source = (string) file_get_contents($file->getPathname());
 
-            foreach (findFacadeHelperCalls((string) file_get_contents($file->getPathname())) as $line) {
-                $violations[] = "{$relative}:{$line}";
+            foreach (findFacadeHelperCalls($source) as $line) {
+                $violations[] = "{$relativePath}:{$line}";
             }
         }
     }
+
+    return $violations;
+}
+
+it('uses imported Laravel facades instead of global helper functions', function (): void {
+    $violations = facadeHelperViolations(dirname(__DIR__, 4));
 
     expect($violations)->toBe([]);
 });
