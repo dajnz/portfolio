@@ -61,10 +61,15 @@ final class LayerPurityScanner
 
     /**
      * @param  callable(string): ?string  $forbiddenImport  Maps an imported FQN to a violation message, or null when allowed.
+     * @param  bool  $checkFrameworkSurface  When false, only imports are checked — the framework
+     *                                       types and helpers a transport layer is expected to use are allowed.
      * @return list<string>
      */
-    public function scan(string $layerDirectoryPattern, callable $forbiddenImport): array
-    {
+    public function scan(
+        string $layerDirectoryPattern,
+        callable $forbiddenImport,
+        bool $checkFrameworkSurface = true,
+    ): array {
         $violations = [];
 
         foreach (glob($this->root.'/'.$layerDirectoryPattern) as $directory) {
@@ -78,7 +83,7 @@ final class LayerPurityScanner
                 $relativePath = substr($file->getPathname(), strlen($this->root) + 1);
                 $source = (string) file_get_contents($file->getPathname());
 
-                foreach ($this->sourceViolations($source, $forbiddenImport) as $violation) {
+                foreach ($this->sourceViolations($source, $forbiddenImport, $checkFrameworkSurface) as $violation) {
                     $violations[] = "{$relativePath} {$violation}";
                 }
             }
@@ -93,7 +98,7 @@ final class LayerPurityScanner
      * @param  callable(string): ?string  $forbiddenImport
      * @return list<string>
      */
-    private function sourceViolations(string $source, callable $forbiddenImport): array
+    private function sourceViolations(string $source, callable $forbiddenImport, bool $checkFrameworkSurface): array
     {
         $tokens = token_get_all($source);
         $count = count($tokens);
@@ -104,13 +109,13 @@ final class LayerPurityScanner
                 continue;
             }
 
-            $violation = $this->referenceViolation($tokens[$i]);
+            $violation = $checkFrameworkSurface ? $this->referenceViolation($tokens[$i]) : null;
 
             if ($violation === null && $tokens[$i][0] === T_USE) {
                 $violation = $this->importViolation($tokens, $i, $forbiddenImport);
             }
 
-            if ($violation === null && $tokens[$i][0] === T_STRING) {
+            if ($checkFrameworkSurface && $violation === null && $tokens[$i][0] === T_STRING) {
                 $violation = $this->helperCallViolation($tokens, $i);
             }
 
