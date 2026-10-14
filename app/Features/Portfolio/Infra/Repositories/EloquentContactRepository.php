@@ -11,6 +11,7 @@ use App\Features\Portfolio\Infra\Models\ContactModel;
 use App\Features\Portfolio\Infra\Models\ContactTranslationModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -86,7 +87,7 @@ final class EloquentContactRepository implements ContactRepositoryInterface, Con
                 ->whereIn('id', $ids)
                 ->update([
                     'sort_order' => DB::raw('CASE id '.implode(' ', $cases).' END'),
-                    'updated_at' => now(),
+                    'updated_at' => Date::now(),
                 ]);
         });
     }

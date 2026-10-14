@@ -10,6 +10,7 @@ use App\Features\Portfolio\Infra\Mail\NotifyAdminOfFeedbackMail;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use DateTimeImmutable;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -33,7 +34,7 @@ final class SubmitFeedbackUseCase
         string $ip,
         string $userAgent,
     ): void {
-        $hashKey = config('analytics.ip_hash_key', config('app.key'));
+        $hashKey = Config::get('analytics.ip_hash_key', Config::get('app.key'));
 
         $feedback = new Feedback(
             id: 0,
@@ -50,7 +51,7 @@ final class SubmitFeedbackUseCase
         $this->repository->store($feedback);
 
         if ($this->settings->value(SettingName::EmailOnFeedback, true)) {
-            Mail::to((string) config('mail.from.address'))->send(
+            Mail::to((string) Config::get('mail.from.address'))->send(
                 new NotifyAdminOfFeedbackMail($senderName, $senderEmail, $message),
             );
         }

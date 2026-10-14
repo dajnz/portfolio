@@ -17,6 +17,8 @@ use App\Features\Shared\Infra\Persistence\CursorPage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Response as ResponseFacade;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -45,7 +47,7 @@ final class FeedbackController
     public function store(SubmitFeedbackRequest $request): HttpResponse
     {
         if ($request->honeypotFilled()) {
-            return response('', 200);
+            return ResponseFacade::make('', 200);
         }
 
         $this->submitCase->submit(
@@ -56,7 +58,7 @@ final class FeedbackController
             userAgent: (string) $request->userAgent(),
         );
 
-        return response(null, 201);
+        return ResponseFacade::make(null, 201);
     }
 
     public function index(ResponseFactory $inertia, Request $request): Response
@@ -86,14 +88,14 @@ final class FeedbackController
     {
         $this->markReadCase->markRead($feedback);
 
-        return response()->json(['data' => ['id' => $feedback, 'is_read' => true]]);
+        return ResponseFacade::json(['data' => ['id' => $feedback, 'is_read' => true]]);
     }
 
     public function markForwarded(Request $request, int $feedback): JsonResponse
     {
         $this->markForwardedCase->markForwarded($feedback);
 
-        return response()->json(['data' => ['id' => $feedback, 'is_forwarded' => true]]);
+        return ResponseFacade::json(['data' => ['id' => $feedback, 'is_forwarded' => true]]);
     }
 
     public function destroy(Request $request, int $feedback): RedirectResponse
@@ -101,7 +103,7 @@ final class FeedbackController
         $this->destroyCase->destroy($feedback);
 
         // The detail URL 404s after deletion — redirect to the list.
-        return redirect('/admin/feedback')
+        return Redirect::to('/admin/feedback')
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.feedback_deleted')]);
     }
 

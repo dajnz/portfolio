@@ -7,6 +7,7 @@ use App\Features\Portfolio\Infra\Controllers\ContactController;
 use App\Features\Portfolio\Infra\Controllers\DashboardController;
 use App\Features\Portfolio\Infra\Controllers\FeedbackController;
 use App\Features\Portfolio\Infra\Controllers\LandingController;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LandingController::class, 'index']);
 Route::get('/{locale}', [LandingController::class, 'index'])
-    ->whereIn('locale', config('portfolio.supported_locales', ['en', 'ru']));
+    ->whereIn('locale', Config::get('portfolio.supported_locales', ['en', 'ru']));
 
 Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function (): void {
     Route::get('/admin', [DashboardController::class, 'index']);

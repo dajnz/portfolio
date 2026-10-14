@@ -15,6 +15,8 @@ use App\Features\Portfolio\Infra\Requests\StoreContactRequest;
 use App\Features\Shared\Infra\Persistence\CursorPage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
@@ -55,7 +57,7 @@ final class ContactController
             names: $request->input('name', []),
         );
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -71,7 +73,7 @@ final class ContactController
             names: $request->input('name', []),
         );
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -79,7 +81,7 @@ final class ContactController
     {
         $this->destroyCase->destroy($contact);
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.deleted')]);
     }
 
@@ -87,7 +89,7 @@ final class ContactController
     {
         $this->reorderCase->reorder(array_map('intval', $request->input('ids', [])));
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 
@@ -96,7 +98,7 @@ final class ContactController
      */
     private function items(CursorPage $page): array
     {
-        $locale = app()->getLocale();
+        $locale = App::getLocale();
 
         return array_map(
             fn (ContactModel $model): array => [

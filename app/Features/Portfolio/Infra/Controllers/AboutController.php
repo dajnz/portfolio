@@ -15,6 +15,7 @@ use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 use App\Features\Shared\Infra\Services\PerLocaleValues;
 use DateTimeZone;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Response;
 use Inertia\ResponseFactory;
 
@@ -59,7 +60,7 @@ final class AboutController
             translations: $this->translations($request),
         );
 
-        return redirect()->back()
+        return Redirect::back()
             ->with('notification', ['type' => 'success', 'message' => __('admin.toasts.saved')]);
     }
 

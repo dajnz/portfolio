@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Portfolio\Infra\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Session;
 
 /**
  * `POST /api/feedback`: sender identity plus message. The honeypot field
@@ -50,14 +52,14 @@ final class SubmitFeedbackRequest extends FormRequest
      */
     public static function honeypotFieldName(): ?string
     {
-        $sessionId = session()->getId();
+        $sessionId = Session::getId();
 
         if (! is_string($sessionId) || $sessionId === '') {
             return null;
         }
 
         return substr(
-            hash_hmac('sha256', 'honeypot_'.$sessionId, (string) config('app.key')),
+            hash_hmac('sha256', 'honeypot_'.$sessionId, (string) Config::get('app.key')),
             0,
             32,
         );
