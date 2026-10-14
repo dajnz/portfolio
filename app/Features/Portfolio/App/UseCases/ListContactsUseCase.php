@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Features\Portfolio\App\UseCases;
 
 use App\Features\Portfolio\App\Contracts\ContactListQueryRepositoryInterface;
+use App\Features\Portfolio\App\DTOs\AdminContactListDto;
 use App\Features\Portfolio\App\DTOs\AdminContactListQueryDto;
+use App\Features\Portfolio\App\DTOs\ContactListItemDto;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\App\DTOs\PaginationQuery;
-use App\Features\Shared\App\DTOs\PaginationResultDto;
 
 /**
  * The admin contacts list: cursor-paginated via the shared app-layer
@@ -29,9 +30,9 @@ final class ListContactsUseCase
     ) {
     }
 
-    public function list(AdminContactListQueryDto $query): PaginationResultDto
+    public function list(AdminContactListQueryDto $query, string $locale): AdminContactListDto
     {
-        return $this->paginator->paginate(
+        $result = $this->paginator->paginate(
             queryFactory: fn (): mixed => $this->repository->listQuery(),
             query: new PaginationQuery(
                 page: $query->page,
@@ -45,6 +46,14 @@ final class ListContactsUseCase
             ),
             countCacheKey: 'contacts',
             requestUrl: $query->url,
+        );
+
+        return new AdminContactListDto(
+            rows: array_map(
+                static fn (object $row): ContactListItemDto => ContactListItemDto::fromRow($row, $locale),
+                $result->rows,
+            ),
+            pagination: $result->pagination,
         );
     }
 }

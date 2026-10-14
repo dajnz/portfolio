@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Features\Portfolio\Infra\Controllers;
 
 use App\Features\Portfolio\App\DTOs\AdminContactListQueryDto;
+use App\Features\Portfolio\App\DTOs\ContactListItemDto;
 use App\Features\Portfolio\App\UseCases\DestroyContactUseCase;
 use App\Features\Portfolio\App\UseCases\ListContactsUseCase;
 use App\Features\Portfolio\App\UseCases\ReorderContactsUseCase;
 use App\Features\Portfolio\App\UseCases\StoreContactUseCase;
 use App\Features\Portfolio\App\UseCases\UpdateContactUseCase;
-use App\Features\Portfolio\Infra\Models\ContactModel;
 use App\Features\Portfolio\Infra\Requests\ReorderContactsRequest;
 use App\Features\Portfolio\Infra\Requests\StoreContactRequest;
 use App\Features\Shared\App\DTOs\CursorDto;
@@ -40,7 +40,7 @@ final class ContactController
 
     public function index(ResponseFactory $inertia, Request $request): Response
     {
-        $result = $this->listCase->list($this->buildListQuery($request));
+        $result = $this->listCase->list($this->buildListQuery($request), App::getLocale());
 
         return $inertia->render('Portfolio/Admin/Pages/ContactsListPage', [
             'contacts' => $this->items($result->rows),
@@ -126,37 +126,24 @@ final class ContactController
     }
 
     /**
-     * @param  array<int, mixed>  $models  Raw rows from the paginator result.
+     * @param  ContactListItemDto[]  $rows
      * @return array<int, array<string, mixed>>
      */
-    private function items(array $models): array
+    private function items(array $rows): array
     {
-        $locale = App::getLocale();
-
         return array_map(
-            fn (ContactModel $model): array => [
-            'id' => $model->id,
-            'name' => $this->nameFor($model, $locale),
-            // Per-locale names map — the inline include-in-resume toggle
-            // PUTs the full map back (every active locale's name is required).
-            'names' => $model->translations->pluck('name', 'locale')->all(),
-            'value' => $model->value,
-            'icon' => $model->icon,
-            'url' => $model->url,
-            'include_in_resume' => $model->include_in_resume,
-            'sort_order' => $model->sort_order,
+            static fn (ContactListItemDto $row): array => [
+                'id' => $row->id,
+                'name' => $row->name,
+                'names' => $row->names,
+                'value' => $row->value,
+                'icon' => $row->icon,
+                'url' => $row->url,
+                'include_in_resume' => $row->includeInResume,
+                'sort_order' => $row->sortOrder,
             ],
-            $models,
+            $rows,
         );
-    }
-
-    private function nameFor(ContactModel $model, string $locale): string
-    {
-        $rows = $model->translations->keyBy('locale');
-
-        $name = $rows->get($locale)?->name ?? $rows->get('en')?->name;
-
-        return $name ?? '';
     }
 
     /**
