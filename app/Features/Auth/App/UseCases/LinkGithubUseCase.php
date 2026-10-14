@@ -11,8 +11,8 @@ use App\Features\Auth\Domain\Exceptions\GithubAlreadyLinkedException;
 use App\Features\Auth\Domain\Exceptions\GithubConflictException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Shared\App\BaseUseCase;
+use App\Features\Shared\App\Contracts\SessionStoreInterface;
 use DateTimeImmutable;
-use Illuminate\Support\Facades\Session;
 
 /**
  * GitHub link/unlink. The link intent flow — conflict matrix, TOTP-gated
@@ -28,6 +28,7 @@ final class LinkGithubUseCase extends BaseUseCase
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
         private readonly SessionVersionSynchronizer $sessionVersion,
+        private readonly SessionStoreInterface $sessions,
     ) {
     }
 
@@ -82,7 +83,7 @@ final class LinkGithubUseCase extends BaseUseCase
     /** Stores the pending GitHub data with a 5-minute expiry. */
     private function preparePendingLink(Admin $admin, string $githubId, string $githubToken): void
     {
-        Session::put([
+        $this->sessions->put([
             'github_link.pending_admin_id' => $admin->toId(),
             'github_link.pending_github_id' => $githubId,
             'github_link.pending_token' => $githubToken,

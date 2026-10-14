@@ -47,7 +47,7 @@ final class TotpController
     public function verify(VerifyTotpRequest $request): RedirectResponse
     {
         try {
-            $this->verifyLoginTotpCase->verify($request->input('code', ''));
+            $this->verifyLoginTotpCase->verify($request->input('code', ''), $request->ip());
         } catch (TotpPendingInvalidException) {
             return Redirect::route('login');
         } catch (InvalidTotpCodeException) {
@@ -62,7 +62,7 @@ final class TotpController
     public function verifyGithubLink(VerifyTotpRequest $request): RedirectResponse
     {
         try {
-            $this->verifyGithubLinkTotpCase->verify($request->input('code', ''));
+            $this->verifyGithubLinkTotpCase->verify($request->input('code', ''), $request->ip());
         } catch (GithubLinkPendingInvalidException) {
             return Redirect::route('profile');
         } catch (InvalidTotpCodeException) {

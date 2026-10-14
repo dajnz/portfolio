@@ -9,8 +9,8 @@ use App\Features\Auth\Domain\Exceptions\InvalidCurrentPasswordException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterface;
 use App\Features\Auth\App\Services\SessionVersionSynchronizer;
 use App\Features\Shared\App\BaseUseCase;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Session;
+use App\Features\Shared\App\Contracts\PasswordHasherInterface;
+use App\Features\Shared\App\Contracts\SessionStoreInterface;
 
 /**
  * Disables TOTP: requires the current password, removes the secret +
@@ -24,6 +24,8 @@ final class DisableTotpUseCase extends BaseUseCase
     public function __construct(
         private readonly AdminTimedOtpRepositoryInterface $otpRepository,
         private readonly SessionVersionSynchronizer $sessionVersion,
+        private readonly PasswordHasherInterface $hasher,
+        private readonly SessionStoreInterface $sessions,
     ) {
     }
 
@@ -32,13 +34,13 @@ final class DisableTotpUseCase extends BaseUseCase
      */
     public function disable(Admin $admin, string $currentPassword): void
     {
-        if (! Hash::check($currentPassword, $admin->toPasswordHash())) {
+        if (! $this->hasher->verify($currentPassword, $admin->toPasswordHash())) {
             throw new InvalidCurrentPasswordException();
         }
 
         $this->otpRepository->saveForAdmin($admin->toId(), $admin->toTimedOtp()->disable());
 
-        Session::forget(['totp.pending_admin_id', 'totp.pending_until']);
+        $this->sessions->forget(['totp.pending_admin_id', 'totp.pending_until']);
         $this->sessionVersion->bumpAndReauthenticate($admin->toId());
     }
 }

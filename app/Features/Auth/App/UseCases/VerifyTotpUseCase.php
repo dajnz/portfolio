@@ -13,7 +13,6 @@ use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Shared\App\BaseUseCase;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use DateTimeImmutable;
-use Illuminate\Support\Facades\Request;
 
 /**
  * TOTP + recovery-code verification with the per-account escalating
@@ -39,7 +38,7 @@ final class VerifyTotpUseCase extends BaseUseCase
      * @throws TotpLockedException       when a lockout is active
      * @throws InvalidTotpCodeException  when the code is wrong
      */
-    public function verify(Admin $admin, string $code): void
+    public function verify(Admin $admin, string $code, string $ip): void
     {
         $now = new DateTimeImmutable();
         $otp = $admin->toTimedOtp();
@@ -62,7 +61,7 @@ final class VerifyTotpUseCase extends BaseUseCase
         }
 
         if (! $verified) {
-            $this->registerFailure($admin->toId(), $admin->toTimedOtp(), $now);
+            $this->registerFailure($admin->toId(), $admin->toTimedOtp(), $now, $ip);
 
             throw new InvalidTotpCodeException();
         }
@@ -70,7 +69,7 @@ final class VerifyTotpUseCase extends BaseUseCase
         $this->otpRepository->saveForAdmin($admin->toId(), $otp->withFailuresReset());
     }
 
-    private function registerFailure(int $adminId, AdminTimedOtp $otp, DateTimeImmutable $now): void
+    private function registerFailure(int $adminId, AdminTimedOtp $otp, DateTimeImmutable $now, string $ip): void
     {
         $attempts = $this->otpRepository->incrementFailedAttempts($adminId);
         $lockedUntil = AdminTimedOtp::lockExpiryFor($attempts, $now);
@@ -81,7 +80,7 @@ final class VerifyTotpUseCase extends BaseUseCase
         );
 
         $context = [
-            'ip' => Request::ip(),
+            'ip' => $ip,
             'admin_id' => $adminId,
             'attempt_count' => $attempts,
         ];

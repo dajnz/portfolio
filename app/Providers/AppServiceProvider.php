@@ -82,13 +82,16 @@ use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\Contracts\AnalyticsConfigInterface;
 use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
+use App\Features\Shared\App\Contracts\AuthGuardInterface;
 use App\Features\Shared\App\Contracts\CacheClearerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use App\Features\Shared\App\Contracts\MaintenanceModeInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
+use App\Features\Shared\App\Contracts\PasswordHasherInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
+use App\Features\Shared\App\Contracts\SessionStoreInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use App\Features\Shared\App\Contracts\TransactionManagerInterface;
 use App\Features\Shared\App\Contracts\UrlGeneratorInterface;
@@ -112,10 +115,13 @@ use App\Features\Shared\Infra\Services\AppVersion;
 use App\Features\Shared\Infra\Services\GitVersionReader;
 use App\Features\Shared\Infra\Services\LaravelAnalyticsConfig;
 use App\Features\Shared\Infra\Services\LaravelApplicationUrl;
+use App\Features\Shared\Infra\Services\LaravelAuthGuard;
 use App\Features\Shared\Infra\Services\LaravelCacheClearer;
 use App\Features\Shared\Infra\Services\LaravelMaintenanceMode;
 use App\Features\Shared\Infra\Services\LaravelPaginationDefaults;
+use App\Features\Shared\Infra\Services\LaravelPasswordHasher;
 use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
+use App\Features\Shared\Infra\Services\LaravelSessionStore;
 use App\Features\Shared\Infra\Services\LaravelTransactionManager;
 use App\Features\Shared\Infra\Services\LaravelUrlGenerator;
 use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
@@ -324,7 +330,8 @@ class AppServiceProvider extends ServiceProvider
         // reading configuration, the locale or the connection directly: the
         // pagination defaults, the site's base URL, the analytics pipeline
         // configuration, the transactional connection, the active locale
-        // context and absolute path URLs.
+        // context, absolute path URLs, the session store, the auth guard and
+        // the password hasher.
         $this->app->bind(
             PaginationDefaultsInterface::class,
             LaravelPaginationDefaults::class,
@@ -353,6 +360,21 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             UrlGeneratorInterface::class,
             LaravelUrlGenerator::class,
+        );
+
+        $this->app->bind(
+            SessionStoreInterface::class,
+            LaravelSessionStore::class,
+        );
+
+        $this->app->bind(
+            AuthGuardInterface::class,
+            LaravelAuthGuard::class,
+        );
+
+        $this->app->bind(
+            PasswordHasherInterface::class,
+            LaravelPasswordHasher::class,
         );
 
         // The content pipeline is a singleton: the underlying

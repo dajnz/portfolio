@@ -14,7 +14,7 @@ use App\Features\Auth\Domain\ValueObjects\RecoveryCode;
 use App\Features\Auth\Domain\ValueObjects\TotpSecret;
 use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Shared\App\BaseUseCase;
-use Illuminate\Support\Facades\Session;
+use App\Features\Shared\App\Contracts\SessionStoreInterface;
 
 /**
  * TOTP enrollment via the dual-purpose `POST /admin/profile/totp-enable`
@@ -32,6 +32,7 @@ final class EnableTotpUseCase extends BaseUseCase
         private readonly AdminTimedOtpRepositoryInterface $otpRepository,
         private readonly TotpService $totpService,
         private readonly SessionVersionSynchronizer $sessionVersion,
+        private readonly SessionStoreInterface $sessions,
     ) {
     }
 
@@ -39,7 +40,7 @@ final class EnableTotpUseCase extends BaseUseCase
     public function start(Admin $admin): array
     {
         $secret = $this->totpService->generateSecret();
-        Session::put(['totp_enroll.pending_secret' => $secret]);
+        $this->sessions->put(['totp_enroll.pending_secret' => $secret]);
 
         return [
             'qr_code_svg' => $this->totpService->qrCodeSvg($secret, $admin->toEmail()),
@@ -55,7 +56,7 @@ final class EnableTotpUseCase extends BaseUseCase
      */
     public function verifyAndEnable(Admin $admin, string $code): array
     {
-        $secret = Session::get('totp_enroll.pending_secret');
+        $secret = $this->sessions->get('totp_enroll.pending_secret');
 
         if (! is_string($secret) || $secret === '') {
             throw new TotpEnrollmentExpiredException();
@@ -72,7 +73,7 @@ final class EnableTotpUseCase extends BaseUseCase
             $admin->toTimedOtp()->enableWith(new TotpSecret($secret), $recoveryCodes),
         );
 
-        Session::forget(['totp_enroll.pending_secret', 'totp.pending_admin_id', 'totp.pending_until']);
+        $this->sessions->forget(['totp_enroll.pending_secret', 'totp.pending_admin_id', 'totp.pending_until']);
         $this->sessionVersion->bumpAndReauthenticate($admin->toId());
 
         return array_map(fn (RecoveryCode $code): string => $code->toDisplayCode(), $recoveryCodes);

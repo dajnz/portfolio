@@ -51,6 +51,7 @@ final class LoginController
         $admin = $this->loginCase->attempt(
             $request->input('login', ''),
             $request->input('password', ''),
+            $request->ip(),
         );
 
         if ($admin === null) {
@@ -63,7 +64,7 @@ final class LoginController
             return Redirect::route('login.totp');
         }
 
-        $this->loginCase->completeLogin($admin, (bool) $request->boolean('remember'));
+        $this->loginCase->completeLogin($admin, $request->ip(), (bool) $request->boolean('remember'));
 
         return Redirect::intended('/admin');
     }
