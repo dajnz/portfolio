@@ -14,6 +14,7 @@ components:
         - featureFlags
         - settings
         - copyright
+        - version
       properties:
         locale:
           type: string
@@ -125,6 +126,13 @@ components:
           properties:
             owner_name:
               type: string
+        version:
+          type: string
+          description: |
+            Application version shown in the admin footer — the deployed git
+            tag when the release ref is tagged, otherwise the short commit SHA.
+            Baked into the image at build time in production, read from the
+            repository's git state in development; `dev` when neither applies.
         settings:
           type: object
           properties:
