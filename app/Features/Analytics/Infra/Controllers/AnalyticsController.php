@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace App\Features\Analytics\Infra\Controllers;
 
 use App\Features\Analytics\App\Exceptions\InvalidAnalyticsEventException;
+use App\Features\Analytics\App\UseCases\GenerateAnalyticsReportsUseCase;
 use App\Features\Analytics\App\UseCases\GetAnalyticsDashboardUseCase;
 use App\Features\Analytics\App\UseCases\GetMetricRankingsUseCase;
 use App\Features\Analytics\App\UseCases\GetMetricSeriesUseCase;
 use App\Features\Analytics\App\UseCases\TrackEventUseCase;
 use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
-use App\Features\Analytics\Infra\Jobs\RebuildReportsJob;
 use App\Features\Analytics\Infra\Requests\RankingsRequest;
 use App\Features\Analytics\Infra\Requests\SeriesRequest;
 use App\Features\Analytics\Infra\Requests\TrackEventsRequest;
-use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Response as ResponseFacade;
 use Illuminate\Validation\ValidationException;
 use Inertia\Response;
@@ -39,6 +38,7 @@ final class AnalyticsController
         private readonly GetAnalyticsDashboardUseCase $dashboard,
         private readonly GetMetricSeriesUseCase $seriesCase,
         private readonly GetMetricRankingsUseCase $rankingsCase,
+        private readonly GenerateAnalyticsReportsUseCase $generateReports,
     ) {
     }
 
@@ -114,7 +114,7 @@ final class AnalyticsController
 
     public function generate(): JsonResponse
     {
-        Bus::dispatch(new RebuildReportsJob(recomputeMetrics: true));
+        $this->generateReports->generate();
 
         return ResponseFacade::json(['dispatched' => true], HttpResponse::HTTP_ACCEPTED);
     }

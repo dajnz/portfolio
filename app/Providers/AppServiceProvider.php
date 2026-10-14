@@ -15,6 +15,7 @@ use App\Features\Auth\Infra\Services\AdminAuthService;
 use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Analytics\App\Contracts\AnalyticsDigestMailerInterface;
 use App\Features\Analytics\App\Contracts\AnalyticsReportDataReaderInterface;
+use App\Features\Analytics\App\Contracts\ReportsRebuildSchedulerInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsDailyMetricRepositoryInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsEventRepositoryInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
@@ -23,6 +24,7 @@ use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsDailyMetricReposi
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsEventRepository;
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsReportRepository;
 use App\Features\Analytics\Infra\Services\EloquentAnalyticsReportDataReader;
+use App\Features\Analytics\Infra\Services\LaravelReportsRebuildScheduler;
 use App\Features\Backup\App\Contracts\AssetPathCollectorInterface;
 use App\Features\Backup\App\Contracts\BackupArchiveInterface;
 use App\Features\Backup\App\Contracts\BackupJobDispatcherInterface;
@@ -455,6 +457,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AnalyticsDigestMailerInterface::class,
             LaravelAnalyticsDigestMailer::class,
+        );
+
+        $this->app->bind(
+            ReportsRebuildSchedulerInterface::class,
+            LaravelReportsRebuildScheduler::class,
         );
 
         $this->app->bind(
