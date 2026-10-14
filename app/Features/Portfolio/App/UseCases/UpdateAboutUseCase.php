@@ -9,9 +9,9 @@ use App\Features\Portfolio\Domain\RepositoryInterfaces\AboutInfoRepositoryInterf
 use App\Features\Portfolio\Domain\ValueObjects\AboutInfoTranslation;
 use App\Features\Portfolio\Domain\ValueObjects\AvailabilityStatus;
 use App\Features\Portfolio\Domain\ValueObjects\WorkType;
+use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\App\Contracts\TransactionManagerInterface;
 use App\Features\Shared\Domain\ValueObjects\StoredPicture;
-use App\Features\Shared\Infra\Services\ActiveLocaleService;
 
 /**
  * Updates the single-row about aggregate (id = 1): the non-translatable
@@ -23,7 +23,7 @@ final class UpdateAboutUseCase
 {
     public function __construct(
         private readonly AboutInfoRepositoryInterface $repository,
-        private readonly ActiveLocaleService $locales,
+        private readonly ActiveLocaleInterface $locales,
         private readonly TransactionManagerInterface $transactionManager,
     ) {
     }

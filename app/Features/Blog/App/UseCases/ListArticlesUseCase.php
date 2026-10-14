@@ -12,11 +12,11 @@ use App\Features\Blog\App\DTOs\TagOptionDto;
 use App\Features\Blog\Infra\Repositories\ArticleListQueryRepositoryInterface;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\App\DTOs\PaginationQuery;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
-use Illuminate\Support\Facades\App;
 
 /**
  * The admin articles list: cursor-paginated via the shared app-layer
@@ -37,6 +37,7 @@ final class ListArticlesUseCase
         private readonly SettingRepositoryInterface $settings,
         private readonly AdminListPaginatorInterface $paginator,
         private readonly PaginationDefaultsInterface $paginationDefaults,
+        private readonly ActiveLocaleInterface $locales,
     ) {
     }
 
@@ -139,7 +140,7 @@ final class ListArticlesUseCase
                 slug: $tag->slug,
                 name: $tag->name,
             ),
-            $this->repository->findAllTags(App::getLocale()),
+            $this->repository->findAllTags($this->locales->current()),
         );
     }
 

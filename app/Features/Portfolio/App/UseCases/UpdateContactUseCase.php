@@ -7,8 +7,8 @@ namespace App\Features\Portfolio\App\UseCases;
 use App\Features\Portfolio\Domain\Entities\Contact;
 use App\Features\Portfolio\Domain\ValueObjects\ContactTranslation;
 use App\Features\Portfolio\Domain\RepositoryInterfaces\ContactRepositoryInterface;
+use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\App\Contracts\TransactionManagerInterface;
-use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 
 /**
@@ -20,7 +20,7 @@ final class UpdateContactUseCase
 {
     public function __construct(
         private readonly ContactRepositoryInterface $repository,
-        private readonly ActiveLocaleService $locales,
+        private readonly ActiveLocaleInterface $locales,
         private readonly TransactionManagerInterface $transactionManager,
     ) {
     }

@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Features\Blog\App\UseCases;
 
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
+use App\Features\Shared\App\Contracts\UrlGeneratorInterface;
 use App\Features\Shared\App\DTOs\RssFeedDto;
 use App\Features\Shared\App\DTOs\RssItemDto;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
-use Illuminate\Support\Facades\URL;
 
 /**
  * The RSS feed data: the 20 most recent published articles with the
@@ -26,6 +26,7 @@ final class GetRssFeedUseCase
     public function __construct(
         private readonly PublicArticleReadRepositoryInterface $repository,
         private readonly AboutInfoReadRepositoryInterface $about,
+        private readonly UrlGeneratorInterface $urls,
     ) {
     }
 
@@ -41,11 +42,11 @@ final class GetRssFeedUseCase
         return new RssFeedDto(
             title: __('seo.title_blog_index', ['name' => $siteName]),
             description: __('seo.description_blog_index', ['name' => $siteName]),
-            link: URL::to('/'),
+            link: $this->urls->to('/'),
             items: array_map(
                 fn (object $row): RssItemDto => new RssItemDto(
                     title: $row->title,
-                    link: URL::to('/blog/'.$row->slug),
+                    link: $this->urls->to('/blog/'.$row->slug),
                     description: $row->short_description,
                     publishedAt: new \DateTimeImmutable($row->published_at),
                     author: $siteName,
@@ -55,7 +56,7 @@ final class GetRssFeedUseCase
                     ],
                     enclosureUrl: $row->lead_image === null
                         ? null
-                        : URL::to('/assets/'.$row->lead_image),
+                        : $this->urls->to('/assets/'.$row->lead_image),
                 ),
                 $rows,
             ),

@@ -77,6 +77,7 @@ use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInter
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Settings\Infra\Repositories\EloquentFeatureFlagRepository;
 use App\Features\Settings\Infra\Repositories\EloquentSettingRepository;
+use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\App\Contracts\AdminListPaginatorInterface;
 use App\Features\Shared\App\Contracts\AnalyticsConfigInterface;
 use App\Features\Shared\App\Contracts\ApplicationUrlInterface;
@@ -90,6 +91,7 @@ use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
 use App\Features\Shared\App\Contracts\TransactionManagerInterface;
+use App\Features\Shared\App\Contracts\UrlGeneratorInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ContactReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
@@ -103,6 +105,7 @@ use App\Features\Shared\Infra\Repositories\EloquentProjectReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentPublishedArticleReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentSettingsReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
+use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\Shared\Infra\Services\AdminListCountCacheInvalidator;
 use App\Features\Shared\Infra\Services\AdminListPaginator;
 use App\Features\Shared\Infra\Services\AppVersion;
@@ -114,6 +117,7 @@ use App\Features\Shared\Infra\Services\LaravelMaintenanceMode;
 use App\Features\Shared\Infra\Services\LaravelPaginationDefaults;
 use App\Features\Shared\Infra\Services\LaravelPreviewUrlGenerator;
 use App\Features\Shared\Infra\Services\LaravelTransactionManager;
+use App\Features\Shared\Infra\Services\LaravelUrlGenerator;
 use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
 use App\Features\Shared\Infra\Services\RustFsAssetCleaner;
 use App\Features\Shared\Infra\Services\SitemapService;
@@ -317,9 +321,10 @@ class AppServiceProvider extends ServiceProvider
         );
 
         // Framework-capability contracts the app layer consumes instead of
-        // reading configuration or the connection directly: the committed
+        // reading configuration, the locale or the connection directly: the
         // pagination defaults, the site's base URL, the analytics pipeline
-        // configuration and the transactional connection.
+        // configuration, the transactional connection, the active locale
+        // context and absolute path URLs.
         $this->app->bind(
             PaginationDefaultsInterface::class,
             LaravelPaginationDefaults::class,
@@ -338,6 +343,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             TransactionManagerInterface::class,
             LaravelTransactionManager::class,
+        );
+
+        $this->app->bind(
+            ActiveLocaleInterface::class,
+            ActiveLocaleService::class,
+        );
+
+        $this->app->bind(
+            UrlGeneratorInterface::class,
+            LaravelUrlGenerator::class,
         );
 
         // The content pipeline is a singleton: the underlying

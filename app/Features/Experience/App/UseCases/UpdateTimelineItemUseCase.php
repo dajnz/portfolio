@@ -10,15 +10,14 @@ use App\Features\Experience\Domain\Entities\TimelineItemTranslation;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
 use App\Features\Experience\Domain\ValueObjects\RelatedProject;
 use App\Features\Experience\Domain\ValueObjects\WorkPeriod;
+use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 use App\Features\Shared\App\Contracts\TransactionManagerInterface;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;
 use App\Features\Shared\Domain\ValueObjects\SortOrder;
-use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\Shared\Infra\Services\AdminCursorPaginator;
 use DateTimeImmutable;
-use Illuminate\Support\Facades\App;
 
 /**
  * Updates a timeline item — same shape as {@see StoreTimelineItemUseCase}
@@ -33,7 +32,7 @@ final class UpdateTimelineItemUseCase
     public function __construct(
         private readonly TimelineItemRepositoryInterface $repository,
         private readonly TechSkillReadRepositoryInterface $skills,
-        private readonly ActiveLocaleService $locales,
+        private readonly ActiveLocaleInterface $locales,
         private readonly TimelineContinuityService $continuity,
         private readonly TransactionManagerInterface $transactionManager,
     ) {
@@ -126,7 +125,7 @@ final class UpdateTimelineItemUseCase
                 skillName: $skill->toName(),
                 icon: $skill->toIcon() === null ? null : new SkillIcon($skill->toIcon()),
             ),
-            $this->skills->findByIds($techTagIds, App::getLocale()),
+            $this->skills->findByIds($techTagIds, $this->locales->current()),
         );
     }
 
