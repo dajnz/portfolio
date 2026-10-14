@@ -221,6 +221,10 @@ describe('BlogArticlePage', () => {
         const link = wrapper.get('[data-testid="footer-rss-link"]');
         expect(link.attributes('href')).toBe('/rss');
         expect(link.text()).toBe('RSS');
+
+        // The RSS link sits above the copyright note on the article page.
+        const inner = wrapper.get('.footer__inner').element.innerHTML;
+        expect(inner.indexOf('footer-rss-link')).toBeLessThan(inner.indexOf('footer__copyright'));
     });
 
     it('extracts h2/h3 headings only into the TOC (h4 silently dropped)', async () => {

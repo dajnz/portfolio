@@ -31,8 +31,6 @@ describe('PublicPageLayout', () => {
         localStorage.setItem('cookies_accepted', '1');
         const wrapper = mountLayout({
             nav_items: NAV_ITEMS,
-            copyright_year: '2026',
-            copyright_name: 'Alex',
         }, {
             default: '<h1>Page</h1>',
         });
