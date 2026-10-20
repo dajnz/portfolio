@@ -22,6 +22,7 @@ use Tests\Fakes\InMemoryAboutInfoRepository;
 use Tests\Fakes\InMemoryContactRepository;
 use Tests\Fakes\InMemoryProjectReadRepository;
 use Tests\Fakes\InMemoryTechSkillReadRepository;
+use Tests\Support\Fakes\FakeActiveLocale;
 
 function landingProject(int $id): FeaturedProject
 {
@@ -77,6 +78,7 @@ describe('GetLandingPageDataUseCase', function (): void {
                 publishedCount: 3,
             ),
             contacts: new InMemoryContactRepository($contacts),
+            locales: new FakeActiveLocale(),
         );
 
         $data = $useCase->get('en');
@@ -87,7 +89,8 @@ describe('GetLandingPageDataUseCase', function (): void {
             ->and($data['featured_projects'][0]->toTitle())->toBe('Project 1')
             ->and($data['featured_projects'][0]->toTechTags())->toHaveCount(1)
             ->and($data['has_more_projects'])->toBeTrue()
-            ->and($data['contacts'])->toBe($contacts);
+            ->and($data['contacts'])->toBe($contacts)
+            ->and($data['supported_locales'])->toBe(['en', 'ru']);
     });
 
     it('reports has_more_projects as false when all published projects are featured', function (): void {
@@ -99,6 +102,7 @@ describe('GetLandingPageDataUseCase', function (): void {
                 publishedCount: 2,
             ),
             contacts: new InMemoryContactRepository([]),
+            locales: new FakeActiveLocale(),
         );
 
         expect($useCase->get('en')['has_more_projects'])->toBeFalse();
@@ -110,6 +114,7 @@ describe('GetLandingPageDataUseCase', function (): void {
             skills: new InMemoryTechSkillReadRepository([]),
             projects: new InMemoryProjectReadRepository(),
             contacts: new InMemoryContactRepository([]),
+            locales: new FakeActiveLocale(),
         );
 
         $data = $useCase->get('en');

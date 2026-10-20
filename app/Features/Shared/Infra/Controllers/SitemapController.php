@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Shared\Infra\Controllers;
 
-use App\Features\Shared\Infra\Services\SitemapService;
+use App\Features\Shared\App\UseCases\GetSitemapXmlUseCase;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Response as ResponseFacade;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,9 +14,14 @@ use Symfony\Component\HttpFoundation\Response;
  */
 final class SitemapController
 {
-    public function index(SitemapService $sitemap): Response
+    public function __construct(
+        private readonly GetSitemapXmlUseCase $sitemapCase,
+    ) {
+    }
+
+    public function index(): Response
     {
-        return ResponseFacade::make($sitemap->getXml(), 200, [
+        return ResponseFacade::make($this->sitemapCase->get(), 200, [
             'Content-Type' => 'application/xml',
         ]);
     }

@@ -114,6 +114,7 @@ use App\Features\Shared\App\Contracts\AssetStorageInterface;
 use App\Features\Shared\App\Contracts\CacheClearerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use App\Features\Shared\App\Contracts\EncrypterInterface;
+use App\Features\Shared\App\Contracts\ImageProcessorInterface;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use App\Features\Shared\App\Contracts\MaintenanceModeInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
@@ -121,6 +122,7 @@ use App\Features\Shared\App\Contracts\PaginationDefaultsInterface;
 use App\Features\Shared\App\Contracts\PasswordHasherInterface;
 use App\Features\Shared\App\Contracts\PreviewUrlGeneratorInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
+use App\Features\Shared\App\Contracts\SitemapXmlProviderInterface;
 use App\Features\Shared\App\Contracts\TransactionManagerInterface;
 use App\Features\Shared\App\Contracts\TranslatorInterface;
 use App\Features\Shared\App\Contracts\UploadDefaultsInterface;
@@ -326,6 +328,11 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
+            ImageProcessorInterface::class,
+            UploadedImageProcessor::class,
+        );
+
+        $this->app->bind(
             AboutInfoReadRepositoryInterface::class,
             EloquentAboutInfoReadRepository::class,
         );
@@ -373,6 +380,11 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->bind(
             SitemapInvalidatorInterface::class,
+            SitemapService::class,
+        );
+
+        $this->app->bind(
+            SitemapXmlProviderInterface::class,
             SitemapService::class,
         );
 

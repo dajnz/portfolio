@@ -15,6 +15,10 @@ interface AssetStorageInterface
 
     public function write(string $path, string $contents): void;
 
+    public function writeFile(string $path, string $sourcePath): void;
+
+    public function size(string $path): int;
+
     /**
      * The object paths directly under the given directory.
      *

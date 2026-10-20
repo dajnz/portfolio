@@ -7,6 +7,7 @@ namespace App\Features\Shared\Infra\Services;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
+use App\Features\Shared\App\Contracts\SitemapXmlProviderInterface;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +27,7 @@ use stdClass;
  * hreflang: each entry lists the locale-prefixed alternates for every enabled
  * locale plus the `x-default` canonical URL. Disabled locales are omitted.
  */
-final class SitemapService implements SitemapInvalidatorInterface
+final class SitemapService implements SitemapInvalidatorInterface, SitemapXmlProviderInterface
 {
     private const CACHE_KEY = 'sitemap:xml';
 
@@ -41,7 +42,7 @@ final class SitemapService implements SitemapInvalidatorInterface
     ) {
     }
 
-    public function getXml(): string
+    public function xml(): string
     {
         return Cache::remember(self::CACHE_KEY, self::CACHE_TTL_SECONDS, fn (): string => $this->generate());
     }

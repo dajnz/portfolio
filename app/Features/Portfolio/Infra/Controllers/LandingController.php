@@ -11,7 +11,6 @@ use App\Features\Portfolio\Infra\Requests\SubmitFeedbackRequest;
 use App\Features\Shared\Domain\Entities\FeaturedProject;
 use App\Features\Shared\Domain\Entities\TechSkillGroup;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
-use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
@@ -28,7 +27,6 @@ final class LandingController
 {
     public function __construct(
         private readonly GetLandingPageDataUseCase $landingPageCase,
-        private readonly ActiveLocaleService $locales,
     ) {
     }
 
@@ -45,6 +43,8 @@ final class LandingController
         $featuredProjects = $data['featured_projects'];
         /** @var Contact[] $contacts */
         $contacts = $data['contacts'];
+        /** @var string[] $supportedLocales */
+        $supportedLocales = $data['supported_locales'];
 
         return $inertia->render('Portfolio/Public/Pages/LandingPage', [
             'about' => $about === null ? null : $this->aboutProps($about, $locale),
@@ -52,7 +52,12 @@ final class LandingController
             'featured_projects' => $this->featuredProjectsProps($featuredProjects),
             'has_more' => $data['has_more_projects'],
             'contacts' => $this->contactsProps($contacts),
-            'seo' => $this->seoProps($about, $contacts, $request),
+            'seo' => $this->seoProps(
+                about: $about,
+                contacts: $contacts,
+                supportedLocales: $supportedLocales,
+                request: $request,
+            ),
             'feedback_honeypot_name' => SubmitFeedbackRequest::honeypotFieldName(),
         ]);
     }
@@ -142,10 +147,16 @@ final class LandingController
     }
 
     /**
+     * @param  Contact[]  $contacts
+     * @param  string[]  $supportedLocales
      * @return array<string, mixed>
      */
-    private function seoProps(?AboutInfo $about, array $contacts, Request $request): array
-    {
+    private function seoProps(
+        ?AboutInfo $about,
+        array $contacts,
+        array $supportedLocales,
+        Request $request,
+    ): array {
         $locale = App::getLocale();
         $translation = $about?->translationFor($locale);
         $name = $translation?->toName() ?? '';
@@ -157,7 +168,7 @@ final class LandingController
             'og_url' => $request->url(),
             'og_type' => 'website',
             'og_image' => $this->aboutImageUrl($about),
-            'json_ld' => $this->jsonLd($about, $contacts),
+            'json_ld' => $this->jsonLd($about, $contacts, $supportedLocales),
         ];
     }
 
@@ -174,9 +185,10 @@ final class LandingController
      * Person + WebSite (with SearchAction) blocks.
      *
      * @param  Contact[]  $contacts
+     * @param  string[]  $supportedLocales
      * @return array<int, array<string, mixed>>
      */
-    private function jsonLd(?AboutInfo $about, array $contacts): array
+    private function jsonLd(?AboutInfo $about, array $contacts, array $supportedLocales): array
     {
         $locale = App::getLocale();
         $translation = $about?->translationFor($locale);
@@ -205,7 +217,7 @@ final class LandingController
                 'name' => $name,
                 'url' => URL::to('/'),
                 'description' => $translation?->toShortPitch() ?? '',
-                'inLanguage' => $this->locales->activeLocales(),
+                'inLanguage' => $supportedLocales,
                 'potentialAction' => [
                     '@type' => 'SearchAction',
                     'target' => [
