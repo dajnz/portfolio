@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Analytics\App\UseCases;
 
 use App\Features\Analytics\App\Contracts\AnalyticsDigestMailerInterface;
+use App\Features\Analytics\App\Services\DailyDigestBuilder;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use DateTimeImmutable;
@@ -18,7 +19,7 @@ use DateTimeImmutable;
 final class SendDailyDigestUseCase
 {
     public function __construct(
-        private readonly GetDailyDigestUseCase $digest,
+        private readonly DailyDigestBuilder $digest,
         private readonly SettingRepositoryInterface $settings,
         private readonly AnalyticsDigestMailerInterface $mailer,
     ) {

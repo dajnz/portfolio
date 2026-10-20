@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Analytics;
 
+use App\Features\Analytics\App\Services\MetricRankingsBuilder;
 use App\Features\Analytics\App\UseCases\GetMetricRankingsUseCase;
 use App\Features\Analytics\Domain\Entities\AnalyticsReport;
 use App\Features\Analytics\Domain\Enums\MetricName;
@@ -25,10 +26,10 @@ function rankedRows(
     array $articleTitles = [],
     array $projectTitles = [],
 ): array {
-    $useCase = new GetMetricRankingsUseCase(
+    $useCase = new GetMetricRankingsUseCase(new MetricRankingsBuilder(
         new FakeAnalyticsReportRepository($rows),
         new FakeAnalyticsReportDataReader(articleTitles: $articleTitles, projectTitles: $projectTitles),
-    );
+    ));
 
     return $useCase->rankings(MetricName::from($metric), $variant, $scope)['rows'];
 }

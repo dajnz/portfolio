@@ -18,7 +18,7 @@ use Illuminate\Queue\SerializesModels;
  * and the top article by views, sent when `analytics_email_enabled` is
  * on and a recipient is configured. The mailable is queued
  * (ShouldQueue) — dispatched via `Mail::to(...)->send()`, which queues
- * ShouldQueue mailables. The digest is built by `GetDailyDigestUseCase`
+ * ShouldQueue mailables. The digest is built by `DailyDigestBuilder`
  * before the mailable is queued, so the queued payload is plain data.
  */
 final class SendAnalyticsReportMail extends Mailable implements ShouldQueue

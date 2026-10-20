@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Analytics;
 
+use App\Features\Analytics\App\Services\MetricSeriesBuilder;
 use App\Features\Analytics\App\UseCases\GetMetricSeriesUseCase;
 use App\Features\Analytics\Domain\Entities\AnalyticsReport;
 use App\Features\Analytics\Domain\Enums\MetricName;
@@ -21,7 +22,7 @@ function seriesPoints(
     ?string $dimension = null,
     string $now = '2026-08-21',
 ): array {
-    $useCase = new GetMetricSeriesUseCase(new FakeAnalyticsReportRepository($rows));
+    $useCase = new GetMetricSeriesUseCase(new MetricSeriesBuilder(new FakeAnalyticsReportRepository($rows)));
 
     return $useCase->series(
         MetricName::from($metric),

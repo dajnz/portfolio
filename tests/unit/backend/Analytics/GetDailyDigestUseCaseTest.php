@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Analytics;
 
+use App\Features\Analytics\App\Services\DailyDigestBuilder;
 use App\Features\Analytics\App\UseCases\GetDailyDigestUseCase;
 use App\Features\Analytics\Domain\Entities\AnalyticsMetric;
 use App\Features\Analytics\Domain\Enums\MetricName;
@@ -30,10 +31,10 @@ function digestMetricRow(MetricName $metric, float $value, ?string $dimension = 
  */
 function dailyDigest(array $rows, array $articleTitles = []): object
 {
-    $useCase = new GetDailyDigestUseCase(
+    $useCase = new GetDailyDigestUseCase(new DailyDigestBuilder(
         new FakeAnalyticsDailyMetricRepository($rows),
         new FakeAnalyticsReportDataReader(articleTitles: $articleTitles),
-    );
+    ));
 
     return $useCase->digest(new DateTimeImmutable('2026-07-09'));
 }

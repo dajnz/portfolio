@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Unit\Backend\Analytics;
 
 use App\Features\Analytics\App\DTOs\AnalyticsDashboardDto;
+use App\Features\Analytics\App\Services\MetricRankingsBuilder;
+use App\Features\Analytics\App\Services\MetricSeriesBuilder;
 use App\Features\Analytics\App\UseCases\GetAnalyticsDashboardUseCase;
-use App\Features\Analytics\App\UseCases\GetMetricRankingsUseCase;
-use App\Features\Analytics\App\UseCases\GetMetricSeriesUseCase;
 use App\Features\Analytics\Domain\Entities\AnalyticsReport;
 use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
@@ -21,8 +21,8 @@ use Tests\Support\Fakes\FakeAnalyticsReportRepository;
 function dashboardProps(array $rows, string $now = '2026-08-21'): AnalyticsDashboardDto
 {
     $reports = new FakeAnalyticsReportRepository($rows);
-    $rankings = new GetMetricRankingsUseCase($reports, new FakeAnalyticsReportDataReader());
-    $series = new GetMetricSeriesUseCase($reports);
+    $rankings = new MetricRankingsBuilder($reports, new FakeAnalyticsReportDataReader());
+    $series = new MetricSeriesBuilder($reports);
 
     return (new GetAnalyticsDashboardUseCase($reports, $rankings, $series))->get(new DateTimeImmutable($now));
 }
