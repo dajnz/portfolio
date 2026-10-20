@@ -10,7 +10,7 @@ use DateTimeImmutable;
  * The daily email digest payload: the previous day's key metrics —
  * page views, unique visitors, feedback submissions — and the top
  * article by views (null when the day has no article rows with an EN
- * translation). Produced by `GetDailyDigestUseCase` and carried by
+ * translation). Produced by `DailyDigestBuilder` and carried by
  * `SendAnalyticsReportMail`.
  */
 final readonly class AnalyticsDigestDto

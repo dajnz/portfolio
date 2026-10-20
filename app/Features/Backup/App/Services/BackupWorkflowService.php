@@ -10,7 +10,6 @@ use App\Features\Backup\App\Contracts\StorageBatchTransferable;
 use App\Features\Backup\App\Contracts\StorageEstimatorInterface;
 use App\Features\Backup\App\DTOs\BackupSources;
 use App\Features\Backup\App\DTOs\BackupTableExport;
-use App\Features\Backup\App\UseCases\PruneBackupsUseCase;
 use App\Features\Backup\Domain\Entities\Backup;
 use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use App\Features\Backup\Domain\ValueObjects\BackupContentSummary;
@@ -55,7 +54,7 @@ final class BackupWorkflowService
         private readonly StorageBatchTransferable $backupsTransfer,
         private readonly BackupArchiveInterface $archive,
         private readonly BackupRepositoryInterface $backupRepo,
-        private readonly PruneBackupsUseCase $pruner,
+        private readonly BackupPruner $pruner,
         private readonly StorageEstimatorInterface $estimator,
         private readonly BackupSources $sources,
         private readonly array $tables,

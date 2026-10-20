@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Auth\App\UseCases;
 
 use App\Features\Auth\App\Contracts\TotpLockoutMessengerInterface;
+use App\Features\Auth\App\Services\GithubLinkService;
+use App\Features\Auth\App\Services\TotpVerifier;
 use App\Features\Auth\Domain\Exceptions\GithubAlreadyLinkedException;
 use App\Features\Auth\Domain\Exceptions\GithubConflictException;
 use App\Features\Auth\Domain\Exceptions\GithubLinkPendingInvalidException;
@@ -15,16 +17,16 @@ use App\Features\Shared\App\Contracts\AdminSessionInterface;
 
 /**
  * GitHub-link TOTP re-authentication: resolves the pending link data from
- * the session, verifies the code (backoff by `VerifyTotpUseCase`) and
- * completes the link. A lockout or invalid pending state clears the
- * `github_link.*` keys first.
+ * the session, verifies the code (backoff by `TotpVerifier`) and completes
+ * the link. A lockout or invalid pending state clears the `github_link.*`
+ * keys first.
  */
 final class VerifyGithubLinkTotpUseCase extends BaseUseCase
 {
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
-        private readonly VerifyTotpUseCase $verifyTotp,
-        private readonly LinkGithubUseCase $linkGithub,
+        private readonly TotpVerifier $totpVerifier,
+        private readonly GithubLinkService $links,
         private readonly TotpLockoutMessengerInterface $lockoutMessages,
         private readonly AdminSessionInterface $sessions,
     ) {
@@ -48,7 +50,7 @@ final class VerifyGithubLinkTotpUseCase extends BaseUseCase
         }
 
         try {
-            $this->verifyTotp->verify($admin, $code, $ip);
+            $this->totpVerifier->verify($admin, $code, $ip);
         } catch (TotpLockedException $exception) {
             $this->clearPending();
 
@@ -59,7 +61,7 @@ final class VerifyGithubLinkTotpUseCase extends BaseUseCase
         $githubToken = (string) $this->sessions->pull('github_link.pending_token');
         $this->clearPending();
 
-        $this->linkGithub->link($admin->toId(), $githubId, $githubToken);
+        $this->links->link($admin->toId(), $githubId, $githubToken);
     }
 
     private function clearPending(): void

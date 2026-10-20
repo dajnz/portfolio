@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\Settings;
 
-use App\Features\Settings\App\UseCases\ToggleFeatureFlagUseCase;
 use App\Features\Settings\App\UseCases\UpdateFeatureFlagsUseCase;
 use App\Features\Settings\Domain\Entities\FeatureFlag;
 use App\Features\Settings\Domain\Enums\FeatureFlagName;
@@ -63,14 +62,6 @@ describe('FeatureFlagRepository', function (): void {
 
         expect(FeatureFlagModel::query()->find('social_reactions')->enabled)->toBeTrue()
             ->and($repository->isEnabled(FeatureFlagName::SocialReactions))->toBeTrue();
-    });
-
-    it('toggles a single flag through the use case', function (): void {
-        $this->seed(\Database\Seeders\FeatureFlagSeeder::class);
-
-        app(ToggleFeatureFlagUseCase::class)->toggle(FeatureFlagName::GithubOauth, true);
-
-        expect(FeatureFlagModel::query()->find('github_oauth')->enabled)->toBeTrue();
     });
 
     it('applies a batch of flags through the use case', function (): void {

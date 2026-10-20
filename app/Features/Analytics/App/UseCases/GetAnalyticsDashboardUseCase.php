@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Analytics\App\UseCases;
 
 use App\Features\Analytics\App\DTOs\AnalyticsDashboardDto;
+use App\Features\Analytics\App\Services\MetricRankingsBuilder;
+use App\Features\Analytics\App\Services\MetricSeriesBuilder;
 use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsReportRepositoryInterface;
@@ -18,15 +20,15 @@ use DateTimeImmutable;
  * the default chart series (`page_views`, the four span windows) and
  * the default rankings (time-on-page top/bottom 10 pages). Metrics
  * without stored rows fall back to a zero block. The chart series come
- * from `GetMetricSeriesUseCase` so the page props and the JSON endpoint
+ * from `MetricSeriesBuilder` so the page props and the JSON endpoint
  * always agree.
  */
 final class GetAnalyticsDashboardUseCase
 {
     public function __construct(
         private readonly AnalyticsReportRepositoryInterface $reports,
-        private readonly GetMetricRankingsUseCase $rankings,
-        private readonly GetMetricSeriesUseCase $series,
+        private readonly MetricRankingsBuilder $rankings,
+        private readonly MetricSeriesBuilder $series,
     ) {
     }
 

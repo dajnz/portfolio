@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Features\Auth\App\UseCases;
+namespace App\Features\Auth\App\Services;
 
 use App\Features\Auth\App\Contracts\TotpServiceInterface;
 use App\Features\Auth\Domain\Entities\Admin;
@@ -10,7 +10,6 @@ use App\Features\Auth\Domain\Entities\AdminTimedOtp;
 use App\Features\Auth\Domain\Exceptions\InvalidTotpCodeException;
 use App\Features\Auth\Domain\Exceptions\TotpLockedException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterface;
-use App\Features\Shared\App\BaseUseCase;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use DateTimeImmutable;
 
@@ -20,8 +19,10 @@ use DateTimeImmutable;
  * the lock tiers are evaluated from the resulting count by
  * `AdminTimedOtp::lockExpiryFor()`. Recovery-code misses count as failed
  * TOTP attempts.
+ *
+ * Shared by the login-TOTP and GitHub-link-TOTP flows.
  */
-final class VerifyTotpUseCase extends BaseUseCase
+final class TotpVerifier
 {
     public function __construct(
         private readonly AdminTimedOtpRepositoryInterface $otpRepository,

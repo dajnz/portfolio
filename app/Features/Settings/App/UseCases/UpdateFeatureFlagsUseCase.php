@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Settings\App\UseCases;
 
 use App\Features\Settings\Domain\Enums\FeatureFlagName;
+use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
 
 /**
  * Applies the Feature Flags tab submission (`{ flags: { key: bool, ... } }`);
@@ -13,7 +14,7 @@ use App\Features\Settings\Domain\Enums\FeatureFlagName;
 final class UpdateFeatureFlagsUseCase
 {
     public function __construct(
-        private readonly ToggleFeatureFlagUseCase $toggle,
+        private readonly FeatureFlagRepositoryInterface $repository,
     ) {
     }
 
@@ -21,7 +22,7 @@ final class UpdateFeatureFlagsUseCase
     public function update(array $flags): void
     {
         foreach ($flags as $key => $enabled) {
-            $this->toggle->toggle(FeatureFlagName::from((string) $key), (bool) $enabled);
+            $this->repository->update(FeatureFlagName::from((string) $key), (bool) $enabled);
         }
     }
 }

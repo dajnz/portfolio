@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Analytics;
 
-use App\Features\Analytics\App\UseCases\AggregateDailyMetricsUseCase;
+use App\Features\Analytics\App\Services\DailyMetricsAggregator;
 use App\Features\Analytics\App\UseCases\RebuildReportsUseCase;
 use App\Features\Analytics\Domain\Entities\AnalyticsReport;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
@@ -31,7 +31,7 @@ function rebuiltReports(FakeAnalyticsDailyMetricRepository $metrics): array
         reports: $reports,
         events: $events,
         dataReader: $dataReader,
-        aggregate: new AggregateDailyMetricsUseCase($events, $dataReader, $metrics),
+        aggregator: new DailyMetricsAggregator($events, $dataReader, $metrics),
     );
 
     $useCase->rebuild();
@@ -153,7 +153,7 @@ describe('RebuildReportsUseCase', function (): void {
             reports: $reports,
             events: $events,
             dataReader: $dataReader,
-            aggregate: new AggregateDailyMetricsUseCase($events, $dataReader, $metrics),
+            aggregator: new DailyMetricsAggregator($events, $dataReader, $metrics),
         );
 
         $useCase->rebuild();

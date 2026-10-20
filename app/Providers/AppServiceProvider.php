@@ -32,11 +32,11 @@ use App\Features\Backup\App\Contracts\StorageBatchTransferable;
 use App\Features\Backup\App\Contracts\StorageEstimatorInterface;
 use App\Features\Backup\App\Contracts\TableTruncatorInterface;
 use App\Features\Backup\App\DTOs\BackupSources;
+use App\Features\Backup\App\Services\BackupPruner;
 use App\Features\Backup\App\Services\BackupWorkflowService;
 use App\Features\Backup\App\Services\DatabaseRestoreService;
 use App\Features\Backup\App\Services\RestoreWorkflowService;
 use App\Features\Backup\App\UseCases\CreateBackupUseCase;
-use App\Features\Backup\App\UseCases\PruneBackupsUseCase;
 use App\Features\Backup\App\UseCases\RestoreBackupUseCase;
 use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use App\Features\Backup\Domain\RepositoryInterfaces\EncryptionKeyRepositoryInterface;
@@ -665,7 +665,7 @@ class AppServiceProvider extends ServiceProvider
                 backupsTransfer: $app->make(StorageBatchTransferable::class),
                 archive: $app->make(BackupArchiveInterface::class),
                 backupRepo: $app->make(BackupRepositoryInterface::class),
-                pruner: $app->make(PruneBackupsUseCase::class),
+                pruner: $app->make(BackupPruner::class),
                 estimator: $app->make(StorageEstimatorInterface::class),
                 sources: $backupSources(),
                 tables: $app->make(BackupTableFactory::class)->exportTables(),
@@ -698,7 +698,7 @@ class AppServiceProvider extends ServiceProvider
             ),
         );
 
-        // The use cases whose constructor takes config-derived scalars
+        // The classes whose constructor takes config-derived scalars
         // (encryption toggles, the legacy key fallback, the retention
         // fallback) are wired explicitly; the rest auto-resolve.
         $this->app->bind(
@@ -722,8 +722,8 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
-            PruneBackupsUseCase::class,
-            fn ($app): PruneBackupsUseCase => new PruneBackupsUseCase(
+            BackupPruner::class,
+            fn ($app): BackupPruner => new BackupPruner(
                 backups: $app->make(BackupRepositoryInterface::class),
                 settings: $app->make(SettingsReadRepositoryInterface::class),
                 backupsTransfer: $app->make(StorageBatchTransferable::class),
