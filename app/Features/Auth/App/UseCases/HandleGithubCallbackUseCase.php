@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\App\UseCases;
 
+use App\Features\Auth\App\Services\LoginSessionService;
 use App\Features\Auth\Domain\Enums\GithubLoginOutcome;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
 use App\Features\Shared\App\BaseUseCase;
@@ -17,7 +18,7 @@ final class HandleGithubCallbackUseCase extends BaseUseCase
 {
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
-        private readonly LoginUseCase $login,
+        private readonly LoginSessionService $login,
     ) {
     }
 

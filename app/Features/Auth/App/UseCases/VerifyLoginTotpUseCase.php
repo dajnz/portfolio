@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Features\Auth\App\UseCases;
 
 use App\Features\Auth\App\Contracts\TotpLockoutMessengerInterface;
+use App\Features\Auth\App\Services\LoginSessionService;
+use App\Features\Auth\App\Services\TotpVerifier;
 use App\Features\Auth\Domain\Exceptions\TotpLockedException;
 use App\Features\Auth\Domain\Exceptions\TotpPendingInvalidException;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
@@ -13,7 +15,7 @@ use App\Features\Shared\App\Contracts\AdminSessionInterface;
 
 /**
  * Login-flow TOTP verification: resolves the half-auth admin from the
- * session, verifies the code (backoff applied by `VerifyTotpUseCase`),
+ * session, verifies the code (backoff applied by `TotpVerifier`),
  * clears `totp.pending_*` and completes the login. A lockout clears the
  * pending state and rethrows with the localized lockout flash message.
  */
@@ -21,8 +23,8 @@ final class VerifyLoginTotpUseCase extends BaseUseCase
 {
     public function __construct(
         private readonly AdminRepositoryInterface $repository,
-        private readonly VerifyTotpUseCase $verifyTotp,
-        private readonly LoginUseCase $login,
+        private readonly TotpVerifier $totpVerifier,
+        private readonly LoginSessionService $login,
         private readonly TotpLockoutMessengerInterface $lockoutMessages,
         private readonly AdminSessionInterface $sessions,
     ) {
@@ -42,7 +44,7 @@ final class VerifyLoginTotpUseCase extends BaseUseCase
         }
 
         try {
-            $this->verifyTotp->verify($admin, $code, $ip);
+            $this->totpVerifier->verify($admin, $code, $ip);
         } catch (TotpLockedException $exception) {
             $this->sessions->forget(['totp.pending_admin_id', 'totp.pending_until']);
 
