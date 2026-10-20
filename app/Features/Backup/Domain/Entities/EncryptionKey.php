@@ -76,7 +76,7 @@ final class EncryptionKey extends BaseEntity
      * checksum keeps the key identifiable without the timestamp noise.
      * The `name` column is unique + NOT NULL; two imports of the same
      * raw key produce the same name, which the reuse check in
-     * `ImportFromPathUseCase` prevents from colliding.
+     * `BackupImporter` prevents from colliding.
      */
     public static function forImport(string $rawKey, DateTimeImmutable $createdAt): self
     {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Backup\App\UseCases;
 
 use App\Features\Backup\App\Contracts\BackupJobDispatcherInterface;
+use App\Features\Backup\App\Services\BackupImporter;
 
 /**
  * The disaster-recovery upload flow: imports the archive (validating it
@@ -14,14 +15,14 @@ use App\Features\Backup\App\Contracts\BackupJobDispatcherInterface;
 final class ImportAndRestoreBackupUseCase
 {
     public function __construct(
-        private readonly ImportFromPathUseCase $import,
+        private readonly BackupImporter $importer,
         private readonly BackupJobDispatcherInterface $dispatcher,
     ) {
     }
 
     public function importAndRestore(string $path, string $rawKey): void
     {
-        $backup = $this->import->import($path, $rawKey);
+        $backup = $this->importer->import($path, $rawKey);
 
         $this->dispatcher->dispatchRestore($backup->toId());
     }
