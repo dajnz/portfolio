@@ -114,6 +114,7 @@ use App\Features\Shared\App\Contracts\AssetStorageInterface;
 use App\Features\Shared\App\Contracts\CacheClearerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use App\Features\Shared\App\Contracts\EncrypterInterface;
+use App\Features\Shared\App\Contracts\ImageProcessorInterface;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use App\Features\Shared\App\Contracts\MaintenanceModeInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
@@ -323,6 +324,11 @@ class AppServiceProvider extends ServiceProvider
             fn (): UploadedImageProcessor => new UploadedImageProcessor(
                 new ImageManager(new Driver()),
             ),
+        );
+
+        $this->app->bind(
+            ImageProcessorInterface::class,
+            UploadedImageProcessor::class,
         );
 
         $this->app->bind(

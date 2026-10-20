@@ -4,18 +4,17 @@ declare(strict_types=1);
 
 namespace App\Features\Shared\Infra\Controllers;
 
-use App\Features\Shared\App\UseCases\ResolveImageMaxDimensionUseCase;
+use App\Features\Shared\App\DTOs\UploadAssetDto;
+use App\Features\Shared\App\UseCases\DeleteAssetUseCase;
+use App\Features\Shared\App\UseCases\UploadAssetUseCase;
 use App\Features\Shared\Infra\Exceptions\InvalidUploadedImageException;
 use App\Features\Shared\Infra\Requests\UploadDeleteRequest;
 use App\Features\Shared\Infra\Requests\UploadRequest;
-use App\Features\Shared\Infra\Services\UploadedImageProcessor;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -25,34 +24,25 @@ use Throwable;
  * name; the returned `path` is stored in the appropriate DB column by the
  * caller. Deletion of the previous file on replacement is handled by the entity
  * controllers, which use this same endpoint for direct removals.
- *
- * Images (`jpeg/png/webp/avif`) pass through the WebP processing pipeline
- * before storage — EXIF auto-orientation, downscale to the configured
- * largest-side limit, re-encode at 85% with all metadata stripped. PDFs (resume
- * upload) and GIFs (animation preservation) are stored as-uploaded.
  */
 final class UploadController
 {
-    private const PROCESSABLE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
-
     public function __construct(
-        private readonly UploadedImageProcessor $processor,
-        private readonly ResolveImageMaxDimensionUseCase $maxDimension,
+        private readonly UploadAssetUseCase $uploadAsset,
+        private readonly DeleteAssetUseCase $deleteAsset,
     ) {
     }
 
     public function store(UploadRequest $request): JsonResponse
     {
         /** @var UploadedFile $file */
-        $file = $request->validated('file');
-        $entityType = $request->validated('entity_type');
+        $file = $request->file('file');
+        $entityType = (string) $request->validated('entity_type');
 
         try {
-            $path = $this->isProcessableImage($file)
-                ? $this->storeProcessed($entityType, $file)
-                : $this->storeAsUploaded($entityType, $file);
-        } catch (ValidationException $exception) {
-            throw $exception;
+            $asset = $this->uploadAsset->upload($this->assetFrom($file, $entityType));
+        } catch (InvalidUploadedImageException) {
+            throw ValidationException::withMessages(['file' => 'The file must be a valid image.']);
         } catch (Throwable $exception) {
             Log::error('Upload failed', [
                 'file_name' => $file->getClientOriginalName(),
@@ -65,59 +55,32 @@ final class UploadController
 
         return Response::json([
             'data' => [
-                'path' => $path,
-                'url' => rtrim((string) Config::get('app.url'), '/').'/assets/'.$path,
-                'name' => $file->getClientOriginalName(),
-                'size' => Storage::disk('rustfs')->size($path),
+                'path' => $asset->path,
+                'url' => rtrim((string) Config::get('app.url'), '/').'/assets/'.$asset->path,
+                'name' => $asset->originalName,
+                'size' => $asset->size,
             ],
         ]);
     }
 
     public function destroy(UploadDeleteRequest $request): JsonResponse
     {
-        $path = (string) $request->json()->get('path');
+        $deleted = $this->deleteAsset->delete((string) $request->json()->get('path'));
 
-        if (! Storage::disk('rustfs')->exists($path)) {
+        if (! $deleted) {
             return Response::json(['message' => 'File not found.'], 404);
         }
-
-        Storage::disk('rustfs')->delete($path);
 
         return Response::json();
     }
 
-    private function storeProcessed(string $entityType, UploadedFile $file): string
+    private function assetFrom(UploadedFile $file, string $entityType): UploadAssetDto
     {
-        try {
-            $bytes = $this->processor->toWebp((string) $file->getRealPath(), $this->maxImageDimension());
-        } catch (InvalidUploadedImageException) {
-            throw ValidationException::withMessages(['file' => 'The file must be a valid image.']);
-        }
-
-        $path = $entityType.'/'.Str::random(40).'.webp';
-
-        Storage::disk('rustfs')->put($path, $bytes);
-
-        return $path;
-    }
-
-    private function storeAsUploaded(string $entityType, UploadedFile $file): string
-    {
-        $extension = strtolower((string) $file->getClientOriginalExtension());
-        $name = Str::random(40).'.'.$extension;
-
-        Storage::disk('rustfs')->putFileAs($entityType, $file, $name);
-
-        return $entityType.'/'.$name;
-    }
-
-    private function isProcessableImage(UploadedFile $file): bool
-    {
-        return in_array((string) $file->getMimeType(), self::PROCESSABLE_MIME_TYPES, true);
-    }
-
-    private function maxImageDimension(): int
-    {
-        return $this->maxDimension->resolve();
+        return new UploadAssetDto(
+            sourcePath: (string) $file->getRealPath(),
+            originalName: $file->getClientOriginalName(),
+            mimeType: (string) $file->getMimeType(),
+            entityType: $entityType,
+        );
     }
 }

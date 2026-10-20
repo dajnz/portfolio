@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Shared\Infra\Services;
 
+use App\Features\Shared\App\Contracts\ImageProcessorInterface;
 use App\Features\Shared\Infra\Exceptions\InvalidUploadedImageException;
 use Intervention\Image\Encoders\WebpEncoder;
 use Intervention\Image\Exceptions\ImageDecoderException;
@@ -17,7 +18,7 @@ use Intervention\Image\Interfaces\ImageInterface;
  * metadata-free WebP at 85% quality — GD's WebP encoder writes no EXIF/IPTC/XMP,
  * so re-encoding strips all embedded metadata.
  */
-final class UploadedImageProcessor
+final class UploadedImageProcessor implements ImageProcessorInterface
 {
     private const WEBP_QUALITY = 85;
 
