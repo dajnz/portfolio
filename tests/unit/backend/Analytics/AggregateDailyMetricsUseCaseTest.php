@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Analytics;
 
+use App\Features\Analytics\App\Services\DailyMetricsAggregator;
 use App\Features\Analytics\App\UseCases\AggregateDailyMetricsUseCase;
 use App\Features\Analytics\Domain\Entities\AnalyticsMetric;
 use App\Features\Analytics\Domain\Entities\ArticleReadEvent;
@@ -141,11 +142,11 @@ function dayEvents(): array
 function aggregateDaily(array $events, array $submissionDates = []): FakeAnalyticsDailyMetricRepository
 {
     $metrics = new FakeAnalyticsDailyMetricRepository();
-    $useCase = new AggregateDailyMetricsUseCase(
+    $useCase = new AggregateDailyMetricsUseCase(new DailyMetricsAggregator(
         new FakeAnalyticsEventRepository(periodEvents: $events),
         new FakeAnalyticsReportDataReader($submissionDates),
         $metrics,
-    );
+    ));
 
     $useCase->aggregate(new ReportPeriod(
         new DateTimeImmutable('2026-07-09 00:00:00'),
@@ -366,11 +367,11 @@ describe('AggregateDailyMetricsUseCase', function (): void {
         ];
 
         $metrics = new FakeAnalyticsDailyMetricRepository();
-        $useCase = new AggregateDailyMetricsUseCase(
+        $useCase = new AggregateDailyMetricsUseCase(new DailyMetricsAggregator(
             new FakeAnalyticsEventRepository(periodEvents: $events),
             new FakeAnalyticsReportDataReader(),
             $metrics,
-        );
+        ));
         $useCase->aggregate(new ReportPeriod(
             new DateTimeImmutable('2026-07-09 00:00:00'),
             new DateTimeImmutable('2026-07-10 23:59:59'),
@@ -408,11 +409,11 @@ describe('AggregateDailyMetricsUseCase', function (): void {
     });
 
     it('defaults the range to the previous day plus the in-progress day', function (): void {
-        $useCase = new AggregateDailyMetricsUseCase(
+        $useCase = new AggregateDailyMetricsUseCase(new DailyMetricsAggregator(
             new FakeAnalyticsEventRepository(),
             new FakeAnalyticsReportDataReader(),
             new FakeAnalyticsDailyMetricRepository(),
-        );
+        ));
 
         [$dateFrom, $dateTo] = $useCase->defaultDateRange();
 

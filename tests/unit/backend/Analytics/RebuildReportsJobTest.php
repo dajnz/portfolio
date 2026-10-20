@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Backend\Analytics;
 
-use App\Features\Analytics\App\UseCases\AggregateDailyMetricsUseCase;
+use App\Features\Analytics\App\Services\DailyMetricsAggregator;
 use App\Features\Analytics\App\UseCases\RebuildReportsUseCase;
 use App\Features\Analytics\Domain\Entities\AnalyticsMetric;
 use App\Features\Analytics\Domain\Entities\PageViewEvent;
@@ -38,7 +38,7 @@ function runRebuildJob(
         reports: $reports,
         events: $events,
         dataReader: $dataReader,
-        aggregate: new AggregateDailyMetricsUseCase($events, $dataReader, $metrics),
+        aggregator: new DailyMetricsAggregator($events, $dataReader, $metrics),
     ));
 
     return $reports;

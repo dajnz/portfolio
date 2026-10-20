@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Analytics\App\UseCases;
 
 use App\Features\Analytics\App\Contracts\AnalyticsReportDataReaderInterface;
+use App\Features\Analytics\App\Services\DailyMetricsAggregator;
 use App\Features\Analytics\Domain\Entities\AnalyticsReport;
 use App\Features\Analytics\Domain\Enums\MetricName;
 use App\Features\Analytics\Domain\Enums\MetricSpan;
@@ -43,7 +44,7 @@ final class RebuildReportsUseCase
         private readonly AnalyticsReportRepositoryInterface $reports,
         private readonly AnalyticsEventRepositoryInterface $events,
         private readonly AnalyticsReportDataReaderInterface $dataReader,
-        private readonly AggregateDailyMetricsUseCase $aggregate,
+        private readonly DailyMetricsAggregator $aggregator,
     ) {
     }
 
@@ -84,7 +85,7 @@ final class RebuildReportsUseCase
         }
 
         if ($aggregateFrom !== null) {
-            $this->aggregate->aggregate(new ReportPeriod($aggregateFrom, $windowEnd));
+            $this->aggregator->aggregate(new ReportPeriod($aggregateFrom, $windowEnd));
         }
     }
 
