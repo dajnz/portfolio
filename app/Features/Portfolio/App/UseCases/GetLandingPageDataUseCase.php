@@ -12,6 +12,7 @@ use App\Features\Shared\Domain\Entities\FeaturedProject;
 use App\Features\Shared\Domain\Entities\TechSkillGroup;
 use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
+use App\Features\Shared\App\Contracts\ActiveLocaleInterface;
 
 /**
  * Assembles every landing-page data slice: the about block, the grouped
@@ -26,6 +27,7 @@ final class GetLandingPageDataUseCase
         private readonly TechSkillReadRepositoryInterface $skills,
         private readonly ProjectReadRepositoryInterface $projects,
         private readonly ContactRepositoryInterface $contacts,
+        private readonly ActiveLocaleInterface $locales,
     ) {
     }
 
@@ -36,6 +38,7 @@ final class GetLandingPageDataUseCase
      *     featured_projects: FeaturedProject[],
      *     has_more_projects: bool,
      *     contacts: Contact[],
+     *     supported_locales: string[],
      * }
      */
     public function get(string $locale): array
@@ -48,6 +51,7 @@ final class GetLandingPageDataUseCase
             'featured_projects' => $featuredProjects,
             'has_more_projects' => $this->projects->countPublished() > count($featuredProjects),
             'contacts' => $this->contacts->findAll(),
+            'supported_locales' => $this->locales->activeLocales(),
         ];
     }
 }
