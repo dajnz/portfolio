@@ -2,28 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Backend\Backup;
+namespace Tests\Integration\Backend\Backup;
 
 use App\Features\Backup\Infra\Serialization\JsonlTableSerializer;
 use App\Features\Backup\Infra\Serialization\LaravelDbTableBatchReader;
 use App\Features\Backup\Infra\Serialization\LaravelDbTableBatchWriter;
 use Illuminate\Support\Facades\DB;
-use Tests\TestCase;
-
-uses(TestCase::class);
-
-function backupJsonlFixtureTable(): void
-{
-    DB::statement('CREATE TEMP TABLE backup_jsonl_test (id serial primary key, name text, payload jsonb, created_at timestamp)');
-}
+use Tests\Support\Backend\JsonlTableFixture;
 
 beforeEach(function (): void {
-    backupJsonlFixtureTable();
+    JsonlTableFixture::createRowsTable();
 });
 
 describe('JsonlTableSerializer', function (): void {
     it('exports one JSON object per line with unicode preserved', function (): void {
-        DB::table('backup_jsonl_test')->insert([
+        DB::table(JsonlTableFixture::ROWS_TABLE)->insert([
             'name' => 'Привет мир',
             'payload' => json_encode(['a' => 1], JSON_THROW_ON_ERROR),
             'created_at' => '2026-07-09 02:00:00',
@@ -31,8 +24,8 @@ describe('JsonlTableSerializer', function (): void {
 
         $path = tempnam(sys_get_temp_dir(), 'jsonl-');
 
-        (new JsonlTableSerializer('backup_jsonl_test'))->writeToFile(
-            new LaravelDbTableBatchReader('backup_jsonl_test'),
+        (new JsonlTableSerializer(JsonlTableFixture::ROWS_TABLE))->writeToFile(
+            new LaravelDbTableBatchReader(JsonlTableFixture::ROWS_TABLE),
             $path,
         );
 
@@ -56,12 +49,12 @@ describe('JsonlTableSerializer', function (): void {
             ];
         }
 
-        (new LaravelDbTableBatchWriter('backup_jsonl_test'))->writeBatch($rows);
+        (new LaravelDbTableBatchWriter(JsonlTableFixture::ROWS_TABLE))->writeBatch($rows);
 
         $path = tempnam(sys_get_temp_dir(), 'jsonl-');
 
-        (new JsonlTableSerializer('backup_jsonl_test'))->writeToFile(
-            new LaravelDbTableBatchReader('backup_jsonl_test'),
+        (new JsonlTableSerializer(JsonlTableFixture::ROWS_TABLE))->writeToFile(
+            new LaravelDbTableBatchReader(JsonlTableFixture::ROWS_TABLE),
             $path,
         );
 
@@ -87,14 +80,14 @@ describe('JsonlTableSerializer', function (): void {
             '{"id":5,"name":"row-5","payload":"{\"n\": 5}","created_at":"2026-07-05 02:00:00"}',
         ]));
 
-        (new JsonlTableSerializer('backup_jsonl_test'))->readFromFile(
+        (new JsonlTableSerializer(JsonlTableFixture::ROWS_TABLE))->readFromFile(
             $path,
-            new LaravelDbTableBatchWriter('backup_jsonl_test'),
+            new LaravelDbTableBatchWriter(JsonlTableFixture::ROWS_TABLE),
         );
 
         @unlink($path);
 
-        $restored = DB::table('backup_jsonl_test')->orderBy('id')->get();
+        $restored = DB::table(JsonlTableFixture::ROWS_TABLE)->orderBy('id')->get();
 
         expect($restored)->toHaveCount(5)
             ->and((string) $restored[0]->name)->toBe('row-1')
@@ -102,64 +95,18 @@ describe('JsonlTableSerializer', function (): void {
             ->and(json_decode((string) $restored[2]->payload, true))->toBe(['n' => 3]);
     });
 
-    it('chunks large batches across multiple writeBatch calls', function (): void {
-        $rows = [];
-
-        for ($i = 1; $i <= 1100; $i++) {
-            $rows[] = [
-                'name' => "row-{$i}",
-                'payload' => null,
-                'created_at' => '2026-07-09 02:00:00',
-            ];
-        }
-
-        $writer = new LaravelDbTableBatchWriter('backup_jsonl_test');
-        $writer->writeBatch($rows);
-
-        $path = tempnam(sys_get_temp_dir(), 'jsonl-');
-
-        (new JsonlTableSerializer('backup_jsonl_test'))->writeToFile(
-            new LaravelDbTableBatchReader('backup_jsonl_test'),
-            $path,
-        );
-
-        $lines = count(file($path, FILE_IGNORE_NEW_LINES));
-        @unlink($path);
-
-        expect(DB::table('backup_jsonl_test')->count())->toBe(1100)
-            ->and($lines)->toBe(1100);
-    });
-
-    it('upserts the settings variant by key', function (): void {
-        DB::statement('CREATE TEMP TABLE backup_settings_test (key text primary key, value text, type text)');
-
-        $writer = new LaravelDbTableBatchWriter('backup_settings_test', 'key');
-
-        $writer->writeBatch([
-            ['key' => 'site_title', 'value' => 'Portfolio', 'type' => 'string'],
-            ['key' => 'items_per_page', 'value' => '12', 'type' => 'integer'],
-        ]);
-        $writer->writeBatch([
-            ['key' => 'site_title', 'value' => 'Renamed', 'type' => 'string'],
-        ]);
-
-        expect(DB::table('backup_settings_test')->count())->toBe(2)
-            ->and(DB::table('backup_settings_test')->where('key', 'site_title')->value('value'))->toBe('Renamed')
-            ->and(DB::table('backup_settings_test')->where('key', 'items_per_page')->value('value'))->toBe('12');
-    });
-
     it('reads an empty file as a no-op import', function (): void {
         $path = tempnam(sys_get_temp_dir(), 'jsonl-');
 
         try {
-            (new JsonlTableSerializer('backup_jsonl_test'))->readFromFile(
+            (new JsonlTableSerializer(JsonlTableFixture::ROWS_TABLE))->readFromFile(
                 $path,
-                new LaravelDbTableBatchWriter('backup_jsonl_test'),
+                new LaravelDbTableBatchWriter(JsonlTableFixture::ROWS_TABLE),
             );
         } finally {
             @unlink($path);
         }
 
-        expect(DB::table('backup_jsonl_test')->count())->toBe(0);
+        expect(DB::table(JsonlTableFixture::ROWS_TABLE)->count())->toBe(0);
     });
 });

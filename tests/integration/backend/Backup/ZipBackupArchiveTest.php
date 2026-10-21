@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Backend\Backup;
+namespace Tests\Integration\Backend\Backup;
 
 use App\Features\Backup\Domain\ValueObjects\Manifest;
 use App\Features\Backup\Domain\ValueObjects\ManifestAsset;

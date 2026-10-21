@@ -2,45 +2,40 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Backend\Backup;
+namespace Tests\Integration\Backend\Backup;
 
 use App\Features\Backup\Infra\Storage\StorageEstimator;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
-use Mockery;
 use Tests\Support\Fakes\FakeAssetPathCollector;
 use Tests\Support\Fakes\FakeBatchTableReader;
 
 use function sys_get_temp_dir;
 
-/**
- * @return array{0: StorageEstimator, 1: Filesystem}
- */
-function backupEstimatorFixture(array $rows, array $paths, array $sizes): array
+function backupEstimatorFixture(array $paths, array $sizes): StorageEstimator
 {
-    $collector = new FakeAssetPathCollector($paths);
-    $disk = Mockery::mock(Filesystem::class);
-
-    foreach ($paths as $index => $path) {
-        $disk->shouldReceive('size')->with($path)->andReturn($sizes[$index]);
-    }
-
-    $estimator = new StorageEstimator(
-        assetCollector: $collector,
-        assetsDisk: $disk,
+    return new StorageEstimator(
+        assetCollector: new FakeAssetPathCollector($paths),
+        assetsDisk: fakeAssetsDisk($paths, $sizes),
         stagingPath: sys_get_temp_dir(),
     );
+}
 
-    return [$estimator, $disk];
+function fakeAssetsDisk(array $paths, array $sizes): Filesystem
+{
+    $disk = Storage::fake('rustfs');
+
+    foreach ($paths as $index => $path) {
+        $disk->put($path, str_repeat('x', $sizes[$index]));
+    }
+
+    return $disk;
 }
 
 describe('StorageEstimator', function (): void {
     it('sums the serialized JSONL size of the streamed rows', function (): void {
-        [$estimator] = backupEstimatorFixture(
-            rows: [['a' => 'x'], ['b' => 'yy']],
-            paths: [],
-            sizes: [],
-        );
+        $estimator = backupEstimatorFixture(paths: [], sizes: []);
 
         $bytes = $estimator->estimateDataSize(['settings'], new FakeBatchTableReader([
             ['a' => 'x'],
@@ -51,15 +46,14 @@ describe('StorageEstimator', function (): void {
     });
 
     it('rejects an empty table list', function (): void {
-        [$estimator] = backupEstimatorFixture([], [], []);
+        $estimator = backupEstimatorFixture(paths: [], sizes: []);
 
         expect(fn () => $estimator->estimateDataSize([], new FakeBatchTableReader([])))
             ->toThrow(InvalidArgumentException::class, 'estimateDataSize requires at least one table name.');
     });
 
     it('sums the bucket object sizes', function (): void {
-        [$estimator] = backupEstimatorFixture(
-            rows: [],
+        $estimator = backupEstimatorFixture(
             paths: ['blog/a.png', 'projects/b.png'],
             sizes: [100, 250],
         );
@@ -68,8 +62,7 @@ describe('StorageEstimator', function (): void {
     });
 
     it('applies the 2× rule', function (): void {
-        [$estimator] = backupEstimatorFixture(
-            rows: [],
+        $estimator = backupEstimatorFixture(
             paths: ['blog/a.png'],
             sizes: [40],
         );
@@ -87,8 +80,7 @@ describe('StorageEstimator', function (): void {
         // reports 0 → the same 116-byte requirement fails.
         $estimator = new StorageEstimator(
             assetCollector: new FakeAssetPathCollector(['blog/a.png']),
-            assetsDisk: Mockery::mock(Filesystem::class)
-                ->shouldReceive('size')->with('blog/a.png')->andReturn(40)->getMock(),
+            assetsDisk: fakeAssetsDisk(['blog/a.png'], [40]),
             stagingPath: '/nonexistent-staging-dir',
         );
 
@@ -96,11 +88,11 @@ describe('StorageEstimator', function (): void {
     });
 
     it('reports zero available space for a missing staging path', function (): void {
-        [$estimator] = backupEstimatorFixture([], [], []);
+        $estimator = backupEstimatorFixture(paths: [], sizes: []);
 
         $missing = new StorageEstimator(
             assetCollector: new FakeAssetPathCollector([]),
-            assetsDisk: Mockery::mock(Filesystem::class),
+            assetsDisk: Storage::fake('rustfs'),
             stagingPath: '/nonexistent-staging-dir',
         );
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Backend\Shared;
+namespace Tests\Integration\Backend\Shared;
 
 use App\Features\Shared\Infra\Exceptions\InvalidUploadedImageException;
 use App\Features\Shared\Infra\Services\UploadedImageProcessor;
