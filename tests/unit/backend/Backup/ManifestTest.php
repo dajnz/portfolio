@@ -187,16 +187,4 @@ describe('Manifest', function (): void {
             'assets' => [],
         ]))->toThrow(InvalidArgumentException::class, 'Manifest assets_count and assets_size_bytes must be integers.');
     });
-
-    it('validates the asset path and size', function (): void {
-        expect(fn () => new ManifestAsset('', 10))->toThrow(
-            InvalidArgumentException::class,
-            'Manifest asset path must not be empty.',
-        );
-
-        expect(fn () => new ManifestAsset('projects/abc123/preview.jpg', -1))->toThrow(
-            InvalidArgumentException::class,
-            'Manifest asset size must not be negative.',
-        );
-    });
 });

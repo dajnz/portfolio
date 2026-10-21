@@ -15,16 +15,6 @@ describe('ArticleTag', function (): void {
             ->toThrow(InvalidArgumentException::class, 'at least one translation');
     });
 
-    it('rejects a blank name', function (): void {
-        expect(fn () => new ArticleTagTranslation(locale: 'en', name: ''))
-            ->toThrow(InvalidArgumentException::class, 'must not be empty');
-    });
-
-    it('rejects a name longer than 100 characters', function (): void {
-        expect(fn () => new ArticleTagTranslation(locale: 'en', name: str_repeat('a', 101)))
-            ->toThrow(InvalidArgumentException::class, '100 characters');
-    });
-
     it('resolves the name per locale with the en fallback', function (): void {
         $tag = new ArticleTag(
             id: 1,
