@@ -15,4 +15,11 @@ final class AdminNotFoundException extends DomainException
     {
         return new self("Admin [{$id}] not found.");
     }
+
+    public static function forLoginOrEmail(?string $loginOrEmail): self
+    {
+        return new self($loginOrEmail === null
+            ? 'No admin account found.'
+            : "No admin account found for '{$loginOrEmail}'.");
+    }
 }

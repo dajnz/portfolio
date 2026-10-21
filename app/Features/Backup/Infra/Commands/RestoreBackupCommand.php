@@ -6,8 +6,6 @@ namespace App\Features\Backup\Infra\Commands;
 
 use App\Features\Backup\App\UseCases\ImportFromPathUseCase;
 use App\Features\Backup\App\UseCases\RestoreBackupUseCase;
-use App\Features\Backup\Domain\Entities\Backup;
-use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use Illuminate\Console\Command;
 use Throwable;
 
@@ -32,28 +30,26 @@ final class RestoreBackupCommand extends Command
     protected $description = 'Restore a backup from the backups bucket (or import one from a local .zip path)';
 
     public function handle(
-        BackupRepositoryInterface $backups,
         ImportFromPathUseCase $importCase,
         RestoreBackupUseCase $restoreCase,
     ): int {
         try {
-            $backup = $this->resolveBackup($backups, $importCase);
-            $restoreCase->restore($backup);
+            $filename = $this->restore($importCase, $restoreCase);
         } catch (Throwable $exception) {
             $this->error($exception->getMessage());
 
             return self::FAILURE;
         }
 
-        $this->info(sprintf('Backup %s restored successfully.', $backup->toFilename()));
+        $this->info(sprintf('Backup %s restored successfully.', $filename));
 
         return self::SUCCESS;
     }
 
-    private function resolveBackup(
-        BackupRepositoryInterface $backups,
+    private function restore(
         ImportFromPathUseCase $importCase,
-    ): Backup {
+        RestoreBackupUseCase $restoreCase,
+    ): string {
         $filename = (string) $this->argument('filename');
         $path = (string) $this->option('path');
         $key = (string) $this->option('key');
@@ -67,19 +63,18 @@ final class RestoreBackupCommand extends Command
                 throw new \InvalidArgumentException("The backup file '{$path}' does not exist.");
             }
 
-            return $importCase->import($path, $key);
+            $backup = $importCase->import($path, $key);
+            $restoreCase->restore($backup);
+
+            return $backup->toFilename();
         }
 
         if ($filename === '') {
             throw new \InvalidArgumentException('Provide the backup filename or use --path/--key for DR mode.');
         }
 
-        $backup = $backups->findByFilename($filename);
+        $restoreCase->restoreByFilename($filename);
 
-        if ($backup === null) {
-            throw new \InvalidArgumentException("No backup with the filename '{$filename}' exists.");
-        }
-
-        return $backup;
+        return $filename;
     }
 }

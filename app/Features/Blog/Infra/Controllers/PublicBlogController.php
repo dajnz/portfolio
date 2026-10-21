@@ -123,7 +123,7 @@ final class PublicBlogController
         // `Purpose: prefetch` header; they warm the page cache without a
         // real visit, so they must not increment the view counter.
         if (! $request->prefetch()) {
-            $this->recordView->record($detail->id, (string) $request->ip(), $request->userAgent());
+            $this->recordView->record($detail->id, $request->userAgent());
         }
 
         return $inertia->render('Blog/Public/Pages/BlogArticlePage', [

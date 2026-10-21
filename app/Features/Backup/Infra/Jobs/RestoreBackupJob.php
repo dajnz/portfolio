@@ -5,20 +5,16 @@ declare(strict_types=1);
 namespace App\Features\Backup\Infra\Jobs;
 
 use App\Features\Backup\App\UseCases\RestoreBackupUseCase;
-use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Cache;
-use RuntimeException;
 use Throwable;
 
 /**
- * The queued async restore: the HTTP-triggered restore dispatches this
- * job, which executes the synchronous `RestoreBackupUseCase` inside the
- * worker — the UI polls `GET /admin/backups/{backup}/status` (~2 s)
- * until the record re-completes or fails. On failure the record is
- * already marked `failed` by the use case; this hook caches the error
- * message for the status endpoint and the site stays in maintenance
- * mode.
+ * The queued async restore shell: the HTTP-triggered restore dispatches
+ * this job, which executes the synchronous `RestoreBackupUseCase` inside
+ * the worker — the UI polls `GET /admin/backups/{backup}/status` (~2 s)
+ * until the record re-completes or fails. The `failed()` hook caches the
+ * error message for the status endpoint.
  */
 final class RestoreBackupJob implements ShouldQueue
 {
@@ -29,17 +25,9 @@ final class RestoreBackupJob implements ShouldQueue
     ) {
     }
 
-    public function handle(
-        BackupRepositoryInterface $backups,
-        RestoreBackupUseCase $restore,
-    ): void {
-        $backup = $backups->find($this->backupId);
-
-        if ($backup === null) {
-            throw new RuntimeException("Backup {$this->backupId} no longer exists.");
-        }
-
-        $restore->restore($backup);
+    public function handle(RestoreBackupUseCase $restore): void
+    {
+        $restore->restoreById($this->backupId);
     }
 
     public function failed(Throwable $exception): void

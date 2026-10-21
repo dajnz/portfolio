@@ -15,11 +15,10 @@ use Illuminate\Support\Facades\Bus;
  */
 final class LaravelArticleViewRecorder implements ArticleViewRecorderInterface
 {
-    public function record(int $articleId, string $ip, ?string $userAgent): void
+    public function record(int $articleId, ?string $userAgent): void
     {
         Bus::dispatch(new IncrementArticleViewJob(
             articleId: $articleId,
-            ip: $ip,
             userAgent: $userAgent,
         ));
     }

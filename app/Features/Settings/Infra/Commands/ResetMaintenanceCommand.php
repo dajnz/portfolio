@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Settings\Infra\Commands;
 
-use App\Features\Settings\Domain\Enums\SettingName;
-use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
+use App\Features\Settings\App\UseCases\DisableSiteMaintenanceUseCase;
 use Illuminate\Console\Command;
 
 /**
@@ -18,9 +17,9 @@ final class ResetMaintenanceCommand extends Command
 
     protected $description = 'Disable the site maintenance mode (site_maintenance_mode setting)';
 
-    public function handle(SettingRepositoryInterface $repository): int
+    public function handle(DisableSiteMaintenanceUseCase $maintenance): int
     {
-        $repository->saveValue(SettingName::SiteMaintenanceMode, false);
+        $maintenance->disable();
 
         $this->info('Maintenance mode disabled.');
 

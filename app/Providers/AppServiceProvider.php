@@ -15,6 +15,7 @@ use App\Features\Auth\Infra\Services\AdminAuthService;
 use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Analytics\App\Contracts\AnalyticsDigestMailerInterface;
 use App\Features\Analytics\App\Contracts\AnalyticsReportDataReaderInterface;
+use App\Features\Analytics\App\Contracts\DailyMetricsSchedulerInterface;
 use App\Features\Analytics\App\Contracts\ReportsRebuildSchedulerInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsDailyMetricRepositoryInterface;
 use App\Features\Analytics\Domain\RepositoryInterfaces\AnalyticsEventRepositoryInterface;
@@ -24,6 +25,7 @@ use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsDailyMetricReposi
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsEventRepository;
 use App\Features\Analytics\Infra\Repositories\EloquentAnalyticsReportRepository;
 use App\Features\Analytics\Infra\Services\EloquentAnalyticsReportDataReader;
+use App\Features\Analytics\Infra\Services\LaravelDailyMetricsScheduler;
 use App\Features\Analytics\Infra\Services\LaravelReportsRebuildScheduler;
 use App\Features\Backup\App\Contracts\AssetPathCollectorInterface;
 use App\Features\Backup\App\Contracts\BackupArchiveInterface;
@@ -37,6 +39,7 @@ use App\Features\Backup\App\Services\BackupWorkflowService;
 use App\Features\Backup\App\Services\DatabaseRestoreService;
 use App\Features\Backup\App\Services\RestoreWorkflowService;
 use App\Features\Backup\App\UseCases\CreateBackupUseCase;
+use App\Features\Backup\App\UseCases\RunBackupUseCase;
 use App\Features\Backup\App\UseCases\RestoreBackupUseCase;
 use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use App\Features\Backup\Domain\RepositoryInterfaces\EncryptionKeyRepositoryInterface;
@@ -52,6 +55,7 @@ use App\Features\Backup\Infra\Storage\StorageEstimator;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleReactionRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
+use App\Features\Blog\Domain\RepositoryInterfaces\ArticleViewRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Blog\App\Contracts\ArticleListQueryRepositoryInterface;
 use App\Features\Blog\App\Contracts\ArticleViewRecorderInterface;
@@ -60,6 +64,7 @@ use App\Features\Blog\Infra\Repositories\EloquentArticleListQueryRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleReactionRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleTagRepository;
+use App\Features\Blog\Infra\Repositories\EloquentArticleViewRepository;
 use App\Features\Blog\Infra\Services\LaravelArticleViewRecorder;
 use App\Features\Blog\Infra\Services\LaravelVisitorFingerprint;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
@@ -97,6 +102,8 @@ use App\Features\Resume\Infra\Repositories\EloquentResumeDataReader;
 use App\Features\Resume\App\Contracts\ResumeDataReaderInterface;
 use App\Features\Resume\Infra\Services\LaravelResumePdfCache;
 use App\Features\Resume\Infra\Services\ResumePdfCacheInvalidator;
+use App\Features\Projects\Infra\Services\EloquentTrashedProjectPruner;
+use App\Features\Resume\Infra\Services\GeneratedResumePdfAssetPathProvider;
 use App\Features\Resume\Infra\Services\ResumePdfRenderer;
 use App\Features\Settings\App\Contracts\MailTransportTesterInterface;
 use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInterface;
@@ -127,6 +134,8 @@ use App\Features\Shared\App\Contracts\TransactionManagerInterface;
 use App\Features\Shared\App\Contracts\TranslatorInterface;
 use App\Features\Shared\App\Contracts\UploadDefaultsInterface;
 use App\Features\Shared\App\Contracts\UrlGeneratorInterface;
+use App\Features\Shared\App\UseCases\CleanupOrphanedFilesUseCase;
+use App\Features\Shared\App\UseCases\PruneTrashedItemsUseCase;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ContactReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
@@ -138,6 +147,8 @@ use App\Features\Shared\Infra\Repositories\EloquentAboutInfoReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentContactReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentProjectReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentPublishedArticleReadRepository;
+use App\Features\Shared\Infra\Services\DatabaseAssetPathProvider;
+use App\Features\Shared\Infra\Services\DatabaseTrashedItemPruner;
 use App\Features\Shared\Infra\Repositories\EloquentSettingsReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
@@ -271,6 +282,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ArticleReactionRepositoryInterface::class,
             EloquentArticleReactionRepository::class,
+        );
+
+        $this->app->bind(
+            ArticleViewRepositoryInterface::class,
+            EloquentArticleViewRepository::class,
         );
 
         $this->app->bind(
@@ -481,6 +497,11 @@ class AppServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(
+            DailyMetricsSchedulerInterface::class,
+            LaravelDailyMetricsScheduler::class,
+        );
+
+        $this->app->bind(
             ArticleViewRecorderInterface::class,
             LaravelArticleViewRecorder::class,
         );
@@ -664,6 +685,29 @@ class AppServiceProvider extends ServiceProvider
             LaravelCacheClearer::class,
         );
 
+        $this->app->bind(
+            PruneTrashedItemsUseCase::class,
+            fn ($app): PruneTrashedItemsUseCase => new PruneTrashedItemsUseCase(
+                settings: $app->make(SettingsReadRepositoryInterface::class),
+                pruners: [
+                    new DatabaseTrashedItemPruner('blog_articles'),
+                    new DatabaseTrashedItemPruner('experience_timeline_items'),
+                    $app->make(EloquentTrashedProjectPruner::class),
+                ],
+            ),
+        );
+
+        $this->app->bind(
+            CleanupOrphanedFilesUseCase::class,
+            fn ($app): CleanupOrphanedFilesUseCase => new CleanupOrphanedFilesUseCase(
+                storage: $app->make(AssetStorageInterface::class),
+                providers: [
+                    $app->make(DatabaseAssetPathProvider::class),
+                    $app->make(GeneratedResumePdfAssetPathProvider::class),
+                ],
+            ),
+        );
+
         $backupSources = fn (): BackupSources => new BackupSources(
             stagingPath: Config::get('backup.staging_path'),
             assetsBucket: Config::get('filesystems.disks.rustfs.bucket'),
@@ -719,6 +763,17 @@ class AppServiceProvider extends ServiceProvider
                 backups: $app->make(BackupRepositoryInterface::class),
                 keys: $app->make(EncryptionKeyRepositoryInterface::class),
                 dispatcher: $app->make(BackupJobDispatcherInterface::class),
+                encryptionEnabled: (bool) Config::get('backup.encryption_enabled', true),
+            ),
+        );
+
+        $this->app->bind(
+            RunBackupUseCase::class,
+            fn ($app): RunBackupUseCase => new RunBackupUseCase(
+                backups: $app->make(BackupRepositoryInterface::class),
+                keys: $app->make(EncryptionKeyRepositoryInterface::class),
+                workflow: $app->make(BackupWorkflowService::class),
+                logger: $app->make(LoggerInterface::class),
                 encryptionEnabled: (bool) Config::get('backup.encryption_enabled', true),
             ),
         );
