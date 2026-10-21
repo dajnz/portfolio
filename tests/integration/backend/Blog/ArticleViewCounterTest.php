@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\Blog;
 
+use App\Features\Blog\App\UseCases\IncrementArticleViewUseCase;
 use App\Features\Blog\Infra\Jobs\IncrementArticleViewJob;
 use App\Features\Settings\Infra\Models\SettingModel;
 use Database\Seeders\SettingsSeeder;
@@ -47,9 +48,11 @@ describe('article view counter', function (): void {
     it('skips bot User-Agents and missing ones', function (): void {
         $article = $this->publicBlogArticle();
 
-        (new IncrementArticleViewJob($article->id, '1.2.3.4', 'Googlebot/2.1'))->handle();
-        (new IncrementArticleViewJob($article->id, '1.2.3.4', null))->handle();
-        (new IncrementArticleViewJob($article->id, '1.2.3.4', 'Mozilla/5.0 (X11; Linux x86_64) Chrome/126.0'))->handle();
+        $increment = app(IncrementArticleViewUseCase::class);
+
+        (new IncrementArticleViewJob($article->id, 'Googlebot/2.1'))->handle($increment);
+        (new IncrementArticleViewJob($article->id, null))->handle($increment);
+        (new IncrementArticleViewJob($article->id, 'Mozilla/5.0 (X11; Linux x86_64) Chrome/126.0'))->handle($increment);
 
         $this->assertSame(1, (int) DB::table('article_views')->where('article_id', $article->id)->value('views'));
     });
@@ -57,9 +60,11 @@ describe('article view counter', function (): void {
     it('increments atomically on concurrent first views', function (): void {
         $article = $this->publicBlogArticle();
 
-        (new IncrementArticleViewJob($article->id, '1.2.3.4', 'Browser'))->handle();
-        (new IncrementArticleViewJob($article->id, '1.2.3.4', 'Browser'))->handle();
-        (new IncrementArticleViewJob($article->id, '1.2.3.4', 'Browser'))->handle();
+        $increment = app(IncrementArticleViewUseCase::class);
+
+        (new IncrementArticleViewJob($article->id, 'Browser'))->handle($increment);
+        (new IncrementArticleViewJob($article->id, 'Browser'))->handle($increment);
+        (new IncrementArticleViewJob($article->id, 'Browser'))->handle($increment);
 
         $this->assertSame(3, (int) DB::table('article_views')->where('article_id', $article->id)->value('views'));
     });

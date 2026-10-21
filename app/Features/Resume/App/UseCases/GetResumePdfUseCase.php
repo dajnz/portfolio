@@ -6,6 +6,7 @@ namespace App\Features\Resume\App\UseCases;
 
 use App\Features\Resume\App\Contracts\ResumePdfRendererInterface;
 use App\Features\Resume\App\DTOs\ResumePdfDto;
+use App\Features\Resume\App\Services\ResumePdfPathResolver;
 use App\Features\Resume\App\Services\ResumePdfStore;
 use App\Features\Resume\App\Services\ResumeSkillsAssembler;
 use App\Features\Resume\Domain\Entities\ResumeConfig;
@@ -38,6 +39,7 @@ final class GetResumePdfUseCase
         private readonly ResumePdfRendererInterface $renderer,
         private readonly ResumePdfStore $store,
         private readonly ResumeSkillsAssembler $skills,
+        private readonly ResumePdfPathResolver $paths,
     ) {
     }
 
@@ -62,8 +64,8 @@ final class GetResumePdfUseCase
 
     private function autoModePdf(ResumeConfig $config, string $locale): ResumePdfDto
     {
-        $hash = $this->contentHash($config);
-        $path = "about/resume_{$locale}_{$hash}.pdf";
+        $hash = $this->paths->hashFor($config);
+        $path = $this->paths->pathFor($locale, $hash);
         $cacheKey = "resume:pdf:{$locale}:{$hash}";
 
         $existing = $this->store->find($cacheKey, $path);
@@ -81,15 +83,6 @@ final class GetResumePdfUseCase
         $this->store->write($cacheKey, $path, $pdf);
 
         return new ResumePdfDto($path, 'resume.pdf', 'application/pdf');
-    }
-
-    private function contentHash(ResumeConfig $config): string
-    {
-        return hash('sha256', json_encode([
-            'stamps' => $this->reader->sourceStamps(),
-            'config_updated_at' => $config->toUpdatedAt()->format('Y-m-d H:i:s'),
-            'layout' => $config->toLayout(),
-        ], JSON_THROW_ON_ERROR));
     }
 
     /**

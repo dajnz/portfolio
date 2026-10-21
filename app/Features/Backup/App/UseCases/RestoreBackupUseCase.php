@@ -6,6 +6,7 @@ namespace App\Features\Backup\App\UseCases;
 
 use App\Features\Backup\App\Services\RestoreWorkflowService;
 use App\Features\Backup\Domain\Entities\Backup;
+use App\Features\Backup\Domain\Exceptions\BackupNotFoundException;
 use App\Features\Backup\Domain\RepositoryInterfaces\BackupRepositoryInterface;
 use App\Features\Backup\Domain\RepositoryInterfaces\EncryptionKeyRepositoryInterface;
 use App\Features\Backup\Domain\ValueObjects\BackupContentSummary;
@@ -29,6 +30,32 @@ final class RestoreBackupUseCase
         private readonly RestoreWorkflowService $workflow,
         private readonly ?string $legacyEncryptionKey = null,
     ) {
+    }
+
+    /**
+     * @throws BackupNotFoundException
+     * @throws Throwable On failure the record is marked `failed` and the
+     *                   exception rethrown.
+     */
+    public function restoreById(int $backupId): void
+    {
+        $backup = $this->backups->find($backupId)
+            ?? throw BackupNotFoundException::forId($backupId);
+
+        $this->restore($backup);
+    }
+
+    /**
+     * @throws BackupNotFoundException
+     * @throws Throwable On failure the record is marked `failed` and the
+     *                   exception rethrown.
+     */
+    public function restoreByFilename(string $filename): void
+    {
+        $backup = $this->backups->findByFilename($filename)
+            ?? throw BackupNotFoundException::forFilename($filename);
+
+        $this->restore($backup);
     }
 
     /**

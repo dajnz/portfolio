@@ -27,6 +27,13 @@ interface AssetStorageInterface
     public function files(string $directory): array;
 
     /**
+     * Every object path under the given directory, recursively.
+     *
+     * @return string[]
+     */
+    public function allFiles(string $directory): array;
+
+    /**
      * @param  string[]  $paths
      */
     public function delete(array $paths): void;

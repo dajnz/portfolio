@@ -16,4 +16,9 @@ final class BackupNotFoundException extends DomainException
     {
         return new self("Backup [{$id}] not found.");
     }
+
+    public static function forFilename(string $filename): self
+    {
+        return new self("No backup with the filename '{$filename}' exists.");
+    }
 }

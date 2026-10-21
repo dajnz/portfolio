@@ -11,5 +11,5 @@ namespace App\Features\Blog\App\Contracts;
  */
 interface ArticleViewRecorderInterface
 {
-    public function record(int $articleId, string $ip, ?string $userAgent): void;
+    public function record(int $articleId, ?string $userAgent): void;
 }

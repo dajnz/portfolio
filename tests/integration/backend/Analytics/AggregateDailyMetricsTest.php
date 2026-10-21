@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\Analytics;
 
+use App\Features\Analytics\App\Contracts\ReportsRebuildSchedulerInterface;
 use App\Features\Analytics\App\UseCases\AggregateDailyMetricsUseCase;
 use App\Features\Analytics\App\UseCases\SendDailyDigestUseCase;
 use App\Features\Analytics\Domain\Enums\MetricName;
@@ -270,6 +271,7 @@ describe('AggregateDailyMetricsJob (integration)', function (): void {
         $job->handle(
             app(AggregateDailyMetricsUseCase::class),
             app(SendDailyDigestUseCase::class),
+            app(ReportsRebuildSchedulerInterface::class),
         );
 
         Bus::assertDispatched(RebuildReportsJob::class);
@@ -306,6 +308,7 @@ describe('AggregateDailyMetricsJob (integration)', function (): void {
         $job->handle(
             app(AggregateDailyMetricsUseCase::class),
             app(SendDailyDigestUseCase::class),
+            app(ReportsRebuildSchedulerInterface::class),
         );
 
         Mail::assertQueued(SendAnalyticsReportMail::class, function (SendAnalyticsReportMail $mail): bool {
@@ -331,6 +334,7 @@ describe('AggregateDailyMetricsJob (integration)', function (): void {
         $job->handle(
             app(AggregateDailyMetricsUseCase::class),
             app(SendDailyDigestUseCase::class),
+            app(ReportsRebuildSchedulerInterface::class),
         );
 
         Mail::assertNotQueued(SendAnalyticsReportMail::class);
@@ -348,6 +352,7 @@ describe('AggregateDailyMetricsJob (integration)', function (): void {
         $job->handle(
             app(AggregateDailyMetricsUseCase::class),
             app(SendDailyDigestUseCase::class),
+            app(ReportsRebuildSchedulerInterface::class),
         );
 
         Mail::assertNotQueued(SendAnalyticsReportMail::class);

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Infra\Commands;
 
-use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
-use App\Features\Auth\Domain\RepositoryInterfaces\AdminTimedOtpRepositoryInterface;
+use App\Features\Auth\App\UseCases\ResetAdminPasswordUseCase;
+use App\Features\Auth\Domain\Exceptions\AdminNotFoundException;
 use App\Features\Auth\Infra\Services\PasswordGenerator;
 use Illuminate\Console\Command;
 
@@ -24,8 +24,7 @@ final class ResetAdminPasswordCommand extends Command
     protected $description = 'Reset the admin password (also clears the TOTP lockout and logs out all sessions)';
 
     public function __construct(
-        private readonly AdminRepositoryInterface $repository,
-        private readonly AdminTimedOtpRepositoryInterface $otpRepository,
+        private readonly ResetAdminPasswordUseCase $resetPassword,
         private readonly PasswordGenerator $passwordGenerator,
     ) {
         parent::__construct();
@@ -33,18 +32,9 @@ final class ResetAdminPasswordCommand extends Command
 
     public function handle(): int
     {
-        $admin = $this->option('login') !== null
-            ? $this->repository->findByLoginOrEmail((string) $this->option('login'))
-            : $this->repository->findFirst();
-
-        if ($admin === null) {
-            $this->error('No admin account found.');
-
-            return self::FAILURE;
-        }
-
+        $loginOrEmail = $this->option('login') !== null ? (string) $this->option('login') : null;
         $explicitPassword = $this->option('password');
-        $scripted = $this->option('login') !== null && $explicitPassword !== null;
+        $scripted = $loginOrEmail !== null && $explicitPassword !== null;
 
         if ($this->input->isInteractive() && ! $scripted) {
             if (! $this->confirm('Reset the admin password? This clears the TOTP lockout and logs out all sessions.', false)) {
@@ -56,14 +46,18 @@ final class ResetAdminPasswordCommand extends Command
 
         $password = $explicitPassword ?? $this->passwordGenerator->generate();
 
-        $this->repository->changePassword($admin->toId(), $password);
-        $this->otpRepository->saveForAdmin($admin->toId(), $admin->toTimedOtp()->withFailuresReset());
-        $this->repository->incrementSessionVersion($admin->toId());
+        try {
+            $reset = $this->resetPassword->reset($loginOrEmail, (string) $password);
+        } catch (AdminNotFoundException $exception) {
+            $this->error($exception->getMessage());
+
+            return self::FAILURE;
+        }
 
         $this->newLine();
         $this->line('╔'.str_repeat('═', 42).'╗');
         $this->line('║  '.str_pad('Admin password reset', 40).'║');
-        $this->line('║  '.str_pad('Login:    '.$admin->toLogin(), 40).'║');
+        $this->line('║  '.str_pad('Login:    '.$reset->login, 40).'║');
         $this->line('║  '.str_pad('Password: '.$password, 40).'║');
         $this->line('╚'.str_repeat('═', 42).'╝');
         $this->newLine();

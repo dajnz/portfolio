@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Features\Auth\Infra\Commands;
 
-use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
+use App\Features\Auth\App\UseCases\CreateAdminUseCase;
+use App\Features\Auth\Domain\Exceptions\AdminAlreadyExistsException;
 use App\Features\Auth\Infra\Services\PasswordGenerator;
 use Illuminate\Console\Command;
+use InvalidArgumentException;
 
 /**
  * `admin:create` — the sole path to initial credential creation. Creates
@@ -28,7 +30,7 @@ final class CreateAdminCommand extends Command
     protected $description = 'Create the initial admin account';
 
     public function __construct(
-        private readonly AdminRepositoryInterface $repository,
+        private readonly CreateAdminUseCase $createAdmin,
         private readonly PasswordGenerator $passwordGenerator,
     ) {
         parent::__construct();
@@ -36,9 +38,9 @@ final class CreateAdminCommand extends Command
 
     public function handle(): int
     {
-        $existing = $this->repository->findFirst();
+        $adminExists = $this->createAdmin->exists();
 
-        if ($existing !== null && ! $this->option('force')) {
+        if ($adminExists && ! $this->option('force')) {
             $this->error('An admin account already exists. Use --force to overwrite login/email, or run admin:reset-password to reset the password.');
 
             return self::FAILURE;
@@ -52,7 +54,7 @@ final class CreateAdminCommand extends Command
             $missing = [];
             $login === null && $missing[] = '--login';
             $email === null && $missing[] = '--email';
-            ! $existing && $password === null && $missing[] = '--password';
+            ! $adminExists && $password === null && $missing[] = '--password';
 
             if ($missing !== []) {
                 $this->error('Missing required options in non-interactive mode: '.implode(', ', $missing).'.');
@@ -72,19 +74,31 @@ final class CreateAdminCommand extends Command
             $password ??= $this->passwordGenerator->generate();
         }
 
-        if ($existing !== null) {
-            $this->repository->save($existing->updateCredentials($existing->toName(), (string) $email, (string) $login));
+        try {
+            $created = $this->createAdmin->create(
+                (string) $login,
+                (string) $email,
+                $password === null ? null : (string) $password,
+                (bool) $this->option('force'),
+            );
+        } catch (AdminAlreadyExistsException|InvalidArgumentException $exception) {
+            $this->error($exception->getMessage());
 
-            $this->outputCredentialsBox('Admin account overwritten', (string) $login, 'unchanged', (string) $email);
+            return self::FAILURE;
+        }
+
+        if ($created->created) {
+            $this->outputCredentialsBox(
+                'Admin account created',
+                $created->login,
+                (string) $password,
+                (string) $email,
+            );
 
             return self::SUCCESS;
         }
 
-        // The name column mirrors the login (single-admin account, no
-        // separate display name).
-        $this->repository->create((string) $login, (string) $email, (string) $login, (string) $password);
-
-        $this->outputCredentialsBox('Admin account created', (string) $login, (string) $password, (string) $email);
+        $this->outputCredentialsBox('Admin account overwritten', $created->login, 'unchanged', (string) $email);
 
         return self::SUCCESS;
     }

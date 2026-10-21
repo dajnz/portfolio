@@ -18,8 +18,8 @@ final class RecordArticleViewUseCase
     ) {
     }
 
-    public function record(int $articleId, string $ip, ?string $userAgent): void
+    public function record(int $articleId, ?string $userAgent): void
     {
-        $this->views->record($articleId, $ip, $userAgent);
+        $this->views->record($articleId, $userAgent);
     }
 }

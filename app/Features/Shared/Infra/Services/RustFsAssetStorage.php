@@ -51,6 +51,11 @@ final class RustFsAssetStorage implements AssetStorageInterface
         return Storage::disk('rustfs')->files($directory);
     }
 
+    public function allFiles(string $directory): array
+    {
+        return Storage::disk('rustfs')->allFiles($directory);
+    }
+
     public function delete(array $paths): void
     {
         Storage::disk('rustfs')->delete(array_values(array_unique(array_filter($paths))));

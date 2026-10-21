@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Features\Analytics\Infra\Commands;
 
+use App\Features\Analytics\App\Contracts\DailyMetricsSchedulerInterface;
 use App\Features\Analytics\App\UseCases\AggregateDailyMetricsUseCase;
-use App\Features\Analytics\Infra\Jobs\AggregateDailyMetricsJob;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Bus;
 
 /**
  * `analytics:generate-daily-metrics`: the thin scheduler entry point —
@@ -23,11 +22,13 @@ final class GenerateDailyMetricsCommand extends Command
 
     protected $description = 'Dispatch the daily metrics aggregation for the previous and in-progress days';
 
-    public function handle(AggregateDailyMetricsUseCase $aggregate): int
-    {
+    public function handle(
+        AggregateDailyMetricsUseCase $aggregate,
+        DailyMetricsSchedulerInterface $scheduler,
+    ): int {
         [$dateFrom, $dateTo] = $aggregate->defaultDateRange();
 
-        Bus::dispatch(new AggregateDailyMetricsJob($dateFrom, $dateTo));
+        $scheduler->schedule($dateFrom, $dateTo);
 
         $this->info(
             sprintf(

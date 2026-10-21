@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Features\Analytics\Infra\Jobs;
 
+use App\Features\Analytics\App\Contracts\ReportsRebuildSchedulerInterface;
 use App\Features\Analytics\App\UseCases\AggregateDailyMetricsUseCase;
 use App\Features\Analytics\App\UseCases\SendDailyDigestUseCase;
 use App\Features\Analytics\Domain\ValueObjects\ReportPeriod;
 use DateTimeImmutable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Bus;
 
 /**
  * The queued daily aggregation: aggregates `analytics_events` (+
@@ -34,6 +34,7 @@ final class AggregateDailyMetricsJob implements ShouldQueue
     public function handle(
         AggregateDailyMetricsUseCase $aggregate,
         SendDailyDigestUseCase $digestMail,
+        ReportsRebuildSchedulerInterface $reports,
     ): void {
         [$dateFrom, $dateTo] = $this->resolveDateRange($aggregate);
 
@@ -42,7 +43,7 @@ final class AggregateDailyMetricsJob implements ShouldQueue
         // The report rebuild runs after every aggregation — reports
         // are fully rebuilt from the daily metrics, so they cannot
         // drift.
-        Bus::dispatch(new RebuildReportsJob());
+        $reports->schedule(recomputeMetrics: false);
 
         $digestMail->sendForDay($dateFrom);
     }
