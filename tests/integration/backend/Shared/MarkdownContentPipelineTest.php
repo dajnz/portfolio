@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Backend\Shared;
+namespace Tests\Integration\Backend\Shared;
 
 use App\Features\Shared\Infra\Services\CodeHighlighter;
 use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
 use Highlight\Highlighter;
-use Illuminate\Cache\ArrayStore;
-use Illuminate\Cache\Repository;
 use Illuminate\Support\Facades\Cache;
+
+beforeEach(function (): void {
+    Cache::flush();
+});
 
 describe('MarkdownContentPipeline', function (): void {
     it('escapes raw HTML instead of passing it through', function (): void {
@@ -192,11 +194,5 @@ describe('MarkdownContentPipeline', function (): void {
 
 function pipeline(): MarkdownContentPipeline
 {
-    // The unit suite does not boot the Laravel app (tests/Pest.php
-    // extends TestCase for `integration` only) — the pipeline and its
-    // cache are constructed manually with an in-memory store.
-    static $cache = null;
-    $cache ??= Cache::swap(new Repository(new ArrayStore()));
-
     return new MarkdownContentPipeline(new CodeHighlighter(new Highlighter()));
 }

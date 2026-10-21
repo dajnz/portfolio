@@ -2,21 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Backend\Shared;
+namespace Tests\Integration\Backend\Shared;
 
 use App\Features\Shared\Infra\Search\FtsQueryBuilder;
-use Illuminate\Database\Connection;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Database\Query\Grammars\PostgresGrammar;
-use Illuminate\Database\Query\Processors\PostgresProcessor;
-use Mockery;
-
-function ftsTestBuilder(): Builder
-{
-    $connection = Mockery::mock(Connection::class);
-
-    return new Builder($connection, new PostgresGrammar($connection), new PostgresProcessor());
-}
+use Illuminate\Support\Facades\DB;
 
 describe('FtsQueryBuilder', function (): void {
     it('truncates queries to 200 characters', function (): void {
@@ -44,7 +33,7 @@ describe('FtsQueryBuilder', function (): void {
 
     it('selects the rank and the headline snippet as aliased columns', function (): void {
         $fts = new FtsQueryBuilder('russian', 'шлюз');
-        $query = ftsTestBuilder();
+        $query = DB::query();
 
         $fts->selectRank($query, 'pl.search_vector', 'fts_rank')
             ->selectHeadline($query, 'pl.content', 'fts_snippet');
