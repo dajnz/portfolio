@@ -35,6 +35,7 @@ export interface CrossListDropApi {
     previewActive: Ref<boolean>;
     previewItemKey: Ref<unknown>;
     clearPreviews: () => void;
+    clearPreview: () => void;
     resetPreview: () => void;
     setDragSource: (item: SortableItem) => void;
     handleDragOver: (event: DragEvent) => boolean;
@@ -257,6 +258,7 @@ export function useCrossListDrop(
         previewActive,
         previewItemKey,
         clearPreviews,
+        clearPreview,
         resetPreview,
         setDragSource,
         handleDragOver,

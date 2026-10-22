@@ -27,6 +27,7 @@ export interface SortableDragApi {
     handleDragOver: (event: DragEvent) => void;
     handleDrop: (event: DragEvent) => Array<SortableItem> | null;
     handleDragEnd: () => Array<SortableItem> | null;
+    restoreOrderAfterLeave: () => void;
     reset: () => void;
 }
 
@@ -36,6 +37,7 @@ export function useSortableDrag(
 ): SortableDragApi {
     const isDragging = ref(false);
     const draggingIndex = ref<number | null>(null);
+    let orderChanged = false;
 
     function handleDragStart(event: DragEvent, index: number): SortableItem | null {
         if (!dependencies.guard.allowsDragStart(index)) {
@@ -54,6 +56,7 @@ export function useSortableDrag(
 
         draggingIndex.value = index;
         isDragging.value = true;
+        orderChanged = false;
         dependencies.setDragSource(draggedItem);
 
         event.dataTransfer?.setData('text/plain', String(dependencies.keyOf(draggedItem)));
@@ -93,6 +96,7 @@ export function useSortableDrag(
 
         dependencies.items.value = dependencies.reordered(draggingIndex.value, insertionIndex);
         draggingIndex.value = insertionIndex;
+        orderChanged = true;
     }
 
     function handleDrop(event: DragEvent): Array<SortableItem> | null {
@@ -123,9 +127,33 @@ export function useSortableDrag(
         return result;
     }
 
+    function restoreOrderAfterLeave(): void {
+        if (!isDragging.value || draggingIndex.value === null || !orderChanged) {
+            return;
+        }
+
+        const draggedItem = dependencies.items.value[draggingIndex.value];
+
+        if (draggedItem === undefined) {
+            return;
+        }
+
+        const draggedKey = dependencies.keyOf(draggedItem);
+
+        dependencies.resetFromModel();
+
+        const restoredIndex = dependencies.items.value.findIndex(
+            (item) => dependencies.keyOf(item) === draggedKey,
+        );
+
+        draggingIndex.value = restoredIndex === -1 ? draggingIndex.value : restoredIndex;
+        orderChanged = false;
+    }
+
     function reset(): void {
         draggingIndex.value = null;
         isDragging.value = false;
+        orderChanged = false;
     }
 
     return {
@@ -135,6 +163,7 @@ export function useSortableDrag(
         handleDragOver,
         handleDrop,
         handleDragEnd,
+        restoreOrderAfterLeave,
         reset,
     };
 }

@@ -3,7 +3,7 @@ export type { CrossDragInfo } from './types';
 </script>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
 import SortableListItem from './SortableListItem.vue';
 import type { CrossDragInfo, SortableItem, SortableListClasses } from './types';
@@ -55,8 +55,8 @@ const emit = defineEmits<{
     'drag-end': [items: Array<SortableItem>, cross?: CrossDragInfo | null];
 }>();
 
-// The container element — used by the cross-list preview cleanup (the
-// dragleave relatedTarget check).
+// The container element — used by the dragleave and document-dragover
+// checks that hide the preview when the cursor leaves the list.
 const ulEl = ref<HTMLElement | null>(null);
 
 const { items, keyOf, resetFromModel, reordered, itemIndexAt, insertionIndexAt } =
@@ -68,6 +68,7 @@ const {
     previewActive,
     previewItemKey,
     clearPreviews,
+    clearPreview,
     resetPreview,
     setDragSource,
     handleDragOver: handleCrossDragOver,
@@ -89,6 +90,7 @@ const {
     handleDragOver,
     handleDrop,
     handleDragEnd,
+    restoreOrderAfterLeave,
     reset: resetDrag,
 } = useSortableDrag(props, {
     items,
@@ -120,6 +122,44 @@ watch(
         resetPreview();
     },
 );
+
+function isInsideList(event: DragEvent): boolean {
+    const element = ulEl.value;
+    const target = event.target as Node | null;
+
+    return element !== null && target !== null && element.contains(target);
+}
+
+// `dragleave` alone is unreliable: moving the live preview can leave the
+// cursor outside the list without firing it (and its `relatedTarget` check
+// misses edge cases). A document-level `dragover` reports where the cursor
+// actually is — anything outside the list hides the preview and restores
+// the same-list order.
+function onDocumentDragOver(event: DragEvent): void {
+    if (isInsideList(event)) {
+        return;
+    }
+
+    restoreOrderAfterLeave();
+    clearPreview();
+}
+
+watch(
+    [isDragging, previewActive],
+    ([dragging, previewing]) => {
+        if (dragging || previewing) {
+            document.addEventListener('dragover', onDocumentDragOver);
+            return;
+        }
+
+        document.removeEventListener('dragover', onDocumentDragOver);
+    },
+    { flush: 'sync' },
+);
+
+onBeforeUnmount(() => {
+    document.removeEventListener('dragover', onDocumentDragOver);
+});
 
 function onDragStart(event: DragEvent, index: number): void {
     // Nested lists (the skills lists live inside the groups list's
