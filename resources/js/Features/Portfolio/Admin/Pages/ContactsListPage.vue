@@ -465,7 +465,7 @@ function isEditing(rowId: number): boolean {
           item_key="id"
           :handle="'.contact-row-handle'"
           :classes="{
-            container: 'divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white shadow-card dark:divide-slate-700 dark:border-slate-700 dark:bg-surface-dark-secondary',
+            container: 'divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white shadow-card dark:divide-slate-700 dark:border-slate-700 dark:bg-surface-dark-secondary overflow-hidden',
             item: 'px-4 py-3 hover:bg-slate-100 hover:dark:bg-surface-dark-tertiary',
           }"
           :test_id="`${props.test_id}-sortable`"
