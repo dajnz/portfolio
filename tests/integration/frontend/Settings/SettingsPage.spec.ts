@@ -29,7 +29,7 @@ vi.mock('@shared-cross/Composables/useAnalytics', () => ({
     useAnalytics: () => ({ track: vi.fn(), cleanup: vi.fn(), trackPageView: vi.fn() }),
 }));
 
-import SettingsPage from '@settings/Admin/Pages/SettingsPage.vue';
+import SettingsPage from '@settings/Admin/Pages/SettingsPage/SettingsPage.vue';
 import LanguageSelector from '@shared-cross/Components/LanguageSelector.vue';
 import { useToastStore } from '@shared-cross/Stores/toastStore';
 const SETTINGS = {
