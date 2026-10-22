@@ -16,7 +16,7 @@ components:
 
     ResumeLayout:
       type: object
-      description: Resume layout JSON — template selection + section visibility/ordering.
+      description: Resume layout JSON — template selection, section visibility/ordering and PDF rendering options.
       properties:
         template:
           type: string
@@ -27,7 +27,27 @@ components:
           description: The five sections keyed by id (header, about_me, skills, experience, contacts).
           additionalProperties:
             $ref: '#/components/schemas/ResumeSectionConfig'
-      required: [template, sections]
+        skills_layout:
+          type: string
+          enum: [per_line, inline]
+          description: Skills rendering in the PDF — one skill per line with its proficiency label, or all group skills inline after the bold group name.
+        contacts_show_heading:
+          type: boolean
+          description: Whether the "Contacts" section heading renders in the PDF.
+        contacts_layout:
+          type: string
+          enum: [per_line, two_columns]
+          description: Contacts rendering in the PDF — one contact per line, or a two-column table filled row by row, left to right.
+        experience_show_skills:
+          type: boolean
+          description: Whether each experience item's tech-tag line renders in the PDF.
+      required:
+        - template
+        - sections
+        - skills_layout
+        - contacts_show_heading
+        - contacts_layout
+        - experience_show_skills
 
     ResumeEditPageProps:
       allOf:

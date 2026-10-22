@@ -1897,7 +1897,7 @@ export interface components {
             /** @description Render order among the five sections (hidden sections keep their value). */
             order: number;
         };
-        /** @description Resume layout JSON — template selection + section visibility/ordering. */
+        /** @description Resume layout JSON — template selection, section visibility/ordering and PDF rendering options. */
         ResumeLayout: {
             /**
              * @description PDF template (modern = single column, classic = two-column sidebar, compact = dense 1-page).
@@ -1908,6 +1908,20 @@ export interface components {
             sections: {
                 [key: string]: components["schemas"]["ResumeSectionConfig"];
             };
+            /**
+             * @description Skills rendering in the PDF — one skill per line with its proficiency label, or all group skills inline after the bold group name.
+             * @enum {string}
+             */
+            skills_layout: "per_line" | "inline";
+            /** @description Whether the "Contacts" section heading renders in the PDF. */
+            contacts_show_heading: boolean;
+            /**
+             * @description Contacts rendering in the PDF — one contact per line, or a two-column table filled row by row, left to right.
+             * @enum {string}
+             */
+            contacts_layout: "per_line" | "two_columns";
+            /** @description Whether each experience item's tech-tag line renders in the PDF. */
+            experience_show_skills: boolean;
         };
         ResumeEditPageProps: components["schemas"]["InertiaPage"] & {
             /** @constant */
