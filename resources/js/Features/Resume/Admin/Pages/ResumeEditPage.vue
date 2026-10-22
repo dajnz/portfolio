@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import type { RequestPayload } from '@inertiajs/core';
 import { router, usePage } from '@inertiajs/vue3';
-import ResumeSectionEditor from '@resume-admin/ResumeSectionEditor.vue';
+import ResumeSectionEditor from '@resume-admin/ResumeSectionEditor/ResumeSectionEditor.vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminBaseDropdown from '@shared-admin/AdminBaseDropdown.vue';
 import AdminBaseTextarea from '@shared-admin/AdminBaseTextarea.vue';
