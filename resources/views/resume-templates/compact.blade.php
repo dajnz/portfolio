@@ -12,6 +12,9 @@
     $period = fn (array $item): string => substr((string) $item['started_at'], 0, 4)
         .' – '
         .($item['ended_at'] === null ? __('resume.present') : substr((string) $item['ended_at'], 0, 4));
+    $showContactsHeading = $data['options']['contacts_show_heading'] ?? true;
+    $showExperienceSkills = $data['options']['experience_show_skills'] ?? true;
+    $flushNextHeading = true;
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $locale }}">
@@ -37,19 +40,21 @@
             color: #2563eb;
             margin: 10px 0 4px;
         }
-        h2:first-of-type { margin-top: 0; }
+        h2.flush { margin-top: 0; }
         .about { margin: 0; }
         .skill { margin: 0 0 1px; }
         .skill .level { color: #6b7280; }
         .skill-group-name { font-weight: bold; }
-        .skill-group { margin-bottom: 4px; }
+        .skill-group { margin: 0 0 4px; }
         .experience-item { margin-bottom: 6px; page-break-inside: avoid; }
         .experience-item h3 { font-size: 8.5pt; margin: 0; color: #111827; display: inline; }
-        .period { color: #6b7280; }
+        .period { color: #6b7280; float: right; }
         .company { color: #4b5563; margin: 0; }
         .achievements { margin: 2px 0 0; padding-left: 14px; }
         .achievements li { margin-bottom: 0; }
         .tech-tags { color: #6b7280; margin: 1px 0 0; }
+        table.contacts { width: 100%; border-collapse: collapse; }
+        table.contacts td { width: 50%; vertical-align: top; padding: 0 8px 0 0; }
         .contact { margin: 0 0 2px; }
         .contact .label { font-weight: bold; }
         .contact .value { color: #4b5563; }
@@ -64,28 +69,25 @@
             <header>
                 <h1>{{ $data['header']['name'] }} <span class="title">{{ $data['header']['title'] }}</span></h1>
             </header>
+            @php $flushNextHeading = true; @endphp
         @elseif ($section === 'about_me' && $data['about'] !== '')
-            <h2>{{ __('resume.section_about_me') }}</h2>
+            <h2 class="{{ $flushNextHeading ? 'flush' : '' }}">{{ __('resume.section_about_me') }}</h2>
+            @php $flushNextHeading = false; @endphp
             <p class="about">{{ $data['about'] }}</p>
         @elseif ($section === 'skills' && $data['skills'] !== [])
-            <h2>{{ __('resume.section_skills') }}</h2>
-            @foreach ($data['skills'] as $group)
-                <div class="skill-group">
-                    <span class="skill-group-name">{{ $group['group'] }}:</span>
-                    @foreach ($group['skills'] as $skill)
-                        <span class="skill">{{ $skill['name'] }} <span class="level">({{ $skill['proficiency_label'] }})</span>@if (! $loop->last)·@endif</span>
-                    @endforeach
-                </div>
-            @endforeach
+            <h2 class="{{ $flushNextHeading ? 'flush' : '' }}">{{ __('resume.section_skills') }}</h2>
+            @php $flushNextHeading = false; @endphp
+            @include('resume-templates.partials.skills', ['data' => $data])
         @elseif ($section === 'experience' && $data['experience'] !== [])
-            <h2>{{ __('resume.section_experience') }}</h2>
+            <h2 class="{{ $flushNextHeading ? 'flush' : '' }}">{{ __('resume.section_experience') }}</h2>
+            @php $flushNextHeading = false; @endphp
             @foreach ($data['experience'] as $item)
                 <div class="experience-item">
+                    <span class="period">{{ $period($item) }}</span>
                     <h3>{{ $item['position'] }}</h3>
                     @if ($item['company_name'] !== null)
                         <span class="company">{{ $item['company_name'] }}@if ($item['company_country'] !== null), {{ $item['company_country'] }}@endif</span>
                     @endif
-                    <span class="period">— {{ $period($item) }}</span>
                     @if ($item['achievements'] !== [])
                         <ul class="achievements">
                             @foreach ($item['achievements'] as $achievement)
@@ -93,21 +95,17 @@
                             @endforeach
                         </ul>
                     @endif
-                    @if ($item['tech_tags'] !== [])
+                    @if ($showExperienceSkills && $item['tech_tags'] !== [])
                         <p class="tech-tags">{{ implode(' · ', $item['tech_tags']) }}</p>
                     @endif
                 </div>
             @endforeach
         @elseif ($section === 'contacts' && $data['contacts'] !== [])
-            <h2>{{ __('resume.section_contacts') }}</h2>
-            @foreach ($data['contacts'] as $contact)
-                <p class="contact">
-                    @if ($contact['name'] !== '')
-                        <span class="label">{{ $contact['name'] }}:</span>
-                    @endif
-                    <span class="value">{{ $contact['url'] ?? $contact['value'] }}</span>
-                </p>
-            @endforeach
+            @if ($showContactsHeading)
+                <h2 class="{{ $flushNextHeading ? 'flush' : '' }}">{{ __('resume.section_contacts') }}</h2>
+            @endif
+            @php $flushNextHeading = false; @endphp
+            @include('resume-templates.partials.contacts', ['data' => $data])
         @endif
     @endforeach
 </body>
