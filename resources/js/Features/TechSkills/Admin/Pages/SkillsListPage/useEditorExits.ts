@@ -1,6 +1,8 @@
 import { ADMIN_ESCAPE_EVENT } from '@shared-cross/Composables/useAdminShortcuts';
 import { onBeforeUnmount, onMounted, type Ref } from 'vue';
 
+import type { SkillEditorTarget } from './types';
+
 // SkillsListPage — editor exit model (SkillsListPage.vue is the
 // orchestrator). Editors exit only via click-outside, Escape, or Cancel;
 // there is no blur-save (the blur fires while the next control still holds
@@ -13,7 +15,7 @@ import { onBeforeUnmount, onMounted, type Ref } from 'vue';
 // each editor's containment includes its panel.
 export interface EditorExitsOptions {
     editingGroupId: Ref<number | 'new' | null>;
-    editingSkill: Ref<{ groupId: number; skillId: number | 'new' } | null>;
+    editingSkill: Ref<SkillEditorTarget | null>;
     groupErrors: Ref<Record<string, string>>;
     skillErrors: Ref<Record<string, string>>;
     cancelGroupEdit: () => void;
