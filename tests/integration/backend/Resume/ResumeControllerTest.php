@@ -101,6 +101,10 @@ describe('ResumeController admin', function (): void {
                 ->where('mode', 'manual')
                 ->where('layout.template', 'modern')
                 ->where('layout.sections.header.order', 0)
+                ->where('layout.skills_layout', 'per_line')
+                ->where('layout.contacts_show_heading', true)
+                ->where('layout.contacts_layout', 'per_line')
+                ->where('layout.experience_show_skills', true)
                 ->where('custom_resume_file', null)
                 ->where('about_texts', []));
     });
@@ -119,6 +123,10 @@ describe('ResumeController admin', function (): void {
                     'experience' => ['visible' => true, 'order' => 3],
                     'contacts' => ['visible' => true, 'order' => 4],
                 ],
+                'skills_layout' => 'inline',
+                'contacts_show_heading' => false,
+                'contacts_layout' => 'two_columns',
+                'experience_show_skills' => false,
             ],
             'about_text' => ['en' => 'Custom about.', 'ru' => ''],
         ])->assertRedirect();
@@ -128,6 +136,10 @@ describe('ResumeController admin', function (): void {
         expect($config->mode)->toBe('auto')
             ->and($config->layout['template'])->toBe('classic')
             ->and($config->layout['sections']['skills']['visible'])->toBeFalse()
+            ->and($config->layout['skills_layout'])->toBe('inline')
+            ->and($config->layout['contacts_show_heading'])->toBeFalse()
+            ->and($config->layout['contacts_layout'])->toBe('two_columns')
+            ->and($config->layout['experience_show_skills'])->toBeFalse()
             ->and(ResumeConfigTranslationModel::query()->where('locale', 'en')->value('about_text'))->toBe('Custom about.')
             ->and(ResumeConfigTranslationModel::query()->where('locale', 'ru')->value('about_text'))->toBeNull();
     });
@@ -185,6 +197,40 @@ describe('ResumeController admin', function (): void {
             'mode' => 'auto',
             'layout' => $layout,
         ])->assertSessionHasErrors('layout.sections.skills.visible');
+    });
+
+    it('rejects an invalid skills layout', function (): void {
+        $layout = self::DEFAULT_LAYOUT;
+        $layout['skills_layout'] = 'grid';
+
+        $this->put('/admin/resume', [
+            'mode' => 'auto',
+            'layout' => $layout,
+        ])->assertSessionHasErrors('layout.skills_layout');
+    });
+
+    it('rejects an invalid contacts layout', function (): void {
+        $layout = self::DEFAULT_LAYOUT;
+        $layout['contacts_layout'] = 'grid';
+
+        $this->put('/admin/resume', [
+            'mode' => 'auto',
+            'layout' => $layout,
+        ])->assertSessionHasErrors('layout.contacts_layout');
+    });
+
+    it('rejects non-boolean rendering flags', function (): void {
+        $layout = self::DEFAULT_LAYOUT;
+        $layout['contacts_show_heading'] = 'yes';
+        $layout['experience_show_skills'] = 'no';
+
+        $this->put('/admin/resume', [
+            'mode' => 'auto',
+            'layout' => $layout,
+        ])->assertSessionHasErrors([
+            'layout.contacts_show_heading',
+            'layout.experience_show_skills',
+        ]);
     });
 
     it('requires the custom file path in manual mode', function (): void {

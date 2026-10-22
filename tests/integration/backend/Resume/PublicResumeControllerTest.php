@@ -112,7 +112,13 @@ describe('PublicResumeController /cv — auto mode', function (): void {
             ->and($data['experience'][0]['company_name'])->toBe('Acme Inc')
             ->and($data['experience'][0]['tech_tags'])->toBe(['Laravel'])
             ->and($data['contacts'][0]['name'])->toBe('GitHub')
-            ->and($data['contacts'][0]['url'])->toBe('https://github.com/alex');
+            ->and($data['contacts'][0]['url'])->toBe('https://github.com/alex')
+            ->and($data['options'])->toBe([
+                'skills_layout' => 'per_line',
+                'contacts_show_heading' => true,
+                'contacts_layout' => 'per_line',
+                'experience_show_skills' => true,
+            ]);
     });
 
     it('uses the custom about text and excludes non-included skills and hidden sections', function (): void {
@@ -131,6 +137,10 @@ describe('PublicResumeController /cv — auto mode', function (): void {
 
         $layout = self::DEFAULT_LAYOUT;
         $layout['sections']['contacts']['visible'] = false;
+        $layout['skills_layout'] = 'inline';
+        $layout['contacts_layout'] = 'two_columns';
+        $layout['contacts_show_heading'] = false;
+        $layout['experience_show_skills'] = false;
         DB::table('resume_config')->where('id', 1)->update([
             'layout' => json_encode($layout),
         ]);
@@ -141,6 +151,12 @@ describe('PublicResumeController /cv — auto mode', function (): void {
 
         expect($data['about'])->toBe('Custom about me.')
             ->and($data['skills'][0]['skills'])->toHaveCount(1)
-            ->and($data['contacts'])->toBe([]);
+            ->and($data['contacts'])->toBe([])
+            ->and($data['options'])->toBe([
+                'skills_layout' => 'inline',
+                'contacts_show_heading' => false,
+                'contacts_layout' => 'two_columns',
+                'experience_show_skills' => false,
+            ]);
     });
 });

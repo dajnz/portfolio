@@ -9,16 +9,20 @@ use Illuminate\Validation\Rule;
 
 /**
  * `PUT /admin/resume` — the full resume configuration payload: mode, the
- * layout JSON (template + the five sections' visibility/order), the
- * manual file path (required in manual mode) and the per-locale About Me
- * texts (nullable — an empty text is stored as null and falls back to
- * the about short pitch in the PDF).
+ * layout JSON (template + the five sections' visibility/order + the
+ * rendering options), the manual file path (required in manual mode) and
+ * the per-locale About Me texts (nullable — an empty text is stored as
+ * null and falls back to the about short pitch in the PDF).
  */
 final class UpdateResumeConfigRequest extends FormRequest
 {
     private const TEMPLATES = ['modern', 'classic', 'compact'];
 
     private const SECTION_KEYS = ['header', 'about_me', 'skills', 'experience', 'contacts'];
+
+    private const SKILLS_LAYOUTS = ['per_line', 'inline'];
+
+    private const CONTACTS_LAYOUTS = ['per_line', 'two_columns'];
 
     /** @return array<string, mixed> */
     public function rules(): array
@@ -28,6 +32,10 @@ final class UpdateResumeConfigRequest extends FormRequest
             'layout' => ['required', 'array'],
             'layout.template' => ['required', 'string', Rule::in(self::TEMPLATES)],
             'layout.sections' => ['required', 'array'],
+            'layout.skills_layout' => ['required', 'string', Rule::in(self::SKILLS_LAYOUTS)],
+            'layout.contacts_show_heading' => ['required', 'boolean'],
+            'layout.contacts_layout' => ['required', 'string', Rule::in(self::CONTACTS_LAYOUTS)],
+            'layout.experience_show_skills' => ['required', 'boolean'],
             'custom_resume_file' => [
                 'nullable',
                 'string',

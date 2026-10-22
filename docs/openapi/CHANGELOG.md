@@ -12,6 +12,16 @@ runtime support.
 
 ### Changed
 
+- **Resume layout rendering options (v1.0.36 inertia):** `ResumeLayout`
+  gained `skills_layout` (`per_line` | `inline`), `contacts_show_heading`
+  (boolean), `contacts_layout` (`per_line` | `two_columns`) and
+  `experience_show_skills` (boolean) — the PDF rendering options edited on
+  `/admin/resume`. All four are required; layouts stored before the options
+  existed are normalized to `per_line` / `true` / `per_line` / `true`. The
+  compact template now follows the selected skills layout (previously always
+  inline with proficiency labels). `info.version` bumped to `1.0.36` in
+  `inertia.yaml`.
+
 - **Footer version shared (v1.0.35 inertia):** `InertiaSharedProps` gained a
   `version` string — the deployed git tag (or short commit SHA) rendered on
   the left side of the admin footer. Production bakes the deployed ref into

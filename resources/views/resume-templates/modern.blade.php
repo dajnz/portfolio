@@ -13,6 +13,8 @@
     $period = fn (array $item): string => substr((string) $item['started_at'], 0, 4)
         .' – '
         .($item['ended_at'] === null ? __('resume.present') : substr((string) $item['ended_at'], 0, 4));
+    $showContactsHeading = $data['options']['contacts_show_heading'] ?? true;
+    $showExperienceSkills = $data['options']['experience_show_skills'] ?? true;
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $locale }}">
@@ -45,7 +47,7 @@
             margin: 24px 0 10px;
         }
         .about { margin: 0; }
-        .skill-group { margin-bottom: 8px; }
+        .skill-group { margin: 0 0 8px; }
         .skill-group-name { font-weight: bold; color: #374151; }
         .skill { margin: 0 0 2px; }
         .skill .level { color: #6b7280; font-size: 9.5pt; }
@@ -56,6 +58,8 @@
         .achievements { margin: 4px 0 0; padding-left: 18px; }
         .achievements li { margin-bottom: 2px; }
         .tech-tags { color: #6b7280; font-size: 9.5pt; margin: 2px 0 0; }
+        table.contacts { width: 100%; border-collapse: collapse; }
+        table.contacts td { width: 50%; vertical-align: top; padding: 0 10px 0 0; }
         .contact { margin: 0 0 4px; }
         .contact .label { font-weight: bold; color: #374151; }
         .contact .value { color: #4b5563; }
@@ -76,14 +80,7 @@
             <p class="about">{{ $data['about'] }}</p>
         @elseif ($section === 'skills' && $data['skills'] !== [])
             <h2>{{ __('resume.section_skills') }}</h2>
-            @foreach ($data['skills'] as $group)
-                <div class="skill-group">
-                    <div class="skill-group-name">{{ $group['group'] }}</div>
-                    @foreach ($group['skills'] as $skill)
-                        <p class="skill">{{ $skill['name'] }} <span class="level">— {{ $skill['proficiency_label'] }}</span></p>
-                    @endforeach
-                </div>
-            @endforeach
+            @include('resume-templates.partials.skills', ['data' => $data])
         @elseif ($section === 'experience' && $data['experience'] !== [])
             <h2>{{ __('resume.section_experience') }}</h2>
             @foreach ($data['experience'] as $item)
@@ -101,21 +98,16 @@
                             @endforeach
                         </ul>
                     @endif
-                    @if ($item['tech_tags'] !== [])
+                    @if ($showExperienceSkills && $item['tech_tags'] !== [])
                         <p class="tech-tags">{{ implode(' · ', $item['tech_tags']) }}</p>
                     @endif
                 </div>
             @endforeach
         @elseif ($section === 'contacts' && $data['contacts'] !== [])
-            <h2>{{ __('resume.section_contacts') }}</h2>
-            @foreach ($data['contacts'] as $contact)
-                <p class="contact">
-                    @if ($contact['name'] !== '')
-                        <span class="label">{{ $contact['name'] }}:</span>
-                    @endif
-                    <span class="value">{{ $contact['url'] ?? $contact['value'] }}</span>
-                </p>
-            @endforeach
+            @if ($showContactsHeading)
+                <h2>{{ __('resume.section_contacts') }}</h2>
+            @endif
+            @include('resume-templates.partials.contacts', ['data' => $data])
         @endif
     @endforeach
 </body>

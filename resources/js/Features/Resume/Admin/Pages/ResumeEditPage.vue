@@ -1,9 +1,10 @@
-<!-- ResumeEditPage — the resume settings form: mode radio, the auto-mode layout editor (template + ResumeSectionEditor) with per-locale About Me text, the inclusion summary, Regenerate + Download preview, and the manual-mode PDF dropzone. Layout changes (mode/template/visibility/order) auto-save via PUT /admin/resume without `about_text` (the backend leaves the stored texts untouched — UpdateResumeConfigUseCase reconciles only the provided locales); the About Me texts persist via the explicit Save button. -->
+<!-- ResumeEditPage — the resume settings form: mode radio, the auto-mode layout card (template + ResumeSectionEditor) and content card (per-locale About Me text, PDF rendering options, inclusion summary), Regenerate + Download preview, and the manual-mode PDF dropzone. Layout changes (mode/template/visibility/order/rendering options) auto-save via PUT /admin/resume without `about_text` (the backend leaves the stored texts untouched — UpdateResumeConfigUseCase reconciles only the provided locales); the About Me texts persist via the explicit Save button. -->
 <script setup lang="ts">
 import type { RequestPayload } from '@inertiajs/core';
 import { router, usePage } from '@inertiajs/vue3';
 import ResumeSectionEditor from '@resume-admin/ResumeSectionEditor/ResumeSectionEditor.vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
+import AdminBaseCheckbox from '@shared-admin/AdminBaseCheckbox.vue';
 import AdminBaseDropdown from '@shared-admin/AdminBaseDropdown.vue';
 import AdminBaseTextarea from '@shared-admin/AdminBaseTextarea.vue';
 import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
@@ -93,7 +94,14 @@ function buildLayout(layout: ResumeLayout | undefined): ResumeLayout {
         }
     }
 
-    return { template, sections };
+    return {
+        template,
+        sections,
+        skills_layout: layout?.skills_layout === 'inline' ? 'inline' : 'per_line',
+        contacts_show_heading: layout?.contacts_show_heading ?? true,
+        contacts_layout: layout?.contacts_layout === 'two_columns' ? 'two_columns' : 'per_line',
+        experience_show_skills: layout?.experience_show_skills ?? true,
+    };
 }
 
 function buildForm(editProps: ResumeEditProps): ResumeFormValues {
@@ -148,6 +156,26 @@ function setTemplate(value: string | string[]): void {
 
 function setSections(next: ResumeSectionsMap): void {
     form.layout.sections = next;
+    autoSave();
+}
+
+function setSkillsLayout(value: string | string[]): void {
+    form.layout.skills_layout = value === 'inline' ? 'inline' : 'per_line';
+    autoSave();
+}
+
+function setContactsShowHeading(value: boolean): void {
+    form.layout.contacts_show_heading = value;
+    autoSave();
+}
+
+function setContactsLayout(value: string | string[]): void {
+    form.layout.contacts_layout = value === 'two_columns' ? 'two_columns' : 'per_line';
+    autoSave();
+}
+
+function setExperienceShowSkills(value: boolean): void {
+    form.layout.experience_show_skills = value;
     autoSave();
 }
 
@@ -326,107 +354,159 @@ function cancel(): void {
 
         <div
           v-if="form.mode === 'auto'"
-          class="mb-6 space-y-6 rounded-lg border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"
+          class="mb-6 space-y-6"
           :data-testid="`${props.test_id}-auto-block`"
         >
-          <AdminBaseDropdown
-            :model-value="form.layout.template"
-            :label="t('admin.resume.template')"
-            :options="[
-              { value: 'modern', label: t('admin.resume.modern') },
-              { value: 'classic', label: t('admin.resume.classic') },
-              { value: 'compact', label: t('admin.resume.compact') },
-            ]"
-            :disabled="isSaving || isAutoSaving"
-            :test_id="`${props.test_id}-template`"
-            @update:model-value="setTemplate"
-          />
-
-          <div>
-            <h3 class="mb-3 text-lg font-medium text-slate-600 dark:text-slate-400">
-              {{ t('admin.resume.section_order_visibility') }}
-            </h3>
-            <ResumeSectionEditor
-              :model-value="form.layout.sections"
-              :labels="SECTION_LABELS"
-              :test_id="`${props.test_id}-sections`"
-              @update:model-value="setSections"
-            />
-          </div>
-
-          <!-- About Me text — explicitly saved. -->
-          <div class="space-y-4">
-            <LocaleTabs
-              v-model="activeLocale"
-              :locales="locales"
-              :test_id="`${props.test_id}-locale-tabs`"
-            />
-            <AdminBaseTextarea
-              :model-value="form.aboutTexts[activeLocale] ?? ''"
-              :label="t('admin.resume.about_me_text')"
-              :placeholder="t('admin.resume.about_me_fallback')"
-              :help="t('admin.resume.about_me_fallback')"
-              :max="1000"
-              :character_counter="true"
+          <div
+            class="space-y-6 rounded-lg border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"
+            :data-testid="`${props.test_id}-layout-block`"
+          >
+            <AdminBaseDropdown
+              :model-value="form.layout.template"
+              :label="t('admin.resume.template')"
+              :options="[
+                { value: 'modern', label: t('admin.resume.modern') },
+                { value: 'classic', label: t('admin.resume.classic') },
+                { value: 'compact', label: t('admin.resume.compact') },
+              ]"
               :disabled="isSaving || isAutoSaving"
-              :test_id="`${props.test_id}-about-${activeLocale}`"
-              @update:model-value="form.aboutTexts[activeLocale] = $event"
+              :test_id="`${props.test_id}-template`"
+              @update:model-value="setTemplate"
             />
+
+            <div>
+              <h3 class="block text-sm font-semibold mb-1.5 text-slate-700 dark:text-slate-200">
+                {{ t('admin.resume.section_order_visibility') }}
+              </h3>
+              <ResumeSectionEditor
+                :model-value="form.layout.sections"
+                :labels="SECTION_LABELS"
+                :test_id="`${props.test_id}-sections`"
+                @update:model-value="setSections"
+              />
+            </div>
           </div>
 
           <div
-            class="rounded-lg bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-900/50 dark:text-slate-400"
-            :data-testid="`${props.test_id}-inclusion-summary`"
+            class="space-y-6 rounded-lg border border-slate-200 bg-white p-6 shadow-card dark:border-slate-700 dark:bg-surface-dark-secondary"
+            :data-testid="`${props.test_id}-content-block`"
           >
-            <p class="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">
-              {{ t('admin.resume.included_in_resume') }}
-            </p>
-            <div class="space-y-1">
-              <p :data-testid="`${props.test_id}-included-skills`">
-                <span class="font-mono font-semibold text-slate-800 dark:text-slate-100">
-                  {{ props.included_skills_count }}
-                </span>
-                {{ t('admin.resume.skills_included') }}
-                <AdminBaseButton
-                  tag="a"
-                  href="/admin/skills"
-                  variant="ghost"
-                  size="sm"
-                  :test_id="`${props.test_id}-manage-skills`"
-                >
-                  {{ t('admin.resume.manage') }}
-                </AdminBaseButton>
+            <!-- About Me text — explicitly saved. The locale tabs sit below
+                 the field they switch. -->
+            <div>
+              <AdminBaseTextarea
+                :model-value="form.aboutTexts[activeLocale] ?? ''"
+                :label="t('admin.resume.about_me_text')"
+                :placeholder="t('admin.resume.about_me_fallback')"
+                :help="t('admin.resume.about_me_fallback')"
+                :max="1000"
+                :character_counter="true"
+                :disabled="isSaving || isAutoSaving"
+                :test_id="`${props.test_id}-about-${activeLocale}`"
+                @update:model-value="form.aboutTexts[activeLocale] = $event"
+              />
+              <LocaleTabs
+                v-model="activeLocale"
+                class="mt-2"
+                :locales="locales"
+                :test_id="`${props.test_id}-locale-tabs`"
+              />
+            </div>
+
+            <AdminBaseDropdown
+              :model-value="form.layout.skills_layout"
+              :label="t('admin.resume.skills_layout')"
+              :options="[
+                { value: 'per_line', label: t('admin.resume.skills_layout_per_line') },
+                { value: 'inline', label: t('admin.resume.skills_layout_inline') },
+              ]"
+              :disabled="isSaving || isAutoSaving"
+              :test_id="`${props.test_id}-skills-layout`"
+              @update:model-value="setSkillsLayout"
+            />
+
+            <AdminBaseCheckbox
+              :model-value="form.layout.contacts_show_heading"
+              :label="t('admin.resume.contacts_show_heading')"
+              :disabled="isSaving || isAutoSaving"
+              :test_id="`${props.test_id}-contacts-heading`"
+              @update:model-value="setContactsShowHeading"
+            />
+
+            <AdminBaseDropdown
+              :model-value="form.layout.contacts_layout"
+              :label="t('admin.resume.contacts_layout')"
+              :options="[
+                { value: 'per_line', label: t('admin.resume.contacts_layout_per_line') },
+                { value: 'two_columns', label: t('admin.resume.contacts_layout_two_columns') },
+              ]"
+              :disabled="isSaving || isAutoSaving"
+              :test_id="`${props.test_id}-contacts-layout`"
+              @update:model-value="setContactsLayout"
+            />
+
+            <AdminBaseCheckbox
+              :model-value="form.layout.experience_show_skills"
+              :label="t('admin.resume.experience_show_skills')"
+              :disabled="isSaving || isAutoSaving"
+              :test_id="`${props.test_id}-experience-skills`"
+              @update:model-value="setExperienceShowSkills"
+            />
+
+            <div
+              class="rounded-lg bg-slate-50 p-4 text-sm text-slate-600 dark:bg-slate-900/50 dark:text-slate-400"
+              :data-testid="`${props.test_id}-inclusion-summary`"
+            >
+              <p class="mb-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+                {{ t('admin.resume.included_in_resume') }}
               </p>
-              <p :data-testid="`${props.test_id}-included-experience`">
-                <span class="font-mono font-semibold text-slate-800 dark:text-slate-100">
-                  {{ props.included_experience_count }}
-                </span>
-                {{ t('admin.resume.experience_included') }}
-                <AdminBaseButton
-                  tag="a"
-                  href="/admin/experience"
-                  variant="ghost"
-                  size="sm"
-                  :test_id="`${props.test_id}-manage-experience`"
-                >
-                  {{ t('admin.resume.manage') }}
-                </AdminBaseButton>
-              </p>
-              <p :data-testid="`${props.test_id}-included-contacts`">
-                <span class="font-mono font-semibold text-slate-800 dark:text-slate-100">
-                  {{ props.included_contacts_count }}
-                </span>
-                {{ t('admin.resume.contacts_included') }}
-                <AdminBaseButton
-                  tag="a"
-                  href="/admin/contacts"
-                  variant="ghost"
-                  size="sm"
-                  :test_id="`${props.test_id}-manage-contacts`"
-                >
-                  {{ t('admin.resume.manage') }}
-                </AdminBaseButton>
-              </p>
+              <div class="space-y-1">
+                <p :data-testid="`${props.test_id}-included-skills`">
+                  <span class="font-mono font-semibold text-slate-800 dark:text-slate-100">
+                    {{ props.included_skills_count }}
+                  </span>
+                  {{ t('admin.resume.skills_included') }}
+                  <AdminBaseButton
+                    tag="a"
+                    href="/admin/skills"
+                    variant="ghost"
+                    size="sm"
+                    :test_id="`${props.test_id}-manage-skills`"
+                  >
+                    {{ t('admin.resume.manage') }}
+                  </AdminBaseButton>
+                </p>
+                <p :data-testid="`${props.test_id}-included-experience`">
+                  <span class="font-mono font-semibold text-slate-800 dark:text-slate-100">
+                    {{ props.included_experience_count }}
+                  </span>
+                  {{ t('admin.resume.experience_included') }}
+                  <AdminBaseButton
+                    tag="a"
+                    href="/admin/experience"
+                    variant="ghost"
+                    size="sm"
+                    :test_id="`${props.test_id}-manage-experience`"
+                  >
+                    {{ t('admin.resume.manage') }}
+                  </AdminBaseButton>
+                </p>
+                <p :data-testid="`${props.test_id}-included-contacts`">
+                  <span class="font-mono font-semibold text-slate-800 dark:text-slate-100">
+                    {{ props.included_contacts_count }}
+                  </span>
+                  {{ t('admin.resume.contacts_included') }}
+                  <AdminBaseButton
+                    tag="a"
+                    href="/admin/contacts"
+                    variant="ghost"
+                    size="sm"
+                    :test_id="`${props.test_id}-manage-contacts`"
+                  >
+                    {{ t('admin.resume.manage') }}
+                  </AdminBaseButton>
+                </p>
+              </div>
             </div>
           </div>
 

@@ -1,7 +1,9 @@
 {{--
     Resume PDF template: `classic` — two columns (skills/contacts sidebar,
     experience/about main), dense traditional resume layout. dompdf-rendered:
-    table layout + system fonts only.
+    absolutely positioned sidebar + system fonts only (a table row cannot
+    break across pages in dompdf, which clipped long resumes, and a float
+    narrows the margined main column).
 --}}
 @php
     $sections = $data['sections'];
@@ -20,6 +22,9 @@
     };
     $sidebarOrder = $columnOrder(['skills', 'contacts']);
     $mainOrder = $columnOrder(['about_me', 'experience']);
+    $showContactsHeading = $data['options']['contacts_show_heading'] ?? true;
+    $showExperienceSkills = $data['options']['experience_show_skills'] ?? true;
+    $sidebarHeadingRendered = false;
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $locale }}">
@@ -38,9 +43,9 @@
         header { border-bottom: 2px solid #111827; padding-bottom: 10px; margin-bottom: 14px; }
         h1 { font-size: 19pt; margin: 0 0 2px; color: #111827; }
         .title { font-size: 10.5pt; color: #374151; margin: 0; }
-        table.layout { width: 100%; border-collapse: collapse; }
-        td.sidebar { width: 32%; vertical-align: top; padding-right: 18px; }
-        td.main { vertical-align: top; }
+        .columns { position: relative; }
+        .sidebar { position: absolute; top: 0; left: 0; width: 32%; padding-right: 18px; }
+        .main { margin-left: 34%; }
         h2 {
             font-size: 10pt;
             text-transform: uppercase;
@@ -53,8 +58,10 @@
         h2.first { margin-top: 0; }
         .skill { margin: 0 0 1px; }
         .skill .level { color: #6b7280; font-size: 8.5pt; }
-        .skill-group { margin-bottom: 6px; }
+        .skill-group { margin: 0 0 6px; }
         .skill-group-name { font-weight: bold; }
+        table.contacts { width: 100%; border-collapse: collapse; }
+        table.contacts td { width: 50%; vertical-align: top; padding: 0 6px 0 0; }
         .contact { margin: 0 0 3px; }
         .contact .label { font-weight: bold; }
         .contact .value { color: #4b5563; }
@@ -74,65 +81,53 @@
         <p class="title">{{ $data['header']['title'] }}</p>
     </header>
 
-    <table class="layout">
-        <tr>
-            <td class="sidebar">
-                @foreach ($sidebarOrder as $section)
-                    @if ($section === 'skills')
-                        <h2 class="{{ $loop->first ? 'first' : '' }}">{{ __('resume.section_skills') }}</h2>
-                        @foreach ($data['skills'] as $group)
-                            <div class="skill-group">
-                                <div class="skill-group-name">{{ $group['group'] }}</div>
-                                @foreach ($group['skills'] as $skill)
-                                    <p class="skill">{{ $skill['name'] }} <span class="level">— {{ $skill['proficiency_label'] }}</span></p>
-                                @endforeach
-                            </div>
-                        @endforeach
-                    @elseif ($section === 'contacts')
-                        <h2 class="{{ $loop->first ? 'first' : '' }}">{{ __('resume.section_contacts') }}</h2>
-                        @foreach ($data['contacts'] as $contact)
-                            <p class="contact">
-                                @if ($contact['name'] !== '')
-                                    <span class="label">{{ $contact['name'] }}:</span>
+    <div class="columns">
+        <div class="sidebar">
+            @foreach ($sidebarOrder as $section)
+                @if ($section === 'skills')
+                    <h2 class="{{ $sidebarHeadingRendered ? '' : 'first' }}">{{ __('resume.section_skills') }}</h2>
+                    @php $sidebarHeadingRendered = true; @endphp
+                    @include('resume-templates.partials.skills', ['data' => $data])
+                @elseif ($section === 'contacts')
+                    @if ($showContactsHeading)
+                        <h2 class="{{ $sidebarHeadingRendered ? '' : 'first' }}">{{ __('resume.section_contacts') }}</h2>
+                        @php $sidebarHeadingRendered = true; @endphp
+                    @endif
+                    @include('resume-templates.partials.contacts', ['data' => $data])
+                @endif
+            @endforeach
+        </div>
+        <div class="main">
+            @foreach ($mainOrder as $section)
+                @if ($section === 'about_me')
+                    <h2 class="{{ $loop->first ? 'first' : '' }}">{{ __('resume.section_about_me') }}</h2>
+                    <p class="about">{{ $data['about'] }}</p>
+                @elseif ($section === 'experience')
+                    <h2 class="{{ $loop->first ? 'first' : '' }}">{{ __('resume.section_experience') }}</h2>
+                    @foreach ($data['experience'] as $item)
+                        <div class="experience-item">
+                            <h3>{{ $item['position'] }}</h3>
+                            <p class="company">
+                                @if ($item['company_name'] !== null)
+                                    {{ $item['company_name'] }}@if ($item['company_country'] !== null), {{ $item['company_country'] }}@endif ·
                                 @endif
-                                <span class="value">{{ $contact['url'] ?? $contact['value'] }}</span>
+                                <span class="period">{{ $period($item) }}</span>
                             </p>
-                        @endforeach
-                    @endif
-                @endforeach
-            </td>
-            <td class="main">
-                @foreach ($mainOrder as $section)
-                    @if ($section === 'about_me')
-                        <h2 class="{{ $loop->first ? 'first' : '' }}">{{ __('resume.section_about_me') }}</h2>
-                        <p class="about">{{ $data['about'] }}</p>
-                    @elseif ($section === 'experience')
-                        <h2 class="{{ $loop->first ? 'first' : '' }}">{{ __('resume.section_experience') }}</h2>
-                        @foreach ($data['experience'] as $item)
-                            <div class="experience-item">
-                                <h3>{{ $item['position'] }}</h3>
-                                <p class="company">
-                                    @if ($item['company_name'] !== null)
-                                        {{ $item['company_name'] }}@if ($item['company_country'] !== null), {{ $item['company_country'] }}@endif ·
-                                    @endif
-                                    <span class="period">{{ $period($item) }}</span>
-                                </p>
-                                @if ($item['achievements'] !== [])
-                                    <ul class="achievements">
-                                        @foreach ($item['achievements'] as $achievement)
-                                            <li>{{ $achievement['description'] }}</li>
-                                        @endforeach
-                                    </ul>
-                                @endif
-                                @if ($item['tech_tags'] !== [])
-                                    <p class="tech-tags">{{ implode(' · ', $item['tech_tags']) }}</p>
-                                @endif
-                            </div>
-                        @endforeach
-                    @endif
-                @endforeach
-            </td>
-        </tr>
-    </table>
+                            @if ($item['achievements'] !== [])
+                                <ul class="achievements">
+                                    @foreach ($item['achievements'] as $achievement)
+                                        <li>{{ $achievement['description'] }}</li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                            @if ($showExperienceSkills && $item['tech_tags'] !== [])
+                                <p class="tech-tags">{{ implode(' · ', $item['tech_tags']) }}</p>
+                            @endif
+                        </div>
+                    @endforeach
+                @endif
+            @endforeach
+        </div>
+    </div>
 </body>
 </html>

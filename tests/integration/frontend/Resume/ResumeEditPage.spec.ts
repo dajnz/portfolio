@@ -42,6 +42,10 @@ const LAYOUT: ResumeLayout = {
         experience: { visible: true, order: 3 },
         contacts: { visible: true, order: 4 },
     },
+    skills_layout: 'per_line',
+    contacts_show_heading: true,
+    contacts_layout: 'per_line',
+    experience_show_skills: true,
 };
 
 const PROPS = {
@@ -97,8 +101,14 @@ describe('ResumeEditPage', () => {
         const wrapper = mountPage();
 
         expect(wrapper.find('[data-testid="resume-edit-page-auto-block"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="resume-edit-page-layout-block"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="resume-edit-page-content-block"]').exists()).toBe(true);
         expect(wrapper.find('[data-testid="resume-edit-page-template"]').exists()).toBe(true);
         expect(wrapper.find('[data-testid="resume-edit-page-sections"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="resume-edit-page-skills-layout"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="resume-edit-page-contacts-heading"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="resume-edit-page-contacts-layout"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="resume-edit-page-experience-skills"]').exists()).toBe(true);
         expect(
             (wrapper.get('[data-testid="resume-edit-page-about-en"]').element as HTMLTextAreaElement).value,
         ).toBe('Custom about.');
@@ -196,6 +206,68 @@ describe('ResumeEditPage', () => {
                         skills: { visible: true, order: 1 },
                     }),
                 }),
+            }),
+            expect.any(Object),
+        );
+    });
+
+    it('auto-saves the skills layout change', async () => {
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="resume-edit-page-skills-layout"]').trigger('click');
+        await wrapper
+            .get('[data-testid="resume-edit-page-skills-layout-option-inline"]')
+            .trigger('click');
+
+        expect(putMock).toHaveBeenCalledWith(
+            '/admin/resume',
+            expect.objectContaining({
+                layout: expect.objectContaining({ skills_layout: 'inline' }),
+            }),
+            expect.any(Object),
+        );
+    });
+
+    it('auto-saves the contacts heading toggle', async () => {
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="resume-edit-page-contacts-heading"]').setValue(false);
+
+        expect(putMock).toHaveBeenCalledWith(
+            '/admin/resume',
+            expect.objectContaining({
+                layout: expect.objectContaining({ contacts_show_heading: false }),
+            }),
+            expect.any(Object),
+        );
+    });
+
+    it('auto-saves the contacts layout change', async () => {
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="resume-edit-page-contacts-layout"]').trigger('click');
+        await wrapper
+            .get('[data-testid="resume-edit-page-contacts-layout-option-two_columns"]')
+            .trigger('click');
+
+        expect(putMock).toHaveBeenCalledWith(
+            '/admin/resume',
+            expect.objectContaining({
+                layout: expect.objectContaining({ contacts_layout: 'two_columns' }),
+            }),
+            expect.any(Object),
+        );
+    });
+
+    it('auto-saves the experience skills toggle', async () => {
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="resume-edit-page-experience-skills"]').setValue(false);
+
+        expect(putMock).toHaveBeenCalledWith(
+            '/admin/resume',
+            expect.objectContaining({
+                layout: expect.objectContaining({ experience_show_skills: false }),
             }),
             expect.any(Object),
         );
