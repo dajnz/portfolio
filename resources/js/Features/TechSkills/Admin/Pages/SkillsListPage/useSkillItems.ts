@@ -4,6 +4,8 @@ import { useReorder } from '@shared-cross/Composables/useReorder';
 import type { SkillGroupData } from '@techskills-admin/SkillGroupCard.vue';
 import { computed, type Ref, reactive, ref } from 'vue';
 
+import type { NewSkillDraft, SkillDraft, SkillEditorTarget } from './types';
+
 // SkillsListPage — skill CRUD (SkillsListPage.vue is the orchestrator).
 // Owns the skill editor state (editing target, drafts, errors, saving
 // flag) and the create/save/move/live-update actions; the group editor
@@ -11,20 +13,15 @@ import { computed, type Ref, reactive, ref } from 'vue';
 // copy; moving a skill persists through the injected `persistSkillOrder`
 // callback.
 export function useSkillItems(groups: Ref<SkillGroupData[]>, persistSkillOrder: () => void) {
-    const editingSkill = ref<{ groupId: number; skillId: number | 'new' } | null>(null);
+    const editingSkill = ref<SkillEditorTarget | null>(null);
     const savingSkill = ref(false);
     const skillErrors = ref<Record<string, string>>({});
-    const skillDraft = reactive<{ name: string; icon: string | null; proficiency: number }>({
+    const skillDraft = reactive<SkillDraft>({
         name: '',
         icon: null,
         proficiency: 3,
     });
-    const newSkillDraft = reactive<{
-        name: string;
-        icon: string | null;
-        proficiency: number;
-        includeInResume: boolean;
-    }>(emptyNewSkill());
+    const newSkillDraft = reactive<NewSkillDraft>(emptyNewSkill());
 
     const { t } = useI18n();
     const { move } = useReorder();
@@ -39,12 +36,7 @@ export function useSkillItems(groups: Ref<SkillGroupData[]>, persistSkillOrder: 
         })),
     );
 
-    function emptyNewSkill(): {
-        name: string;
-        icon: string | null;
-        proficiency: number;
-        includeInResume: boolean;
-    } {
+    function emptyNewSkill(): NewSkillDraft {
         return { name: '', icon: null, proficiency: 3, includeInResume: false };
     }
 
@@ -188,6 +180,18 @@ export function useSkillItems(groups: Ref<SkillGroupData[]>, persistSkillOrder: 
         }
     }
 
+    function updateNewSkillDraft(field: string, value: unknown): void {
+        if (field === 'name') {
+            newSkillDraft.name = String(value ?? '');
+        } else if (field === 'icon') {
+            newSkillDraft.icon = value as string | null;
+        } else if (field === 'proficiency') {
+            newSkillDraft.proficiency = Number(value);
+        } else if (field === 'includeInResume') {
+            newSkillDraft.includeInResume = Boolean(value);
+        }
+    }
+
     // The editing draft owns name/icon/proficiency (the row's dropdown
     // feeds it); the include-in-resume checkbox stays a live quick action
     // (full-row PUT with the current values, mirroring the contacts page's
@@ -266,6 +270,7 @@ export function useSkillItems(groups: Ref<SkillGroupData[]>, persistSkillOrder: 
         saveNewSkill,
         saveSkill,
         updateSkillField,
+        updateNewSkillDraft,
         moveSkill,
     };
 }

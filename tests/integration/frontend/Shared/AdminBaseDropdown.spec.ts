@@ -46,6 +46,54 @@ describe('AdminBaseDropdown', () => {
         expect(wrapper.findAll('[role="option"]')).toHaveLength(3);
     });
 
+    it('opens the panel above the trigger when there is no room below', async () => {
+        const wrapper = mount(AdminBaseDropdown, {
+            props: { modelValue: '', options: OPTIONS },
+            attachTo: document.body,
+        });
+
+        wrapper.get('[data-testid="base-dropdown"]').element.getBoundingClientRect = () =>
+            ({
+                top: 700,
+                bottom: 740,
+                left: 0,
+                right: 100,
+                width: 100,
+                height: 40,
+                x: 0,
+                y: 700,
+                toJSON: () => ({}),
+            }) as DOMRect;
+
+        await wrapper.get('[data-testid="base-dropdown"]').trigger('click');
+
+        expect(wrapper.get('[role="listbox"]').classes()).toContain('bottom-full');
+    });
+
+    it('opens the panel below the trigger when there is room', async () => {
+        const wrapper = mount(AdminBaseDropdown, {
+            props: { modelValue: '', options: OPTIONS },
+            attachTo: document.body,
+        });
+
+        wrapper.get('[data-testid="base-dropdown"]').element.getBoundingClientRect = () =>
+            ({
+                top: 100,
+                bottom: 140,
+                left: 0,
+                right: 100,
+                width: 100,
+                height: 40,
+                x: 0,
+                y: 100,
+                toJSON: () => ({}),
+            }) as DOMRect;
+
+        await wrapper.get('[data-testid="base-dropdown"]').trigger('click');
+
+        expect(wrapper.get('[role="listbox"]').classes()).toContain('top-full');
+    });
+
     it('emits the selected value and closes for single select', async () => {
         const wrapper = mount(AdminBaseDropdown, {
             props: { modelValue: '', options: OPTIONS },
