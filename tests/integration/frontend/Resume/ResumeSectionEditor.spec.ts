@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { defineComponent, nextTick, ref } from 'vue';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import ResumeSectionEditor from '@resume-admin/ResumeSectionEditor.vue';
+import ResumeSectionEditor from '@resume-admin/ResumeSectionEditor/ResumeSectionEditor.vue';
 import type { ResumeSectionsMap } from '@resume/Admin/Types/layout';
 
 const SECTIONS: ResumeSectionsMap = {
@@ -208,14 +209,28 @@ describe('ResumeSectionEditor', () => {
     it('makes the visible rows draggable and the hidden rows not', () => {
         const wrapper = mountEditor();
 
-        expect(wrapper.get('[data-testid="section-editor-row-header"]').attributes('draggable')).toBe(
-            'true',
-        );
-        // happy-dom does not implement the `draggable` IDL property — the
-        // absence of the attribute marks the row non-draggable.
-        expect(
-            wrapper.get('[data-testid="section-editor-row-experience"]').attributes('draggable'),
-        ).toBeUndefined();
+        const visibleRow = wrapper.get('[data-testid="section-editor-row-header"]');
+        const hiddenRow = wrapper.get('[data-testid="section-editor-row-experience"]');
+
+        expect(visibleRow.element.closest('li')?.getAttribute('draggable')).toBe('true');
+        // The hidden group renders outside the sortable list — the absence
+        // of the `draggable` attribute marks the row non-draggable.
+        expect(hiddenRow.element.closest('li')).toBeNull();
+        expect(hiddenRow.attributes('draggable')).toBeUndefined();
+    });
+
+    it('does not reorder when a drag is dropped on a hidden row', async () => {
+        const wrapper = mountEditor();
+
+        await wrapper.get('[data-testid="section-editor-row-header"]').trigger('dragstart');
+        await wrapper.get('[data-testid="section-editor-row-experience"]').trigger('dragover', {
+            clientY: 100,
+        });
+        await wrapper.get('[data-testid="section-editor-row-experience"]').trigger('drop');
+
+        expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+
+        await wrapper.get('[data-testid="section-editor-row-header"]').trigger('dragend');
     });
 
     it('reorders the visible group by drag and renumbers the orders', async () => {
@@ -274,9 +289,9 @@ describe('ResumeSectionEditor', () => {
             'section-editor-row-experience',
             'section-editor-row-contacts',
         ]);
-        expect(wrapper.get('[data-testid="section-editor-row-skills"]').classes()).toContain(
-            'opacity-40',
-        );
+        expect(
+            wrapper.get('[data-testid="section-editor-row-skills"]').element.closest('li')?.classList,
+        ).toContain('is-dragging');
 
         await wrapper.get('[data-testid="section-editor-row-skills"]').trigger('dragend');
 
@@ -291,9 +306,9 @@ describe('ResumeSectionEditor', () => {
             'section-editor-row-experience',
             'section-editor-row-contacts',
         ]);
-        expect(wrapper.get('[data-testid="section-editor-row-skills"]').classes()).not.toContain(
-            'opacity-40',
-        );
+        expect(
+            wrapper.get('[data-testid="section-editor-row-skills"]').element.closest('li')?.classList,
+        ).not.toContain('is-dragging');
     });
 
     it('keeps the dragged row a valid drop target and finalizes the drop on it', async () => {
@@ -408,5 +423,45 @@ describe('ResumeSectionEditor', () => {
         await wrapper.get('[data-testid="section-editor-row-header"]').trigger('dragend');
 
         expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+    });
+
+    it('keeps focus on the checkbox after toggling visibility', async () => {
+        const Harness = defineComponent({
+            components: { ResumeSectionEditor },
+            setup() {
+                const sections = ref<ResumeSectionsMap>({
+                    ...SECTIONS,
+                    header: { ...SECTIONS.header },
+                });
+
+                return { sections, labels: LABELS };
+            },
+            template: `
+                <ResumeSectionEditor
+                    :model-value="sections"
+                    :labels="labels"
+                    test_id="section-editor"
+                    @update:model-value="sections = $event"
+                />
+            `,
+        });
+
+        const wrapper = mount(Harness, { attachTo: document.body });
+        const checkbox = wrapper.get('[data-testid="section-editor-visible-header"]');
+
+        (checkbox.element as HTMLInputElement).focus();
+        await checkbox.setValue(false);
+        await nextTick();
+
+        const focused = document.activeElement as HTMLInputElement;
+
+        expect(focused.dataset.testid).toBe('section-editor-visible-header');
+        expect(wrapper.get('[data-testid="section-editor-visible-header"]').element).toBe(focused);
+        // The toggled row crossed into the static hidden group.
+        expect(
+            wrapper.get('[data-testid="section-editor-row-header"]').element.closest('li'),
+        ).toBeNull();
+
+        wrapper.unmount();
     });
 });
