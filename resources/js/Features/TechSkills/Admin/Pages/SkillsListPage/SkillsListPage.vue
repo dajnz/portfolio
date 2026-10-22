@@ -11,7 +11,7 @@ import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
 import AdminStickyActionBar from '@shared-admin/AdminStickyActionBar.vue';
 import ConfirmationDialog from '@shared-admin/ConfirmationDialog.vue';
 import LocaleTabs from '@shared-admin/LocaleTabs.vue';
-import SortableList from '@shared-cross/Components/SortableList.vue';
+import SortableList from '@shared-cross/Components/SortableList/SortableList.vue';
 import { useAdminMenu } from '@shared-cross/Composables/useAdminMenu';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';

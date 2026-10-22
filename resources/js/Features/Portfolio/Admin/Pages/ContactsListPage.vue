@@ -12,7 +12,7 @@ import AdminStickyActionBar from '@shared-admin/AdminStickyActionBar.vue';
 import ConfirmationDialog from '@shared-admin/ConfirmationDialog.vue';
 import LocaleTabs from '@shared-admin/LocaleTabs.vue';
 import PaginationControls from '@shared-admin/PaginationControls.vue';
-import SortableList from '@shared-cross/Components/SortableList.vue';
+import SortableList from '@shared-cross/Components/SortableList/SortableList.vue';
 import { useAdminMenu } from '@shared-cross/Composables/useAdminMenu';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useReorder } from '@shared-cross/Composables/useReorder';
