@@ -5,7 +5,7 @@ import AdminBaseCard from '@shared-admin/AdminBaseCard.vue';
 import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
 import AdminBaseTextarea from '@shared-admin/AdminBaseTextarea.vue';
 import DropzoneUpload, { type UploadedFile } from '@shared-admin/DropzoneUpload.vue';
-import SortableList from '@shared-cross/Components/SortableList.vue';
+import SortableList from '@shared-cross/Components/SortableList/SortableList.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
 import { useReorder } from '@shared-cross/Composables/useReorder';

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
-import SortableList from '@shared-cross/Components/SortableList.vue';
+import SortableList from '@shared-cross/Components/SortableList/SortableList.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useReorder } from '@shared-cross/Composables/useReorder';
 import { onMounted, ref, watch } from 'vue';

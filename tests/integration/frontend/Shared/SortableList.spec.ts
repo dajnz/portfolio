@@ -1,8 +1,9 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { nextTick } from 'vue';
 
-import SortableList from '@shared-cross/Components/SortableList.vue';
+import SortableList from '@shared-cross/Components/SortableList/SortableList.vue';
 
 const ITEMS = [
     { id: 1, label: 'First' },
@@ -34,6 +35,10 @@ function itemEl(
     prefix = 'sortable-list',
 ): ReturnType<typeof wrapper.get> {
     return wrapper.get(`[data-testid="${prefix}-item-${id}"]`);
+}
+
+function dragOverOutside(): void {
+    document.body.dispatchEvent(new Event('dragover', { bubbles: true }));
 }
 
 describe('SortableList', () => {
@@ -87,6 +92,32 @@ describe('SortableList', () => {
 
         const labels = wrapper.findAll('[data-testid="slot-item"]').map((el) => el.text());
         expect(labels).toEqual(['0:First', '1:Second', '2:Third']);
+        expect(wrapper.emitted('update:modelValue')).toEqual([[ITEMS]]);
+    });
+
+    it('hides the live order when the cursor leaves the list during a drag', async () => {
+        const wrapper = mountList();
+
+        await itemEl(wrapper, 1).trigger('dragstart');
+        await itemEl(wrapper, 2).trigger('dragover', { clientY: 10 });
+
+        expect(wrapper.findAll('[data-testid="slot-item"]').map((el) => el.text())).toEqual([
+            '0:Second',
+            '1:First',
+            '2:Third',
+        ]);
+
+        dragOverOutside();
+        await nextTick();
+
+        expect(wrapper.findAll('[data-testid="slot-item"]').map((el) => el.text())).toEqual([
+            '0:First',
+            '1:Second',
+            '2:Third',
+        ]);
+        expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+
+        await wrapper.get('[data-testid="sortable-list"]').trigger('dragend');
         expect(wrapper.emitted('update:modelValue')).toEqual([[ITEMS]]);
     });
 
@@ -402,6 +433,37 @@ describe('SortableList', () => {
 
         expect(target.findAll('[data-testid^="target-list-item-"]')).toHaveLength(1);
         expect(target.emitted('update:modelValue')).toBeUndefined();
+
+        await source.get('[data-testid="source-list"]').trigger('dragend');
+    });
+
+    it('removes the cross-list preview when the cursor leaves without a dragleave event', async () => {
+        const source = mountList({
+            list_id: 'list-a',
+            cross_scope: 'skills',
+            test_id: 'source-list',
+        });
+        const target = mountList(
+            {
+                list_id: 'list-b',
+                cross_scope: 'skills',
+                test_id: 'target-list',
+            },
+            {},
+            [{ id: 4, label: 'Fourth' }],
+        );
+
+        await itemEl(source, 1, 'source-list').trigger('dragstart');
+        await target.get('[data-testid="target-list"]').trigger('dragover', { clientY: 0 });
+        expect(target.findAll('[data-testid^="target-list-item-"]')).toHaveLength(2);
+
+        dragOverOutside();
+        await nextTick();
+
+        expect(target.findAll('[data-testid^="target-list-item-"]')).toHaveLength(1);
+        expect(target.emitted('update:modelValue')).toBeUndefined();
+
+        await source.get('[data-testid="source-list"]').trigger('dragend');
     });
 
     it('moves the preview with the cursor and clears it on dragend (5.2 rework)', async () => {

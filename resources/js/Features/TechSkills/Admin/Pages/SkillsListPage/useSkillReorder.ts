@@ -1,5 +1,5 @@
 import { router } from '@inertiajs/vue3';
-import type { CrossDragInfo } from '@shared-cross/Components/SortableList.vue';
+import type { CrossDragInfo } from '@shared-cross/Components/SortableList/SortableList.vue';
 import type { SkillGroupData } from '@techskills-admin/SkillGroupCard.vue';
 import type { SkillRow } from '@techskills-admin/SkillItem.vue';
 import type { Ref } from 'vue';
