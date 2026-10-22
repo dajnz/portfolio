@@ -11,13 +11,15 @@ use InvalidArgumentException;
 /**
  * The single-row resume generation configuration (`resume_config`, id = 1
  * enforced at the application level): generation mode, the layout JSON
- * (template + section visibility/ordering) and the manual-upload path.
- * Localized content lives in {@see ResumeConfigTranslation} value objects;
- * the `updated_at` stamp feeds the PDF content hash. Invariants are
- * enforced by construction: the mode is one of `auto`|`manual` (the
- * varchar + CHECK column domain), the layout shape (template set, exactly
- * the five sections, each with a boolean `visible` and an integer `order`
- * 0–4) matches the request validation rules.
+ * (template + section visibility/ordering + rendering options) and the
+ * manual-upload path. Localized content lives in
+ * {@see ResumeConfigTranslation} value objects; the `updated_at` stamp
+ * feeds the PDF content hash. Invariants are enforced by construction:
+ * the mode is one of `auto`|`manual` (the varchar + CHECK column domain),
+ * the layout shape (template set, exactly the five sections, each with a
+ * boolean `visible` and an integer `order` 0–4, plus the rendering
+ * options) matches the request validation rules. Layouts stored before
+ * the rendering options existed are normalized to their defaults on read.
  *
  * State changes go through the mutation methods; the repository persists
  * the entity afterwards.
@@ -32,6 +34,21 @@ final class ResumeConfig extends BaseEntity
 
     private const MODES = ['auto', 'manual'];
 
+    private const SKILLS_LAYOUTS = ['per_line', 'inline'];
+
+    private const CONTACTS_LAYOUTS = ['per_line', 'two_columns'];
+
+    /**
+     * Rendering-option defaults, also applied to layouts stored before the
+     * options existed.
+     */
+    private const LAYOUT_DEFAULTS = [
+        'skills_layout' => 'per_line',
+        'contacts_show_heading' => true,
+        'contacts_layout' => 'per_line',
+        'experience_show_skills' => true,
+    ];
+
     /**
      * @param  array<string, mixed>  $layout  The layout JSON (template + sections map).
      * @param  ResumeConfigTranslation[]  $translations  Keyed by locale on construction.
@@ -45,7 +62,8 @@ final class ResumeConfig extends BaseEntity
         private readonly DateTimeImmutable $updatedAt,
     ) {
         $this->validateMode($mode);
-        $this->validateLayout($layout);
+        $this->layout = $this->normalizedLayout($layout);
+        $this->validateLayout($this->layout);
         $this->validateCustomResumeFile($customResumeFile);
         $this->translations = $this->translationsByLocaleMap($translations);
     }
@@ -90,6 +108,34 @@ final class ResumeConfig extends BaseEntity
         return (string) ($this->layout['template'] ?? '');
     }
 
+    /**
+     * `per_line` = one skill per line with the proficiency label;
+     * `inline` = all skills of a group on one line after its name.
+     */
+    public function toSkillsLayout(): string
+    {
+        return (string) $this->layout['skills_layout'];
+    }
+
+    public function showsContactsHeading(): bool
+    {
+        return (bool) $this->layout['contacts_show_heading'];
+    }
+
+    /**
+     * `per_line` = one contact per line; `two_columns` = a two-column
+     * table filled row by row, left to right.
+     */
+    public function toContactsLayout(): string
+    {
+        return (string) $this->layout['contacts_layout'];
+    }
+
+    public function showsExperienceSkills(): bool
+    {
+        return (bool) $this->layout['experience_show_skills'];
+    }
+
     public function toCustomResumeFile(): ?string
     {
         return $this->customResumeFile;
@@ -130,8 +176,9 @@ final class ResumeConfig extends BaseEntity
      */
     public function updateLayout(array $layout): void
     {
-        $this->validateLayout($layout);
-        $this->layout = $layout;
+        $normalized = $this->normalizedLayout($layout);
+        $this->validateLayout($normalized);
+        $this->layout = $normalized;
     }
 
     public function changeCustomResumeFile(?string $path): void
@@ -187,6 +234,44 @@ final class ResumeConfig extends BaseEntity
                 throw new InvalidArgumentException("Resume layout section '{$key}' order must be an integer between 0 and 4.");
             }
         }
+
+        $skillsLayout = $layout['skills_layout'] ?? null;
+
+        if (! is_string($skillsLayout) || ! in_array($skillsLayout, self::SKILLS_LAYOUTS, true)) {
+            throw new InvalidArgumentException('Resume layout skills_layout must be one of: '.implode(', ', self::SKILLS_LAYOUTS).'.');
+        }
+
+        if (! isset($layout['contacts_show_heading']) || ! is_bool($layout['contacts_show_heading'])) {
+            throw new InvalidArgumentException('Resume layout contacts_show_heading must be a boolean.');
+        }
+
+        $contactsLayout = $layout['contacts_layout'] ?? null;
+
+        if (! is_string($contactsLayout) || ! in_array($contactsLayout, self::CONTACTS_LAYOUTS, true)) {
+            throw new InvalidArgumentException('Resume layout contacts_layout must be one of: '.implode(', ', self::CONTACTS_LAYOUTS).'.');
+        }
+
+        if (! isset($layout['experience_show_skills']) || ! is_bool($layout['experience_show_skills'])) {
+            throw new InvalidArgumentException('Resume layout experience_show_skills must be a boolean.');
+        }
+    }
+
+    /**
+     * Fills the rendering options missing from a stored/received layout
+     * with their defaults.
+     *
+     * @param  array<string, mixed>  $layout
+     * @return array<string, mixed>
+     */
+    private function normalizedLayout(array $layout): array
+    {
+        foreach (self::LAYOUT_DEFAULTS as $key => $default) {
+            if (! array_key_exists($key, $layout)) {
+                $layout[$key] = $default;
+            }
+        }
+
+        return $layout;
     }
 
     private function validateCustomResumeFile(?string $path): void

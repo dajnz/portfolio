@@ -92,6 +92,10 @@ final class E2ETestSeeder extends Seeder
                     'experience' => ['visible' => true, 'order' => 3],
                     'contacts' => ['visible' => true, 'order' => 4],
                 ],
+                'skills_layout' => 'per_line',
+                'contacts_show_heading' => true,
+                'contacts_layout' => 'per_line',
+                'experience_show_skills' => true,
             ],
             'custom_resume_file' => null,
         ]);

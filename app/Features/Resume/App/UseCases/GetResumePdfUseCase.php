@@ -99,6 +99,12 @@ final class GetResumePdfUseCase
         $data = [
             'locale' => $locale,
             'sections' => $sections,
+            'options' => [
+                'skills_layout' => $config->toSkillsLayout(),
+                'contacts_show_heading' => $config->showsContactsHeading(),
+                'contacts_layout' => $config->toContactsLayout(),
+                'experience_show_skills' => $config->showsExperienceSkills(),
+            ],
             'header' => ['name' => '', 'title' => ''],
             'about' => '',
             'skills' => [],
