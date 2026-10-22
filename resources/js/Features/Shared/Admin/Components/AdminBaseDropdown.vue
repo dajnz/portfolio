@@ -58,10 +58,14 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 const SEARCH_DEBOUNCE_MS = 300;
+const PANEL_MAX_HEIGHT = 280;
+const PANEL_GAP = 4;
 
 const isOpen = ref(false);
 const highlighted = ref(-1);
 const query = ref('');
+const opensUpward = ref(false);
+const panelMaxHeight = ref(PANEL_MAX_HEIGHT);
 const searchTimeout = ref<ReturnType<typeof setTimeout> | null>(null);
 const controlEl = ref<HTMLElement | null>(null);
 const triggerEl = ref<HTMLButtonElement | null>(null);
@@ -137,11 +141,39 @@ function selectOption(option: DropdownOption): void {
     }
 }
 
+// A panel opening below a trigger near the viewport bottom would extend
+// the document past its footer (an absolutely positioned box contributes
+// to the scrollable overflow) — flip it above the trigger when the space
+// below cannot fit the panel, and cap its height to the larger side.
+function updatePanelPlacement(): void {
+    const rect = triggerEl.value?.getBoundingClientRect();
+
+    if (rect === undefined) {
+        return;
+    }
+
+    const spaceBelow = window.innerHeight - rect.bottom - PANEL_GAP;
+    const spaceAbove = rect.top - PANEL_GAP;
+
+    opensUpward.value = spaceBelow < PANEL_MAX_HEIGHT && spaceAbove > spaceBelow;
+    panelMaxHeight.value = Math.min(
+        PANEL_MAX_HEIGHT,
+        Math.max(0, Math.max(spaceBelow, spaceAbove)),
+    );
+}
+
+function onViewportChange(): void {
+    if (isOpen.value) {
+        updatePanelPlacement();
+    }
+}
+
 function open(): void {
     if (props.disabled) {
         return;
     }
 
+    updatePanelPlacement();
     isOpen.value = true;
     highlighted.value = initialHighlightIndex();
 
@@ -250,6 +282,8 @@ function onDocumentClick(event: MouseEvent): void {
 
 onMounted(() => {
     document.addEventListener('click', onDocumentClick);
+    window.addEventListener('resize', onViewportChange);
+    window.addEventListener('scroll', onViewportChange, true);
 });
 
 onBeforeUnmount(() => {
@@ -258,6 +292,8 @@ onBeforeUnmount(() => {
     }
 
     document.removeEventListener('click', onDocumentClick);
+    window.removeEventListener('resize', onViewportChange);
+    window.removeEventListener('scroll', onViewportChange, true);
 });
 </script>
 
@@ -314,7 +350,9 @@ onBeforeUnmount(() => {
       <div
         v-if="isOpen"
         :id="listboxId"
-        class="thin-scrollbar absolute top-full left-0 right-0 mt-1 max-h-[280px] overflow-y-auto bg-white dark:bg-surface-dark-secondary border border-slate-200 dark:border-slate-700 rounded-lg shadow-dropdown z-dropdown"
+        class="thin-scrollbar absolute left-0 right-0 overflow-y-auto bg-white dark:bg-surface-dark-secondary border border-slate-200 dark:border-slate-700 rounded-lg shadow-dropdown z-dropdown"
+        :class="opensUpward ? 'bottom-full mb-1' : 'top-full mt-1'"
+        :style="{ maxHeight: `${panelMaxHeight}px` }"
         role="listbox"
         :aria-label="props.label"
       >
