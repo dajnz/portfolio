@@ -81,6 +81,7 @@ ORDER=(
     TRUSTED_PROXIES
     CACHE_STORE
     SESSION_DRIVER
+    SESSION_SECURE_COOKIE
     QUEUE_CONNECTION
     INERTIA_SSR_URL
     "# ── Admin-supplied — fill before the first deploy (validation gate) ──"
@@ -192,6 +193,7 @@ resolve_value() {
         TRUSTED_PROXIES)                  printf '%s' '' ;;
         CACHE_STORE)                      printf '%s' 'redis' ;;
         SESSION_DRIVER)                   printf '%s' 'redis' ;;
+        SESSION_SECURE_COOKIE)            printf '%s' 'true' ;;
         QUEUE_CONNECTION)                 printf '%s' 'redis' ;;
         INERTIA_SSR_URL)                  printf '%s' 'http://node:3000' ;;
         DB_CONNECTION)                    printf '%s' 'pgsql' ;;
