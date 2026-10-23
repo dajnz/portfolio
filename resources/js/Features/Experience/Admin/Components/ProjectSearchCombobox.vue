@@ -76,14 +76,16 @@ const filteredProjects = computed(() => {
 
 // The input text mirrors the selection — the selected project's title or
 // the typed external name; a server re-render (validation round-trip)
-// resyncs it from the props.
+// resyncs it from the props. Watch the two primitive values, not the
+// object identity: the parent builds a fresh `modelValue` object on every
+// render and would otherwise clobber an in-progress query.
 watch(
-    () => props.modelValue,
-    (value) => {
-        if (value.project_id !== null) {
+    [() => props.modelValue.project_id, () => props.modelValue.external_project_name],
+    ([projectId, externalProjectName]) => {
+        if (projectId !== null) {
             query.value = selectedProject.value?.title ?? '';
         } else {
-            query.value = value.external_project_name ?? '';
+            query.value = externalProjectName ?? '';
         }
         highlighted.value = -1;
     },

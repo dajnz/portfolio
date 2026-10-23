@@ -65,22 +65,16 @@ const title = computed(() => props.item?.position ?? '');
         <h4 class="modal-section-title">
           {{ t('experience.achievements') }}
         </h4>
+        <!-- eslint-disable vue/no-v-html -->
         <ul class="achievements">
           <li
             v-for="(achievement, index) in props.item.achievements"
             :key="index"
-          >
-            {{ achievement.description }}
-            <a
-              v-if="achievement.project_link !== null"
-              class="link"
-              :href="achievement.project_link"
-              :data-testid="`${props.test_id}-achievement-${index}-link`"
-            >
-              {{ t('experience.read_the_writeup') }}
-            </a>
-          </li>
+            :data-testid="`${props.test_id}-achievement-${index}`"
+            v-html="achievement.description"
+          />
         </ul>
+        <!-- eslint-enable vue/no-v-html -->
       </template>
 
       <template v-if="iconsReady && props.item.tech_tags.length > 0">
@@ -105,6 +99,16 @@ const title = computed(() => props.item?.position ?? '');
           v-if="props.item.project_slug !== null"
           class="link"
           :href="`/projects/${props.item.project_slug}`"
+          :data-testid="`${props.test_id}-project-link`"
+        >
+          {{ props.item.project_name }}
+        </a>
+        <a
+          v-else-if="props.item.project_url !== null"
+          class="link"
+          :href="props.item.project_url"
+          target="_blank"
+          rel="noopener"
           :data-testid="`${props.test_id}-project-link`"
         >
           {{ props.item.project_name }}
@@ -183,6 +187,19 @@ const title = computed(() => props.item?.position ?? '');
 }
 
 .link:hover {
+    color: var(--color-accent-hover);
+}
+</style>
+
+<style>
+.achievements a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: var(--font-medium);
+}
+
+.achievements a:hover {
     color: var(--color-accent-hover);
 }
 </style>

@@ -25,6 +25,7 @@ function viewItem(overrides: Record<string, unknown> = {}) {
         is_current: true,
         project_name: null,
         project_slug: null,
+        project_url: null,
         short_description: 'Builds things.',
         tech_tags: [
             { id: 11, name: 'Laravel', icon: 'devicon:laravel' },

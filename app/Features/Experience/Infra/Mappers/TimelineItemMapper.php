@@ -64,6 +64,7 @@ final class TimelineItemMapper
      *     project_id: int|null,
      *     include_in_resume: bool,
      *     external_project_name: string|null,
+     *     external_project_url: string|null,
      * }
      */
     public function toRow(TimelineItem $item): array
@@ -78,18 +79,24 @@ final class TimelineItemMapper
             'project_id' => $item->toRelatedProject()?->toOwnProjectId(),
             'include_in_resume' => $item->toIncludeInResume(),
             'external_project_name' => $item->toRelatedProject()?->toExternalProjectName(),
+            'external_project_url' => $item->toRelatedProject()?->toExternalProjectUrl(),
         ];
     }
 
     private function relatedProject(TimelineItemModel $model): ?RelatedProject
     {
-        if ($model->project_id === null && $model->external_project_name === null) {
+        if (
+            $model->project_id === null
+            && $model->external_project_name === null
+            && $model->external_project_url === null
+        ) {
             return null;
         }
 
         return new RelatedProject(
             ownProjectId: $model->project_id === null ? null : (int) $model->project_id,
             externalProjectName: $model->external_project_name,
+            externalProjectUrl: $model->external_project_url,
         );
     }
 

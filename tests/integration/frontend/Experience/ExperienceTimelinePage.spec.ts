@@ -53,7 +53,9 @@ const ITEMS = [
         project_id: 7,
         project_name: 'Ledger — Invoice Automation Platform',
         project_slug: 'ledger',
-        short_description: 'Leading the invoice automation platform: OCR pipeline and approvals.',
+        project_url: null,
+        short_description:
+            '<p>Leading the invoice automation platform: OCR pipeline and approvals.</p>',
         started_at: '2024-05-10',
         ended_at: null,
         is_current: true,
@@ -65,8 +67,8 @@ const ITEMS = [
             { id: 15, name: 'Docker', icon: 'devicon:docker' },
         ],
         achievements: [
-            { description: 'Cut p95 response times by 60%.', project_link: 'https://example.com/1' },
-            { description: 'Mentored two juniors.', project_link: null },
+            { description: 'Cut <strong>p95</strong> response times by 60%.' },
+            { description: 'Mentored two juniors.' },
         ],
     },
     {
@@ -77,7 +79,8 @@ const ITEMS = [
         project_id: null,
         project_name: 'Order Management System',
         project_slug: null,
-        short_description: 'Built e-commerce backends and admin dashboards.',
+        project_url: null,
+        short_description: '<p>Built e-commerce backends and admin dashboards.</p>',
         started_at: '2021-06-01',
         ended_at: '2024-04-30',
         is_current: false,
@@ -85,6 +88,22 @@ const ITEMS = [
             { id: 21, name: 'PHP', icon: 'devicon:php' },
             { id: 22, name: 'Laravel', icon: 'devicon:laravel' },
         ],
+        achievements: [],
+    },
+    {
+        id: 3,
+        position: 'Freelance Developer',
+        company_name: 'Solo Studio',
+        company_country: null,
+        project_id: null,
+        project_name: 'Delta Commerce',
+        project_slug: null,
+        project_url: 'https://example.com/delta-commerce',
+        short_description: '<p>Delivered client e-commerce sites.</p>',
+        started_at: '2019-01-01',
+        ended_at: '2021-05-31',
+        is_current: false,
+        tech_tags: [],
         achievements: [],
     },
 ];
@@ -191,7 +210,7 @@ describe('ExperienceTimelinePage', () => {
         );
     });
 
-    it('links the project name to /projects/{slug} and renders plain text otherwise', async () => {
+    it('links portfolio and external project names and renders plain text otherwise', async () => {
         const wrapper = mountPage();
         await flush();
 
@@ -199,6 +218,12 @@ describe('ExperienceTimelinePage', () => {
         expect(linked.element.tagName).toBe('A');
         expect(linked.attributes('href')).toBe('/projects/ledger');
         expect(linked.text()).toBe('Ledger — Invoice Automation Platform');
+
+        const external = wrapper.get('[data-testid="experience-page-timeline-item-3-project"]');
+        expect(external.element.tagName).toBe('A');
+        expect(external.attributes('href')).toBe('https://example.com/delta-commerce');
+        expect(external.attributes('target')).toBe('_blank');
+        expect(external.text()).toBe('Delta Commerce');
 
         const plain = wrapper.get('[data-testid="experience-page-timeline-item-2-project"]');
         expect(plain.element.tagName).toBe('SPAN');
@@ -252,14 +277,28 @@ describe('ExperienceTimelinePage', () => {
         expect(modal.get('[data-testid="experience-detail-modal-period"]').text()).toBe('2024 – Present');
         expect(modal.text()).toContain('Achievements');
         expect(modal.text()).toContain('Cut p95 response times by 60%.');
-        expect(modal.get('[data-testid="experience-detail-modal-achievement-0-link"]').attributes('href')).toBe(
-            'https://example.com/1',
+        expect(modal.get('[data-testid="experience-detail-modal-achievement-0"]').html()).toContain(
+            '<strong>p95</strong>',
         );
+        expect(modal.text()).not.toContain('read the writeup');
         expect(modal.text()).toContain('Tech Stack');
         expect(modal.findAll('[data-testid="tech-skill-tag"]')).toHaveLength(5);
         expect(modal.get('[data-testid="experience-detail-modal-project-link"]').attributes('href')).toBe(
             '/projects/ledger',
         );
+    });
+
+    it('links an external project name in the detail modal', async () => {
+        const wrapper = mountPage();
+        await flush();
+
+        await wrapper.get('[data-testid="experience-page-timeline-item-3-details"]').trigger('click');
+        await flush();
+
+        const link = wrapper.get('[data-testid="experience-detail-modal-project-link"]');
+        expect(link.attributes('href')).toBe('https://example.com/delta-commerce');
+        expect(link.attributes('target')).toBe('_blank');
+        expect(link.text()).toBe('Delta Commerce');
     });
 
     it('opens the detail modal on a card click but not on its interactive children', async () => {

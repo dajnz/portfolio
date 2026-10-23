@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
-import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
-import AdminBaseTextarea from '@shared-admin/AdminBaseTextarea.vue';
+import TextEditor, {
+    EXPERIENCE_ACHIEVEMENT_EDITOR_BUTTONS,
+} from '@shared-admin/TextEditor/TextEditor.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import type { AchievementRow } from '../Types/achievement';
 
@@ -28,7 +29,6 @@ const props = withDefaults(
 
 const emit = defineEmits<{
     'update:description': [value: string];
-    'update:projectLink': [value: string];
     remove: [];
     'move-up': [];
     'move-down': [];
@@ -86,26 +86,15 @@ function onDescriptionInput(value: string): void {
         />
       </div>
     </div>
-    <div class="space-y-3">
-      <AdminBaseTextarea
-        :model-value="props.modelValue.description[props.locale] ?? ''"
-        :label="t('admin.experience.description')"
-        :error="props.error"
-        :disabled="props.disabled"
-        :maxlength="1000"
-        :rows="2"
-        :test_id="`${props.test_id}-description-${props.locale}`"
-        @update:model-value="onDescriptionInput"
-      />
-      <AdminBaseInput
-        :model-value="props.modelValue.project_link ?? ''"
-        type="url"
-        :label="t('admin.experience.project_link')"
-        :disabled="props.disabled"
-        :maxlength="500"
-        :test_id="`${props.test_id}-project-link`"
-        @update:model-value="(value) => emit('update:projectLink', value)"
-      />
-    </div>
+    <TextEditor
+      :model-value="props.modelValue.description[props.locale] ?? ''"
+      :label="t('admin.experience.description')"
+      :error="props.error"
+      :disabled="props.disabled"
+      :buttons="EXPERIENCE_ACHIEVEMENT_EDITOR_BUTTONS"
+      min_height="60px"
+      :test_id="`${props.test_id}-description-${props.locale}`"
+      @update:model-value="onDescriptionInput"
+    />
   </div>
 </template>

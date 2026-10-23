@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\App;
  * @property int|null $project_id
  * @property bool $include_in_resume
  * @property string|null $external_project_name
+ * @property string|null $external_project_url
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Collection<int, TimelineItemTranslationModel> $translations
  * @property \Illuminate\Support\Collection<int, SkillModel> $techTags
@@ -51,6 +52,7 @@ final class TimelineItemModel extends Model
         'project_id',
         'include_in_resume',
         'external_project_name',
+        'external_project_url',
     ];
 
     /** @return HasMany<TimelineItemTranslationModel, $this> */

@@ -26,4 +26,16 @@ interface MarkdownContentPipelineInterface
      * Renders Markdown to safe HTML (uncached).
      */
     public function render(string $markdown): string;
+
+    /**
+     * Renders Markdown as a single line of safe inline HTML (uncached) —
+     * block markers and line breaks collapse to plain whitespace.
+     */
+    public function renderInline(string $markdown): string;
+
+    /**
+     * Converts Markdown to plain text with all formatting removed and
+     * whitespace collapsed (uncached).
+     */
+    public function plainText(string $markdown): string;
 }

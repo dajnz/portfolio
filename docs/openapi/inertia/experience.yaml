@@ -106,8 +106,13 @@ components:
           type: string
           nullable: true
           description: Present only when project_id is set. Used to build /projects/{slug} link.
+        project_url:
+          type: string
+          nullable: true
+          description: Present only for an external project with a URL. Used to make the project name a link.
         short_description:
           type: string
+          description: Rendered safe HTML (the shared Markdown content pipeline).
         started_at:
           type: string
           format: date
@@ -138,9 +143,7 @@ components:
             properties:
               description:
                 type: string
-              project_link:
-                type: string
-                nullable: true
+                description: Rendered safe inline HTML — a single line, with any Markdown links and formatting preserved.
 
     TimelineItemEditData:
       type: object
@@ -170,9 +173,13 @@ components:
           type: string
           nullable: true
           description: Set when referencing an external/non-portfolio project. Mutually exclusive with project_id.
+        external_project_url:
+          type: string
+          nullable: true
+          description: Optional URL of the external project. Only set together with external_project_name.
         short_description:
           type: object
-          description: Per-locale short description values keyed by locale code.
+          description: Per-locale short description Markdown values keyed by locale code.
           additionalProperties:
             type: string
         started_at:
@@ -195,13 +202,10 @@ components:
             properties:
               description:
                 type: object
-                description: Per-locale achievement description values keyed by locale code — only the locales with a description are present.
+                description: Per-locale achievement description Markdown values keyed by locale code — only the locales with a description are present.
                 additionalProperties:
                   type: string
                   nullable: true
-              project_link:
-                type: string
-                nullable: true
         tech_tags:
           type: array
           items:

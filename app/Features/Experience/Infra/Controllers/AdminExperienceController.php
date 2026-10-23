@@ -199,6 +199,7 @@ final class AdminExperienceController
     private function payload(StoreExperienceRequest $request): array
     {
         $endedAt = $request->input('ended_at');
+        $externalProjectUrl = $request->input('external_project_url');
 
         return [
             'position' => $this->localeValues->inputMap((array) $request->input('position', [])),
@@ -218,6 +219,9 @@ final class AdminExperienceController
                 : null,
             'includeInResume' => $request->boolean('include_in_resume'),
             'externalProjectName' => $request->input('external_project_name'),
+            'externalProjectUrl' => is_string($externalProjectUrl) && $externalProjectUrl !== ''
+                ? $externalProjectUrl
+                : null,
         ];
     }
 
@@ -326,6 +330,7 @@ final class AdminExperienceController
             'short_description' => $item->shortDescriptionsByLocale(),
             'project_id' => $item->toRelatedProject()?->toOwnProjectId(),
             'external_project_name' => $item->toRelatedProject()?->toExternalProjectName(),
+            'external_project_url' => $item->toRelatedProject()?->toExternalProjectUrl(),
             'started_at' => $period->toStartedAt()->format('Y-m-d'),
             'ended_at' => $period->toEndedAt()?->format('Y-m-d'),
             'is_published' => $item->toIsPublished(),
@@ -344,32 +349,23 @@ final class AdminExperienceController
      * per-locale maps come from the entity's own projections; only the
      * index merge happens here.
      *
-     * @return array<int, array{description: array<string, string|null>, project_link: string|null}>
+     * @return array<int, array{description: array<string, string|null>}>
      */
     private function achievementsProps(TimelineItem $item): array
     {
         $descriptions = $item->achievementDescriptionsByLocale();
-        $projectLinks = $item->achievementProjectLinksByLocale();
         $locales = array_keys($descriptions);
         $maxCount = $descriptions === [] ? 0 : max(array_map('count', $descriptions));
 
         $merged = [];
         for ($index = 0; $index < $maxCount; $index++) {
             $descriptionMap = [];
-            $projectLink = null;
 
             foreach ($locales as $locale) {
                 $descriptionMap[$locale] = $descriptions[$locale][$index] ?? null;
-
-                if ($projectLink === null) {
-                    $projectLink = $projectLinks[$locale][$index] ?? null;
-                }
             }
 
-            $merged[] = [
-                'description' => $descriptionMap,
-                'project_link' => $projectLink,
-            ];
+            $merged[] = ['description' => $descriptionMap];
         }
 
         return $merged;

@@ -13,7 +13,6 @@ return [
     'achievements' => 'Достижения',
     'tech_stack' => 'Технологии',
     'project' => 'Проект',
-    'read_the_writeup' => 'читать статью',
     'present' => 'по настоящее время',
     'details' => 'Подробнее',
     'show_all_tags' => 'Показать все теги',

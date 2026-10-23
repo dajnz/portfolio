@@ -55,6 +55,28 @@ describe('MarkdownContentPipeline', function (): void {
             ->toContain('<td>Dev</td>');
     });
 
+    it('renders inline Markdown as one line without block wrappers', function (): void {
+        $html = pipeline()->renderInline(
+            'Cut **deploy** time by [40%](https://example.com/metrics).'.PHP_EOL.PHP_EOL
+            .'Second paragraph.',
+        );
+
+        expect($html)->toContain('<strong>deploy</strong>')
+            ->and($html)->toContain('<a href="https://example.com/metrics">40%</a>')
+            ->and($html)->not->toContain('<p>')
+            ->and($html)->not->toContain('<br');
+    });
+
+    it('converts Markdown to plain text with formatting removed', function (): void {
+        $text = pipeline()->plainText(
+            '## Heading'.PHP_EOL.PHP_EOL
+            .'Cut **deploy** time by [40%](https://example.com/metrics) with `caching`.'.PHP_EOL.PHP_EOL
+            .'- First'.PHP_EOL.'- Second',
+        );
+
+        expect($text)->toBe('Heading Cut deploy time by 40% with caching. First Second');
+    });
+
     it('blocks unsafe links', function (): void {
         $html = pipeline()->render('[click](javascript:alert(1))');
 

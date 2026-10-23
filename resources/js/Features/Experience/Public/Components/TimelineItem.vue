@@ -75,28 +75,44 @@ function onCardClick(event: MouseEvent): void {
           · {{ props.item.company_country }}
         </template>
       </p>
-      <a
-        v-if="props.item.project_slug"
-        class="link timeline-item__project"
-        :href="`/projects/${props.item.project_slug}`"
-        :data-testid="`${props.test_id}-item-${props.item.id}-project`"
-      >
-        {{ props.item.project_name }}
-      </a>
-      <span
-        v-else-if="props.item.project_name"
-        class="timeline-item__project timeline-item__project--plain"
-        :data-testid="`${props.test_id}-item-${props.item.id}-project`"
-      >
-        {{ props.item.project_name }}
-      </span>
       <p
+        v-if="props.item.project_name"
+        class="timeline-item__project"
+      >
+        <a
+          v-if="props.item.project_slug"
+          class="link"
+          :href="`/projects/${props.item.project_slug}`"
+          :data-testid="`${props.test_id}-item-${props.item.id}-project`"
+        >
+          {{ props.item.project_name }}
+        </a>
+        <a
+          v-else-if="props.item.project_url"
+          class="link"
+          :href="props.item.project_url"
+          target="_blank"
+          rel="noopener"
+          :data-testid="`${props.test_id}-item-${props.item.id}-project`"
+        >
+          {{ props.item.project_name }}
+        </a>
+        <span
+          v-else
+          class="timeline-item__project--plain"
+          :data-testid="`${props.test_id}-item-${props.item.id}-project`"
+        >
+          {{ props.item.project_name }}
+        </span>
+      </p>
+      <!-- eslint-disable vue/no-v-html -->
+      <div
         v-if="props.item.short_description !== ''"
         class="timeline-item__description"
         :data-testid="`${props.test_id}-item-${props.item.id}-description`"
-      >
-        {{ props.item.short_description }}
-      </p>
+        v-html="props.item.short_description"
+      />
+      <!-- eslint-enable vue/no-v-html -->
       <div
         v-if="iconsReady && props.item.tech_tags.length > 0"
         class="timeline-item__tags"
@@ -225,6 +241,7 @@ function onCardClick(event: MouseEvent): void {
     line-height: var(--line-height-normal);
     color: var(--color-text-secondary);
     margin: 0 0 var(--space-md);
+    overflow-wrap: anywhere;
 }
 
 .timeline-item__tags {
@@ -294,5 +311,58 @@ function onCardClick(event: MouseEvent): void {
 
 .link:hover {
     color: var(--color-accent-hover);
+}
+</style>
+
+<style>
+.timeline-item__description > :first-child {
+    margin-top: 0;
+}
+
+.timeline-item__description > :last-child {
+    margin-bottom: 0;
+}
+
+.timeline-item__description p {
+    margin: 0 0 var(--space-xs);
+}
+
+.timeline-item__description ul,
+.timeline-item__description ol {
+    margin: 0 0 var(--space-xs);
+    padding-left: var(--space-lg);
+}
+
+.timeline-item__description ul {
+    list-style: disc;
+}
+
+.timeline-item__description ol {
+    list-style: decimal;
+}
+
+.timeline-item__description li {
+    margin: 0.25rem 0;
+}
+
+.timeline-item__description a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: var(--font-medium);
+}
+
+.timeline-item__description a:hover {
+    color: var(--color-accent-hover);
+}
+
+.timeline-item__description strong {
+    color: var(--color-text-primary);
+    font-weight: var(--font-semibold);
+}
+
+.timeline-item__description code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
 }
 </style>

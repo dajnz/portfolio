@@ -10,5 +10,4 @@
 export interface AchievementRow extends Record<string, unknown> {
     uid: string;
     description: Record<string, string>;
-    project_link: string | null;
 }

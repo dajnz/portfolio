@@ -230,6 +230,7 @@
             "underline": "Подчёркивание"
         },
         "experience": {
+            "achievement_description": "Описание достижения",
             "achievements": "Достижения",
             "add": "Добавить запись",
             "add_achievement": "Добавить достижение",
@@ -244,6 +245,7 @@
             "description": "Описание",
             "edit": "Изменить запись",
             "ended_at": "Окончание",
+            "external_project_url": "Ссылка на проект",
             "force_delete_confirm": "Удалить эту запись об опыте безвозвратно?",
             "include_in_resume": "В резюме",
             "no_items": "Записей об опыте пока нет.",
@@ -253,11 +255,11 @@
             "portfolio_project": "Проект портфолио",
             "position": "Должность",
             "project": "Проект",
-            "project_link": "Ссылка на проект",
             "project_placeholder": "Поиск проектов или ввод названия вручную...",
             "published": "Опубликовано",
             "search_placeholder": "Поиск по опыту...",
             "short_description": "Краткое описание",
+            "sort_order": "Порядок сортировки",
             "started_at": "Начало",
             "tech_tags": "Технологии",
             "title": "Опыт работы",
@@ -752,7 +754,6 @@
         "no_experience": "Записей об опыте пока нет.",
         "present": "по настоящее время",
         "project": "Проект",
-        "read_the_writeup": "читать статью",
         "show_all_tags": "Показать все теги",
         "tech_stack": "Технологии",
         "work_experience": "Опыт работы"
@@ -945,6 +946,7 @@
         "experience": {
             "achievement_description_required": "Каждое достижение должно иметь описание хотя бы на одном языке.",
             "company_fields_all_or_none": "Название компании и страна должны быть заполнены вместе или оставлены пустыми.",
+            "external_project_url_requires_project": "Поле :attribute можно указать только для проекта с собственным названием.",
             "only_last_current": "Без даты окончания может быть только самая последняя запись — для этого периода укажите дату окончания.",
             "overlap_with_next": "Дата окончания не может быть позже даты начала следующей записи.",
             "overlap_with_previous": "Дата начала не может быть раньше даты окончания предыдущей записи.",

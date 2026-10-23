@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Experience\Infra\Requests;
 
+use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -28,6 +29,7 @@ final class StoreExperienceRequest extends FormRequest
 {
     public function __construct(
         private readonly ActiveLocaleService $locales,
+        private readonly MarkdownContentPipelineInterface $markdown,
     ) {
         parent::__construct();
     }
@@ -54,6 +56,20 @@ final class StoreExperienceRequest extends FormRequest
                 'max:200',
                 'prohibited_unless:project_id,null',
             ],
+            'external_project_url' => [
+                'nullable',
+                'string',
+                'url',
+                'max:500',
+                'prohibited_unless:project_id,null',
+                function (string $attribute, mixed $value, callable $fail): void {
+                    if (is_string($value) && $value !== '' && $this->input('external_project_name') === null) {
+                        $fail(__('validation.experience.external_project_url_requires_project', [
+                            'attribute' => $this->attributes()[$attribute] ?? $attribute,
+                        ]));
+                    }
+                },
+            ],
             'tech_tags' => ['nullable', 'array'],
             'tech_tags.*' => ['integer', 'exists:skills,id'],
             'include_in_resume' => ['boolean'],
@@ -77,7 +93,6 @@ final class StoreExperienceRequest extends FormRequest
                     }
                 },
             ],
-            'achievements.*.project_link' => ['nullable', 'string', 'url', 'max:500'],
         ];
 
         foreach ($this->activeLocales() as $locale) {
@@ -90,7 +105,7 @@ final class StoreExperienceRequest extends FormRequest
                 'required',
                 'string',
                 function (string $attribute, mixed $value, callable $fail): void {
-                    $plainLength = mb_strlen($this->stripMarkdown((string) $value));
+                    $plainLength = mb_strlen($this->markdown->plainText((string) $value));
 
                     if ($plainLength > 500) {
                         $fail(__('validation.experience.short_description_plain_length', [
@@ -146,13 +161,28 @@ final class StoreExperienceRequest extends FormRequest
      */
     public function attributes(): array
     {
-        $attributes = [];
+        $attributes = [
+            'started_at' => __('admin.experience.started_at'),
+            'ended_at' => __('admin.experience.ended_at'),
+            'project_id' => __('admin.experience.project'),
+            'external_project_name' => __('admin.experience.project'),
+            'external_project_url' => __('admin.experience.external_project_url'),
+            'tech_tags' => __('admin.experience.tech_tags'),
+            'tech_tags.*' => __('admin.experience.tech_tags'),
+            'sort_order' => __('admin.experience.sort_order'),
+            'include_in_resume' => __('admin.experience.include_in_resume'),
+            'is_published' => __('admin.experience.published'),
+            'achievements' => __('admin.experience.achievements'),
+            'achievements.*.description' => __('admin.experience.achievement_description'),
+        ];
+
         foreach ($this->activeLocales() as $locale) {
             $suffix = ' ['.strtoupper($locale).']';
             $attributes["position.$locale"] = __('admin.experience.position').$suffix;
             $attributes["company_name.$locale"] = __('admin.experience.company_name').$suffix;
             $attributes["company_country.$locale"] = __('admin.experience.country').$suffix;
             $attributes["short_description.$locale"] = __('admin.experience.short_description').$suffix;
+            $attributes["achievements.*.description.$locale"] = __('admin.experience.achievement_description').$suffix;
         }
 
         return $attributes;
@@ -166,24 +196,4 @@ final class StoreExperienceRequest extends FormRequest
         return $this->locales->activeLocales();
     }
 
-    /**
-     * Coarse Markdown → plain-text strip: removes code, image/link
-     * syntax (keeping their text), heading/list/quote markers and
-     * emphasis, collapsing the remainder to a single whitespace run.
-     * Only a length check depends on it — a deliberately simple
-     * approximation of the renderer's output.
-     */
-    private function stripMarkdown(string $markdown): string
-    {
-        $text = preg_replace('/```[\s\S]*?```/', ' ', $markdown) ?? $markdown;
-        $text = preg_replace('/`[^`]*`/', ' ', $text) ?? $text;
-        $text = preg_replace('/!\[([^\]]*)\]\([^)]*\)/', '$1', $text) ?? $text;
-        $text = preg_replace('/\[([^\]]*)\]\([^)]*\)/', '$1', $text) ?? $text;
-        $text = preg_replace('/^\s{0,3}#{1,6}\s*/m', '', $text) ?? $text;
-        $text = preg_replace('/^\s{0,3}(?:[-*_]\s*){3,}\s*$/m', ' ', $text) ?? $text;
-        $text = preg_replace('/^\s{0,3}[>*+-]\s+/m', '', $text) ?? $text;
-        $text = preg_replace('/[*_~]{1,3}([^*_~]+)[*_~]{1,3}/', '$1', $text) ?? $text;
-
-        return trim((string) preg_replace('/\s+/u', ' ', $text));
-    }
 }

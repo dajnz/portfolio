@@ -40,12 +40,6 @@ function setDescription(index: number, value: string): void {
     emit('update:modelValue', next);
 }
 
-function setProjectLink(index: number, value: string): void {
-    const next = [...props.modelValue];
-    next[index] = { ...next[index], project_link: value === '' ? null : value };
-    emit('update:modelValue', next);
-}
-
 function removeAt(index: number): void {
     emit('remove', index);
 }
@@ -90,7 +84,6 @@ function move(index: number, direction: -1 | 1): void {
           :disabled="props.disabled"
           :test_id="`${props.test_id}-item-${index}`"
           @update:description="(value) => setDescription(index, value)"
-          @update:project-link="(value) => setProjectLink(index, value)"
           @remove="removeAt(index)"
           @move-up="move(index, -1)"
           @move-down="move(index, 1)"

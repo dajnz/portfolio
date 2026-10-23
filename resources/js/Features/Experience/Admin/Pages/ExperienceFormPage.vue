@@ -6,12 +6,12 @@ import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import AdminBaseCheckbox from '@shared-admin/AdminBaseCheckbox.vue';
 import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
-import AdminBaseTextarea from '@shared-admin/AdminBaseTextarea.vue';
 import AdminDatePicker from '@shared-admin/AdminDatePicker.vue';
 import AdminPageLayout from '@shared-admin/AdminPageLayout.vue';
 import AdminStickyActionBar from '@shared-admin/AdminStickyActionBar.vue';
 import AdminTechSkillPicker from '@shared-admin/AdminTechSkillPicker.vue';
 import LocaleTabs from '@shared-admin/LocaleTabs.vue';
+import TextEditor, { EXPERIENCE_EDITOR_BUTTONS } from '@shared-admin/TextEditor/TextEditor.vue';
 import { useAdminMenu } from '@shared-cross/Composables/useAdminMenu';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useToast } from '@shared-cross/Composables/useToast';
@@ -41,6 +41,7 @@ interface TimelineItemEditProps {
     company_country: Record<string, string>;
     project_id: number | null;
     external_project_name: string | null;
+    external_project_url: string | null;
     short_description: Record<string, string>;
     started_at: string;
     ended_at: string | null;
@@ -49,7 +50,6 @@ interface TimelineItemEditProps {
     include_in_resume: boolean;
     achievements: Array<{
         description: Record<string, string | null>;
-        project_link: string | null;
     }>;
     tech_tags: TechTag[];
 }
@@ -61,6 +61,7 @@ interface ExperienceFormValues {
     short_description: Record<string, string>;
     project_id: number | null;
     external_project_name: string | null;
+    external_project_url: string;
     started_at: string;
     ended_at: string;
     achievements: AchievementRow[];
@@ -107,7 +108,6 @@ function buildForm(item: TimelineItemEditProps | null | undefined): ExperienceFo
             description: Object.fromEntries(
                 SUPPORTED_LOCALES.map((code) => [code, achievement.description[code] ?? '']),
             ),
-            project_link: achievement.project_link,
         }),
     );
 
@@ -118,6 +118,7 @@ function buildForm(item: TimelineItemEditProps | null | undefined): ExperienceFo
         short_description: { ...emptyLocaleMap(), ...(item?.short_description ?? {}) },
         project_id: item?.project_id ?? null,
         external_project_name: item?.external_project_name ?? null,
+        external_project_url: item?.external_project_url ?? '',
         started_at: item?.started_at ?? '',
         ended_at: item?.ended_at ?? '',
         achievements: descriptionMaps,
@@ -146,6 +147,10 @@ const warnedLocales = computed(() =>
             (form.position[code] ?? '').trim() === '' ||
             (form.short_description[code] ?? '').trim() === '',
     ),
+);
+
+const showExternalProjectUrl = computed(
+    () => form.project_id === null && form.external_project_name !== null,
 );
 
 const unsavedChanges = useUnsavedChanges(
@@ -189,6 +194,18 @@ const achievementsError = computed(() => {
     return null;
 });
 
+function onProjectChange(value: {
+    project_id: number | null;
+    external_project_name: string | null;
+}): void {
+    form.project_id = value.project_id;
+    form.external_project_name = value.external_project_name;
+
+    if (value.project_id !== null || value.external_project_name === null) {
+        form.external_project_url = '';
+    }
+}
+
 function onAchievementsChange(rows: AchievementRow[]): void {
     form.achievements = rows;
 }
@@ -198,7 +215,6 @@ function onAchievementsChange(rows: AchievementRow[]): void {
 // before the submit payload.
 function submittableAchievements(): Array<{
     description: Record<string, string>;
-    project_link: string | null;
 }> {
     return form.achievements
         .filter((row) =>
@@ -208,7 +224,6 @@ function submittableAchievements(): Array<{
             description: Object.fromEntries(
                 SUPPORTED_LOCALES.map((code) => [code, row.description[code] ?? '']),
             ),
-            project_link: row.project_link,
         }));
 }
 
@@ -230,6 +245,7 @@ function save(): void {
         short_description: form.short_description,
         project_id: form.project_id,
         external_project_name: form.external_project_name,
+        external_project_url: showExternalProjectUrl.value ? form.external_project_url : '',
         started_at: form.started_at,
         ended_at: form.ended_at,
         achievements: submittableAchievements(),
@@ -368,22 +384,29 @@ function save(): void {
             :error="errors.project_id ?? errors.external_project_name ?? null"
             :disabled="isSaving"
             :test_id="`${props.test_id}-project`"
-            @update:model-value="
-              (value) => {
-                form.project_id = value.project_id;
-                form.external_project_name = value.external_project_name;
-              }
-            "
+            @update:model-value="onProjectChange"
           />
         </div>
 
-        <AdminBaseTextarea
+        <AdminBaseInput
+          v-if="showExternalProjectUrl"
+          :model-value="form.external_project_url"
+          type="url"
+          :label="t('admin.experience.external_project_url')"
+          :error="errors.external_project_url ?? null"
+          :disabled="isSaving"
+          :maxlength="500"
+          :test_id="`${props.test_id}-external-project-url`"
+          @update:model-value="(value) => (form.external_project_url = value)"
+        />
+
+        <TextEditor
           :model-value="localeValue(activeLocale, form.short_description)"
           :label="t('admin.experience.short_description')"
           :error="fieldError('short_description')"
           :disabled="isSaving"
-          :maxlength="500"
-          :rows="3"
+          :buttons="EXPERIENCE_EDITOR_BUTTONS"
+          min_height="80px"
           :test_id="`${props.test_id}-short-description-${activeLocale}`"
           @update:model-value="setLocaleValue(activeLocale, form.short_description, $event)"
         />
@@ -418,7 +441,7 @@ function save(): void {
           @add="
             form.achievements = [
               ...form.achievements,
-              { uid: randomUuid(), description: emptyLocaleMap(), project_link: null },
+              { uid: randomUuid(), description: emptyLocaleMap() },
             ]
           "
           @remove="

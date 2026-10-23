@@ -42,7 +42,6 @@ function experiencePayload(array $overrides = []): array
         'achievements' => [
             [
                 'description' => ['en' => 'Cut deploy time by 40%', 'ru' => 'Сократил время деплоя на 40%'],
-                'project_link' => 'https://example.com/work',
             ],
         ],
         'started_at' => '2020-01-15',
@@ -243,7 +242,7 @@ describe('AdminExperienceController', function (): void {
             ->and($translations->get('en')->company_country)->toBe('Germany')
             ->and($translations->get('en')->short_description)->toBe('**Led** the platform team.')
             ->and($translations->get('en')->achievements)->toBe([
-                ['description' => 'Cut deploy time by 40%', 'project_link' => 'https://example.com/work'],
+                ['description' => 'Cut deploy time by 40%'],
             ])
             ->and($translations->get('ru')->position)->toBe('Старший разработчик');
 
@@ -278,19 +277,19 @@ describe('AdminExperienceController', function (): void {
 
         $this->post('/admin/experience', experiencePayload([
             'achievements' => [
-                ['description' => ['en' => 'English only', 'ru' => null], 'project_link' => null],
-                ['description' => ['en' => 'Both locales', 'ru' => 'На обоих языках'], 'project_link' => 'https://example.com/2'],
+                ['description' => ['en' => 'English only', 'ru' => null]],
+                ['description' => ['en' => 'Both locales', 'ru' => 'На обоих языках']],
             ],
         ]))->assertRedirect()
             ->assertSessionHasNoErrors();
 
         $translations = TimelineItemModel::query()->first()->translations()->get()->keyBy('locale');
         expect($translations->get('en')->achievements)->toBe([
-            ['description' => 'English only', 'project_link' => null],
-            ['description' => 'Both locales', 'project_link' => 'https://example.com/2'],
+            ['description' => 'English only'],
+            ['description' => 'Both locales'],
         ])
             ->and($translations->get('ru')->achievements)->toBe([
-                ['description' => 'На обоих языках', 'project_link' => 'https://example.com/2'],
+                ['description' => 'На обоих языках'],
             ]);
     });
 
@@ -477,6 +476,73 @@ describe('AdminExperienceController', function (): void {
             ->assertSessionHasErrors(['project_id', 'external_project_name']);
     });
 
+    it('stores an external project URL with the custom project name', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $this->post('/admin/experience', experiencePayload([
+            'project_id' => null,
+            'external_project_name' => 'Side Project',
+            'external_project_url' => 'https://example.com/side-project',
+        ]))->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $item = TimelineItemModel::query()->firstOrFail();
+
+        expect($item->external_project_name)->toBe('Side Project')
+            ->and($item->external_project_url)->toBe('https://example.com/side-project');
+
+        $this->get("/admin/experience/{$item->id}/edit")
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('item.project_id', null)
+                ->where('item.external_project_name', 'Side Project')
+                ->where('item.external_project_url', 'https://example.com/side-project'));
+    });
+
+    it('rejects an external project URL without a custom project name', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $this->post('/admin/experience', experiencePayload([
+            'project_id' => null,
+            'external_project_name' => null,
+            'external_project_url' => 'https://example.com/orphan',
+        ]))->assertRedirect()
+            ->assertSessionHasErrors('external_project_url');
+    });
+
+    it('localizes the experience detail validation messages', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $this->withUnencryptedCookie('locale', 'ru')
+            ->post('/admin/experience', [
+                'position' => ['en' => '', 'ru' => ''],
+                'short_description' => ['en' => '', 'ru' => ''],
+                'started_at' => null,
+                'external_project_name' => 'Side Project',
+                'external_project_url' => 'not-a-url',
+                'tech_tags' => [999],
+                'achievements' => [
+                    ['description' => ['en' => str_repeat('a', 1001), 'ru' => null]],
+                ],
+            ])->assertRedirect()
+            ->assertSessionHasErrors([
+                'position.en',
+                'started_at',
+                'external_project_url',
+                'tech_tags.0',
+                'achievements.0.description.en',
+            ]);
+
+        $errors = session('errors');
+
+        expect($errors->first('started_at'))->toBe('Поле Начало обязательно для заполнения.')
+            ->and($errors->first('external_project_url'))->toBe('Поле Ссылка на проект должно быть действительным URL.')
+            ->and($errors->first('tech_tags.0'))->toBe('Выбранное значение поля Технологии некорректно.')
+            ->and($errors->first('position.en'))->toBe('Поле Должность [EN] обязательно для заполнения.')
+            ->and($errors->first('achievements.0.description.en'))
+            ->toBe('Длина поля Описание достижения [EN] не должна превышать 1000 символов.');
+    });
+
     it('rejects tech tags that do not exist and non-positive sort orders', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 
@@ -513,10 +579,10 @@ describe('AdminExperienceController', function (): void {
 
         $item = translatedItem(['started_at' => '2021-04-01', 'ended_at' => null, 'is_published' => false], [
             'en' => ['position' => 'Engineer', 'company_name' => 'Example Ltd', 'short_description' => 'Short en', 'achievements' => [
-                ['description' => 'English achievement', 'project_link' => 'https://example.com/1'],
+                ['description' => 'English achievement'],
             ]],
             'ru' => ['position' => 'Инженер', 'company_name' => 'ООО «Пример»', 'short_description' => 'Short ru', 'achievements' => [
-                ['description' => 'Русское достижение', 'project_link' => null],
+                ['description' => 'Русское достижение'],
             ]],
         ]);
 
@@ -534,8 +600,7 @@ describe('AdminExperienceController', function (): void {
                 ->where('item.is_published', false)
                 ->where('item.include_in_resume', true)
                 ->where('item.achievements.0.description.en', 'English achievement')
-                ->where('item.achievements.0.description.ru', 'Русское достижение')
-                ->where('item.achievements.0.project_link', 'https://example.com/1'));
+                ->where('item.achievements.0.description.ru', 'Русское достижение'));
     });
 
     it('updates an item and reconciles translations and the tech-tag pivot', function (): void {

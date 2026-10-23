@@ -314,9 +314,9 @@ final class E2EDemoContentSeeder extends Seeder
                 'company_country' => 'Germany',
                 'short_description' => 'Owned the platform team: architecture, reviews and the delivery pipeline.',
                 'achievements' => [
-                    ['description' => 'Cut p95 response times by 60% with cursor pagination and caching.', 'project_link' => null],
-                    ['description' => 'Introduced encrypted nightly backups with a tested restore drill.', 'project_link' => null],
-                    ['description' => 'Mentored two juniors to mid-level in a year.', 'project_link' => null],
+                    ['description' => 'Cut p95 response times by 60% with cursor pagination and caching.'],
+                    ['description' => 'Introduced encrypted nightly backups with a tested restore drill.'],
+                    ['description' => 'Mentored two juniors to mid-level in a year.'],
                 ],
             ],
             'ru' => [
@@ -325,9 +325,9 @@ final class E2EDemoContentSeeder extends Seeder
                 'company_country' => 'Германия',
                 'short_description' => 'Отвечал за платформенную команду: архитектура, ревью и конвейер доставки.',
                 'achievements' => [
-                    ['description' => 'Сократил p95 время ответа на 60% с помощью курсорной пагинации и кэша.', 'project_link' => null],
-                    ['description' => 'Внедрил шифрованные ночные бэкапы с проверенным сценарием восстановления.', 'project_link' => null],
-                    ['description' => 'За год вывел двух джуниоров до мидла.', 'project_link' => null],
+                    ['description' => 'Сократил p95 время ответа на 60% с помощью курсорной пагинации и кэша.'],
+                    ['description' => 'Внедрил шифрованные ночные бэкапы с проверенным сценарием восстановления.'],
+                    ['description' => 'За год вывел двух джуниоров до мидла.'],
                 ],
             ],
         ],
@@ -343,8 +343,8 @@ final class E2EDemoContentSeeder extends Seeder
                 'company_country' => 'Netherlands',
                 'short_description' => 'Built the customer dashboard and the public-facing marketing site.',
                 'achievements' => [
-                    ['description' => 'Shipped the analytics dashboard used by 40k monthly users.', 'project_link' => null],
-                    ['description' => 'Moved the frontend to TypeScript and cut the bundle by half.', 'project_link' => null],
+                    ['description' => 'Shipped the analytics dashboard used by 40k monthly users.'],
+                    ['description' => 'Moved the frontend to TypeScript and cut the bundle by half.'],
                 ],
             ],
             'ru' => [
@@ -353,8 +353,8 @@ final class E2EDemoContentSeeder extends Seeder
                 'company_country' => 'Нидерланды',
                 'short_description' => 'Разрабатывал клиентский дашборд и публичный маркетинговый сайт.',
                 'achievements' => [
-                    ['description' => 'Запустил дашборд аналитики для 40 тысяч пользователей в месяц.', 'project_link' => null],
-                    ['description' => 'Перевёл фронтенд на TypeScript и вдвое уменьшил бандл.', 'project_link' => null],
+                    ['description' => 'Запустил дашборд аналитики для 40 тысяч пользователей в месяц.'],
+                    ['description' => 'Перевёл фронтенд на TypeScript и вдвое уменьшил бандл.'],
                 ],
             ],
         ],
@@ -370,7 +370,7 @@ final class E2EDemoContentSeeder extends Seeder
                 'company_country' => 'Ukraine',
                 'short_description' => 'Maintained the legacy CRM and its integration layer.',
                 'achievements' => [
-                    ['description' => 'Automated the invoice flow and removed a week of manual work per month.', 'project_link' => null],
+                    ['description' => 'Automated the invoice flow and removed a week of manual work per month.'],
                 ],
             ],
             'ru' => [
@@ -379,7 +379,7 @@ final class E2EDemoContentSeeder extends Seeder
                 'company_country' => 'Украина',
                 'short_description' => 'Поддерживал легаси-CRM и слой интеграций.',
                 'achievements' => [
-                    ['description' => 'Автоматизировал поток счетов и убрал неделю ручной работы в месяц.', 'project_link' => null],
+                    ['description' => 'Автоматизировал поток счетов и убрал неделю ручной работы в месяц.'],
                 ],
             ],
         ],
