@@ -34,7 +34,7 @@ describe('ResumePdfRenderer', function (): void {
             'company_country' => 'Germany',
             'started_at' => '2023-01-15',
             'ended_at' => null,
-            'achievements' => [['description' => 'Cut latency.', 'project_link' => null]],
+            'achievements' => [['description' => 'Cut latency.']],
             'tech_tags' => ['Laravel'],
         ]],
         'contacts' => [['name' => 'GitHub', 'value' => 'octocat', 'icon' => 'simple-icons:github', 'url' => 'https://github.com/alex']],
@@ -357,7 +357,7 @@ describe('ResumePdfRenderer', function (): void {
                 'company_country' => 'Germany',
                 'started_at' => '2023-01-15',
                 'ended_at' => null,
-                'achievements' => [['description' => "Achievement {$index}", 'project_link' => null]],
+                'achievements' => [['description' => "Achievement {$index}"]],
                 'tech_tags' => [],
             ];
         }

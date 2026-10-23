@@ -99,7 +99,7 @@ trait SeedsResumeData
             'company_country' => 'Germany',
             'short_description' => 'Led the payments team.',
             'achievements' => json_encode([
-                ['description' => 'Cut checkout latency by 40%.', 'project_link' => null],
+                ['description' => 'Cut **checkout** latency by [40%](https://example.com/metrics).'],
             ]),
         ]);
         DB::table('experience_item_tech_tags')->insert([
