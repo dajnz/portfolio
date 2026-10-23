@@ -182,17 +182,18 @@ function onViewModeChange(mode: HeaderViewMode): void {
 <style scoped>
 /* The toolbar sticks to the top of the viewport below the sticky page
    header; the opaque page background keeps the cards from showing
-   through while scrolling. By default it spans the shell width exactly.
-   On wide screens it widens by `--space-xl` (32px) per side so the
-   cards' hover shadows never peek past its edges, while the equal
-   inline padding keeps the filters' content width exactly at
-   `--layout-content`. The widening is gated behind `min-width: 1064px`
-   — the shell caps at `--layout-content` (1000px) and the layout's own
-   padding is 24px per side, so the widened box (1000 + 2×32 = 1064px)
-   fits the viewport exactly from 1064px up and never overflows; below
-   that the negative margins would stick out of the viewport and cause a
-   horizontal scrollbar. The media query measures the layout viewport
-   (clientWidth), so scrollbar widths never matter. */
+   through while scrolling. Its inline overhang mirrors the container
+   padding, so below the wide breakpoint the bar bleeds exactly to the
+   viewport edges (16px per side, 24px from 768px up) while the equal
+   inline padding keeps the filters' content aligned with the cards.
+   From 1084px up the overhang grows to `--space-xl` (32px) so the
+   cards' hover shadows (`--shadow-glow`, 22px horizontal reach) stay
+   hidden under the bar. The wide breakpoint is 1084px = the 1064px box
+   (the shell caps at `--layout-content`, 1000px, plus 2×32px) plus up
+   to 20px of classic scrollbar: media queries measure the viewport
+   INCLUDING the scrollbar, so gating at 1064px would let the widened
+   bar overflow the layout viewport by the scrollbar width and add a
+   horizontal scrollbar. */
 .projects-toolbar {
     position: sticky;
     top: var(--header-height);
@@ -200,16 +201,25 @@ function onViewModeChange(mode: HeaderViewMode): void {
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
-    margin: 0 0 var(--space-2xl);
-    padding: var(--space-md) 0;
+    margin-inline: calc(-1 * var(--container-padding));
+    margin-bottom: var(--space-2xl);
+    padding-block: var(--space-md);
+    padding-inline: var(--container-padding);
     background: var(--color-bg-primary);
     border-bottom: 1px solid var(--color-border);
 }
 
-@media (width >= 1064px) {
+@media (width >= 768px) {
     .projects-toolbar {
-        margin: 0 calc(-1 * var(--space-xl)) var(--space-2xl);
-        padding: var(--space-md) var(--space-xl);
+        margin-inline: calc(-1 * var(--container-padding-md));
+        padding-inline: var(--container-padding-md);
+    }
+}
+
+@media (width >= 1084px) {
+    .projects-toolbar {
+        margin-inline: calc(-1 * var(--space-xl));
+        padding-inline: var(--space-xl);
     }
 }
 
