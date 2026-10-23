@@ -28,6 +28,22 @@ describe('session fingerprint binding', function (): void {
         );
     });
 
+    it('binds the fingerprint when the TOTP login completes', function (): void {
+        $admin = $this->adminWithTotp();
+
+        $this->pendingTotpSession($admin)->get('/admin/login/totp')->assertOk();
+
+        $this->post('/admin/login/totp', ['code' => $this->totpCode()])
+            ->assertRedirect('/admin');
+
+        expect(session('auth_fingerprint'))->toBe(
+            app(SessionFingerprintInterface::class)->for(
+                (string) request()->ip(),
+                request()->userAgent(),
+            ),
+        );
+    });
+
     it('allows requests from the same client', function (): void {
         $admin = $this->createAdmin();
 
