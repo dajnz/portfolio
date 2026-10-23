@@ -90,7 +90,7 @@ return [
     |
     */
 
-    'middleware' => ['web', 'auth', 'auth.session_version', 'admin'],
+    'middleware' => ['web', 'auth', 'auth.session_version', 'auth.fingerprint', 'admin'],
 
     /*
     |--------------------------------------------------------------------------

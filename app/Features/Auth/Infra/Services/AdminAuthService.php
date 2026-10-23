@@ -49,6 +49,23 @@ final class AdminAuthService implements TotpLockoutMessengerInterface
         Auth::logout();
     }
 
+    /* `auth.fingerprint` middleware (RequireSessionFingerprint) */
+
+    public function fingerprintMatches(string $fingerprint): bool
+    {
+        $stored = Session::get('auth_fingerprint');
+
+        return is_string($stored) && hash_equals($stored, $fingerprint);
+    }
+
+    /** Logs the admin out and destroys the session server-side. */
+    public function forceLogoutAndInvalidate(): void
+    {
+        Auth::logout();
+        Session::invalidate();
+        Session::regenerateToken();
+    }
+
     /* `totp.pending` middleware (RequireTotpPending) — login half-auth state */
 
     public function hasPendingTotpLogin(): bool

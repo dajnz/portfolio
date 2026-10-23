@@ -13,6 +13,6 @@ use Illuminate\Support\Facades\Route;
  * version is bumped (password change / TOTP toggle).
  */
 
-Route::middleware(['encrypt_cookies', 'start_session', 'auth', 'auth.session_version'])->group(function (): void {
+Route::middleware(['encrypt_cookies', 'start_session', 'auth', 'auth.session_version', 'auth.fingerprint'])->group(function (): void {
     Route::post('/resume/regenerate', [ResumeController::class, 'regenerate']);
 });

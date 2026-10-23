@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Features\Auth\Infra\Middleware\AdminOnlyMiddleware;
 use App\Features\Auth\Infra\Middleware\RequireGithubLinkTotpPending;
+use App\Features\Auth\Infra\Middleware\RequireSessionFingerprint;
 use App\Features\Auth\Infra\Middleware\RequireSessionVersion;
 use App\Features\Auth\Infra\Middleware\RequireTotpPending;
 use App\Features\Auth\Infra\Providers\HorizonGateProvider;
@@ -91,6 +92,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'feature' => FeatureFlagMiddleware::class,
             'admin' => AdminOnlyMiddleware::class,
             'auth.session_version' => RequireSessionVersion::class,
+            'auth.fingerprint' => RequireSessionFingerprint::class,
             'totp.pending' => RequireTotpPending::class,
             'totp.pending.github_link' => RequireGithubLinkTotpPending::class,
             'locale' => SetLocaleMiddleware::class,

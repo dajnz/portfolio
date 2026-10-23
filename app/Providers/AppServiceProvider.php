@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Features\Auth\App\Contracts\SessionFingerprintInterface;
 use App\Features\Auth\App\Contracts\TotpLockoutMessengerInterface;
 use App\Features\Auth\App\Contracts\TotpServiceInterface;
 use App\Features\Auth\Domain\RepositoryInterfaces\AdminRepositoryInterface;
@@ -12,6 +13,7 @@ use App\Features\Auth\Infra\Listeners\LoginListener;
 use App\Features\Auth\Infra\Repositories\EloquentAdminRepository;
 use App\Features\Auth\Infra\Repositories\EloquentAdminTimedOtpRepository;
 use App\Features\Auth\Infra\Services\AdminAuthService;
+use App\Features\Auth\Infra\Services\LaravelSessionFingerprint;
 use App\Features\Auth\Infra\Services\TotpService;
 use App\Features\Analytics\App\Contracts\AnalyticsDigestMailerInterface;
 use App\Features\Analytics\App\Contracts\AnalyticsReportDataReaderInterface;
@@ -465,6 +467,15 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             AdminSessionInterface::class,
             LaravelAdminSession::class,
+        );
+
+        $this->app->bind(
+            SessionFingerprintInterface::class,
+            fn ($app): LaravelSessionFingerprint => new LaravelSessionFingerprint(
+                (string) $app['config']->get('app.key'),
+                (int) $app['config']->get('session.binding.ipv4_prefix', 24),
+                (int) $app['config']->get('session.binding.ipv6_prefix', 64),
+            ),
         );
 
         $this->app->bind(

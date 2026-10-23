@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Support\Traits;
 
+use App\Features\Auth\App\Contracts\SessionFingerprintInterface;
 use App\Features\Auth\Infra\Models\AdminModel;
 use App\Features\Auth\Infra\Services\TotpService;
 
@@ -41,11 +42,17 @@ trait InteractsWithAdmin
         ]);
     }
 
-    /** Fully authenticates as the admin with the session version stored. */
+    /** Fully authenticates as the admin with the session version and fingerprint stored. */
     protected function loginAsAdmin(AdminModel $admin): static
     {
         return $this->actingAs($admin)
-            ->withSession(['session_version' => (int) $admin->session_version]);
+            ->withSession([
+                'session_version' => (int) $admin->session_version,
+                'auth_fingerprint' => app(SessionFingerprintInterface::class)->for(
+                    (string) request()->ip(),
+                    request()->userAgent(),
+                ),
+            ]);
     }
 
     /** Enables the github_oauth feature flag (OAuth routes are gated by it). */
