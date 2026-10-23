@@ -29,6 +29,9 @@ interface AdminSessionInterface
     /** Reads a value and removes it in one step. */
     public function pull(string $key): mixed;
 
+    /** Rotates the session ID, preserving the session data. */
+    public function regenerate(): void;
+
     public function check(): bool;
 
     public function id(): ?int;

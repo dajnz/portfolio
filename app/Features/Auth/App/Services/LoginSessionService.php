@@ -28,6 +28,7 @@ final class LoginSessionService
     /** Enters the half-auth state for the admin (5-minute expiry). */
     public function beginTotpVerification(Admin $admin): void
     {
+        $this->sessions->regenerate();
         $this->sessions->put([
             'totp.pending_admin_id' => $admin->toId(),
             'totp.pending_until' => (new DateTimeImmutable())
