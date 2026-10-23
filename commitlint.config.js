@@ -1,7 +1,11 @@
 export default {
     extends: ['@commitlint/config-conventional'],
     rules: {
-        'type-enum': [2, 'always', ['feat', 'fix', 'chore', 'docs', 'style', 'refactor', 'perf', 'test']],
+        'type-enum': [
+            2,
+            'always',
+            ['feat', 'fix', 'chore', 'docs', 'style', 'refactor', 'perf', 'test', 'merge'],
+        ],
         // The feature namespaces (one per IMPLEMENTATION-PLAN step) plus
         // the shared cross-feature scope and the tooling concerns used
         // across the repository history.
