@@ -34,6 +34,11 @@ final class LaravelAdminSession implements AdminSessionInterface
         return Session::pull($key);
     }
 
+    public function regenerate(): void
+    {
+        Session::regenerate();
+    }
+
     public function check(): bool
     {
         return Auth::check();

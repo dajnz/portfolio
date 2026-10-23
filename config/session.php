@@ -232,4 +232,22 @@ return [
 
     'serialization' => 'json',
 
+    /*
+    |--------------------------------------------------------------------------
+    | Session Fingerprint Binding
+    |--------------------------------------------------------------------------
+    |
+    | Binds every authenticated admin session to a keyed HMAC of the client's
+    | user agent and IP network (never the raw values). A request carrying the
+    | session cookie from a different client is logged out. Set the toggle to
+    | false only as an operational escape hatch.
+    |
+    */
+
+    'binding' => [
+        'enabled' => env('SESSION_BINDING_ENABLED', true),
+        'ipv4_prefix' => (int) env('SESSION_BINDING_IPV4_PREFIX', 24),
+        'ipv6_prefix' => (int) env('SESSION_BINDING_IPV6_PREFIX', 64),
+    ],
+
 ];

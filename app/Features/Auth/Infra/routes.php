@@ -27,7 +27,7 @@ Route::get('/admin/login/github/callback', [GithubController::class, 'callback']
 Route::get('/admin/login/totp', [TotpController::class, 'create'])->middleware('totp.pending')->name('login.totp');
 Route::post('/admin/login/totp', [TotpController::class, 'verify'])->middleware(['totp.pending', 'throttle:totp']);
 
-Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function (): void {
+Route::middleware(['auth', 'auth.session_version', 'auth.fingerprint', 'admin'])->group(function (): void {
     Route::get('/admin/profile', [ProfileController::class, 'edit'])->name('profile');
     Route::put('/admin/profile', [ProfileController::class, 'update']);
     Route::post('/admin/profile/totp-enable', [ProfileController::class, 'enableTotp']);

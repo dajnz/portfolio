@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
  */
 
 Route::post('/tags', [AdminTagController::class, 'storeApi'])
-    ->middleware(['encrypt_cookies', 'start_session', 'auth', 'auth.session_version']);
+    ->middleware(['encrypt_cookies', 'start_session', 'auth', 'auth.session_version', 'auth.fingerprint']);
 
 Route::get('/tags/search', [AdminTagController::class, 'search'])
     ->middleware('locale');

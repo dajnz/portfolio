@@ -15,7 +15,7 @@ Route::get('/skills/search', [SkillSearchController::class, 'index']);
  * force-logs-out when the session version is bumped.
  */
 
-Route::middleware(['encrypt_cookies', 'start_session', 'auth', 'auth.session_version'])->group(function (): void {
+Route::middleware(['encrypt_cookies', 'start_session', 'auth', 'auth.session_version', 'auth.fingerprint'])->group(function (): void {
     Route::post('/upload', [UploadController::class, 'store']);
     Route::delete('/upload', [UploadController::class, 'destroy']);
 });
