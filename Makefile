@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup test-db admin-create admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint lefthook format typecheck images custom-icons lang-export redis cache-clear health secrets-init deploy rollback quick-check
+.PHONY: setup up down up-localhost down-localhost restart restart-localhost health build install lefthook migrate seed seed-fresh build-frontend dev-frontend pictures custom-icons lang-export open-dev open-db open-redis admin-create admin-reset-password switch-prod switch-dev cache-clear db-for-testing test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck quick-check secrets-init deploy rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -43,6 +43,38 @@ endef
 # between the localhost and TLS dev modes is a single command.
 ENV_MODE = ./devops/scripts/switch-env-mode.sh
 
+# Initial setup always provisions the localhost environment
+# (no Traefik/DNS required); switch to TLS mode later with `make up` (see devops.md).
+setup:
+	cp -n .env.example .env || true
+	@$(ENV_MODE) localhost
+	$(DC_LOCALHOST) build
+	$(DC_LOCALHOST) up -d
+	@echo "Waiting for all services to become healthy..."
+	@while [ $$($(DC_LOCALHOST) ps --format '{{.Health}}' | grep -c '^starting$$') -gt 0 ]; do \
+		sleep 3; \
+	done
+	@echo "All services healthy:"
+	@$(DC_LOCALHOST) ps -a --format 'table {{.Name}}\t{{.Status}}'
+	$(DE_LOCALHOST) composer install
+	$(DE_LOCALHOST) pnpm install --frozen-lockfile
+	$(DE_LOCALHOST) pnpm exec lefthook install
+	$(DE_LOCALHOST) pnpm run build
+	$(DE_LOCALHOST) php artisan key:generate
+	$(DE_LOCALHOST) php artisan migrate
+	$(DE_LOCALHOST) php artisan admin:create
+	$(create-rustfs-buckets)
+	$(DE_LOCALHOST) php artisan db:seed
+	$(DE_LOCALHOST) php artisan backup:generate-key --name "initial"
+	@echo "Waiting for services to settle..."
+	@i=0; \
+	while [ "$$i" -lt 20 ] && [ "$$($(DC_LOCALHOST) ps --format '{{.Health}}' | grep -cE '^(unhealthy|starting)$$')" -gt 0 ]; do \
+		sleep 3; \
+		i=$$((i + 1)); \
+	done
+	@$(DC_LOCALHOST) ps -a --format 'table {{.Name}}\t{{.Status}}'
+	$(ensure-test-database)
+
 # Start dev containers (TLS mode — requires Traefik + DNS)
 up:
 	@$(ENV_MODE) tls
@@ -64,23 +96,17 @@ down-localhost:
 # Restart all containers
 restart: down up
 
-# Build Docker images
-build:
-	$(DC) build
-
-# Rebuild the production front-end assets into public/build
-# (needed after Vue/TS changes when the Vite dev server is NOT running)
-build-frontend:
-	$(DE) pnpm run build
-
-# Start the Vite dev server (HMR — front-end changes apply automatically while it runs)
-dev-frontend:
-	$(DE) pnpm run dev
+# Restart all localhost mode containers
+restart-localhost: down-localhost up-localhost
 
 # Show service health status (all services must be healthy before proceeding)
 health:
 	@echo "Service health status:"
 	@$(DC) ps -a --format 'table {{.Name}}\t{{.Status}}'
+
+# Build Docker images
+build:
+	$(DC) build
 
 # Install PHP + JS dependencies and the git hooks
 install:
@@ -88,13 +114,9 @@ install:
 	$(DE) pnpm install --frozen-lockfile
 	$(DE) pnpm exec lefthook install
 
-# Open an interactive psql session in the db container
-open-db:
-	$(DC) exec db sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
-
-# Open an interactive shell in the dev container
-open-dev:
-	$(DE) bash
+# Install the git hooks (pre-commit, commit-msg, pre-merge-commit) that lefthook runs
+lefthook:
+	$(DE) pnpm exec lefthook install
 
 # Run database migrations
 migrate:
@@ -108,6 +130,41 @@ seed:
 seed-fresh:
 	$(DE) php artisan migrate:fresh --seed
 	$(MAKE) --no-print-directory admin-create
+
+# Rebuild the production front-end assets into public/build
+# (needed after Vue/TS changes when the Vite dev server is NOT running)
+build-frontend:
+	$(DE) pnpm run build
+
+# Start the Vite dev server (HMR — front-end changes apply automatically while it runs)
+dev-frontend:
+	$(DE) pnpm run dev
+
+# Prepare image assets: optimize/minify resources/images -> public/images + section favicons
+pictures:
+	$(DE) node devops/images/prepare-images.mjs
+
+# Regenerate the custom icon subset from resources/icons/custom/*.svg
+# (add an SVG and run this — the file name becomes the icon id, e.g. messenger.svg -> custom:messenger)
+custom-icons:
+	$(DE) pnpm run icons:custom
+
+# Regenerate the frontend translation catalogs (resources/js/lang/{en,ru}.json)
+# from the PHP sources in lang/{en,ru}/ — run after editing the PHP strings
+lang-export:
+	$(DE) php artisan lang:export
+
+# Open an interactive shell in the dev container
+open-dev:
+	$(DE) bash
+
+# Open an interactive psql session in the db container
+open-db:
+	$(DC) exec db sh -c 'psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
+
+# Open an interactive redis-cli against the dev Redis (sessions/cache/rate limits)
+open-redis:
+	$(DC) exec redis redis-cli
 
 # Create the initial admin account
 # (prompts interactively; optional overrides: LOGIN=<admin> EMAIL=<email> PASSWORD=<password> FORCE=1)
@@ -164,37 +221,9 @@ switch-dev:
 	$(restart-persistent-services)
 	@echo "Development mode: APP_ENV=local, APP_DEBUG=true, caches cleared."
 
-# Initial setup always provisions the localhost environment
-# (no Traefik/DNS required); switch to TLS mode later with `make up` (see devops.md).
-setup:
-	cp -n .env.example .env || true
-	@$(ENV_MODE) localhost
-	$(DC_LOCALHOST) build
-	$(DC_LOCALHOST) up -d
-	@echo "Waiting for all services to become healthy..."
-	@while [ $$($(DC_LOCALHOST) ps --format '{{.Health}}' | grep -c '^starting$$') -gt 0 ]; do \
-		sleep 3; \
-	done
-	@echo "All services healthy:"
-	@$(DC_LOCALHOST) ps -a --format 'table {{.Name}}\t{{.Status}}'
-	$(DE_LOCALHOST) composer install
-	$(DE_LOCALHOST) pnpm install --frozen-lockfile
-	$(DE_LOCALHOST) pnpm exec lefthook install
-	$(DE_LOCALHOST) pnpm run build
-	$(DE_LOCALHOST) php artisan key:generate
-	$(DE_LOCALHOST) php artisan migrate
-	$(DE_LOCALHOST) php artisan admin:create
-	$(create-rustfs-buckets)
-	$(DE_LOCALHOST) php artisan db:seed
-	$(DE_LOCALHOST) php artisan backup:generate-key --name "initial"
-	@echo "Waiting for services to settle..."
-	@i=0; \
-	while [ "$$i" -lt 20 ] && [ "$$($(DC_LOCALHOST) ps --format '{{.Health}}' | grep -cE '^(unhealthy|starting)$$')" -gt 0 ]; do \
-		sleep 3; \
-		i=$$((i + 1)); \
-	done
-	@$(DC_LOCALHOST) ps -a --format 'table {{.Name}}\t{{.Status}}'
-	$(ensure-test-database)
+# Clear the Redis cache (resets the feedback rate-limit counters for testing; sessions/queues survive)
+cache-clear:
+	$(DE) php artisan cache:clear
 
 # The backend suites run against the dedicated `portfolio_test` database (phpunit.xml)
 # the db container only creates the dev database, so ensure
@@ -210,7 +239,7 @@ define ensure-test-database
 endef
 
 # Create the dedicated backend test database (portfolio_test) if missing
-test-db:
+db-for-testing:
 	$(ensure-test-database)
 
 # Run all test suites except e2e (backend + frontend)
@@ -318,10 +347,6 @@ commitlint:
 		$(DE) pnpm exec commitlint --from main --to HEAD; \
 	fi
 
-# Install the git hooks (pre-commit, commit-msg, pre-merge-commit) that lefthook runs
-lefthook:
-	$(DE) pnpm exec lefthook install
-
 # Auto-format code
 format:
 	$(DE) ./vendor/bin/pint
@@ -333,28 +358,6 @@ typecheck:
 
 # Runs all fast tests and checks
 quick-check: test lint typecheck
-
-# Prepare image assets: optimize/minify resources/images -> public/images + section favicons
-images:
-	$(DE) node devops/images/prepare-images.mjs
-
-# Regenerate the custom icon subset from resources/icons/custom/*.svg
-# (add an SVG and run this — the file name becomes the icon id, e.g. messenger.svg -> custom:messenger)
-custom-icons:
-	$(DE) pnpm run icons:custom
-
-# Regenerate the frontend translation catalogs (resources/js/lang/{en,ru}.json)
-# from the PHP sources in lang/{en,ru}/ — run after editing the PHP strings
-lang-export:
-	$(DE) php artisan lang:export
-
-# Open an interactive redis-cli against the dev Redis (sessions/cache/rate limits)
-redis:
-	$(DC) exec redis redis-cli
-
-# Clear the Redis cache (resets the feedback rate-limit counters for testing; sessions/queues survive)
-cache-clear:
-	$(DE) php artisan cache:clear
 
 # Generate production secrets and encrypt .env.prod.local
 secrets-init:
