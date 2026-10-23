@@ -37,8 +37,8 @@ docs/openapi/
 ## Workflow: Adding a New Endpoint
 
 1. **Spec first** — write the path + operation + schema in the feature file
-2. **Validate** — run `npx @stoplight/spectral-cli lint docs/openapi/openapi.yaml`
-3. **Generate TS types** — `npm run generate-api-types` (if configured)
+2. **Validate** — run `pnpm exec spectral lint docs/openapi/openapi.yaml`
+3. **Generate TS types** — `pnpm run generate-api-types` (if configured)
 4. **Implement** — build the controller/use case to match the spec
 5. **Verify** — the dev validation middleware warns on mismatches at runtime
 
@@ -62,10 +62,10 @@ docs/openapi/
 
 ```bash
 # Public JSON API spec
-docker compose exec dev npx @stoplight/spectral-cli lint docs/openapi/openapi.yaml
+docker compose exec dev pnpm exec spectral lint docs/openapi/openapi.yaml
 
 # Inertia page-props spec
-docker compose exec dev npx @stoplight/spectral-cli lint docs/openapi/inertia/inertia.yaml
+docker compose exec dev pnpm exec spectral lint docs/openapi/inertia/inertia.yaml
 ```
 
 A CI step runs the same checks on every PR.
