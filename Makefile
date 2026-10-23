@@ -71,11 +71,11 @@ build:
 # Rebuild the production front-end assets into public/build
 # (needed after Vue/TS changes when the Vite dev server is NOT running)
 build-frontend:
-	$(DE) npm run build
+	$(DE) pnpm run build
 
 # Start the Vite dev server (HMR — front-end changes apply automatically while it runs)
 dev-frontend:
-	$(DE) npm run dev
+	$(DE) pnpm run dev
 
 # Show service health status (all services must be healthy before proceeding)
 health:
@@ -85,7 +85,7 @@ health:
 # Install PHP + JS dependencies
 install:
 	$(DE) composer install
-	$(DE) npm ci
+	$(DE) pnpm install --frozen-lockfile
 
 # Open an interactive psql session in the db container
 open-db:
@@ -177,8 +177,8 @@ setup:
 	@echo "All services healthy:"
 	@$(DC_LOCALHOST) ps -a --format 'table {{.Name}}\t{{.Status}}'
 	$(DE_LOCALHOST) composer install
-	$(DE_LOCALHOST) npm ci
-	$(DE_LOCALHOST) npm run build
+	$(DE_LOCALHOST) pnpm install --frozen-lockfile
+	$(DE_LOCALHOST) pnpm run build
 	$(DE_LOCALHOST) php artisan key:generate
 	$(DE_LOCALHOST) php artisan migrate
 	$(DE_LOCALHOST) php artisan admin:create
@@ -214,17 +214,17 @@ test-db:
 # Run all test suites except e2e (backend + frontend)
 test:
 	$(DE) env XDEBUG_MODE=off php artisan test --parallel --recreate-databases --drop-databases --processes=8
-	$(DE) npx vitest run
+	$(DE) pnpm exec vitest run
 
 # Run unit tests (backend + frontend)
 test-unit:
 	$(DE) env XDEBUG_MODE=off php artisan test tests/unit/backend/
-	$(DE) npx vitest run tests/unit/frontend/
+	$(DE) pnpm exec vitest run tests/unit/frontend/
 
 # Run integration tests (backend + frontend)
 test-int:
 	$(DE) env XDEBUG_MODE=off php artisan test tests/integration/backend/ --parallel --recreate-databases --drop-databases --processes=8
-	$(DE) npx vitest run tests/integration/frontend/
+	$(DE) pnpm exec vitest run tests/integration/frontend/
 
 # Run all backend tests (unit + integration)
 test-backend:
@@ -232,7 +232,7 @@ test-backend:
 
 # Run all frontend tests (unit + integration)
 test-frontend:
-	$(DE) npx vitest run
+	$(DE) pnpm exec vitest run
 
 # The e2e suite runs against a DEDICATED database (`portfolio_e2e`) and an isolated Redis DB (1),
 # served by `php artisan serve` on 127.0.0.1:8001 inside the dev container
@@ -251,8 +251,8 @@ test-e2e:
 	$(DE) sh -c 'rm -f /tmp/e2e-serve.log'; \
 	$(DC) exec -u $(HOST_UID) -d dev sh -c 'env DB_DATABASE=portfolio_e2e REDIS_DB=1 php artisan serve --no-reload --host=0.0.0.0 --port=8001 >/tmp/e2e-serve.log 2>&1'; \
 	trap '$(DE) sh -c "pkill -f \"[p]hp artisan serve.*8001\"; pkill -f \"[p]hp -S .*8001\"; true"' EXIT; \
-	$(DE) sh -c 'npx wait-on -t 30000 http://127.0.0.1:8001/up || (echo "e2e server failed:"; cat /tmp/e2e-serve.log; exit 1)'; \
-	$(DE) env DB_DATABASE=portfolio_e2e REDIS_DB=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:8001 npx playwright test
+	$(DE) sh -c 'pnpm exec wait-on -t 30000 http://127.0.0.1:8001/up || (echo "e2e server failed:"; cat /tmp/e2e-serve.log; exit 1)'; \
+	$(DE) env DB_DATABASE=portfolio_e2e REDIS_DB=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:8001 pnpm exec playwright test
 
 # The Lighthouse budget + Core Web Vitals spot check
 # runs the 6 canonical public routes against the dedicated e2e database on 127.0.0.1:8002
@@ -271,13 +271,13 @@ lighthouse:
 	$(DE) sh -c 'rm -f /tmp/lighthouse-serve.log'; \
 	$(DC) exec -u $(HOST_UID) -d dev sh -c 'env DB_DATABASE=portfolio_e2e REDIS_DB=1 php artisan serve --no-reload --host=0.0.0.0 --port=8002 >/tmp/lighthouse-serve.log 2>&1'; \
 	trap '$(DE) sh -c "pkill -f \"[p]hp artisan serve.*8002\"; pkill -f \"[p]hp -S .*8002\"; true"' EXIT; \
-	$(DE) sh -c 'npx wait-on -t 30000 http://127.0.0.1:8002/up || (echo "lighthouse server failed:"; cat /tmp/lighthouse-serve.log; exit 1)'; \
-	$(DE) env LH_URLS="http://127.0.0.1:8002/,http://127.0.0.1:8002/blog,http://127.0.0.1:8002/blog/understanding-laravel-queues,http://127.0.0.1:8002/projects,http://127.0.0.1:8002/projects/portfolio-platform,http://127.0.0.1:8002/experience" npm run lighthouse
+	$(DE) sh -c 'pnpm exec wait-on -t 30000 http://127.0.0.1:8002/up || (echo "lighthouse server failed:"; cat /tmp/lighthouse-serve.log; exit 1)'; \
+	$(DE) env LH_URLS="http://127.0.0.1:8002/,http://127.0.0.1:8002/blog,http://127.0.0.1:8002/blog/understanding-laravel-queues,http://127.0.0.1:8002/projects,http://127.0.0.1:8002/projects/portfolio-platform,http://127.0.0.1:8002/experience" pnpm run lighthouse
 
 # Run all test suites with coverage (80% line coverage threshold, per testing spec)
 coverage:
 	$(DE) env XDEBUG_MODE=coverage php artisan test --coverage --min=80
-	$(DE) npx vitest run --coverage
+	$(DE) pnpm exec vitest run --coverage
 
 # Run backend tests with coverage (80% line coverage threshold)
 coverage-backend:
@@ -285,45 +285,45 @@ coverage-backend:
 
 # Run frontend tests with coverage (80% line coverage threshold)
 coverage-frontend:
-	$(DE) npx vitest run --coverage
+	$(DE) pnpm exec vitest run --coverage
 
 # Lint all code (mirrors the CI lint job: pint, biome, eslint, stylelint, spectral, commitlint)
 lint:
 	$(DE) ./vendor/bin/pint --test
-	$(DE) npx biome ci resources/js
-	$(DE) npx eslint resources/js
-	$(DE) npx stylelint "resources/js/**/*.vue" || true
-	$(DE) npx spectral lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
-	$(DE) npx spectral lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
+	$(DE) pnpm exec biome ci resources/js
+	$(DE) pnpm exec eslint resources/js
+	$(DE) pnpm exec stylelint "resources/js/**/*.vue" || true
+	$(DE) pnpm exec spectral lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
+	$(DE) pnpm exec spectral lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
 	@MAIN="$$(git rev-parse --verify -q main 2>/dev/null)"; \
 	if [ -n "$$MAIN" ] && [ "$$MAIN" != "$$(git rev-parse HEAD)" ]; then \
-		$(DE) npx commitlint --from main --to HEAD; \
+		$(DE) pnpm exec commitlint --from main --to HEAD; \
 	fi
 
 # Validate CSS in Vue <style> blocks (non-blocking)
 lint\:css:
-	$(DE) npx stylelint "resources/js/**/*.vue" || true
+	$(DE) pnpm exec stylelint "resources/js/**/*.vue" || true
 
 # Lint both OpenAPI specs with the project ruleset (.spectral.yaml)
 spectral:
-	$(DE) npx spectral lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
-	$(DE) npx spectral lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
+	$(DE) pnpm exec spectral lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
+	$(DE) pnpm exec spectral lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
 
 # Lint commit messages (conventional commits; current branch vs main)
 commitlint:
 	@MAIN="$$(git rev-parse --verify -q main 2>/dev/null)"; \
 	if [ -n "$$MAIN" ] && [ "$$MAIN" != "$$(git rev-parse HEAD)" ]; then \
-		$(DE) npx commitlint --from main --to HEAD; \
+		$(DE) pnpm exec commitlint --from main --to HEAD; \
 	fi
 
 # Auto-format code
 format:
 	$(DE) ./vendor/bin/pint
-	$(DE) npx biome check --write --unsafe resources/js
+	$(DE) pnpm exec biome check --write --unsafe resources/js
 
 # TypeScript type check (includes API + Inertia type generation)
 typecheck:
-	$(DE) npm run typecheck
+	$(DE) pnpm run typecheck
 
 # Runs all fast tests and checks
 quick-check: test lint typecheck
@@ -335,7 +335,7 @@ images:
 # Regenerate the custom icon subset from resources/icons/custom/*.svg
 # (add an SVG and run this — the file name becomes the icon id, e.g. messenger.svg -> custom:messenger)
 custom-icons:
-	$(DE) npm run icons:custom
+	$(DE) pnpm run icons:custom
 
 # Regenerate the frontend translation catalogs (resources/js/lang/{en,ru}.json)
 # from the PHP sources in lang/{en,ru}/ — run after editing the PHP strings

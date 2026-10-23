@@ -14,7 +14,7 @@ RUN apk add --no-cache \
         $PHPIZE_DEPS \
         curl \
         postgresql-dev libzip-dev icu-dev libpng-dev libjpeg-turbo-dev libwebp-dev libavif-dev freetype-dev libxml2-dev oniguruma-dev \
-        git openssh unzip bash jq nodejs npm age linux-headers \
+        git openssh unzip bash jq nodejs age linux-headers \
         chromium fontconfig ttf-dejavu \
     && mkdir -p /tmp/build/redis \
     && curl -fsSL -o /tmp/build/redis.tar.gz \
@@ -45,9 +45,14 @@ RUN apk add --no-cache \
 ENV PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium-browser
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# pnpm is the Node package manager (pinned in package.json `packageManager`).
+# The binary is copied from the official musl image so the dev image no longer
+# needs npm.
+COPY --from=ghcr.io/pnpm/pnpm:12.15.0-alpine /opt/pnpm /opt/pnpm
+RUN ln -s /opt/pnpm/pnpm /usr/local/bin/pnpm
 COPY devops/docker/xdebug.ini /usr/local/etc/php/conf.d/
 COPY devops/docker/dev/php.ini /usr/local/etc/php/conf.d/
-# The container runs as the host user so npm/composer/artisan artifacts keep
+# The container runs as the host user so pnpm/composer/artisan artifacts keep
 # the host's ownership on the bind-mounted repo. The uid/gid default to 1000
 # and are overridden via the HOST_UID/HOST_GID build args (compose
 # interpolates them from the environment/.env — see docker-compose.yml) —
@@ -55,16 +60,15 @@ COPY devops/docker/dev/php.ini /usr/local/etc/php/conf.d/
 # uid 1000 cannot write the bind mount.
 ARG HOST_UID=1000
 ARG HOST_GID=1000
-# `.npm`/`.composer` are the mount points of the `npm_cache`/`composer_cache`
-# named volumes (docker-compose.yml). Creating them here, portfolio-owned,
-# means a FIRST-MOUNT EMPTY volume is seeded from the image with the correct
-# ownership — otherwise the empty volume is root-owned and the first
-# non-root `npm ci`/`composer install` dies with EACCES
-# (`mkdir /home/portfolio/.npm/_cacache`).
+# `.composer` is the mount point of the `composer_cache` named volume
+# (docker-compose.yml). Creating it here, portfolio-owned, means a FIRST-MOUNT
+# EMPTY volume is seeded from the image with the correct ownership — otherwise
+# the empty volume is root-owned and the first non-root `composer install`
+# dies with EACCES.
 RUN addgroup -g ${HOST_GID} portfolio \
     && adduser -D -u ${HOST_UID} -G portfolio portfolio \
-    && mkdir -p /home/portfolio/.npm /home/portfolio/.composer \
-    && chown portfolio:portfolio /home/portfolio/.npm /home/portfolio/.composer
+    && mkdir -p /home/portfolio/.composer \
+    && chown portfolio:portfolio /home/portfolio/.composer
 # Git runs as the container user, but the bind-mounted repo is owned by the
 # host user — without this, git refuses the repo ("dubious ownership"),
 # which breaks `make commitlint` inside the dev container. The SYSTEM config

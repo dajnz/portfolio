@@ -11,6 +11,7 @@
 docs/
 tests/
 node_modules/
+.pnpm-store/
 vendor/
 devops/docker/dev/
 !devops/docker/dev/Dockerfile

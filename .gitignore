@@ -31,6 +31,8 @@ devops/secrets/age-identity.txt
 /coverage
 .lighthouseci/
 /node_modules
+/.pnpm-store
+/package-lock.json
 /public/build
 /public/fonts-manifest.dev.json
 /public/hot

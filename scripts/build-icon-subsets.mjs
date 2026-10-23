@@ -22,8 +22,8 @@
 //      own allowlist: `custom:*` literals are checked against the icons
 //      in resources/js/iconSubsets/custom.json instead.
 //
-// Workflow: add/remove names in the manifests, run `npm run icons:build`
-// (also wired as the `npm run build` pre-step), commit the updated
+// Workflow: add/remove names in the manifests, run `pnpm run icons:build`
+// (also wired as the `pnpm run build` pre-step), commit the updated
 // subsets together with the manifest change. Glyphs that do not exist in
 // Iconify ship via resources/icons/custom/*.svg + `make custom-icons`
 // (scripts/build-custom-icons.mjs).

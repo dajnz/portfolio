@@ -30,7 +30,7 @@ make lighthouse
 or against an already-running server:
 
 ```
-LH_URLS=http://127.0.0.1:8002/,http://127.0.0.1:8002/blog npx lhci autorun --config=devops/lighthouse-config/lighthouserc.cjs
+LH_URLS=http://127.0.0.1:8002/,http://127.0.0.1:8002/blog pnpm exec lhci autorun --config=devops/lighthouse-config/lighthouserc.cjs
 ```
 
 The GitHub Actions `lighthouse` job (non-blocking, `.github/workflows/ci.yml`)

@@ -24,8 +24,8 @@ const budgets = JSON.parse(
 );
 
 // Chrome resolution: the dev container bakes PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
-// into the image; CI installs Playwright's own chromium (npm ci +
-// `npx playwright install --with-deps chromium`).
+// into the image; CI installs Playwright's own chromium (pnpm install +
+// `pnpm exec playwright install --with-deps chromium`).
 let playwrightChromePath;
 try {
   playwrightChromePath = require('playwright').chromium.executablePath();

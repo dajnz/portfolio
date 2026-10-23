@@ -19,7 +19,7 @@
 // the text color and dark mode like the simple-icons glyphs.
 //
 // Workflow: drop an SVG into resources/icons/custom/, run
-// `make custom-icons` (npm run icons:custom), commit the updated
+// `make custom-icons` (pnpm run icons:custom), commit the updated
 // resources/js/iconSubsets/custom.json together with the new SVG.
 
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
