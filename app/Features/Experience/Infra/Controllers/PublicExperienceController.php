@@ -6,6 +6,7 @@ namespace App\Features\Experience\Infra\Controllers;
 
 use App\Features\Experience\App\UseCases\GetPublicTimelineUseCase;
 use App\Features\Experience\Domain\Entities\TimelineItem;
+use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Infra\Persistence\Cursor;
 use App\Features\Shared\Infra\Persistence\PublicCursorCodec;
@@ -32,6 +33,7 @@ final class PublicExperienceController
     public function __construct(
         private readonly GetPublicTimelineUseCase $timelineCase,
         private readonly PublicCursorCodec $cursorCodec,
+        private readonly MarkdownContentPipelineInterface $pipeline,
     ) {
     }
 
@@ -80,6 +82,7 @@ final class PublicExperienceController
                 $related = $item->toRelatedProject();
                 $projectName = null;
                 $projectSlug = null;
+                $projectUrl = null;
 
                 if ($related !== null) {
                     $ownProjectId = $related->toOwnProjectId();
@@ -89,6 +92,7 @@ final class PublicExperienceController
                         $projectSlug = $projectRefs[$ownProjectId]['slug'] ?? null;
                     } else {
                         $projectName = $related->toExternalProjectName();
+                        $projectUrl = $related->toExternalProjectUrl();
                     }
                 }
 
@@ -100,15 +104,30 @@ final class PublicExperienceController
                     'project_id' => $related?->toOwnProjectId(),
                     'project_name' => $projectName,
                     'project_slug' => $projectSlug,
-                    'short_description' => $item->shortDescriptionFor($locale),
+                    'project_url' => $projectUrl,
+                    'short_description' => $this->pipeline->render($item->shortDescriptionFor($locale)),
                     'started_at' => $period->toStartedAt()->format('Y-m-d'),
                     'ended_at' => $period->toEndedAt()?->format('Y-m-d'),
                     'is_current' => $item->toIsCurrent(),
                     'tech_tags' => $this->techTagProps($item, $projectRefs),
-                    'achievements' => $item->achievementsFor($locale),
+                    'achievements' => $this->achievementProps($item->achievementsFor($locale)),
                 ];
             },
             $items,
+        );
+    }
+
+    /**
+     * @param  array<int, array{description: string}>  $achievements
+     * @return array<int, array{description: string}>
+     */
+    private function achievementProps(array $achievements): array
+    {
+        return array_map(
+            fn (array $achievement): array => [
+                'description' => $this->pipeline->renderInline($achievement['description']),
+            ],
+            $achievements,
         );
     }
 

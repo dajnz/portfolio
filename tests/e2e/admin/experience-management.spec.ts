@@ -31,7 +31,9 @@ test.describe('experience management', () => {
         await page.getByTestId('experience-form-page-position-en').fill(positionEn);
         await page.getByTestId('experience-form-page-company-name-en').fill('E2E Labs');
         await page.getByTestId('experience-form-page-country-en').fill('Germany');
-        await page.getByTestId('experience-form-page-short-description-en').fill(
+        await fillEditor(
+            page,
+            'experience-form-page-short-description-en',
             `Building the internal platform for ${token} with reliable delivery.`,
         );
 
@@ -40,7 +42,9 @@ test.describe('experience management', () => {
         await pickDay(page, 'experience-form-page-started-at', 1);
 
         await page.getByTestId('experience-form-page-achievements-add').click();
-        await page.getByTestId('experience-form-page-achievements-item-0-description-en').fill(
+        await fillEditor(
+            page,
+            'experience-form-page-achievements-item-0-description-en',
             `Shipped the delivery pipeline for ${token}.`,
         );
 
@@ -48,10 +52,14 @@ test.describe('experience management', () => {
         await page.getByTestId('experience-form-page-position-ru').fill(positionRu);
         await page.getByTestId('experience-form-page-company-name-ru').fill('E2E Labs');
         await page.getByTestId('experience-form-page-country-ru').fill('Германия');
-        await page.getByTestId('experience-form-page-short-description-ru').fill(
+        await fillEditor(
+            page,
+            'experience-form-page-short-description-ru',
             `Разработка внутренней платформы для ${token} с надёжной доставкой.`,
         );
-        await page.getByTestId('experience-form-page-achievements-item-0-description-ru').fill(
+        await fillEditor(
+            page,
+            'experience-form-page-achievements-item-0-description-ru',
             `Запустил конвейер доставки для ${token}.`,
         );
 
@@ -104,6 +112,17 @@ test.describe('experience management', () => {
         );
     });
 });
+
+async function fillEditor(
+    page: import('@playwright/test').Page,
+    fieldTestId: string,
+    value: string,
+): Promise<void> {
+    await page
+        .getByTestId(`${fieldTestId}-content`)
+        .locator('[contenteditable="true"]')
+        .fill(value);
+}
 
 async function pickDay(
     page: import('@playwright/test').Page,

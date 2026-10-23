@@ -245,6 +245,9 @@ components:
         project_name:
           type: string
           nullable: true
+        project_url:
+          type: string
+          nullable: true
         short_description:
           type: string
         started_at:
@@ -260,8 +263,6 @@ components:
             type: object
             properties:
               description:
-                type: string
-              project_link:
                 type: string
         tech_tags:
           type: array

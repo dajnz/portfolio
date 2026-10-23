@@ -51,7 +51,7 @@ final class StoreTimelineItemUseCase
      * @param  array<string, string>  $companyName  Locale => company name.
      * @param  array<string, string|null>  $companyCountry  Locale => country.
      * @param  array<string, string>  $shortDescription  Locale => Markdown text.
-     * @param  array<int, array{description: array<string, string>, project_link: string|null}>  $achievements  Per-locale descriptions.
+     * @param  array<int, array{description: array<string, string>}>  $achievements  Per-locale descriptions.
      * @param  int[]  $techTagIds  Skill IDs for the pivot.
      */
     public function store(
@@ -68,6 +68,7 @@ final class StoreTimelineItemUseCase
         ?int $projectId,
         bool $includeInResume,
         ?string $externalProjectName,
+        ?string $externalProjectUrl,
     ): int {
         $itemId = $this->transactionManager->transaction(function () use (
             $position,
@@ -83,6 +84,7 @@ final class StoreTimelineItemUseCase
             $projectId,
             $includeInResume,
             $externalProjectName,
+            $externalProjectUrl,
         ): int {
             $this->continuity->assertContinuity($startedAt, $endedAt, null);
 
@@ -91,7 +93,11 @@ final class StoreTimelineItemUseCase
                 period: new WorkPeriod($startedAt, $endedAt),
                 isPublished: $isPublished,
                 sortOrder: new SortOrder($sortOrder),
-                relatedProject: $this->relatedProject($projectId, $externalProjectName),
+                relatedProject: $this->relatedProject(
+                    $projectId,
+                    $externalProjectName,
+                    $externalProjectUrl,
+                ),
                 includeInResume: $includeInResume,
                 translations: $this->translations(
                     $position,
@@ -109,8 +115,11 @@ final class StoreTimelineItemUseCase
         return $itemId;
     }
 
-    private function relatedProject(?int $projectId, ?string $externalProjectName): ?RelatedProject
-    {
+    private function relatedProject(
+        ?int $projectId,
+        ?string $externalProjectName,
+        ?string $externalProjectUrl,
+    ): ?RelatedProject {
         if ($projectId === null && $externalProjectName === null) {
             return null;
         }
@@ -118,6 +127,7 @@ final class StoreTimelineItemUseCase
         return new RelatedProject(
             ownProjectId: $projectId,
             externalProjectName: $externalProjectName,
+            externalProjectUrl: $externalProjectUrl,
         );
     }
 
@@ -146,7 +156,7 @@ final class StoreTimelineItemUseCase
      * @param  array<string, string>  $companyName
      * @param  array<string, string|null>  $companyCountry
      * @param  array<string, string>  $shortDescription
-     * @param  array<int, array{description: array<string, string>, project_link: string|null}>  $achievements
+     * @param  array<int, array{description: array<string, string>}>  $achievements
      * @return TimelineItemTranslation[]
      */
     private function translations(
@@ -179,8 +189,8 @@ final class StoreTimelineItemUseCase
      * stored in that locale's jsonb column — an entry may legitimately
      * describe an achievement in one language only.
      *
-     * @param  array<int, array{description: array<string, string>, project_link: string|null}>  $achievements
-     * @return array<int, array{description: string, project_link: string|null}>
+     * @param  array<int, array{description: array<string, string>}>  $achievements
+     * @return array<int, array{description: string}>
      */
     private function achievementsFor(array $achievements, string $locale): array
     {
@@ -193,10 +203,7 @@ final class StoreTimelineItemUseCase
                 continue;
             }
 
-            $result[] = [
-                'description' => $description,
-                'project_link' => $achievement['project_link'] ?? null,
-            ];
+            $result[] = ['description' => $description];
         }
 
         return $result;

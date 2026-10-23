@@ -12,8 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Eloquent model for `experience_timeline_item_translations`. Composite
  * primary key `(item_id, locale)` — no auto-increment, no timestamps.
- * `achievements` is the per-locale jsonb array of
- * `{description, project_link?}`.
+ * `achievements` is the per-locale jsonb array of `{description}`.
  *
  * @property int $item_id
  * @property string $locale
@@ -21,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $company_name
  * @property string|null $company_country
  * @property string|null $short_description
- * @property array<int, array{description: string, project_link: string|null}>|null $achievements
+ * @property array<int, array{description: string}>|null $achievements
  */
 final class TimelineItemTranslationModel extends Model
 {

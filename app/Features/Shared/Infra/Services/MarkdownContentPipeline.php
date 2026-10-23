@@ -33,6 +33,10 @@ use League\CommonMark\Extension\Strikethrough\StrikethroughRenderer;
 use League\CommonMark\Extension\Table\Table;
 use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\MarkdownConverter;
+use League\CommonMark\Node\Block\Paragraph;
+use League\CommonMark\Parser\InlineParserEngine;
+use League\CommonMark\Reference\ReferenceMap;
+use League\CommonMark\Renderer\HtmlRenderer;
 use League\CommonMark\Util\HtmlFilter;
 use Illuminate\Support\Facades\Cache;
 
@@ -57,6 +61,8 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
     private const CACHE_TTL_SECONDS = 604800;
 
     private readonly MarkdownConverter $converter;
+
+    private readonly HtmlRenderer $inlineRenderer;
 
     public function __construct(
         private readonly CodeHighlighter $highlighter,
@@ -102,6 +108,7 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
         $environment->addEventListener(DocumentParsedEvent::class, new ContentImageListener());
 
         $this->converter = new MarkdownConverter($environment);
+        $this->inlineRenderer = new HtmlRenderer($environment);
     }
 
     /**
@@ -123,5 +130,26 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
     public function render(string $markdown): string
     {
         return $this->converter->convert($markdown)->getContent();
+    }
+
+    public function renderInline(string $markdown): string
+    {
+        $paragraph = new Paragraph();
+        $parser = new InlineParserEngine(
+            $this->converter->getEnvironment(),
+            new ReferenceMap(),
+        );
+        $parser->parse($markdown, $paragraph);
+
+        return $this->inlineRenderer->renderNodes($paragraph->children());
+    }
+
+    public function plainText(string $markdown): string
+    {
+        $html = preg_replace('/<br\s*\/?>/i', ' ', $this->render($markdown)) ?? '';
+        $html = preg_replace('/<\/(?:p|li|h[1-6]|blockquote|pre|div|tr|td|th|table)>/i', ' ', $html) ?? $html;
+        $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+        return trim((string) preg_replace('/\s+/u', ' ', $text));
     }
 }

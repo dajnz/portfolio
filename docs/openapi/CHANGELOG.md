@@ -12,6 +12,18 @@ runtime support.
 
 ### Changed
 
+- **Experience rich descriptions and external project URL (v1.0.37 inertia):**
+  `TimelineItemCardData.short_description` and `achievements[].description`
+  now carry rendered safe HTML from the shared Markdown pipeline (the
+  achievement form is inline HTML, always a single line).
+  `achievements[].project_link` was removed from both the card and edit
+  schemas — links belong in the achievement description Markdown.
+  `TimelineItemCardData` gained nullable `project_url` (the external
+  project link) and `TimelineItemEditData` gained nullable
+  `external_project_url`. The legacy `portfolio.yaml` `TimelineItemData`
+  was aligned with the same shape. `info.version` bumped to `1.0.37` in
+  `inertia.yaml`.
+
 - **Resume layout rendering options (v1.0.36 inertia):** `ResumeLayout`
   gained `skills_layout` (`per_line` | `inline`), `contacts_show_heading`
   (boolean), `contacts_layout` (`per_line` | `two_columns`) and

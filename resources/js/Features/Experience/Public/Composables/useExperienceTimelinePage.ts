@@ -17,7 +17,6 @@ export interface TechTagView {
 
 export interface AchievementView {
     description: string;
-    project_link: string | null;
 }
 
 export interface TimelineItemView {
@@ -30,6 +29,7 @@ export interface TimelineItemView {
     is_current: boolean;
     project_name: string | null;
     project_slug: string | null;
+    project_url: string | null;
     short_description: string;
     tech_tags: TechTagView[];
     achievements: AchievementView[];
@@ -179,6 +179,7 @@ function toTimelineItemView(item: TimelineWireItem, presentLabel: string): Timel
         is_current: item.is_current ?? false,
         project_name: item.project_name ?? null,
         project_slug: item.project_slug ?? null,
+        project_url: item.project_url ?? null,
         short_description: item.short_description ?? '',
         tech_tags: (item.tech_tags ?? []).map((tag) => ({
             id: tag.id ?? 0,
@@ -187,7 +188,6 @@ function toTimelineItemView(item: TimelineWireItem, presentLabel: string): Timel
         })),
         achievements: (item.achievements ?? []).map((achievement) => ({
             description: achievement.description ?? '',
-            project_link: achievement.project_link ?? null,
         })),
         period: `${startYear} – ${end}`,
     };

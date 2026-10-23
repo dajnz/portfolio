@@ -16,9 +16,9 @@ return [
             'company_country' => 'Germany',
             'short_description' => 'Owned the platform team: architecture, reviews and the delivery pipeline.',
             'achievements' => [
-                ['description' => 'Cut p95 response times by 60% with cursor pagination and caching.', 'project_link' => null],
-                ['description' => 'Introduced encrypted nightly backups with a tested restore drill.', 'project_link' => null],
-                ['description' => 'Mentored two juniors to mid-level within a year.', 'project_link' => null],
+                ['description' => 'Cut p95 response times by 60% with cursor pagination and caching.'],
+                ['description' => 'Introduced encrypted nightly backups with a tested restore drill.'],
+                ['description' => 'Mentored two juniors to mid-level within a year.'],
             ],
         ],
         'ru' => [
@@ -27,9 +27,9 @@ return [
             'company_country' => 'Германия',
             'short_description' => 'Отвечал за платформенную команду: архитектура, ревью и конвейер доставки.',
             'achievements' => [
-                ['description' => 'Сократил p95 время ответа на 60% с помощью курсорной пагинации и кэша.', 'project_link' => null],
-                ['description' => 'Внедрил шифрованные ночные бэкапы с проверенным сценарием восстановления.', 'project_link' => null],
-                ['description' => 'За год вывел двух джуниоров до мидла.', 'project_link' => null],
+                ['description' => 'Сократил p95 время ответа на 60% с помощью курсорной пагинации и кэша.'],
+                ['description' => 'Внедрил шифрованные ночные бэкапы с проверенным сценарием восстановления.'],
+                ['description' => 'За год вывел двух джуниоров до мидла.'],
             ],
         ],
     ],
@@ -46,8 +46,8 @@ return [
             'company_country' => 'Poland',
             'short_description' => 'Led the backend guild and the migration off a monolithic deploy.',
             'achievements' => [
-                ['description' => 'Split a monolith deploy into independently releasable services.', 'project_link' => null],
-                ['description' => 'Introduced contract tests that removed most cross-team regressions.', 'project_link' => null],
+                ['description' => 'Split a monolith deploy into independently releasable services.'],
+                ['description' => 'Introduced contract tests that removed most cross-team regressions.'],
             ],
         ],
         'ru' => [
@@ -56,8 +56,8 @@ return [
             'company_country' => 'Польша',
             'short_description' => 'Руководил бэкенд-гильдией и переходом от монолитного деплоя.',
             'achievements' => [
-                ['description' => 'Разделил монолитный деплой на независимо релизуемые сервисы.', 'project_link' => null],
-                ['description' => 'Внедрил контрактные тесты, убравшие большинство межкомандных регрессий.', 'project_link' => null],
+                ['description' => 'Разделил монолитный деплой на независимо релизуемые сервисы.'],
+                ['description' => 'Внедрил контрактные тесты, убравшие большинство межкомандных регрессий.'],
             ],
         ],
     ],
@@ -74,8 +74,8 @@ return [
             'company_country' => 'Netherlands',
             'short_description' => 'Built the customer dashboard and the public marketing site.',
             'achievements' => [
-                ['description' => 'Shipped the analytics dashboard used by 40k monthly users.', 'project_link' => null],
-                ['description' => 'Moved the frontend to TypeScript and cut the bundle by half.', 'project_link' => null],
+                ['description' => 'Shipped the analytics dashboard used by 40k monthly users.'],
+                ['description' => 'Moved the frontend to TypeScript and cut the bundle by half.'],
             ],
         ],
         'ru' => [
@@ -84,8 +84,8 @@ return [
             'company_country' => 'Нидерланды',
             'short_description' => 'Разрабатывал клиентский дашборд и публичный маркетинговый сайт.',
             'achievements' => [
-                ['description' => 'Запустил дашборд аналитики для 40 тысяч пользователей в месяц.', 'project_link' => null],
-                ['description' => 'Перевёл фронтенд на TypeScript и вдвое уменьшил бандл.', 'project_link' => null],
+                ['description' => 'Запустил дашборд аналитики для 40 тысяч пользователей в месяц.'],
+                ['description' => 'Перевёл фронтенд на TypeScript и вдвое уменьшил бандл.'],
             ],
         ],
     ],
@@ -102,8 +102,8 @@ return [
             'company_country' => 'Czechia',
             'short_description' => 'Worked on the ingestion platform that fed the reporting stack.',
             'achievements' => [
-                ['description' => 'Reworked the ingestion queue to survive partner outages.', 'project_link' => null],
-                ['description' => 'Reduced nightly batch time from six hours to under one.', 'project_link' => null],
+                ['description' => 'Reworked the ingestion queue to survive partner outages.'],
+                ['description' => 'Reduced nightly batch time from six hours to under one.'],
             ],
         ],
         'ru' => [
@@ -112,8 +112,8 @@ return [
             'company_country' => 'Чехия',
             'short_description' => 'Работал над платформой приёма данных для отчётного стека.',
             'achievements' => [
-                ['description' => 'Переработал очередь приёма, чтобы переживать сбои партнёров.', 'project_link' => null],
-                ['description' => 'Сократил ночной батч с шести часов до менее чем одного.', 'project_link' => null],
+                ['description' => 'Переработал очередь приёма, чтобы переживать сбои партнёров.'],
+                ['description' => 'Сократил ночной батч с шести часов до менее чем одного.'],
             ],
         ],
     ],
@@ -130,8 +130,8 @@ return [
             'company_country' => 'Ukraine',
             'short_description' => 'Maintained the legacy CRM and built its first REST API.',
             'achievements' => [
-                ['description' => 'Automated the invoice flow and removed a week of manual work per month.', 'project_link' => null],
-                ['description' => 'Introduced the team’s first automated test suite.', 'project_link' => null],
+                ['description' => 'Automated the invoice flow and removed a week of manual work per month.'],
+                ['description' => 'Introduced the team’s first automated test suite.'],
             ],
         ],
         'ru' => [
@@ -140,8 +140,8 @@ return [
             'company_country' => 'Украина',
             'short_description' => 'Поддерживал легаси-CRM и создал её первый REST API.',
             'achievements' => [
-                ['description' => 'Автоматизировал поток счетов и убрал неделю ручной работы в месяц.', 'project_link' => null],
-                ['description' => 'Внедрил первый в команде набор автотестов.', 'project_link' => null],
+                ['description' => 'Автоматизировал поток счетов и убрал неделю ручной работы в месяц.'],
+                ['description' => 'Внедрил первый в команде набор автотестов.'],
             ],
         ],
     ],
@@ -158,7 +158,7 @@ return [
             'company_country' => 'Belarus',
             'short_description' => 'Delivered e-commerce features across a portfolio of client sites.',
             'achievements' => [
-                ['description' => 'Built a reusable checkout module adopted by four client projects.', 'project_link' => null],
+                ['description' => 'Built a reusable checkout module adopted by four client projects.'],
             ],
         ],
         'ru' => [
@@ -167,7 +167,7 @@ return [
             'company_country' => 'Беларусь',
             'short_description' => 'Разрабатывал функции интернет-магазинов для портфеля клиентских сайтов.',
             'achievements' => [
-                ['description' => 'Создал переиспользуемый модуль оформления заказа, принятый в четырёх проектах.', 'project_link' => null],
+                ['description' => 'Создал переиспользуемый модуль оформления заказа, принятый в четырёх проектах.'],
             ],
         ],
     ],
@@ -184,7 +184,7 @@ return [
             'company_country' => 'Russia',
             'short_description' => 'Started on internal tools and quickly moved to client work.',
             'achievements' => [
-                ['description' => 'Rebuilt the internal timesheet tool used by the whole studio.', 'project_link' => null],
+                ['description' => 'Rebuilt the internal timesheet tool used by the whole studio.'],
             ],
         ],
         'ru' => [
@@ -193,7 +193,7 @@ return [
             'company_country' => 'Россия',
             'short_description' => 'Начал с внутренних инструментов и быстро перешёл к клиентским задачам.',
             'achievements' => [
-                ['description' => 'Переписал внутренний табель учёта времени, которым пользовалась вся студия.', 'project_link' => null],
+                ['description' => 'Переписал внутренний табель учёта времени, которым пользовалась вся студия.'],
             ],
         ],
     ],
@@ -210,7 +210,7 @@ return [
             'company_country' => 'Russia',
             'short_description' => 'First professional role, focused on HTML templates and small scripts.',
             'achievements' => [
-                ['description' => 'Converted a set of static mockups into responsive templates.', 'project_link' => null],
+                ['description' => 'Converted a set of static mockups into responsive templates.'],
             ],
         ],
         'ru' => [
@@ -219,7 +219,7 @@ return [
             'company_country' => 'Россия',
             'short_description' => 'Первая профессиональная роль: HTML-шаблоны и небольшие скрипты.',
             'achievements' => [
-                ['description' => 'Перевёл набор статичных макетов в адаптивные шаблоны.', 'project_link' => null],
+                ['description' => 'Перевёл набор статичных макетов в адаптивные шаблоны.'],
             ],
         ],
     ],
@@ -236,7 +236,7 @@ return [
             'company_country' => 'Germany',
             'short_description' => 'Built small websites while finishing a computer science degree.',
             'achievements' => [
-                ['description' => 'Delivered a dozen small business sites with custom admin panels.', 'project_link' => null],
+                ['description' => 'Delivered a dozen small business sites with custom admin panels.'],
             ],
         ],
         'ru' => [
@@ -245,7 +245,7 @@ return [
             'company_country' => 'Германия',
             'short_description' => 'Делал небольшие сайты, параллельно заканчивая университет по информатике.',
             'achievements' => [
-                ['description' => 'Сдал десяток сайтов малого бизнеса с собственными админками.', 'project_link' => null],
+                ['description' => 'Сдал десяток сайтов малого бизнеса с собственными админками.'],
             ],
         ],
     ],
@@ -262,7 +262,7 @@ return [
             'company_country' => 'Russia',
             'short_description' => 'First industry job, maintaining small content sites.',
             'achievements' => [
-                ['description' => 'Kept a fleet of content sites updated and accessible.', 'project_link' => null],
+                ['description' => 'Kept a fleet of content sites updated and accessible.'],
             ],
         ],
         'ru' => [
@@ -271,7 +271,7 @@ return [
             'company_country' => 'Россия',
             'short_description' => 'Первая работа в отрасли: поддержка небольших контентных сайтов.',
             'achievements' => [
-                ['description' => 'Поддерживал парк контентных сайтов в актуальном и доступном состоянии.', 'project_link' => null],
+                ['description' => 'Поддерживал парк контентных сайтов в актуальном и доступном состоянии.'],
             ],
         ],
     ],

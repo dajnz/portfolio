@@ -1035,6 +1035,7 @@ export interface components {
             company_name?: string;
             company_country?: string;
             project_name?: string | null;
+            project_url?: string | null;
             short_description?: string;
             /** Format: date */
             started_at?: string;
@@ -1042,7 +1043,6 @@ export interface components {
             ended_at?: string | null;
             achievements?: {
                 description?: string;
-                project_link?: string;
             }[];
             tech_tags?: {
                 id?: number;
@@ -1716,6 +1716,9 @@ export interface components {
             project_name?: string | null;
             /** @description Present only when project_id is set. Used to build /projects/{slug} link. */
             project_slug?: string | null;
+            /** @description Present only for an external project with a URL. Used to make the project name a link. */
+            project_url?: string | null;
+            /** @description Rendered safe HTML (the shared Markdown content pipeline). */
             short_description?: string;
             /** Format: date */
             started_at?: string;
@@ -1731,8 +1734,8 @@ export interface components {
                 icon?: string;
             }[];
             achievements?: {
+                /** @description Rendered safe inline HTML — a single line, with any Markdown links and formatting preserved. */
                 description?: string;
-                project_link?: string | null;
             }[];
         };
         ExperienceTimelinePageProps: components["schemas"]["InertiaPage"] & {
@@ -1786,7 +1789,9 @@ export interface components {
             project_id?: number | null;
             /** @description Set when referencing an external/non-portfolio project. Mutually exclusive with project_id. */
             external_project_name?: string | null;
-            /** @description Per-locale short description values keyed by locale code. */
+            /** @description Optional URL of the external project. Only set together with external_project_name. */
+            external_project_url?: string | null;
+            /** @description Per-locale short description Markdown values keyed by locale code. */
             short_description?: {
                 [key: string]: string;
             };
@@ -1798,11 +1803,10 @@ export interface components {
             sort_order?: number;
             include_in_resume?: boolean;
             achievements?: {
-                /** @description Per-locale achievement description values keyed by locale code — only the locales with a description are present. */
+                /** @description Per-locale achievement description Markdown values keyed by locale code — only the locales with a description are present. */
                 description?: {
                     [key: string]: string | null;
                 };
-                project_link?: string | null;
             }[];
             tech_tags?: {
                 id?: number;

@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { nextTick } from 'vue';
 
 const { postMock, putMock, visitMock, pageProps } = vi.hoisted(() => ({
     postMock: vi.fn(),
@@ -35,6 +36,10 @@ vi.mock('@shared-cross/Composables/useAnalytics', () => ({
 }));
 
 import ExperienceFormPage from '@experience/Admin/Pages/ExperienceFormPage.vue';
+import TextEditor, {
+    EXPERIENCE_ACHIEVEMENT_EDITOR_BUTTONS,
+    EXPERIENCE_EDITOR_BUTTONS,
+} from '@shared-admin/TextEditor/TextEditor.vue';
 import { useToastStore } from '@shared-cross/Stores/toastStore';
 
 const SKILLS = [
@@ -54,6 +59,7 @@ const ITEM = {
     company_country: { en: 'Germany', ru: 'Германия' },
     project_id: 10,
     external_project_name: null,
+    external_project_url: null,
     short_description: { en: '**Led** the platform team.', ru: 'Руководил командой платформы.' },
     started_at: '2023-01-15',
     ended_at: null,
@@ -63,7 +69,6 @@ const ITEM = {
     achievements: [
         {
             description: { en: 'Cut API p95 latency by 40%.', ru: 'Снизил p95 API на 40%.' },
-            project_link: 'https://github.com/acme/latency',
         },
     ],
     tech_tags: [SKILLS[0]],
@@ -75,6 +80,18 @@ function mountPage(props: Record<string, unknown> = {}) {
         attachTo: document.body,
         global: { stubs: { Teleport: true } },
     });
+}
+
+function editorByTestId(wrapper: ReturnType<typeof mountPage>, testId: string) {
+    const editor = wrapper
+        .findAllComponents(TextEditor)
+        .find((candidate) => candidate.props('test_id') === testId);
+
+    if (editor === undefined) {
+        throw new Error(`TextEditor with test id "${testId}" not found.`);
+    }
+
+    return editor;
 }
 
 describe('ExperienceFormPage', () => {
@@ -118,10 +135,9 @@ describe('ExperienceFormPage', () => {
         const ruPosition = wrapper.get('[data-testid="experience-form-page-position-ru"]');
         expect((ruPosition.element as HTMLInputElement).value).toBe('Старший бэкенд-разработчик');
         expect(
-            (
-                wrapper.get('[data-testid="experience-form-page-short-description-ru"]')
-                    .element as HTMLTextAreaElement
-            ).value,
+            editorByTestId(wrapper, 'experience-form-page-short-description-ru').props(
+                'modelValue',
+            ),
         ).toBe('Руководил командой платформы.');
     });
 
@@ -223,17 +239,20 @@ describe('ExperienceFormPage', () => {
             wrapper.find('[data-testid="experience-form-page-achievements-item-1"]').exists(),
         ).toBe(true);
 
-        const newDescription = wrapper.get(
-            '[data-testid="experience-form-page-achievements-item-1-description-en"]',
+        const newDescription = editorByTestId(
+            wrapper,
+            'experience-form-page-achievements-item-1-description-en',
         );
-        await newDescription.setValue('Shipped the billing module.');
+        newDescription.vm.$emit('update:modelValue', 'Shipped the billing module.');
+        await nextTick();
 
         await wrapper.get('[data-testid="experience-form-page-achievements-item-1-move-up"]').trigger('click');
 
         expect(
-            wrapper.get('[data-testid="experience-form-page-achievements-item-0-description-en"]')
-                .element as HTMLTextAreaElement,
-        ).toHaveProperty('value', 'Shipped the billing module.');
+            editorByTestId(wrapper, 'experience-form-page-achievements-item-0-description-en').props(
+                'modelValue',
+            ),
+        ).toBe('Shipped the billing module.');
 
         await wrapper
             .get('[data-testid="experience-form-page-achievements-item-1-remove"]')
@@ -251,9 +270,11 @@ describe('ExperienceFormPage', () => {
             .get('[data-testid="experience-form-page-company-name-en"]')
             .setValue('Example Ltd');
         await wrapper.get('[data-testid="experience-form-page-country-en"]').setValue('UK');
-        await wrapper
-            .get('[data-testid="experience-form-page-short-description-en"]')
-            .setValue('Built core services.');
+        editorByTestId(
+            wrapper,
+            'experience-form-page-short-description-en',
+        ).vm.$emit('update:modelValue', 'Built core services.');
+        await nextTick();
 
         // The date comes from the calendar picker (no manual
         // editing): open the started-at picker and click the 15th of the
@@ -274,6 +295,7 @@ describe('ExperienceFormPage', () => {
                 company_name: { en: 'Example Ltd', ru: '' },
                 company_country: { en: 'UK', ru: '' },
                 short_description: { en: 'Built core services.', ru: '' },
+                external_project_url: '',
                 started_at: startedIso,
                 ended_at: '',
                 achievements: [],
@@ -290,12 +312,11 @@ describe('ExperienceFormPage', () => {
         const wrapper = mountPage({ item: null });
 
         await wrapper.get('[data-testid="experience-form-page-achievements-add"]').trigger('click');
-        await wrapper
-            .get('[data-testid="experience-form-page-achievements-item-0-description-en"]')
-            .setValue('Cut p95 latency by 40%.');
-        await wrapper
-            .get('[data-testid="experience-form-page-achievements-item-0-project-link"]')
-            .setValue('https://github.com/acme/latency');
+        editorByTestId(
+            wrapper,
+            'experience-form-page-achievements-item-0-description-en',
+        ).vm.$emit('update:modelValue', 'Cut p95 latency by 40%.');
+        await nextTick();
         // The second achievement stays empty — the form must not send it.
         await wrapper.get('[data-testid="experience-form-page-achievements-add"]').trigger('click');
 
@@ -307,12 +328,91 @@ describe('ExperienceFormPage', () => {
                 achievements: [
                     {
                         description: { en: 'Cut p95 latency by 40%.', ru: '' },
-                        project_link: 'https://github.com/acme/latency',
                     },
                 ],
             }),
             expect.any(Object),
         );
+    });
+
+    it('shows the external project URL only for a custom project and submits it', async () => {
+        const wrapper = mountPage({ item: null });
+
+        expect(
+            wrapper.find('[data-testid="experience-form-page-external-project-url"]').exists(),
+        ).toBe(false);
+
+        const projectInput = wrapper.get('[data-testid="experience-form-page-project-input"]');
+        await projectInput.setValue('My Side Project');
+        await projectInput.trigger('blur');
+        await nextTick();
+
+        const urlInput = wrapper.get('[data-testid="experience-form-page-external-project-url"]');
+        expect((urlInput.element as HTMLInputElement).value).toBe('');
+        await urlInput.setValue('https://example.com/side-project');
+
+        await wrapper.get('[data-testid="experience-form-page-form"]').trigger('submit');
+
+        expect(postMock).toHaveBeenCalledWith(
+            '/admin/experience',
+            expect.objectContaining({
+                project_id: null,
+                external_project_name: 'My Side Project',
+                external_project_url: 'https://example.com/side-project',
+            }),
+            expect.any(Object),
+        );
+    });
+
+    it('clears the external project URL when a portfolio project is selected', async () => {
+        const wrapper = mountPage({
+            item: {
+                ...ITEM,
+                project_id: null,
+                external_project_name: 'My Side Project',
+                external_project_url: 'https://example.com/side-project',
+            },
+        });
+
+        expect(
+            (wrapper.get('[data-testid="experience-form-page-external-project-url"]')
+                .element as HTMLInputElement).value,
+        ).toBe('https://example.com/side-project');
+
+        const projectInput = wrapper.get('[data-testid="experience-form-page-project-input"]');
+        await projectInput.setValue('e-commerce');
+        await wrapper.get('[data-testid="experience-form-page-project-option-0"]').trigger('click');
+        await nextTick();
+
+        expect(
+            wrapper.find('[data-testid="experience-form-page-external-project-url"]').exists(),
+        ).toBe(false);
+
+        await wrapper.get('[data-testid="experience-form-page-form"]').trigger('submit');
+
+        expect(putMock).toHaveBeenCalledWith(
+            '/admin/experience/7',
+            expect.objectContaining({
+                project_id: 11,
+                external_project_name: null,
+                external_project_url: '',
+            }),
+            expect.any(Object),
+        );
+    });
+
+    it('configures the experience editors with their reduced toolbars', () => {
+        const wrapper = mountPage();
+
+        expect(
+            editorByTestId(wrapper, 'experience-form-page-short-description-en').props('buttons'),
+        ).toEqual(EXPERIENCE_EDITOR_BUTTONS);
+        expect(
+            editorByTestId(
+                wrapper,
+                'experience-form-page-achievements-item-0-description-en',
+            ).props('buttons'),
+        ).toEqual(EXPERIENCE_ACHIEVEMENT_EDITOR_BUTTONS);
     });
 
     it('submits with PUT on edit and keeps the provided ended_at', async () => {
@@ -325,6 +425,7 @@ describe('ExperienceFormPage', () => {
             expect.objectContaining({
                 project_id: 10,
                 external_project_name: null,
+                external_project_url: '',
                 started_at: '2023-01-15',
                 ended_at: '2026-02-28',
                 tech_tags: [1],

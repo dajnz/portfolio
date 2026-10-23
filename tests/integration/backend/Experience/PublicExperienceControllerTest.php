@@ -79,6 +79,7 @@ describe('PublicExperienceController', function (): void {
             'started_at' => '2024-05-10',
             'ended_at' => null,
             'external_project_name' => 'Side Project',
+            'external_project_url' => 'https://example.com/side-project',
         ], [
             'en' => ['position' => 'Architect', 'company_name' => 'Nova AG', 'company_country' => 'Switzerland'],
         ]);
@@ -98,6 +99,7 @@ describe('PublicExperienceController', function (): void {
                 ->where('items.0.project_id', null)
                 ->where('items.0.project_name', 'Side Project')
                 ->where('items.0.project_slug', null)
+                ->where('items.0.project_url', 'https://example.com/side-project')
                 ->where('items.1.id', $older->id)
                 ->where('items.1.is_current', false)
                 // 2 items = a full batch at the seeded per_page (2):
@@ -162,7 +164,8 @@ describe('PublicExperienceController', function (): void {
             ->assertInertia(fn (Assert $page) => $page
                 ->where('items.0.project_id', $projectId)
                 ->where('items.0.project_name', 'Payments Gateway')
-                ->where('items.0.project_slug', 'payments'));
+                ->where('items.0.project_slug', 'payments')
+                ->where('items.0.project_url', null));
 
         $this->get('/ru/experience')
             ->assertInertia(fn (Assert $page) => $page
@@ -200,23 +203,26 @@ describe('PublicExperienceController', function (): void {
 
     it('serves per-locale achievements', function (): void {
         publicItem(['started_at' => '2020-01-01'], [
-            'en' => ['achievements' => [
-                ['description' => 'Cut deploy time', 'project_link' => 'https://example.com/1'],
-            ]],
+            'en' => [
+                'short_description' => 'Led the **deploy** pipeline.',
+                'achievements' => [
+                    ['description' => 'Cut **deploy** time by [40%](https://example.com/metrics)'],
+                ],
+            ],
             'ru' => ['achievements' => [
-                ['description' => 'Сократил время деплоя', 'project_link' => null],
+                ['description' => 'Сократил время деплоя'],
             ]],
         ]);
 
         $this->get('/experience')
             ->assertInertia(fn (Assert $page) => $page
-                ->where('items.0.achievements.0.description', 'Cut deploy time')
-                ->where('items.0.achievements.0.project_link', 'https://example.com/1'));
+                ->where('items.0.short_description', fn (mixed $value): bool => $value === "<p>Led the <strong>deploy</strong> pipeline.</p>\n")
+                ->where('items.0.achievements.0.description', 'Cut <strong>deploy</strong> time by <a href="https://example.com/metrics">40%</a>')
+                ->missing('items.0.achievements.0.project_link'));
 
         $this->get('/ru/experience')
             ->assertInertia(fn (Assert $page) => $page
-                ->where('items.0.achievements.0.description', 'Сократил время деплоя')
-                ->where('items.0.achievements.0.project_link', null));
+                ->where('items.0.achievements.0.description', 'Сократил время деплоя'));
     });
 
     it('falls back to the en translation when the requested locale is missing', function (): void {
@@ -239,7 +245,7 @@ describe('PublicExperienceController', function (): void {
                 ->where('items.0.position', 'Only-English Role')
                 ->where('items.0.company_name', 'EN Corp')
                 ->where('items.0.company_country', 'US')
-                ->where('items.0.short_description', 'Fallback text'));
+                ->where('items.0.short_description', fn (mixed $value): bool => is_string($value) && str_contains($value, 'Fallback text')));
     });
 
     it('paginates with the opaque cursor and stops at exhaustion', function (): void {

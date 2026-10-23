@@ -110,6 +110,9 @@ describe('PublicResumeController /cv — auto mode', function (): void {
             ->and($data['skills'][0]['skills'][0]['name'])->toBe('Laravel')
             ->and($data['experience'][0]['position'])->toBe('Senior Engineer')
             ->and($data['experience'][0]['company_name'])->toBe('Acme Inc')
+            ->and($data['experience'][0]['achievements'])->toBe([
+                ['description' => 'Cut checkout latency by 40%.'],
+            ])
             ->and($data['experience'][0]['tech_tags'])->toBe(['Laravel'])
             ->and($data['contacts'][0]['name'])->toBe('GitHub')
             ->and($data['contacts'][0]['url'])->toBe('https://github.com/alex')

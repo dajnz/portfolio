@@ -48,7 +48,7 @@ interface ResumeDataReaderInterface
      *     company_country: string|null,
      *     started_at: string,
      *     ended_at: string|null,
-     *     achievements: array<int, array{description: string, project_link: string|null}>,
+     *     achievements: array<int, array{description: string}> Plain text (Markdown formatting stripped),
      *     tech_tags: string[],
      * }>
      */

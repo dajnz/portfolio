@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Resume\Infra\Repositories;
 
 use App\Features\Resume\App\Contracts\ResumeDataReaderInterface;
+use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use Illuminate\Support\Facades\DB;
 use stdClass;
 
@@ -17,10 +18,16 @@ use stdClass;
  * The `achievements` jsonb is decoded here: the per-locale column already
  * holds the locale's own descriptions (only the entries with a
  * description for that locale are persisted — StoreTimelineItemUseCase),
- * so no per-locale extraction is needed.
+ * so no per-locale extraction is needed. Descriptions are stored as
+ * Markdown and flattened to plain text for the PDF.
  */
 final class EloquentResumeDataReader implements ResumeDataReaderInterface
 {
+    public function __construct(
+        private readonly MarkdownContentPipelineInterface $markdown,
+    ) {
+    }
+
     public function sourceStamps(): array
     {
         return [
@@ -166,7 +173,7 @@ final class EloquentResumeDataReader implements ResumeDataReaderInterface
     }
 
     /**
-     * @return array<int, array{description: string, project_link: string|null}>
+     * @return array<int, array{description: string}>
      */
     private function decodeAchievements(mixed $achievements): array
     {
@@ -176,7 +183,23 @@ final class EloquentResumeDataReader implements ResumeDataReaderInterface
 
         $decoded = json_decode($achievements, true);
 
-        return is_array($decoded) ? $decoded : [];
+        if (! is_array($decoded)) {
+            return [];
+        }
+
+        $plain = [];
+
+        foreach ($decoded as $achievement) {
+            if (! is_array($achievement) || ! is_string($achievement['description'] ?? null)) {
+                continue;
+            }
+
+            $plain[] = [
+                'description' => $this->markdown->plainText($achievement['description']),
+            ];
+        }
+
+        return $plain;
     }
 
     /**

@@ -64,6 +64,26 @@ export const PROJECT_EDITOR_BUTTONS: ProjectEditorButton[] = [
     'link',
 ];
 
+export const EXPERIENCE_EDITOR_BUTTONS: TextEditorButton[] = [
+    'bullet-list',
+    'ordered-list',
+    'bold',
+    'italic',
+    'underline',
+    'strike',
+    'code',
+    'link',
+];
+
+export const EXPERIENCE_ACHIEVEMENT_EDITOR_BUTTONS: TextEditorButton[] = [
+    'bold',
+    'italic',
+    'underline',
+    'strike',
+    'code',
+    'link',
+];
+
 /** The parent-facing surface of the editor — the callbacks the
  *  consuming forms (BlogFormPage) can invoke after an upload. */
 export interface TextEditorExposed {

@@ -230,6 +230,7 @@
             "underline": "Underline"
         },
         "experience": {
+            "achievement_description": "Achievement Description",
             "achievements": "Achievements",
             "add": "Add Experience",
             "add_achievement": "Add Achievement",
@@ -244,6 +245,7 @@
             "description": "Description",
             "edit": "Edit Experience",
             "ended_at": "Ended At",
+            "external_project_url": "Project URL",
             "force_delete_confirm": "Delete this experience item permanently?",
             "include_in_resume": "In resume",
             "no_items": "No experience items yet.",
@@ -253,11 +255,11 @@
             "portfolio_project": "Portfolio project",
             "position": "Position",
             "project": "Project",
-            "project_link": "Project Link",
             "project_placeholder": "Search projects or type a custom name...",
             "published": "Published",
             "search_placeholder": "Search experience...",
             "short_description": "Short Description",
+            "sort_order": "Sort Order",
             "started_at": "Started At",
             "tech_tags": "Tech Tags",
             "title": "Experience",
@@ -752,7 +754,6 @@
         "no_experience": "No experience entries yet.",
         "present": "Present",
         "project": "Project",
-        "read_the_writeup": "read the writeup",
         "show_all_tags": "Show all tags",
         "tech_stack": "Tech Stack",
         "work_experience": "Work Experience"
@@ -945,6 +946,7 @@
         "experience": {
             "achievement_description_required": "Each achievement needs a description in at least one language.",
             "company_fields_all_or_none": "The company name and country must both be filled together or left empty.",
+            "external_project_url_requires_project": "The :attribute can only be set for a custom project.",
             "only_last_current": "Only the most recent item can be ongoing — an end date is required for this period.",
             "overlap_with_next": "The end date must not be later than the start date of the next item.",
             "overlap_with_previous": "The start date must not be earlier than the end date of the previous item.",

@@ -126,7 +126,7 @@ final class TimelineItem extends BaseEntity
     }
 
     /**
-     * @return array<int, array{description: string, project_link: string|null}>
+     * @return array<int, array{description: string}>
      */
     public function achievementsFor(string $locale): array
     {
@@ -181,25 +181,6 @@ final class TimelineItem extends BaseEntity
         foreach ($this->translationsByLocale() as $locale => $translation) {
             $map[$locale] = array_map(
                 static fn (array $achievement): ?string => $achievement['description'],
-                $translation->toAchievements(),
-            );
-        }
-
-        return $map;
-    }
-
-    /**
-     * Locale => achievement project link by index (null when the
-     * achievement has no link or the locale has no such achievement).
-     *
-     * @return array<string, array<int, string|null>>
-     */
-    public function achievementProjectLinksByLocale(): array
-    {
-        $map = [];
-        foreach ($this->translationsByLocale() as $locale => $translation) {
-            $map[$locale] = array_map(
-                static fn (array $achievement): ?string => $achievement['project_link'],
                 $translation->toAchievements(),
             );
         }

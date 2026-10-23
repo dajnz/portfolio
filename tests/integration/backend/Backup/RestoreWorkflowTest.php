@@ -10,6 +10,8 @@ use App\Features\Backup\App\Contracts\BackupArchiveInterface;
 use App\Features\Backup\App\UseCases\RestoreBackupUseCase;
 use App\Features\Backup\Infra\Archive\ZipBackupArchive;
 use App\Features\Backup\Infra\Models\BackupModel;
+use App\Features\Experience\Infra\Models\TimelineItemModel;
+use App\Features\Experience\Infra\Models\TimelineItemTranslationModel;
 use App\Features\Portfolio\Infra\Models\FeedbackModel;
 use App\Features\Projects\Infra\Models\ProjectModel;
 use App\Features\Settings\Domain\Enums\SettingName;
@@ -47,6 +49,39 @@ describe('RestoreWorkflowService — restore round-trip', function (): void {
 
         expect(ProjectModel::withTrashed()->find($this->project->id))->not->toBeNull()
             ->and(FeedbackModel::query()->where('sender_name', 'Jane Doe')->exists())->toBeTrue();
+    });
+
+    it('round-trips the external project URL and the achievements payload', function (): void {
+        $item = TimelineItemModel::factory()->create([
+            'started_at' => '2020-01-01',
+            'ended_at' => '2021-01-01',
+            'external_project_name' => 'Side Project',
+            'external_project_url' => 'https://example.com/side-project',
+        ]);
+        TimelineItemTranslationModel::factory()->forLocale('en')->create([
+            'item_id' => $item->id,
+            'position' => 'Engineer',
+            'company_name' => 'Acme',
+            'company_country' => 'Germany',
+            'short_description' => 'Built the **platform**.',
+            'achievements' => [
+                ['description' => 'Cut deploy time by [40%](https://example.com/metrics)'],
+            ],
+        ]);
+
+        $backup = $this->createCompletedBackup();
+        $item->forceDelete();
+
+        app(RestoreBackupUseCase::class)->restore($backup);
+
+        $restored = TimelineItemModel::query()->find($item->id);
+
+        expect($restored)->not->toBeNull()
+            ->and($restored->external_project_name)->toBe('Side Project')
+            ->and($restored->external_project_url)->toBe('https://example.com/side-project')
+            ->and($restored->translations()->where('locale', 'en')->first()->achievements)->toBe([
+                ['description' => 'Cut deploy time by [40%](https://example.com/metrics)'],
+            ]);
     });
 
     it('restores the settings by key and flushes the settings cache', function (): void {

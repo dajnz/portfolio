@@ -11,8 +11,7 @@ use InvalidArgumentException;
  * (PK `(item_id, locale)`): the identity fields (mandatory position;
  * optional company name + country) and the required Markdown
  * `short_description` plus the achievements list (jsonb array of
- * `{description, project_link?}`). Immutable; carries no identity of its
- * own.
+ * `{description}`). Immutable; carries no identity of its own.
  *
  * Invariants:
  * - `short_description` is mandatory — it is the only required column
@@ -26,7 +25,7 @@ use InvalidArgumentException;
  *   `short_description` lives in the form request, which also enforces
  *   the active-locale rules).
  *
- * @phpstan-type AchievementData array{description: string, project_link: string|null}
+ * @phpstan-type AchievementData array{description: string}
  */
 final readonly class TimelineItemTranslation
 {
@@ -36,7 +35,7 @@ final readonly class TimelineItemTranslation
     private ?string $companyCountry;
 
     /**
-     * @param  array<int, array{description: string, project_link: string|null}>  $achievements
+     * @param  array<int, array{description: string}>  $achievements
      */
     public function __construct(
         private string $locale,
@@ -113,7 +112,7 @@ final readonly class TimelineItemTranslation
      * Achievements are optional — the structure is validated only when
      * the list is non-empty.
      *
-     * @param  array<int, array{description: string, project_link: string|null}>  $achievements
+     * @param  array<int, array{description: string}>  $achievements
      * @return AchievementData[]
      */
     private function validateAchievements(array $achievements): array
@@ -129,13 +128,12 @@ final readonly class TimelineItemTranslation
     }
 
     /**
-     * @param  array{description: string, project_link: string|null}  $achievement
+     * @param  array{description: string}  $achievement
      * @return AchievementData
      */
     private function validateAchievement(array $achievement): array
     {
         $description = $achievement['description'] ?? '';
-        $projectLink = $achievement['project_link'] ?? null;
 
         if (! is_string($description) || $description === '') {
             throw new InvalidArgumentException('Achievement description must be a non-empty string.');
@@ -145,17 +143,6 @@ final readonly class TimelineItemTranslation
             throw new InvalidArgumentException('Achievement description must not exceed 1000 characters.');
         }
 
-        if ($projectLink !== null && ! is_string($projectLink)) {
-            throw new InvalidArgumentException('Achievement project link must be a string or null.');
-        }
-
-        if ($projectLink !== null && $projectLink !== '' && filter_var($projectLink, FILTER_VALIDATE_URL) === false) {
-            throw new InvalidArgumentException("Achievement project link must be a valid URL, got \"{$projectLink}\".");
-        }
-
-        return [
-            'description' => $description,
-            'project_link' => $projectLink === '' ? null : $projectLink,
-        ];
+        return ['description' => $description];
     }
 }
