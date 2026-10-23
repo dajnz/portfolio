@@ -182,7 +182,12 @@ function onViewModeChange(mode: HeaderViewMode): void {
    header; the opaque page background keeps the cards from showing
    through while scrolling. Two rows: the search + view toggle on the
    first, the tag filter + year dropdown on the second (the projects
-   toolbar pattern). */
+   toolbar pattern). The inline overhang mirrors the container padding,
+   so below the wide breakpoint the bar bleeds exactly to the viewport
+   edges (16px per side, 24px from 768px up), then widens to
+   `--space-xl` (32px) so the cards' hover shadows (`--shadow-glow`,
+   22px horizontal reach) stay hidden under it — the projects rule,
+   including its scrollbar-safe 1084px wide breakpoint. */
 .blog-toolbar {
     position: sticky;
     top: var(--header-height);
@@ -190,10 +195,26 @@ function onViewModeChange(mode: HeaderViewMode): void {
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
-    margin: 0 0 var(--space-2xl);
-    padding: var(--space-md) 0;
+    margin-inline: calc(-1 * var(--container-padding));
+    margin-bottom: var(--space-2xl);
+    padding-block: var(--space-md);
+    padding-inline: var(--container-padding);
     background: var(--color-bg-primary);
     border-bottom: 1px solid var(--color-border);
+}
+
+@media (width >= 768px) {
+    .blog-toolbar {
+        margin-inline: calc(-1 * var(--container-padding-md));
+        padding-inline: var(--container-padding-md);
+    }
+}
+
+@media (width >= 1084px) {
+    .blog-toolbar {
+        margin-inline: calc(-1 * var(--space-xl));
+        padding-inline: var(--space-xl);
+    }
 }
 
 .blog-toolbar__row {
