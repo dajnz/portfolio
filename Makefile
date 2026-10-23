@@ -1,4 +1,4 @@
-.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup test-db admin-create admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck images custom-icons lang-export redis cache-clear health secrets-init deploy rollback quick-check
+.PHONY: up down up-localhost down-localhost restart build build-frontend dev-frontend install open-db open-dev migrate seed seed-fresh setup test-db admin-create admin-reset-password switch-dev switch-prod test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint lefthook format typecheck images custom-icons lang-export redis cache-clear health secrets-init deploy rollback quick-check
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -82,10 +82,11 @@ health:
 	@echo "Service health status:"
 	@$(DC) ps -a --format 'table {{.Name}}\t{{.Status}}'
 
-# Install PHP + JS dependencies
+# Install PHP + JS dependencies and the git hooks
 install:
 	$(DE) composer install
 	$(DE) pnpm install --frozen-lockfile
+	$(DE) pnpm exec lefthook install
 
 # Open an interactive psql session in the db container
 open-db:
@@ -178,6 +179,7 @@ setup:
 	@$(DC_LOCALHOST) ps -a --format 'table {{.Name}}\t{{.Status}}'
 	$(DE_LOCALHOST) composer install
 	$(DE_LOCALHOST) pnpm install --frozen-lockfile
+	$(DE_LOCALHOST) pnpm exec lefthook install
 	$(DE_LOCALHOST) pnpm run build
 	$(DE_LOCALHOST) php artisan key:generate
 	$(DE_LOCALHOST) php artisan migrate
@@ -315,6 +317,10 @@ commitlint:
 	if [ -n "$$MAIN" ] && [ "$$MAIN" != "$$(git rev-parse HEAD)" ]; then \
 		$(DE) pnpm exec commitlint --from main --to HEAD; \
 	fi
+
+# Install the git hooks (pre-commit, commit-msg, pre-merge-commit) that lefthook runs
+lefthook:
+	$(DE) pnpm exec lefthook install
 
 # Auto-format code
 format:

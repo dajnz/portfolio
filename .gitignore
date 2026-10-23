@@ -33,6 +33,7 @@ devops/secrets/age-identity.txt
 /node_modules
 /.pnpm-store
 /package-lock.json
+/lefthook-local.yml
 /public/build
 /public/fonts-manifest.dev.json
 /public/hot

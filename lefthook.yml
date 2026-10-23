@@ -1,0 +1,66 @@
+min_version: 2.2.2
+glob_matcher: doublestar
+
+pre-commit:
+  piped: true
+  skip:
+    - run: test "$(git rev-parse --git-dir)" != "$(git rev-parse --git-common-dir)"
+  jobs:
+    - name: pint
+      glob: "**/*.php"
+      run: devops/scripts/dev-exec.sh ./vendor/bin/pint --test {staged_files}
+    - name: biome
+      glob: "resources/js/**/*.{ts,vue}"
+      run: devops/scripts/dev-exec.sh pnpm exec biome ci {staged_files}
+    - name: eslint
+      glob: "resources/js/**/*.vue"
+      run: devops/scripts/dev-exec.sh pnpm exec eslint {staged_files}
+    - name: stylelint
+      glob: "resources/js/**/*.vue"
+      run: devops/scripts/dev-exec.sh pnpm exec stylelint {staged_files} || true
+    - name: spectral-openapi
+      glob: "docs/openapi/**"
+      run: devops/scripts/dev-exec.sh pnpm exec spectral lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
+    - name: spectral-inertia
+      glob: "docs/openapi/**"
+      run: devops/scripts/dev-exec.sh pnpm exec spectral lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
+    - name: typecheck
+      skip: rebase
+      run: devops/scripts/dev-exec.sh pnpm run typecheck
+    - name: backend-tests
+      skip: rebase
+      run: devops/scripts/dev-exec.sh env XDEBUG_MODE=off php artisan test --parallel --recreate-databases --drop-databases --processes=8
+    - name: frontend-tests
+      skip: rebase
+      run: devops/scripts/dev-exec.sh pnpm exec vitest run
+
+commit-msg:
+  skip:
+    - run: test "$(git rev-parse --git-dir)" != "$(git rev-parse --git-common-dir)"
+  jobs:
+    - name: commitlint
+      run: devops/scripts/dev-exec.sh pnpm exec commitlint --edit {1}
+
+pre-merge-commit:
+  piped: true
+  skip:
+    - run: test "$(git rev-parse --git-dir)" != "$(git rev-parse --git-common-dir)"
+  jobs:
+    - name: pint
+      run: devops/scripts/dev-exec.sh ./vendor/bin/pint --test
+    - name: biome
+      run: devops/scripts/dev-exec.sh pnpm exec biome ci resources/js
+    - name: eslint
+      run: devops/scripts/dev-exec.sh pnpm exec eslint resources/js
+    - name: stylelint
+      run: devops/scripts/dev-exec.sh pnpm exec stylelint "resources/js/**/*.vue" || true
+    - name: spectral-openapi
+      run: devops/scripts/dev-exec.sh pnpm exec spectral lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
+    - name: spectral-inertia
+      run: devops/scripts/dev-exec.sh pnpm exec spectral lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
+    - name: typecheck
+      run: devops/scripts/dev-exec.sh pnpm run typecheck
+    - name: backend-tests
+      run: devops/scripts/dev-exec.sh env XDEBUG_MODE=off php artisan test --parallel --recreate-databases --drop-databases --processes=8
+    - name: frontend-tests
+      run: devops/scripts/dev-exec.sh pnpm exec vitest run
