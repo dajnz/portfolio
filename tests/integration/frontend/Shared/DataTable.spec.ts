@@ -162,6 +162,8 @@ describe('DataTable', () => {
 
         expect(firstRow.classes()).toContain('odd:bg-surface-secondary');
         expect(firstRow.classes()).toContain('dark:odd:bg-surface-dark-secondary');
+        expect(firstRow.classes()).toContain('hover:bg-primary-50/30');
+        expect(firstRow.classes()).toContain('dark:hover:bg-surface-dark-tertiary');
     });
 
     it('styles trashed rows with reduced opacity and italics', () => {

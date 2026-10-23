@@ -148,7 +148,7 @@ function navigate(payload: CursorNavigationPayload): void {
         :empty_action_label="null"
         :row_class="(row) =>
           row.is_read === false
-            ? 'bg-primary-50/40 dark:bg-primary-950/20 hover:bg-primary-50/70 dark:hover:bg-primary-950/40'
+            ? 'bg-primary-50/40 dark:bg-primary-950/20 hover:bg-primary-50/70 dark:hover:bg-primary-900/50!'
             : ''
         "
         :test_id="`${props.test_id}-table`"

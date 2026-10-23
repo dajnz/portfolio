@@ -184,7 +184,7 @@ function rowClasses(row: Record<string, unknown>): Array<string> {
 
     return [
         'odd:bg-surface-secondary dark:odd:bg-surface-dark-secondary',
-        'hover:bg-primary-50/30 dark:hover:bg-primary-950/20 transition-colors',
+        'hover:bg-primary-50/30 dark:hover:bg-surface-dark-tertiary transition-colors',
         isTrashed ? 'opacity-50 italic' : '',
         isSelected ? 'bg-primary-50/50 dark:bg-primary-950/30' : '',
         props.is_loading ? '' : 'cursor-pointer',
