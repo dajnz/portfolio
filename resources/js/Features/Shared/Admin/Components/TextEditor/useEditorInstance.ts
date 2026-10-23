@@ -11,6 +11,7 @@
  * the editor).
  */
 
+import { escapeUnsupportedHtml } from '@shared-admin/TextEditor/escapeUnsupportedHtml';
 import { Callout, type CalloutType } from '@shared-admin-extensions/Callout';
 import { encodeSpacingEntities, HtmlEntity } from '@shared-admin-extensions/HtmlEntity';
 import type { Editor as CoreEditor } from '@tiptap/core';
@@ -194,7 +195,7 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
                       TableHeader,
                       Markdown,
                   ],
-                  content: options.content(),
+                  content: escapeUnsupportedHtml(options.content()),
                   contentType: 'markdown',
                   editorProps: {
                       attributes: {
@@ -229,7 +230,9 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
               });
 
     function setContent(markdown: string): void {
-        editor.value?.commands.setContent(markdown, { contentType: 'markdown' });
+        editor.value?.commands.setContent(escapeUnsupportedHtml(markdown), {
+            contentType: 'markdown',
+        });
     }
 
     function setEditable(editable: boolean): void {
@@ -250,7 +253,10 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
             return;
         }
 
-        if (editor.value !== null && encodeSpacingEntities(editor.value.getMarkdown()) !== value) {
+        if (
+            editor.value !== null &&
+            encodeSpacingEntities(editor.value.getMarkdown()) !== escapeUnsupportedHtml(value)
+        ) {
             setContent(value);
         }
     });

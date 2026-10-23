@@ -68,6 +68,25 @@ describe('TextEditor', () => {
         expect(wrapper.text()).toContain('Start writing...');
     });
 
+    it('shows unsupported HTML as literal text instead of dropping it', async () => {
+        const wrapper = mountEditor({
+            modelValue: 'Before <script>alert("pwnded")</script> after',
+        });
+
+        await waitForEditable(wrapper);
+
+        expect(wrapper.find('script').exists()).toBe(false);
+        expect(wrapper.text()).toContain('Before <script>alert("pwnded")</script> after');
+
+        await wrapper.get('[data-testid="text-editor-mode-toggle"]').trigger('click');
+
+        const raw = wrapper.get('[data-testid="text-editor-raw"]');
+
+        expect((raw.element as HTMLTextAreaElement).value).toContain(
+            '&lt;script&gt;alert("pwnded")&lt;/script&gt;',
+        );
+    });
+
     it('renders the initial markdown content into the editor', async () => {
         const wrapper = mountEditor({ modelValue: '# Welcome\n\nSome **bold** text' });
 
