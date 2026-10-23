@@ -3,8 +3,8 @@
 # docs/detailed-spec/openapi.md#spectral-validation-ci.
 #
 # Usage:
-#   npx @stoplight/spectral-cli lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
-#   npx @stoplight/spectral-cli lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
+#   pnpm exec spectral lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
+#   pnpm exec spectral lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
 extends:
   - spectral:oas
   - spectral:asyncapi

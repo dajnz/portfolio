@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import AdminIconPicker from '@shared-admin/AdminIconPicker.vue';
 
 // The icon subsets (resources/js/iconSubsets — generated from the strict
-// icon manifests by `npm run icons:build`) are loaded dynamically on
+// icon manifests by `pnpm run icons:build`) are loaded dynamically on
 // every panel open. They are small enough to load as-is in vitest.
 // These tests verify picker behavior, not the vendored data.
 

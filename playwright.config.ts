@@ -9,7 +9,7 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:8001';
 export default defineConfig({
     // The config lives at the repo root (Playwright resolves it from the
     // cwd — a config nested under tests/e2e would be silently ignored by
-    // `npx playwright test`, breaking CI and the plan's run command).
+    // `pnpm exec playwright test`, breaking CI and the plan's run command).
     testDir: './tests/e2e',
     fullyParallel: true,
     retries: 1,

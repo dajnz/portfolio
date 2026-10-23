@@ -51,7 +51,7 @@ export default defineConfig(({ isSsrBuild }) => ({
         // The dev container resolves `localhost` to `::1` only — vite would
         // otherwise advertise `http://[::1]:5173` in public/hot, which the
         // host browser cannot reach. Bind all interfaces and advertise the
-        // host-reachable localhost URL (devops.md:1226 — `npm run dev`).
+        // host-reachable localhost URL (devops.md:1226 — `pnpm run dev`).
         host: true,
         hmr: {
             host: 'localhost',
@@ -146,7 +146,7 @@ export default defineConfig(({ isSsrBuild }) => ({
         alias: {
             // The icon subsets under resources/js/iconSubsets are
             // generated from the strict icon manifests by
-            // `npm run icons:build` (scripts/build-icon-subsets.mjs) and
+            // `pnpm run icons:build` (scripts/build-icon-subsets.mjs) and
             // are small enough (tens of KB) for vitest to load as-is —
             // no fixture aliasing needed.
         },
