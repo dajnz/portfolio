@@ -31,11 +31,15 @@ jobs:
           key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
           restore-keys: composer-${{ runner.os }}-
       - run: composer install --no-progress
-      - run: ./vendor/bin/pint --test            # Laravel Pint (PSR-12)
+      # Laravel Pint (PSR-12)
+      - run: ./vendor/bin/pint --test
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec biome ci resources/js           # Lint + format: TS, Vue script blocks
-      - run: pnpm exec eslint resources/js             # Template linting only (.vue <template>)
-      - run: pnpm exec stylelint "resources/js/**/*.vue" || true   # CSS validation (non-blocking, warnings only)
+      # Lint + format: TS, Vue script blocks
+      - run: pnpm exec biome ci resources/js
+      # Template linting only (.vue <template>)
+      - run: pnpm exec eslint resources/js
+      # CSS validation (non-blocking, warnings only)
+      - run: pnpm exec stylelint "resources/js/**/*.vue" || true
       - run: pnpm exec spectral lint docs/openapi/openapi.yaml --ruleset .spectral.yaml
       - run: pnpm exec spectral lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
       - name: Lint commit messages (commitlint)
@@ -56,7 +60,8 @@ jobs:
           cache: true
           install: false
       - run: pnpm install --frozen-lockfile
-      - run: pnpm run typecheck            # generates API + Inertia types, then vue-tsc --noEmit
+      # Generates API + Inertia types, then runs vue-tsc --noEmit.
+      - run: pnpm run typecheck
 
   test-backend:
     runs-on: ubuntu-latest
