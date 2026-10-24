@@ -7,6 +7,7 @@ import PublicSearchAutocomplete from '@shared-public/PublicSearchAutocomplete.vu
 
 vi.mock('@inertiajs/vue3', () => ({
     router: { visit: vi.fn() },
+    usePage: () => ({ props: { about_timezone: 'UTC' } }),
 }));
 
 const RESULTS = {

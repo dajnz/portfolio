@@ -3,6 +3,7 @@
 import { type ArticleCardView, formatArticleDate } from '@blog-shared/Composables/useArticleCards';
 import { Link, router } from '@inertiajs/vue3';
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
+import { useAboutTimeZone } from '@shared-cross/Composables/useAboutTimeZone';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
 import PublicImagePlaceholder from '@shared-public/PublicImagePlaceholder.vue';
@@ -31,6 +32,7 @@ const props = withDefaults(
 );
 
 const { t, locale } = useI18n();
+const aboutTimeZone = useAboutTimeZone();
 
 // The combined chip list — article tags first, then the skill tags; the
 // cap applies to the combined total. Both tag types render as the same
@@ -72,7 +74,7 @@ function tagHref(tag: ArticleCardChip): string {
 }
 
 const metaDate = computed(() =>
-    formatArticleDate(props.article?.published_at ?? null, locale.value),
+    formatArticleDate(props.article?.published_at ?? null, locale.value, aboutTimeZone),
 );
 
 // Hover-based prefetch: the timer arms on mouseenter and fires
