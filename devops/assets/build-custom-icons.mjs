@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Builds the custom icon subset from drop-in SVG files.
 //
-// The strict-subset pipeline (scripts/build-icon-subsets.mjs) can only
+// The strict-subset pipeline (devops/assets/build-icon-subsets.mjs) can only
 // source icons from the @iconify-json packs in node_modules — it cannot
 // ship glyphs that do not exist in Iconify (e.g. a private brand mark).
 // This script is the manual counterpart: every file in
@@ -28,7 +28,7 @@ import { fileURLToPath } from 'node:url';
 
 import { IconSet, SVG, cleanupSVG, parseColors, parseSVG } from '@iconify/tools';
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const sourceDir = join(root, 'resources/icons/custom');
 const outputFile = join(root, 'resources/js/iconSubsets/custom.json');
 const width = 100;

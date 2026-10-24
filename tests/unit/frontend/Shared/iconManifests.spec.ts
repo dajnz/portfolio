@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-// Mirrors the coverage guard of scripts/build-icon-subsets.mjs: every
+// Mirrors the coverage guard of devops/assets/build-icon-subsets.mjs: every
 // `set:name` icon literal in the frontend source AND the integration test
 // fixtures must be listed in one of the strict icon manifests
 // (resources/js/iconManifests) or — for the hand-fed `custom` set — be an
