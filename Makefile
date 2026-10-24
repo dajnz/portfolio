@@ -142,7 +142,7 @@ dev-frontend:
 
 # Prepare image assets: optimize/minify resources/images -> public/images + section favicons
 pictures:
-	$(DE) node devops/images/prepare-images.mjs
+	$(DE) node devops/assets/prepare-images.mjs
 
 # Regenerate the custom icon subset from resources/icons/custom/*.svg
 # (add an SVG and run this — the file name becomes the icon id, e.g. messenger.svg -> custom:messenger)

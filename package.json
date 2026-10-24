@@ -6,8 +6,8 @@
     "scripts": {
         "build": "pnpm run icons:build && vite build",
         "dev": "vite",
-        "icons:build": "pnpm run icons:custom && node scripts/build-icon-subsets.mjs",
-        "icons:custom": "node scripts/build-custom-icons.mjs",
+        "icons:build": "pnpm run icons:custom && node devops/assets/build-icon-subsets.mjs",
+        "icons:custom": "node devops/assets/build-custom-icons.mjs",
         "lint": "biome check resources/js && eslint resources/js",
         "lint:css": "stylelint \"resources/js/**/*.vue\"",
         "format": "biome check --write --unsafe resources/js",

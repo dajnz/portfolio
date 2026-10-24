@@ -146,7 +146,7 @@ export default defineConfig(({ isSsrBuild }) => ({
         alias: {
             // The icon subsets under resources/js/iconSubsets are
             // generated from the strict icon manifests by
-            // `pnpm run icons:build` (scripts/build-icon-subsets.mjs) and
+            // `pnpm run icons:build` (devops/assets/build-icon-subsets.mjs) and
             // are small enough (tens of KB) for vitest to load as-is —
             // no fixture aliasing needed.
         },

@@ -1,5 +1,5 @@
 <!-- Icon picker restricted to the strict icon manifests (brands/technical)
-     plus the hand-fed `custom` subset — see scripts/build-icon-subsets.mjs. -->
+     plus the hand-fed `custom` subset — see devops/assets/build-icon-subsets.mjs. -->
 <script setup lang="ts">
 import type { IconifyJSON } from '@iconify/types';
 import { Icon, type IconifyIcon } from '@iconify/vue';
