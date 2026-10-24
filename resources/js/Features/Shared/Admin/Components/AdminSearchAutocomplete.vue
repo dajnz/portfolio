@@ -2,6 +2,7 @@
 import { router } from '@inertiajs/vue3';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
+import { formatShortDate } from '@shared-cross/Utils/dateTime';
 import { onBeforeUnmount, ref, useId } from 'vue';
 
 import AdminBaseSkeleton from './AdminBaseSkeleton.vue';
@@ -69,18 +70,23 @@ function resultMeta(item: SearchResultItem): string | null {
     return typeof value === 'string' ? formatMetaValue(value) : null;
 }
 
-// ISO timestamp meta values (published_at) render as `dd.mm.yyyy` — the
-// admin's date convention (same formatter as the experience list) —
-// instead of the raw timestamp. Non-date strings pass through.
+// ISO timestamp meta values (published_at) render as `dd.mm.yyyy` in the
+// admin's browser zone instead of the raw timestamp. Date-only values
+// keep their calendar parts (they are day labels, not instants).
 function formatMetaValue(value: string): string {
-    const [datePart] = value.split('T');
-    const [year, month, day] = datePart.split('-');
+    const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
 
-    if (year === undefined || month === undefined || day === undefined) {
+    if (dateOnly !== null) {
+        const [, year, month, day] = dateOnly;
+
+        return `${day}.${month}.${year}`;
+    }
+
+    if (!/^\d{4}-\d{2}-\d{2}[T ]/.test(value)) {
         return value;
     }
 
-    return `${day}.${month}.${year}`;
+    return formatShortDate(value) || value;
 }
 
 function resultEditUrl(item: SearchResultItem): string {

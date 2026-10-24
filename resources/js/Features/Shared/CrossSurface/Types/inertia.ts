@@ -873,6 +873,13 @@ export interface components {
              * @enum {string}
              */
             locale: "en" | "ru";
+            /**
+             * @description The owner's IANA timezone from the about section — the display
+             *     zone for public publication dates and the public blog's
+             *     calendar-year buckets. Resolved and validated server-side, with
+             *     a `UTC` fallback when the about row has no timezone.
+             */
+            about_timezone: string;
             /** @description Active locales from the `supported_locales` setting — the language selector and the per-locale editing tabs only offer these (disabled locales are neither editable nor deleted). */
             supported_locales?: ("en" | "ru")[];
             /**

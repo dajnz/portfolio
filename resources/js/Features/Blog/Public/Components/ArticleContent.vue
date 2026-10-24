@@ -7,6 +7,7 @@ The scroll tracker fires the `article_read` analytics event once at 75%+ scroll 
 import { formatArticleDate } from '@blog-shared/Composables/useArticleCards';
 import { Icon } from '@iconify/vue';
 import TechSkillTag from '@shared-cross/Components/TechSkillTag.vue';
+import { useAboutTimeZone } from '@shared-cross/Composables/useAboutTimeZone';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useReadingProgress } from '@shared-cross/Composables/useReadingProgress';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
@@ -49,6 +50,7 @@ const props = withDefaults(
 );
 
 const { t, locale } = useI18n();
+const aboutTimeZone = useAboutTimeZone();
 
 // The article's tags as one interactive chip list — article tags
 // (`?article_tags=`) and skill tags (`?skill_tags=`) render identically
@@ -83,7 +85,7 @@ const bodyEl = ref<HTMLElement | null>(null);
 const mountedHosts: { host: HTMLElement; dispose: () => void }[] = [];
 
 function metaDate(): string {
-    return formatArticleDate(props.article?.published_at ?? null, locale.value);
+    return formatArticleDate(props.article?.published_at ?? null, locale.value, aboutTimeZone);
 }
 
 function userReaction(): 'like' | 'dislike' | null {

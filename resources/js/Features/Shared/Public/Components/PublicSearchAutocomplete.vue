@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
 import { router } from '@inertiajs/vue3';
+import { useAboutTimeZone } from '@shared-cross/Composables/useAboutTimeZone';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { formatShortDate } from '@shared-cross/Utils/dateTime';
 import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue';
 
 import PublicBaseSkeleton from './PublicBaseSkeleton.vue';
@@ -31,6 +33,7 @@ const props = withDefaults(
 const emit = defineEmits<{ submit: [query: string] }>();
 
 const { t } = useI18n();
+const aboutTimeZone = useAboutTimeZone();
 
 interface SearchResultItem {
     [key: string]: unknown;
@@ -56,22 +59,14 @@ function resultLabel(item: SearchResultItem): string {
 }
 
 // The publication meta of a result row: the localized "published:"
-// label (`common.published`) plus the numeric "dd.mm.yyyy" date — the
-// numeric form carries no month names, only the label needs the
-// catalog. An empty string hides the meta when the raw value is missing
-// or unparseable.
+// label (`common.published`) plus the numeric "dd.mm.yyyy" date in the
+// owner's display zone. An empty string hides the meta when the raw
+// value is missing or unparseable.
 function publishedMeta(item: SearchResultItem): string {
     const value = item.published_at;
-    const date = typeof value === 'string' ? new Date(value) : null;
+    const date = typeof value === 'string' ? formatShortDate(value, aboutTimeZone) : '';
 
-    if (date === null || Number.isNaN(date.getTime())) {
-        return '';
-    }
-
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-
-    return `${t('common.published')} ${day}.${month}.${date.getFullYear()}`;
+    return date === '' ? '' : `${t('common.published')} ${date}`;
 }
 
 function resultUrl(item: SearchResultItem): string {

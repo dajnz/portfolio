@@ -7,6 +7,7 @@ const { getMock, reloadMock, pageRef, pageProps } = vi.hoisted(() => {
     const pageProps = {
         locale: 'en',
         supported_locales: ['en', 'ru'],
+        about_timezone: 'UTC',
     };
 
     return {
@@ -509,6 +510,21 @@ describe('BlogIndexPage', () => {
         expect(meta.classes()).toContain('article-card__meta');
         expect(meta.get('.article-card__meta-date').text()).toBe('Jan 15, 2026');
         expect(meta.get('.article-card__meta-read').text()).toBe('5 min read');
+    });
+
+    it('renders publication dates in the owner timezone', async () => {
+        pageProps.about_timezone = 'America/New_York';
+
+        try {
+            const wrapper = mountPage({
+                articles: [{ ...ARTICLES[0], published_at: '2026-01-15T00:30:00Z' }],
+            });
+            await flush();
+
+            expect(wrapper.get('.article-card__meta-date').text()).toBe('Jan 14, 2026');
+        } finally {
+            pageProps.about_timezone = 'UTC';
+        }
     });
 
     it('collapses and expands the filters with the mobile toggle', async () => {

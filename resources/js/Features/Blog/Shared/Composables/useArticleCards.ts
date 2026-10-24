@@ -77,10 +77,11 @@ function localeText(map: Record<string, string> | null | undefined, locale: stri
  * The article card/meta date ("Jan 15, 2026" / "15 янв. 2026 г.") via
  * `Intl.DateTimeFormat`: the numeric `dd.mm.yyyy` format applies to the
  * compact autocomplete rows only (PublicSearchAutocomplete's
- * `publishedMeta`). An unparseable value renders '' (the caller hides
- * the meta).
+ * `publishedMeta`). The explicit `timeZone` (the owner's zone) keeps the
+ * SSR render deterministic. An unparseable value renders '' (the caller
+ * hides the meta).
  */
-export function formatArticleDate(value: string | null, locale: string): string {
+export function formatArticleDate(value: string | null, locale: string, timeZone?: string): string {
     if (value === null) {
         return '';
     }
@@ -95,5 +96,6 @@ export function formatArticleDate(value: string | null, locale: string): string 
         year: 'numeric',
         month: 'short',
         day: 'numeric',
+        timeZone,
     }).format(date);
 }

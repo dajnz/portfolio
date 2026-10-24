@@ -93,7 +93,7 @@ describe('FeedbackListPage', () => {
 
         const rows = wrapper.findAll('tbody tr');
         expect(rows).toHaveLength(2);
-        expect(rows[0].text()).toContain('2026-07-14 09:32');
+        expect(rows[0].text()).toContain('14.07.2026 09:32');
         expect(rows[0].text()).toContain('jane@example.com');
     });
 

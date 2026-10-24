@@ -12,6 +12,13 @@ runtime support.
 
 ### Changed
 
+- **Shared about timezone (v1.0.38 inertia):** `InertiaSharedProps` gained a
+  required `about_timezone` string — the owner's IANA zone from the about
+  section, resolved and validated server-side with a `UTC` fallback. Public
+  publication dates and the public blog's `years` prop / `?year=` filter are
+  bucketed in that zone; the admin list's year filter stays UTC.
+  `info.version` bumped to `1.0.38` in `inertia.yaml`.
+
 - **Experience rich descriptions and external project URL (v1.0.37 inertia):**
   `TimelineItemCardData.short_description` and `achievements[].description`
   now carry rendered safe HTML from the shared Markdown pipeline (the

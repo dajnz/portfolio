@@ -4,6 +4,7 @@ components:
       type: object
       required:
         - locale
+        - about_timezone
         - theme
         - auth
         - ziggy
@@ -20,6 +21,13 @@ components:
           type: string
           enum: [en, ru]
           description: Current locale from SetLocaleMiddleware.
+        about_timezone:
+          type: string
+          description: |
+            The owner's IANA timezone from the about section — the display
+            zone for public publication dates and the public blog's
+            calendar-year buckets. Resolved and validated server-side, with
+            a `UTC` fallback when the about row has no timezone.
         supported_locales:
           type: array
           items:

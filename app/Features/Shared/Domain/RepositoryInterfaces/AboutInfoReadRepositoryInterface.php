@@ -28,4 +28,10 @@ interface AboutInfoReadRepositoryInterface
      * BlogPosting `publisher.logo`), or `null` when no photo is set.
      */
     public function findSitePhotoPath(): ?string;
+
+    /**
+     * The owner's IANA timezone — the public display zone for
+     * publication dates, or `null` when no about row exists.
+     */
+    public function findSiteTimezone(): ?string;
 }
