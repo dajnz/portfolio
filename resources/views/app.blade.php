@@ -121,7 +121,8 @@
     @endforeach
     @inertiaHead
     @fonts
-    @vite(['resources/js/app.ts', 'resources/css/app.css'])
+    @php($jsEntry = request()->is('admin', 'admin/*') ? 'resources/js/admin.ts' : 'resources/js/app.ts')
+    @vite([$jsEntry, 'resources/css/app.css'])
 </head>
 <body>
     @inertia

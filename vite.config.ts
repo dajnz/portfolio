@@ -15,7 +15,7 @@ const featureAlias = (path: string) =>
 export default defineConfig(({ isSsrBuild }) => ({
     plugins: [
         laravel({
-            input: ['resources/css/app.css', 'resources/js/app.ts'],
+            input: ['resources/css/app.css', 'resources/js/app.ts', 'resources/js/admin.ts'],
             ssr: 'resources/js/ssr.ts',
             refresh: true,
             fonts: [
