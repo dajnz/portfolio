@@ -117,7 +117,10 @@ jobs:
           REDIS_PORT=6379
           EOF
       - run: php artisan migrate --env=testing
-      - run: php artisan test --env=testing --parallel --recreate-databases --coverage --min=80
+      # No --env=testing on the test command: it loads .env into the parent
+      # process, so phpunit.xml's <env> overrides (CSRF, mail, session) do
+      # not apply and the suite runs with the wrong environment.
+      - run: php artisan test --parallel --recreate-databases --processes=4 --coverage --min=80
 
   test-frontend:
     runs-on: ubuntu-latest
@@ -217,10 +220,23 @@ jobs:
       - run: php artisan migrate --env=testing
       # Create both RustFS buckets (portfolio + backups) — the e2e suite
       # exercises backup creation/restore, which needs the backups bucket.
-      - run: |
-          docker run --rm --network host quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z alias set local http://localhost:9000 rustfsadmin rustfsadmin \
-            && docker run --rm --network host quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z mb --ignore-existing local/portfolio \
-            && docker run --rm --network host quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z mb --ignore-existing local/backups
+      # aws-cli replaces the unavailable minio/mc image.
+      - name: Create RustFS buckets
+        run: |
+          aws() {
+            docker run --rm --network host \
+              -e AWS_ACCESS_KEY_ID=rustfsadmin \
+              -e AWS_SECRET_ACCESS_KEY=rustfsadmin \
+              -e AWS_DEFAULT_REGION=us-east-1 \
+              -e AWS_EC2_METADATA_DISABLED=true \
+              amazon/aws-cli:latest \
+              --endpoint-url http://localhost:9000 "$@"
+          }
+
+          for bucket in portfolio backups; do
+            aws s3api head-bucket --bucket "$bucket" >/dev/null 2>&1 \
+              || aws s3api create-bucket --bucket "$bucket"
+          done
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build -- --mode testing
       - run: pnpm run ssr:build -- --mode testing
