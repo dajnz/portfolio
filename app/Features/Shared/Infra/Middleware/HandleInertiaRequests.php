@@ -13,6 +13,7 @@ use App\Features\Settings\Domain\RepositoryInterfaces\FeatureFlagRepositoryInter
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\AboutInfoReadRepositoryInterface;
 use App\Features\Shared\Domain\RepositoryInterfaces\ContactReadRepositoryInterface;
+use App\Features\Shared\App\Services\PublicationTimeZoneResolver;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\Shared\Infra\Services\AppVersion;
 use Illuminate\Http\Request;
@@ -40,6 +41,7 @@ final class HandleInertiaRequests extends Middleware
         private readonly ContactReadRepositoryInterface $contacts,
         private readonly ActiveLocaleService $locales,
         private readonly AppVersion $appVersion,
+        private readonly PublicationTimeZoneResolver $publicationTimeZone,
     ) {
     }
 
@@ -50,6 +52,7 @@ final class HandleInertiaRequests extends Middleware
 
         return array_merge(parent::share($request), [
             'locale' => $locale,
+            'about_timezone' => $this->publicationTimeZone->resolve(),
             // Only active locales (the `supported_locales` setting) are shown
             // in the language selector and per-locale editing tabs; disabled
             // locales are neither editable nor deleted.

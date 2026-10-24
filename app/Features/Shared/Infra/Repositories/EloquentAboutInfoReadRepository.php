@@ -33,6 +33,13 @@ final class EloquentAboutInfoReadRepository implements AboutInfoReadRepositoryIn
         return $path === null ? null : (string) $path;
     }
 
+    public function findSiteTimezone(): ?string
+    {
+        $timeZone = DB::table('about_info')->where('id', 1)->value('timezone');
+
+        return $timeZone === null ? null : (string) $timeZone;
+    }
+
     private function aboutQuery(string $locale): Builder
     {
         return DB::table('about_info as a')
