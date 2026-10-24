@@ -15,9 +15,10 @@ use Illuminate\Support\Facades\Route;
  * `auth.session_version` + `admin`).
  */
 
-Route::get('/cv', [PublicResumeController::class, 'download']);
+Route::get('/cv', [PublicResumeController::class, 'download'])->middleware('throttle:resume');
 Route::get('/{locale}/cv', [PublicResumeController::class, 'download'])
-    ->whereIn('locale', Config::get('portfolio.supported_locales', ['en', 'ru']));
+    ->whereIn('locale', Config::get('portfolio.supported_locales', ['en', 'ru']))
+    ->middleware('throttle:resume');
 
 Route::middleware(['auth', 'auth.session_version', 'admin'])->group(function (): void {
     Route::get('/admin/resume', [ResumeController::class, 'edit']);

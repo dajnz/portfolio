@@ -844,6 +844,10 @@ class AppServiceProvider extends ServiceProvider
         // Event ingestion cap (60/min/IP).
         RateLimiter::for('analytics', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
 
+        // Public resume download cap (20/min/IP) — the PDF is streamed from
+        // RustFS, so an unthrottled endpoint amplifies bandwidth.
+        RateLimiter::for('resume', fn (Request $request) => Limit::perMinute(20)->by($request->ip()));
+
         // Repopulates `session_version` after
         // remember-me (recaller cookie) re-authentication.
         Event::listen(Login::class, LoginListener::class);

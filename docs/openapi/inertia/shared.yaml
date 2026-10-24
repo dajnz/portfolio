@@ -7,7 +7,6 @@ components:
         - about_timezone
         - theme
         - auth
-        - ziggy
         - flash
         - notification
         - errors
@@ -15,7 +14,6 @@ components:
         - featureFlags
         - settings
         - copyright
-        - version
       properties:
         locale:
           type: string
@@ -44,19 +42,6 @@ components:
             user:
               $ref: '#/components/schemas/AdminUser'
           description: Authenticated admin user, or null for public pages.
-        ziggy:
-          type: object
-          properties:
-            url:
-              type: string
-            port:
-              type: integer
-              nullable: true
-            defaults:
-              type: object
-            routes:
-              type: object
-          description: Ziggy route definitions for the route() helper in Vue.
         flash:
           type: object
           properties:
@@ -141,6 +126,7 @@ components:
             tag when the release ref is tagged, otherwise the short commit SHA.
             Baked into the image at build time in production, read from the
             repository's git state in development; `dev` when neither applies.
+            Shared only on authenticated admin responses; absent on public pages.
         settings:
           type: object
           properties:

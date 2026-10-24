@@ -11,15 +11,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * `csp` middleware alias — generates the per-request CSP nonce and appends
- * the Content-Security-Policy header. Skipped on `/api/*` (no HTML responses)
- * and when APP_ENV=local. The nonce is stored in a `CspNonce` singleton so the
- * root Blade layout and Inertia shared props can inject it into inline scripts.
+ * the Content-Security-Policy header. Registered globally so unmatched routes
+ * (the 404/403 error pages) carry the policy too. Skipped on `/api/*` (no HTML
+ * responses), the bare health routes (ADR-0015) and when APP_ENV=local. The
+ * nonce is stored in a `CspNonce` singleton so the root Blade layout and
+ * Inertia shared props can inject it into inline scripts.
  */
 final class CspNonceMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->is('api/*') || App::environment('local')) {
+        if ($request->is('api/*', 'up', 'up/*') || App::environment('local')) {
             return $next($request);
         }
 
@@ -42,6 +44,7 @@ final class CspNonceMiddleware
             "img-src 'self' data:",
             "font-src 'self'",
             "connect-src 'self'",
+            "object-src 'none'",
             "frame-ancestors 'none'",
             "form-action 'self'",
             "base-uri 'self'",
