@@ -120,6 +120,9 @@ class TocIntersectionObserverMock {
     static instances: TocIntersectionObserverMock[] = [];
     static init: IntersectionObserverInit[] = [];
 
+    readonly observed: Element[] = [];
+    disconnected = false;
+
     private readonly callback: IntersectionObserverCallback;
 
     constructor(callback: IntersectionObserverCallback, init?: IntersectionObserverInit) {
@@ -128,9 +131,15 @@ class TocIntersectionObserverMock {
         TocIntersectionObserverMock.init.push(init ?? {});
     }
 
-    observe(): void {}
+    observe(target: Element): void {
+        this.observed.push(target);
+    }
+
     unobserve(): void {}
-    disconnect(): void {}
+
+    disconnect(): void {
+        this.disconnected = true;
+    }
 
     intersect(target: Element, isIntersecting: boolean): void {
         this.callback(
@@ -294,6 +303,41 @@ describe('BlogArticlePage', () => {
         tocObserver.intersect(second, false);
         await flush();
         expect(tocLinkClasses(toc, first.id)).toContain('is-active');
+    });
+
+    it('re-observes the headings and keeps the active section across a locale switch', async () => {
+        const { wrapper, tocObserver } = await mountWithTocObserver();
+        const toc = wrapper.get('[data-testid="blog-article-page-toc"]');
+        const [first] = tocHeadings();
+
+        tocObserver.intersect(first, true);
+        await flush();
+        expect(tocLinkClasses(toc, first.id)).toContain('is-active');
+
+        await wrapper.setProps({
+            article: {
+                ...ARTICLE,
+                content_html: `
+                    <h2 id="vvedenie">Введение</h2>
+                    <p>Почему композаблы важны.</p>
+                    <h3 id="nastroyka">Настройка</h3>
+                    <p>Как написать.</p>
+                    <h4 id="glubzhe">Глубже</h4>
+                    <h2 id="zaklyuchenie">Заключение</h2>`,
+            },
+        });
+        await flush();
+
+        expect(tocObserver.disconnected).toBe(true);
+        const nextObserver = TocIntersectionObserverMock.instances[1];
+        expect(nextObserver).toBeDefined();
+        expect(nextObserver?.observed.map((element) => element.id)).toEqual([
+            'vvedenie',
+            'nastroyka',
+            'zaklyuchenie',
+        ]);
+        expect(tocLinkClasses(toc, 'vvedenie')).toContain('is-active');
+        expect(tocLinkClasses(toc, 'nastroyka')).not.toContain('is-active');
     });
 
     it('mounts the CodeBlock over the data-code-block marker with the copy button', async () => {

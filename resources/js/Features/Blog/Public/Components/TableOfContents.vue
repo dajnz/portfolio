@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import PublicBaseButton from '@shared-public/PublicBaseButton.vue';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import type { ArticleHeading } from '../Composables/useBlogArticlePage';
 
@@ -117,6 +117,23 @@ onMounted(() => {
     observe();
 });
 onBeforeUnmount(cleanup);
+
+// A locale switch keeps this component mounted but swaps the article
+// body's heading elements (their ids are re-slugified per language), so
+// the observer must be rebuilt over the new elements. The active heading
+// is carried over by its position — the translated article keeps the
+// same heading structure.
+watch(
+    () => props.headings,
+    (next, previous) => {
+        const activeIndex = previous.findIndex((heading) => heading.id === activeId.value);
+
+        cleanup();
+        activeId.value = activeIndex === -1 ? '' : (next[activeIndex]?.id ?? '');
+        observe();
+    },
+    { flush: 'post' },
+);
 </script>
 
 <template>
