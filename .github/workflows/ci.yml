@@ -360,6 +360,7 @@ jobs:
           # Full history: the diff base is the last commit that touched the
           # manifest, and the push guard compares HEAD with origin/main.
           fetch-depth: 0
+          token: ${{ secrets.MANIFEST_PUSH_TOKEN }}
       - uses: mikefarah/yq@v4.45.1
 
       - name: Determine changed services
