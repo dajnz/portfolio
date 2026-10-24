@@ -14,6 +14,7 @@ import {
     type CursorNavigationPayload,
     cursorNavigationParams,
 } from '@shared-cross/Utils/cursorNavigationParams';
+import { formatShortDateTime } from '@shared-cross/Utils/dateTime';
 import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
 import { computed, ref } from 'vue';
 
@@ -72,10 +73,6 @@ const columns = computed(() => [
 
 function excerptOf(message: string): string {
     return message.length > EXCERPT_LENGTH ? `${message.slice(0, EXCERPT_LENGTH)}…` : message;
-}
-
-function formatDate(value: string): string {
-    return value.replace('T', ' ').slice(0, 16);
 }
 
 function openRow(row: Record<string, unknown>): void {
@@ -159,7 +156,7 @@ function navigate(payload: CursorNavigationPayload): void {
             class="font-mono text-xs"
             :class="row.is_read === false ? 'font-semibold text-slate-700 dark:text-slate-200' : 'text-slate-500 dark:text-slate-400'"
           >
-            {{ formatDate(String(row.created_at ?? '')) }}
+            {{ formatShortDateTime(String(row.created_at ?? '')) }}
           </span>
         </template>
         <template #cell-sender_email="{ row }">

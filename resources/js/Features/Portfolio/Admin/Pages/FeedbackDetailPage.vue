@@ -9,6 +9,7 @@ import { useAutoMarkRead } from '@shared-cross/Composables/useAutoMarkRead';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
 import { useToast } from '@shared-cross/Composables/useToast';
+import { formatShortDateTime } from '@shared-cross/Utils/dateTime';
 import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
 import { computed, ref } from 'vue';
 
@@ -65,10 +66,6 @@ function senderInitials(): string {
         .slice(0, 2)
         .map((part) => part.charAt(0).toUpperCase())
         .join('');
-}
-
-function formatDate(value: string): string {
-    return value.replace('T', ' ').slice(0, 16);
 }
 
 function forward(): void {
@@ -160,7 +157,7 @@ function confirmDelete(): void {
           v-if="item"
           class="font-mono text-xs text-slate-400 dark:text-slate-500"
         >
-          {{ formatDate(item.created_at) }}
+          {{ formatShortDateTime(item.created_at) }}
         </span>
         <div class="flex gap-1">
           <AdminBaseBadge
