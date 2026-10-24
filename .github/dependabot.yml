@@ -5,8 +5,9 @@ updates:
     schedule:
       interval: weekly
     groups:
-      github-actions:
+      actions-minor-patch:
         patterns: ['*']
+        update-types: [minor, patch]
     open-pull-requests-limit: 5
 
   - package-ecosystem: composer
@@ -14,8 +15,12 @@ updates:
     schedule:
       interval: weekly
     groups:
-      composer:
-        patterns: ['*']
+      composer-production-minor-patch:
+        dependency-type: production
+        update-types: [minor, patch]
+      composer-development-minor-patch:
+        dependency-type: development
+        update-types: [minor, patch]
     open-pull-requests-limit: 5
 
   - package-ecosystem: npm
@@ -23,6 +28,65 @@ updates:
     schedule:
       interval: weekly
     groups:
-      npm:
-        patterns: ['*']
+      # Specific groups first: the first matching group wins.
+      # Major updates are not listed, so they arrive as individual PRs.
+      tiptap-minor-patch:
+        patterns: ['@tiptap/*']
+        update-types: [minor, patch]
+
+      inertia-minor-patch:
+        patterns: ['@inertiajs/*']
+        update-types: [minor, patch]
+
+      iconify-minor-patch:
+        patterns: ['@iconify/*', '@iconify-json/*']
+        update-types: [minor, patch]
+
+      testing-minor-patch:
+        patterns:
+          - vitest
+          - '@vitest/*'
+          - '@playwright/test'
+          - '@vue/test-utils'
+          - happy-dom
+          - axe-core
+          - axe-playwright
+        update-types: [minor, patch]
+
+      build-minor-patch:
+        patterns:
+          - vite
+          - '@vitejs/*'
+          - laravel-vite-plugin
+          - typescript
+          - vue-tsc
+          - vue-component-type-helpers
+          - tailwindcss
+          - '@tailwindcss/*'
+          - '@types/node'
+          - '@types/*'
+        update-types: [minor, patch]
+
+      lint-minor-patch:
+        patterns:
+          - '@biomejs/*'
+          - eslint
+          - 'eslint-*'
+          - '@typescript-eslint/*'
+          - stylelint
+          - 'stylelint-*'
+          - html-validate
+          - postcss-html
+          - '@commitlint/*'
+        update-types: [minor, patch]
+
+      # Catch-all for remaining minor/patch updates.
+      npm-production-minor-patch:
+        dependency-type: production
+        update-types: [minor, patch]
+
+      npm-development-minor-patch:
+        dependency-type: development
+        update-types: [minor, patch]
+
     open-pull-requests-limit: 5
