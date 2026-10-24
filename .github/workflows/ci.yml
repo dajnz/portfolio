@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,7 +17,7 @@ jobs:
         with:
           # Full history so commitlint can lint every commit of a PR.
           fetch-depth: 0
-      - uses: shivammathur/setup-php@v3
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
       - uses: pnpm/setup@v2
@@ -72,7 +73,7 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v3
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           coverage: pcov
@@ -110,11 +111,10 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec vitest run --coverage
 
-  # Non-blocking per assumption ADR-0029 (flipped to blocking in step 13.2) —
-  # depends on steps 3.1/3.6 (SSR build + Playwright harness).
+  # End-to-end suite. It runs the real app and Inertia SSR process against an
+  # isolated database and RustFS service (see the step comments below).
   test-e2e:
     runs-on: ubuntu-latest
-    # The e2e suite is stable and blocking since step 13.2 (closes ADR-0029).
     services:
       postgres:
         image: postgres:18-alpine
@@ -199,16 +199,13 @@ jobs:
           pnpm exec wait-on tcp:127.0.0.1:8000 && pnpm exec wait-on http://127.0.0.1:8000
           PLAYWRIGHT_BASE_URL=http://127.0.0.1:8000 pnpm exec playwright test
 
-  # Performance-budget + Core Web Vitals spot check (plan step 13.3,
-  # architecture.md "Performance Budget"): Lighthouse collects the six
-  # canonical public routes against the seeded demo content and asserts
-  # the per-page gzipped-JS budgets from devops/lighthouse-config/budgets.json.
-  # Budget assertions run at WARN severity AND the job is
-  # continue-on-error — non-blocking by design (architecture.md:1262-1263);
-  # flip both when the budgets are consistently met. Same env caveat as
-  # the local `make lighthouse` target: `php artisan serve` sends no gzip,
-  # so collected script sizes exceed the (gzipped) caps — the production
-  # nginx stack gzips (see devops/lighthouse-config/README.md).
+  # Performance-budget + Core Web Vitals spot check: Lighthouse collects the six
+  # canonical public routes against the seeded demo content and asserts the
+  # per-page gzipped-JS budgets from devops/lighthouse-config/budgets.json.
+  # Budget assertions run at WARN severity and the job is continue-on-error,
+  # so it is non-blocking by design. `php artisan serve` sends no gzip, so the
+  # collected script sizes exceed the (gzipped) caps — the production nginx
+  # stack gzips (see devops/lighthouse-config/README.md).
   lighthouse:
     runs-on: ubuntu-latest
     continue-on-error: true
@@ -269,19 +266,28 @@ jobs:
           pnpm exec wait-on tcp:127.0.0.1:8000 && pnpm exec wait-on http://127.0.0.1:8000
           LH_URLS="http://127.0.0.1:8000/,http://127.0.0.1:8000/blog,http://127.0.0.1:8000/blog/understanding-laravel-queues,http://127.0.0.1:8000/projects,http://127.0.0.1:8000/projects/portfolio-platform,http://127.0.0.1:8000/experience" pnpm exec lhci autorun --config=devops/lighthouse-config/lighthouserc.cjs
 
-  # Only on push to main: detect changed service sources, update image tags in
-  # devops/deploy/manifest.yml, and commit the manifest back (see devops.md
-  # "Manifest Update Job"). The auto-commit carries [skip ci] so it never
-  # re-triggers the workflow.
+  # On push to main (or a manual dispatch), detect changed service sources,
+  # update the image tags in devops/deploy/manifest.yml and commit the manifest
+  # back. The job pushes to main, so "GitHub Actions" must be on the main
+  # ruleset's bypass list. The bot commit carries [skip ci] and does not
+  # re-trigger the workflow.
   update-manifest:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [lint, typecheck, test-backend, test-frontend]
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    concurrency:
+      group: update-manifest
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          # Full history: the diff base is the last commit that touched the
+          # manifest, and the push guard compares HEAD with origin/main.
+          fetch-depth: 0
       - uses: mikefarah/yq@v4.45.1
 
       - name: Determine changed services
@@ -289,18 +295,26 @@ jobs:
         run: |
           SHORT_SHA=$(git rev-parse --short HEAD)
 
+          # Diff against the last commit that touched the manifest, not HEAD^:
+          # changes from a run superseded by a newer push then still land in the
+          # next run instead of being lost.
+          BASE="$(git rev-list -1 HEAD^ -- devops/deploy/manifest.yml 2>/dev/null || true)"
+          if [ -z "$BASE" ]; then
+            BASE="$(git hash-object -t tree /dev/null)"
+          fi
+
           changed() {
-            git diff --name-only HEAD^ HEAD | grep -qE "$1" && echo "true" || echo "false"
+            git diff --name-only "$BASE" HEAD | grep -qE "$1" && echo "true" || echo "false"
           }
 
           BACKEND_CHANGED=$(changed '^(app/|config/|database/|routes/|bootstrap/|composer\.(json|lock)|devops/docker/php/|resources/views/)')
           NODE_CHANGED=$(changed '^(resources/js/|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|vite\.config\.ts)')
           NGINX_CHANGED=$(changed '^devops/docker/nginx/')
 
-          echo "backend_changed=$BACKEND_CHANGED" >> $GITHUB_OUTPUT
-          echo "node_changed=$NODE_CHANGED" >> $GITHUB_OUTPUT
-          echo "nginx_changed=$NGINX_CHANGED" >> $GITHUB_OUTPUT
-          echo "sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "backend_changed=$BACKEND_CHANGED" >> "$GITHUB_OUTPUT"
+          echo "node_changed=$NODE_CHANGED" >> "$GITHUB_OUTPUT"
+          echo "nginx_changed=$NGINX_CHANGED" >> "$GITHUB_OUTPUT"
+          echo "sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Update manifest
         run: |
@@ -329,5 +343,31 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add devops/deploy/manifest.yml
-          git diff --staged --quiet || git commit -m "chore(deploy): update image manifest [skip ci]"
-          git push
+
+          if git diff --staged --quiet; then
+            echo "Manifest is unchanged."
+            exit 0
+          fi
+
+          git fetch origin
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+            echo "A newer commit is on main; deferring to its run."
+            exit 0
+          fi
+
+          git commit -m "chore(deploy): update image manifest [skip ci]"
+
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            git fetch origin
+            if [ "$(git rev-parse origin/main)" != "$(git rev-parse HEAD^)" ]; then
+              echo "A newer commit is on main; deferring to its run."
+              exit 0
+            fi
+            sleep 3
+          done
+
+          echo "Failed to push the manifest after 3 attempts." >&2
+          exit 1

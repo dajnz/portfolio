@@ -1,5 +1,4 @@
 AGENTS.md
-docs/adr
 docs/detailed-spec
 docs/mockups
 docs/plans
@@ -9,13 +8,11 @@ docs/spot-checks
 *.log
 .DS_Store
 .env
-.env.backup
-.env.production
-# Production secrets (secrets-management.md): the plaintext work file and the
-# age-encrypted transfer artifact are local-only. The age PRIVATE key is also
-# ignored as a safety net — only devops/secrets/age.pub is committed.
-.env.prod.local
-.env.prod.age
+.env.*
+!.env.example
+# Production secrets: the plaintext work file and the age-encrypted transfer
+# artifact are local-only. The age PRIVATE key is also ignored as a safety
+# net — only devops/secrets/age.pub is committed.
 devops/secrets/age-identity.txt
 .phpactor.json
 .phpunit.result.cache
