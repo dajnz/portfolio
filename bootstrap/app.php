@@ -49,6 +49,11 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // The CSP runs globally: unmatched URIs (the 404/403 error views) do
+        // not enter the `web` group, so the policy must be applied before
+        // routing.
+        $middleware->prepend(CspNonceMiddleware::class);
+
         // Middleware group composition. `log_context`
         // and `trailing_slash` are prepended so the request is captured
         // (and the 301 emitted) before any state-setting middleware runs;
@@ -60,7 +65,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 TrailingSlashRedirectMiddleware::class,
             ],
             append: [
-                CspNonceMiddleware::class,
                 CheckMaintenanceModeMiddleware::class,
                 SetLocaleMiddleware::class,
                 SetLocaleFromPathMiddleware::class,
