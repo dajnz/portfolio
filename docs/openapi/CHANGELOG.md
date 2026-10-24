@@ -12,6 +12,13 @@ runtime support.
 
 ### Changed
 
+- **Public shared props no longer expose the route table or the app version
+  (v1.0.39 inertia):** `InertiaSharedProps` dropped `ziggy` (unused by the
+  Vue frontend) and `version` is now shared only on authenticated admin
+  responses — public pages no longer enumerate Horizon/storage/admin routes
+  or the deployed commit SHA. `info.version` bumped to `1.0.39` in
+  `inertia.yaml`.
+
 - **Shared about timezone (v1.0.38 inertia):** `InertiaSharedProps` gained a
   required `about_timezone` string — the owner's IANA zone from the about
   section, resolved and validated server-side with a `UTC` fallback. Public

@@ -891,13 +891,6 @@ export interface components {
             auth: {
                 user?: components["schemas"]["AdminUser"];
             };
-            /** @description Ziggy route definitions for the route() helper in Vue. */
-            ziggy: {
-                url?: string;
-                port?: number | null;
-                defaults?: Record<string, never>;
-                routes?: Record<string, never>;
-            };
             /** @description Session flash messages. */
             flash: {
                 /** @description Success flash message. */
@@ -955,8 +948,9 @@ export interface components {
              *     tag when the release ref is tagged, otherwise the short commit SHA.
              *     Baked into the image at build time in production, read from the
              *     repository's git state in development; `dev` when neither applies.
+             *     Shared only on authenticated admin responses; absent on public pages.
              */
-            version: string;
+            version?: string;
             /** @description Public settings from SettingsService. */
             settings: {
                 locale?: string;

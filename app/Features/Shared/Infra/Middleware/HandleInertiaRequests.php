@@ -23,7 +23,6 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Lang;
 use Inertia\Middleware;
 use Throwable;
-use Tighten\Ziggy\Ziggy;
 
 /**
  * Inertia shared props. Runs after the `locale` / `locale.path` / `theme`
@@ -50,7 +49,7 @@ final class HandleInertiaRequests extends Middleware
         $locale = App::getLocale();
         $ownerName = $this->aboutInfo->findSiteName($locale);
 
-        return array_merge(parent::share($request), [
+        $shared = array_merge(parent::share($request), [
             'locale' => $locale,
             'about_timezone' => $this->publicationTimeZone->resolve(),
             // Only active locales (the `supported_locales` setting) are shown
@@ -61,7 +60,6 @@ final class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $this->adminUser(),
             ],
-            'ziggy' => fn (): array => (new Ziggy())->toArray(),
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
@@ -72,7 +70,6 @@ final class HandleInertiaRequests extends Middleware
             'copyright' => [
                 'owner_name' => $ownerName,
             ],
-            'version' => $this->appVersion->value(),
             'console_greeting' => $this->consoleGreeting($locale, $ownerName),
             'settings' => [
                 'locale' => $request->attributes->get('locale', App::getLocale()),
@@ -81,6 +78,12 @@ final class HandleInertiaRequests extends Middleware
             ],
             'request_id' => $request->attributes->get('request_id'),
         ]);
+
+        if (Auth::check()) {
+            $shared['version'] = $this->appVersion->value();
+        }
+
+        return $shared;
     }
 
     private function adminUser(): ?array

@@ -30,7 +30,8 @@ describe('SharedProps', function (): void {
                 ->where('settings.theme', 'light')
                 ->where('settings.items_per_page', 12)
                 ->where('request_id', fn (string $id) => (bool) preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $id))
-                ->has('ziggy.routes'));
+                ->missing('ziggy')
+                ->missing('version'));
     });
 
     it('reflects the locale and theme cookies in the props and headers', function (): void {
@@ -61,7 +62,8 @@ describe('SharedProps', function (): void {
                 ->where('auth.user.login', $admin->login)
                 ->where('auth.user.github_linked', false)
                 ->where('auth.user.totp_enabled', false)
-                ->where('auth.user.is_oauth_primary', false));
+                ->where('auth.user.is_oauth_primary', false)
+                ->where('version', '0.0.0-test'));
     });
 
     it('surfaces the session flash success and notification', function (): void {
