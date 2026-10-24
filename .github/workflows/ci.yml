@@ -13,19 +13,19 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Full history so commitlint can lint every commit of a PR.
           fetch-depth: 0
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
-      - uses: pnpm/setup@v2
+      - uses: pnpm/setup@v3
         with:
           runtime: node@24
           cache: true
           install: false
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.composer/cache
           key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
@@ -53,8 +53,8 @@ jobs:
   typecheck:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/setup@v2
+      - uses: actions/checkout@v7
+      - uses: pnpm/setup@v3
         with:
           runtime: node@24
           cache: true
@@ -89,13 +89,13 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           coverage: pcov
           extensions: pdo_pgsql, pgsql, mbstring, xml, zip, bcmath, intl, gd, exif, pcntl, redis
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.composer/cache
           key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
@@ -125,8 +125,8 @@ jobs:
   test-frontend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/setup@v2
+      - uses: actions/checkout@v7
+      - uses: pnpm/setup@v3
         with:
           runtime: node@24
           cache: true
@@ -176,17 +176,17 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           extensions: pdo_pgsql, pgsql, mbstring, xml, zip, bcmath, intl, gd, exif, pcntl, redis
-      - uses: pnpm/setup@v2
+      - uses: pnpm/setup@v3
         with:
           runtime: node@24
           cache: true
           install: false
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.composer/cache
           key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
@@ -288,17 +288,17 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.5'
           extensions: pdo_pgsql, pgsql, mbstring, xml, zip, bcmath, intl, gd, exif, pcntl, redis
-      - uses: pnpm/setup@v2
+      - uses: pnpm/setup@v3
         with:
           runtime: node@24
           cache: true
           install: false
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.composer/cache
           key: composer-${{ runner.os }}-${{ hashFiles('composer.lock') }}
@@ -355,13 +355,13 @@ jobs:
       group: update-manifest
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Full history: the diff base is the last commit that touched the
           # manifest, and the push guard compares HEAD with origin/main.
           fetch-depth: 0
           token: ${{ secrets.MANIFEST_PUSH_TOKEN }}
-      - uses: mikefarah/yq@v4.45.1
+      - uses: mikefarah/yq@v4.54.1
 
       - name: Determine changed services
         id: changes
