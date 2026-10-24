@@ -1,6 +1,5 @@
 # Image tag manifest — single source of truth for which image tag each
-# swarm service runs (devops.md "Image Manifest"). Tag values are short
-# (7-character) git commit SHAs.
+# swarm service runs. Tag values are short (7-character) git commit SHAs.
 #
 # Rules:
 #   - app, queue and scheduler always share the same tag (same Dockerfile).
@@ -9,9 +8,12 @@
 #   - Updated automatically by the CI update-manifest job on every push to
 #     main; the Ansible deployment playbook reads it from the deployed
 #     GIT_REF. Never deploy from CI — deployment is manual via `make deploy`.
+#   - The job pushes to main, so "GitHub Actions" must be on the main
+#     ruleset's bypass list. Deploy from `main` (or tag after the manifest
+#     commit) so the cloned release contains the updated tags.
 services:
-  app: 31482a3
-  queue: 31482a3
-  scheduler: 31482a3
-  node: 31482a3
-  nginx: 31482a3
+  app: 3c98bea
+  queue: 3c98bea
+  scheduler: 3c98bea
+  node: 3c98bea
+  nginx: 3c98bea
