@@ -41,7 +41,8 @@ jobs:
       - name: Lint commit messages (commitlint)
         run: |
           BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
-          if git rev-parse --verify "$BASE" >/dev/null 2>&1; then
+          if [ -n "$BASE" ] && ! printf '%s' "$BASE" | grep -qE '^0+$' \
+            && git rev-parse --verify "${BASE}^{commit}" >/dev/null 2>&1; then
             pnpm exec commitlint --from "$BASE" --to HEAD
           fi
 
@@ -66,8 +67,19 @@ jobs:
           POSTGRES_DB: portfolio_test
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U test -d portfolio_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -77,6 +89,7 @@ jobs:
         with:
           php-version: '8.5'
           coverage: pcov
+          extensions: pdo_pgsql, pgsql, mbstring, xml, zip, bcmath, intl, gd, exif, pcntl, redis
       - uses: actions/cache@v4
         with:
           path: ~/.composer/cache
@@ -95,6 +108,8 @@ jobs:
           CACHE_STORE=array
           SESSION_DRIVER=array
           QUEUE_CONNECTION=sync
+          REDIS_HOST=127.0.0.1
+          REDIS_PORT=6379
           EOF
       - run: php artisan migrate --env=testing
       - run: php artisan test --env=testing --parallel --recreate-databases --coverage --min=80
@@ -110,6 +125,8 @@ jobs:
           install: false
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec vitest run --coverage
+        env:
+          LARAVEL_BYPASS_ENV_CHECK: '1'
 
   # End-to-end suite. It runs the real app and Inertia SSR process against an
   # isolated database and RustFS service (see the step comments below).
@@ -122,8 +139,19 @@ jobs:
           POSTGRES_DB: portfolio_test
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U test -d portfolio_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -141,6 +169,10 @@ jobs:
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: pdo_pgsql, pgsql, mbstring, xml, zip, bcmath, intl, gd, exif, pcntl, redis
       - uses: pnpm/setup@v2
         with:
           runtime: node@24
@@ -165,6 +197,8 @@ jobs:
           CACHE_STORE=array
           SESSION_DRIVER=file
           QUEUE_CONNECTION=sync
+          REDIS_HOST=127.0.0.1
+          REDIS_PORT=6379
           MAIL_MAILER=log
           RUSTFS_ENDPOINT=http://localhost:9000
           RUSTFS_BUCKET=portfolio
@@ -216,13 +250,28 @@ jobs:
           POSTGRES_DB: portfolio_test
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U test -d portfolio_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
     steps:
       - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: pdo_pgsql, pgsql, mbstring, xml, zip, bcmath, intl, gd, exif, pcntl, redis
       - uses: pnpm/setup@v2
         with:
           runtime: node@24
@@ -247,6 +296,8 @@ jobs:
           CACHE_STORE=array
           SESSION_DRIVER=file
           QUEUE_CONNECTION=sync
+          REDIS_HOST=127.0.0.1
+          REDIS_PORT=6379
           MAIL_MAILER=log
           EOF
       - run: php artisan migrate --env=testing
