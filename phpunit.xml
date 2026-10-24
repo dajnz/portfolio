@@ -38,6 +38,6 @@
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <!-- Null log channel: tests must only print framework/test output —
              no `testing.INFO/WARNING/ERROR` lines (error-handling.md). -->
-        <env name="LOG_CHANNEL" value="null"/>
+        <env name="LOG_CHANNEL" value="&quot;null&quot;"/>
     </php>
 </phpunit>
