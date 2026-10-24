@@ -40,8 +40,7 @@
         "lowlight": "^3.3.0",
         "pinia": "^4.0.2",
         "shiki": "^4.4.1",
-        "vue": "^3.5.40",
-        "ziggy-js": "^2.6.3"
+        "vue": "^3.5.40"
     },
     "devDependencies": {
         "@biomejs/biome": "^2.5.6",
