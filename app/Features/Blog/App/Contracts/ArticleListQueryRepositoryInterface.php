@@ -158,6 +158,7 @@ interface ArticleListQueryRepositoryInterface
         array $skillTagIds,
         ?int $year,
         ?string $search,
+        ?string $timeZone = null,
     ): array;
 
     /**
@@ -178,6 +179,7 @@ interface ArticleListQueryRepositoryInterface
         array $skillTagIds,
         ?int $year,
         ?string $search,
+        ?string $timeZone = null,
     ): array;
 
     /**
@@ -187,7 +189,7 @@ interface ArticleListQueryRepositoryInterface
      *
      * @return int[]
      */
-    public function yearsOfPublishedArticles(): array;
+    public function yearsOfPublishedArticles(?string $timeZone = null): array;
 
     /**
      * The `article_views` counter of an article — 0 when no row exists

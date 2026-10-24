@@ -254,12 +254,13 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
         array $skillTagIds,
         ?int $year,
         ?string $search,
+        ?string $timeZone = null,
     ): array {
         $query = $this->publicRowsQuery($locale)
             ->where('a.is_published', true)
             ->when($articleTagIds !== [], fn (QueryBuilder $q): QueryBuilder => $this->applyArticleTagIntersect($q, $articleTagIds))
             ->when($skillTagIds !== [], fn (QueryBuilder $q): QueryBuilder => $this->applySkillTagIntersect($q, $skillTagIds))
-            ->when($year !== null, fn (QueryBuilder $q): QueryBuilder => $q->whereRaw('extract(year from a.published_at) = ?', [$year]));
+            ->when($year !== null, fn (QueryBuilder $q): QueryBuilder => $this->applyPublicationYear($q, $year, $timeZone));
 
         $fts = is_string($search) && $search !== '' ? $this->applyFtsSearch($query, $locale, $search) : null;
 
@@ -283,12 +284,13 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
         array $skillTagIds,
         ?int $year,
         ?string $search,
+        ?string $timeZone = null,
     ): array {
         $query = $this->publicRowsQuery($locale)
             ->where('a.is_published', true)
             ->when($articleTagIds !== [], fn (QueryBuilder $q): QueryBuilder => $this->applyArticleTagIntersect($q, $articleTagIds))
             ->when($skillTagIds !== [], fn (QueryBuilder $q): QueryBuilder => $this->applySkillTagIntersect($q, $skillTagIds))
-            ->when($year !== null, fn (QueryBuilder $q): QueryBuilder => $q->whereRaw('extract(year from a.published_at) = ?', [$year]));
+            ->when($year !== null, fn (QueryBuilder $q): QueryBuilder => $this->applyPublicationYear($q, $year, $timeZone));
 
         $fts = null;
         if (is_string($search) && $search !== '') {
@@ -310,12 +312,15 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
         return ['rows' => $rows, 'total' => $total];
     }
 
-    public function yearsOfPublishedArticles(): array
+    public function yearsOfPublishedArticles(?string $timeZone = null): array
     {
         return DB::table('blog_articles')
             ->where('is_published', true)
             ->whereNull('deleted_at')
-            ->selectRaw('distinct extract(year from published_at) as year')
+            ->selectRaw(
+                'distinct extract(year from (published_at AT TIME ZONE \'UTC\' AT TIME ZONE ?)) as year',
+                [$timeZone ?? 'UTC'],
+            )
             ->orderByDesc('year')
             ->get()
             ->map(static fn (object $row): int => (int) $row->year)
@@ -570,6 +575,14 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
                 ->groupBy('article_id')
                 ->havingRaw('count(distinct skill_id) = ?', [count($skillIds)]);
         });
+    }
+
+    private function applyPublicationYear(QueryBuilder $query, int $year, ?string $timeZone): QueryBuilder
+    {
+        return $query->whereRaw(
+            'extract(year from (a.published_at AT TIME ZONE \'UTC\' AT TIME ZONE ?)) = ?',
+            [$timeZone ?? 'UTC', $year],
+        );
     }
 
     /**

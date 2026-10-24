@@ -13,6 +13,7 @@ use App\Features\Blog\App\Services\BlogSeoFactory;
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Shared\App\Services\PageSizeResolver;
 use App\Features\Shared\App\Services\PaginationBuilder;
+use App\Features\Shared\App\Services\PublicationTimeZoneResolver;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 
 /**
@@ -39,14 +40,16 @@ final class GetPublicBlogIndexUseCase
         private readonly PaginationBuilder $pagination,
         private readonly PageSizeResolver $pageSize,
         private readonly BlogSeoFactory $seo,
+        private readonly PublicationTimeZoneResolver $publicationTimeZone,
     ) {
     }
 
     public function get(PublicBlogListQuery $query): PublicBlogListDto
     {
         $searching = is_string($query->search) && $query->search !== '';
+        $timeZone = $this->publicationTimeZone->resolve();
 
-        $reconstructed = $this->reconstructView($query, $searching);
+        $reconstructed = $this->reconstructView($query, $searching, $timeZone);
 
         /** @var object[] $rows */
         $rows = $reconstructed['rows'];
@@ -55,7 +58,7 @@ final class GetPublicBlogIndexUseCase
             articles: $this->cards($rows),
             nextCursor: $this->nextCursorFor($rows, $reconstructed['last_batch_full'], $searching),
             tags: $this->tagOptions($this->repository->findAllTags($query->locale)),
-            years: $this->repository->yearsOfPublishedArticles(),
+            years: $this->repository->yearsOfPublishedArticles($timeZone),
             seo: $this->seo->forIndex($query->locale),
             hasProjects: $this->repository->hasPublishedProjects(),
         );
@@ -76,6 +79,7 @@ final class GetPublicBlogIndexUseCase
             skillTagIds: $query->skillTagIds,
             year: $query->year,
             search: $query->search,
+            timeZone: $this->publicationTimeZone->resolve(),
         );
 
         return new PaginatedPublicBlogListDto(
@@ -141,11 +145,11 @@ final class GetPublicBlogIndexUseCase
     /**
      * @return array{rows: array<int, object>, last_batch_full: bool}
      */
-    private function reconstructView(PublicBlogListQuery $query, bool $searching): array
+    private function reconstructView(PublicBlogListQuery $query, bool $searching, string $timeZone): array
     {
         $perPage = $this->resolvePerPage();
 
-        $items = $this->fetchPage($query, null, $perPage);
+        $items = $this->fetchPage($query, null, $perPage, $timeZone);
         $lastBatchFull = count($items) >= $perPage;
 
         if ($query->cursor !== null) {
@@ -155,6 +159,7 @@ final class GetPublicBlogIndexUseCase
                 $searching,
                 $query->cursor,
                 $perPage,
+                $timeZone,
             );
 
             if ($lastBatchFull) {
@@ -163,6 +168,7 @@ final class GetPublicBlogIndexUseCase
                     $query,
                     $query->cursor,
                     $perPage,
+                    $timeZone,
                 );
             }
         }
@@ -184,6 +190,7 @@ final class GetPublicBlogIndexUseCase
         bool $searching,
         PublicPageCursor $cursor,
         int $perPage,
+        string $timeZone,
     ): array {
         $lastBatchFull = count($rows) >= $perPage;
         $last = $rows[count($rows) - 1] ?? null;
@@ -196,6 +203,7 @@ final class GetPublicBlogIndexUseCase
                     sortValue: $this->sortValueOf($last, $searching),
                 ),
                 $perPage,
+                $timeZone,
             );
 
             if ($batch === []) {
@@ -227,8 +235,9 @@ final class GetPublicBlogIndexUseCase
         PublicBlogListQuery $query,
         PublicPageCursor $cursor,
         int $perPage,
+        string $timeZone,
     ): array {
-        $extra = $this->fetchPage($query, $cursor, $perPage);
+        $extra = $this->fetchPage($query, $cursor, $perPage, $timeZone);
 
         if ($extra === []) {
             return ['rows' => $rows, 'last_batch_full' => false];
@@ -243,8 +252,12 @@ final class GetPublicBlogIndexUseCase
     /**
      * @return object[]
      */
-    private function fetchPage(PublicBlogListQuery $query, ?PublicPageCursor $cursor, int $perPage): array
-    {
+    private function fetchPage(
+        PublicBlogListQuery $query,
+        ?PublicPageCursor $cursor,
+        int $perPage,
+        string $timeZone,
+    ): array {
         return $this->repository->findPublicPageRows(
             locale: $query->locale,
             perPage: $perPage,
@@ -253,6 +266,7 @@ final class GetPublicBlogIndexUseCase
             skillTagIds: $query->skillTagIds,
             year: $query->year,
             search: $query->search,
+            timeZone: $timeZone,
         );
     }
 

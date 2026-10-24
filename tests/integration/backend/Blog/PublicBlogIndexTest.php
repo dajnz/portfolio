@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\Blog;
 
+use App\Features\Portfolio\Infra\Models\AboutInfoModel;
 use App\Features\Settings\Infra\Models\SettingModel;
 use Database\Seeders\SettingsSeeder;
 use Illuminate\Support\Facades\Storage;
@@ -128,6 +129,21 @@ describe('public blog index', function (): void {
                 ->where('tags.0.id', $php->id)
                 ->where('tags.1.id', $vue->id)
                 ->where('years', [2026, 2025]));
+    });
+
+    it('buckets the publication year in the owner timezone', function (): void {
+        AboutInfoModel::factory()->create(['id' => 1, 'timezone' => 'Europe/Berlin']);
+        $this->publicBlogArticle(['published_at' => '2026-12-31 23:30:00']);
+
+        $this->get('/blog?year=2027')
+            ->assertInertia(fn (Assert $page) => $page->has('articles', 1));
+
+        $this->get('/blog')
+            ->assertInertia(fn (Assert $page) => $page->where('years', [2027]));
+
+        $this->getJson('/blog?year=2027')
+            ->assertOk()
+            ->assertJsonPath('meta.total', 1);
     });
 
     it('renders the SEO props of the index', function (): void {
