@@ -5,6 +5,11 @@ DE = $(DC) exec dev
 DC_LOCALHOST = $(DC) -f docker-compose.yml -f docker-compose.localhost.yml
 DE_LOCALHOST = $(DC_LOCALHOST) exec dev
 
+# The deploy/rollback targets prompt for the sudo password on the target host.
+# Set ASK_BECOME=0 when the target user has passwordless sudo.
+ASK_BECOME ?= 1
+BECOME_FLAGS = $(if $(filter 1,$(ASK_BECOME)),--ask-become-pass,)
+
 # Containers that write to the bind-mounted repo (dev/queue/scheduler/app)
 # run as the host user. Auto-detecting uid/gid (compose interpolates exported
 # vars over .env) makes the stack work on any host — a hardcoded uid 1000
