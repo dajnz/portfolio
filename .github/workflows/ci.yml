@@ -380,7 +380,7 @@ jobs:
             git diff --name-only "$BASE" HEAD | grep -qE "$1" && echo "true" || echo "false"
           }
 
-          BACKEND_CHANGED=$(changed '^(app/|config/|database/|routes/|bootstrap/|composer\.(json|lock)|devops/docker/php/|resources/views/)')
+          BACKEND_CHANGED=$(changed '^(app/|config/|database/|routes/|bootstrap/|composer\.(json|lock)|devops/docker/php/|lang/|resources/views/)')
           NODE_CHANGED=$(changed '^(resources/js/|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|vite\.config\.ts)')
           NGINX_CHANGED=$(changed '^devops/docker/nginx/')
 
@@ -408,6 +408,9 @@ jobs:
           if [ "${{ steps.changes.outputs.nginx_changed }}" = "true" ]; then
             yq -i ".services.nginx = \"$SHA\"" "$MANIFEST"
           fi
+
+          # Quote every tag so the file never mixes styles (yq must quote numeric-looking SHAs).
+          yq -i '.services[] style="double"' "$MANIFEST"
 
           cat "$MANIFEST"
 
