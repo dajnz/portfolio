@@ -4,8 +4,10 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    commit-message:
+      prefix: "chore(deps)"
     groups:
-      actions-minor-patch:
+      actions:
         patterns: ['*']
         update-types: [minor, patch]
     open-pull-requests-limit: 5
@@ -14,23 +16,29 @@ updates:
     directory: /devops/docker/php
     schedule:
       interval: weekly
+    commit-message:
+      prefix: "chore(deps)"
     open-pull-requests-limit: 5
 
   - package-ecosystem: docker
     directory: /devops/docker/dev
     schedule:
       interval: weekly
+    commit-message:
+      prefix: "chore(deps)"
     open-pull-requests-limit: 5
 
   - package-ecosystem: composer
     directory: /
     schedule:
       interval: weekly
+    commit-message:
+      prefix: "chore(deps)"
     groups:
-      composer-production-minor-patch:
+      composer-prod:
         dependency-type: production
         update-types: [minor, patch]
-      composer-development-minor-patch:
+      composer-dev:
         dependency-type: development
         update-types: [minor, patch]
     open-pull-requests-limit: 5
@@ -39,22 +47,24 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    commit-message:
+      prefix: "chore(deps)"
     groups:
       # Specific groups first: the first matching group wins.
       # Major updates are not listed, so they arrive as individual PRs.
-      tiptap-minor-patch:
+      tiptap:
         patterns: ['@tiptap/*']
         update-types: [minor, patch]
 
-      inertia-minor-patch:
+      inertia:
         patterns: ['@inertiajs/*']
         update-types: [minor, patch]
 
-      iconify-minor-patch:
+      iconify:
         patterns: ['@iconify/*', '@iconify-json/*']
         update-types: [minor, patch]
 
-      testing-minor-patch:
+      testing:
         patterns:
           - vitest
           - '@vitest/*'
@@ -65,7 +75,7 @@ updates:
           - axe-playwright
         update-types: [minor, patch]
 
-      build-minor-patch:
+      build:
         patterns:
           - vite
           - '@vitejs/*'
@@ -79,7 +89,7 @@ updates:
           - '@types/*'
         update-types: [minor, patch]
 
-      lint-minor-patch:
+      lint:
         patterns:
           - '@biomejs/*'
           - eslint
@@ -93,11 +103,11 @@ updates:
         update-types: [minor, patch]
 
       # Catch-all for remaining minor/patch updates.
-      npm-production-minor-patch:
+      npm-prod:
         dependency-type: production
         update-types: [minor, patch]
 
-      npm-development-minor-patch:
+      npm-dev:
         dependency-type: development
         update-types: [minor, patch]
 
