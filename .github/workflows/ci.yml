@@ -380,11 +380,16 @@ jobs:
             git diff --name-only "$BASE" HEAD | grep -qE "$1" && echo "true" || echo "false"
           }
 
+          # The client build output lands in both the PHP image (Vite manifest)
+          # and the nginx image (hashed files), so a frontend change rebuilds
+          # app/queue/scheduler and nginx as well as the SSR node image.
           BACKEND_CHANGED=$(changed '^(app/|config/|database/|routes/|bootstrap/|composer\.(json|lock)|devops/docker/php/|lang/|resources/views/)')
-          NODE_CHANGED=$(changed '^(resources/js/|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|vite\.config\.ts)')
+          FRONTEND_CHANGED=$(changed '^(resources/js/|resources/css/|resources/icons/|resources/images/|public/|package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|vite\.config\.ts|tailwind\.config\.js|devops/assets/|devops/docker/assets/)')
+          NODE_CHANGED=$(changed '^devops/docker/node/')
           NGINX_CHANGED=$(changed '^devops/docker/nginx/')
 
           echo "backend_changed=$BACKEND_CHANGED" >> "$GITHUB_OUTPUT"
+          echo "frontend_changed=$FRONTEND_CHANGED" >> "$GITHUB_OUTPUT"
           echo "node_changed=$NODE_CHANGED" >> "$GITHUB_OUTPUT"
           echo "nginx_changed=$NGINX_CHANGED" >> "$GITHUB_OUTPUT"
           echo "sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
@@ -397,15 +402,18 @@ jobs:
           mkdir -p devops/deploy
           [ -f "$MANIFEST" ] || echo "services: {}" > "$MANIFEST"
 
-          if [ "${{ steps.changes.outputs.backend_changed }}" = "true" ]; then
+          if [ "${{ steps.changes.outputs.backend_changed }}" = "true" ] \
+            || [ "${{ steps.changes.outputs.frontend_changed }}" = "true" ]; then
             yq -i ".services.app = \"$SHA\"" "$MANIFEST"
             yq -i ".services.queue = \"$SHA\"" "$MANIFEST"
             yq -i ".services.scheduler = \"$SHA\"" "$MANIFEST"
           fi
-          if [ "${{ steps.changes.outputs.node_changed }}" = "true" ]; then
+          if [ "${{ steps.changes.outputs.frontend_changed }}" = "true" ] \
+            || [ "${{ steps.changes.outputs.node_changed }}" = "true" ]; then
             yq -i ".services.node = \"$SHA\"" "$MANIFEST"
           fi
-          if [ "${{ steps.changes.outputs.nginx_changed }}" = "true" ]; then
+          if [ "${{ steps.changes.outputs.frontend_changed }}" = "true" ] \
+            || [ "${{ steps.changes.outputs.nginx_changed }}" = "true" ]; then
             yq -i ".services.nginx = \"$SHA\"" "$MANIFEST"
           fi
 
