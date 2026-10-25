@@ -3,6 +3,8 @@
 #
 # Waits until every given service (default: all portfolio_* services of the
 # stack) reports current == desired replicas and its newest task is Running.
+# Services scaled to zero (e.g. certbot in the provided-TLS profile) count as
+# converged.
 # Prints a service table and exits 1 when the deadline passes. Used by both
 # deploy.yml (whole stack after `docker stack deploy`) and rollback.yml (per
 # service after `docker service rollback`).
@@ -37,6 +39,7 @@ while [ "$(date +%s)" -lt "$deadline" ]; do
             exit 1
         fi
         case "$replicas" in
+            "0/0") continue ;;
             *"/0" | "0/"*) pending="$pending $svc($replicas)"; continue ;;
         esac
         if [ "${replicas%%/*}" != "${replicas##*/}" ]; then

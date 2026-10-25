@@ -66,7 +66,9 @@ services:
 
   nginx:
     image: 127.0.0.1:5000/portfolio-nginx:${NGINX_TAG:-latest}
-    build: devops/docker/nginx/
+    build:
+      context: .
+      dockerfile: devops/docker/nginx/Dockerfile
     ports:
       - target: 80
         published: 80
@@ -240,8 +242,11 @@ services:
           - node.role == manager
 
 networks:
+  # Created by deploy.yml preflight 0b before the first stack deploy; the
+  # migration container also joins it by name so it can resolve `db`.
   default:
-    driver: overlay
+    external: true
+    name: portfolio_prod
 
 volumes:
   pgdata:
