@@ -1,5 +1,5 @@
 # Stage 1: Build dependencies and optimize
-FROM php:8.5-fpm-alpine AS build
+FROM php:8.5.12-fpm-alpine AS build
 
 # redis is built from a PINNED GitHub release tarball (6.3.0) instead of
 # `pecl install redis`: the pecl.php.net channel/CDN is flaky and
@@ -55,7 +55,11 @@ RUN rm -f bootstrap/cache/packages.php bootstrap/cache/services.php \
     && php artisan view:cache
 
 # Stage 2: Production runtime — only built artifacts
-FROM php:8.5-fpm-alpine
+FROM php:8.5.12-fpm-alpine
+
+# 8.5.12 is the first release fixing CVE-2026-109618 and CVE-2026-109619; a base
+# image below that floor must never reach an image.
+RUN php -r 'exit(version_compare(PHP_VERSION, "8.5.12", ">=") ? 0 : 1);'
 
 # The fpm pool runs as the host user (dev: bind-mounted storage/ writes;
 # prod: internal uid — builds pass no args and default to 1000, keeping the

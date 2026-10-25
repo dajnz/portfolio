@@ -326,6 +326,7 @@
       ansible.builtin.command:
         cmd: >-
           docker build
+          --pull
           -f devops/docker/node/Dockerfile
           -t 127.0.0.1:5000/portfolio-node:{{ manifest.services.node }}
           .
@@ -342,6 +343,7 @@
       ansible.builtin.command:
         cmd: >-
           docker build
+          --pull
           -t 127.0.0.1:5000/portfolio-nginx:{{ manifest.services.nginx }}
           devops/docker/nginx/
       args:

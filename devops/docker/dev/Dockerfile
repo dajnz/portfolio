@@ -1,4 +1,8 @@
-FROM php:8.5-cli-alpine
+FROM php:8.5.12-cli-alpine
+
+# 8.5.12 is the first release fixing CVE-2026-109618 and CVE-2026-109619; a base
+# image below that floor must never reach an image.
+RUN php -r 'exit(version_compare(PHP_VERSION, "8.5.12", ">=") ? 0 : 1);'
 
 # `chromium` (+ fonts) is the e2e browser for the dev container: Playwright's
 # own downloads are glibc builds that cannot run on this musl image (the
