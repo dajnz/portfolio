@@ -37,7 +37,9 @@ services:
       start_period: 10s
 
   nginx:       # Web server (HTTP only — Traefik handles TLS in dev)
-    build: devops/docker/nginx/
+    build:
+      context: .
+      dockerfile: devops/docker/nginx/Dockerfile
     restart: unless-stopped
     expose:
       - 80
@@ -58,7 +60,7 @@ services:
       - app
       - rustfs
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:80 || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:80/up || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3

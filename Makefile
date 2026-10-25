@@ -1,9 +1,14 @@
-.PHONY: setup up down up-localhost down-localhost restart restart-localhost health build install lefthook migrate seed seed-fresh build-frontend dev-frontend pictures custom-icons lang-export open-dev open-db open-redis admin-create admin-reset-password switch-prod switch-dev cache-clear db-for-testing test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck quick-check secrets-init deploy rollback
+.PHONY: setup up down up-localhost down-localhost restart restart-localhost health build install lefthook migrate seed seed-fresh build-frontend dev-frontend pictures custom-icons lang-export open-dev open-db open-redis admin-create admin-reset-password switch-prod switch-dev cache-clear db-for-testing test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck quick-check secrets-init secrets-init-test deploy deploy-test rollback
 
 DC = docker compose
 DE = $(DC) exec dev
 DC_LOCALHOST = $(DC) -f docker-compose.yml -f docker-compose.localhost.yml
 DE_LOCALHOST = $(DC_LOCALHOST) exec dev
+
+# The deploy/rollback targets prompt for the sudo password on the target host.
+# Set ASK_BECOME=0 when the target user has passwordless sudo.
+ASK_BECOME ?= 1
+BECOME_FLAGS = $(if $(filter 1,$(ASK_BECOME)),--ask-become-pass,)
 
 # Containers that write to the bind-mounted repo (dev/queue/scheduler/app)
 # run as the host user. Auto-detecting uid/gid (compose interpolates exported
@@ -361,15 +366,27 @@ quick-check: test lint typecheck
 
 # Generate production secrets and encrypt .env.prod.local
 secrets-init:
-	$(DE) ./devops/secrets/init.sh
+	$(DE) ./devops/secrets/init.sh .env.prod.local .env.prod.age production
+
+# Generate the vm-test deployment env (provided TLS; set DOMAIN in .env.prod.test.local)
+secrets-init-test:
+	$(DE) ./devops/secrets/init.sh .env.prod.test.local .env.prod.test.age vm-test
 
 # Deploy to production (usage: make deploy GIT_REF=<tag-or-commit>)
 deploy:
 	@[ -n "$(GIT_REF)" ] || (echo "ERROR: GIT_REF is required. Usage: make deploy GIT_REF=<tag-or-commit>" && exit 1)
-	ansible-playbook -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF)"
+	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF) deploy_profile=production"
 	# On first deploy the playbook reads AGE_PRIVATE_KEY from the environment
 	# to provision /opt/portfolio/.env.prod (see secrets-management.md)
 
+# Deploy the vm-test profile (usage: make deploy-test GIT_REF=<tag-or-commit>)
+# TLS is provided by the operator at /opt/portfolio/tls/live/<DOMAIN>/{fullchain,privkey}.pem
+deploy-test:
+	@[ -n "$(GIT_REF)" ] || (echo "ERROR: GIT_REF is required. Usage: make deploy-test GIT_REF=<tag-or-commit>" && exit 1)
+	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF) deploy_profile=vm-test"
+	# The first deploy reads AGE_PRIVATE_KEY to provision /opt/portfolio/.env.prod.test
+	# from the local .env.prod.test.age (see devops/deploy/README.md)
+
 # Rollback deployed services (usage: make rollback [SERVICE=<name>])
 rollback:
-	ansible-playbook -i devops/deploy/hosts.yml devops/deploy/rollback.yml -e "service=$(or $(SERVICE),all)"
+	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/rollback.yml -e "service=$(or $(SERVICE),all)"

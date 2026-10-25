@@ -48,11 +48,22 @@ COPY . .
 # devops/deploy/scripts/build-php-images.sh) and baked into the cached config.
 # Empty in dev builds, where AppVersion reads the mounted repository instead.
 ARG APP_VERSION=""
-RUN rm -f bootstrap/cache/packages.php bootstrap/cache/services.php \
+# The runtime env reaches config:cache through a BuildKit secret: docker build
+# does not inherit the caller's environment, so sourcing .env.prod in the
+# deploy script alone would bake defaults (DB_CONNECTION=sqlite, empty
+# APP_KEY). APP_ENV_HASH participates in the layer cache key because BuildKit
+# intentionally excludes secret contents from it — without it an env-only
+# change would reuse the previous cached config.
+ARG APP_ENV_HASH=""
+RUN --mount=type=secret,id=app_env,target=/tmp/app.env \
+    echo "env-hash=${APP_ENV_HASH:-none}" \
+    && rm -f bootstrap/cache/packages.php bootstrap/cache/services.php \
+    && if [ -f /tmp/app.env ]; then cp /tmp/app.env .env; fi \
     && php artisan package:discover --ansi \
     && php artisan config:cache \
     && php artisan route:cache \
-    && php artisan view:cache
+    && php artisan view:cache \
+    && rm -f .env
 
 # Stage 2: Production runtime — only built artifacts
 FROM php:8.5.12-fpm-alpine
