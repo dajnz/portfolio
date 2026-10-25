@@ -393,9 +393,8 @@ function onScreenshotHeaderClick(uid: string): void {
                   @click.stop="removeScreenshot(index)"
                 >
                   <svg
-                    class="icon"
+                    class="icon icon--sm"
                     viewBox="0 0 24 24"
-                    style="width: 1em; height: 1em"
                     aria-hidden="true"
                   >
                     <line
@@ -463,9 +462,8 @@ function onScreenshotHeaderClick(uid: string): void {
                     @click.stop="removeScreenshot(index)"
                   >
                     <svg
-                      class="icon"
+                      class="icon icon--sm"
                       viewBox="0 0 24 24"
-                      style="width: 1em; height: 1em"
                       aria-hidden="true"
                     >
                       <line
