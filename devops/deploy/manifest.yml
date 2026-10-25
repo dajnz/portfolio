@@ -15,5 +15,5 @@ services:
   app: fbfe372
   queue: fbfe372
   scheduler: fbfe372
-  node: fbfe372
+  node: "4733e31"
   nginx: 3c98bea
