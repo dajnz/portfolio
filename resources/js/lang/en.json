@@ -754,7 +754,7 @@
         "no_experience": "No experience entries yet.",
         "present": "Present",
         "project": "Project",
-        "show_all_tags": "Show all tags",
+        "show_all_tags": "Show all tags: {count}",
         "tech_stack": "Tech Stack",
         "work_experience": "Work Experience"
     },

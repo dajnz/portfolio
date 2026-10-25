@@ -15,7 +15,7 @@ return [
     'project' => 'Project',
     'present' => 'Present',
     'details' => 'Details',
-    'show_all_tags' => 'Show all tags',
+    'show_all_tags' => 'Show all tags: {count}',
     'all_tags' => 'All tags',
     'no_experience' => 'No experience entries yet.',
     'could_not_load' => 'Could not load experience.',

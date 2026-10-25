@@ -65,7 +65,10 @@ const activeNativeName = computed(
         resolvedOptions.value.find((option) => option.code === resolvedLocale.value)?.native_name ??
         resolvedLocale.value.toUpperCase(),
 );
-const triggerLabel = computed(() => `${t('nav.switch_language')}: ${activeNativeName.value}`);
+const triggerLabel = computed(
+    () =>
+        `${t('nav.switch_language')}: ${activeNativeName.value}, ${resolvedLocale.value.toUpperCase()}`,
+);
 
 const isOpen = ref(false);
 const highlighted = ref(-1);
