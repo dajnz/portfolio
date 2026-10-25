@@ -127,7 +127,7 @@ function onCardClick(event: MouseEvent): void {
         <PublicBaseButton
           v-if="overflowCount > 0"
           variant="ghost"
-          :aria-label="t('experience.show_all_tags')"
+          :aria-label="t('experience.show_all_tags', { count: overflowCount })"
           :test_id="`${props.test_id}-item-${props.item.id}-tags-overflow`"
           @click="emit('show-tags', props.item.id)"
         >

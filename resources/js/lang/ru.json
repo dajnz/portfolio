@@ -754,7 +754,7 @@
         "no_experience": "Записей об опыте пока нет.",
         "present": "по настоящее время",
         "project": "Проект",
-        "show_all_tags": "Показать все теги",
+        "show_all_tags": "Показать все теги: {count}",
         "tech_stack": "Технологии",
         "work_experience": "Опыт работы"
     },
