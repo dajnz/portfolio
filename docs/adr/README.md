@@ -48,6 +48,9 @@ Source code and the OpenAPI specs (`docs/openapi/`) reference these as
 | [0035](0035-local-git-hooks-with-lefthook.md) | Local git hooks with lefthook |
 | [0036](0036-session-fingerprint-binding.md) | Session fingerprint binding & fixation hardening |
 | [0037](0037-time-storage-and-display-timezones.md) | Time storage and display timezones |
+| [0038](0038-deployment-image-build-correctness.md) | Deployment image build correctness |
+| [0039](0039-vm-test-deployment-profile.md) | VM acceptance-test deployment profile with provided TLS |
+| [0040](0040-deployment-privilege-and-registry-trust.md) | Deployment privilege model and local registry trust |
 
 ## Format
 
