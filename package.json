@@ -70,7 +70,7 @@
         "eslint-plugin-vue": "^10.10.0",
         "happy-dom": "^20.11.1",
         "html-validate": "^11.6.2",
-        "laravel-vite-plugin": "^3.1",
+        "laravel-vite-plugin": "^3.2",
         "lefthook": "^2.2.2",
         "openapi-typescript": "^7.13.0",
         "postcss-html": "^1.8.1",
@@ -80,10 +80,10 @@
         "svgo": "^4.0.2",
         "tailwindcss": "^4.0.0",
         "typescript": "^5.9.3",
-        "vite": "^8.0.0",
+        "vite": "^8.3.5",
         "vitest": "^4.1.10",
-        "vue-component-type-helpers": "^3.3.9",
-        "vue-tsc": "^3.3.9",
+        "vue-component-type-helpers": "^3.3.13",
+        "vue-tsc": "^3.3.13",
         "wait-on": "^8.0.5"
     }
 }
