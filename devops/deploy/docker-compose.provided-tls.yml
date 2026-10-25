@@ -1,0 +1,15 @@
+# Provided-TLS overlay — used only by the vm-test deployment profile.
+#
+# The operator places the certificate on the host at
+#   /opt/portfolio/tls/live/<DOMAIN>/fullchain.pem
+#   /opt/portfolio/tls/live/<DOMAIN>/privkey.pem
+# (deploy.yml asserts both exist before any build). The bind mount replaces
+# the certbot_certs named volume, and the certbot renewer is scaled to zero so
+# it cannot write to the read-only mount. Production never includes this file.
+services:
+  nginx:
+    volumes:
+      - /opt/portfolio/tls:/etc/letsencrypt:ro
+  certbot:
+    deploy:
+      replicas: 0
