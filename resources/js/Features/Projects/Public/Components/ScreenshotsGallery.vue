@@ -3,7 +3,7 @@
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import HorizontalCarousel from '@shared-public/HorizontalCarousel.vue';
 import PublicBaseSkeleton from '@shared-public/PublicBaseSkeleton.vue';
-import { type Component, ref } from 'vue';
+import { type Component, ref, shallowRef } from 'vue';
 
 import type { DetailScreenshotView } from '../Composables/useProjectDetailPage';
 
@@ -23,18 +23,21 @@ const { t } = useI18n();
 const lightboxOpen = ref(false);
 const lightboxChunkLoading = ref(false);
 const startIndex = ref(0);
-let lightboxComponent: Component | null = null;
+const lightboxComponent = shallowRef<Component | null>(null);
 let triggerElement: HTMLElement | null = null;
 
 async function openLightbox(index: number, trigger: HTMLElement): Promise<void> {
-    if (lightboxComponent === null) {
+    let component = lightboxComponent.value;
+
+    if (component === null) {
         lightboxChunkLoading.value = true;
         // The lightbox chunk is fetched only on the first open.
         const module = await import('./ProjectLightbox.vue');
-        lightboxComponent = module.default;
+        component = module.default;
         lightboxChunkLoading.value = false;
     }
 
+    lightboxComponent.value = component;
     startIndex.value = index;
     triggerElement = trigger;
     lightboxOpen.value = true;
