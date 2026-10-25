@@ -34,6 +34,7 @@ app_version="$(git describe --tags --exact-match 2>/dev/null \
     || printf '%s' "$app_tag")"
 
 docker build \
+    --pull \
     -f devops/docker/php/Dockerfile \
     --build-arg APP_VERSION="$app_version" \
     -t "127.0.0.1:5000/portfolio-app:$app_tag" \

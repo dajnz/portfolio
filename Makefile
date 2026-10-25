@@ -106,7 +106,7 @@ health:
 
 # Build Docker images
 build:
-	$(DC) build
+	$(DC) build --pull
 
 # Install PHP + JS dependencies and the git hooks
 install:
