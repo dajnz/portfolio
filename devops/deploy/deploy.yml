@@ -46,6 +46,8 @@
 #      production env exported — compose interpolation carries the DB/Redis/
 #      RustFS/DOMAIN configuration into the db/redis/rustfs/nginx services)
 #   7. Wait for all portfolio services to converge
+#   7b. Provision the RustFS buckets, public portfolio policy, and scoped
+#       backups user with the official RustFS `rc` client
 #   8. Prune old image tags from the local registry (keep current + previous)
 #      and run registry garbage collection
 #
@@ -605,6 +607,17 @@
     - name: 7 | Wait for the stack to converge
       ansible.builtin.script:
         cmd: "{{ playbook_dir }}/scripts/wait-for-convergence.sh {{ deploy_wait_seconds }}"
+
+    # The production stack must have the portfolio/backups buckets and the
+    # scoped backups user before the app serves uploads or runs a backup.
+    # RustFS is healthy after convergence; the script retries briefly anyway.
+    - name: 7b | Provision RustFS buckets and the backups user
+      ansible.builtin.script:
+        cmd: >-
+          {{ playbook_dir }}/scripts/provision-rustfs.sh
+          portfolio_prod
+          "{{ env_prod_path }}"
+          "{{ release_root }}/releases/{{ git_ref }}/devops/deploy/rustfs/backups-rw.json"
 
     - name: 7 | Record the deployed env hash
       ansible.builtin.copy:

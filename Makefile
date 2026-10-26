@@ -1,4 +1,4 @@
-.PHONY: setup up down up-localhost down-localhost restart restart-localhost health build install lefthook migrate seed seed-fresh build-frontend dev-frontend pictures custom-icons lang-export open-dev open-db open-redis admin-create admin-reset-password switch-prod switch-dev cache-clear db-for-testing test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck quick-check secrets-init secrets-init-test deploy deploy-test rollback
+.PHONY: setup up down up-localhost down-localhost restart restart-localhost health build install lefthook migrate seed seed-fresh build-frontend dev-frontend pictures custom-icons lang-export open-dev open-db open-redis admin-create admin-reset-password switch-prod switch-dev cache-clear db-for-testing test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck quick-check secrets-init secrets-init-test deploy deploy-test rustfs-buckets rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -17,30 +17,23 @@ BECOME_FLAGS = $(if $(filter 1,$(ASK_BECOME)),--ask-become-pass,)
 export HOST_UID = $(shell id -u)
 export HOST_GID = $(shell id -g)
 
-# The rustfs image does not ship the MinIO `mc` client, so bucket creation
-# runs a one-off MinIO mc container on the compose network, using the RustFS
-# credentials from the project .env (same approach as the CI e2e job).
-# Pinned on quay.io: MinIO removed the `minio/mc` Docker Hub repository
-# (pulls now fail with "access denied" — ADR-0027).
-MC = quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
+# RustFS bucket/user provisioning uses the official RustFS `rc` client
+# (ADR-0041). The script runs one throwaway container on the compose network;
+# the policy file keeps the backups user scoped to the backups bucket.
+RUSTFS_PROVISION = devops/deploy/scripts/provision-rustfs.sh
 
-# The `portfolio` bucket gets a public-read ("download") policy — public asset
-# URLs are served same-origin via nginx `/assets/ → rustfs:9000/portfolio/` and must be publicly readable.
-# The `backups` bucket stays private (encrypted archives) and the app writes it with the separate
-# `RUSTFS_BACKUPS_*` credentials, so that user is provisioned here as well.
+# The `portfolio` bucket is publicly readable (nginx proxies /assets/ to
+# rustfs:9000/portfolio/); `backups` stays private and the app uses the
+# separate RUSTFS_BACKUPS_* user, which is recreated on every run so its
+# attachments converge to the scoped policy.
 define create-rustfs-buckets
-	@set -e; \
-	KEY="$$(sed -n 's/^RUSTFS_ACCESS_KEY=//p' .env)"; \
-	SECRET="$$(sed -n 's/^RUSTFS_SECRET_KEY=//p' .env)"; \
-	BACKUP_KEY="$$(sed -n 's/^RUSTFS_BACKUPS_ACCESS_KEY=//p' .env)"; \
-	BACKUP_SECRET="$$(sed -n 's/^RUSTFS_BACKUPS_SECRET_KEY=//p' .env)"; \
-	export MC_HOST_local="http://$${KEY}:$${SECRET}@rustfs:9000"; \
-	docker run --rm --network portfolio_dev -e MC_HOST_local $(MC) mb --ignore-existing local/portfolio || true; \
-	docker run --rm --network portfolio_dev -e MC_HOST_local $(MC) mb --ignore-existing local/backups || true; \
-	docker run --rm --network portfolio_dev -e MC_HOST_local $(MC) anonymous set download local/portfolio || true; \
-	docker run --rm --network portfolio_dev -e MC_HOST_local $(MC) admin user add local "$${BACKUP_KEY}" "$${BACKUP_SECRET}" || true; \
-	docker run --rm --network portfolio_dev -e MC_HOST_local $(MC) admin policy attach local readwrite --user "$${BACKUP_KEY}" || true
+	@$(RUSTFS_PROVISION) portfolio_dev .env devops/deploy/rustfs/backups-rw.json
 endef
+
+# Recreate the RustFS buckets/policy/backups user without rerunning setup
+# (idempotent; the dev stack must be up).
+rustfs-buckets:
+	$(create-rustfs-buckets)
 
 # .env stores each mode-dependent variable twice — the active value and the
 # other mode's value commented (localhost is the default; see .env.example).
