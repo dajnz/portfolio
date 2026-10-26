@@ -213,30 +213,18 @@ jobs:
           RUSTFS_ACCESS_KEY=rustfsadmin
           RUSTFS_SECRET_KEY=rustfsadmin
           RUSTFS_USE_PATH_STYLE_ENDPOINT=true
-          RUSTFS_BACKUPS_ACCESS_KEY=rustfsadmin
-          RUSTFS_BACKUPS_SECRET_KEY=rustfsadmin
+          RUSTFS_BACKUPS_ACCESS_KEY=rustfsbackups
+          RUSTFS_BACKUPS_SECRET_KEY=rustfsbackups
           RUSTFS_BACKUPS_BUCKET=backups
           EOF
       - run: php artisan migrate --env=testing
-      # Create both RustFS buckets (portfolio + backups) — the e2e suite
-      # exercises backup creation/restore, which needs the backups bucket.
-      # aws-cli replaces the unavailable minio/mc image.
-      - name: Create RustFS buckets
+      # The official RustFS rc client provisions both buckets, the public
+      # portfolio policy, and the scoped backups user used by the e2e
+      # backup suite. It replaces the unavailable minio/mc image and aws-cli.
+      - name: Provision RustFS
         run: |
-          aws() {
-            docker run --rm --network host \
-              -e AWS_ACCESS_KEY_ID=rustfsadmin \
-              -e AWS_SECRET_ACCESS_KEY=rustfsadmin \
-              -e AWS_DEFAULT_REGION=us-east-1 \
-              -e AWS_EC2_METADATA_DISABLED=true \
-              amazon/aws-cli:latest \
-              --endpoint-url http://localhost:9000 "$@"
-          }
-
-          for bucket in portfolio backups; do
-            aws s3api head-bucket --bucket "$bucket" >/dev/null 2>&1 \
-              || aws s3api create-bucket --bucket "$bucket"
-          done
+          ./devops/deploy/scripts/provision-rustfs.sh \
+            host .env devops/deploy/rustfs/backups-rw.json
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build -- --mode testing
       - run: pnpm run ssr:build -- --mode testing
