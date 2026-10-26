@@ -4,7 +4,7 @@
 - **Date:** 2026-10-09
 - **Source:** archived implementation plan (§2), IDs: A7, B38, B39, B40, B41, B42, B43, B44, B45, B46, B171, B308, B310, B330, B331, B332, B333, B334, B335, B336, B337, B338, B339, B340, C7, C8, C9, C10
 - **Supersedes:** —
-- **Amended by:** ADR-0034 (Node packages moved from npm to pnpm; the `npm_cache` volume is gone)
+- **Amended by:** ADR-0034 (Node packages moved from npm to pnpm; the `npm_cache` volume is gone), ADR-0041 (RustFS provisioning moved from MinIO `mc` to the official RustFS `rc` client)
 
 ## Context
 
@@ -23,7 +23,7 @@ Local development must run the full stack (nginx, php-fpm, Postgres, Redis, Rust
 - The `composer_cache` named volume is seeded with correct ownership by the dev Dockerfile pre-creating `/home/portfolio/.composer` as `portfolio`; the pnpm store lives inside the repo (ADR-0034), so it needs no volume.
 - The dev container runs as `USER portfolio` (`docker compose exec -u root dev` is the root escape hatch); the dev image bakes `git config --system --add safe.directory /var/www/html`.
 - Dev env: `CACHE_STORE=redis` in `.env.example` (Laravel 13 defaults to the database store); the nginx healthcheck probes `http://127.0.0.1:80` (not `localhost`, which resolves only to IPv6 in the container).
-- RustFS buckets are managed with a one-off `quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z` container on the `portfolio_dev` network (the RustFS image ships no `mc`); `create-rustfs-buckets` is idempotent and also provisions the separate `sail_backups` user with `readwrite`.
+- RustFS buckets and the least-privilege backups user are provisioned with the official RustFS `rc` client (`rustfs/rc:v0.1.36`) via `devops/deploy/scripts/provision-rustfs.sh`: `make setup`/`make rustfs-buckets` run it for dev, and the deploy playbook runs it after convergence. The committed `devops/deploy/rustfs/backups-rw.json` policy scopes the backups user to the backups bucket (ADR-0041).
 - Mode switching: `devops/scripts/switch-env-mode.sh <localhost|tls>` rewrites the paired `.env` values for `APP_URL`, `TRUSTED_PROXIES` and `PORTFOLIO_DEV_MODE`; `make up`/`make up-localhost`/`make setup` invoke it via `ENV_MODE`, and `make restart`/`make restart-localhost` restart the containers of the active mode.
 - `make setup` is the single first-run command and provisions only the **localhost** environment (`ENV_MODE localhost`); TLS is reached later with `make up`. It runs `key:generate`, `migrate`, `admin:create`, bucket creation, `pnpm install --frozen-lockfile`, `pnpm run build`, `db:seed`, a real health settle (counting the `{{.Health}}` field) and creates the `portfolio_test` database.
 - Test DB: `ensure-test-database` checks/creates `portfolio_test` (standalone `make db-for-testing`); parallel runs derive `portfolio_test_test_<n>` themselves.

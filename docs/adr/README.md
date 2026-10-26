@@ -51,6 +51,7 @@ Source code and the OpenAPI specs (`docs/openapi/`) reference these as
 | [0038](0038-deployment-image-build-correctness.md) | Deployment image build correctness |
 | [0039](0039-vm-test-deployment-profile.md) | VM acceptance-test deployment profile with provided TLS |
 | [0040](0040-deployment-privilege-and-registry-trust.md) | Deployment privilege model and local registry trust |
+| [0041](0041-rustfs-provisioning-with-rc.md) | RustFS provisioning with the official rc client |
 
 ## Format
 

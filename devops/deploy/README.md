@@ -28,6 +28,10 @@ the stack name, ports, and `/opt/portfolio` are shared.
   (preserving other keys) and live-reloads the daemon — no container restart.
   If a full restart is ever required, the deploy stops with a maintenance-window
   message instead of restarting a live host.
+- After convergence the deploy provisions the RustFS `portfolio`/`backups`
+  buckets, the public portfolio policy, and the scoped backups user with the
+  official `rustfs/rc` client. In dev, `make rustfs-buckets` does the same
+  against the running dev stack.
 - Ports 80/443 reachable from the client (bridged networking, or forwarded
   ports when the VM is behind NAT). A stable VM IP avoids Swarm advertise
   surprises — pass `--advertise-addr <vm-ip>` if `docker swarm init` picks the
@@ -132,6 +136,10 @@ replace a certificate later, overwrite the files and run
   passwordless-sudo targets.
 - Removing `/opt/portfolio/tls/live/<DOMAIN>/` makes `make deploy-test` fail at
   preflight 0e, before any clone or build.
+- RustFS provisioning runs after convergence; a failure stops the deploy before
+  the env hash is recorded. It recreates the backups user on every run (RustFS
+  does not support policy detach), so avoid running a backup job during
+  setup/deploy.
 - The manifest tags are the rebuild trigger: re-deploying the same ref changes
   nothing. Bump `devops/deploy/manifest.yml` (or change the env file) between
   iterations of a test branch.
