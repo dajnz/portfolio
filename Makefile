@@ -1,4 +1,4 @@
-.PHONY: setup up down up-localhost down-localhost restart restart-localhost health build install lefthook migrate seed seed-fresh build-frontend dev-frontend pictures custom-icons lang-export open-dev open-db open-redis admin-create admin-reset-password switch-prod switch-dev cache-clear db-for-testing test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck quick-check deploy-init deploy-test-init deploy deploy-test rustfs-buckets rollback
+.PHONY: setup up down up-localhost down-localhost restart restart-localhost health build install lefthook migrate seed seed-fresh build-frontend dev-frontend pictures custom-icons lang-export open-dev open-db open-redis admin-create admin-reset-password switch-prod switch-dev cache-clear db-for-testing test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck quick-check deploy-init deploy-test-init deploy deploy-test rustfs-buckets rollback rollback-test
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -420,10 +420,13 @@ deploy-test:
 	# The first deploy prompts for the age private key (set AGE_PRIVATE_KEY to skip)
 	# to provision /opt/portfolio/.env.prod.test (see devops/deploy/README.md)
 
-# Rollback deployed services (usage: make rollback [TARGET=production|vm_test] [SERVICE=<name>])
-ROLLBACK_TARGET = $(or $(TARGET),production)
-ROLLBACK_HOST_VARS = $(if $(filter vm_test,$(ROLLBACK_TARGET)),devops/deploy/host_vars/portfolio_vm.yml,devops/deploy/host_vars/portfolio_prod.yml)
-
+# Roll back the production stack (usage: make rollback [SERVICE=<name>])
 rollback:
-	@$(ENSURE_SSH_KEY) $(ROLLBACK_HOST_VARS)
-	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/rollback.yml -e "service=$(or $(SERVICE),all) deploy_target=$(ROLLBACK_TARGET)"
+	@[ -z "$(TARGET)" ] || (echo "ERROR: TARGET is no longer supported. Usage: make rollback (production) or make rollback-test (vm_test)." && exit 1)
+	@$(ENSURE_SSH_KEY) devops/deploy/host_vars/portfolio_prod.yml
+	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/rollback.yml -e "service=$(or $(SERVICE),all) deploy_target=production"
+
+# Roll back the vm-test stack (usage: make rollback-test [SERVICE=<name>])
+rollback-test:
+	@$(ENSURE_SSH_KEY) devops/deploy/host_vars/portfolio_vm.yml
+	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/rollback.yml -e "service=$(or $(SERVICE),all) deploy_target=vm_test"
