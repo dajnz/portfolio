@@ -9,6 +9,7 @@ use App\Features\Projects\App\DTOs\ProjectListQuery;
 use App\Features\Projects\App\UseCases\GetPublicProjectUseCase;
 use App\Features\Projects\App\UseCases\GetPublicProjectsUseCase;
 use App\Features\Projects\Infra\Services\ProjectDetailPropsBuilder;
+use App\Features\Shared\Infra\Services\PublicPageCache;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 use App\Features\Shared\Infra\Persistence\Cursor;
 use App\Features\Shared\Infra\Persistence\PublicCursorCodec;
@@ -50,6 +51,7 @@ final class PublicProjectController
         private readonly GetPublicProjectUseCase $detailCase,
         private readonly PublicCursorCodec $cursorCodec,
         private readonly ProjectDetailPropsBuilder $props,
+        private readonly PublicPageCache $cache,
     ) {
     }
 
@@ -59,6 +61,21 @@ final class PublicProjectController
             return $this->autocompleteJson($request);
         }
 
+        $props = $request->query() === []
+            ? $this->cache->remember(
+                'projects-index:'.AppFacade::getLocale().':'.$request->path(),
+                fn (): array => $this->indexProps($request),
+            )
+            : $this->indexProps($request);
+
+        return $inertia->render('Projects/Public/Pages/ProjectsIndexPage', $props);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function indexProps(Request $request): array
+    {
         $result = $this->listCase->get(new ProjectListQuery(
             locale: AppFacade::getLocale(),
             sort: $this->sortFromRequest($request),
@@ -68,7 +85,7 @@ final class PublicProjectController
             cursor: $this->decodeCursor((string) $request->query('cursor', '')),
         ));
 
-        return $inertia->render('Projects/Public/Pages/ProjectsIndexPage', [
+        return [
             'projects' => $this->cardProps($result),
             'skill_tags' => $result->skillTags,
             'has_more' => $result->nextCursor !== null,
@@ -76,7 +93,7 @@ final class PublicProjectController
                 ? null
                 : $this->encodeCursor($result->nextCursor),
             'seo' => $this->props->seo($result->seo),
-        ]);
+        ];
     }
 
     public function show(ResponseFactory $inertia, Request $request): Response|RedirectResponse

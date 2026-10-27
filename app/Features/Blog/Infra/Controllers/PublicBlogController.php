@@ -21,6 +21,7 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 use App\Features\Shared\Infra\Persistence\Cursor;
 use App\Features\Shared\Infra\Persistence\PublicCursorCodec;
+use App\Features\Shared\Infra\Services\PublicPageCache;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,6 +69,7 @@ final class PublicBlogController
         private readonly RecordArticleViewUseCase $recordView,
         private readonly VisitorFingerprintInterface $visitorFingerprint,
         private readonly PublicCursorCodec $cursorCodec,
+        private readonly PublicPageCache $cache,
     ) {
     }
 
@@ -77,9 +79,24 @@ final class PublicBlogController
             return $this->autocompleteJson($request);
         }
 
+        $props = $request->query() === []
+            ? $this->cache->remember(
+                'blog-index:'.App::getLocale().':'.$request->path(),
+                fn (): array => $this->indexProps($request),
+            )
+            : $this->indexProps($request);
+
+        return $inertia->render('Blog/Public/Pages/BlogIndexPage', $props);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function indexProps(Request $request): array
+    {
         $result = $this->listCase->get($this->buildListQuery($request));
 
-        return $inertia->render('Blog/Public/Pages/BlogIndexPage', [
+        return [
             'articles' => array_map(
                 fn (ArticleCardDto $card): array => self::cardProps($card, useSnippet: true),
                 $result->articles,
@@ -95,7 +112,7 @@ final class PublicBlogController
                 : $this->encodeCursor($result->nextCursor),
             'has_projects' => $result->hasProjects,
             'seo' => self::seoProps($result->seo),
-        ]);
+        ];
     }
 
     public function show(ResponseFactory $inertia, Request $request): Response|RedirectResponse

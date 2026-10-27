@@ -13,6 +13,7 @@ const CONTROLLER_INFRA_SERVICE_ALLOWLIST = [
     'AdminAuthService',
     'LandingPagePropsBuilder',
     'PerLocaleValues',
+    'PublicPageCache',
     'ProjectDetailPropsBuilder',
 ];
 
