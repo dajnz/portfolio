@@ -22,11 +22,12 @@ time — the stack name, ports, and `/opt/portfolio` are shared.
   installs only git, gettext-base, age, curl, and openssl; it does **not**
   install Docker and stops with a clear error if Docker is missing or older.
 - A sudo-capable SSH user, with the SSH host key trusted on the control
-  machine. `make deploy`, `make deploy-test`, and `make rollback` load the
-  target key from `deploy_server_ssh_key_path` into ssh-agent first, prompting
-  for its passphrase when needed, then prompt once for the sudo password
-  (`ASK_BECOME=0` for a passwordless-sudo user). Start an ssh-agent/keychain
-  before deploying; the loader skips `ssh-add` when the key is already loaded.
+  machine. `make deploy`, `make deploy-test`, `make rollback`, and `make
+  rollback-test` load the target key from `deploy_server_ssh_key_path` into
+  ssh-agent first, prompting for its passphrase when needed, then prompt once
+  for the sudo password (`ASK_BECOME=0` for a passwordless-sudo user). Start
+  an ssh-agent/keychain before deploying; the loader skips `ssh-add` when the
+  key is already loaded.
 - The first deploy checks the profile-specific local `.env.prod[.test].age`
   exists and prompts for/validates the age private key at the start of the
   playbook (before the clone and build), aborting on a failed decrypt; the
@@ -75,7 +76,8 @@ existing values are never overwritten.
 `hosts.yml` defines the `production` (`portfolio_prod`) and `vm_test`
 (`portfolio_vm`) groups; `group_vars/all.yml` maps `deploy_server_*` to
 Ansible's connection settings. `make deploy` / `make deploy-test` select the
-group, and `make rollback TARGET=vm_test` targets the VM. The deploy preflight
+group, and `make rollback` / `make rollback-test` do the same for rollbacks.
+The deploy preflight
 checks the `deploy_server_*` values and that the SSH key file exists before
 connecting; missing values fail with a pointer to the matching init target.
 
@@ -201,7 +203,7 @@ replace a certificate later, overwrite the files and run
 - Upgrading a host that still runs the old `registry` Swarm service: remove it
   first (`docker service rm registry`); the images remain in
   `/opt/registry/data`. A clean host needs no action.
-- `make rollback` rolls back the production group; `make rollback
-  TARGET=vm_test` targets the VM. It uses the same host_vars.
+- `make rollback` rolls back the production group, `make rollback-test` the
+  VM. Both use the matching host_vars.
 - The vm-test env path, hash file, and age artifact are distinct from
   production, so a VM can switch profiles without reusing the wrong env.

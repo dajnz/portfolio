@@ -25,8 +25,8 @@ upgrade Docker Engine.
 
 ## Decision
 
-- `make deploy`, `make deploy-test`, and `make rollback` pass
-  `--ask-become-pass` by default. Ansible asks once per run and reuses the
+- `make deploy`, `make deploy-test`, `make rollback`, and `make rollback-test`
+  pass `--ask-become-pass` by default. Ansible asks once per run and reuses the
   password for every privileged task; no sudoers changes are required. Set
   `ASK_BECOME=0` for a target whose user has passwordless sudo.
 - A preflight task checks that Docker Engine is installed, running, and at
