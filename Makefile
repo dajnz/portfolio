@@ -22,6 +22,10 @@ export HOST_GID = $(shell id -g)
 # the policy file keeps the backups user scoped to the backups bucket.
 RUSTFS_PROVISION = devops/deploy/scripts/provision-rustfs.sh
 
+# Load the target SSH key into ssh-agent before Ansible connects (prompts for
+# the passphrase when the key is not already loaded).
+ENSURE_SSH_KEY = devops/deploy/scripts/ensure-ssh-key.sh
+
 # The `portfolio` bucket is publicly readable (nginx proxies /assets/ to
 # rustfs:9000/portfolio/); `backups` stays private and the app uses the
 # separate RUSTFS_BACKUPS_* user, which is recreated on every run so its
@@ -402,6 +406,7 @@ deploy-test-init:
 # Deploy to production (usage: make deploy GIT_REF=<tag-or-commit>)
 deploy:
 	@[ -n "$(GIT_REF)" ] || (echo "ERROR: GIT_REF is required. Usage: make deploy GIT_REF=<tag-or-commit>" && exit 1)
+	@$(ENSURE_SSH_KEY) devops/deploy/host_vars/portfolio_prod.yml
 	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF) deploy_target=production"
 	# The first deploy prompts for the age private key (set AGE_PRIVATE_KEY to skip)
 	# to provision /opt/portfolio/.env.prod (see secrets-management.md)
@@ -410,10 +415,15 @@ deploy:
 # TLS is provided by the operator at /opt/portfolio/tls/live/<DOMAIN>/{fullchain,privkey}.pem
 deploy-test:
 	@[ -n "$(GIT_REF)" ] || (echo "ERROR: GIT_REF is required. Usage: make deploy-test GIT_REF=<tag-or-commit>" && exit 1)
+	@$(ENSURE_SSH_KEY) devops/deploy/host_vars/portfolio_vm.yml
 	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF) deploy_target=vm_test"
 	# The first deploy prompts for the age private key (set AGE_PRIVATE_KEY to skip)
 	# to provision /opt/portfolio/.env.prod.test (see devops/deploy/README.md)
 
 # Rollback deployed services (usage: make rollback [TARGET=production|vm_test] [SERVICE=<name>])
+ROLLBACK_TARGET = $(or $(TARGET),production)
+ROLLBACK_HOST_VARS = $(if $(filter vm_test,$(ROLLBACK_TARGET)),devops/deploy/host_vars/portfolio_vm.yml,devops/deploy/host_vars/portfolio_prod.yml)
+
 rollback:
-	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/rollback.yml -e "service=$(or $(SERVICE),all) deploy_target=$(or $(TARGET),production)"
+	@$(ENSURE_SSH_KEY) $(ROLLBACK_HOST_VARS)
+	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/rollback.yml -e "service=$(or $(SERVICE),all) deploy_target=$(ROLLBACK_TARGET)"
