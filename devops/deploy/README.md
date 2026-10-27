@@ -212,5 +212,13 @@ replace a certificate later, overwrite the files and run
   deploy is the way forward — it records a new spec and re-enables rollback.
 - Mismatch after a rollback is expected: `manifest.yml` and the env hash file
   are untouched, so the next deploy sees differing tags and redeploys.
+- Migrations are forward-only, so deploying a ref older than the applied schema
+  would run old code against the newer database. `deploy.yml` therefore fails
+  before migrating when the release lacks a migration the `migrations` table
+  already records, and prints the offending names. Deploy a ref that contains
+  them, or take a backup
+  (`docker exec <db container> pg_dumpall -U <user> > /opt/portfolio/pre-downgrade.sql`)
+  and re-run with `ALLOW_SCHEMA_DOWNGRADE=1`. A ref old enough to predate the
+  PHP 8.5.12/CVE floor also rebuilds images without those Dockerfile guards.
 - The vm-test env path, hash file, and age artifact are distinct from
   production, so a VM can switch profiles without reusing the wrong env.
