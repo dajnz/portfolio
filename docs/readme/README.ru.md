@@ -2,7 +2,12 @@
   <img
     src="assets/main-page-preview.webp"
     alt="Главная страница портфолио с hero-секцией, навыками и избранными проектами"
-    width="100%"
+    width="50%"
+  >
+  <img
+    src="docs/readme/assets/admin-area-example.webp"
+    alt="Страница администраного раздела для редактирования информации о владельце портфолио"
+    width="50%"
   >
 </p>
 
@@ -102,6 +107,7 @@ newgrp docker
 ```
 ```
 
+Используйте следующие команды для быстрого старта:
 
 ```bash
 git clone https://github.com/dajnz/portfolio.git

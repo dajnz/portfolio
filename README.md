@@ -2,7 +2,12 @@
   <img
     src="docs/readme/assets/main-page-preview.webp"
     alt="Portfolio landing page with the hero section, skills and featured projects"
-    width="100%"
+    width="50%"
+  >
+  <img
+    src="docs/readme/assets/admin-area-example.webp"
+    alt="Portfolio admin area page for editing portfolio user details"
+    width="50%"
   >
 </p>
 
@@ -94,6 +99,8 @@ sudo usermod -aG docker $USER
 # Starts a new shell with a different primary group (in this case, the docker group)
 newgrp docker
 ```
+
+Use the commands below for the quick start:
 
 ```bash
 git clone https://github.com/dajnz/portfolio.git
