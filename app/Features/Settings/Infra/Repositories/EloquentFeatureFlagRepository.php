@@ -12,13 +12,14 @@ use App\Features\Settings\Infra\Models\FeatureFlagModel;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Feature flags are cached separately from settings with the same 1-minute
- * TTL. Reads through `isEnabled()` hit the cache; any write invalidates
- * the affected flag.
+ * Feature flags are cached separately from settings under
+ * `feature_flag:{key}`; reads through `isEnabled()` hit the cache and any
+ * write invalidates the affected flag. The TTL only bounds the blast radius
+ * of an out-of-band database edit.
  */
 final class EloquentFeatureFlagRepository implements FeatureFlagRepositoryInterface
 {
-    private const CACHE_TTL_SECONDS = 60;
+    private const CACHE_TTL_SECONDS = 300;
 
     public function __construct(
         private readonly FeatureFlagMapper $mapper,

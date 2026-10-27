@@ -101,6 +101,9 @@ ORDER=(
     SESSION_SECURE_COOKIE
     QUEUE_CONNECTION
     INERTIA_SSR_URL
+    INERTIA_SSR_ENSURE_BUNDLE_EXISTS
+    PUBLIC_PAGE_CACHE_ENABLED
+    PUBLIC_PAGE_CACHE_TTL
     "# ── Admin-supplied — fill before the first deploy (validation gate) ──"
     "# DOMAIN: the public domain, no scheme (e.g. example.com). Also feeds the"
     "# nginx entrypoint <domain> placeholders and the Let's Encrypt cert path."
@@ -228,6 +231,11 @@ resolve_value() {
         SESSION_SECURE_COOKIE)            printf '%s' 'true' ;;
         QUEUE_CONNECTION)                 printf '%s' 'redis' ;;
         INERTIA_SSR_URL)                  printf '%s' 'http://node:3000' ;;
+        # The PHP image ships no SSR bundle (only the node image does), so the
+        # bundle probe would silently disable SSR in every deployed container.
+        INERTIA_SSR_ENSURE_BUNDLE_EXISTS) printf '%s' 'false' ;;
+        PUBLIC_PAGE_CACHE_ENABLED)        printf '%s' 'true' ;;
+        PUBLIC_PAGE_CACHE_TTL)            printf '%s' '300' ;;
         DB_CONNECTION)                    printf '%s' 'pgsql' ;;
         DB_HOST)                          printf '%s' 'db' ;;
         DB_PORT)                          printf '%s' '5432' ;;

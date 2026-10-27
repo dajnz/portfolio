@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\Portfolio;
 
+use App\Features\Portfolio\Infra\Models\AboutInfoTranslationModel;
 use App\Features\Shared\Infra\Models\SkillModel;
 use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -142,5 +143,62 @@ describe('LandingController', function (): void {
                 ->where('has_more', false)
                 ->where('contacts', [])
                 ->where('seo.title', ' — Full-Stack Developer'));
+    });
+
+    it('serves the props from the public page cache without re-reading the dataset', function (): void {
+        $this->seedLandingDataset();
+        config()->set('portfolio.public_cache.enabled', true);
+
+        $this->get('/')->assertOk();
+
+        AboutInfoTranslationModel::query()
+            ->where('about_info_id', 1)
+            ->where('locale', 'en')
+            ->update(['name' => 'Changed behind the cache']);
+
+        $queries = [];
+        DB::listen(function ($query) use (&$queries): void {
+            $queries[] = $query->sql;
+        });
+
+        $this->get('/')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('about.name', 'Alex Kovalev')
+                ->has('featured_projects', 2));
+
+        expect(array_filter(
+            $queries,
+            static fn (string $sql): bool => preg_match('/from "(projects|skills|skill_groups)"/', $sql) === 1,
+        ))->toBe([]);
+    });
+
+    it('invalidates the public page cache on an admin mutation', function (): void {
+        $this->seedLandingDataset();
+        config()->set('portfolio.public_cache.enabled', true);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('about.name', 'Alex Kovalev'));
+
+        $this->loginAsAdmin($this->createAdmin());
+
+        $this->put('/admin/about', [
+            'name' => ['en' => 'Renamed', 'ru' => 'Переименован'],
+            'title' => ['en' => 'Dev', 'ru' => 'Разработчик'],
+            'short_pitch' => ['en' => 'Pitch.', 'ru' => 'Описание.'],
+            'location' => ['en' => 'Berlin', 'ru' => 'Берлин'],
+            'photo' => 'about/photo.jpg',
+            'photo_alt' => ['en' => 'Portrait', 'ru' => null],
+            'show_location' => true,
+            'timezone' => 'Europe/Berlin',
+            'relocation_readiness' => true,
+            'availability_status' => 'available',
+            'work_type' => 'hybrid',
+        ])->assertRedirect();
+
+        $this->get('/')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('about.name', 'Renamed'));
     });
 });

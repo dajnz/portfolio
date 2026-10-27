@@ -13,19 +13,20 @@ use App\Features\Settings\Infra\Models\SettingModel;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * Eloquent-backed settings repository. Owns the settings cache:
- * values are cached in Redis for 1 minute under `settings:{key}`; writes
- * invalidate the affected key. Missing rows are
- * never cached so the caller's config() fallback cannot go stale.
+ * Eloquent-backed settings repository. Owns the settings cache: values are
+ * cached in Redis for an hour under `setting:v2:{key}`; writes invalidate the
+ * affected key. Missing rows are never cached so the caller's config()
+ * fallback cannot go stale.
  *
- * The cache stores the typed value (plain data), not the entity — the
- * framework's cache unserialize whitelist (`cache.serializable_classes`)
- * forbids arbitrary objects; the entity is rebuilt from the name + value
- * on read.
+ * The cache stores the typed value (plain data) wrapped in an array, not the
+ * entity: the framework's cache unserialize whitelist
+ * (`cache.serializable_classes`) forbids arbitrary objects, and a bare null
+ * value reads back as a miss (`Cache::has` rejects nulls), which re-queried
+ * null-valued settings on every request.
  */
 final class EloquentSettingRepository implements SettingRepositoryInterface
 {
-    private const CACHE_TTL_SECONDS = 60;
+    private const CACHE_TTL_SECONDS = 3600;
 
     public function __construct(
         private readonly SettingMapper $mapper,
@@ -45,16 +46,17 @@ final class EloquentSettingRepository implements SettingRepositoryInterface
     public function find(SettingName $name): ?Setting
     {
         $cacheKey = $this->cacheKey($name);
+        $cached = Cache::get($cacheKey);
 
-        if (Cache::has($cacheKey)) {
-            return new Setting($name, new SettingValue($name->type(), Cache::get($cacheKey)));
+        if (is_array($cached) && array_key_exists('value', $cached)) {
+            return new Setting($name, new SettingValue($name->type(), $cached['value']));
         }
 
         $row = SettingModel::query()->find($name->value);
         $setting = $row === null ? null : $this->mapper->toEntity($row);
 
         if ($setting !== null) {
-            Cache::put($cacheKey, $setting->value(), self::CACHE_TTL_SECONDS);
+            Cache::put($cacheKey, ['value' => $setting->value()], self::CACHE_TTL_SECONDS);
         }
 
         return $setting;
@@ -82,6 +84,6 @@ final class EloquentSettingRepository implements SettingRepositoryInterface
 
     private function cacheKey(SettingName $name): string
     {
-        return 'settings:'.$name->value;
+        return 'setting:v2:'.$name->value;
     }
 }
