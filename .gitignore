@@ -48,3 +48,8 @@ Thumbs.db
 
 # LLM superpowers design docs (repo uses docs/detailed-spec instead)
 docs/superpowers
+
+# Deployment target config: copy the committed *.example.yml files and keep the
+# filled-in host_vars local.
+devops/deploy/host_vars/*.yml
+!devops/deploy/host_vars/*.example.yml

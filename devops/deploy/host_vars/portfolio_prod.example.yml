@@ -1,0 +1,8 @@
+# Created as portfolio_prod.yml (gitignored) by `make deploy-init`; fill in
+# the production values.
+deploy_server_ip: 203.0.113.10
+deploy_server_user: deploy
+deploy_server_ssh_key_path: /home/you/.ssh/portfolio_prod
+# Public repository: HTTPS needs no credentials on the server. For a private
+# repository use an SSH deploy key on the server and the SSH URL instead.
+portfolio_git_repo: https://github.com/dajnz/portfolio.git

@@ -1,0 +1,8 @@
+# Created as portfolio_vm.yml (gitignored) by `make deploy-test-init`; fill in
+# the VM values.
+deploy_server_ip: 192.0.2.10
+deploy_server_user: deploy
+deploy_server_ssh_key_path: /home/you/.ssh/vm_test
+# Public repository: HTTPS needs no credentials on the VM. For a private
+# repository use an SSH deploy key on the VM and the SSH URL instead.
+portfolio_git_repo: https://github.com/dajnz/portfolio.git

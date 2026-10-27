@@ -52,6 +52,9 @@ Source code and the OpenAPI specs (`docs/openapi/`) reference these as
 | [0039](0039-vm-test-deployment-profile.md) | VM acceptance-test deployment profile with provided TLS |
 | [0040](0040-deployment-privilege-and-registry-trust.md) | Deployment privilege model and local registry trust |
 | [0041](0041-rustfs-provisioning-with-rc.md) | RustFS provisioning with the official rc client |
+| [0042](0042-ansible-deployment-target-config.md) | Ansible-native deployment target configuration and AGE prompt |
+| [0043](0043-loopback-only-local-registry.md) | Loopback-only local registry container |
+| [0044](0044-first-deploy-admin-bootstrap.md) | First-deploy admin bootstrap |
 
 ## Format
 

@@ -46,9 +46,9 @@ while [ "$(date +%s)" -lt "$deadline" ]; do
             pending="$pending $svc($replicas)"
             continue
         fi
-        state=$(docker service ps "$svc" --format '{{.CurrentState}}' 2>/dev/null | head -n 1 || true)
+        state=$(docker service ps "$svc" --filter desired-state=running --format '{{.CurrentState}}' 2>/dev/null | head -n 1 || true)
         case "$state" in
-            Running) ;;
+            Running*) ;;
             *) pending="$pending $svc($state)" ;;
         esac
     done
