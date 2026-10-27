@@ -8,12 +8,17 @@
 # operation: no image rebuild, no git interaction.
 # Only the most recent update per service can be rolled back; to go back
 # further use `make deploy GIT_REF=<older-commit>` instead.
+# Swarm swaps the current and previous specs, so running rollback twice would
+# return the service to the newer spec. Services whose last operation was
+# already a rollback are skipped with a warning (exit 0); moving forward again
+# requires a deploy, which in turn makes a later rollback possible.
 #
 #   1. Accept the optional service variable (default: all)
-#   2. For each service (or the given one): docker service rollback
+#   2. Skip the services whose last swarm operation was already a rollback
+#   3. For each remaining service: docker service rollback
 #      (a service without a previous spec is a no-op — tolerated)
-#   3. Wait for the rollback to converge (no transitional tasks left)
-#   4. Verify the replica counts of the whole stack
+#   4. Wait for the rollback to converge (no transitional tasks left)
+#   5. Verify the replica counts of the whole stack
 #
 # The convergence wait is devops/deploy/scripts/wait-for-convergence.sh
 # (shared with deploy.yml).
@@ -58,18 +63,61 @@
       when: service != 'all' and service not in services_to_rollback
 
     # ---------------------------------------------------------------- 2
+    # Swarm keeps a single previous spec per service and every rollback swaps
+    # it with the current one, so an unguarded second run returns the service
+    # to the spec it was just rolled back from. The persisted update state is
+    # the only signal that distinguishes "already rolled back" from "a newer
+    # spec was deployed since".
+    - name: 2 | Read the last update state of each service
+      ansible.builtin.command:
+        cmd: >-
+          docker service inspect {{ stack_name }}_{{ item }}
+          --format "{% raw %}{{if .UpdateStatus}}{{.UpdateStatus.State}}{{end}}{% endraw %}"
+      loop: "{{ services_to_rollback }}"
+      register: service_update_states
+      changed_when: false
+
+    - name: 2 | Collect the services whose last operation was a rollback
+      ansible.builtin.set_fact:
+        already_rolled_back: >-
+          {{
+            service_update_states.results
+            | selectattr('stdout', 'search', 'rollback', True)
+            | map(attribute='item')
+            | list
+          }}
+
+    - name: 2 | Warn about the services that are already rolled back
+      ansible.builtin.debug:
+        msg: >-
+          {{ already_rolled_back | join(', ') }}: the last swarm operation was
+          already a rollback, so the service is still at its previous spec —
+          skipping. Run `make rollback`/`make rollback-test` again only after
+          a deploy (which also re-enables a later rollback).
+      when: already_rolled_back | length > 0
+
+    - name: 2 | Drop the services that are already rolled back
+      ansible.builtin.set_fact:
+        services_to_rollback: "{{ services_to_rollback | difference(already_rolled_back) }}"
+
+    - name: 2 | Report when nothing is left to roll back
+      ansible.builtin.debug:
+        msg: "every selected service is already rolled back — nothing to do."
+      when: services_to_rollback | length == 0
+
+    # ---------------------------------------------------------------- 3
     # A service without a previous spec ("no previous spec" / "not currently
     # in an update") is a no-op, not an error — the wait below converges
     # immediately and the final listing verifies the state.
-    - name: 2 | Roll back each service to its previous spec
+    - name: 3 | Roll back each service to its previous spec
       ansible.builtin.command:
         cmd: docker service rollback {{ stack_name }}_{{ item }}
       loop: "{{ services_to_rollback }}"
       failed_when: false
       changed_when: false
 
-    # ---------------------------------------------------------------- 3
-    - name: 3 | Wait for each rollback to converge
+    # ---------------------------------------------------------------- 4
+    - name: 4 | Wait for each rollback to converge
       ansible.builtin.script:
         cmd: >-
           {{ playbook_dir }}/scripts/wait-for-convergence.sh
@@ -77,8 +125,8 @@
           {{ stack_name }}_{{ item }}
       loop: "{{ services_to_rollback }}"
 
-    # ---------------------------------------------------------------- 4
-    - name: 4 | Verify the resulting service state
+    # ---------------------------------------------------------------- 5
+    - name: 5 | Verify the resulting service state
       ansible.builtin.command:
         cmd: >-
           docker service ls --filter name=portfolio_
