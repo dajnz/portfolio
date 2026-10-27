@@ -5,6 +5,7 @@
 .env.*
 .env.example
 .editorconfig
+Makefile
 .vscode/
 .idea/
 *.md
@@ -13,6 +14,7 @@ tests/
 node_modules/
 .pnpm-store/
 vendor/
+devops/deploy/
 devops/docker/dev/
 !devops/docker/dev/Dockerfile
 !devops/docker/dev/php.ini
