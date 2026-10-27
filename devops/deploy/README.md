@@ -22,10 +22,11 @@ time — the stack name, ports, and `/opt/portfolio` are shared.
   installs only git, gettext-base, age, curl, and openssl; it does **not**
   install Docker and stops with a clear error if Docker is missing or older.
 - A sudo-capable SSH user, with the SSH host key trusted on the control
-  machine. `make deploy`, `make deploy-test`, and `make rollback` prompt once
-  for the sudo password (`ASK_BECOME=0` for a passwordless-sudo user). If the
-  key at `deploy_server_ssh_key_path` is passphrase-protected, ssh prompts for
-  it unless the key is loaded in `ssh-agent`.
+  machine. `make deploy`, `make deploy-test`, and `make rollback` load the
+  target key from `deploy_server_ssh_key_path` into ssh-agent first, prompting
+  for its passphrase when needed, then prompt once for the sudo password
+  (`ASK_BECOME=0` for a passwordless-sudo user). Start an ssh-agent/keychain
+  before deploying; the loader skips `ssh-add` when the key is already loaded.
 - The first deploy checks the profile-specific local `.env.prod[.test].age`
   exists and prompts for/validates the age private key at the start of the
   playbook (before the clone and build), aborting on a failed decrypt; the
@@ -175,7 +176,8 @@ replace a certificate later, overwrite the files and run
   install Docker Engine 23+ and re-run. The playbook never installs it.
 - The deploy prompts once for the sudo password (plus the SSH key passphrase
   if the key is not in `ssh-agent`); `ASK_BECOME=0` skips the sudo prompt on
-  passwordless-sudo targets.
+  passwordless-sudo targets. If the target key passphrase prompt fails with
+  `no ssh-agent is running`, start an agent/keychain and re-run.
 - Removing `/opt/portfolio/tls/live/<DOMAIN>/` makes `make deploy-test` fail at
   preflight 0e, before any clone or build.
 - RustFS provisioning runs after convergence; a failure stops the deploy before
