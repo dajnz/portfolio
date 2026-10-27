@@ -42,8 +42,10 @@
 #      hashed files), then build + push only the images whose tag differs (or
 #      whose baked env changed — the PHP image runs `php artisan config:cache`
 #      at build time, fed by the env file through a BuildKit secret)
-#   5. Run `php artisan migrate --force` before the stack update when the
-#      database already exists (after the stack deploy on a first deploy)
+#   5. Assert the release covers every migration the database already applied
+#      (any GIT_REF can be deployed, and migrations never revert), then run
+#      `php artisan migrate --force` before the stack update when the database
+#      already exists (after the stack deploy on a first deploy)
 #   6. Deploy the stack (envsubst over docker-compose.prod.yml with the
 #      production env exported — compose interpolation carries the DB/Redis/
 #      RustFS/DOMAIN configuration into the db/redis/rustfs/nginx services)
@@ -70,6 +72,7 @@
   vars:
     release_root: /opt/portfolio
     deploy_wait_seconds: 600
+    allow_schema_downgrade: "0"
     deploy_profile: "{{ 'vm-test' if (deploy_target | default('production')) == 'vm_test' else 'production' }}"
     tls_mode: "{{ 'provided' if deploy_profile == 'vm-test' else 'certbot' }}"
     env_prod_path: "{{ release_root }}/{{ '.env.prod.test' if deploy_profile == 'vm-test' else '.env.prod' }}"
@@ -683,6 +686,19 @@
     # `migrate --force` is idempotent, so it runs on every deploy while the
     # database exists — this also converges a retry after a failed deploy,
     # where the app tag already matches and no image is rebuilt.
+    # Any GIT_REF can be deployed, including one older than the running
+    # schema. Since migrations never revert, that older code would run against
+    # the newer schema, so the release's migration set must cover every
+    # migration the database already applied.
+    - name: 5 | Assert the release ships every applied migration
+      ansible.builtin.script:
+        cmd: >-
+          {{ playbook_dir }}/scripts/assert-schema-compat.sh
+          "{{ release_root }}/releases/{{ git_ref }}"
+          "{{ env_prod_path }}"
+          "{{ allow_schema_downgrade }}"
+      when: db_service_inspect.rc == 0
+
     - name: 5 | Run pending migrations against the running database
       ansible.builtin.script:
         cmd: >-
