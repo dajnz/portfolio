@@ -559,6 +559,10 @@
       loop: "{{ deployed_images.results }}"
       changed_when: false
 
+    - name: 3 | Initialize the list of services to rebuild
+      ansible.builtin.set_fact:
+        changed_services: []
+
     - name: 3 | Mark services whose deployed tag differs from the manifest
       ansible.builtin.set_fact:
         changed_services: "{{ changed_services | default([]) + [item.key] }}"
