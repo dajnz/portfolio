@@ -22,8 +22,10 @@ Production runs as a Docker Swarm stack deployed by Ansible. The PHP image bakes
 - The manifest is bootstrapped with the current main short SHA for all five services; the CI `update-manifest` job refines it on push.
 - Deploy/rollback bash + python snippets live in `devops/deploy/scripts/` (`clone-release.sh`, `build-php-images.sh`, `deploy-stack.sh`, `wait-for-convergence.sh`, `shred-files.sh`, `refresh-tags.sh`, `registry-prune.py`) and are invoked via the `script:` module; `deploy-stack.sh` supports a `COMPOSE_OUTPUT` override for testability.
 - Postgres/Redis/RustFS are stateful and not in the manifest; upgrades use `docker service update --update-order stop-first` (start-first + shared-volume singleton), and Postgres major versions follow the backup → `pg_dumpall` → scale 0 → new `pgdataNN` volume → deploy → restore runbook with rollback via the untouched old volume.
+- `rollback.yml` skips services whose persisted `UpdateStatus.State` reports a rollback (`rollback_completed`, or a rollback still in flight), warning and exiting 0. Swarm stores one previous spec and every rollback swaps it with the current spec, so an unguarded second run would silently return the service to the newer spec; moving forward again is a deploy, which records a new spec and re-enables rollback.
 
 ## Consequences
 
 - Baked secrets live only in the host-local registry, the same trust domain as the server's plaintext `.env.prod`.
+- Rollback is one step deep and no longer repeatable: a second run is a no-op with a warning instead of toggling a service between two specs. Reverting further, or undoing a rollback, requires redeploying the desired `GIT_REF`.
 - Deleting a manifest by digest removes all tags pointing at that digest — production-safe because every build tag has a unique digest; a duplicate stale tag only surfaces a warning on the second DELETE.

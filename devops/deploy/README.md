@@ -205,5 +205,12 @@ replace a certificate later, overwrite the files and run
   `/opt/registry/data`. A clean host needs no action.
 - `make rollback` rolls back the production group, `make rollback-test` the
   VM. Both use the matching host_vars.
+- Swarm keeps only the most recent previous spec per service and a rollback
+  swaps it with the current one, so repeating the command would return the
+  service to the spec you just left. The playbook therefore skips services
+  whose last swarm operation was already a rollback (warning, exit 0). A
+  deploy is the way forward — it records a new spec and re-enables rollback.
+- Mismatch after a rollback is expected: `manifest.yml` and the env hash file
+  are untouched, so the next deploy sees differing tags and redeploys.
 - The vm-test env path, hash file, and age artifact are distinct from
   production, so a VM can switch profiles without reusing the wrong env.
