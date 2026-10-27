@@ -14,13 +14,13 @@ describe('ResetMaintenanceCommand', function (): void {
         $repository->saveValue(SettingName::SiteMaintenanceMode, true);
 
         $repository->find(SettingName::SiteMaintenanceMode);
-        expect(Cache::has('settings:site_maintenance_mode'))->toBeTrue();
+        expect(Cache::has('setting:v2:site_maintenance_mode'))->toBeTrue();
 
         $this->artisan('admin:reset-maintenance')
             ->expectsOutputToContain('Maintenance mode disabled.')
             ->assertSuccessful();
 
-        expect(Cache::has('settings:site_maintenance_mode'))->toBeFalse()
+        expect(Cache::has('setting:v2:site_maintenance_mode'))->toBeFalse()
             ->and($repository->value(SettingName::SiteMaintenanceMode))->toBeFalse();
     });
 });

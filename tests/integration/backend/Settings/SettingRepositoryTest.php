@@ -36,13 +36,13 @@ describe('EloquentSettingRepository', function (): void {
             ->and($repository->find(SettingName::ProjectsPerPage))->toBeNull();
     });
 
-    it('caches values for 1 minute and serves them from the cache', function (): void {
+    it('caches values and serves them from the cache', function (): void {
         $repository = app(SettingRepositoryInterface::class);
 
         $repository->find(SettingName::ItemsPerPage);
 
-        expect(Cache::has('settings:items_per_page'))->toBeTrue()
-            ->and(Cache::get('settings:items_per_page'))->toBe(12);
+        expect(Cache::has('setting:v2:items_per_page'))->toBeTrue()
+            ->and(Cache::get('setting:v2:items_per_page'))->toBe(['value' => 12]);
     });
 
     it('rebuilds the entity from the cached value on read', function (): void {
@@ -60,18 +60,18 @@ describe('EloquentSettingRepository', function (): void {
 
         $repository->find(SettingName::ProjectsPerPage);
 
-        expect(Cache::has('settings:projects_per_page'))->toBeFalse();
+        expect(Cache::has('setting:v2:projects_per_page'))->toBeFalse();
     });
 
     it('persists typed values and invalidates the cache on write', function (): void {
         $repository = app(SettingRepositoryInterface::class);
 
         $repository->find(SettingName::ItemsPerPage);
-        expect(Cache::has('settings:items_per_page'))->toBeTrue();
+        expect(Cache::has('setting:v2:items_per_page'))->toBeTrue();
 
         $repository->saveValue(SettingName::ItemsPerPage, 7);
 
-        expect(Cache::has('settings:items_per_page'))->toBeFalse()
+        expect(Cache::has('setting:v2:items_per_page'))->toBeFalse()
             ->and($repository->value(SettingName::ItemsPerPage))->toBe(7)
             ->and(SettingModel::query()->find('items_per_page')->value)->toBe('7');
     });

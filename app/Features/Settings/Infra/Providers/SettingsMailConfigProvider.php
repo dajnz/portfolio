@@ -29,6 +29,14 @@ use Throwable;
  */
 final class SettingsMailConfigProvider extends ServiceProvider
 {
+    /**
+     * Only a positive answer is memoized: the table is created after provider
+     * boot in tests, and a cached `false` would hide it from `configureMail()`
+     * re-runs. In a migrated deployment the probe then runs once per process
+     * instead of on every request.
+     */
+    private bool $settingsTableExists = false;
+
     public function boot(): void
     {
         Mail::extend('api', static fn (array $config): ApiMailTransport => new ApiMailTransport($config));
@@ -67,8 +75,12 @@ final class SettingsMailConfigProvider extends ServiceProvider
 
     private function settingsTableExists(): bool
     {
+        if ($this->settingsTableExists) {
+            return true;
+        }
+
         try {
-            return Schema::hasTable('settings');
+            return $this->settingsTableExists = Schema::hasTable('settings');
         } catch (Throwable) {
             return false;
         }
