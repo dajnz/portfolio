@@ -34,7 +34,8 @@
 #         `make deploy-test-init` (secrets-management.md step 3)
 #      e. vm-test only — assert the provided TLS certificate files exist
 #   1. Clone the repository at git_ref (depth 1) into
-#      /opt/portfolio/releases/<git_ref>
+#      /opt/portfolio/releases/<git_ref>, then mirror its tags on every
+#      deploy so the PHP build can read the tag at the deployed commit
 #   2. Read devops/deploy/manifest.yml (service -> image tag)
 #   3. Compare the manifest tags with the tags of the running swarm services
 #   4. Build the client assets (PHP needs the Vite manifest, nginx serves the
@@ -523,6 +524,15 @@
           "{{ release_root }}/releases/{{ git_ref }}"
           "{{ git_ref }}"
       when: not release_git_stat.stat.exists
+
+    # The clone above fetches a single ref into FETCH_HEAD without creating
+    # tag refs, so this runs on every deploy (not just a fresh clone) and is
+    # what lets build-php-images.sh see the tag at the deployed commit.
+    - name: 1 | Mirror the release clone's tags
+      ansible.builtin.script:
+        cmd: >-
+          {{ playbook_dir }}/scripts/refresh-tags.sh
+          "{{ release_root }}/releases/{{ git_ref }}"
 
     # ---------------------------------------------------------------- 2
     - name: 2 | Read the image manifest
