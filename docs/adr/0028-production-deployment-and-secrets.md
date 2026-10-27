@@ -20,7 +20,7 @@ Production runs as a Docker Swarm stack deployed by Ansible. The PHP image bakes
 - Registry pruning deletes by digest via the v2 API (registry ≥ 2.8 rejects tag-reference deletes) with an inline stdlib-python task, then runs `registry garbage-collect`; the Accept header lists OCI manifest+index and docker schema2 manifest+list.
 - `deploy.yml`/`rollback.yml` run as root (`become`), require git/gettext-base/age/curl (Ubuntu/apt) and pass `ansible-playbook --syntax-check`.
 - The manifest is bootstrapped with the current main short SHA for all five services; the CI `update-manifest` job refines it on push.
-- Deploy/rollback bash + python snippets live in `devops/deploy/scripts/` (`clone-release.sh`, `build-php-images.sh`, `deploy-stack.sh`, `wait-for-convergence.sh`, `shred-files.sh`, `registry-prune.py`) and are invoked via the `script:` module; `deploy-stack.sh` supports a `COMPOSE_OUTPUT` override for testability.
+- Deploy/rollback bash + python snippets live in `devops/deploy/scripts/` (`clone-release.sh`, `build-php-images.sh`, `deploy-stack.sh`, `wait-for-convergence.sh`, `shred-files.sh`, `refresh-tags.sh`, `registry-prune.py`) and are invoked via the `script:` module; `deploy-stack.sh` supports a `COMPOSE_OUTPUT` override for testability.
 - Postgres/Redis/RustFS are stateful and not in the manifest; upgrades use `docker service update --update-order stop-first` (start-first + shared-volume singleton), and Postgres major versions follow the backup → `pg_dumpall` → scale 0 → new `pgdataNN` volume → deploy → restore runbook with rollback via the untouched old volume.
 
 ## Consequences

@@ -30,12 +30,13 @@ set +a
 # an env-only change rerun config:cache.
 env_hash="$(sha256sum "$env_file" | cut -d' ' -f1)"
 
-# The admin footer version: the deployed git tag when the checked-out ref is
-# tagged, otherwise the short commit SHA. Baked into the cached config via the
-# Dockerfile's APP_VERSION build arg (config:cache freezes env() values).
-app_version="$(git describe --tags --exact-match 2>/dev/null \
-    || git rev-parse --short HEAD 2>/dev/null \
-    || printf '%s' "$app_tag")"
+# The admin footer version: the highest tag at the deployed commit (the release
+# clone's tags are mirrored by refresh-tags.sh), otherwise the short commit SHA.
+# Baked into the cached config via the Dockerfile's APP_VERSION build arg
+# (config:cache freezes env() values).
+app_version="$(git for-each-ref --points-at HEAD --count=1 --sort=-v:refname \
+    --format='%(refname:short)' refs/tags/)"
+app_version="${app_version:-$(git rev-parse --short HEAD 2>/dev/null || printf '%s' "$app_tag")}"
 
 docker build \
     --pull \

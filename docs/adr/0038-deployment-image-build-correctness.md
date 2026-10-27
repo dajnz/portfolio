@@ -50,6 +50,13 @@ deploy path behind ADR-0028's baked-config decision:
   `portfolio_default` network while the migration container joined an unused,
   non-attachable `portfolio_prod`). Services scaled to zero count as converged
   in `wait-for-convergence.sh`.
+- The release clone is tagless by construction: `clone-release.sh` fetches one
+  ref into `FETCH_HEAD` and creates no tag refs. `deploy.yml` therefore runs
+  `refresh-tags.sh` on every deploy (idempotent, a no-op on remotes without
+  tags) to mirror `refs/tags/*` before the build, and `build-php-images.sh`
+  bakes the highest tag at the deployed commit as `APP_VERSION`, falling back
+  to the short commit SHA. This matches `GitVersionReader`, which picks the
+  highest exact tag for the development footer.
 
 ## Consequences
 
@@ -60,3 +67,5 @@ deploy path behind ADR-0028's baked-config decision:
   release directory remains free of `node_modules`.
 - Rebuild semantics are fully captured by the manifest tags: a frontend-only
   push refreshes all asset-bearing images.
+- The footer version follows those same gates, so a tag added to an
+  already-released commit surfaces only on the next PHP image rebuild.

@@ -340,7 +340,7 @@
             "settings": "Settings",
             "sidebar": "Admin sidebar",
             "skills": "Skills",
-            "tags": "Blog tags"
+            "tags": "Blog Tags"
         },
         "profile": {
             "change_password": "Change Password",
@@ -580,7 +580,7 @@
             "search_placeholder": "Search tags...",
             "slug": "Slug",
             "slug_hint": "Auto-generated from the EN name. Lowercase letters, numbers and dashes.",
-            "title": "Blog tags"
+            "title": "Blog Tags"
         },
         "toasts": {
             "backup_created": "Backup created.",
