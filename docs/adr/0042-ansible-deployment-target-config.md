@@ -18,8 +18,8 @@ should not be committed, and the SSH key file must stay outside git.
 
 - `devops/deploy/hosts.yml` defines two groups: `production` (host
   `portfolio_prod`) and `vm_test` (host `portfolio_vm`). `make deploy` selects
-  `production`; `make deploy-test` selects `vm_test`; `make rollback` accepts
-  `TARGET=vm_test` (default `production`).
+  `production`; `make deploy-test` selects `vm_test`; `make rollback` selects
+  `production` and `make rollback-test` selects `vm_test`.
 - Target values live in gitignored `devops/deploy/host_vars/<host>.yml` files
   with user-facing names: `deploy_server_ip`, `deploy_server_user`,
   `deploy_server_ssh_key_path`, and `portfolio_git_repo`. Committed
@@ -68,5 +68,5 @@ should not be committed, and the SSH key file must stay outside git.
   the clone.
 - The first deploy asks for the age key interactively; automated or repeated
   runs use `AGE_PRIVATE_KEY` or need no key at all once the profile env exists.
-- Rollback requires the target group (`make rollback TARGET=vm_test`) instead
-  of a separate set of environment variables.
+- Rollback selects the target group through its own target (`make rollback` /
+  `make rollback-test`) instead of a separate set of environment variables.

@@ -1,8 +1,8 @@
 ---
 # Rollback playbook — devops.md "Ansible Rollback Playbook".
 #
-# Invoked via `make rollback [TARGET=production|vm_test] [SERVICE=<name>]`
-# (defaults to the production group and all services of the portfolio stack).
+# Invoked via `make rollback` (production) or `make rollback-test` (vm-test),
+# optionally with SERVICE=<name> (default: all services of the portfolio stack).
 # Rolls each service back to its previous Swarm task specification — Swarm
 # stores the previous spec per service, so this is a pure orchestrator-level
 # operation: no image rebuild, no git interaction.
