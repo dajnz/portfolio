@@ -19,7 +19,7 @@
 
 A personal portfolio and blog platform: a bilingual public site (English and
 Russian) with a custom admin panel for content, analytics, resume generation and
-backups.
+backups. Made using agent-based development with manual reviews.
 
 > The project is being prepared for its first public release; there is no live
 > deployment yet.
@@ -77,8 +77,23 @@ architecture decisions are recorded as [ADRs](docs/adr/README.md).
 
 ## Quick start
 
-Requirements: Docker Engine with the Compose plugin, and GNU Make. PHP, Node,
-PostgreSQL, Redis and the S3-compatible storage all run in containers.
+**Requirements**:
+- Docker Engine with the Compose plugin;
+- GNU Make (for running stuff);
+- tested only on Ubuntu 24.04.
+
+Services like PHP, Node, PostgreSQL, Redis and the S3-compatible storage all run in containers.
+
+**Important note**: Docker should be configured to be run without SUDO permissions.
+To do this, use the following snippet:
+
+```bash
+# Adds current user to docker group, this is kind of OK-ish for local-dev only.
+# Not for production servers, since has security implications.
+sudo usermod -aG docker $USER
+# Starts a new shell with a different primary group (in this case, the docker group)
+newgrp docker
+```
 
 ```bash
 git clone https://github.com/dajnz/portfolio.git
