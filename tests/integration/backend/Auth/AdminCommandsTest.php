@@ -63,6 +63,23 @@ describe('admin:create command', function (): void {
             ->assertExitCode(1);
     });
 
+    it('generates a password in non-interactive mode with --generate', function (): void {
+        Http::fake(['api.pwnedpasswords.com/*' => Http::response('')]);
+
+        $this->artisan('admin:create', [
+            '--login' => 'admin',
+            '--email' => 'admin@example.com',
+            '--generate' => true,
+            '--no-interaction' => true,
+        ])->expectsOutputToContain('Admin account created')->assertSuccessful();
+
+        $admin = AdminModel::query()->firstOrFail();
+        expect($admin->login)->toBe('admin')
+            ->and($admin->email)->toBe('admin@example.com')
+            ->and(Hash::check('', $admin->password))->toBeFalse()
+            ->and(strlen($admin->password))->toBe(60);
+    });
+
     it('generates a non-compromised random password when omitted interactively', function (): void {
         Http::fake(['api.pwnedpasswords.com/*' => Http::response('')]);
 

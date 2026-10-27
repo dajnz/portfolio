@@ -25,7 +25,8 @@ final class CreateAdminCommand extends Command
         {--force : Overwrite an existing admin\'s login/email (password is preserved — use admin:reset-password)}
         {--login= : Admin login (required in non-interactive mode)}
         {--email= : Admin email (required in non-interactive mode)}
-        {--password= : Admin password (required in non-interactive mode unless --force; generated when omitted interactively)}';
+        {--password= : Admin password (non-interactive: required unless --generate or --force; generated interactively)}
+        {--generate : Generate a random password in non-interactive mode instead of requiring --password}';
 
     protected $description = 'Create the initial admin account';
 
@@ -54,7 +55,7 @@ final class CreateAdminCommand extends Command
             $missing = [];
             $login === null && $missing[] = '--login';
             $email === null && $missing[] = '--email';
-            ! $adminExists && $password === null && $missing[] = '--password';
+            ! $adminExists && $password === null && ! $this->option('generate') && $missing[] = '--password';
 
             if ($missing !== []) {
                 $this->error('Missing required options in non-interactive mode: '.implode(', ', $missing).'.');
@@ -70,8 +71,10 @@ final class CreateAdminCommand extends Command
 
                 return self::FAILURE;
             }
+        }
 
-            $password ??= $this->passwordGenerator->generate();
+        if ($password === null && ! $adminExists) {
+            $password = $this->passwordGenerator->generate();
         }
 
         try {
