@@ -2,12 +2,12 @@
   <img
     src="docs/readme/assets/main-page-preview.webp"
     alt="Portfolio landing page with the hero section, skills and featured projects"
-    width="50%"
+    width="49%"
   >
   <img
     src="docs/readme/assets/admin-area-example.webp"
     alt="Portfolio admin area page for editing portfolio user details"
-    width="50%"
+    width="49%"
   >
 </p>
 
