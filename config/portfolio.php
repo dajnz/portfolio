@@ -58,4 +58,21 @@ return [
         'locales' => ['en' => 'english', 'ru' => 'russian'],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Public page cache
+    |--------------------------------------------------------------------------
+    |
+    | Caches the assembled props of anonymous public pages in the application
+    | cache (Redis). Disabled by default — local development and tests render
+    | every time; the deployment env files turn it on. Any successful admin
+    | mutation bumps the cache version, so edits are visible immediately.
+    |
+    */
+
+    'public_cache' => [
+        'enabled' => (bool) env('PUBLIC_PAGE_CACHE_ENABLED', false),
+        'ttl' => (int) env('PUBLIC_PAGE_CACHE_TTL', 300),
+    ],
+
 ];

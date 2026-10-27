@@ -11,6 +11,7 @@ use Tests\Support\Architecture\PhpTokenStream;
 
 const CONTROLLER_INFRA_SERVICE_ALLOWLIST = [
     'AdminAuthService',
+    'LandingPagePropsBuilder',
     'PerLocaleValues',
     'ProjectDetailPropsBuilder',
 ];

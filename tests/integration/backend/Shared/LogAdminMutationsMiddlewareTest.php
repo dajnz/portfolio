@@ -6,6 +6,7 @@ namespace Tests\Integration\Backend\Shared;
 
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use App\Features\Shared\Infra\Middleware\LogAdminMutationsMiddleware;
+use App\Features\Shared\Infra\Services\PublicPageCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Mockery;
@@ -24,7 +25,7 @@ describe('LogAdminMutationsMiddleware', function (): void {
                 && $context['path'] === 'admin/contacts/5'),
         );
 
-        $middleware = new LogAdminMutationsMiddleware($logger);
+        $middleware = new LogAdminMutationsMiddleware($logger, new PublicPageCache());
 
         $response = $middleware->handle(
             Request::create('/admin/contacts/5', 'PUT'),
@@ -38,7 +39,7 @@ describe('LogAdminMutationsMiddleware', function (): void {
         $logger = Mockery::mock(LoggerInterface::class);
         $logger->shouldNotReceive('info');
 
-        $middleware = new LogAdminMutationsMiddleware($logger);
+        $middleware = new LogAdminMutationsMiddleware($logger, new PublicPageCache());
         $next = fn (): Response => new Response('', 302);
 
         // `check()` is consulted for the two auth-flow requests, then for
