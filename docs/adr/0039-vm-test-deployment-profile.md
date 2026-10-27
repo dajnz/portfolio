@@ -26,7 +26,7 @@ certbot flow or letting a test deployment reuse production secrets.
   env hash file is profile-specific (`.env.sha256.test`) so the two never
   collide on one VM.
 - `secrets/init.sh` accepts the plaintext and encrypted paths plus the
-  profile; `make secrets-init-test` writes `.env.prod.test.local` /
+  profile; `make deploy-test-init` writes `.env.prod.test.local` /
   `.env.prod.test.age`. The test profile pre-fills dummy GitHub/mail values
   and sets `MAIL_MAILER=log`; `DOMAIN` remains gated so the operator must set
   the certificate hostname.

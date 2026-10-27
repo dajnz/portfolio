@@ -1,0 +1,36 @@
+---
+# Shared pre-flight for deploy.yml and rollback.yml. Runs on the control
+# machine before any task connects to the target, so a missing/incomplete
+# host_vars file gets a clear message instead of an Ansible connection error.
+- name: 0 | Assert the deployment target config is complete
+  ansible.builtin.assert:
+    that:
+      - deploy_server_ip is defined and deploy_server_ip | length > 0
+      - deploy_server_user is defined and deploy_server_user | length > 0
+      - deploy_server_ssh_key_path is defined and deploy_server_ssh_key_path | length > 0
+    fail_msg: >-
+      Deployment target config is incomplete for {{ inventory_hostname }}.
+      Run `make deploy-init` (or `make deploy-test-init`),
+      edit devops/deploy/host_vars/{{ inventory_hostname }}.yml
+      (deploy_server_ip, deploy_server_user, deploy_server_ssh_key_path,
+      portfolio_git_repo), then re-run.
+  delegate_to: localhost
+  run_once: true
+  become: false
+
+- name: 0 | Check the deployment SSH key on the control machine
+  ansible.builtin.stat:
+    path: "{{ deploy_server_ssh_key_path }}"
+  delegate_to: localhost
+  run_once: true
+  become: false
+  register: deploy_ssh_key_stat
+
+- name: 0 | Fail when the deployment SSH key is missing
+  ansible.builtin.assert:
+    that:
+      - deploy_ssh_key_stat.stat.exists
+    fail_msg: "Deployment SSH key not found at {{ deploy_server_ssh_key_path }}"
+  delegate_to: localhost
+  run_once: true
+  become: false

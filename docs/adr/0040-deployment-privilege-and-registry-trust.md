@@ -4,6 +4,8 @@
 - **Date:** 2026-10-25
 - **Source:** Deployment prerequisite review
 - **Supersedes:** —
+- **Amended by:** ADR-0043 (the local registry runs as a loopback-only
+  container; the host-mode publish and firewall bullet below are superseded)
 
 ## Context
 

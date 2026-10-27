@@ -1,4 +1,4 @@
-.PHONY: setup up down up-localhost down-localhost restart restart-localhost health build install lefthook migrate seed seed-fresh build-frontend dev-frontend pictures custom-icons lang-export open-dev open-db open-redis admin-create admin-reset-password switch-prod switch-dev cache-clear db-for-testing test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck quick-check secrets-init secrets-init-test deploy deploy-test rustfs-buckets rollback
+.PHONY: setup up down up-localhost down-localhost restart restart-localhost health build install lefthook migrate seed seed-fresh build-frontend dev-frontend pictures custom-icons lang-export open-dev open-db open-redis admin-create admin-reset-password switch-prod switch-dev cache-clear db-for-testing test test-unit test-int test-backend test-frontend test-e2e lighthouse coverage coverage-backend coverage-frontend lint lint\:css spectral commitlint format typecheck quick-check deploy-init deploy-test-init deploy deploy-test rustfs-buckets rollback
 
 DC = docker compose
 DE = $(DC) exec dev
@@ -357,29 +357,63 @@ typecheck:
 # Runs all fast tests and checks
 quick-check: test lint typecheck
 
-# Generate production secrets and encrypt .env.prod.local
-secrets-init:
-	$(DE) ./devops/secrets/init.sh .env.prod.local .env.prod.age production
+# Prepare the production deployment: target config + encrypted env
+deploy-init:
+	@$(DC) ps --status running --services 2>/dev/null | grep -qx dev || \
+		(echo "ERROR: the dev container is not running — run 'make up-localhost' first." && exit 1)
+	@dest=devops/deploy/host_vars/portfolio_prod.yml; \
+	if [ -f "$$dest" ]; then \
+		echo "Keeping existing $$dest"; \
+	else \
+		cp devops/deploy/host_vars/portfolio_prod.example.yml "$$dest"; \
+		echo "Created $$dest"; \
+	fi
+	@$(DE) ./devops/secrets/init.sh .env.prod.local .env.prod.age production; status=$$?; \
+	echo ""; \
+	echo "Next steps:"; \
+	echo "  1. Edit devops/deploy/host_vars/portfolio_prod.yml:"; \
+	echo "       deploy_server_ip, deploy_server_user, deploy_server_ssh_key_path, portfolio_git_repo"; \
+	echo "  2. If missing keys were reported, fill them in .env.prod.local and re-run: make deploy-init"; \
+	echo "  3. Run: make deploy GIT_REF=<tag-or-commit>"; \
+	echo "     The first deploy prompts for the AGE private key (AGE_PRIVATE_KEY skips it)."; \
+	exit $$status
 
-# Generate the vm-test deployment env (provided TLS; set DOMAIN in .env.prod.test.local)
-secrets-init-test:
-	$(DE) ./devops/secrets/init.sh .env.prod.test.local .env.prod.test.age vm-test
+# Prepare the vm-test deployment: target config + encrypted env (provided TLS)
+deploy-test-init:
+	@$(DC) ps --status running --services 2>/dev/null | grep -qx dev || \
+		(echo "ERROR: the dev container is not running — run 'make up-localhost' first." && exit 1)
+	@dest=devops/deploy/host_vars/portfolio_vm.yml; \
+	if [ -f "$$dest" ]; then \
+		echo "Keeping existing $$dest"; \
+	else \
+		cp devops/deploy/host_vars/portfolio_vm.example.yml "$$dest"; \
+		echo "Created $$dest"; \
+	fi
+	@$(DE) ./devops/secrets/init.sh .env.prod.test.local .env.prod.test.age vm-test; status=$$?; \
+	echo ""; \
+	echo "Next steps:"; \
+	echo "  1. Edit devops/deploy/host_vars/portfolio_vm.yml:"; \
+	echo "       deploy_server_ip, deploy_server_user, deploy_server_ssh_key_path, portfolio_git_repo"; \
+	echo "  2. If missing keys were reported, fill them in .env.prod.test.local and re-run: make deploy-test-init"; \
+	echo "  3. Run: make deploy-test GIT_REF=<branch-or-tag>"; \
+	echo "     The first deploy prompts for the AGE private key (AGE_PRIVATE_KEY skips it)."; \
+	exit $$status
 
 # Deploy to production (usage: make deploy GIT_REF=<tag-or-commit>)
 deploy:
 	@[ -n "$(GIT_REF)" ] || (echo "ERROR: GIT_REF is required. Usage: make deploy GIT_REF=<tag-or-commit>" && exit 1)
-	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF) deploy_profile=production"
-	# On first deploy the playbook reads AGE_PRIVATE_KEY from the environment
+	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF) deploy_target=production"
+	# The first deploy prompts for the age private key (set AGE_PRIVATE_KEY to skip)
 	# to provision /opt/portfolio/.env.prod (see secrets-management.md)
 
 # Deploy the vm-test profile (usage: make deploy-test GIT_REF=<tag-or-commit>)
 # TLS is provided by the operator at /opt/portfolio/tls/live/<DOMAIN>/{fullchain,privkey}.pem
 deploy-test:
 	@[ -n "$(GIT_REF)" ] || (echo "ERROR: GIT_REF is required. Usage: make deploy-test GIT_REF=<tag-or-commit>" && exit 1)
-	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF) deploy_profile=vm-test"
-	# The first deploy reads AGE_PRIVATE_KEY to provision /opt/portfolio/.env.prod.test
-	# from the local .env.prod.test.age (see devops/deploy/README.md)
+	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF) deploy_target=vm_test"
+	# The first deploy prompts for the age private key (set AGE_PRIVATE_KEY to skip)
+	# to provision /opt/portfolio/.env.prod.test (see devops/deploy/README.md)
 
-# Rollback deployed services (usage: make rollback [SERVICE=<name>])
+# Rollback deployed services (usage: make rollback [TARGET=production|vm_test] [SERVICE=<name>])
 rollback:
-	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/rollback.yml -e "service=$(or $(SERVICE),all)"
+	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/rollback.yml -e "service=$(or $(SERVICE),all) deploy_target=$(or $(TARGET),production)"
