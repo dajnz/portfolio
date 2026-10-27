@@ -2,12 +2,12 @@
   <img
     src="assets/main-page-preview.webp"
     alt="Главная страница портфолио с hero-секцией, навыками и избранными проектами"
-    width="50%"
+    width="49%"
   >
   <img
-    src="docs/readme/assets/admin-area-example.webp"
+    src="assets/admin-area-example.webp"
     alt="Страница администраного раздела для редактирования информации о владельце портфолио"
-    width="50%"
+    width="49%"
   >
 </p>
 
