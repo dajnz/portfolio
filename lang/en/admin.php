@@ -26,7 +26,7 @@ return [
         'experience' => 'Experience',
         'projects' => 'Projects',
         'blog' => 'Blog',
-        'tags' => 'Blog tags',
+        'tags' => 'Blog Tags',
         'feedback' => 'Feedback',
         'analytics' => 'Analytics',
         'backups' => 'Backup & Restore',
@@ -308,7 +308,7 @@ return [
     ],
 
     'tags' => [
-        'title' => 'Blog tags',
+        'title' => 'Blog Tags',
         'add' => 'New Tag',
         'create' => 'Create Tag',
         'edit' => 'Edit Tag',

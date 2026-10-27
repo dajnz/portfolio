@@ -97,7 +97,7 @@ describe('TagListPage', () => {
         const wrapper = mountPage();
 
         expect(wrapper.find('[data-testid="tag-list-page-layout"]').exists()).toBe(true);
-        expect(wrapper.get('[data-testid="tag-list-page"] h1').text()).toBe('Blog tags');
+        expect(wrapper.get('[data-testid="tag-list-page"] h1').text()).toBe('Blog Tags');
 
         wrapper.get('[data-testid="tag-list-page-add"]').trigger('click');
         expect(visitMock).toHaveBeenCalledWith('/admin/tags/create');
