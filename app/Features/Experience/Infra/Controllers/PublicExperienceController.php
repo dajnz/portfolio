@@ -10,6 +10,7 @@ use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Infra\Persistence\Cursor;
 use App\Features\Shared\Infra\Persistence\PublicCursorCodec;
+use App\Features\Shared\Infra\Services\PublicPageCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\URL;
@@ -34,6 +35,7 @@ final class PublicExperienceController
         private readonly GetPublicTimelineUseCase $timelineCase,
         private readonly PublicCursorCodec $cursorCodec,
         private readonly MarkdownContentPipelineInterface $pipeline,
+        private readonly PublicPageCache $cache,
     ) {
     }
 
@@ -42,9 +44,24 @@ final class PublicExperienceController
         $locale = App::getLocale();
         $cursor = $this->cursorCodec->decode((string) $request->query('cursor', ''));
 
+        $props = $request->query() === []
+            ? $this->cache->remember(
+                'experience-index:'.$locale.':'.$request->path(),
+                fn (): array => $this->indexProps($locale),
+            )
+            : $this->indexProps($locale, $cursor?->id, $cursor === null ? null : (string) $cursor->sortValue);
+
+        return $inertia->render('Experience/Public/Pages/ExperienceTimelinePage', $props);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function indexProps(string $locale, ?int $cursorId = null, ?string $cursorStartedAt = null): array
+    {
         $data = $this->timelineCase->get(
-            cursorId: $cursor?->id,
-            cursorStartedAt: $cursor === null ? null : (string) $cursor->sortValue,
+            cursorId: $cursorId,
+            cursorStartedAt: $cursorStartedAt,
             locale: $locale,
         );
 
@@ -55,7 +72,7 @@ final class PublicExperienceController
         /** @var array{id: int, started_at: string}|null $nextCursor */
         $nextCursor = $data['next_cursor'];
 
-        return $inertia->render('Experience/Public/Pages/ExperienceTimelinePage', [
+        return [
             'items' => $this->cardProps($items, $projectRefs, $locale),
             'has_more' => $nextCursor !== null,
             'next_cursor' => $nextCursor === null
@@ -66,7 +83,7 @@ final class PublicExperienceController
                 )),
             'has_projects' => $data['has_projects'],
             'seo' => $this->seoProps((string) ($data['about_name'] ?? '')),
-        ]);
+        ];
     }
 
     /**

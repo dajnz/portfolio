@@ -16,6 +16,7 @@ use App\Features\Shared\Domain\RepositoryInterfaces\ContactReadRepositoryInterfa
 use App\Features\Shared\App\Services\PublicationTimeZoneResolver;
 use App\Features\Shared\Infra\Services\ActiveLocaleService;
 use App\Features\Shared\Infra\Services\AppVersion;
+use App\Features\Shared\Infra\Services\PublicPageCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -41,21 +42,29 @@ final class HandleInertiaRequests extends Middleware
         private readonly ActiveLocaleService $locales,
         private readonly AppVersion $appVersion,
         private readonly PublicationTimeZoneResolver $publicationTimeZone,
+        private readonly PublicPageCache $cache,
     ) {
     }
 
     public function share(Request $request): array
     {
         $locale = App::getLocale();
-        $ownerName = $this->aboutInfo->findSiteName($locale);
+
+        // Every DB-backed shared prop below is content, not request state, so
+        // it is cached under the public page cache version token: an admin
+        // mutation flushes it together with the page props.
+        $content = $this->cache->remember(
+            'shared:'.$locale,
+            fn (): array => $this->contentProps($locale),
+        );
 
         $shared = array_merge(parent::share($request), [
             'locale' => $locale,
-            'about_timezone' => $this->publicationTimeZone->resolve(),
+            'about_timezone' => $content['about_timezone'],
             // Only active locales (the `supported_locales` setting) are shown
             // in the language selector and per-locale editing tabs; disabled
             // locales are neither editable nor deleted.
-            'supported_locales' => $this->locales->activeLocales(),
+            'supported_locales' => $content['supported_locales'],
             'theme' => $request->attributes->get('theme', 'light'),
             'auth' => [
                 'user' => $this->adminUser(),
@@ -66,15 +75,15 @@ final class HandleInertiaRequests extends Middleware
             ],
             'notification' => $request->session()->get('notification'),
             'cspNonce' => App::bound(CspNonce::class) ? App::make(CspNonce::class)->getValue() : '',
-            'featureFlags' => $this->featureFlags(),
+            'featureFlags' => $content['feature_flags'],
             'copyright' => [
-                'owner_name' => $ownerName,
+                'owner_name' => $content['owner_name'],
             ],
-            'console_greeting' => $this->consoleGreeting($locale, $ownerName),
+            'console_greeting' => $content['console_greeting'],
             'settings' => [
                 'locale' => $request->attributes->get('locale', App::getLocale()),
                 'theme' => $request->attributes->get('theme', 'light'),
-                'items_per_page' => $this->settings->value(SettingName::ItemsPerPage, Config::get('portfolio.items_per_page', 12)),
+                'items_per_page' => $content['items_per_page'],
             ],
             'request_id' => $request->attributes->get('request_id'),
         ]);
@@ -84,6 +93,30 @@ final class HandleInertiaRequests extends Middleware
         }
 
         return $shared;
+    }
+
+    /**
+     * @return array{
+     *     owner_name: string,
+     *     about_timezone: string,
+     *     supported_locales: string[],
+     *     feature_flags: array<string, bool>,
+     *     console_greeting: array<string, mixed>,
+     *     items_per_page: mixed,
+     * }
+     */
+    private function contentProps(string $locale): array
+    {
+        $ownerName = $this->aboutInfo->findSiteName($locale);
+
+        return [
+            'owner_name' => $ownerName,
+            'about_timezone' => $this->publicationTimeZone->resolve(),
+            'supported_locales' => $this->locales->activeLocales(),
+            'feature_flags' => $this->featureFlags(),
+            'console_greeting' => $this->consoleGreeting($locale, $ownerName),
+            'items_per_page' => $this->settings->value(SettingName::ItemsPerPage, Config::get('portfolio.items_per_page', 12)),
+        ];
     }
 
     private function adminUser(): ?array

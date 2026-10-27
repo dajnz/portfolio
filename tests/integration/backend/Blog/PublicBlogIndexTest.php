@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration\Backend\Blog;
 
+use App\Features\Blog\Infra\Models\ArticleTranslationModel;
 use App\Features\Portfolio\Infra\Models\AboutInfoModel;
 use App\Features\Settings\Infra\Models\SettingModel;
 use Database\Seeders\SettingsSeeder;
@@ -168,6 +169,30 @@ describe('public blog index', function (): void {
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('data.0.id', $a->id)
             ->assertJsonPath('data.0.slug', $a->slug);
+    });
+
+    it('serves the index props from the public page cache on a plain request', function (): void {
+        config()->set('portfolio.public_cache.enabled', true);
+
+        $this->publicBlogArticle([], [
+            'en' => ['title' => 'Cached title', 'short_description' => 'First.', 'content' => 'first body'],
+        ]);
+
+        $this->get('/blog')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('articles.0.title', 'Cached title'));
+
+        // A raw write behind the cache must not be observed while the entry is warm.
+        ArticleTranslationModel::query()->update(['title' => 'Changed behind the cache']);
+
+        $this->get('/blog')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('articles.0.title', 'Cached title'));
+
+        // Filtered requests are never served from the cache.
+        $this->get('/blog?q=cached')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('articles.0.title', 'Changed behind the cache'));
     });
 
     it('prefix-matches the last word of the JSON autocomplete query', function (): void {
