@@ -7,6 +7,7 @@ namespace App\Features\Settings\Infra\Providers;
 use App\Features\Settings\Domain\Enums\SettingName;
 use App\Features\Settings\Domain\RepositoryInterfaces\SettingRepositoryInterface;
 use App\Features\Settings\Infra\Mail\ApiMailTransport;
+use App\Features\Shared\Infra\Services\PublicPageCache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
@@ -54,12 +55,15 @@ final class SettingsMailConfigProvider extends ServiceProvider
             return;
         }
 
-        $repository = $this->app->make(SettingRepositoryInterface::class);
+        $settings = $this->app->make(PublicPageCache::class)->remember(
+            'mail-config',
+            fn (): array => $this->readMailSettings(),
+        );
 
-        $endpoint = $repository->value(SettingName::MailApiEndpoint, Config::get('mail.mailers.api.endpoint', ''));
+        $endpoint = $settings['endpoint'];
 
         if ($endpoint !== null && $endpoint !== '') {
-            $token = $this->decryptToken($repository->value(SettingName::MailApiToken))
+            $token = $this->decryptToken($settings['token'])
                 ?? Config::get('mail.mailers.api.token', null);
 
             Config::set('mail.default', 'api');
@@ -69,8 +73,23 @@ final class SettingsMailConfigProvider extends ServiceProvider
             ]));
         }
 
-        Config::set('mail.from.address', $repository->value(SettingName::MailFromAddress, Config::get('mail.from.address')));
-        Config::set('mail.from.name', $repository->value(SettingName::MailFromName, Config::get('mail.from.name')));
+        Config::set('mail.from.address', $settings['from_address']);
+        Config::set('mail.from.name', $settings['from_name']);
+    }
+
+    /**
+     * @return array{endpoint: mixed, token: mixed, from_address: mixed, from_name: mixed}
+     */
+    private function readMailSettings(): array
+    {
+        $repository = $this->app->make(SettingRepositoryInterface::class);
+
+        return [
+            'endpoint' => $repository->value(SettingName::MailApiEndpoint, Config::get('mail.mailers.api.endpoint', '')),
+            'token' => $repository->value(SettingName::MailApiToken),
+            'from_address' => $repository->value(SettingName::MailFromAddress, Config::get('mail.from.address')),
+            'from_name' => $repository->value(SettingName::MailFromName, Config::get('mail.from.name')),
+        ];
     }
 
     private function settingsTableExists(): bool
