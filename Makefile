@@ -403,20 +403,20 @@ deploy-test-init:
 	echo "     The first deploy prompts for the AGE private key (AGE_PRIVATE_KEY skips it)."; \
 	exit $$status
 
-# Deploy to production (usage: make deploy GIT_REF=<tag-or-commit>)
+# Deploy to production (usage: make deploy GIT_REF=<tag-or-commit> [ALLOW_SCHEMA_DOWNGRADE=1])
 deploy:
 	@[ -n "$(GIT_REF)" ] || (echo "ERROR: GIT_REF is required. Usage: make deploy GIT_REF=<tag-or-commit>" && exit 1)
 	@$(ENSURE_SSH_KEY) devops/deploy/host_vars/portfolio_prod.yml
-	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF) deploy_target=production"
+	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF) deploy_target=production allow_schema_downgrade=$(or $(ALLOW_SCHEMA_DOWNGRADE),0)"
 	# The first deploy prompts for the age private key (set AGE_PRIVATE_KEY to skip)
 	# to provision /opt/portfolio/.env.prod (see secrets-management.md)
 
-# Deploy the vm-test profile (usage: make deploy-test GIT_REF=<tag-or-commit>)
+# Deploy the vm-test profile (usage: make deploy-test GIT_REF=<tag-or-commit> [ALLOW_SCHEMA_DOWNGRADE=1])
 # TLS is provided by the operator at /opt/portfolio/tls/live/<DOMAIN>/{fullchain,privkey}.pem
 deploy-test:
 	@[ -n "$(GIT_REF)" ] || (echo "ERROR: GIT_REF is required. Usage: make deploy-test GIT_REF=<tag-or-commit>" && exit 1)
 	@$(ENSURE_SSH_KEY) devops/deploy/host_vars/portfolio_vm.yml
-	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF) deploy_target=vm_test"
+	ansible-playbook $(BECOME_FLAGS) -i devops/deploy/hosts.yml devops/deploy/deploy.yml -e "git_ref=$(GIT_REF) deploy_target=vm_test allow_schema_downgrade=$(or $(ALLOW_SCHEMA_DOWNGRADE),0)"
 	# The first deploy prompts for the age private key (set AGE_PRIVATE_KEY to skip)
 	# to provision /opt/portfolio/.env.prod.test (see devops/deploy/README.md)
 

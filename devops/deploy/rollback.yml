@@ -7,7 +7,8 @@
 # stores the previous spec per service, so this is a pure orchestrator-level
 # operation: no image rebuild, no git interaction.
 # Only the most recent update per service can be rolled back; to go back
-# further use `make deploy GIT_REF=<older-commit>` instead.
+# further use `make deploy GIT_REF=<older-commit>` instead, which is subject to
+# the schema-compatibility assertion (ADR-0028).
 # Swarm swaps the current and previous specs, so running rollback twice would
 # return the service to the newer spec. Services whose last operation was
 # already a rollback are skipped with a warning (exit 0); moving forward again
