@@ -349,7 +349,7 @@ jobs:
           # manifest, and the push guard compares HEAD with origin/main.
           fetch-depth: 0
           token: ${{ secrets.MANIFEST_PUSH_TOKEN }}
-      - uses: mikefarah/yq@v4.54.1
+      - uses: mikefarah/yq@v4.54.3
 
       - name: Determine changed services
         id: changes
