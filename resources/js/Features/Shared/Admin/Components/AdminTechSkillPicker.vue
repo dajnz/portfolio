@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue';
+import {
+    ensureDeviconIcons,
+    useDeviconIconsReady,
+} from '@shared-cross/Composables/useDeviconIcons';
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId } from 'vue';
@@ -51,6 +55,13 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const { get } = useJsonApi();
+
+ensureDeviconIcons();
+const deviconReady = useDeviconIconsReady();
+
+function canRenderIcon(icon: string): boolean {
+    return !icon.startsWith('devicon:') || deviconReady.value;
+}
 
 const SKILLS_SEARCH_URL = '/api/skills/search';
 const SEARCH_DEBOUNCE_MS = 300;
@@ -281,7 +292,7 @@ onBeforeUnmount(cleanup);
           :key="skill.id"
           variant="primary"
           removable
-          :icon="skill.icon"
+          :icon="canRenderIcon(skill.icon) ? skill.icon : undefined"
           :test_id="`${props.test_id}-pill-${index}`"
           @remove="removeSkill(skill)"
         >
@@ -376,7 +387,7 @@ onBeforeUnmount(cleanup);
                 @click="addSkill(suggestion)"
               >
                 <Icon
-                  v-if="suggestion.icon"
+                  v-if="suggestion.icon && canRenderIcon(suggestion.icon)"
                   class="flex-shrink-0 w-4 h-4"
                   :icon="suggestion.icon"
                   aria-hidden="true"
