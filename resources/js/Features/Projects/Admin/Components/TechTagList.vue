@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import AdminBaseBadge from '@shared-admin/AdminBaseBadge.vue';
+import {
+    ensureDeviconIcons,
+    useDeviconIconsReady,
+} from '@shared-cross/Composables/useDeviconIcons';
 import { computed } from 'vue';
 
 interface TechTag {
@@ -22,6 +26,17 @@ const props = withDefaults(
 
 const visibleTags = computed(() => props.tags.slice(0, Math.max(1, props.max_visible)));
 const hiddenCount = computed(() => Math.max(0, props.tags.length - visibleTags.value.length));
+
+ensureDeviconIcons();
+const deviconReady = useDeviconIconsReady();
+
+function visibleIcon(tag: TechTag): string | undefined {
+    if (tag.icon === null || (tag.icon.startsWith('devicon:') && !deviconReady.value)) {
+        return undefined;
+    }
+
+    return tag.icon;
+}
 </script>
 
 <template>
@@ -34,7 +49,7 @@ const hiddenCount = computed(() => Math.max(0, props.tags.length - visibleTags.v
       :key="tag.id"
       variant="primary"
       size="sm"
-      :icon="tag.icon ?? undefined"
+      :icon="visibleIcon(tag)"
       :test_id="`${props.test_id}-chip-${tag.id}`"
     >
       {{ tag.name }}
