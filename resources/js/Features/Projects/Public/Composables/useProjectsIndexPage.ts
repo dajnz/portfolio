@@ -12,8 +12,8 @@ export type ViewMode = 'grid' | 'list';
 
 // The resolved view shapes the projects index consumes — every field the
 // template reads is guaranteed present (the wire type marks all fields
-// optional). Locale-keyed maps (`preview_image_alt`, screenshot
-// `alt_text`) are resolved for the active locale (en fallback, matching
+// optional). Locale-keyed maps (`preview_image_alt`, screenshot `title`)
+// are resolved for the active locale (en fallback, matching
 // the props builder) and RustFS paths gain the `/assets/` prefix.
 export interface TechTagView {
     id: number;
@@ -99,7 +99,9 @@ export function useProjectsIndexPage(props: {
     const activeRoute = computed(() => normalizeRoute(page.url ?? ''));
 
     const projects = computed<ProjectCardView[]>(() =>
-        (props.projects ?? []).map((project) => toProjectCardView(project, locale.value)),
+        (props.projects ?? []).map((project) =>
+            toProjectCardView(project, locale.value, t('projects.screenshot_alt_fallback')),
+        ),
     );
 
     const navItems = computed<NavItem[]>(() => [
@@ -302,7 +304,11 @@ function initialViewMode(): ViewMode {
  * when the wire sent none — the card falls back to the static preview
  * image.
  */
-function toProjectCardView(project: WireProject, locale: string): ProjectCardView {
+function toProjectCardView(
+    project: WireProject,
+    locale: string,
+    fallbackAlt: string,
+): ProjectCardView {
     const wireScreenshots = project.screenshots ?? [];
 
     return {
@@ -323,7 +329,7 @@ function toProjectCardView(project: WireProject, locale: string): ProjectCardVie
             wireScreenshots.length > 0
                 ? wireScreenshots.map((shot) => ({
                       image_url: `/assets/${shot.image_path ?? ''}`,
-                      alt_text: localeText(shot.alt_text, locale),
+                      alt_text: localeText(shot.title, locale) || fallbackAlt,
                   }))
                 : null,
     };

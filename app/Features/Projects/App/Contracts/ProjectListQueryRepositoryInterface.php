@@ -102,7 +102,7 @@ interface ProjectListQueryRepositoryInterface
      * The gallery paths of the given projects, ordered for display.
      *
      * @param  int[]  $projectIds
-     * @return array<int, array<int, array{image_path: string, alt_text: array<string, string>|null}>>
+     * @return array<int, array<int, array{image_path: string, title: array<string, string>|null}>>
      *     Keyed by project ID.
      */
     public function screenshotsFor(array $projectIds): array;

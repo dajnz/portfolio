@@ -27,6 +27,7 @@ return [
 
     'tech_stack' => 'Технологии',
     'screenshots' => 'Скриншоты',
+    'screenshot_alt_fallback' => 'Скриншот проекта',
     'live_demo' => 'Демо',
     'website' => 'Сайт',
     'problem' => 'Проблема',

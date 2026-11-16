@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property int $project_id
  * @property string $image_path
- * @property array<string, string>|null $alt_text
  * @property array<string, string>|null $title
  * @property array<string, string>|null $description
  * @property int $sort_order
@@ -27,7 +26,6 @@ final class ProjectScreenshotModel extends Model
     protected $fillable = [
         'project_id',
         'image_path',
-        'alt_text',
         'title',
         'description',
         'sort_order',
@@ -41,7 +39,6 @@ final class ProjectScreenshotModel extends Model
     protected function casts(): array
     {
         return [
-            'alt_text' => 'array',
             'title' => 'array',
             'description' => 'array',
             'sort_order' => 'integer',

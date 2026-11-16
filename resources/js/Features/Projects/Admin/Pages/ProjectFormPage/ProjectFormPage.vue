@@ -45,7 +45,6 @@ interface ProjectEditProps {
     screenshots: Array<{
         id?: number;
         image_path: string;
-        alt_text: Record<string, string | null>;
         title: Record<string, string | null>;
         description: Record<string, string | null>;
     }>;
@@ -127,7 +126,6 @@ function buildScreenshots(screenshots: ProjectEditProps['screenshots']): Screens
         uid: randomUuid(),
         id: screenshot.id,
         image: screenshot.image_path,
-        alt_text: stringMap(screenshot.alt_text),
         title: stringMap(screenshot.title),
         description: stringMap(screenshot.description),
     }));
@@ -259,7 +257,6 @@ function onSlugChange(value: string): void {
 function submittableScreenshots(): Array<{
     id?: number;
     image: string;
-    alt_text: Record<string, string>;
     title: Record<string, string>;
     description: Record<string, string>;
 }> {
@@ -268,7 +265,6 @@ function submittableScreenshots(): Array<{
         .map((row) => ({
             ...(row.id !== undefined ? { id: row.id } : {}),
             image: row.image as string,
-            alt_text: row.alt_text,
             title: row.title,
             description: row.description,
         }));

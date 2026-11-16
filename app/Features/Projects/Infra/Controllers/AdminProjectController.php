@@ -395,7 +395,6 @@ final class AdminProjectController
                     : null,
                 image: new ProjectImageDto(
                     url: $screenshot['image'] ?? null,
-                    altLabels: $this->nullableLocaleMap((array) ($screenshot['alt_text'] ?? [])),
                     descriptions: $this->nullableLocaleMap((array) ($screenshot['description'] ?? [])),
                 ),
                 titles: $this->nullableLocaleMap((array) ($screenshot['title'] ?? [])),
@@ -557,7 +556,6 @@ final class AdminProjectController
                 static fn ($screenshot): array => [
                     'id' => $screenshot->id,
                     'image_path' => $screenshot->image->url,
-                    'alt_text' => $screenshot->image->altLabels,
                     'title' => $screenshot->titles,
                     'description' => $screenshot->image->descriptions,
                     'sort_order' => $screenshot->sortOrder,

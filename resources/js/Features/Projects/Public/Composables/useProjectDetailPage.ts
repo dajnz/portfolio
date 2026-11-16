@@ -63,8 +63,9 @@ export interface UseProjectDetailPageApi {
 /**
  * Maps the committed ProjectDetailPageProps wire shape onto the
  * project detail component contracts: the locale-keyed screenshot maps
- * (`alt_text`, `title`, `description`) resolved for the active locale
- * with the en fallback, RustFS paths to public `/assets/` URLs, and the
+ * (`title`, `description`) resolved for the active locale with the en
+ * fallback (the title doubles as the image alt text), RustFS paths to
+ * public `/assets/` URLs, and the
  * engineering detail rows (already localized by the props builder). The
  * wire's `tech_writeup` carries only `{id, slug, title}`, and the
  * section hides when it is null (unlinked or the article was
@@ -89,7 +90,11 @@ export function useProjectDetailPage(props: {
     const project = computed<ProjectDetailView | null>(() =>
         props.project === null || props.project === undefined
             ? null
-            : toProjectDetailView(props.project, locale.value),
+            : toProjectDetailView(
+                  props.project,
+                  locale.value,
+                  t('projects.screenshot_alt_fallback'),
+              ),
     );
 
     const navItems = computed<NavItem[]>(() => [
@@ -114,7 +119,11 @@ function normalizeRoute(url: string): string {
     return match === null ? path : path.slice(match[1].length);
 }
 
-function toProjectDetailView(project: WireProjectDetail, locale: string): ProjectDetailView {
+function toProjectDetailView(
+    project: WireProjectDetail,
+    locale: string,
+    fallbackAlt: string,
+): ProjectDetailView {
     return {
         id: project.id ?? 0,
         title: project.title ?? '',
@@ -133,7 +142,7 @@ function toProjectDetailView(project: WireProjectDetail, locale: string): Projec
         screenshots: (project.screenshots ?? []).map((shot) => ({
             id: shot.id ?? 0,
             image_url: `/assets/${shot.image_path ?? ''}`,
-            alt_text: localeText(shot.alt_text, locale),
+            alt_text: localeText(shot.title, locale) || fallbackAlt,
             title: localeText(shot.title, locale),
             description: localeText(shot.description, locale),
         })),

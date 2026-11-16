@@ -46,7 +46,6 @@ final class ProjectDetailPropsBuilder
                 static fn ($screenshot): array => [
                     'id' => $screenshot->id,
                     'image_path' => $screenshot->image->url,
-                    'alt_text' => $screenshot->image->altLabels,
                     'title' => $screenshot->titles,
                     'description' => $screenshot->image->descriptions,
                     'sort_order' => $screenshot->sortOrder,

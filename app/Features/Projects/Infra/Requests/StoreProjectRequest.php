@@ -25,7 +25,7 @@ use Illuminate\Validation\Validator;
  * rejected here.
  *
  * Nested arrays: `screenshots` (RustFS `image` path, per-locale
- * `alt_text`/`title`/`description` maps — reconciled by id) and
+ * `title`/`description` maps — reconciled by id) and
  * `detail_items` (engineering Iconify `icon` in the `set:name` format —
  * membership is constrained by the strict icon manifests and the
  * restricted picker, the format invariant lives in
@@ -91,8 +91,7 @@ final class StoreProjectRequest extends FormRequest
             'tech_tags.*' => ['integer', 'exists:skills,id'],
             'screenshots' => ['nullable', 'array'],
             'screenshots.*.image' => ['required_with:screenshots', 'string', 'max:255'],
-            'screenshots.*.alt_text.*' => ['nullable', 'string', 'max:500'],
-            'screenshots.*.title.*' => ['nullable', 'string', 'max:200'],
+            'screenshots.*.title.*' => ['nullable', 'string', 'max:500'],
             'screenshots.*.description.*' => ['nullable', 'string', 'max:500'],
             'detail_items' => ['nullable', 'array'],
             'detail_items.*.icon' => [

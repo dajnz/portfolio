@@ -492,7 +492,7 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
             DB::table('project_screenshots')->upsert(
                 $upsertRows,
                 ['id'],
-                ['project_id', 'image_path', 'alt_text', 'title', 'description', 'sort_order', 'updated_at'],
+                ['project_id', 'image_path', 'title', 'description', 'sort_order', 'updated_at'],
             );
         }
 
@@ -529,7 +529,6 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
             $row['updated_at'] = $now;
             // The query-builder writes bypass the model's jsonb casts —
             // the per-locale maps are encoded explicitly.
-            $row['alt_text'] = $this->jsonOrNull($row['alt_text']);
             $row['title'] = $this->jsonOrNull($row['title']);
             $row['description'] = $this->jsonOrNull($row['description']);
 
