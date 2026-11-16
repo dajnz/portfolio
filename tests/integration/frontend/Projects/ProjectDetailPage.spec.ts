@@ -65,7 +65,6 @@ const PROJECT = {
         {
             id: 1,
             image_path: 'projects/ledger-1.png',
-            alt_text: { en: 'Ledger dashboard', ru: 'Дашборд Ledger' },
             title: { en: 'Dashboard', ru: 'Дашборд' },
             description: { en: 'Invoice queue at a glance.', ru: 'Очередь счетов.' },
             sort_order: 0,
@@ -73,7 +72,6 @@ const PROJECT = {
         {
             id: 2,
             image_path: 'projects/ledger-2.png',
-            alt_text: { en: 'Approval workflow', ru: 'Согласование' },
             title: { en: 'Approval Workflow', ru: 'Согласование' },
             description: { en: 'Multi-stage approval with audit trail.', ru: 'Многоступенчатое согласование.' },
             sort_order: 1,
@@ -275,7 +273,7 @@ describe('ProjectDetailPage', () => {
             '/assets/projects/ledger-1.png',
         );
         expect(gallery.get('[data-testid="project-detail-page-gallery-slide-0"] img').attributes('alt')).toBe(
-            'Ledger dashboard',
+            'Dashboard',
         );
         expect(gallery.get('[data-testid="project-detail-page-gallery-slide-0"] h3').text()).toBe(
             'Dashboard',
@@ -298,6 +296,24 @@ describe('ProjectDetailPage', () => {
         expect(lightbox.get('[data-testid="project-detail-page-gallery-lightbox-caption"] h3').text()).toBe(
             'Approval Workflow',
         );
+    });
+
+    it('falls back to the generic alt text when a screenshot has no title', async () => {
+        const wrapper = mountPage({
+            project: {
+                ...PROJECT,
+                screenshots: [
+                    {
+                        ...PROJECT.screenshots[0],
+                        title: { en: '', ru: '' },
+                    },
+                ],
+            },
+        });
+        await flush();
+
+        const image = wrapper.get('[data-testid="project-detail-page-gallery-slide-0"] img');
+        expect(image.attributes('alt')).toBe('Screenshot of a project');
     });
 
     it('opens the lightbox at the clicked index and closes it via the close button', async () => {

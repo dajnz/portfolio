@@ -78,7 +78,7 @@ describe('PublicProjectController', function (): void {
         ProjectScreenshotModel::factory()->create([
             'project_id' => $newer->id,
             'image_path' => 'projects/shot.png',
-            'alt_text' => ['en' => 'Dashboard'],
+            'title' => ['en' => 'Dashboard'],
             'sort_order' => 0,
         ]);
 
@@ -95,7 +95,7 @@ describe('PublicProjectController', function (): void {
                 ->where('projects.0.is_featured', true)
                 ->where('projects.0.github_url', 'https://github.com/example/new')
                 ->where('projects.0.screenshots.0.image_path', 'projects/shot.png')
-                ->where('projects.0.screenshots.0.alt_text.en', 'Dashboard')
+                ->where('projects.0.screenshots.0.title.en', 'Dashboard')
                 ->where('projects.1.id', $older->id)
                 ->where('projects.1.screenshots', [])
                 // 2 items = a full batch at the seeded per_page (2):
@@ -314,7 +314,6 @@ describe('PublicProjectController', function (): void {
         ProjectScreenshotModel::factory()->create([
             'project_id' => $project->id,
             'image_path' => 'projects/shot.png',
-            'alt_text' => ['en' => 'Dashboard', 'ru' => 'Панель'],
             'title' => ['en' => 'Overview'],
             'description' => ['en' => 'The dashboard.'],
             'sort_order' => 0,
@@ -332,7 +331,6 @@ describe('PublicProjectController', function (): void {
             ->assertInertia(fn (Assert $page) => $page
                 ->where('project.tech_tags.0.id', $php)
                 ->where('project.screenshots.0.image_path', 'projects/shot.png')
-                ->where('project.screenshots.0.alt_text.en', 'Dashboard')
                 ->where('project.screenshots.0.title.en', 'Overview')
                 ->where('project.detail_items.0.title', 'Testing')
                 ->where('project.detail_items.0.description', 'Full suite.'));

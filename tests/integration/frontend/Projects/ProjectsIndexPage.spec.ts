@@ -63,8 +63,8 @@ const PROJECTS = [
             { id: 12, name: 'Vue 3', icon: 'devicon:vuejs' },
         ],
         screenshots: [
-            { image_path: 'projects/ledger-1.png', alt_text: { en: 'Dashboard', ru: 'Дашборд' } },
-            { image_path: 'projects/ledger-2.png', alt_text: { en: 'Approvals', ru: 'Согласования' } },
+            { image_path: 'projects/ledger-1.png', title: { en: 'Dashboard', ru: 'Дашборд' } },
+            { image_path: 'projects/ledger-2.png', title: { en: 'Approvals', ru: 'Согласования' } },
         ],
     },
     {
@@ -167,7 +167,7 @@ describe('ProjectsIndexPage', () => {
         expect(first.get('a.project-card__link').attributes('href')).toBe('/projects/ledger');
         expect(first.get('h2').text()).toBe('Ledger — Invoice Automation');
         expect(first.find('[data-testid="projects-page-card-1-carousel"]').exists()).toBe(true);
-        // The wire screenshot alt map resolves to the EN value.
+        // The screenshot title doubles as the alt text.
         expect(first.get('[data-testid="projects-page-card-1-carousel"] img').attributes('alt')).toBe(
             'Dashboard',
         );
@@ -178,6 +178,25 @@ describe('ProjectsIndexPage', () => {
         expect(second.get('[data-testid="projects-page-card-2-demo"]').attributes('href')).toBe(
             'https://example.com/demo',
         );
+    });
+
+    it('falls back to the generic alt text when a screenshot has no title', async () => {
+        const wrapper = mountPage({
+            projects: [
+                {
+                    ...PROJECTS[0],
+                    screenshots: [
+                        { image_path: 'projects/ledger-1.png', title: { en: '', ru: '' } },
+                    ],
+                },
+                PROJECTS[1],
+            ],
+        });
+        await flush();
+
+        expect(
+            wrapper.get('[data-testid="projects-page-card-1-carousel"] img').attributes('alt'),
+        ).toBe('Screenshot of a project');
     });
 
     it('switches to list mode, writes the view-mode cookie and restores it on mount', async () => {
