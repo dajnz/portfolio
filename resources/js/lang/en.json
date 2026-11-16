@@ -848,6 +848,7 @@
         "previous_image": "Previous image",
         "problem": "Problem",
         "read_the_writeup": "read the writeup",
+        "screenshot_alt_fallback": "Screenshot of a project",
         "screenshots": "Screenshots",
         "search_placeholder": "Search projects...",
         "show_filters": "Show filters",

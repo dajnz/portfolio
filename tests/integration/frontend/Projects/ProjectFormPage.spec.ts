@@ -83,7 +83,6 @@ const PROJECT = {
         {
             id: 3,
             image_path: 'projects/shot1.png',
-            alt_text: { en: 'Listing', ru: 'Список' },
             title: { en: 'Listing', ru: 'Список' },
             description: { en: 'The listing view.', ru: 'Вид списка.' },
         },
@@ -331,7 +330,6 @@ describe('ProjectFormPage', () => {
             {
                 id: 3,
                 image: 'projects/shot1.png',
-                alt_text: { en: 'Listing', ru: 'Список' },
                 title: { en: 'Listing', ru: 'Список' },
                 description: { en: 'The listing view.', ru: 'Вид списка.' },
             },
@@ -356,7 +354,6 @@ describe('ProjectFormPage', () => {
                     {
                         id: 4,
                         image_path: 'projects/shot2.png',
-                        alt_text: { en: 'Detail', ru: 'Деталь' },
                         title: { en: 'Detail', ru: 'Деталь' },
                         description: { en: 'The detail view.', ru: 'Детальный вид.' },
                     },

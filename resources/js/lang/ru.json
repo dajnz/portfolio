@@ -848,6 +848,7 @@
         "previous_image": "Предыдущее изображение",
         "problem": "Проблема",
         "read_the_writeup": "читать статью",
+        "screenshot_alt_fallback": "Скриншот проекта",
         "screenshots": "Скриншоты",
         "search_placeholder": "Поиск проектов...",
         "show_filters": "Показать фильтры",

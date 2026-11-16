@@ -136,11 +136,11 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
             ->whereIn('project_id', $projectIds)
             ->orderBy('sort_order')
             ->orderBy('id')
-            ->select(['project_id', 'image_path', 'alt_text'])
+            ->select(['project_id', 'image_path', 'title'])
             ->get() as $row) {
             $shotsByProject[(int) $row->project_id][] = [
                 'image_path' => $row->image_path,
-                'alt_text' => $this->decodeJsonMap($row->alt_text),
+                'title' => $this->decodeJsonMap($row->title),
             ];
         }
 

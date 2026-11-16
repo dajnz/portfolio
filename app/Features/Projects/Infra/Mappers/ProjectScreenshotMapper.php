@@ -22,7 +22,7 @@ final class ProjectScreenshotMapper
             id: (int) $model->id,
             picture: new StoredPicture(
                 url: $model->image_path,
-                altLabels: $this->map($model->alt_text),
+                altLabels: [],
                 descriptions: $this->map($model->description),
             ),
             titles: $this->map($model->title),
@@ -34,7 +34,6 @@ final class ProjectScreenshotMapper
      * @return array{
      *     project_id: int,
      *     image_path: string,
-     *     alt_text: array<string, string>|null,
      *     title: array<string, string>|null,
      *     description: array<string, string>|null,
      *     sort_order: int,
@@ -47,7 +46,6 @@ final class ProjectScreenshotMapper
         return [
             'project_id' => $projectId,
             'image_path' => $picture->url,
-            'alt_text' => $this->nullWhenEmpty($picture->altLabelsMap()),
             'title' => $this->nullWhenEmpty($screenshot->titlesByLocale()),
             'description' => $this->nullWhenEmpty($picture->descriptionsMap()),
             'sort_order' => $screenshot->toSortOrder()->toValue(),

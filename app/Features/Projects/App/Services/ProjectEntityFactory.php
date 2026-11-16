@@ -134,7 +134,7 @@ final class ProjectEntityFactory
                 id: $screenshot->id ?? 0,
                 picture: new StoredPicture(
                     url: $url,
-                    altLabels: $this->nonEmptyLocaleMap($screenshot->image->altLabels),
+                    altLabels: [],
                     descriptions: $this->nonEmptyLocaleMap($screenshot->image->descriptions),
                 ),
                 titles: $this->nonEmptyLocaleMap($screenshot->titles),

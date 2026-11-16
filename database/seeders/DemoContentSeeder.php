@@ -359,10 +359,6 @@ final class DemoContentSeeder extends Seeder
             ProjectScreenshotModel::query()->create([
                 'project_id' => $projectId,
                 'image_path' => $screenshot['image'],
-                'alt_text' => [
-                    'en' => $screenshot['en']['alt'],
-                    'ru' => $screenshot['ru']['alt'],
-                ],
                 'title' => [
                     'en' => $screenshot['en']['title'],
                     'ru' => $screenshot['ru']['title'],

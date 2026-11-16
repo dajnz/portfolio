@@ -21,7 +21,6 @@ export type ScreenshotRow = {
     uid: string;
     id?: number;
     image: string | null;
-    alt_text: Record<string, string>;
     title: Record<string, string>;
     description: Record<string, string>;
 };
@@ -134,10 +133,6 @@ function setScreenshotImage(row: ScreenshotRow, path: string | null): void {
     );
 }
 
-function setScreenshotAlt(row: ScreenshotRow, value: string): void {
-    updateScreenshotRow(row, { alt_text: { ...row.alt_text, [props.locale]: value } });
-}
-
 function setScreenshotTitle(row: ScreenshotRow, value: string): void {
     updateScreenshotRow(row, { title: { ...row.title, [props.locale]: value } });
 }
@@ -157,7 +152,6 @@ function addScreenshot(): void {
     const row = {
         uid: randomUuid(),
         image: null,
-        alt_text: emptyLocaleMap(),
         title: emptyLocaleMap(),
         description: emptyLocaleMap(),
     };
@@ -499,27 +493,15 @@ function onScreenshotHeaderClick(uid: string): void {
                         @upload="uploadScreenshot(item as unknown as ScreenshotRow, $event)"
                       />
                     </div>
-                    <div>
+                    <div class="sm:col-span-2">
                       <AdminBaseInput
                         :model-value="(item as unknown as ScreenshotRow).title[props.locale] ?? ''"
                         :label="`${t('common.title')} [${props.locale}]`"
                         :disabled="props.disabled"
-                        :maxlength="200"
+                        :maxlength="500"
                         :test_id="`${props.test_id}-screenshot-${index}-title-${props.locale}`"
                         @update:model-value="
                           setScreenshotTitle(item as unknown as ScreenshotRow, $event)
-                        "
-                      />
-                    </div>
-                    <div>
-                      <AdminBaseInput
-                        :model-value="(item as unknown as ScreenshotRow).alt_text[props.locale] ?? ''"
-                        :label="`${t('admin.projects.alt_text')} [${props.locale}]`"
-                        :disabled="props.disabled"
-                        :maxlength="500"
-                        :test_id="`${props.test_id}-screenshot-${index}-alt-${props.locale}`"
-                        @update:model-value="
-                          setScreenshotAlt(item as unknown as ScreenshotRow, $event)
                         "
                       />
                     </div>

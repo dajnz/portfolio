@@ -11,12 +11,10 @@ use InvalidArgumentException;
 
 /**
  * A project screenshot: the RustFS image reference as a
- * {@see StoredPicture} (the path plus the per-locale `alt_text` /
- * `description` jsonb maps — each locale optional; renderers fall back
- * to the project title + "screenshot N" when a locale value is
- * missing), the per-locale `title` map (the short heading, same
- * fallback rules) and its zero-based `sort_order` (the gallery drag
- * order).
+ * {@see StoredPicture} (the path plus the per-locale `description` jsonb
+ * map — each locale optional), the per-locale `title` map (the short
+ * heading, also used as the image alt text) and its zero-based
+ * `sort_order` (the gallery drag order).
  *
  * Invariants: the image path is mandatory (enforced by
  * {@see StoredPicture}); the per-locale maps may be empty but every
@@ -50,14 +48,6 @@ final class ProjectScreenshot extends BaseEntity
     public function toImagePath(): string
     {
         return $this->picture->url;
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    public function altLabelsByLocale(): array
-    {
-        return $this->picture->altLabelsMap();
     }
 
     /**

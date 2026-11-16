@@ -31,6 +31,7 @@ return [
 
     'tech_stack' => 'Tech Stack',
     'screenshots' => 'Screenshots',
+    'screenshot_alt_fallback' => 'Screenshot of a project',
     'live_demo' => 'Live Demo',
     'website' => 'Website',
     'problem' => 'Problem',

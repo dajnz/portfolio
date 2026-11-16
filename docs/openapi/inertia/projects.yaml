@@ -151,7 +151,7 @@ components:
             properties:
               image_path:
                 type: string
-              alt_text:
+              title:
                 type: object
                 properties:
                   en:
@@ -417,13 +417,6 @@ components:
             ru:
               type: string
         description:
-          type: object
-          properties:
-            en:
-              type: string
-            ru:
-              type: string
-        alt_text:
           type: object
           properties:
             en:

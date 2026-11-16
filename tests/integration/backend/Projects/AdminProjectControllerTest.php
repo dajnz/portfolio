@@ -429,13 +429,11 @@ describe('AdminProjectController', function (): void {
             'screenshots' => [
                 [
                     'image' => 'projects/shot-1.png',
-                    'alt_text' => ['en' => 'Dashboard', 'ru' => 'Панель'],
                     'title' => ['en' => 'Overview', 'ru' => 'Обзор'],
                     'description' => ['en' => 'The dashboard.', 'ru' => 'Панель управления.'],
                 ],
                 [
                     'image' => 'projects/shot-2.png',
-                    'alt_text' => ['en' => 'Settings'],
                     'title' => [],
                     'description' => [],
                 ],
@@ -446,7 +444,6 @@ describe('AdminProjectController', function (): void {
         $screenshots = ProjectModel::query()->first()->screenshots()->get();
         expect($screenshots)->toHaveCount(2)
             ->and($screenshots->first()->image_path)->toBe('projects/shot-1.png')
-            ->and($screenshots->first()->alt_text)->toBe(['en' => 'Dashboard', 'ru' => 'Панель'])
             ->and($screenshots->first()->title)->toBe(['en' => 'Overview', 'ru' => 'Обзор'])
             ->and($screenshots->first()->description)->toBe(['en' => 'The dashboard.', 'ru' => 'Панель управления.'])
             ->and($screenshots->first()->sort_order)->toBe(0)
@@ -615,7 +612,6 @@ describe('AdminProjectController', function (): void {
         $screenshot = ProjectScreenshotModel::factory()->create([
             'project_id' => $project->id,
             'image_path' => 'projects/shot.png',
-            'alt_text' => ['en' => 'Alt'],
             'title' => ['ru' => 'Заголовок'],
             'description' => null,
             'sort_order' => 0,
@@ -626,7 +622,6 @@ describe('AdminProjectController', function (): void {
             ->assertInertia(fn (Assert $page) => $page
                 ->where('project.screenshots.0.id', $screenshot->id)
                 ->where('project.screenshots.0.image_path', 'projects/shot.png')
-                ->where('project.screenshots.0.alt_text.en', 'Alt')
                 ->where('project.screenshots.0.title.ru', 'Заголовок'));
     });
 
@@ -775,15 +770,15 @@ describe('AdminProjectController', function (): void {
 
         $this->put("/admin/projects/{$project->id}", projectPayload([
             'screenshots' => [
-                ['id' => $kept->id, 'image' => 'projects/kept.png', 'alt_text' => ['en' => 'New alt'], 'title' => [], 'description' => []],
-                ['image' => 'projects/new.png', 'alt_text' => [], 'title' => [], 'description' => []],
+                ['id' => $kept->id, 'image' => 'projects/kept.png', 'title' => ['en' => 'New title'], 'description' => []],
+                ['image' => 'projects/new.png', 'title' => [], 'description' => []],
             ],
         ]))->assertRedirect()
             ->assertSessionHasNoErrors();
 
         $screenshots = $project->fresh()->screenshots()->get();
         expect($screenshots)->toHaveCount(2)
-            ->and($screenshots->firstWhere('id', $kept->id)->alt_text)->toBe(['en' => 'New alt'])
+            ->and($screenshots->firstWhere('id', $kept->id)->title)->toBe(['en' => 'New title'])
             ->and($screenshots->firstWhere('id', $kept->id)->sort_order)->toBe(0)
             ->and($screenshots->last()->image_path)->toBe('projects/new.png')
             ->and($screenshots->last()->sort_order)->toBe(1);
@@ -805,7 +800,7 @@ describe('AdminProjectController', function (): void {
 
         $this->put("/admin/projects/{$project->id}", projectPayload([
             'screenshots' => [
-                ['id' => $shot->id, 'image' => 'projects/new.png', 'alt_text' => [], 'title' => [], 'description' => []],
+                ['id' => $shot->id, 'image' => 'projects/new.png', 'title' => [], 'description' => []],
             ],
         ]))->assertRedirect()
             ->assertSessionHasNoErrors();

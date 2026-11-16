@@ -20,26 +20,22 @@ final class ProjectScreenshotModelFactory extends Factory
         return [
             'project_id' => ProjectModel::factory(),
             'image_path' => 'projects/'.$this->faker->unique()->md5().'.png',
-            'alt_text' => null,
             'title' => null,
             'description' => null,
             'sort_order' => 0,
         ];
     }
 
-    public function withLocaleMaps(string $locale, string $alt, string $title, string $description): static
+    public function withLocaleMaps(string $locale, string $title, string $description): static
     {
-        return $this->state(function (array $attributes) use ($locale, $alt, $title, $description): array {
-            $altMap = (array) ($attributes['alt_text'] ?? []);
+        return $this->state(function (array $attributes) use ($locale, $title, $description): array {
             $titleMap = (array) ($attributes['title'] ?? []);
             $descriptionMap = (array) ($attributes['description'] ?? []);
 
-            $altMap[$locale] = $alt;
             $titleMap[$locale] = $title;
             $descriptionMap[$locale] = $description;
 
             return [
-                'alt_text' => $altMap,
                 'title' => $titleMap,
                 'description' => $descriptionMap,
             ];

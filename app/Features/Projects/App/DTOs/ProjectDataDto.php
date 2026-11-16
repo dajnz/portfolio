@@ -54,7 +54,6 @@ final readonly class ProjectDataDto
                     id: $screenshot->toId(),
                     image: new ProjectImageDto(
                         url: $screenshot->toImagePath(),
-                        altLabels: $screenshot->altLabelsByLocale(),
                         descriptions: $screenshot->descriptionsByLocale(),
                     ),
                     titles: $screenshot->titlesByLocale(),

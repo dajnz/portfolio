@@ -178,7 +178,7 @@ final class PublicProjectController
                 'screenshots' => array_map(
                     static fn (array $shot): array => [
                         'image_path' => $shot['image_path'],
-                        'alt_text' => $shot['alt_text'] ?? [],
+                        'title' => $shot['title'] ?? [],
                     ],
                     $result->screenshots[$item->id] ?? [],
                 ),
