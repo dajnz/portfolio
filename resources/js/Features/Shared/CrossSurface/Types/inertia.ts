@@ -1475,7 +1475,7 @@ export interface components {
             tech_tags?: components["schemas"]["schemas-SkillTagData"][];
             screenshots?: {
                 image_path?: string;
-                alt_text?: {
+                title?: {
                     en?: string;
                     ru?: string;
                 };
@@ -1500,10 +1500,6 @@ export interface components {
                 ru?: string;
             };
             description?: {
-                en?: string;
-                ru?: string;
-            };
-            alt_text?: {
                 en?: string;
                 ru?: string;
             };

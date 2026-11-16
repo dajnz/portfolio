@@ -12,6 +12,14 @@ runtime support.
 
 ### Changed
 
+- **Project screenshots dropped the separate alt text (v1.0.40 inertia):**
+  `ScreenshotData.alt_text` was removed — the per-locale `title` now
+  doubles as the image alt text (renderers fall back to a localized
+  "Screenshot of a project" when a locale has no title). The
+  `ProjectCardData.screenshots[]` rows swapped `alt_text` for the
+  per-locale `title` map. `info.version` bumped to `1.0.40` in
+  `inertia.yaml`.
+
 - **Public shared props no longer expose the route table or the app version
   (v1.0.39 inertia):** `InertiaSharedProps` dropped `ziggy` (unused by the
   Vue frontend) and `version` is now shared only on authenticated admin
