@@ -12,8 +12,8 @@
 #     ruleset's bypass list. Deploy from `main` (or tag after the manifest
 #     commit) so the cloned release contains the updated tags.
 services:
-  app: "5a40002"
-  queue: "5a40002"
-  scheduler: "5a40002"
-  node: "160c312"
-  nginx: "160c312"
+  app: "dc41df4"
+  queue: "dc41df4"
+  scheduler: "dc41df4"
+  node: "dc41df4"
+  nginx: "dc41df4"
