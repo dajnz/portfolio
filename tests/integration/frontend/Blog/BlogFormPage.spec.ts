@@ -83,8 +83,13 @@ const ARTICLE = {
     related: [{ id: 3, title: 'Cursor-Based Pagination in PostgreSQL' }],
 };
 
+// The unsaved-changes guard registers window listeners per mount — every
+// wrapper must be unmounted between tests or stale dirty guards would
+// trip the beforeunload assertions of later tests.
+let mountedWrappers: Array<ReturnType<typeof mount>> = [];
+
 function mountPage(props: Record<string, unknown> = {}) {
-    return mount(BlogFormPage, {
+    const wrapper = mount(BlogFormPage, {
         props: {
             article: null,
             tags: TAGS,
@@ -95,6 +100,9 @@ function mountPage(props: Record<string, unknown> = {}) {
         attachTo: document.body,
         global: { stubs: { Teleport: true } },
     });
+    mountedWrappers.push(wrapper);
+
+    return wrapper;
 }
 
 describe('BlogFormPage', () => {
@@ -111,6 +119,10 @@ describe('BlogFormPage', () => {
     });
 
     afterEach(() => {
+        for (const wrapper of mountedWrappers) {
+            wrapper.unmount();
+        }
+        mountedWrappers = [];
         vi.useRealTimers();
     });
 
@@ -284,6 +296,7 @@ describe('BlogFormPage', () => {
         );
         const wrapper = mountPage();
 
+        await wrapper.get('[data-testid="blog-form-page-title-en"]').setValue('Dirty title');
         await wrapper.get('[data-testid="blog-form-page-form"]').trigger('submit');
         await nextTick();
 
@@ -305,6 +318,7 @@ describe('BlogFormPage', () => {
         );
         const wrapper = mountPage();
 
+        await wrapper.get('[data-testid="blog-form-page-title-en"]').setValue('Dirty title');
         await wrapper.get('[data-testid="blog-form-page-form"]').trigger('submit');
         await nextTick();
 
@@ -366,5 +380,78 @@ describe('BlogFormPage', () => {
             }),
             expect.any(Object),
         );
+    });
+
+    it('keeps the save button disabled when the loaded markdown is re-serialized on mount', async () => {
+        const wrapper = mountPage({
+            article: {
+                ...ARTICLE,
+                content: { en: '| A | B |\n| --- | --- |\n| 1 | 2 |', ru: '' },
+            },
+        });
+        await new Promise((resolve) => setTimeout(resolve, 20));
+
+        expect(
+            wrapper.get('[data-testid="blog-form-page-save-btn"]').attributes('disabled'),
+        ).toBeDefined();
+    });
+
+    it('enables the save button after an edit and disables it again after the save round-trip', async () => {
+        const wrapper = mountPage({ article: ARTICLE });
+        const saveButton = () => wrapper.get('[data-testid="blog-form-page-save-btn"]');
+
+        expect(saveButton().attributes('disabled')).toBeDefined();
+
+        const editor = wrapper.findComponent({ name: 'TextEditor' });
+        editor.vm.$emit('update:modelValue', 'x'.repeat(60));
+        await nextTick();
+        expect(saveButton().attributes('disabled')).toBeUndefined();
+
+        await wrapper.setProps({
+            article: { ...ARTICLE, content: { ...ARTICLE.content, en: 'x'.repeat(60) } },
+        });
+        await nextTick();
+        expect(saveButton().attributes('disabled')).toBeDefined();
+
+        editor.vm.$emit('update:modelValue', 'y'.repeat(60));
+        await nextTick();
+        expect(saveButton().attributes('disabled')).toBeUndefined();
+    });
+
+    it('re-arms the unsaved-changes guard after the save round-trip', async () => {
+        const wrapper = mountPage({ article: ARTICLE });
+
+        const firesBeforeUnload = (): boolean => {
+            const event = new Event('beforeunload', { cancelable: true });
+            const preventDefault = vi.spyOn(event, 'preventDefault');
+            window.dispatchEvent(event);
+
+            return preventDefault.mock.calls.length > 0;
+        };
+
+        expect(firesBeforeUnload()).toBe(false);
+
+        const editor = wrapper.findComponent({ name: 'TextEditor' });
+        editor.vm.$emit('update:modelValue', 'x'.repeat(60));
+        await nextTick();
+        expect(firesBeforeUnload()).toBe(true);
+
+        await wrapper.setProps({
+            article: { ...ARTICLE, content: { ...ARTICLE.content, en: 'x'.repeat(60) } },
+        });
+        await nextTick();
+        expect(firesBeforeUnload()).toBe(false);
+
+        editor.vm.$emit('update:modelValue', 'y'.repeat(60));
+        await nextTick();
+        expect(firesBeforeUnload()).toBe(true);
+    });
+
+    it('does not submit a pristine form', async () => {
+        const wrapper = mountPage({ article: ARTICLE });
+
+        await wrapper.get('[data-testid="blog-form-page-form"]').trigger('submit');
+
+        expect(putMock).not.toHaveBeenCalled();
     });
 });

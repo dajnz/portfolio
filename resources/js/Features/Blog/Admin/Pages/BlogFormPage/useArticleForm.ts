@@ -37,6 +37,7 @@ export interface UseArticleFormApi {
     form: BlogFormValues;
     errors: Ref<Record<string, string>>;
     isSaving: Ref<boolean>;
+    isDirty: Ref<boolean>;
     isUploadingImage: Ref<boolean>;
     isEdit: ComputedRef<boolean>;
     warnedLocales: ComputedRef<string[]>;
@@ -135,8 +136,9 @@ export function useArticleForm(options: UseArticleFormOptions): UseArticleFormAp
         (next) => {
             const fresh = buildForm(next);
             Object.assign(form, fresh);
-            Object.assign(initialSnapshot, fresh);
-            unsavedChanges.clear();
+            unsavedChanges.rebase(
+                JSON.parse(JSON.stringify(fresh)) as unknown as Record<string, unknown>,
+            );
         },
     );
 
@@ -244,7 +246,7 @@ export function useArticleForm(options: UseArticleFormOptions): UseArticleFormAp
     }
 
     function save(): void {
-        if (isSaving.value) {
+        if (isSaving.value || !unsavedChanges.isDirty.value) {
             return;
         }
 
@@ -272,7 +274,6 @@ export function useArticleForm(options: UseArticleFormOptions): UseArticleFormAp
             onSuccess: () => {
                 isSaving.value = false;
                 errors.value = {};
-                unsavedChanges.clear();
             },
             onError: (serverErrors: Record<string, string>) => {
                 isSaving.value = false;
@@ -304,6 +305,7 @@ export function useArticleForm(options: UseArticleFormOptions): UseArticleFormAp
         form,
         errors,
         isSaving,
+        isDirty: unsavedChanges.isDirty,
         isUploadingImage,
         isEdit,
         warnedLocales,

@@ -158,6 +158,7 @@ const unsavedChanges = useUnsavedChanges(
     form as unknown as Record<string, unknown>,
     initialSnapshot as unknown as Record<string, unknown>,
 );
+const isDirty = unsavedChanges.isDirty;
 
 // Server re-renders refresh the props after every save; rebuild the form
 // from the fresh about data and re-arm the guard on a new baseline.
@@ -166,9 +167,10 @@ watch(
     (next) => {
         const fresh = buildForm(next);
         Object.assign(form, fresh);
-        Object.assign(initialSnapshot, fresh);
         photoFileName.value = fresh.photo !== null ? (fresh.photo.split('/').pop() ?? null) : null;
-        unsavedChanges.clear();
+        unsavedChanges.rebase(
+            JSON.parse(JSON.stringify(fresh)) as unknown as Record<string, unknown>,
+        );
     },
 );
 
@@ -226,7 +228,7 @@ function removePhoto(): void {
 }
 
 function save(): void {
-    if (isSaving.value) {
+    if (isSaving.value || !isDirty.value) {
         return;
     }
 
@@ -256,7 +258,6 @@ function save(): void {
             onSuccess: () => {
                 isSaving.value = false;
                 errors.value = {};
-                unsavedChanges.clear();
             },
             onError: (serverErrors) => {
                 isSaving.value = false;
@@ -332,6 +333,7 @@ function cancel(): void {
             <AdminBaseButton
               type="submit"
               variant="primary"
+              :disabled="!isDirty"
               :loading="isSaving"
               :test_id="`${props.test_id}-save-btn`"
             >

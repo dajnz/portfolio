@@ -236,6 +236,7 @@ describe('AboutEditPage', () => {
         );
 
         const wrapper = mountPage();
+        await wrapper.get('[data-testid="about-edit-page-name-en"]').setValue('Alex Edited');
         await wrapper.get('[data-testid="about-edit-page-form"]').trigger('submit');
         await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -298,5 +299,16 @@ describe('AboutEditPage', () => {
         const ruLocation = wrapper.get('[data-testid="about-edit-page-location-ru"]');
         expect((ruLocation.element as HTMLInputElement).value).toBe('Берлин, Германия');
         expect(labelOf(ruLocation.element)).toBe('Location [ru]');
+    });
+
+    it('keeps the save button disabled until the about data is edited', async () => {
+        const wrapper = mountPage();
+        const saveButton = wrapper.get('[data-testid="about-edit-page-save-btn"]');
+
+        expect(saveButton.attributes('disabled')).toBeDefined();
+
+        await wrapper.get('[data-testid="about-edit-page-name-en"]').setValue('Alex Edited');
+
+        expect(saveButton.attributes('disabled')).toBeUndefined();
     });
 });

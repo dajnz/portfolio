@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { type Dialog, expect, test } from '@playwright/test';
 
 import { expectToast, rowIdByText, rowLocator, setCheckbox, typeMarkdown, unique } from '../fixtures/admin';
 import { demoArticles } from '../fixtures/content';
@@ -194,6 +194,58 @@ test.describe('blog management', () => {
         for (const id of bulkRowIds) {
             await expect(page.locator(`[data-testid="blog-list-page-table-row-${id}"]`)).toHaveCount(0);
         }
+    });
+
+    test('treats an untouched article as clean and only enables save after an edit', async ({ page }) => {
+        const token = unique('e2e-blog-clean');
+        const titleEn = `The ${token} Guide`;
+        const tableMarkdown = [
+            'Lead paragraph long enough to satisfy the required content length.',
+            '',
+            '| Operation | Command |',
+            '| --- | --- |',
+            '| increment | `INCR` |',
+        ].join('\n');
+
+        await createArticle(page, token, titleEn, `Гайд ${token}`);
+        const id = await openCreatedArticle(page, token);
+
+        // Replace the EN body with a GFM table through the raw view —
+        // the serializer re-pads the table when it parses the article
+        // back, which used to mark the freshly opened form dirty.
+        await page.getByTestId('blog-form-page-editor-en-mode-toggle').click();
+        await page.getByTestId('blog-form-page-editor-en-raw').fill(tableMarkdown);
+        await page.getByTestId('blog-form-page-save-btn').click();
+        await expectToast(page, 'Saved successfully.');
+
+        await page.goto(`/admin/blog/${id}/edit`);
+
+        const saveButton = page.getByTestId('blog-form-page-save-btn');
+
+        await expect(saveButton).toBeDisabled();
+
+        const dialogs: string[] = [];
+        const collectDialog = (dialog: Dialog): Promise<void> => {
+            dialogs.push(dialog.message());
+
+            return dialog.dismiss();
+        };
+        page.on('dialog', collectDialog);
+
+        await page.getByTestId('admin-sidebar-group-content-item-/admin/skills').click();
+        await page.waitForURL(/\/admin\/skills$/);
+
+        page.off('dialog', collectDialog);
+
+        expect(dialogs).toEqual([]);
+
+        await page.goto(`/admin/blog/${id}/edit`);
+        await page.getByTestId('blog-form-page-title-en').fill(`${titleEn} Revised`);
+        await expect(saveButton).toBeEnabled();
+
+        // The revised title is never saved — the row still carries the
+        // original one when the cleanup deletes it.
+        await softDeleteArticle(page, id as number, titleEn);
     });
 });
 
