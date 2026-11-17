@@ -12,7 +12,8 @@ use App\Features\Shared\Domain\ValueObjects\TechSkillGroupName;
 
 /**
  * Group names are translatable per-locale via {@see TechSkillGroupName}
- * value objects; the icon and sort order are not. Skills are held as a map
+ * value objects; the icon, sort order and landing-page visibility are not.
+ * Skills are held as a map
  * keyed by skill ID, and {@see toSkills()} returns them in insertion
  * order. Constructor arguments are value objects — repositories create
  * them from raw DB/request values.
@@ -26,6 +27,7 @@ final class TechSkillGroup extends BaseEntity
     private int $id;
     private ?SkillGroupIcon $icon;
     private SortOrder $sortOrder;
+    private bool $isHidden;
     /** @var array<string, TechSkillGroupName> Keyed by locale*/
     private array $groupNamesMap;
     /** @var array<int, TechSkill>  Keyed by skill ID. */
@@ -39,12 +41,14 @@ final class TechSkillGroup extends BaseEntity
         int $id,
         ?SkillGroupIcon $icon,
         SortOrder $sortOrder,
+        bool $isHidden,
         array $groupNames,
         array $skills,
     ) {
         $this->id = $id;
         $this->icon = $icon;
         $this->sortOrder = $sortOrder;
+        $this->isHidden = $isHidden;
         $this->groupNamesMap = $this->namesArrayToMap($groupNames);
         $this->skills = $this->indexById($skills);
     }
@@ -62,6 +66,11 @@ final class TechSkillGroup extends BaseEntity
     public function toSortOrder(): int
     {
         return $this->sortOrder->toValue();
+    }
+
+    public function toIsHidden(): bool
+    {
+        return $this->isHidden;
     }
 
     /**

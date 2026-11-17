@@ -58,6 +58,7 @@ addCollection(deviconJson);
 const groups = ref<SkillGroupData[]>(
     props.skillGroups.map((group) => ({ ...group, skills: [...group.skills] })),
 );
+const collapsedGroupIds = ref<Set<number>>(new Set());
 
 const { setGroupSkills, onSkillsDragEnd, persistSkillOrder, persistGroupOrder } = useSkillReorder(
     groups,
@@ -78,6 +79,7 @@ const {
     updateGroupDraft,
     saveNewGroup,
     saveGroup,
+    setGroupHidden,
     moveGroup,
 } = useSkillGroups(groups, persistGroupOrder);
 
@@ -115,6 +117,26 @@ useEditorScroll({
     editingSkill,
     testId: props.test_id,
 });
+
+function toggleGroupCollapsed(id: number): void {
+    const next = new Set(collapsedGroupIds.value);
+
+    if (next.has(id)) {
+        next.delete(id);
+    } else {
+        next.add(id);
+    }
+
+    collapsedGroupIds.value = next;
+}
+
+function expandAllGroups(): void {
+    collapsedGroupIds.value = new Set();
+}
+
+function collapseAllGroups(): void {
+    collapsedGroupIds.value = new Set(groups.value.map((group) => group.id));
+}
 
 // The per-locale editing tabs only offer the ACTIVE locales (the
 // shared `supported_locales` prop — disabled locales are not editable).
@@ -171,6 +193,25 @@ function updateNewGroupName(locale: string, value: string): void {
         >
           {{ t('admin.skills.add_group') }}
         </AdminBaseButton>
+
+        <div class="ml-auto flex items-center gap-2">
+          <AdminBaseButton
+            variant="ghost"
+            size="sm"
+            :test_id="`${props.test_id}-expand-all`"
+            @click="expandAllGroups"
+          >
+            {{ t('admin.skills.expand_all') }}
+          </AdminBaseButton>
+          <AdminBaseButton
+            variant="ghost"
+            size="sm"
+            :test_id="`${props.test_id}-collapse-all`"
+            @click="collapseAllGroups"
+          >
+            {{ t('admin.skills.collapse_all') }}
+          </AdminBaseButton>
+        </div>
       </AdminStickyActionBar>
 
       <template v-if="groups.length > 0 || editingGroupId === 'new'">
@@ -181,6 +222,7 @@ function updateNewGroupName(locale: string, value: string): void {
           :group_draft_icon="groupDraft.icon"
           :group_errors="groupErrors"
           :saving_group="savingGroup"
+          :collapsed_group_ids="collapsedGroupIds"
           :editing_skill="editingSkill"
           :skill_draft="skillDraft"
           :new_skill_draft="newSkillDraft"
@@ -194,6 +236,8 @@ function updateNewGroupName(locale: string, value: string): void {
           @cancel-group="cancelGroupEdit"
           @delete-group="(id) => requestDelete('group', id)"
           @move-group="moveGroup"
+          @toggle-hidden="setGroupHidden"
+          @toggle-collapse="toggleGroupCollapsed"
           @add-skill="startAddSkill"
           @update-skill="updateSkillField"
           @edit-skill="startEditSkill"

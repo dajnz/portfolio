@@ -27,12 +27,13 @@ final class UpdateSkillGroupUseCase
     /**
      * @param  array<string, string|null>  $names  Locale => localized name.
      */
-    public function update(int $id, ?string $icon, int $sortOrder, array $names): void
+    public function update(int $id, ?string $icon, bool $isHidden, int $sortOrder, array $names): void
     {
         $this->repository->saveGroup(new TechSkillGroup(
             id: $id,
             icon: $icon === null ? null : new SkillGroupIcon($icon),
             sortOrder: new SortOrder($sortOrder),
+            isHidden: $isHidden,
             groupNames: $this->groupNames($names),
             skills: [],
         ));

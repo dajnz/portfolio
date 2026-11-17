@@ -16,6 +16,7 @@ const props = withDefaults(
         group_draft_icon: string | null;
         group_errors?: Record<string, string>;
         saving_group?: boolean;
+        collapsed_group_ids?: Set<number>;
         editing_skill: SkillEditorTarget | null;
         skill_draft: SkillDraft;
         new_skill_draft: NewSkillDraft;
@@ -27,6 +28,7 @@ const props = withDefaults(
     {
         group_errors: () => ({}),
         saving_group: false,
+        collapsed_group_ids: () => new Set(),
         skill_errors: () => ({}),
         saving_skill: false,
         proficiency_options: () => [],
@@ -44,6 +46,8 @@ const emit = defineEmits<{
     'delete-group': [id: number];
     'move-group': [id: number, direction: -1 | 1];
     'add-skill': [groupId: number];
+    'toggle-hidden': [id: number, value: boolean];
+    'toggle-collapse': [id: number];
     'update-skill': [groupId: number, id: number, field: string, value: unknown];
     'edit-skill': [groupId: number, id: number];
     'save-skill': [groupId: number, id: number];
@@ -97,6 +101,7 @@ function editingSkillId(group: SkillGroupData): number | 'new' | null {
         "
         :error_names="props.group_errors"
         :is_saving="props.saving_group"
+        :collapsed="props.collapsed_group_ids.has((item as SkillGroupData).id)"
         :can_move_up="index > 0"
         :can_move_down="index < props.groups.length - 1"
         :test_id="props.test_id"
@@ -108,6 +113,8 @@ function editingSkillId(group: SkillGroupData): number | 'new' | null {
         @move-up="(id) => emit('move-group', id, -1)"
         @move-down="(id) => emit('move-group', id, 1)"
         @add-skill="(groupId) => emit('add-skill', groupId)"
+        @toggle-hidden="(id, value) => emit('toggle-hidden', id, value)"
+        @toggle-collapse="(id) => emit('toggle-collapse', id)"
       >
         <SkillsList
           :group="item as SkillGroupData"

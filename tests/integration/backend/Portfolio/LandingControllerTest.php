@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Integration\Backend\Portfolio;
 
 use App\Features\Portfolio\Infra\Models\AboutInfoTranslationModel;
+use App\Features\Shared\Infra\Models\SkillGroupModel;
+use App\Features\Shared\Infra\Models\SkillGroupTranslationModel;
 use App\Features\Shared\Infra\Models\SkillModel;
 use Illuminate\Support\Facades\DB;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -66,6 +68,29 @@ describe('LandingController', function (): void {
                 ->where('console_greeting.position', 'Full-Stack Developer')
                 ->where('console_greeting.contacts.0.label', 'GitHub')
                 ->where('console_greeting.contacts.0.value', 'octocat'));
+    });
+
+    it('excludes hidden skill groups from the landing props', function (): void {
+        $this->seedLandingDataset();
+
+        $hidden = SkillGroupModel::factory()->create(['sort_order' => 1, 'is_hidden' => true]);
+        SkillGroupTranslationModel::factory()->create([
+            'skill_group_id' => $hidden->id,
+            'locale' => 'en',
+            'name' => 'Hidden group',
+        ]);
+        SkillModel::factory()->create([
+            'skill_group_id' => $hidden->id,
+            'name' => 'Hidden skill',
+            'proficiency' => 3,
+            'sort_order' => 0,
+        ]);
+
+        $this->get('/')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('skills', 1)
+                ->where('skills.0.name', 'Backend'));
     });
 
     it('resolves the props per the {locale} path param', function (): void {

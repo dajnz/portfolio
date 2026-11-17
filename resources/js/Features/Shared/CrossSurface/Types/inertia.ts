@@ -1686,6 +1686,8 @@ export interface components {
             name?: string;
             icon?: string;
             sort_order?: number;
+            /** @description When true, the group is omitted from the landing page; its skills remain available to projects, blog and resume. */
+            is_hidden?: boolean;
             skills?: {
                 id?: number;
                 name?: string;

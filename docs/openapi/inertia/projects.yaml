@@ -383,6 +383,9 @@ components:
           type: string
         sort_order:
           type: integer
+        is_hidden:
+          type: boolean
+          description: When true, the group is omitted from the landing page; its skills remain available to projects, blog and resume.
         skills:
           type: array
           items:

@@ -10,6 +10,14 @@ runtime support.
 
 ## [Unreleased]
 
+### Added
+
+- **Skill group visibility (v1.0.41 inertia):** `SkillGroupEditData` gained
+  `is_hidden` (boolean) — the admin skills list can mark a group as hidden,
+  which removes the whole group from the landing page `skills` prop while
+  keeping its skills available to projects, blog and resume. `info.version`
+  bumped to `1.0.41` in `inertia.yaml`.
+
 ### Changed
 
 - **Project screenshots dropped the separate alt text (v1.0.40 inertia):**

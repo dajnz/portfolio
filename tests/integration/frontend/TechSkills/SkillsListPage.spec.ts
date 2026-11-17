@@ -44,6 +44,7 @@ const GROUPS = [
         names: { en: 'Backend', ru: 'Бэкенд' },
         icon: 'heroicons:server',
         sort_order: 0,
+        is_hidden: false,
         skills: [
             {
                 id: 1,
@@ -69,6 +70,7 @@ const GROUPS = [
         names: { en: 'Frontend', ru: 'Фронтенд' },
         icon: 'heroicons:globe-alt',
         sort_order: 1,
+        is_hidden: false,
         skills: [
             {
                 id: 3,
@@ -165,6 +167,7 @@ describe('SkillsListPage', () => {
                 icon: null,
                 name: { en: 'DevOps', ru: '' },
                 sort_order: 2,
+                is_hidden: false,
             }),
             expect.any(Object),
         );
@@ -187,6 +190,7 @@ describe('SkillsListPage', () => {
                 icon: 'heroicons:server',
                 name: { en: 'Backend & APIs', ru: 'Бэкенд' },
                 sort_order: 0,
+                is_hidden: false,
             }),
             expect.any(Object),
         );
@@ -320,6 +324,7 @@ describe('SkillsListPage', () => {
                     names: { en: 'Backend', ru: 'Бэкенд' },
                     icon: null,
                     sort_order: 0,
+                    is_hidden: false,
                     skills: [
                         {
                             id: 1,
@@ -378,6 +383,7 @@ describe('SkillsListPage', () => {
                     names: { en: 'Empty', ru: 'Пусто' },
                     icon: null,
                     sort_order: 0,
+                    is_hidden: false,
                     skills: [],
                 },
             ],
@@ -547,6 +553,7 @@ describe('SkillsListPage', () => {
                     names: { en: 'Empty', ru: 'Пусто' },
                     icon: null,
                     sort_order: 0,
+                    is_hidden: false,
                     skills: [],
                 },
             ],
@@ -571,6 +578,68 @@ describe('SkillsListPage', () => {
             }),
             expect.any(Object),
         );
+    });
+
+    it('toggles the group hidden flag live without opening the editor', async () => {
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="skills-list-page-group-1-hidden"]').setValue(true);
+
+        expect(putMock).toHaveBeenCalledWith(
+            '/admin/skill-groups/1',
+            expect.objectContaining({
+                is_hidden: true,
+                name: { en: 'Backend', ru: 'Бэкенд' },
+                icon: 'heroicons:server',
+                sort_order: 0,
+            }),
+            expect.any(Object),
+        );
+        expect(
+            wrapper.find('[data-testid="skills-list-page-group-1-name-en"]').exists(),
+        ).toBe(false);
+    });
+
+    it('collapses and expands a group from its header button', async () => {
+        const wrapper = mountPage();
+        const toggle = wrapper.get(
+            '[data-testid="skills-list-page-group-1-toggle-collapse"]',
+        );
+
+        expect(wrapper.find('[data-testid="skills-list-page-skills-1"]').exists()).toBe(true);
+        expect(toggle.text()).toBe('Collapse');
+        expect(toggle.attributes('aria-expanded')).toBe('true');
+
+        await toggle.trigger('click');
+
+        expect(wrapper.find('[data-testid="skills-list-page-skills-1"]').exists()).toBe(false);
+        expect(
+            wrapper.find('[data-testid="skills-list-page-group-1-add-skill"]').exists(),
+        ).toBe(false);
+        expect(toggle.text()).toBe('Expand');
+        expect(toggle.attributes('aria-expanded')).toBe('false');
+        expect(
+            wrapper.find('[data-testid="skills-list-page-group-1-name-en"]').exists(),
+        ).toBe(false);
+
+        await toggle.trigger('click');
+
+        expect(wrapper.find('[data-testid="skills-list-page-skills-1"]').exists()).toBe(true);
+        expect(toggle.text()).toBe('Collapse');
+    });
+
+    it('expands and collapses all groups from the sticky bar', async () => {
+        const wrapper = mountPage();
+
+        await wrapper.get('[data-testid="skills-list-page-collapse-all"]').trigger('click');
+
+        expect(wrapper.find('[data-testid="skills-list-page-skills-1"]').exists()).toBe(false);
+        expect(wrapper.find('[data-testid="skills-list-page-skills-2"]').exists()).toBe(false);
+
+        await wrapper.get('[data-testid="skills-list-page-expand-all"]').trigger('click');
+
+        expect(wrapper.find('[data-testid="skills-list-page-skills-1"]').exists()).toBe(true);
+        expect(wrapper.find('[data-testid="skills-list-page-skills-2"]').exists()).toBe(true);
     });
 
     it('offers devicon icons in the new-skill icon picker (ADR-0023 regression)', async () => {

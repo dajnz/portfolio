@@ -26,12 +26,13 @@ final class StoreSkillGroupUseCase
     /**
      * @param  array<string, string|null>  $names  Locale => localized name.
      */
-    public function store(?string $icon, int $sortOrder, array $names): void
+    public function store(?string $icon, bool $isHidden, int $sortOrder, array $names): void
     {
         $this->repository->saveGroup(new TechSkillGroup(
             id: 0,
             icon: $icon === null ? null : new SkillGroupIcon($icon),
             sortOrder: new SortOrder($sortOrder),
+            isHidden: $isHidden,
             groupNames: $this->groupNames($names),
             skills: [],
         ));

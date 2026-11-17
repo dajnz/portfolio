@@ -53,7 +53,7 @@ describe('GetLandingPageDataUseCase', function (): void {
             ],
         );
         $skills = [
-            new TechSkillGroup(id: 1, icon: new SkillGroupIcon('heroicons:server'), sortOrder: new SortOrder(0), groupNames: [
+            new TechSkillGroup(id: 1, icon: new SkillGroupIcon('heroicons:server'), sortOrder: new SortOrder(0), isHidden: false, groupNames: [
                 new TechSkillGroupName(locale: 'en', name: 'Backend'),
             ], skills: [
                 new TechSkill(id: 1, name: 'Laravel', icon: new SkillIcon('devicon:laravel'), proficiency: new ProficiencyLevel(5), includeInResume: true, sortOrder: new SortOrder(0), group: new SkillGroupVo(id: 1, groupNames: [
@@ -91,6 +91,38 @@ describe('GetLandingPageDataUseCase', function (): void {
             ->and($data['has_more_projects'])->toBeTrue()
             ->and($data['contacts'])->toBe($contacts)
             ->and($data['supported_locales'])->toBe(['en', 'ru']);
+    });
+
+    it('excludes hidden skill groups', function (): void {
+        $visible = new TechSkillGroup(
+            id: 1,
+            icon: new SkillGroupIcon('heroicons:server'),
+            sortOrder: new SortOrder(0),
+            isHidden: false,
+            groupNames: [new TechSkillGroupName(locale: 'en', name: 'Backend')],
+            skills: [],
+        );
+        $hidden = new TechSkillGroup(
+            id: 2,
+            icon: new SkillGroupIcon('heroicons:beaker'),
+            sortOrder: new SortOrder(1),
+            isHidden: true,
+            groupNames: [new TechSkillGroupName(locale: 'en', name: 'Experimental')],
+            skills: [],
+        );
+
+        $useCase = new GetLandingPageDataUseCase(
+            aboutInfo: new InMemoryAboutInfoRepository(null),
+            skills: new InMemoryTechSkillReadRepository(skills: [], groups: [$visible, $hidden]),
+            projects: new InMemoryProjectReadRepository(),
+            contacts: new InMemoryContactRepository([]),
+            locales: new FakeActiveLocale(),
+        );
+
+        $skills = $useCase->get('en')['skills'];
+
+        expect($skills)->toHaveCount(1)
+            ->and($skills[0]->toId())->toBe(1);
     });
 
     it('reports has_more_projects as false when all published projects are featured', function (): void {

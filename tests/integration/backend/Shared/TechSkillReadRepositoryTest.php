@@ -147,6 +147,20 @@ describe('EloquentTechSkillReadRepository', function (): void {
             ->and($repository->findAllGrouped('en'))->toBe([]);
     });
 
+    it('hydrates the hidden flag of a group', function (): void {
+        $visible = createSkillGroup(1);
+        translateGroup($visible, 'en', 'Visible');
+        $hidden = createSkillGroup(2);
+        $hidden->update(['is_hidden' => true]);
+        translateGroup($hidden, 'en', 'Hidden');
+
+        $repository = new EloquentTechSkillReadRepository();
+        $grouped = $repository->findAllGrouped('en');
+
+        expect($grouped[0]->toIsHidden())->toBeFalse()
+            ->and($grouped[1]->toIsHidden())->toBeTrue();
+    });
+
     it('groups skills by group preserving group and skill order', function (): void {
         $backend = createSkillGroup(1, 'heroicons:server');
         translateGroup($backend, 'en', 'Backend');

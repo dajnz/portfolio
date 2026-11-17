@@ -20,6 +20,7 @@ function makeGroup(array $overrides = []): TechSkillGroup
         id: $overrides['id'] ?? 1,
         icon: $overrides['icon'] ?? new SkillGroupIcon('heroicons:server'),
         sortOrder: $overrides['sort_order'] ?? new SortOrder(0),
+        isHidden: $overrides['is_hidden'] ?? false,
         groupNames: $overrides['group_names'] ?? [
             new TechSkillGroupName(locale: 'en', name: 'Backend'),
             new TechSkillGroupName(locale: 'ru', name: 'Бэкенд'),
@@ -51,11 +52,18 @@ describe('TechSkillGroup', function (): void {
         expect($group->toId())->toBe(1)
             ->and($group->toIcon())->toBe('heroicons:server')
             ->and($group->toSortOrder())->toBe(0)
+            ->and($group->toIsHidden())->toBeFalse()
             ->and($group->toGroupNames())->toHaveCount(2)
             ->and($group->groupNamesByLocale())->toBe(['en' => 'Backend', 'ru' => 'Бэкенд'])
             ->and($group->nameFor('ru'))->toBe('Бэкенд')
             ->and($group->nameFor('de'))->toBe('Backend')
             ->and($group->toSkills())->toBe([]);
+    });
+
+    it('exposes the hidden flag', function (): void {
+        $group = makeGroup(['is_hidden' => true]);
+
+        expect($group->toIsHidden())->toBeTrue();
     });
 
     it('renames a locale keeping the other locales intact', function (): void {

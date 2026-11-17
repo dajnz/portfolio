@@ -32,6 +32,7 @@ describe('TechSkillGroupController', function (): void {
         expect($row)->not->toBeNull()
             ->and($row->icon)->toBe('heroicons:server')
             ->and($row->sort_order)->toBe(2)
+            ->and($row->is_hidden)->toBeFalse()
             ->and(SkillGroupTranslationModel::query()->where('locale', 'en')->first()->name)->toBe('Backend')
             ->and(SkillGroupTranslationModel::query()->where('locale', 'ru')->first()->name)->toBe('Бэкенд');
     });
@@ -61,6 +62,27 @@ describe('TechSkillGroupController', function (): void {
         expect($row->icon)->toBeNull()
             ->and(SkillGroupTranslationModel::query()->where('skill_group_id', $group->id)->pluck('name')->all())
             ->toBe(['New', 'Новый']);
+    });
+
+    it('persists the hidden flag', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $group = SkillGroupModel::factory()->create();
+        SkillGroupTranslationModel::factory()->create([
+            'skill_group_id' => $group->id,
+            'locale' => 'en',
+            'name' => 'Backend',
+        ]);
+
+        $this->put("/admin/skill-groups/{$group->id}", [
+            'name' => ['en' => 'Backend', 'ru' => 'Бэкенд'],
+            'icon' => 'heroicons:server',
+            'sort_order' => 0,
+            'is_hidden' => true,
+        ])->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        expect($group->fresh()->is_hidden)->toBeTrue();
     });
 
     it('preserves translations of locales disabled in the settings (5.2 rework)', function (): void {
