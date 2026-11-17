@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { IconifyJSON } from '@iconify/types';
 import { addCollection, Icon } from '@iconify/vue';
 import { router, usePage } from '@inertiajs/vue3';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
@@ -26,6 +25,7 @@ import {
 import { localesWithErrors } from '@shared-cross/Utils/localeErrors';
 import { localeOptionsFromCodes } from '@shared-cross/Utils/localeOptions';
 import { computed, reactive, ref, watch } from 'vue';
+import simpleIconsJson from '@/iconSubsets/simple-icons.json';
 
 export interface ContactRow extends Record<string, unknown> {
     id: number;
@@ -96,31 +96,14 @@ function emptyDraft(): DraftContact {
     };
 }
 
-// The contact icon cells render `simple-icons:*` names via the Iconify
-// `Icon` component — the collection must be registered offline (no runtime
-// calls to the Iconify API) or the component fetches it on
-// demand. Started at module scope so the import runs before the first
-// render (the contact rows are the first simple-icons consumers); the
-// picker's own set loading is separate.
-let simpleIconsRegistered = false;
-
-async function ensureSimpleIcons(): Promise<void> {
-    if (simpleIconsRegistered) {
-        return;
-    }
-
-    try {
-        const module = await import('@/iconSubsets/simple-icons.json');
-        const json = (module as { default: IconifyJSON }).default;
-
-        addCollection(json);
-        simpleIconsRegistered = true;
-    } catch {
-        // Iconify falls back to its runtime fetch on an unregistered name.
-    }
-}
-
-void ensureSimpleIcons();
+// The contact rows and the picker trigger render `simple-icons:*` names, so
+// the collection registers synchronously at module scope (static import,
+// race-free): a lazy import would let the rows render first, and Iconify
+// would then fetch the icon from the remote API (blocked by the CSP) while
+// the non-reactive storage leaves the rows blank. The subset stays out of
+// the app bundle — the static edge loads the shared icons chunk with this
+// page only.
+addCollection(simpleIconsJson);
 
 watch(
     () => props.contacts,
