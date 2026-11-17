@@ -70,13 +70,16 @@ const unsavedChanges = useUnsavedChanges(
     initialSnapshot as unknown as Record<string, unknown>,
 );
 
+const isDirty = unsavedChanges.isDirty;
+
 watch(
     () => props.tag,
     (next) => {
         const fresh = buildForm(next);
         Object.assign(form, fresh);
-        Object.assign(initialSnapshot, fresh);
-        unsavedChanges.clear();
+        unsavedChanges.rebase(
+            JSON.parse(JSON.stringify(fresh)) as unknown as Record<string, unknown>,
+        );
     },
 );
 
@@ -109,7 +112,7 @@ function fieldError(field: string): string | null {
 }
 
 function save(): void {
-    if (isSaving.value) {
+    if (isSaving.value || !isDirty.value) {
         return;
     }
 
@@ -129,7 +132,6 @@ function save(): void {
         onSuccess: () => {
             isSaving.value = false;
             errors.value = {};
-            unsavedChanges.clear();
         },
         onError: (serverErrors: Record<string, string>) => {
             isSaving.value = false;
@@ -190,6 +192,7 @@ function save(): void {
             type="submit"
             form="tag-form"
             variant="primary"
+            :disabled="!isDirty"
             :loading="isSaving"
             :test_id="`${props.test_id}-save-btn`"
           >

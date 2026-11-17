@@ -33,11 +33,20 @@ const { menuGroups } = useAdminMenu();
 
 const { activeTab, selectTab } = useSettingsTabs();
 
-const { form, errors, isSaving, headerLocales, disabledLocales, mailPayload, toggleLocale, save } =
-    useSettingsForm({
-        settings: () => props.settings,
-        activeTab: () => activeTab.value,
-    });
+const {
+    form,
+    errors,
+    isSaving,
+    isDirty,
+    headerLocales,
+    disabledLocales,
+    mailPayload,
+    toggleLocale,
+    save,
+} = useSettingsForm({
+    settings: () => props.settings,
+    activeTab: () => activeTab.value,
+});
 
 const { isTesting, testMail } = useMailConnectionTest(mailPayload);
 
@@ -116,6 +125,7 @@ const { flagRows, flagHints, onFlagToggle } = useFeatureFlags(() => page.props.f
           <AdminBaseButton
             type="submit"
             variant="primary"
+            :disabled="!isDirty"
             :loading="isSaving"
             :test_id="`${props.test_id}-save`"
           >

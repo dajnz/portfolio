@@ -357,7 +357,20 @@ describe('ResumeEditPage', () => {
     });
 
     it('saves the uploaded file path with the full Save', async () => {
-        const wrapper = mountPage({ mode: 'manual', custom_resume_file: 'about/abc123.pdf' });
+        const fetchMock = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => ({ data: { path: 'about/abc123.pdf', name: 'resume.pdf' } }),
+        });
+        vi.mocked(fetch).mockImplementation(fetchMock);
+        document.cookie = 'XSRF-TOKEN=abc123%2Bdef';
+
+        const wrapper = mountPage({ mode: 'manual', custom_resume_file: null });
+        const input = wrapper.get('[data-testid="resume-edit-page-file-input"]')
+            .element as HTMLInputElement;
+        const file = new File(['%PDF-1.7'], 'resume.pdf', { type: 'application/pdf' });
+        Object.defineProperty(input, 'files', { value: [file] });
+        await input.dispatchEvent(new Event('change'));
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
         await wrapper.get('[data-testid="resume-edit-page-form"]').trigger('submit');
 
@@ -445,5 +458,16 @@ describe('ResumeEditPage', () => {
         await wrapper.get('[data-testid="resume-edit-page-cancel-btn"]').trigger('click');
 
         expect(visitMock).toHaveBeenCalledWith('/admin');
+    });
+
+    it('keeps the save button disabled until the about text is edited', async () => {
+        const wrapper = mountPage();
+        const saveButton = wrapper.get('[data-testid="resume-edit-page-save-btn"]');
+
+        expect(saveButton.attributes('disabled')).toBeDefined();
+
+        await wrapper.get('[data-testid="resume-edit-page-about-en"]').setValue('Updated about.');
+
+        expect(saveButton.attributes('disabled')).toBeUndefined();
     });
 });

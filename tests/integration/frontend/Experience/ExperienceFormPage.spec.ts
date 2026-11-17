@@ -418,6 +418,7 @@ describe('ExperienceFormPage', () => {
     it('submits with PUT on edit and keeps the provided ended_at', async () => {
         const wrapper = mountPage({ item: { ...ITEM, ended_at: '2026-02-28' } });
 
+        await wrapper.get('[data-testid="experience-form-page-position-en"]').setValue('Staff Engineer');
         await wrapper.get('[data-testid="experience-form-page-form"]').trigger('submit');
 
         expect(putMock).toHaveBeenCalledWith(
@@ -449,6 +450,7 @@ describe('ExperienceFormPage', () => {
         );
 
         const wrapper = mountPage({ item: null });
+        await wrapper.get('[data-testid="experience-form-page-position-en"]').setValue('Engineer');
         await wrapper.get('[data-testid="experience-form-page-form"]').trigger('submit');
         await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -489,5 +491,16 @@ describe('ExperienceFormPage', () => {
                 .get('[data-testid="experience-form-page-save-btn"]')
                 .attributes('form'),
         ).toBe('experience-form');
+    });
+
+    it('keeps the save button disabled until the item is edited', async () => {
+        const wrapper = mountPage();
+        const saveButton = wrapper.get('[data-testid="experience-form-page-save-btn"]');
+
+        expect(saveButton.attributes('disabled')).toBeDefined();
+
+        await wrapper.get('[data-testid="experience-form-page-position-en"]').setValue('Engineer');
+
+        expect(saveButton.attributes('disabled')).toBeUndefined();
     });
 });

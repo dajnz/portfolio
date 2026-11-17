@@ -49,6 +49,7 @@ const {
     form,
     errors,
     isSaving,
+    isDirty,
     isUploadingImage,
     isEdit,
     warnedLocales,
@@ -133,6 +134,7 @@ const relatedTooltip = computed(() =>
             type="submit"
             form="blog-form"
             variant="primary"
+            :disabled="!isDirty"
             :loading="isSaving"
             :test_id="`${props.test_id}-save-btn`"
           >

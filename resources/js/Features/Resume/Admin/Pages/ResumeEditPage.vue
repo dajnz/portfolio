@@ -122,6 +122,7 @@ const unsavedChanges = useUnsavedChanges(
     form as unknown as Record<string, unknown>,
     baseline as unknown as Record<string, unknown>,
 );
+const isDirty = unsavedChanges.isDirty;
 
 const activeLocale = ref('en');
 const customFileName = ref<string | null>(null);
@@ -208,7 +209,7 @@ function autoSave(): void {
 }
 
 function save(): void {
-    if (isSaving.value || isAutoSaving.value) {
+    if (isSaving.value || isAutoSaving.value || !isDirty.value) {
         return;
     }
 
@@ -562,6 +563,7 @@ function cancel(): void {
           <AdminBaseButton
             type="submit"
             variant="primary"
+            :disabled="!isDirty"
             :loading="isSaving"
             :test_id="`${props.test_id}-save-btn`"
           >

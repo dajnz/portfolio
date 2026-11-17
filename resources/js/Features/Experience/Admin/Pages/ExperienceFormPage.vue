@@ -157,6 +157,7 @@ const unsavedChanges = useUnsavedChanges(
     form as unknown as Record<string, unknown>,
     initialSnapshot as unknown as Record<string, unknown>,
 );
+const isDirty = unsavedChanges.isDirty;
 
 // Server re-renders refresh the props after every save; rebuild the form
 // from the fresh item and re-arm the guard on a new baseline.
@@ -165,8 +166,9 @@ watch(
     (next) => {
         const fresh = buildForm(next);
         Object.assign(form, fresh);
-        Object.assign(initialSnapshot, fresh);
-        unsavedChanges.clear();
+        unsavedChanges.rebase(
+            JSON.parse(JSON.stringify(fresh)) as unknown as Record<string, unknown>,
+        );
     },
 );
 
@@ -228,7 +230,7 @@ function submittableAchievements(): Array<{
 }
 
 function save(): void {
-    if (isSaving.value) {
+    if (isSaving.value || !isDirty.value) {
         return;
     }
 
@@ -260,7 +262,6 @@ function save(): void {
         onSuccess: () => {
             isSaving.value = false;
             errors.value = {};
-            unsavedChanges.clear();
         },
         onError: (serverErrors: Record<string, string>) => {
             isSaving.value = false;
@@ -330,6 +331,7 @@ function save(): void {
             type="submit"
             form="experience-form"
             variant="primary"
+            :disabled="!isDirty"
             :loading="isSaving"
             :test_id="`${props.test_id}-save-btn`"
           >

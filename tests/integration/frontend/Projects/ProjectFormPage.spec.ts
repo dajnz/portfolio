@@ -781,4 +781,15 @@ describe('ProjectFormPage', () => {
             expect(title.attributes('value')).toBe('Changed Title');
         });
     });
+
+    it('keeps the save button disabled until the project is edited', async () => {
+        const wrapper = mountForm();
+        const saveButton = wrapper.get('[data-testid="project-form-page-save-btn"]');
+
+        expect(saveButton.attributes('disabled')).toBeDefined();
+
+        await wrapper.get('[data-testid="project-form-page-title-en"]').setValue('Changed Title');
+
+        expect(saveButton.attributes('disabled')).toBeUndefined();
+    });
 });

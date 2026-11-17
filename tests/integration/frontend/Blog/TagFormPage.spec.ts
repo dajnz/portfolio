@@ -145,15 +145,27 @@ describe('TagFormPage', () => {
     it('puts the edit payload via PUT', async () => {
         const wrapper = mountPage({ tag: TAG });
 
+        await wrapper.get('[data-testid="tag-form-page-name-en"]').setValue('Laravel Updated');
         await wrapper.get('[data-testid="tag-form-page-form"]').trigger('submit');
 
         expect(putMock).toHaveBeenCalledWith(
             '/admin/tags/1',
             {
                 slug: 'laravel',
-                name: { en: 'Laravel', ru: 'Ларавел' },
+                name: { en: 'Laravel Updated', ru: 'Ларавел' },
             },
             expect.any(Object),
         );
+    });
+
+    it('keeps the save button disabled until the tag is edited', async () => {
+        const wrapper = mountPage({ tag: TAG });
+        const saveButton = wrapper.get('[data-testid="tag-form-page-save-btn"]');
+
+        expect(saveButton.attributes('disabled')).toBeDefined();
+
+        await wrapper.get('[data-testid="tag-form-page-name-en"]').setValue('Laravel Updated');
+
+        expect(saveButton.attributes('disabled')).toBeUndefined();
     });
 });

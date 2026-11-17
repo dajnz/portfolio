@@ -16,6 +16,7 @@ export interface UseSettingsFormApi {
     form: SettingsFormValues;
     errors: Ref<Record<string, string>>;
     isSaving: Ref<boolean>;
+    isDirty: Ref<boolean>;
     headerLocales: ComputedRef<Array<{ code: string; native_name: string }>>;
     disabledLocales: ComputedRef<string[]>;
     mailPayload: () => SettingsPayload;
@@ -207,7 +208,7 @@ export function useSettingsForm(options: UseSettingsFormOptions): UseSettingsFor
     function save(): void {
         const tab = options.activeTab();
 
-        if (isSaving.value || tab === 'flags') {
+        if (isSaving.value || tab === 'flags' || !unsavedChanges.isDirty.value) {
             return;
         }
 
@@ -252,6 +253,7 @@ export function useSettingsForm(options: UseSettingsFormOptions): UseSettingsFor
         form,
         errors,
         isSaving,
+        isDirty: unsavedChanges.isDirty,
         headerLocales,
         disabledLocales,
         mailPayload,

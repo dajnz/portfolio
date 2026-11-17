@@ -240,6 +240,7 @@ describe('SettingsPage', () => {
 
         const wrapper = mountPage();
 
+        await wrapper.get('[data-testid="settings-page-items-per-page"]').setValue('24');
         await wrapper.get('[data-testid="settings-page-form-general"]').trigger('submit');
 
         expect(toastStore.toasts).toHaveLength(1);
@@ -256,6 +257,7 @@ describe('SettingsPage', () => {
 
         const wrapper = mountPage();
 
+        await wrapper.get('[data-testid="settings-page-items-per-page"]').setValue('2');
         await wrapper.get('[data-testid="settings-page-form-general"]').trigger('submit');
 
         expect(
@@ -489,5 +491,16 @@ describe('SettingsPage', () => {
         window.localStorage.setItem('admin_settings_active_tab', 'bogus');
 
         expect(mountPage().find('[data-testid="settings-page-form-general"]').exists()).toBe(true);
+    });
+
+    it('keeps the save button disabled until a setting is edited', async () => {
+        const wrapper = mountPage();
+        const saveButton = wrapper.get('[data-testid="settings-page-save"]');
+
+        expect(saveButton.attributes('disabled')).toBeDefined();
+
+        await wrapper.get('[data-testid="settings-page-items-per-page"]').setValue('24');
+
+        expect(saveButton.attributes('disabled')).toBeUndefined();
     });
 });
