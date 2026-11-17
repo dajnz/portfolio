@@ -47,7 +47,10 @@ final class GetLandingPageDataUseCase
 
         return [
             'about' => $this->aboutInfo->find(),
-            'skills' => $this->skills->findAllGrouped($locale),
+            'skills' => array_values(array_filter(
+                $this->skills->findAllGrouped($locale),
+                static fn (TechSkillGroup $group): bool => ! $group->toIsHidden(),
+            )),
             'featured_projects' => $featuredProjects,
             'has_more_projects' => $this->projects->countPublished() > count($featuredProjects),
             'contacts' => $this->contacts->findAll(),

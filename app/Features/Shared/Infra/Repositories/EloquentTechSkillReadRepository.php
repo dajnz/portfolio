@@ -73,6 +73,7 @@ final class EloquentTechSkillReadRepository implements TechSkillReadRepositoryIn
                 id: $groupRow['id'],
                 icon: $groupRow['icon'] === null ? null : new SkillGroupIcon($groupRow['icon']),
                 sortOrder: new SortOrder($groupRow['sort_order']),
+                isHidden: $groupRow['is_hidden'],
                 groupNames: $groupRow['translations'],
                 skills: $skillsByGroupId[$groupRow['id']] ?? [],
             );
@@ -83,12 +84,17 @@ final class EloquentTechSkillReadRepository implements TechSkillReadRepositoryIn
 
     /**
      * @param  int[]|null  $groupIds  When provided, only loads rows for these group IDs.
-     * @return array<int, array{id: int, icon: string|null, sort_order: int, translations: TechSkillGroupName[]}>
+     * @return array<int, array{id: int, icon: string|null, sort_order: int, is_hidden: bool, translations: TechSkillGroupName[]}>
      */
     private function loadGroupRows(?array $groupIds = null): array
     {
         $groupQuery = DB::table('skill_groups')
-            ->select(['skill_groups.id', 'skill_groups.icon', 'skill_groups.sort_order'])
+            ->select([
+                'skill_groups.id',
+                'skill_groups.icon',
+                'skill_groups.sort_order',
+                'skill_groups.is_hidden',
+            ])
             ->orderBy('skill_groups.sort_order');
 
         if ($groupIds !== null) {
@@ -116,6 +122,7 @@ final class EloquentTechSkillReadRepository implements TechSkillReadRepositoryIn
                 'id' => (int) $row->id,
                 'icon' => $row->icon,
                 'sort_order' => (int) $row->sort_order,
+                'is_hidden' => (bool) $row->is_hidden,
                 'translations' => $translationsByGroupId[(int) $row->id] ?? [],
             ];
         }
@@ -139,7 +146,7 @@ final class EloquentTechSkillReadRepository implements TechSkillReadRepositoryIn
     }
 
     /**
-     * @param  array<int, array{id: int, icon: string|null, sort_order: int, translations: TechSkillGroupName[]}>  $groups
+     * @param  array<int, array{id: int, icon: string|null, sort_order: int, is_hidden: bool, translations: TechSkillGroupName[]}>  $groups
      */
     private function hydrateSkill(SkillModel $row, array $groups): TechSkill
     {

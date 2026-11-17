@@ -118,6 +118,7 @@ final class TechSkillController
             'names' => $group->groupNamesByLocale(),
             'icon' => $group->toIcon(),
             'sort_order' => $group->toSortOrder(),
+            'is_hidden' => $group->toIsHidden(),
             'skills' => array_map(
                 fn (TechSkill $skill): array => [
                 'id' => $skill->toId(),

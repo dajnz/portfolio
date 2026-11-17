@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $sort_order
  * @property string|null $icon
+ * @property bool $is_hidden
  */
 final class SkillGroupModel extends Model
 {
@@ -29,6 +30,7 @@ final class SkillGroupModel extends Model
     protected $fillable = [
         'sort_order',
         'icon',
+        'is_hidden',
     ];
 
     /**

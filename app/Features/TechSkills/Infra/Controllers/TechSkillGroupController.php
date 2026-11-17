@@ -32,6 +32,7 @@ final class TechSkillGroupController
     {
         $this->storeCase->store(
             icon: $request->input('icon'),
+            isHidden: $request->boolean('is_hidden'),
             sortOrder: (int) $request->input('sort_order', 0),
             names: $request->input('name', []),
         );
@@ -45,6 +46,7 @@ final class TechSkillGroupController
         $this->updateCase->update(
             id: $skillGroup,
             icon: $request->input('icon'),
+            isHidden: $request->boolean('is_hidden'),
             sortOrder: (int) $request->input('sort_order', 0),
             names: $request->input('name', []),
         );

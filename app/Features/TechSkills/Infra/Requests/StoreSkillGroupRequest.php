@@ -25,6 +25,7 @@ final class StoreSkillGroupRequest extends FormRequest
     {
         $rules = [
             'icon' => ['nullable', 'string', 'max:100'],
+            'is_hidden' => ['boolean'],
             'sort_order' => ['integer', 'min:0'],
         ];
 

@@ -31,6 +31,7 @@ final class TechSkillGroupMapper
             id: $model->id,
             icon: $model->icon === null ? null : new SkillGroupIcon($model->icon),
             sortOrder: new SortOrder((int) $model->sort_order),
+            isHidden: (bool) $model->is_hidden,
             groupNames: $translations
                 ->map(fn (mixed $row): TechSkillGroupName => $this->nameMapper->toEntity($row))
                 ->all(),
@@ -39,13 +40,14 @@ final class TechSkillGroupMapper
     }
 
     /**
-     * @return array{icon: string|null, sort_order: int}
+     * @return array{icon: string|null, sort_order: int, is_hidden: bool}
      */
     public function toRow(TechSkillGroup $group): array
     {
         return [
             'icon' => $group->toIcon(),
             'sort_order' => $group->toSortOrder(),
+            'is_hidden' => $group->toIsHidden(),
         ];
     }
 }
