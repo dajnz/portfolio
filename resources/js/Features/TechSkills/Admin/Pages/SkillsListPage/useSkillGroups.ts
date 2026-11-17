@@ -89,6 +89,7 @@ export function useSkillGroups(groups: Ref<SkillGroupData[]>, persistGroupOrder:
                 icon: groupDraft.icon,
                 name: { ...groupDraft.names },
                 sort_order: groups.value.length,
+                is_hidden: false,
             },
             {
                 preserveScroll: true,
@@ -111,12 +112,15 @@ export function useSkillGroups(groups: Ref<SkillGroupData[]>, persistGroupOrder:
         savingGroup.value = true;
         groupErrors.value = {};
 
+        const group = groups.value.find((row) => row.id === id);
+
         router.put(
             `/admin/skill-groups/${id}`,
             {
                 icon: groupDraft.icon,
                 name: { ...groupDraft.names },
-                sort_order: groups.value.find((group) => group.id === id)?.sort_order ?? 0,
+                sort_order: group?.sort_order ?? 0,
+                is_hidden: group?.is_hidden ?? false,
             },
             {
                 preserveScroll: true,
@@ -133,6 +137,27 @@ export function useSkillGroups(groups: Ref<SkillGroupData[]>, persistGroupOrder:
                     notifyIncompleteTranslations(serverErrors);
                 },
             },
+        );
+    }
+
+    function setGroupHidden(id: number, value: boolean): void {
+        const group = groups.value.find((row) => row.id === id);
+
+        if (group === undefined) {
+            return;
+        }
+
+        group.is_hidden = value;
+
+        router.put(
+            `/admin/skill-groups/${id}`,
+            {
+                icon: group.icon,
+                name: { ...group.names },
+                sort_order: group.sort_order,
+                is_hidden: group.is_hidden,
+            },
+            { preserveScroll: true },
         );
     }
 
@@ -174,6 +199,7 @@ export function useSkillGroups(groups: Ref<SkillGroupData[]>, persistGroupOrder:
         updateGroupDraft,
         saveNewGroup,
         saveGroup,
+        setGroupHidden,
         moveGroup,
     };
 }

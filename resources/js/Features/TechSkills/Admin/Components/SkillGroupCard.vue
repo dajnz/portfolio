@@ -2,6 +2,7 @@
 import { Icon } from '@iconify/vue';
 import { usePage } from '@inertiajs/vue3';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
+import AdminBaseCheckbox from '@shared-admin/AdminBaseCheckbox.vue';
 import AdminBaseInput from '@shared-admin/AdminBaseInput.vue';
 import AdminIconPicker from '@shared-admin/AdminIconPicker.vue';
 import LocaleTabs from '@shared-admin/LocaleTabs.vue';
@@ -22,6 +23,7 @@ export interface SkillGroupData extends Record<string, unknown> {
     names: Record<string, string>;
     icon: string | null;
     sort_order: number;
+    is_hidden: boolean;
     skills: SkillRow[];
 }
 
@@ -34,6 +36,7 @@ const props = withDefaults(
         draft_icon?: string | null;
         error_names?: Record<string, string>;
         is_saving?: boolean;
+        collapsed?: boolean;
         can_move_up?: boolean;
         can_move_down?: boolean;
         test_id?: string;
@@ -44,6 +47,7 @@ const props = withDefaults(
         draft_icon: null,
         error_names: () => ({}),
         is_saving: false,
+        collapsed: false,
         can_move_up: false,
         can_move_down: false,
         test_id: 'skill-group-card',
@@ -59,6 +63,8 @@ const emit = defineEmits<{
     'move-up': [id: number];
     'move-down': [id: number];
     'add-skill': [groupId: number];
+    'toggle-hidden': [id: number, value: boolean];
+    'toggle-collapse': [id: number];
 }>();
 
 const { t } = useI18n();
@@ -105,12 +111,15 @@ function nameError(): string | null {
     :data-testid="`${props.test_id}-group-${props.group.id}`"
   >
     <header
-      class="flex gap-3 rounded-t-lg border-b border-slate-100 px-4 py-3 transition-colors dark:border-slate-700"
-      :class="
+      class="flex flex-wrap gap-3 rounded-t-lg px-4 py-3 transition-colors"
+      :class="[
         props.editing
           ? 'items-start bg-slate-100/80 sm:items-center dark:bg-slate-800/60'
-          : 'items-center cursor-pointer bg-slate-100/70 hover:bg-slate-200/70 dark:bg-slate-800/50 dark:hover:bg-slate-800/70'
-      "
+          : 'items-center cursor-pointer bg-slate-100/70 hover:bg-slate-200/70 dark:bg-slate-800/50 dark:hover:bg-slate-800/70',
+        props.collapsed
+          ? 'rounded-b-lg'
+          : 'border-b border-slate-100 dark:border-slate-700',
+      ]"
       :data-testid="`${props.test_id}-group-${props.group.id}-header`"
       @click="onHeaderClick"
     >
@@ -215,6 +224,32 @@ function nameError(): string | null {
           {{ props.group.name }}
         </h2>
         <AdminBaseButton
+          variant="secondary"
+          size="sm"
+          :aria-expanded="!props.collapsed"
+          :test_id="`${props.test_id}-group-${props.group.id}-toggle-collapse`"
+          @click.stop="emit('toggle-collapse', props.group.id)"
+        >
+          {{
+            props.collapsed
+              ? t('admin.skills.expand')
+              : t('admin.skills.collapse')
+          }}
+        </AdminBaseButton>
+        <span
+          class="flex shrink-0 items-center"
+          @click.stop
+        >
+          <AdminBaseCheckbox
+            :model-value="props.group.is_hidden"
+            :label="t('admin.skills.hidden')"
+            :test_id="`${props.test_id}-group-${props.group.id}-hidden`"
+            @update:model-value="
+              (value) => emit('toggle-hidden', props.group.id, value)
+            "
+          />
+        </span>
+        <AdminBaseButton
           variant="icon-only"
           icon="heroicons:chevron-up"
           :disabled="!props.can_move_up"
@@ -243,23 +278,25 @@ function nameError(): string | null {
       </template>
     </header>
 
-    <!-- The page injects the new-skill editor row + the skills
-         SortableList here. -->
-    <slot />
+    <template v-if="!props.collapsed">
+      <!-- The page injects the new-skill editor row + the skills
+           SortableList here. -->
+      <slot />
 
-    <footer
-      class="rounded-b-lg border-t border-slate-100 bg-slate-100/70 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/50"
-    >
-      <AdminBaseButton
-        variant="secondary"
-        size="sm"
-        icon="heroicons:plus"
-        icon_position="left"
-        :test_id="`${props.test_id}-group-${props.group.id}-add-skill`"
-        @click="emit('add-skill', props.group.id)"
+      <footer
+        class="rounded-b-lg border-t border-slate-100 bg-slate-100/70 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/50"
       >
-        {{ t('admin.skills.add_skill') }}
-      </AdminBaseButton>
-    </footer>
+        <AdminBaseButton
+          variant="secondary"
+          size="sm"
+          icon="heroicons:plus"
+          icon_position="left"
+          :test_id="`${props.test_id}-group-${props.group.id}-add-skill`"
+          @click="emit('add-skill', props.group.id)"
+        >
+          {{ t('admin.skills.add_skill') }}
+        </AdminBaseButton>
+      </footer>
+    </template>
   </section>
 </template>
