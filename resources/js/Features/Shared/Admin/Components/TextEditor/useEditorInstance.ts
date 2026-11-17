@@ -128,6 +128,7 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
     const editor = shallowRef<TiptapEditor | null>(null);
     const rawValue = ref('');
     const isEmpty = ref(true);
+    let suppressModelUpdate = false;
 
     const state = reactive<EditorActiveState>({
         activeMarks: {},
@@ -203,15 +204,14 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
                       },
                   },
                   onUpdate: ({ editor: instance }) => {
-                      // setEditable fires onUpdate on every `disabled`
-                      // flip (Tiptap dispatches an editable transaction
-                      // and re-runs the update callbacks), re-emitting
-                      // the CURRENT WYSIWYG doc — which in raw mode is
-                      // stale (the editor isn't even mounted; the
-                      // textarea owns the value). Emitting it would
-                      // clobber the form's content on submit (isSaving
-                      // disables the editor).
-                      if (!state.isRawMode) {
+                      // Programmatic content/editable syncs are not user
+                      // edits: re-emitting them would write the Markdown
+                      // serializer's normalization (a padded GFM table,
+                      // for instance) back into the form and arm its
+                      // unsaved-changes guard on load. Raw mode also
+                      // owns the value (the textarea) while the editor
+                      // sits unmounted.
+                      if (!state.isRawMode && !suppressModelUpdate) {
                           options.onUpdate(encodeSpacingEntities(instance.getMarkdown()));
                       }
                       refreshState(instance);
@@ -229,14 +229,28 @@ export function useEditorInstance(options: UseEditorInstanceOptions): UseEditorI
                   },
               });
 
+    function withoutModelUpdate(apply: () => void): void {
+        suppressModelUpdate = true;
+
+        try {
+            apply();
+        } finally {
+            suppressModelUpdate = false;
+        }
+    }
+
     function setContent(markdown: string): void {
-        editor.value?.commands.setContent(escapeUnsupportedHtml(markdown), {
-            contentType: 'markdown',
+        withoutModelUpdate(() => {
+            editor.value?.commands.setContent(escapeUnsupportedHtml(markdown), {
+                contentType: 'markdown',
+            });
         });
     }
 
     function setEditable(editable: boolean): void {
-        editor.value?.setEditable(editable);
+        withoutModelUpdate(() => {
+            editor.value?.setEditable(editable);
+        });
     }
 
     function destroy(): void {

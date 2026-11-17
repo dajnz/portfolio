@@ -742,6 +742,36 @@ describe('TextEditor', () => {
         ).toBe(true);
     });
 
+    it('does not emit update:modelValue when the initial markdown is parsed', async () => {
+        const wrapper = mountEditor({
+            modelValue: '| Operation | Command |\n| --- | --- |\n| increment | `INCR` |',
+        });
+        await waitForEditable(wrapper);
+        await new Promise((resolve) => setTimeout(resolve, 20));
+
+        expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+    });
+
+    it('does not emit update:modelValue when the modelValue prop changes externally', async () => {
+        const wrapper = mountEditor({ modelValue: 'Hello world' });
+        await waitForEditable(wrapper);
+
+        await wrapper.setProps({ modelValue: 'External **change**' });
+        await new Promise((resolve) => setTimeout(resolve, 20));
+
+        expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+    });
+
+    it('refreshes the placeholder when the content is cleared externally', async () => {
+        const wrapper = mountEditor({ modelValue: 'Hello world' });
+        await waitForEditable(wrapper);
+
+        await wrapper.setProps({ modelValue: '' });
+        await new Promise((resolve) => setTimeout(resolve, 20));
+
+        expect(wrapper.find('[data-testid="text-editor-placeholder"]').exists()).toBe(true);
+    });
+
     it('emits fenced code block markdown when the code-block button is used', async () => {
         const wrapper = mountEditor({ modelValue: 'Hello world' });
         await waitForEditable(wrapper);
