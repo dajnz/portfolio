@@ -77,7 +77,10 @@ function onTechWriteupChange(value: string | string[]): void {
               : String(props.tech_writeup_article_id)
           "
           :options="techWriteupOptions"
+          searchable
+          pinned_option_value=""
           :label="t('admin.projects.tech_writeup_article')"
+          :placeholder="t('admin.projects.tech_writeup_search_placeholder')"
           :error="props.errors.tech_writeup_article_id ?? null"
           :disabled="props.disabled"
           :test_id="`${props.test_id}-tech-writeup`"

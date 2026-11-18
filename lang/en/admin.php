@@ -245,6 +245,7 @@ return [
         'tech_tags' => 'Tech Tags',
         'tech_writeup_article' => 'Tech Writeup Article',
         'tech_writeup_hint' => 'Only published articles can be linked. The link is hidden on the public page if the article is later unpublished.',
+        'tech_writeup_search_placeholder' => 'Search articles...',
         'featured' => 'Featured',
         'featured_sort_order' => 'Featured Sort Order',
         'featured_projects_order' => 'Featured Projects Order',
