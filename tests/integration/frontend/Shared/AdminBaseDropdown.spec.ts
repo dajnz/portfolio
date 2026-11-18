@@ -206,6 +206,58 @@ describe('AdminBaseDropdown', () => {
         );
     });
 
+    it('keeps the pinned option visible while filtering', async () => {
+        const wrapper = mount(AdminBaseDropdown, {
+            props: {
+                modelValue: '',
+                searchable: true,
+                pinned_option_value: '',
+                options: [{ value: '', label: 'None' }, ...OPTIONS],
+            },
+        });
+
+        await wrapper.get('[data-testid="base-dropdown"]').trigger('click');
+        await wrapper.get('[data-testid="base-dropdown-search"]').setValue('ph');
+
+        expect(wrapper.findAll('[role="option"]')).toHaveLength(2);
+        expect(wrapper.find('[data-testid="base-dropdown-option-"]').text()).toBe('None');
+        expect(wrapper.find('[data-testid="base-dropdown-option-php"]').exists()).toBe(true);
+    });
+
+    it('skips the pinned option when Enter selects a filtered result', async () => {
+        const wrapper = mount(AdminBaseDropdown, {
+            props: {
+                modelValue: '',
+                searchable: true,
+                pinned_option_value: '',
+                options: [{ value: '', label: 'None' }, ...OPTIONS],
+            },
+        });
+
+        await wrapper.get('[data-testid="base-dropdown"]').trigger('click');
+        await wrapper.get('[data-testid="base-dropdown-search"]').setValue('ph');
+        await wrapper.get('[data-testid="base-dropdown"]').trigger('keydown', { key: 'Enter' });
+
+        expect(wrapper.emitted('update:modelValue')).toEqual([['php']]);
+    });
+
+    it('selects nothing on Enter when the query only matches the pinned option', async () => {
+        const wrapper = mount(AdminBaseDropdown, {
+            props: {
+                modelValue: '',
+                searchable: true,
+                pinned_option_value: '',
+                options: [{ value: '', label: 'None' }, ...OPTIONS],
+            },
+        });
+
+        await wrapper.get('[data-testid="base-dropdown"]').trigger('click');
+        await wrapper.get('[data-testid="base-dropdown-search"]').setValue('nothing-matches');
+        await wrapper.get('[data-testid="base-dropdown"]').trigger('keydown', { key: 'Enter' });
+
+        expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+    });
+
     it('highlights the selected option when reopening', async () => {
         const wrapper = mount(AdminBaseDropdown, {
             props: { modelValue: 'vue', options: OPTIONS },

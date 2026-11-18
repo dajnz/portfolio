@@ -17,6 +17,10 @@ const props = withDefaults(
         options?: DropdownOption[];
         multiple?: boolean;
         searchable?: boolean;
+        /** Kept at the top of the filtered list at every search query —
+         *  the tech-writeup picker's clear ("None") option stays
+         *  reachable without emptying the search input first. */
+        pinned_option_value?: string | null;
         loading?: boolean;
         placeholder?: string;
         label?: string;
@@ -38,6 +42,7 @@ const props = withDefaults(
         options: () => [],
         multiple: false,
         searchable: false,
+        pinned_option_value: null,
         loading: false,
         placeholder: undefined,
         label: undefined,
@@ -95,16 +100,36 @@ const triggerLabel = computed(() => {
 
 const filteredOptions = computed(() => {
     const needle = query.value.trim().toLowerCase();
+    const matched =
+        needle === ''
+            ? props.options
+            : props.options.filter((option) => option.label.toLowerCase().includes(needle));
 
-    if (needle === '') {
-        return props.options;
+    return ensurePinnedOption(matched);
+});
+
+function ensurePinnedOption(options: DropdownOption[]): DropdownOption[] {
+    if (props.pinned_option_value === null) {
+        return options;
     }
 
-    return props.options.filter((option) => option.label.toLowerCase().includes(needle));
-});
+    const pinned = props.options.find((option) => option.value === props.pinned_option_value);
+
+    if (pinned === undefined) {
+        return options;
+    }
+
+    return [pinned, ...options.filter((option) => option.value !== props.pinned_option_value)];
+}
 
 function firstEnabledIndex(): number {
     return filteredOptions.value.findIndex((option) => !option.disabled);
+}
+
+function firstSearchMatchIndex(): number {
+    return filteredOptions.value.findIndex(
+        (option) => !option.disabled && option.value !== props.pinned_option_value,
+    );
 }
 
 function selectedIndex(): number {
@@ -260,6 +285,8 @@ function onControlKeydown(event: KeyboardEvent): void {
 
 function onQueryInput(event: Event): void {
     query.value = (event.target as HTMLInputElement).value;
+    highlighted.value =
+        query.value.trim() === '' ? initialHighlightIndex() : firstSearchMatchIndex();
 
     if (searchTimeout.value !== null) {
         clearTimeout(searchTimeout.value);
