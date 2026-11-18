@@ -414,6 +414,42 @@ describe('ProjectFormPage', () => {
         ]);
     });
 
+    it('renders the tech-writeup select as a searchable picker with the clear option pinned', () => {
+        const wrapper = mountForm();
+        const dropdown = wrapper.findComponent({ name: 'AdminBaseDropdown' });
+
+        expect(dropdown.props('searchable')).toBe(true);
+        expect(dropdown.props('pinned_option_value')).toBe('');
+        expect(dropdown.props('placeholder')).toBe('Search articles...');
+    });
+
+    it('filters the tech-writeup articles by the typed name while keeping None', async () => {
+        const wrapper = mountForm();
+        const dropdown = wrapper.findComponent({ name: 'AdminBaseDropdown' });
+
+        await dropdown.get('[data-testid="project-form-page-tech-writeup"]').trigger('click');
+        await dropdown
+            .get('[data-testid="project-form-page-tech-writeup-search"]')
+            .setValue('Composables');
+
+        expect(
+            wrapper.find('[data-testid="project-form-page-tech-writeup-option-"]').exists(),
+        ).toBe(true);
+        expect(
+            wrapper.find('[data-testid="project-form-page-tech-writeup-option-11"]').exists(),
+        ).toBe(true);
+        expect(
+            wrapper.find('[data-testid="project-form-page-tech-writeup-option-10"]').exists(),
+        ).toBe(false);
+
+        await wrapper
+            .get('[data-testid="project-form-page-tech-writeup-option-11"]')
+            .trigger('click');
+
+        const relations = wrapper.findComponent({ name: 'ProjectRelationsSection' });
+        expect(relations.emitted('update:tech_writeup_article_id')).toEqual([[11]]);
+    });
+
     it('clears the tech-writeup link when None is selected', async () => {
         putMock.mockResolvedValue({});
         const wrapper = mountForm();

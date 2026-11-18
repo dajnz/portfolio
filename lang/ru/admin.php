@@ -240,6 +240,7 @@ return [
         'tech_tags' => 'Технологии',
         'tech_writeup_article' => 'Техническая статья',
         'tech_writeup_hint' => 'Связывать можно только опубликованные статьи. Если статью позже снять с публикации, ссылка скрывается на публичной странице.',
+        'tech_writeup_search_placeholder' => 'Поиск статей...',
         'featured' => 'Избранное',
         'featured_sort_order' => 'Порядок в избранном',
         'featured_projects_order' => 'Порядок избранных проектов',

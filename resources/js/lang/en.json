@@ -437,6 +437,7 @@
             "tech_tags": "Tech Tags",
             "tech_writeup_article": "Tech Writeup Article",
             "tech_writeup_hint": "Only published articles can be linked. The link is hidden on the public page if the article is later unpublished.",
+            "tech_writeup_search_placeholder": "Search articles...",
             "title": "Projects",
             "unfeature_project": "Unfeature project",
             "unpublished": "Unpublished",
