@@ -32,7 +32,7 @@ const routes = [
 const visible = computed(() => all.value.slice(0, page.value * 20));
 ```
 
-![Performance budget](/assets/demo/articles/performance.svg)
+![Performance budget](/assets/demo/articles/performance.webp)
 
 > [!TRADEOFF]
 > Aggressive splitting improves first paint but adds request waterfalls. Group small pages together instead of splitting every component.

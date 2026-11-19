@@ -43,6 +43,7 @@ async function optimizeRaster(sourcePath, targetPath) {
     }
 }
 
+
 async function main() {
     await mkdir(DEST_DIR, { recursive: true });
 

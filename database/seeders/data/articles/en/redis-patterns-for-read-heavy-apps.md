@@ -29,7 +29,7 @@ View counts and reactions must not be read-modify-write. Redis increments are at
 
 A sorted set keeps the ranking ordered as it is updated, so "top 10" is a single range query.
 
-![Caching layers](/assets/demo/articles/caching.svg)
+![Caching layers](/assets/demo/articles/caching.webp)
 
 > [!WARNING]
 > Large sets and wildcard key scans can block the single-threaded server. Prefer explicit keys and bounded collections.

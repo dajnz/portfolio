@@ -8,7 +8,7 @@ return [
         'published_at' => '2026-07-18 09:00:00',
         'tag' => 'laravel',
         'skills' => ['Laravel', 'PostgreSQL', 'Redis'],
-        'lead_image' => 'demo/articles/content-model.svg',
+        'lead_image' => 'demo/articles/content-model.webp',
         'en' => [
             'title' => 'Designing a Bilingual Content Model',
             'short_description' => 'How to model translations so both locales stay first-class citizens.',
@@ -25,7 +25,7 @@ return [
         'published_at' => '2026-06-30 08:30:00',
         'tag' => 'postgresql',
         'skills' => ['PostgreSQL', 'Redis', 'Laravel'],
-        'lead_image' => 'demo/articles/search.svg',
+        'lead_image' => 'demo/articles/search.webp',
         'en' => [
             'title' => 'Full-Text Search at Scale with PostgreSQL',
             'short_description' => 'Ranking, highlighting and typo tolerance without a search server.',
@@ -42,7 +42,7 @@ return [
         'published_at' => '2026-06-12 10:15:00',
         'tag' => 'vue',
         'skills' => ['Vue', 'TypeScript', 'Vite'],
-        'lead_image' => 'demo/articles/performance.svg',
+        'lead_image' => 'demo/articles/performance.webp',
         'en' => [
             'title' => 'Keeping a Vue Performance Budget',
             'short_description' => 'A practical budget for bundle size, hydration and rendering cost.',
@@ -59,7 +59,7 @@ return [
         'published_at' => '2026-05-24 09:45:00',
         'tag' => 'php',
         'skills' => ['PHP', 'Laravel', 'RabbitMQ', 'Redis'],
-        'lead_image' => 'demo/articles/queues.svg',
+        'lead_image' => 'demo/articles/queues.webp',
         'en' => [
             'title' => 'Queue Reliability Patterns',
             'short_description' => 'Retries, backoff, idempotency and the monitoring that catches failures.',
@@ -76,7 +76,7 @@ return [
         'published_at' => '2026-05-02 11:00:00',
         'tag' => 'testing',
         'skills' => ['PHP', 'Laravel', 'PostgreSQL'],
-        'lead_image' => 'demo/articles/testing.svg',
+        'lead_image' => 'demo/articles/testing.webp',
         'en' => [
             'title' => 'Testing Domain Logic Without the Framework',
             'short_description' => 'Fast feedback for the rules that matter, with the framework at the edges.',
@@ -93,7 +93,7 @@ return [
         'published_at' => '2026-04-15 09:20:00',
         'tag' => 'devops',
         'skills' => ['Grafana', 'Sentry', 'PHP', 'Docker'],
-        'lead_image' => 'demo/articles/observability.svg',
+        'lead_image' => 'demo/articles/observability.webp',
         'en' => [
             'title' => 'Structured Logging and Observability',
             'short_description' => 'Turning scattered logs into signals you can actually act on.',
@@ -110,7 +110,7 @@ return [
         'published_at' => '2026-03-28 12:00:00',
         'tag' => 'ai',
         'skills' => ['ChatGPT', 'Claude AI', 'OpenCode', 'Git'],
-        'lead_image' => 'demo/articles/ai-tooling.svg',
+        'lead_image' => 'demo/articles/ai-tooling.webp',
         'en' => [
             'title' => 'An AI-Assisted Development Workflow',
             'short_description' => 'Where assistants help, where they hurt, and how to keep the code yours.',
@@ -161,7 +161,7 @@ return [
         'published_at' => '2026-02-02 09:10:00',
         'tag' => 'web-performance',
         'skills' => ['Redis', 'Vue', 'PostgreSQL'],
-        'lead_image' => 'demo/articles/caching.svg',
+        'lead_image' => 'demo/articles/caching.webp',
         'en' => [
             'title' => 'Caching Layers Explained',
             'short_description' => 'HTTP, application, query and page cache — what belongs where.',

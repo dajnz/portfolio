@@ -28,7 +28,7 @@ git commit -m "feat(queue): add idempotent order handler"
 | Новая архитектура | низкая |
 | Логика, чувствительная к безопасности | тщательно проверять |
 
-![Разработка с ИИ](/assets/demo/articles/ai-tooling.svg)
+![Разработка с ИИ](/assets/demo/articles/ai-tooling.webp)
 
 > [!TRADEOFF]
 > Быстрое предложение, принятое вслепую, стоит дороже в отладке, чем написать самому.

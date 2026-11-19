@@ -43,13 +43,13 @@ return [
         ],
         'screenshots' => [
             [
-                'image' => 'demo/projects/portfolio-platform/screen-1.svg',
+                'image' => 'demo/projects/portfolio-platform/screen-1.webp',
                 'order' => 0,
                 'en' => ['title' => 'Landing page', 'description' => 'Hero, featured projects and skills.'],
                 'ru' => ['title' => 'Главная', 'description' => 'Хедер, избранные проекты и навыки.'],
             ],
             [
-                'image' => 'demo/projects/portfolio-platform/screen-2.svg',
+                'image' => 'demo/projects/portfolio-platform/screen-2.webp',
                 'order' => 1,
                 'en' => ['title' => 'Blog article', 'description' => 'Table of contents, callouts and related posts.'],
                 'ru' => ['title' => 'Статья блога', 'description' => 'Оглавление, врезки и похожие статьи.'],
@@ -91,7 +91,7 @@ return [
         ],
         'screenshots' => [
             [
-                'image' => 'demo/projects/realtime-analytics-dashboard/screen-1.svg',
+                'image' => 'demo/projects/realtime-analytics-dashboard/screen-1.webp',
                 'order' => 0,
                 'en' => ['title' => 'Live metrics', 'description' => 'Events per minute across the selected range.'],
                 'ru' => ['title' => 'Живые метрики', 'description' => 'События в минуту по выбранному диапазону.'],
@@ -133,7 +133,7 @@ return [
         ],
         'screenshots' => [
             [
-                'image' => 'demo/projects/inventory-api-service/screen-1.svg',
+                'image' => 'demo/projects/inventory-api-service/screen-1.webp',
                 'order' => 0,
                 'en' => ['title' => 'Stock endpoints', 'description' => 'Idempotent write operations and their responses.'],
                 'ru' => ['title' => 'Эндпоинты остатков', 'description' => 'Идемпотентные операции записи и ответы.'],
@@ -149,7 +149,7 @@ return [
         'skills' => ['Laravel', 'ChatGPT', 'Claude AI', 'PostgreSQL'],
         'screenshots' => [
             [
-                'image' => 'demo/projects/ai-content-assistant.svg',
+                'image' => 'demo/projects/ai-content-assistant.webp',
                 'order' => 0,
                 'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
                 'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
@@ -179,7 +179,7 @@ return [
         'skills' => ['Laravel', 'PostgreSQL', 'Vue'],
         'screenshots' => [
             [
-                'image' => 'demo/projects/bilingual-blog-engine.svg',
+                'image' => 'demo/projects/bilingual-blog-engine.webp',
                 'order' => 0,
                 'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
                 'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
@@ -209,7 +209,7 @@ return [
         'skills' => ['Ansible', 'Docker', 'Grafana', 'Zabbix'],
         'screenshots' => [
             [
-                'image' => 'demo/projects/devops-control-panel.svg',
+                'image' => 'demo/projects/devops-control-panel.webp',
                 'order' => 0,
                 'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
                 'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
@@ -239,7 +239,7 @@ return [
         'skills' => ['Figma', 'CSS', 'Vue', 'TypeScript'],
         'screenshots' => [
             [
-                'image' => 'demo/projects/design-system-kit.svg',
+                'image' => 'demo/projects/design-system-kit.webp',
                 'order' => 0,
                 'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
                 'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
@@ -269,7 +269,7 @@ return [
         'skills' => ['Laravel', 'RabbitMQ', 'Redis', 'Grafana'],
         'screenshots' => [
             [
-                'image' => 'demo/projects/queue-observability-suite.svg',
+                'image' => 'demo/projects/queue-observability-suite.webp',
                 'order' => 0,
                 'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
                 'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
@@ -299,7 +299,7 @@ return [
         'skills' => ['PHP', 'Laravel', 'Yii', 'MySQL', 'PostgreSQL'],
         'screenshots' => [
             [
-                'image' => 'demo/projects/legacy-crm-migration.svg',
+                'image' => 'demo/projects/legacy-crm-migration.webp',
                 'order' => 0,
                 'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
                 'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
@@ -329,7 +329,7 @@ return [
         'skills' => ['Laravel', 'PHP', 'PostgreSQL'],
         'screenshots' => [
             [
-                'image' => 'demo/projects/resume-generator-pdf.svg',
+                'image' => 'demo/projects/resume-generator-pdf.webp',
                 'order' => 0,
                 'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
                 'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
@@ -359,7 +359,7 @@ return [
         'skills' => ['PHP', 'PostgreSQL', 'Redis'],
         'screenshots' => [
             [
-                'image' => 'demo/projects/search-index-service.svg',
+                'image' => 'demo/projects/search-index-service.webp',
                 'order' => 0,
                 'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
                 'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
@@ -389,7 +389,7 @@ return [
         'skills' => ['PHP', 'Laravel', 'RabbitMQ', 'MySQL'],
         'screenshots' => [
             [
-                'image' => 'demo/projects/billing-webhook-gateway.svg',
+                'image' => 'demo/projects/billing-webhook-gateway.webp',
                 'order' => 0,
                 'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
                 'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
@@ -419,7 +419,7 @@ return [
         'skills' => ['Vue', 'TypeScript', 'CSS', 'Figma'],
         'screenshots' => [
             [
-                'image' => 'demo/projects/ui-component-library.svg',
+                'image' => 'demo/projects/ui-component-library.webp',
                 'order' => 0,
                 'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
                 'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
@@ -449,7 +449,7 @@ return [
         'skills' => ['Ansible', 'Docker', 'Git', 'Grafana'],
         'screenshots' => [
             [
-                'image' => 'demo/projects/infrastructure-as-code.svg',
+                'image' => 'demo/projects/infrastructure-as-code.webp',
                 'order' => 0,
                 'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
                 'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
@@ -479,7 +479,7 @@ return [
         'skills' => ['TypeScript', 'Node.js', 'PostgreSQL', 'Redis'],
         'screenshots' => [
             [
-                'image' => 'demo/projects/data-export-pipeline.svg',
+                'image' => 'demo/projects/data-export-pipeline.webp',
                 'order' => 0,
                 'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
                 'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],

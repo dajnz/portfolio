@@ -32,7 +32,7 @@ const routes = [
 const visible = computed(() => all.value.slice(0, page.value * 20));
 ```
 
-![Бюджет производительности](/assets/demo/articles/performance.svg)
+![Бюджет производительности](/assets/demo/articles/performance.webp)
 
 > [!TRADEOFF]
 > Агрессивное разделение улучшает первую отрисовку, но добавляет каскад запросов. Группируйте небольшие страницы вместо разделения каждого компонента.

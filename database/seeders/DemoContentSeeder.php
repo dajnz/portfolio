@@ -20,6 +20,7 @@ use App\Features\Projects\Infra\Models\ProjectTranslationModel;
 use App\Features\Shared\Infra\Models\SkillGroupModel;
 use App\Features\Shared\Infra\Models\SkillGroupTranslationModel;
 use App\Features\Shared\Infra\Models\SkillModel;
+use App\Features\Shared\App\UseCases\ScheduleThumbnailGenerationUseCase;
 use Database\Seeders\Concerns\ProvisionsDemoImages;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\App;
@@ -61,6 +62,13 @@ final class DemoContentSeeder extends Seeder
         $this->seedContacts();
         $this->seedExperience($skillIds, $projectIds);
         $this->seedRelatedArticles($articleIds);
+
+        if (! App::runningUnitTests()) {
+            App::make(ScheduleThumbnailGenerationUseCase::class)->schedule(
+                includeGenerated: false,
+                synchronously: true,
+            );
+        }
     }
 
     private function provisionImages(): void
@@ -80,7 +88,7 @@ final class DemoContentSeeder extends Seeder
         }
 
         foreach (array_unique($keys) as $key) {
-            $this->provisionDemoImage($key, $key, 'image/svg+xml');
+            $this->provisionDemoImage($key, $key, 'image/webp');
         }
     }
 

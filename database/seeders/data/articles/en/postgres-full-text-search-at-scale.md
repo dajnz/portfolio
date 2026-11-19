@@ -42,7 +42,7 @@ WHERE search_vector @@ to_tsquery('simple', 'postgr:*');
 
 `ts_headline` produces the snippet with `<mark>` tags. Keep the parameters in one place so every surface highlights identically.
 
-![Full-text search](/assets/demo/articles/search.svg)
+![Full-text search](/assets/demo/articles/search.webp)
 
 > [!WARNING]
 > Rebuild the vector whenever the dictionary changes. Existing rows keep the old lexemes until they are reindexed.
