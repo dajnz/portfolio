@@ -41,7 +41,7 @@ describe('DemoContentSeeder', function (): void {
         $published = ArticleModel::query()->where('is_published', true)->count();
 
         expect($published)->toBe(15)
-            ->and(DB::table('blog_article_translations')->count())->toBe(16 * 2)
+            ->and(DB::table('blog_article_translations')->count())->toBe(17 * 2)
             ->and(DB::table('project_translations')->count())->toBe(16 * 2)
             ->and(DB::table('experience_timeline_item_translations')->count())->toBe(10 * 2)
             ->and(DB::table('contact_translations')->count())->toBe(5 * 2)

@@ -196,6 +196,18 @@ final class DemoContentSeeder extends Seeder
             'published_at' => null,
         ]);
 
+        foreach (['en', 'ru'] as $locale) {
+            ArticleTranslationModel::query()->create([
+                'article_id' => $trashed->id,
+                'locale' => $locale,
+                'title' => $locale === 'en' ? 'Trashed article for the admin list' : 'Удалённая статья',
+                'short_description' => $locale === 'en'
+                    ? 'A trashed row for the admin list filters.'
+                    : 'Удалённая запись для фильтров админского списка.',
+                'content' => "## Trash\n\nThis article stays in the trash for the admin filters.",
+            ]);
+        }
+
         $trashed->delete();
 
         return $articleIds;
