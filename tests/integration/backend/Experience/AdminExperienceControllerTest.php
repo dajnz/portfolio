@@ -603,6 +603,44 @@ describe('AdminExperienceController', function (): void {
                 ->where('item.achievements.0.description.ru', 'Русское достижение'));
     });
 
+    it('serves the edit form for a trashed item', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $item = translatedItem(['deleted_at' => now()], [
+            'en' => ['position' => 'Archived Engineer', 'short_description' => 'Trashed en'],
+        ]);
+
+        $this->get("/admin/experience/{$item->id}/edit")
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Experience/Admin/Pages/ExperienceFormPage')
+                ->where('item.id', $item->id)
+                ->where('item.position.en', 'Archived Engineer')
+                ->where('item.short_description.en', 'Trashed en'));
+    });
+
+    it('updates a trashed item without restoring it', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $item = translatedItem([
+            'started_at' => '2020-01-15',
+            'ended_at' => '2020-12-31',
+            'deleted_at' => now(),
+        ]);
+
+        $this->put("/admin/experience/{$item->id}", experiencePayload([
+            'started_at' => '2020-01-15',
+            'ended_at' => '2023-06-30',
+        ]))->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $fresh = $item->fresh();
+
+        expect($fresh->trashed())->toBeTrue()
+            ->and($fresh->translations()->where('locale', 'en')->first()->position)
+            ->toBe('Senior Developer');
+    });
+
     it('updates an item and reconciles translations and the tech-tag pivot', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 

@@ -47,6 +47,11 @@ final class InMemoryTimelineItemRepository implements TimelineItemRepositoryInte
         return null;
     }
 
+    public function findByIdIncludingTrashed(int $id): ?TimelineItem
+    {
+        return $this->findById($id);
+    }
+
     public function predecessorFor(DateTimeImmutable $startedAt, ?int $ignoreId = null): ?TimelineItem
     {
         return $this->nearest($startedAt, $ignoreId, before: true);

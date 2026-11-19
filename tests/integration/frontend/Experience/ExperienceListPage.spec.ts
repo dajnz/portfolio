@@ -310,7 +310,7 @@ describe('ExperienceListPage', () => {
         );
     });
 
-    it('renders the trashed view: trashed badge, no delete button, no edit navigation', async () => {
+    it('renders the trashed view: trashed badge, no delete button, row click opens the edit form', async () => {
         const wrapper = mountTrashedPage();
 
         const trashedBadge = wrapper.get('[data-testid="experience-list-page-badge-trashed-1"]');
@@ -320,10 +320,8 @@ describe('ExperienceListPage', () => {
         expect(trashedBadge.classes()).toContain('text-xs');
         expect(wrapper.find('[data-testid="experience-list-page-delete-1"]').exists()).toBe(false);
 
-        // Trashed rows are not editable (the backend's edit lookup
-        // excludes soft-deleted items) — a row click must not navigate.
         await wrapper.findAll('tbody tr')[0].trigger('click');
-        expect(visitMock).not.toHaveBeenCalled();
+        expect(visitMock).toHaveBeenCalledWith('/admin/experience/1/edit');
     });
 
     it('restores an item from the trashed view', async () => {

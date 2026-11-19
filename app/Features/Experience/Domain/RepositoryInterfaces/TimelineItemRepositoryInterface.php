@@ -19,6 +19,12 @@ interface TimelineItemRepositoryInterface
     public function findById(int $id): ?TimelineItem;
 
     /**
+     * Read path of the admin form: soft-deleted items are included so a
+     * trashed row opens in the edit form.
+     */
+    public function findByIdIncludingTrashed(int $id): ?TimelineItem;
+
+    /**
      * The chronologically preceding item (greatest `started_at` strictly
      * below `$startedAt`, non-trashed) — the continuity anchor.
      * `$ignoreId` excludes the item being stored/updated itself.
