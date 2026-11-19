@@ -13,8 +13,6 @@ function createProject(string $slug, array $attributes = []): int
 {
     return DB::table('projects')->insertGetId(array_merge([
         'slug' => $slug,
-        'preview_image' => null,
-        'preview_image_alt' => null,
         'github_url' => null,
         'live_demo_url' => null,
         'tech_writeup_article_id' => null,
@@ -63,7 +61,30 @@ describe('EloquentProjectReadRepository', function (): void {
 
         expect($projects)->toHaveCount(3)
             ->and(array_map(fn ($p): string => $p->toSlug(), $projects))->toBe(['b', 'a', 'c'])
-            ->and($projects[0]->toPreviewImage())->toBeNull();
+            ->and($projects[0]->toCoverImage())->toBeNull();
+    });
+
+    it('derives the cover from the first screenshot and its title alt labels', function (): void {
+        $id = createProject('cover', ['is_featured' => true, 'featured_sort_order' => 0]);
+        translateProject($id, 'en', 'Project cover');
+
+        foreach ([['cover-second.png', 1], ['cover-first.png', 0]] as [$path, $order]) {
+            DB::table('project_screenshots')->insert([
+                'project_id' => $id,
+                'image_path' => $path,
+                'title' => json_encode(['en' => "Alt $order", 'ru' => "Альт $order"]),
+                'description' => null,
+                'sort_order' => $order,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        $cover = $this->repository->findFeatured('en')[0]->toCoverImage();
+
+        expect($cover)->not->toBeNull()
+            ->and($cover->url)->toBe('cover-first.png')
+            ->and($cover->altLabels)->toBe(['en' => 'Alt 0', 'ru' => 'Альт 0']);
     });
 
     it('resolves titles per locale with an en fallback', function (): void {

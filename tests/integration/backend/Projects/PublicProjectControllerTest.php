@@ -232,6 +232,11 @@ describe('PublicProjectController', function (): void {
     it('returns the JSON dual-response variant with pagination meta and raw fields', function (): void {
         $a = publicProject();
         $b = publicProject();
+        ProjectScreenshotModel::query()->create([
+            'project_id' => $b->id,
+            'image_path' => 'projects/json-cover.png',
+            'sort_order' => 0,
+        ]);
 
         $this->getJson('/projects')
             ->assertOk()
@@ -239,11 +244,12 @@ describe('PublicProjectController', function (): void {
             ->assertJsonPath('data.0.id', $b->id)
             ->assertJsonPath('data.0.title', 'Payments Gateway')
             ->assertJsonPath('data.0.slug', $b->slug)
+            ->assertJsonPath('data.0.cover_image', 'projects/json-cover.png')
             ->assertJsonPath('data.0.published_at', $b->published_at->toIso8601String())
             ->assertJsonPath('meta.total', 2)
             ->assertJsonPath('meta.per_page', 10)
             ->assertJsonPath('meta.last_page', 1)
-            ->assertJsonStructure(['data' => [['id', 'slug', 'title', 'brief_description', 'published_at', 'preview_image', 'github_url', 'live_demo_url', 'is_featured', 'tech_tags']], 'meta' => ['current_page', 'from', 'to', 'per_page', 'last_page', 'total']]);
+            ->assertJsonStructure(['data' => [['id', 'slug', 'title', 'brief_description', 'published_at', 'cover_image', 'github_url', 'live_demo_url', 'is_featured', 'tech_tags']], 'meta' => ['current_page', 'from', 'to', 'per_page', 'last_page', 'total']]);
     });
 
     it('honors page/per_page/sort/tags/q in the JSON variant', function (): void {
@@ -341,7 +347,11 @@ describe('PublicProjectController', function (): void {
         $project = publicProject([
             'github_url' => 'https://github.com/example/gateway',
             'tech_tags_count' => 1,
-            'preview_image' => 'projects/cover.png',
+        ]);
+        ProjectScreenshotModel::query()->create([
+            'project_id' => $project->id,
+            'image_path' => 'projects/cover.png',
+            'sort_order' => 0,
         ]);
         $project->techTags()->attach([$php]);
 
@@ -412,8 +422,6 @@ describe('PublicProjectController', function (): void {
                 'full_description' => ['en' => null, 'ru' => null],
                 'problem' => ['en' => null, 'ru' => null],
                 'solution' => ['en' => null, 'ru' => null],
-                'preview_image' => null,
-                'preview_image_alt' => ['en' => null, 'ru' => null],
                 'github_url' => null,
                 'live_demo_url' => null,
                 'is_featured' => false,

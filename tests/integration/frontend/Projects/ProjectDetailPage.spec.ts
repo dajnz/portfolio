@@ -52,8 +52,6 @@ const PROJECT = {
     solution: '<p>An OCR pipeline extracts line items.</p>',
     brief_description: 'Automated invoice processing pipeline with OCR.',
     published_at: '2026-06-15T00:00:00Z',
-    preview_image: 'projects/ledger.png',
-    preview_image_alt: { en: 'Ledger dashboard preview', ru: 'Превью Ledger' },
     github_url: 'https://example.com/ledger',
     live_demo_url: 'https://example.com/demo',
     is_featured: true,

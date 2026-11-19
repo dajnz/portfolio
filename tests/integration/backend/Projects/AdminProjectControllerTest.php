@@ -37,8 +37,6 @@ function projectPayload(array $overrides = []): array
         'full_description' => ['en' => '**Full** markdown.', 'ru' => '**Полное** описание.'],
         'problem' => ['en' => 'Slow payouts.', 'ru' => 'Медленные выплаты.'],
         'solution' => ['en' => 'Queued processing.', 'ru' => 'Обработка через очередь.'],
-        'preview_image' => 'projects/preview.png',
-        'preview_image_alt' => ['en' => 'Gateway dashboard', 'ru' => 'Панель шлюза'],
         'github_url' => 'https://github.com/example/gateway',
         'live_demo_url' => 'https://demo.example.com',
         'is_featured' => false,
@@ -144,9 +142,13 @@ describe('AdminProjectController', function (): void {
             'is_featured' => true,
             'featured_sort_order' => 0,
             'tech_tags_count' => 3,
-            'preview_image' => 'projects/preview.png',
         ], [
             'en' => ['title' => 'Auth Service'],
+        ]);
+        ProjectScreenshotModel::query()->create([
+            'project_id' => $newer->id,
+            'image_path' => 'projects/preview.png',
+            'sort_order' => 0,
         ]);
         $php = projectSkillId('PHP');
         $this->post("/admin/projects/{$newer->id}/tags", ['skill_id' => $php])->assertOk();
@@ -159,7 +161,7 @@ describe('AdminProjectController', function (): void {
                 ->where('projects.0.id', $newer->id)
                 ->where('projects.0.title', 'Auth Service')
                 ->where('projects.0.slug', $newer->slug)
-                ->where('projects.0.preview_image', 'projects/preview.png')
+                ->where('projects.0.cover_image', 'projects/preview.png')
                 ->where('projects.0.is_published', true)
                 ->where('projects.0.is_featured', true)
                 ->where('projects.0.featured_sort_order', 0)
@@ -168,7 +170,7 @@ describe('AdminProjectController', function (): void {
                 ->where('projects.0.tech_tags.0.name', 'PHP')
                 ->where('projects.1.id', $older->id)
                 ->where('projects.1.title', 'Payments Gateway')
-                ->where('projects.1.preview_image', null)
+                ->where('projects.1.cover_image', null)
                 ->where('featured_projects.0.id', $newer->id)
                 ->where('featured_projects.0.title', 'Auth Service')
                 ->where('meta.total', 2)
@@ -354,8 +356,7 @@ describe('AdminProjectController', function (): void {
         expect($project)->not->toBeNull()
             ->and($project->slug)->toBe('payments-gateway')
             ->and($project->is_published)->toBeFalse()
-            ->and($project->is_featured)->toBeFalse()
-            ->and($project->preview_image)->toBe('projects/preview.png');
+            ->and($project->is_featured)->toBeFalse();
 
         $translations = $project->translations()->get()->keyBy('locale');
         expect($translations->get('en')->title)->toBe('Payments Gateway')
@@ -496,17 +497,6 @@ describe('AdminProjectController', function (): void {
         $this->post('/admin/projects', projectPayload(['slug' => 'taken-slug']))
             ->assertRedirect()
             ->assertSessionHasErrors('slug');
-
-        $this->post('/admin/projects', projectPayload([
-            'preview_image_alt' => ['en' => str_repeat('x', 501)],
-        ]))->assertRedirect()
-            ->assertSessionHasErrors(['preview_image_alt.en']);
-
-        $messages = session('errors')->getBag('default');
-
-        expect($messages->get('preview_image_alt.en')[0])
-            ->toContain('Alt Text [EN]')
-            ->not->toContain('admin.alt_text');
     });
 
     it('rejects a featured project without a featured sort order', function (): void {
@@ -579,8 +569,6 @@ describe('AdminProjectController', function (): void {
 
         $php = projectSkillId('PHP');
         $project = projectItem([
-            'preview_image' => 'projects/preview.png',
-            'preview_image_alt' => ['en' => 'Dashboard', 'ru' => 'Панель'],
             'is_published' => true,
             'published_at' => now(),
             'is_featured' => true,
@@ -597,8 +585,6 @@ describe('AdminProjectController', function (): void {
                 ->where('project.title.en', 'Payments Gateway')
                 ->where('project.title.ru', 'Платёжный шлюз')
                 ->where('project.brief_description.en', 'A payment gateway.')
-                ->where('project.preview_image', 'projects/preview.png')
-                ->where('project.preview_image_alt.en', 'Dashboard')
                 ->where('project.is_published', true)
                 ->where('project.is_featured', true)
                 ->where('project.featured_sort_order', 2)

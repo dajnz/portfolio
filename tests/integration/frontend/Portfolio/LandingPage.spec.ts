@@ -88,7 +88,7 @@ const LANDING_PROPS = {
             title: 'Ledger',
             slug: 'ledger',
             brief_description: 'Invoice automation.',
-            preview_image: 'projects/ledger.jpg',
+            cover_image: 'projects/ledger.jpg',
             tech_tags: [{ id: 11, name: 'Laravel', icon: 'devicon:laravel' }],
         },
     ],
@@ -297,10 +297,10 @@ describe('LandingPage', () => {
         expect(card.text()).toContain('Invoice automation.');
     });
 
-    it('renders the projects-index no-image placeholder (large faint icon, no text) without a preview', async () => {
+    it('renders the projects-index no-image placeholder (large faint icon, no text) without a cover', async () => {
         const wrapper = mountPage({
             featured_projects: [
-                { ...LANDING_PROPS.featured_projects[0], preview_image: null },
+                { ...LANDING_PROPS.featured_projects[0], cover_image: null },
             ],
         });
         await flush();
@@ -311,7 +311,7 @@ describe('LandingPage', () => {
         expect(placeholder.attributes('aria-hidden')).toBe('true');
         expect(placeholder.find('.image-placeholder__icon').exists()).toBe(true);
         expect(placeholder.text()).toBe('');
-        // No preview image renders.
+        // No cover image renders.
         expect(wrapper.find('[data-testid="landing-featured-section-card-1"] img').exists()).toBe(
             false,
         );

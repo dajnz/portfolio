@@ -69,8 +69,6 @@ trait SeedsPortfolioData
         for ($i = 1; $i <= $count; $i++) {
             $ids[$i] = DB::table('projects')->insertGetId([
                 'slug' => "project-$i",
-                'preview_image' => null,
-                'preview_image_alt' => null,
                 'github_url' => null,
                 'live_demo_url' => null,
                 'tech_writeup_article_id' => null,
@@ -96,8 +94,6 @@ trait SeedsPortfolioData
     {
         return DB::table('projects')->insertGetId(array_merge([
             'slug' => $slug,
-            'preview_image' => null,
-            'preview_image_alt' => null,
             'github_url' => null,
             'live_demo_url' => null,
             'tech_writeup_article_id' => null,
