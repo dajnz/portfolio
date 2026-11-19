@@ -151,7 +151,8 @@ function onLeave(): void {
       <img
         v-if="props.article.lead_image"
         class="article-card__image"
-        :src="props.article.lead_image"
+        :src="props.article.lead_image_thumbnail?.url ?? props.article.lead_image"
+        :srcset="props.article.lead_image_thumbnail?.srcset"
         :alt="props.article.lead_image_alt"
         width="800"
         height="450"

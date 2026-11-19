@@ -78,7 +78,15 @@ function formatViews(views: number): string {
 }
 
 function previewUrl(row: ArticleTableRow): string {
-    return `/assets/${row.lead_image ?? ''}`;
+    return `/assets/${row.lead_image_thumbnail?.path ?? row.lead_image ?? ''}`;
+}
+
+function previewSrcset(row: ArticleTableRow): string | undefined {
+    if (!row.lead_image_thumbnail) {
+        return undefined;
+    }
+
+    return `/assets/${row.lead_image_thumbnail.path} 1x, /assets/${row.lead_image_thumbnail.retina_path} 2x`;
 }
 </script>
 
@@ -119,6 +127,7 @@ function previewUrl(row: ArticleTableRow): string {
         <img
           v-if="(row as unknown as ArticleTableRow).lead_image"
           :src="previewUrl(row as unknown as ArticleTableRow)"
+          :srcset="previewSrcset(row as unknown as ArticleTableRow)"
           alt=""
           class="h-10 w-16 shrink-0 rounded-md border border-slate-200 object-cover dark:border-slate-700"
           :data-testid="`${props.test_id}-preview-${String(row.id)}`"

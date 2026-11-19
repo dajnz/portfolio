@@ -1,3 +1,4 @@
+import { type ThumbnailView, toThumbnailView } from '@shared-cross/Composables/useThumbnails';
 import type { components } from '@shared-cross/Types/inertia';
 
 export type WireArticleCard = components['schemas']['ArticleCardData'];
@@ -34,6 +35,7 @@ export interface ArticleCardView {
     published_at: string | null;
     reading_time_minutes: number;
     lead_image: string | null;
+    lead_image_thumbnail: ThumbnailView | null;
     lead_image_alt: string;
     tags: ArticleTagView[];
     skill_tags: ArticleSkillTagView[];
@@ -53,6 +55,7 @@ export function toArticleCardView(card: WireArticleCard, locale: string): Articl
         published_at: card.published_at ?? null,
         reading_time_minutes: card.reading_time_minutes ?? 0,
         lead_image: card.lead_image ? `/assets/${card.lead_image}` : null,
+        lead_image_thumbnail: toThumbnailView(card.lead_image_thumbnail),
         lead_image_alt: localeText(card.lead_image_alt, locale),
         tags: (card.tags ?? []).map((tag) => ({
             id: tag.id ?? 0,

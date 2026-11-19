@@ -1,5 +1,6 @@
 import { usePage } from '@inertiajs/vue3';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { type ThumbnailView, toThumbnailView } from '@shared-cross/Composables/useThumbnails';
 import type { components } from '@shared-cross/Types/inertia';
 import { type ComputedRef, computed } from 'vue';
 
@@ -76,6 +77,7 @@ export interface FeaturedProjectView {
     slug: string;
     brief_description: string;
     cover_image: string | null;
+    cover_thumbnail: ThumbnailView | null;
     tech_tags: TechTagView[];
 }
 
@@ -216,6 +218,7 @@ export function useLandingPage(props: LandingDataProps): UseLandingPageApi {
                 slug: project.slug ?? '',
                 brief_description: project.brief_description ?? '',
                 cover_image: project.cover_image ? `/assets/${project.cover_image}` : null,
+                cover_thumbnail: toThumbnailView(project.cover_thumbnail),
                 tech_tags: (project.tech_tags ?? []).map(
                     (tag: WireTechTag): TechTagView => ({
                         id: tag.id ?? 0,

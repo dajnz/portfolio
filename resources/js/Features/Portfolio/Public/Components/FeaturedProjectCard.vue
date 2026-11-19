@@ -38,7 +38,8 @@ const iconsReady = usePublicIconsReady();
     <img
       v-if="props.project.cover_image"
       class="card__image project-card__image"
-      :src="props.project.cover_image"
+      :src="props.project.cover_thumbnail?.url ?? props.project.cover_image"
+      :srcset="props.project.cover_thumbnail?.srcset"
       :alt="props.project.title"
       width="800"
       height="450"

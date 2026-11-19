@@ -53,7 +53,15 @@ function formatViews(views: number): string {
 }
 
 function previewUrl(row: ArticleTableRow): string {
-    return `/assets/${row.lead_image ?? ''}`;
+    return `/assets/${row.lead_image_thumbnail?.path ?? row.lead_image ?? ''}`;
+}
+
+function previewSrcset(row: ArticleTableRow): string | undefined {
+    if (!row.lead_image_thumbnail) {
+        return undefined;
+    }
+
+    return `/assets/${row.lead_image_thumbnail.path} 1x, /assets/${row.lead_image_thumbnail.retina_path} 2x`;
 }
 </script>
 
@@ -71,6 +79,7 @@ function previewUrl(row: ArticleTableRow): string {
       <img
         v-if="props.row.lead_image"
         :src="previewUrl(props.row)"
+        :srcset="previewSrcset(props.row)"
         :alt="props.row.title"
         class="h-full w-full object-cover"
         loading="lazy"

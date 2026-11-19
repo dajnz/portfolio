@@ -93,6 +93,30 @@ describe('ProjectCardCarousel', () => {
         vi.useRealTimers();
     });
 
+    it('renders the generated thumbnail pair on the card image', () => {
+        const thumbnail = {
+            url: '/assets/projects/ledger-1.thumb.webp',
+            srcset: '/assets/projects/ledger-1.thumb.webp 1x, /assets/projects/ledger-1.thumb@2x.webp 2x',
+        };
+        const wrapper = mountCarousel({
+            screenshots: [{ ...SCREENSHOTS[0], thumbnail }],
+        });
+
+        const image = wrapper.get('img');
+        expect(image.attributes('src')).toBe(thumbnail.url);
+        expect(image.attributes('srcset')).toBe(thumbnail.srcset);
+    });
+
+    it('falls back to the full image while the thumbnail is not ready', () => {
+        const wrapper = mountCarousel({
+            screenshots: [{ ...SCREENSHOTS[0], thumbnail: null }],
+        });
+
+        const image = wrapper.get('img');
+        expect(image.attributes('src')).toBe('/assets/projects/ledger-1.png');
+        expect(image.attributes('srcset')).toBeUndefined();
+    });
+
     it('renders the skeleton while loading and the placeholder when empty', () => {
         const loading = mountCarousel({ is_loading: true });
         expect(loading.find('.skeleton--rectangle').exists()).toBe(true);
