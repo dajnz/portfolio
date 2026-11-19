@@ -522,6 +522,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
                 DB::raw('coalesce(pl.title, pe.title, \'\') as title'),
                 'a.is_published',
                 'a.published_at',
+                DB::raw('coalesce(a.published_at, a.created_at) as publication_sort_at'),
                 DB::raw('coalesce(pl.reading_time_minutes, pe.reading_time_minutes, 0) as reading_time_minutes'),
                 DB::raw('coalesce(av.views, 0) as views'),
                 'a.lead_image',

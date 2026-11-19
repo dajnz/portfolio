@@ -642,6 +642,8 @@ return [
     'lists' => [
         'all_statuses' => 'Все статусы',
         'all_years' => 'Все годы',
+        'newest_first' => 'Сначала новые',
+        'oldest_first' => 'Сначала старые',
         'items_selected' => '{count, plural, one {# элемент выбран} few {# элемента выбрано} many {# элементов выбрано} other {# элементов выбрано}}',
         'show_trashed' => 'Показать удалённые',
         'confirm_delete' => 'Подтвердить удаление',

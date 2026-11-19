@@ -15,6 +15,7 @@ import { computed } from 'vue';
 
 export type BlogViewMode = 'table' | 'grid';
 export type BlogPublishedFilter = 'all' | 'published' | 'unpublished';
+export type BlogSortDirection = 'asc' | 'desc';
 
 /** The unified picker's tag shape (article tags + skills). */
 export interface BlogTagFilter {
@@ -30,6 +31,7 @@ const props = withDefaults(
         published_filter?: BlogPublishedFilter;
         year_filter?: string;
         years?: number[];
+        sort_direction?: BlogSortDirection;
         show_trashed?: boolean;
         test_id?: string;
     }>(),
@@ -38,6 +40,7 @@ const props = withDefaults(
         published_filter: 'all',
         year_filter: '',
         years: () => [],
+        sort_direction: 'desc',
         show_trashed: false,
         test_id: 'blog-filters-bar',
     },
@@ -49,6 +52,7 @@ const emit = defineEmits<{
     'update:filter_tags': [tags: BlogTagFilter[]];
     'update:published_filter': [value: BlogPublishedFilter];
     'update:year_filter': [value: string];
+    'update:sort_direction': [value: BlogSortDirection];
     'update:show_trashed': [checked: boolean];
     create: [];
 }>();
@@ -72,6 +76,10 @@ function onPublishedChange(value: string | string[]): void {
 
 function onYearChange(value: string | string[]): void {
     emit('update:year_filter', Array.isArray(value) ? (value[0] ?? '') : value);
+}
+
+function onSortDirectionChange(value: string | string[]): void {
+    emit('update:sort_direction', (Array.isArray(value) ? value[0] : value) as BlogSortDirection);
 }
 </script>
 
@@ -158,6 +166,16 @@ function onYearChange(value: string | string[]): void {
           width="120px"
           :test_id="`${props.test_id}-year-filter`"
           @update:model-value="onYearChange"
+        />
+        <AdminBaseDropdown
+          :model-value="props.sort_direction"
+          :options="[
+            { value: 'desc', label: t('admin.lists.newest_first') },
+            { value: 'asc', label: t('admin.lists.oldest_first') },
+          ]"
+          width="170px"
+          :test_id="`${props.test_id}-sort-order-filter`"
+          @update:model-value="onSortDirectionChange"
         />
         <AdminBaseCheckbox
           :model-value="props.show_trashed"

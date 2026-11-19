@@ -244,6 +244,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
                 'p.slug',
                 DB::raw('coalesce(pl.title, pe.title, \'\') as title'),
                 'p.published_at',
+                DB::raw('coalesce(p.published_at, p.created_at) as publication_sort_at'),
                 'p.github_url',
                 'p.live_demo_url',
                 'p.is_featured',

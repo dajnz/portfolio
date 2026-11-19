@@ -152,6 +152,43 @@ describe('AdminBlogController', function (): void {
                 ->where('years', [(int) now()->format('Y')]));
     });
 
+    it('orders articles by publication chronology with drafts falling back to creation time', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $newest = blogItem([
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
+        $oldest = blogItem([
+            'is_published' => true,
+            'published_at' => now()->subDays(10),
+        ]);
+        $draft = blogItem([
+            'created_at' => now()->subDay(),
+            'published_at' => null,
+        ]);
+
+        $this->get('/admin/blog')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('articles', 3)
+                ->where('articles.0.id', $newest->id)
+                ->where('articles.1.id', $draft->id)
+                ->where('articles.2.id', $oldest->id)
+                ->where('meta.sort_column', 'publication_sort_at')
+                ->where('meta.sort_direction', 'desc'));
+
+        $this->get('/admin/blog?sort_direction=asc')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('articles', 3)
+                ->where('articles.0.id', $oldest->id)
+                ->where('articles.1.id', $draft->id)
+                ->where('articles.2.id', $newest->id)
+                ->where('meta.sort_column', 'publication_sort_at')
+                ->where('meta.sort_direction', 'asc'));
+    });
+
     it('lists the unified tag chips and the related count per article', function (): void {
         $this->loginAsAdmin($this->createAdmin());
 

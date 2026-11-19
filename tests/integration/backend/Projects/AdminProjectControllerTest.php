@@ -176,7 +176,7 @@ describe('AdminProjectController', function (): void {
                 ->where('meta.total', 2)
                 ->where('meta.per_page', 12)
                 ->where('meta.current_page', 1)
-                ->where('meta.sort_column', 'id')
+                ->where('meta.sort_column', 'publication_sort_at')
                 ->where('meta.sort_direction', 'desc')
                 ->where('meta.cursors.first.id', $newer->id)
                 ->where('meta.cursors.last.id', $older->id));
@@ -190,6 +190,43 @@ describe('AdminProjectController', function (): void {
         $this->get('/admin/projects')
             ->assertInertia(fn (Assert $page) => $page
                 ->where('projects.0.title', 'English Only'));
+    });
+
+    it('orders projects by publication chronology with drafts falling back to creation time', function (): void {
+        $this->loginAsAdmin($this->createAdmin());
+
+        $newest = projectItem([
+            'is_published' => true,
+            'published_at' => now(),
+        ]);
+        $oldest = projectItem([
+            'is_published' => true,
+            'published_at' => now()->subDays(10),
+        ]);
+        $draft = projectItem([
+            'created_at' => now()->subDay(),
+            'published_at' => null,
+        ]);
+
+        $this->get('/admin/projects')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('projects', 3)
+                ->where('projects.0.id', $newest->id)
+                ->where('projects.1.id', $draft->id)
+                ->where('projects.2.id', $oldest->id)
+                ->where('meta.sort_column', 'publication_sort_at')
+                ->where('meta.sort_direction', 'desc'));
+
+        $this->get('/admin/projects?sort_direction=asc')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->has('projects', 3)
+                ->where('projects.0.id', $oldest->id)
+                ->where('projects.1.id', $draft->id)
+                ->where('projects.2.id', $newest->id)
+                ->where('meta.sort_column', 'publication_sort_at')
+                ->where('meta.sort_direction', 'asc'));
     });
 
     it('hides trashed projects by default and shows them with ?trashed=1', function (): void {

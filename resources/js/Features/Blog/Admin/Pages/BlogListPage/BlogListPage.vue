@@ -42,6 +42,7 @@ const {
     filterTags,
     publishedFilter,
     yearFilter,
+    sortDirection,
     showTrashed,
     viewMode,
     hasActiveFilters,
@@ -49,6 +50,7 @@ const {
     onFilterTagsChange,
     onPublishedFilterChange,
     onYearFilterChange,
+    onSortDirectionChange,
     onTrashedChange,
     clearFilters,
     navigate,
@@ -132,6 +134,7 @@ function emptyAction(): void {
         :published_filter="publishedFilter"
         :year_filter="yearFilter"
         :years="props.years"
+        :sort_direction="sortDirection"
         :show_trashed="showTrashed"
         :test_id="props.test_id"
         @update:view_mode="(mode) => (viewMode = mode)"
@@ -139,6 +142,7 @@ function emptyAction(): void {
         @update:filter_tags="onFilterTagsChange"
         @update:published_filter="onPublishedFilterChange"
         @update:year_filter="onYearFilterChange"
+        @update:sort_direction="onSortDirectionChange"
         @update:show_trashed="onTrashedChange"
         @create="openCreate"
       />

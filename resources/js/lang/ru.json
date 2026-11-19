@@ -297,6 +297,8 @@
             "confirm_delete": "Подтвердить удаление",
             "delete_permanently": "Удалить навсегда",
             "items_selected": "{count, plural, one {# элемент выбран} few {# элемента выбрано} many {# элементов выбрано} other {# элементов выбрано}}",
+            "newest_first": "Сначала новые",
+            "oldest_first": "Сначала старые",
             "publish": "Опубликовать",
             "restore": "Восстановить",
             "show_trashed": "Показать удалённые",

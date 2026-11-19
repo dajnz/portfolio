@@ -61,6 +61,7 @@ const {
     featuredOnly,
     filterTags,
     publishedFilter,
+    sortDirection,
     showTrashed,
     viewMode,
     hasActiveFilters,
@@ -68,6 +69,7 @@ const {
     onFeaturedOnlyChange,
     onFilterTagsChange,
     onPublishedFilterChange,
+    onSortDirectionChange,
     onTrashedChange,
     clearFilters,
     navigate,
@@ -160,6 +162,7 @@ function coverSrcset(row: ProjectRow): string | undefined {
         :featured_only="featuredOnly"
         :filter_tags="filterTags"
         :published_filter="publishedFilter"
+        :sort_direction="sortDirection"
         :show_trashed="showTrashed"
         :test_id="props.test_id"
         @update:view_mode="(mode) => (viewMode = mode)"
@@ -167,6 +170,7 @@ function coverSrcset(row: ProjectRow): string | undefined {
         @update:featured_only="onFeaturedOnlyChange"
         @update:filter_tags="onFilterTagsChange"
         @update:published_filter="onPublishedFilterChange"
+        @update:sort_direction="onSortDirectionChange"
         @update:show_trashed="onTrashedChange"
         @create="openCreate"
       />

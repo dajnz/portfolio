@@ -64,6 +64,7 @@ use App\Features\Blog\App\Contracts\ArticleThumbnailSchedulerInterface;
 use App\Features\Blog\App\Contracts\ArticleThumbnailStoreInterface;
 use App\Features\Blog\App\Contracts\ArticleViewRecorderInterface;
 use App\Features\Blog\App\Contracts\VisitorFingerprintInterface;
+use App\Features\Blog\App\UseCases\ListArticlesUseCase;
 use App\Features\Blog\Infra\Repositories\EloquentArticleListQueryRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleReactionRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleRepository;
@@ -94,6 +95,7 @@ use App\Features\Portfolio\App\Contracts\FeedbackListQueryRepositoryInterface;
 use App\Features\Portfolio\Infra\Services\DashboardStatsReader;
 use App\Features\Portfolio\Infra\Services\ResumeModeReader;
 use App\Features\Projects\App\Contracts\PublishedArticleReaderInterface;
+use App\Features\Projects\App\UseCases\ListProjectsUseCase;
 use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface;
 use App\Features\Projects\Infra\Repositories\EloquentProjectListQueryRepository;
 use App\Features\Projects\Infra\Repositories\EloquentProjectRepository;
@@ -426,7 +428,9 @@ class AppServiceProvider extends ServiceProvider
         // The lists whose sort differs from the id default get their own
         // configured paginator: the timeline defaults to date desc and
         // allows the date column, the reorderable contacts list allows
-        // `sort_order`.
+        // `sort_order`, and the content lists sort by the publication
+        // chronology (published_at with created_at as the draft fallback)
+        // so the admin order matches the public pages.
         $this->app->when(ListTimelineItemsUseCase::class)
             ->needs(AdminListPaginatorInterface::class)
             ->give(fn (): AdminListPaginator => new AdminListPaginator(
@@ -438,6 +442,28 @@ class AppServiceProvider extends ServiceProvider
             ->needs(AdminListPaginatorInterface::class)
             ->give(fn (): AdminListPaginator => new AdminListPaginator(
                 allowedSortColumns: ['sort_order'],
+            ));
+
+        // The expressions reference the admin list repositories' table
+        // aliases (`p` for projects, `a` for blog_articles).
+        $this->app->when(ListProjectsUseCase::class)
+            ->needs(AdminListPaginatorInterface::class)
+            ->give(fn (): AdminListPaginator => new AdminListPaginator(
+                allowedSortColumns: ['publication_sort_at'],
+                defaultSortColumn: 'publication_sort_at',
+                sortColumnExpressions: [
+                    'publication_sort_at' => 'coalesce(p.published_at, p.created_at)',
+                ],
+            ));
+
+        $this->app->when(ListArticlesUseCase::class)
+            ->needs(AdminListPaginatorInterface::class)
+            ->give(fn (): AdminListPaginator => new AdminListPaginator(
+                allowedSortColumns: ['publication_sort_at'],
+                defaultSortColumn: 'publication_sort_at',
+                sortColumnExpressions: [
+                    'publication_sort_at' => 'coalesce(a.published_at, a.created_at)',
+                ],
             ));
 
         $this->app->bind(

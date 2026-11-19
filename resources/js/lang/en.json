@@ -297,6 +297,8 @@
             "confirm_delete": "Confirm Delete",
             "delete_permanently": "Delete Permanently",
             "items_selected": "{count, plural, one {# item selected} other {# items selected}}",
+            "newest_first": "Newest first",
+            "oldest_first": "Oldest first",
             "publish": "Publish",
             "restore": "Restore",
             "show_trashed": "Show trashed",

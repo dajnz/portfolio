@@ -17,14 +17,23 @@ use InvalidArgumentException;
  * seek predicate (WHERE ...), and the index-only positioning select used for
  * page jumps. Column names are whitelist-validated upstream and reach the SQL
  * only as grammar-quoted identifiers via the query builder — never as raw
- * interpolated strings.
+ * interpolated strings. A sort column may instead carry a trusted SQL
+ * expression configured by the feature (e.g. `coalesce(published_at,
+ * created_at)`); it is never sourced from request input.
  */
 final readonly class SortSpec
 {
+    /**
+     * @param  string|null  $sortExpression  Trusted SQL expression used instead of the
+     *                                       plain sort column in ORDER BY and the keyset
+     *                                       predicates. Supplied by configuration — never
+     *                                       from request input.
+     */
     public function __construct(
         public string $sortColumn,
         public string $sortDirection,
         public string $tiebreakerColumn,
+        public ?string $sortExpression = null,
     ) {
         if ($sortColumn === '') {
             throw new InvalidArgumentException('Sort spec requires a non-empty sort column.');
@@ -39,6 +48,10 @@ final readonly class SortSpec
                 sprintf("Invalid sort direction '%s'; expected 'asc' or 'desc'.", $sortDirection),
             );
         }
+
+        if ($sortExpression !== null && trim($sortExpression) === '') {
+            throw new InvalidArgumentException('Sort spec expression must not be blank.');
+        }
     }
 
     /**
@@ -47,7 +60,7 @@ final readonly class SortSpec
      */
     public function isIdSort(): bool
     {
-        return $this->sortColumn === $this->tiebreakerColumn;
+        return $this->sortExpression === null && $this->sortColumn === $this->tiebreakerColumn;
     }
 
     /**
@@ -75,13 +88,22 @@ final readonly class SortSpec
     }
 
     /**
-     * Applies the ORDER BY clause: the sort column first, the
-     * tiebreaker second — both in the sort direction.
+     * Applies the ORDER BY clause: the sort column (or its configured
+     * expression) first, the tiebreaker second — both in the sort
+     * direction.
      *
      * @param  EloquentBuilder|QueryBuilder  $query
      */
     public function applyOrderBy(EloquentBuilder|QueryBuilder $query): void
     {
+        if ($this->sortExpression !== null) {
+            $query->reorder()
+                ->orderByRaw($this->sortExpression.' '.$this->sortDirection)
+                ->orderBy($this->tiebreakerColumn, $this->sortDirection);
+
+            return;
+        }
+
         $query->reorder($this->sortColumn, $this->sortDirection)
             ->orderBy($this->tiebreakerColumn, $this->sortDirection);
     }
@@ -113,30 +135,57 @@ final readonly class SortSpec
         };
 
         $query->where(function (EloquentBuilder|QueryBuilder $group) use ($cursor, $operator, $columnOperator): void {
-            $group->where($this->sortColumn, $columnOperator, $cursor->sortValue)
-                ->orWhere(function (EloquentBuilder|QueryBuilder $tie) use ($cursor, $operator): void {
-                    $tie->where($this->sortColumn, '=', $cursor->sortValue)
-                        ->where($this->tiebreakerColumn, $operator, $cursor->id);
-                });
+            $this->applySortValueComparison($group, $columnOperator, $cursor->sortValue);
+
+            $group->orWhere(function (EloquentBuilder|QueryBuilder $tie) use ($cursor, $operator): void {
+                $this->applySortValueComparison($tie, '=', $cursor->sortValue);
+                $tie->where($this->tiebreakerColumn, $operator, $cursor->id);
+            });
         });
     }
 
     /**
-     * Index-only positioning select for page jumps: the tiebreaker plus
-     * (for composite sorts) the sort column, aliased so the hydrated
-     * row exposes `cursor_id` / `cursor_sort_value`. The aliases are
-     * regular column identifiers quoted by the grammar (no raw SQL).
+     * Applies the sort-value comparison on the configured expression or
+     * the plain column.
      *
-     * @return string[]
+     * @param  EloquentBuilder|QueryBuilder  $query
      */
-    public function positioningSelect(): array
-    {
-        $columns = [$this->tiebreakerColumn.' as cursor_id'];
+    private function applySortValueComparison(
+        EloquentBuilder|QueryBuilder $query,
+        string $operator,
+        mixed $value,
+    ): void {
+        if ($this->sortExpression !== null) {
+            $query->whereRaw($this->sortExpression.' '.$operator.' ?', [$value]);
 
-        if (! $this->isIdSort()) {
-            $columns[] = $this->sortColumn.' as cursor_sort_value';
+            return;
         }
 
-        return $columns;
+        $query->where($this->sortColumn, $operator, $value);
+    }
+
+    /**
+     * Applies the index-only positioning select for page jumps: the
+     * tiebreaker plus (for composite sorts) the sort column or its
+     * configured expression, aliased so the hydrated row exposes
+     * `cursor_id` / `cursor_sort_value`.
+     *
+     * @param  EloquentBuilder|QueryBuilder  $query
+     */
+    public function applyPositioningSelect(EloquentBuilder|QueryBuilder $query): void
+    {
+        $query->select([$this->tiebreakerColumn.' as cursor_id']);
+
+        if ($this->isIdSort()) {
+            return;
+        }
+
+        if ($this->sortExpression !== null) {
+            $query->selectRaw($this->sortExpression.' as cursor_sort_value');
+
+            return;
+        }
+
+        $query->addSelect($this->sortColumn.' as cursor_sort_value');
     }
 }
