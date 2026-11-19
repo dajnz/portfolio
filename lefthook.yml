@@ -25,21 +25,33 @@ pre-commit:
       glob: "docs/openapi/**"
       run: devops/scripts/dev-exec.sh pnpm exec spectral lint docs/openapi/inertia/inertia.yaml --ruleset .spectral.yaml
     - name: typecheck
-      skip: rebase
+      skip: [rebase]
       run: devops/scripts/dev-exec.sh pnpm run typecheck
     - name: backend-tests
-      skip: rebase
+      skip: [rebase]
       run: devops/scripts/dev-exec.sh env XDEBUG_MODE=off php artisan test --parallel --recreate-databases --drop-databases --processes=8
     - name: frontend-tests
-      skip: rebase
+      skip: [rebase]
       run: devops/scripts/dev-exec.sh pnpm exec vitest run
 
 commit-msg:
   skip:
     - run: test "$(git rev-parse --git-dir)" != "$(git rev-parse --git-common-dir)"
   jobs:
+    - name: commitlint-merge
+      skip:
+        - run: test ! -f "$(git rev-parse --git-dir)/MERGE_HEAD"
+      run: devops/scripts/dev-exec.sh pnpm exec commitlint --from HEAD --to MERGE_HEAD
     - name: commitlint
       run: devops/scripts/dev-exec.sh pnpm exec commitlint --edit {1}
+
+pre-push:
+  skip:
+    - run: test "$(git rev-parse --git-dir)" != "$(git rev-parse --git-common-dir)"
+  scripts:
+    "commitlint.sh":
+      runner: bash
+      use_stdin: true
 
 pre-merge-commit:
   piped: true
