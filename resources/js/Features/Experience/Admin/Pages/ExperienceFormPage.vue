@@ -405,6 +405,7 @@ function save(): void {
         <TextEditor
           :model-value="localeValue(activeLocale, form.short_description)"
           :label="t('admin.experience.short_description')"
+          required
           :error="fieldError('short_description')"
           :disabled="isSaving"
           :buttons="EXPERIENCE_EDITOR_BUTTONS"
