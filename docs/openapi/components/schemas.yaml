@@ -319,6 +319,15 @@ components:
               type: string
             ru:
               type: string
+        lead_image_thumbnail:
+          nullable: true
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/ThumbnailData'
+          description: |
+            The generated thumbnail pair of the lead image; null until
+            the background job finishes (clients fall back to
+            `lead_image`).
         tags:
           type: array
           items:
@@ -380,6 +389,15 @@ components:
           description: |
             The derived cover image path — the first screenshot by
             `sort_order`; null when the project has no screenshots.
+        cover_thumbnail:
+          nullable: true
+          readOnly: true
+          allOf:
+            - $ref: '#/components/schemas/ThumbnailData'
+          description: |
+            The generated thumbnail pair of the derived cover; null
+            until the background job finishes (clients fall back to
+            `cover_image`).
         github_url:
           type: string
           nullable: true
@@ -411,3 +429,18 @@ components:
             $ref: '#/components/schemas/ProjectItem'
         meta:
           $ref: '#/components/schemas/PaginationMeta'
+
+    ThumbnailData:
+      type: object
+      description: |
+        The generated card thumbnail pair (ADR-0047) — the 1x and 2x
+        RustFS paths. Null while the background generation has not
+        finished yet — clients fall back to the full-size image.
+      required: [path, retina_path]
+      properties:
+        path:
+          type: string
+          description: The 480x270 WebP object (RustFS path).
+        retina_path:
+          type: string
+          description: The 960x540 WebP object (RustFS path).

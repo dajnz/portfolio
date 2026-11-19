@@ -278,3 +278,20 @@ components:
                 request_id:
                   type: string
                   description: UUID request identifier for error reporting.
+
+    ThumbnailData:
+      type: object
+      description: |
+        The generated card thumbnail pair (ADR-0047) — the 1x and 2x
+        RustFS paths; the frontend prefixes both with `/assets/` and
+        renders them as a `srcset` (`1x`/`2x`). Null while the
+        background generation has not finished yet — the card then
+        falls back to the full-size image.
+      required: [path, retina_path]
+      properties:
+        path:
+          type: string
+          description: The 480x270 WebP object (RustFS path).
+        retina_path:
+          type: string
+          description: The 960x540 WebP object (RustFS path).

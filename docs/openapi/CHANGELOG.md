@@ -12,6 +12,17 @@ runtime support.
 
 ### Added
 
+- **Card thumbnails (v1.0.43 inertia + v1.0.10 REST):** a new
+  `ThumbnailData` schema (`path`, `retina_path` — the 1x/2x RustFS paths)
+  is exposed as a nullable `thumbnail` on `ProjectCardData.screenshots[]`,
+  `cover_thumbnail` on `ProjectTableRowData` and `FeaturedProjectData`,
+  `lead_image_thumbnail` on `ArticleCardData` and `ArticleTableRowData`,
+  and the matching REST `ProjectItem.cover_thumbnail` /
+  `ArticleItem.lead_image_thumbnail`. Null means the background generation
+  has not finished yet — consumers fall back to the full image
+  (ADR-0047). `info.version` bumped to `1.0.43` in `inertia.yaml` and
+  `1.0.10` in `openapi.yaml`.
+
 - **Skill group visibility (v1.0.41 inertia):** `SkillGroupEditData` gained
   `is_hidden` (boolean) — the admin skills list can mark a group as hidden,
   which removes the whole group from the landing page `skills` prop while

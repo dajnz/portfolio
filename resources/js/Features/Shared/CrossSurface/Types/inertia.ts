@@ -1017,6 +1017,19 @@ export interface components {
                 proficiency?: number;
             }[];
         };
+        /**
+         * @description The generated card thumbnail pair (ADR-0047) — the 1x and 2x
+         *     RustFS paths; the frontend prefixes both with `/assets/` and
+         *     renders them as a `srcset` (`1x`/`2x`). Null while the
+         *     background generation has not finished yet — the card then
+         *     falls back to the full-size image.
+         */
+        ThumbnailData: {
+            /** @description The 480x270 WebP object (RustFS path). */
+            path: string;
+            /** @description The 960x540 WebP object (RustFS path). */
+            retina_path: string;
+        };
         FeaturedProjectData: {
             id?: number;
             title?: string;
@@ -1027,6 +1040,12 @@ export interface components {
              *     `sort_order`; null when the project has no screenshots.
              */
             readonly cover_image?: string | null;
+            /**
+             * @description The generated thumbnail pair of the derived cover; null
+             *     until the background job finishes (the card falls back to
+             *     `cover_image`).
+             */
+            cover_thumbnail?: components["schemas"]["ThumbnailData"] | null;
             tech_tags?: {
                 id?: number;
                 name?: string;
@@ -1253,6 +1272,12 @@ export interface components {
                 ru?: string;
             } | null;
             /**
+             * @description The generated 1x/2x card thumbnail pair of the lead image;
+             *     null until the background job finishes (the card falls back
+             *     to `lead_image`).
+             */
+            lead_image_thumbnail?: components["schemas"]["ThumbnailData"] | null;
+            /**
              * @description The attached article tags via `article_tag_pivot` — rendered
              *     as linked chips (`/blog?article_tags={id}`), the same chip
              *     as `skill_tags`.
@@ -1364,6 +1389,12 @@ export interface components {
              */
             lead_image?: string | null;
             /**
+             * @description The generated thumbnail pair of the lead image; null until
+             *     the background job finishes (the cell falls back to
+             *     `lead_image`).
+             */
+            lead_image_thumbnail?: components["schemas"]["ThumbnailData"] | null;
+            /**
              * @description The number of related articles (the bidirectional
              *     `related_articles` rows of the article) — the static
              *     Related column of the admin table; per-row related
@@ -1474,6 +1505,12 @@ export interface components {
             tech_tags?: components["schemas"]["schemas-SkillTagData"][];
             screenshots?: {
                 image_path?: string;
+                /**
+                 * @description The generated 1x/2x card thumbnail pair; null until the
+                 *     background job finishes (the card falls back to
+                 *     `image_path`).
+                 */
+                thumbnail?: components["schemas"]["ThumbnailData"] | null;
                 title?: {
                     en?: string;
                     ru?: string;
@@ -1560,6 +1597,12 @@ export interface components {
              *     screenshots (the Preview column shows a placeholder).
              */
             readonly cover_image?: string | null;
+            /**
+             * @description The generated thumbnail pair of the derived cover; null
+             *     until the background job finishes (the Preview column falls
+             *     back to `cover_image`).
+             */
+            cover_thumbnail?: components["schemas"]["ThumbnailData"] | null;
             is_published?: boolean;
             is_featured?: boolean;
             featured_sort_order?: number | null;
