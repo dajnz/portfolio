@@ -5,11 +5,17 @@ declare(strict_types=1);
 namespace App\Features\Shared\Infra\Services;
 
 use App\Features\Shared\App\Contracts\AssetPathProviderInterface;
+use App\Features\Shared\Domain\ValueObjects\ThumbnailPath;
 use Illuminate\Support\Facades\DB;
 
 /**
  * The database-backed asset references: direct image/file columns plus
- * image paths embedded in article Markdown and HTML.
+ * image paths embedded in article Markdown and HTML. The thumbnail
+ * variants of every referenced screenshot and lead image count as
+ * referenced too — their paths follow the
+ * {@see ThumbnailPath} convention, so an object left behind by a
+ * crashed generation job is preserved for the backfill command instead
+ * of being swept.
  */
 final class DatabaseAssetPathProvider implements AssetPathProviderInterface
 {
@@ -17,11 +23,19 @@ final class DatabaseAssetPathProvider implements AssetPathProviderInterface
     {
         $paths = [];
 
-        foreach ($this->columnPaths('project_screenshots', 'image_path') as $path) {
+        foreach ($this->imageColumnPaths('project_screenshots', 'image_path') as $path) {
             $paths[] = $path;
         }
 
-        foreach ($this->columnPaths('blog_articles', 'lead_image') as $path) {
+        foreach ($this->imageColumnPaths('blog_articles', 'lead_image') as $path) {
+            $paths[] = $path;
+        }
+
+        foreach ($this->columnPaths('project_screenshots', 'thumbnail_path') as $path) {
+            $paths[] = $path;
+        }
+
+        foreach ($this->columnPaths('blog_articles', 'thumbnail_path') as $path) {
             $paths[] = $path;
         }
 
@@ -55,6 +69,25 @@ final class DatabaseAssetPathProvider implements AssetPathProviderInterface
             ->pluck($column)
             ->filter(fn ($value): bool => is_string($value))
             ->all();
+    }
+
+    /**
+     * An image column plus the thumbnail objects derived from each source
+     * — the thumbnails are referenced even before the row records them,
+     * so a generation that stored the objects but failed to write the
+     * column is not treated as garbage.
+     *
+     * @return string[]
+     */
+    private function imageColumnPaths(string $table, string $column): array
+    {
+        $paths = [];
+
+        foreach ($this->columnPaths($table, $column) as $path) {
+            $paths = [...$paths, ...ThumbnailPath::forSource($path)->toFiles()];
+        }
+
+        return $paths;
     }
 
     /**

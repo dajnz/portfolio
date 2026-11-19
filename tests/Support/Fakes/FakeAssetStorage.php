@@ -37,6 +37,11 @@ final class FakeAssetStorage implements AssetStorageInterface
         return 0;
     }
 
+    public function read(string $path): string
+    {
+        return '';
+    }
+
     public function files(string $directory): array
     {
         return $this->allFiles;

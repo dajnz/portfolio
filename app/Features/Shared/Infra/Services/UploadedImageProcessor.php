@@ -17,6 +17,9 @@ use Intervention\Image\Interfaces\ImageInterface;
  * down so its largest side does not exceed the configured limit, and encodes a
  * metadata-free WebP at 85% quality — GD's WebP encoder writes no EXIF/IPTC/XMP,
  * so re-encoding strips all embedded metadata.
+ *
+ * It also encodes the card thumbnails: a 16:9 center cover crop of an already
+ * stored object, downscaled to the requested box without upscaling.
  */
 final class UploadedImageProcessor implements ImageProcessorInterface
 {
@@ -38,10 +41,33 @@ final class UploadedImageProcessor implements ImageProcessorInterface
             ->toString();
     }
 
+    /**
+     * The card thumbnail: a 16:9 center cover crop, downscaled only (a
+     * source narrower than the box keeps its width).
+     */
+    public function toThumbnail(string $contents, int $width, int $height, int $quality): string
+    {
+        $image = $this->decodeContents($contents);
+
+        return $image
+            ->coverDown($width, $height)
+            ->encode(new WebpEncoder(quality: $quality, strip: true))
+            ->toString();
+    }
+
     private function decode(string $filePath): ImageInterface
     {
         try {
             return $this->images->decodePath($filePath);
+        } catch (ImageDecoderException $exception) {
+            throw new InvalidUploadedImageException(previous: $exception);
+        }
+    }
+
+    private function decodeContents(string $contents): ImageInterface
+    {
+        try {
+            return $this->images->decodeBinary($contents);
         } catch (ImageDecoderException $exception) {
             throw new InvalidUploadedImageException(previous: $exception);
         }

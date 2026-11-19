@@ -20,6 +20,12 @@ interface AssetStorageInterface
     public function size(string $path): int;
 
     /**
+     * The object contents — the thumbnail pipeline decodes them in
+     * memory (no staging file).
+     */
+    public function read(string $path): string;
+
+    /**
      * The object paths directly under the given directory.
      *
      * @return string[]

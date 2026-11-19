@@ -46,6 +46,17 @@ final class RustFsAssetStorage implements AssetStorageInterface
         return Storage::disk('rustfs')->size($path);
     }
 
+    public function read(string $path): string
+    {
+        $contents = Storage::disk('rustfs')->get($path);
+
+        if ($contents === null) {
+            throw new RuntimeException("Unable to read the stored asset `{$path}`.");
+        }
+
+        return $contents;
+    }
+
     public function files(string $directory): array
     {
         return Storage::disk('rustfs')->files($directory);

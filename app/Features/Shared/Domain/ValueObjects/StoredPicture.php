@@ -17,7 +17,9 @@ use InvalidArgumentException;
  * blank entries), but the map itself may be empty — the admin forms allow
  * per-locale alt values to be null, and renderers fall back to the
  * entity's name/title for missing alts. The `descriptions` map is optional
- * and may be empty.
+ * and may be empty. The `thumbnail` pair is generated asynchronously for
+ * card-sized renders and stays null until the job finishes (the cards
+ * then fall back to the full image).
  */
 final readonly class StoredPicture
 {
@@ -29,6 +31,7 @@ final readonly class StoredPicture
         public string $url,
         public array $altLabels,
         public array $descriptions = [],
+        public ?StoredThumbnail $thumbnail = null,
     ) {
         if ($url === '') {
             throw new InvalidArgumentException('Stored picture URL must not be empty.');
@@ -54,6 +57,15 @@ final readonly class StoredPicture
     public function altLabelsMap(): array
     {
         return $this->altLabels;
+    }
+
+    /**
+     * The generated card thumbnail pair — null until the background job
+     * finishes.
+     */
+    public function toThumbnail(): ?StoredThumbnail
+    {
+        return $this->thumbnail;
     }
 
     /**
