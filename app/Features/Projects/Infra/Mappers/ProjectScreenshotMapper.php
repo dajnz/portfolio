@@ -8,6 +8,7 @@ use App\Features\Projects\Domain\Entities\ProjectScreenshot;
 use App\Features\Projects\Infra\Models\ProjectScreenshotModel;
 use App\Features\Shared\Domain\ValueObjects\SortOrder;
 use App\Features\Shared\Domain\ValueObjects\StoredPicture;
+use App\Features\Shared\Domain\ValueObjects\StoredThumbnail;
 
 /**
  * Converts between `project_screenshots` rows and
@@ -24,6 +25,7 @@ final class ProjectScreenshotMapper
                 url: $model->image_path,
                 altLabels: [],
                 descriptions: $this->map($model->description),
+                thumbnail: StoredThumbnail::fromSource($model->image_path, $model->thumbnail_path),
             ),
             titles: $this->map($model->title),
             sortOrder: new SortOrder((int) $model->sort_order),

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property int $project_id
  * @property string $image_path
+ * @property string|null $thumbnail_path
  * @property array<string, string>|null $title
  * @property array<string, string>|null $description
  * @property int $sort_order
@@ -26,6 +27,7 @@ final class ProjectScreenshotModel extends Model
     protected $fillable = [
         'project_id',
         'image_path',
+        'thumbnail_path',
         'title',
         'description',
         'sort_order',

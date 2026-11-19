@@ -13,6 +13,8 @@ use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface
 use App\Features\Projects\Domain\ValueObjects\ProjectId;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
+use App\Features\Projects\App\Contracts\ScreenshotThumbnailSchedulerInterface;
+use App\Features\Shared\Domain\ValueObjects\ThumbnailPath;
 use DateTimeImmutable;
 
 /**
@@ -38,6 +40,7 @@ final class UpdateProjectUseCase
         private readonly ProjectSlugService $slugs,
         private readonly AssetCleanerInterface $assets,
         private readonly CountCacheInvalidatorInterface $countCache,
+        private readonly ScreenshotThumbnailSchedulerInterface $thumbnails,
     ) {
     }
 
@@ -71,8 +74,36 @@ final class UpdateProjectUseCase
 
         $this->repository->save($project);
         $this->assets->delete($this->obsoleteScreenshotPaths($existing, $draft));
+        $this->scheduleThumbnails($id, $existing);
 
         $this->countCache->invalidate('projects');
+    }
+
+    /**
+     * Schedules the thumbnail generation for the screenshots whose image
+     * was added or replaced — a reorder or text edit enqueues nothing.
+     */
+    private function scheduleThumbnails(int $projectId, Project $existing): void
+    {
+        $updated = $this->repository->findById($projectId);
+
+        if ($updated === null) {
+            return;
+        }
+
+        $existingPaths = [];
+        foreach ($existing->toScreenshots() as $screenshot) {
+            $existingPaths[$screenshot->toId()] = $screenshot->toImagePath();
+        }
+
+        $ids = [];
+        foreach ($updated->toScreenshots() as $screenshot) {
+            if (($existingPaths[$screenshot->toId()] ?? null) !== $screenshot->toImagePath()) {
+                $ids[] = $screenshot->toId();
+            }
+        }
+
+        $this->thumbnails->schedule($ids);
     }
 
     /**
@@ -100,6 +131,11 @@ final class UpdateProjectUseCase
             }
         }
 
-        return $paths;
+        $files = [];
+        foreach ($paths as $path) {
+            $files = [...$files, ...ThumbnailPath::forSource($path)->toFiles()];
+        }
+
+        return $files;
     }
 }

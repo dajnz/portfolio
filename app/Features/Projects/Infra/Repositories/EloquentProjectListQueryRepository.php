@@ -8,6 +8,8 @@ use App\Features\Projects\App\Contracts\ProjectListQueryRepositoryInterface;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;
+use App\Features\Shared\Domain\ValueObjects\StoredPicture;
+use App\Features\Shared\Domain\ValueObjects\StoredThumbnail;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
@@ -136,10 +138,11 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
             ->whereIn('project_id', $projectIds)
             ->orderBy('sort_order')
             ->orderBy('id')
-            ->select(['project_id', 'image_path', 'title'])
+            ->select(['project_id', 'image_path', 'thumbnail_path', 'title'])
             ->get() as $row) {
             $shotsByProject[(int) $row->project_id][] = [
                 'image_path' => $row->image_path,
+                'thumbnail_path' => $row->thumbnail_path,
                 'title' => $this->decodeJsonMap($row->title),
             ];
         }
@@ -147,7 +150,7 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
         return $shotsByProject;
     }
 
-    public function coverPathsFor(array $projectIds): array
+    public function coverPicturesFor(array $projectIds): array
     {
         if ($projectIds === []) {
             return [];
@@ -155,13 +158,17 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
 
         $covers = [];
         foreach (DB::table('project_screenshots')
-            ->selectRaw('distinct on (project_id) project_id, image_path')
+            ->selectRaw('distinct on (project_id) project_id, image_path, thumbnail_path, title')
             ->whereIn('project_id', $projectIds)
             ->orderBy('project_id')
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get() as $row) {
-            $covers[(int) $row->project_id] = (string) $row->image_path;
+            $covers[(int) $row->project_id] = new StoredPicture(
+                url: (string) $row->image_path,
+                altLabels: $this->altLabels($row->title),
+                thumbnail: StoredThumbnail::fromSource((string) $row->image_path, $row->thumbnail_path),
+            );
         }
 
         return $covers;
@@ -481,5 +488,24 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
         $decoded = json_decode($value, true);
 
         return is_array($decoded) ? $decoded : null;
+    }
+
+    /**
+     * The non-empty locale labels of a decoded jsonb map — the
+     * `StoredPicture` alt-label invariant.
+     *
+     * @return array<string, string>
+     */
+    private function altLabels(mixed $value): array
+    {
+        $labels = [];
+
+        foreach ($this->decodeJsonMap($value) ?? [] as $locale => $label) {
+            if (is_string($label) && $label !== '') {
+                $labels[(string) $locale] = $label;
+            }
+        }
+
+        return $labels;
     }
 }

@@ -7,6 +7,7 @@ namespace App\Features\Projects\App\UseCases;
 use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
+use App\Features\Shared\Domain\ValueObjects\ThumbnailPath;
 
 /**
  * Permanently deletes projects (single + bulk) — the DB rows are
@@ -58,6 +59,11 @@ final class ForceDestroyProjectUseCase
             $paths = array_merge($paths, $projectPaths);
         }
 
-        return $paths;
+        $files = [];
+        foreach ($paths as $path) {
+            $files = [...$files, ...ThumbnailPath::forSource($path)->toFiles()];
+        }
+
+        return $files;
     }
 }

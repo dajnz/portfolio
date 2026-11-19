@@ -10,6 +10,7 @@ use App\Features\Projects\App\UseCases\GetPublicProjectUseCase;
 use App\Features\Projects\App\UseCases\GetPublicProjectsUseCase;
 use App\Features\Projects\Infra\Services\ProjectDetailPropsBuilder;
 use App\Features\Shared\Infra\Services\PublicPageCache;
+use App\Features\Shared\App\DTOs\ThumbnailDto;
 use App\Features\Shared\Domain\ValueObjects\PublicPageCursor;
 use App\Features\Shared\Infra\Persistence\Cursor;
 use App\Features\Shared\Infra\Persistence\PublicCursorCodec;
@@ -176,6 +177,7 @@ final class PublicProjectController
                 'screenshots' => array_map(
                     static fn (array $shot): array => [
                         'image_path' => $shot['image_path'],
+                        'thumbnail' => ThumbnailDto::fromSource((string) ($shot['image_path'] ?? ''), $shot['thumbnail_path'] ?? null)?->toArray(),
                         'title' => $shot['title'] ?? [],
                     ],
                     $result->screenshots[$item->id] ?? [],
@@ -199,6 +201,7 @@ final class PublicProjectController
                 'brief_description' => $item->briefDescription,
                 'published_at' => $item->publishedAt?->format('c'),
                 'cover_image' => $item->coverImage,
+                'cover_thumbnail' => $item->coverThumbnail?->toArray(),
                 'github_url' => $item->links->sourceCodeUrl,
                 'live_demo_url' => $item->links->liveDemoUrl,
                 'is_featured' => $item->isFeatured,

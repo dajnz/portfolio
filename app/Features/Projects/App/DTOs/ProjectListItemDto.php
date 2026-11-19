@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Features\Projects\App\DTOs;
 
+use App\Features\Shared\App\DTOs\ThumbnailDto;
+use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 use DateTimeImmutable;
 
 final readonly class ProjectListItemDto
@@ -26,15 +28,16 @@ final readonly class ProjectListItemDto
         public DateTimeImmutable $createdAt,
         public DateTimeImmutable $updatedAt,
         public array $techTags = [],
+        public ?ThumbnailDto $coverThumbnail = null,
     ) {
     }
 
     /**
      * @param  object  $row  The locale-resolved list projection row.
      * @param  SkillOptionDto[]  $techTags
-     * @param  string|null  $coverImage  The derived first-screenshot path.
+     * @param  StoredPicture|null  $cover  The derived first-screenshot picture.
      */
-    public static function fromRow(object $row, array $techTags = [], ?string $coverImage = null): self
+    public static function fromRow(object $row, array $techTags = [], ?StoredPicture $cover = null): self
     {
         return new self(
             id: (int) $row->id,
@@ -44,7 +47,7 @@ final readonly class ProjectListItemDto
             publishedAt: $row->published_at === null || $row->published_at === ''
                 ? null
                 : new DateTimeImmutable($row->published_at),
-            coverImage: $coverImage === null || $coverImage === '' ? null : $coverImage,
+            coverImage: $cover?->url,
             links: new ProjectLinksDto(
                 sourceCodeUrl: $row->github_url ?? null,
                 liveDemoUrl: $row->live_demo_url ?? null,
@@ -58,6 +61,7 @@ final readonly class ProjectListItemDto
             createdAt: new DateTimeImmutable($row->created_at),
             updatedAt: new DateTimeImmutable($row->updated_at),
             techTags: $techTags,
+            coverThumbnail: ThumbnailDto::fromStored($cover?->toThumbnail()),
         );
     }
 }

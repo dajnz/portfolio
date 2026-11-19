@@ -34,7 +34,7 @@ final class GetProjectListItemUseCase
         return ProjectListItemDto::fromRow(
             row: $row,
             techTags: $this->techTagsFor($id),
-            coverImage: $this->repository->coverPathsFor([$id])[$id] ?? null,
+            cover: $this->repository->coverPicturesFor([$id])[$id] ?? null,
         );
     }
 

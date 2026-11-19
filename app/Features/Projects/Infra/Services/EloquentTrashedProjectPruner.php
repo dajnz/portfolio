@@ -7,6 +7,7 @@ namespace App\Features\Projects\Infra\Services;
 use App\Features\Projects\Infra\Models\ProjectModel;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
 use App\Features\Shared\App\Contracts\TrashedItemPrunerInterface;
+use App\Features\Shared\Domain\ValueObjects\ThumbnailPath;
 use DateTimeImmutable;
 use Illuminate\Support\Facades\DB;
 
@@ -70,9 +71,14 @@ final class EloquentTrashedProjectPruner implements TrashedItemPrunerInterface
      */
     private function assetPathsOf(array $ids): array
     {
-        return DB::table('project_screenshots')
+        $files = [];
+
+        foreach (DB::table('project_screenshots')
             ->whereIn('project_id', $ids)
-            ->pluck('image_path')
-            ->all();
+            ->pluck('image_path') as $path) {
+            $files = [...$files, ...ThumbnailPath::forSource((string) $path)->toFiles()];
+        }
+
+        return $files;
     }
 }

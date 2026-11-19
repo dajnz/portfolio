@@ -11,6 +11,7 @@ use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface
 use App\Features\Projects\Domain\ValueObjects\ProjectId;
 use App\Features\Shared\Domain\ValueObjects\PublishedState;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
+use App\Features\Projects\App\Contracts\ScreenshotThumbnailSchedulerInterface;
 use DateTimeImmutable;
 
 /**
@@ -35,6 +36,7 @@ final class StoreProjectUseCase
         private readonly ProjectEntityFactory $factory,
         private readonly ProjectSlugService $slugs,
         private readonly CountCacheInvalidatorInterface $countCache,
+        private readonly ScreenshotThumbnailSchedulerInterface $thumbnails,
     ) {
     }
 
@@ -60,8 +62,25 @@ final class StoreProjectUseCase
 
         $projectId = $this->repository->save($project);
 
+        $this->scheduleThumbnails($projectId);
         $this->countCache->invalidate('projects');
 
         return new ProjectId($projectId);
+    }
+
+    private function scheduleThumbnails(int $projectId): void
+    {
+        $created = $this->repository->findById($projectId);
+
+        if ($created === null) {
+            return;
+        }
+
+        $this->thumbnails->schedule(
+            array_map(
+                static fn ($screenshot): int => $screenshot->toId(),
+                $created->toScreenshots(),
+            ),
+        );
     }
 }
