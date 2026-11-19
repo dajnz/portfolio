@@ -26,10 +26,13 @@ final class AdminListPaginator implements AdminListPaginatorInterface
      * @param  string[]  $allowedSortColumns  Sort columns the `sort_column` param may select beyond the id column.
      * @param  string|null  $defaultSortColumn  Sort column used when the request carries no `sort_column`
      *                                          (default: the id column).
+     * @param  array<string, string>  $sortColumnExpressions  Trusted SQL expressions keyed by sort column,
+     *                                                        used instead of the plain column in ORDER BY/keyset SQL.
      */
     public function __construct(
         private readonly array $allowedSortColumns = [],
         private readonly ?string $defaultSortColumn = null,
+        private readonly array $sortColumnExpressions = [],
     ) {
     }
 
@@ -44,6 +47,7 @@ final class AdminListPaginator implements AdminListPaginatorInterface
             cursorDecoder: new CursorDecoder(),
             allowedSortColumns: $this->allowedSortColumns,
             defaultSortColumn: $this->defaultSortColumn,
+            sortColumnExpressions: $this->sortColumnExpressions,
         );
 
         $page = $paginator->paginate(

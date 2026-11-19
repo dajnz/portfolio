@@ -31,7 +31,8 @@ use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
  *   `&cursor[before]=1` requests the preceding page (previous
  *   navigation).
  * - `?sort_column=` / `?sort_direction=` — active sort (default
- *   `id` / `desc`), whitelist-validated.
+ *   `id` / `desc`), whitelist-validated. A configured sort column may
+ *   be backed by a trusted SQL expression (see SortSpec).
  *
  * The `SELECT COUNT(*)` per filter combination is cached in Redis for
  * 30 s; the count is only used for the page-number widget. The cache is
@@ -59,12 +60,16 @@ final class AdminCursorPaginator
      * @param  string  $idColumn  Primary-key column, qualified (`projects.id`) when the query joins.
      * @param  string|null  $defaultSortColumn  Sort column used when the request carries no
      *                                          `sort_column` (default: the id column).
+     * @param  array<string, string>  $sortColumnExpressions  Trusted SQL expressions keyed by
+     *                                                        sort column, used instead of the
+     *                                                        plain column in ORDER BY/keyset SQL.
      */
     public function __construct(
         private readonly CursorDecoder $cursorDecoder = new CursorDecoder(),
         private readonly array $allowedSortColumns = [],
         private readonly string $idColumn = 'id',
         private readonly ?string $defaultSortColumn = null,
+        private readonly array $sortColumnExpressions = [],
     ) {
     }
 
@@ -94,6 +99,7 @@ final class AdminCursorPaginator
             $this->allowedSortColumns,
             $this->idColumn,
             $this->defaultSortColumn,
+            $this->sortColumnExpressions,
         );
         $total = $this->countTotal(clone $query, $countCacheKey);
 
@@ -254,9 +260,9 @@ final class AdminCursorPaginator
 
         $positioning = clone $query;
         $sorting->applyOrderBy($positioning);
+        $sorting->applyPositioningSelect($positioning);
 
-        $row = $positioning->select($sorting->positioningSelect())
-            ->offset($offset)
+        $row = $positioning->offset($offset)
             ->limit(1)
             ->first();
 

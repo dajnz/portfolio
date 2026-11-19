@@ -15,6 +15,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 
@@ -292,6 +293,53 @@ describe('AdminCursorPaginator', function (): void {
         expect(pageItemIds($previous))->toBe([$ids[2], $ids[1], $ids[0], $ids[7], $ids[6]])
             ->and($previous->currentPage)->toBe(1)
             ->and($previous->cursors->page)->toBe(1);
+    });
+
+    it('paginates by a configured sort expression', function (): void {
+        $group = createCursorTestGroup();
+        $proficiencies = [5, 5, 3, 3, 1];
+        $ids = [];
+        foreach (['Laravel', 'PHP', 'Vue.js', 'Go', 'Rust'] as $i => $name) {
+            $ids[] = createCursorTestSkill($group, $name, $proficiencies[$i])->id;
+        }
+
+        $paginator = new AdminCursorPaginator(
+            allowedSortColumns: ['publication_sort_at'],
+            defaultSortColumn: 'publication_sort_at',
+            sortColumnExpressions: ['publication_sort_at' => 'coalesce(proficiency, 0)'],
+        );
+
+        $sortableSkills = static fn () => SkillModel::query()
+            ->select('skills.*')
+            ->addSelect(DB::raw('coalesce(proficiency, 0) as publication_sort_at'));
+
+        $first = $paginator->paginate($sortableSkills(), cursorRequest([]), 2);
+        $second = $paginator->paginate(
+            $sortableSkills(),
+            cursorRequest([
+                'cursor' => [
+                    'id' => $first->cursors->last->id,
+                    'sort_value' => $first->cursors->last->sortValue,
+                ],
+            ]),
+            2,
+        );
+        $third = $paginator->paginate(
+            $sortableSkills(),
+            cursorRequest([
+                'cursor' => [
+                    'id' => $second->cursors->last->id,
+                    'sort_value' => $second->cursors->last->sortValue,
+                ],
+            ]),
+            2,
+        );
+
+        expect($first->sorting->sortColumn)->toBe('publication_sort_at')
+            ->and(array_merge(pageItemIds($first), pageItemIds($second), pageItemIds($third)))
+            ->toBe([$ids[1], $ids[0], $ids[3], $ids[2], $ids[4]])
+            ->and($first->cursors->last->sortValue)->toBe(5)
+            ->and($third->cursors->last->sortValue)->toBe(1);
     });
 
     it('resolves an arbitrary page jump via the positioning subquery on id sort', function (): void {

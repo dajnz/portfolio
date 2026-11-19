@@ -35,9 +35,17 @@ final readonly class PaginationRequest
      *                                        beyond the id column (which is always allowed).
      * @param  string|null  $defaultSortColumn  Sort column used when the request carries no
      *                                          `sort_column` (default: the id column).
+     * @param  array<string, string>  $sortColumnExpressions  Trusted SQL expressions keyed by
+     *                                                        sort column, used instead of the
+     *                                                        plain column in ORDER BY/keyset SQL.
      */
-    public static function fromRequest(Request $request, array $allowedSortColumns, string $idColumn, ?string $defaultSortColumn = null): self
-    {
+    public static function fromRequest(
+        Request $request,
+        array $allowedSortColumns,
+        string $idColumn,
+        ?string $defaultSortColumn = null,
+        array $sortColumnExpressions = [],
+    ): self {
         $sortColumn = trim((string) $request->query('sort_column', ''));
 
         if ($sortColumn === '') {
@@ -64,6 +72,7 @@ final readonly class PaginationRequest
                 sortColumn: $sortColumn,
                 sortDirection: $sortDirection,
                 tiebreakerColumn: $idColumn,
+                sortExpression: $sortColumnExpressions[$sortColumn] ?? null,
             ),
         );
     }

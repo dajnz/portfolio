@@ -88,7 +88,7 @@ const META = {
     total: 2,
     per_page: 12,
     current_page: 1,
-    sort_column: 'id',
+    sort_column: 'publication_sort_at',
     sort_direction: 'desc' as const,
     cursors: {
         first: { id: 2, sort_value: null },
