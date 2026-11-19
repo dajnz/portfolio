@@ -235,6 +235,7 @@ final class PublicBlogController
             'published_at' => $card->publishedAt?->format('c'),
             'reading_time_minutes' => $card->readingTimeMinutes,
             'lead_image' => $card->leadImage,
+            'lead_image_thumbnail' => $card->leadImageThumbnail?->toArray(),
             'lead_image_alt' => $card->leadImageAlt,
             'tags' => array_map(
                 static fn (TagOptionDto $tag): array => self::tagProps($tag),

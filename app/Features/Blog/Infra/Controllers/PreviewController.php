@@ -93,6 +93,7 @@ final class PreviewController
                     'published_at' => $card->publishedAt?->format('c'),
                     'reading_time_minutes' => $card->readingTimeMinutes,
                     'lead_image' => $card->leadImage,
+                    'lead_image_thumbnail' => $card->leadImageThumbnail?->toArray(),
                     'tags' => array_map(
                         static fn (TagOptionDto $tag): array => [
                             'id' => $tag->id,

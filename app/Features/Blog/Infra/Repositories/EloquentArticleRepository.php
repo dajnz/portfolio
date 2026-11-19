@@ -181,9 +181,15 @@ final class EloquentArticleRepository implements ArticleRepositoryInterface
     {
         return DB::transaction(function () use ($article): int {
             $existing = $this->existingRow($article);
+            $data = $this->rowData($article);
+
+            if ($existing !== null && $existing->lead_image !== $data['lead_image']) {
+                $data['thumbnail_path'] = null;
+            }
+
             $model = ArticleModel::query()->updateOrCreate(
                 ['id' => $article->toId()],
-                $this->rowData($article),
+                $data,
             );
 
             $articleId = (int) $model->id;

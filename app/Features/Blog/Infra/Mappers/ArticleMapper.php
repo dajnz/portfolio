@@ -11,6 +11,7 @@ use App\Features\Blog\Infra\Models\ArticleModel;
 use App\Features\Shared\Domain\ValueObjects\PublishedState;
 use App\Features\Shared\Domain\ValueObjects\Slug;
 use App\Features\Shared\Domain\ValueObjects\StoredPicture;
+use App\Features\Shared\Domain\ValueObjects\StoredThumbnail;
 use DateTimeImmutable;
 
 /**
@@ -104,6 +105,7 @@ final class ArticleMapper
         return new StoredPicture(
             url: $model->lead_image,
             altLabels: $altLabels,
+            thumbnail: StoredThumbnail::fromSource($model->lead_image, $model->thumbnail_path),
         );
     }
 

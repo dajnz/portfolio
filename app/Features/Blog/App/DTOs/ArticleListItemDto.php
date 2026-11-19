@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Features\Blog\App\DTOs;
 
+use App\Features\Shared\App\DTOs\ThumbnailDto;
 use DateTimeImmutable;
 
 /**
@@ -30,6 +31,7 @@ final readonly class ArticleListItemDto
         public DateTimeImmutable $createdAt,
         public DateTimeImmutable $updatedAt,
         public array $tags = [],
+        public ?ThumbnailDto $leadImageThumbnail = null,
     ) {
     }
 
@@ -56,6 +58,7 @@ final readonly class ArticleListItemDto
             createdAt: new DateTimeImmutable($row->created_at),
             updatedAt: new DateTimeImmutable($row->updated_at),
             tags: $tags,
+            leadImageThumbnail: ThumbnailDto::fromSource((string) ($row->lead_image ?? ''), $row->thumbnail_path ?? null),
         );
     }
 }

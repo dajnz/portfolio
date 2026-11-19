@@ -8,6 +8,7 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
+use App\Features\Shared\Domain\ValueObjects\ThumbnailPath;
 
 /**
  * Permanently deletes articles (single + bulk) — the DB rows are
@@ -71,6 +72,11 @@ final class ForceDestroyArticleUseCase
             $paths = array_merge($paths, $articlePaths);
         }
 
-        return $paths;
+        $files = [];
+        foreach ($paths as $path) {
+            $files = [...$files, ...ThumbnailPath::forSource($path)->toFiles()];
+        }
+
+        return $files;
     }
 }

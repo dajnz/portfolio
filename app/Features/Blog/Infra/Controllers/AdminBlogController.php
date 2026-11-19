@@ -449,6 +449,7 @@ final class AdminBlogController
             'reading_time_minutes' => $item->readingTimeMinutes,
             'views' => $item->views,
             'lead_image' => $item->leadImage,
+            'lead_image_thumbnail' => $item->leadImageThumbnail?->toArray(),
             'related_count' => $item->relatedCount,
             'created_at' => $item->createdAt->format('c'),
             'updated_at' => $item->updatedAt->format('c'),

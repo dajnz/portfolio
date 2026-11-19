@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property string $slug
  * @property string|null $lead_image
+ * @property string|null $thumbnail_path
  * @property array<string, string>|null $lead_image_alt
  * @property bool $is_published
  * @property \Illuminate\Support\Carbon|null $published_at
@@ -47,6 +48,7 @@ final class ArticleModel extends Model
     protected $fillable = [
         'slug',
         'lead_image',
+        'thumbnail_path',
         'lead_image_alt',
         'is_published',
         'published_at',

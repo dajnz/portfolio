@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Features\Blog\App\DTOs;
 
 use App\Features\Shared\Domain\Entities\TechSkillTag;
+use App\Features\Shared\App\DTOs\ThumbnailDto;
 use DateTimeImmutable;
 
 /**
@@ -37,6 +38,7 @@ final readonly class ArticleCardDto
         public array $tags = [],
         public array $skillTags = [],
         public ?array $leadImageAlt = null,
+        public ?ThumbnailDto $leadImageThumbnail = null,
     ) {
     }
 
@@ -58,6 +60,7 @@ final readonly class ArticleCardDto
                     : null,
             ),
             leadImageAlt: self::leadImageAltFromRow($row),
+            leadImageThumbnail: ThumbnailDto::fromSource((string) ($row->lead_image ?? ''), $row->thumbnail_path ?? null),
         );
     }
 

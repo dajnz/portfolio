@@ -8,6 +8,7 @@ use App\Features\Blog\App\DTOs\ArticleDraftDto;
 use App\Features\Blog\App\Services\ArticleDraftValidator;
 use App\Features\Blog\App\Services\ArticleEntityFactory;
 use App\Features\Blog\App\Services\ArticleSlugService;
+use App\Features\Blog\App\Contracts\ArticleThumbnailSchedulerInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
 use App\Features\Blog\Domain\ValueObjects\ArticleId;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
@@ -42,6 +43,7 @@ final class StoreArticleUseCase
         private readonly ArticleDraftValidator $validator,
         private readonly CountCacheInvalidatorInterface $countCache,
         private readonly SitemapInvalidatorInterface $sitemap,
+        private readonly ArticleThumbnailSchedulerInterface $thumbnails,
     ) {
     }
 
@@ -74,6 +76,10 @@ final class StoreArticleUseCase
         }
 
         $articleId = $this->repository->save($article);
+
+        if ($article->toLeadImage() !== null) {
+            $this->thumbnails->schedule([$articleId]);
+        }
 
         if ($article->toIsPublished()) {
             $this->sitemap->invalidate();

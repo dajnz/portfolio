@@ -122,6 +122,7 @@ final class GetPublicBlogIndexUseCase
                 tags: $this->tagOptions($tagsByArticle[$card->id] ?? []),
                 skillTags: $skillsByArticle[$card->id] ?? [],
                 leadImageAlt: $card->leadImageAlt,
+                leadImageThumbnail: $card->leadImageThumbnail,
             );
         }, $rows);
     }
