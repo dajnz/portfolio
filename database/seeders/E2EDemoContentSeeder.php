@@ -563,8 +563,6 @@ final class E2EDemoContentSeeder extends Seeder
         foreach (self::PROJECTS as $project) {
             $model = ProjectModel::query()->create([
                 'slug' => $project['slug'],
-                'preview_image' => null,
-                'preview_image_alt' => null,
                 'github_url' => $project['github_url'],
                 'live_demo_url' => $project['live_demo_url'],
                 'tech_writeup_article_id' => null,
