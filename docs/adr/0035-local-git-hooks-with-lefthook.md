@@ -1,6 +1,6 @@
 # ADR-0035: Local git hooks with lefthook
 
-- **Status:** Accepted
+- **Status:** Superseded by ADR-0048
 - **Date:** 2026-10-23
 - **Source:** — (maintenance decision; supplements ADR-0027 and ADR-0034)
 - **Supersedes:** —
