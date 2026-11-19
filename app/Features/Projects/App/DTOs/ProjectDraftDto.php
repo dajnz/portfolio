@@ -23,7 +23,6 @@ final readonly class ProjectDraftDto
     public function __construct(
         public string $submittedSlug,
         public ProjectTranslationsDto $translations,
-        public ?ProjectImageDto $preview,
         public array $screenshots = [],
         public array $engineeringDetails = [],
         public ProjectLinksDto $links = new ProjectLinksDto(),

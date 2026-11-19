@@ -55,6 +55,7 @@ Source code and the OpenAPI specs (`docs/openapi/`) reference these as
 | [0042](0042-ansible-deployment-target-config.md) | Ansible-native deployment target configuration and AGE prompt |
 | [0043](0043-loopback-only-local-registry.md) | Loopback-only local registry container |
 | [0044](0044-first-deploy-admin-bootstrap.md) | First-deploy admin bootstrap |
+| [0046](0046-project-media-screenshots-only.md) | Project media — screenshots as the single media concept |
 
 ## Format
 

@@ -56,7 +56,7 @@ const PROJECTS = [
         id: 1,
         title: 'Portfolio Platform',
         slug: 'portfolio-platform',
-        preview_image: 'projects/preview.png',
+        cover_image: 'projects/preview.png',
         is_published: true,
         is_featured: true,
         featured_sort_order: 1,
@@ -72,7 +72,7 @@ const PROJECTS = [
         id: 2,
         title: 'REST API with Rust',
         slug: 'rest-api-rust',
-        preview_image: null,
+        cover_image: null,
         is_published: false,
         is_featured: false,
         featured_sort_order: null,
@@ -141,7 +141,7 @@ describe('ProjectsListPage', () => {
         expect(visitMock).toHaveBeenCalledWith('/admin/projects/create');
     });
 
-    it('renders the preview image and the placeholder for image-less rows', () => {
+    it('renders the cover image and the placeholder for image-less rows', () => {
         const wrapper = mountPage();
 
         expect(wrapper.find('[data-testid="projects-list-page-preview-1"]').exists()).toBe(true);

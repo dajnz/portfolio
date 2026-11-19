@@ -27,25 +27,18 @@ export type ScreenshotRow = {
 
 const props = withDefaults(
     defineProps<{
-        preview_image?: string | null;
-        preview_image_alt: Record<string, string>;
         screenshots: ScreenshotRow[];
         locale: string;
-        errors: Record<string, string>;
         disabled: boolean;
         test_id?: string;
     }>(),
     {
-        preview_image: null,
         test_id: 'project-media-section',
     },
 );
 
 const emit = defineEmits<{
-    'update:preview_image': [path: string | null];
-    'update:preview_image_alt': [locale: string, value: string];
     'update:screenshots': [rows: ScreenshotRow[]];
-    'remove:preview': [];
 }>();
 
 const { t } = useI18n();
@@ -60,10 +53,6 @@ const isUploading = ref(false);
 // clicks are suppressed briefly after a drag starts.
 const expandedScreenshots = ref<Set<string>>(new Set());
 let suppressScreenshotHeaderClickUntil = 0;
-
-function fieldError(field: string): string | null {
-    return props.errors[`${field}.${props.locale}`] ?? props.errors[field] ?? null;
-}
 
 function previewFileFor(image: string | null): UploadedFile | null {
     if (image === null) {
@@ -92,28 +81,6 @@ async function uploadImage(file: File, entityType: string): Promise<string | nul
 
         return null;
     }
-}
-
-async function uploadPreview(file: File): Promise<void> {
-    if (isUploading.value) {
-        return;
-    }
-
-    isUploading.value = true;
-
-    try {
-        const path = await uploadImage(file, 'projects');
-
-        if (path !== null) {
-            emit('update:preview_image', path);
-        }
-    } finally {
-        isUploading.value = false;
-    }
-}
-
-function removePreview(): void {
-    emit('remove:preview');
 }
 
 async function uploadScreenshot(row: ScreenshotRow, file: File): Promise<void> {
@@ -235,35 +202,6 @@ function onScreenshotHeaderClick(uid: string): void {
       {{ t('admin.projects.media') }}
     </h2>
     <div class="space-y-4">
-      <DropzoneUpload
-        :model-value="previewFileFor(props.preview_image)"
-        :label="t('admin.projects.preview_image')"
-        accept="image/*"
-        :is_loading="isUploading"
-        :error="fieldError('preview_image')"
-        :test_id="`${props.test_id}-preview-dropzone`"
-        @update:model-value="(file) => emit('update:preview_image', file?.file_path ?? null)"
-        @upload="uploadPreview"
-        @remove="removePreview"
-      >
-        <div
-          v-for="code in SUPPORTED_LOCALES"
-          :key="`preview-alt-${code}`"
-          class="w-full"
-        >
-          <AdminBaseInput
-            class="pt-3"
-            :model-value="props.preview_image_alt[code] ?? ''"
-            :label="`${t('admin.projects.alt_text')} [${code}]`"
-            :error="fieldError('preview_image_alt')"
-            :disabled="props.disabled"
-            :maxlength="500"
-            :test_id="`${props.test_id}-preview-alt-${code}`"
-            @update:model-value="(value) => emit('update:preview_image_alt', code, value)"
-          />
-        </div>
-      </DropzoneUpload>
-
       <!-- Screenshots gallery — reorderable via SortableList,
            collapsed by default with per-row expand on click and
            the sticky expand/collapse-all header. -->
@@ -537,6 +475,10 @@ function onScreenshotHeaderClick(uid: string): void {
         >
           {{ t('admin.projects.add_screenshot') }}
         </AdminBaseButton>
+        <div class="mt-2 space-y-1 text-xs text-slate-400 dark:text-slate-500">
+          <p>{{ t('admin.projects.screenshots_size_hint') }}</p>
+          <p>{{ t('admin.projects.screenshots_cover_hint') }}</p>
+        </div>
       </div>
     </div>
   </AdminBaseCard>

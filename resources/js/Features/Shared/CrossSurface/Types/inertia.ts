@@ -1022,7 +1022,11 @@ export interface components {
             title?: string;
             slug?: string;
             brief_description?: string;
-            preview_image?: string | null;
+            /**
+             * @description The derived cover image path — the first screenshot by
+             *     `sort_order`; null when the project has no screenshots.
+             */
+            readonly cover_image?: string | null;
             tech_tags?: {
                 id?: number;
                 name?: string;
@@ -1464,11 +1468,6 @@ export interface components {
             brief_description?: string;
             /** Format: date-time */
             published_at?: string | null;
-            preview_image?: string | null;
-            preview_image_alt?: {
-                en?: string;
-                ru?: string;
-            };
             github_url?: string | null;
             live_demo_url?: string | null;
             is_featured?: boolean;
@@ -1523,11 +1522,6 @@ export interface components {
             brief_description?: string;
             /** Format: date-time */
             published_at?: string | null;
-            preview_image?: string | null;
-            preview_image_alt?: {
-                en?: string;
-                ru?: string;
-            };
             github_url?: string | null;
             live_demo_url?: string | null;
             is_featured?: boolean;
@@ -1560,11 +1554,12 @@ export interface components {
             title?: string;
             slug?: string;
             /**
-             * @description The stored preview image path (ADR-0027 — public URL is
+             * @description The derived cover image path — the first screenshot by
+             *     `sort_order` (ADR-0027 — public URL is
              *     `{APP_URL}/assets/{path}`); null when the project has no
-             *     preview image (the Preview column shows a placeholder).
+             *     screenshots (the Preview column shows a placeholder).
              */
-            preview_image?: string | null;
+            readonly cover_image?: string | null;
             is_published?: boolean;
             is_featured?: boolean;
             featured_sort_order?: number | null;
@@ -1630,11 +1625,6 @@ export interface components {
             };
             /** @description Per-locale Markdown values keyed by locale code (nullable values). */
             solution?: {
-                [key: string]: string | null;
-            };
-            preview_image?: string | null;
-            /** @description Per-locale alt text values keyed by locale code (nullable values). */
-            preview_image_alt?: {
                 [key: string]: string | null;
             };
             github_url?: string | null;

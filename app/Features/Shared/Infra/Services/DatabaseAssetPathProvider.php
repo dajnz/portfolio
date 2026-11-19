@@ -17,10 +17,6 @@ final class DatabaseAssetPathProvider implements AssetPathProviderInterface
     {
         $paths = [];
 
-        foreach ($this->columnPaths('projects', 'preview_image') as $path) {
-            $paths[] = $path;
-        }
-
         foreach ($this->columnPaths('project_screenshots', 'image_path') as $path) {
             $paths[] = $path;
         }

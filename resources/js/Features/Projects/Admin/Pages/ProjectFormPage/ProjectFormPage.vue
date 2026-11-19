@@ -33,8 +33,6 @@ interface ProjectEditProps {
     full_description: Record<string, string | null>;
     problem: Record<string, string | null>;
     solution: Record<string, string | null>;
-    preview_image: string | null;
-    preview_image_alt: Record<string, string | null>;
     github_url: string | null;
     live_demo_url: string | null;
     is_featured: boolean;
@@ -63,8 +61,6 @@ interface ProjectFormValues {
     full_description: Record<string, string>;
     problem: Record<string, string>;
     solution: Record<string, string>;
-    preview_image: string | null;
-    preview_image_alt: Record<string, string>;
     github_url: string;
     live_demo_url: string;
     is_featured: boolean;
@@ -149,8 +145,6 @@ function buildForm(project: ProjectEditProps | null | undefined): ProjectFormVal
         full_description: stringMap(project?.full_description),
         problem: stringMap(project?.problem),
         solution: stringMap(project?.solution),
-        preview_image: project?.preview_image ?? null,
-        preview_image_alt: stringMap(project?.preview_image_alt),
         github_url: project?.github_url ?? '',
         live_demo_url: project?.live_demo_url ?? '',
         is_featured: project?.is_featured ?? false,
@@ -312,8 +306,6 @@ function save(): void {
         full_description: form.full_description,
         problem: form.problem,
         solution: form.solution,
-        preview_image: form.preview_image,
-        preview_image_alt: form.preview_image_alt,
         github_url: form.github_url === '' ? null : form.github_url,
         live_demo_url: form.live_demo_url === '' ? null : form.live_demo_url,
         is_featured: form.is_featured,
@@ -458,20 +450,11 @@ function save(): void {
         />
 
         <ProjectMediaSection
-          :preview_image="form.preview_image"
-          :preview_image_alt="form.preview_image_alt"
           :screenshots="form.screenshots"
           :locale="activeLocale"
-          :errors="errors"
           :disabled="isSaving"
           :test_id="props.test_id"
-          @update:preview_image="(path) => (form.preview_image = path)"
-          @update:preview_image_alt="(locale, value) => setLocaleValue(locale, form.preview_image_alt, value)"
           @update:screenshots="(rows) => (form.screenshots = rows)"
-          @remove:preview="() => {
-            form.preview_image = null;
-            form.preview_image_alt = {};
-          }"
         />
 
         <ProjectMetaSection

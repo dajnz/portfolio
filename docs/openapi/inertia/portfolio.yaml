@@ -215,9 +215,13 @@ components:
           type: string
         brief_description:
           type: string
-        preview_image:
+        cover_image:
           type: string
           nullable: true
+          readOnly: true
+          description: |
+            The derived cover image path — the first screenshot by
+            `sort_order`; null when the project has no screenshots.
         tech_tags:
           type: array
           items:

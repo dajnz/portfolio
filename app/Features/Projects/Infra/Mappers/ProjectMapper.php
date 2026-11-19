@@ -19,7 +19,6 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\BlogArticleId;
 use App\Features\Shared\Domain\ValueObjects\Slug;
 use App\Features\Shared\Domain\ValueObjects\SortOrder;
-use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 use DateTimeImmutable;
 
 /**
@@ -59,7 +58,6 @@ final class ProjectMapper
             id: new ProjectId((int) $model->id),
             slugs: new ProjectSlugs(new Slug($model->slug)),
             pictures: new ProjectPictures(
-                previewPicture: $this->previewPicture($model),
                 screenshots: $screenshots
                     ->map(fn (mixed $row): ProjectScreenshot => $this->screenshotMapper->toEntity($row))
                     ->all(),
@@ -96,8 +94,6 @@ final class ProjectMapper
     /**
      * @return array{
      *     slug: string,
-     *     preview_image: string|null,
-     *     preview_image_alt: array<string, string>|null,
      *     github_url: string|null,
      *     live_demo_url: string|null,
      *     tech_writeup_article_id: int|null,
@@ -109,14 +105,8 @@ final class ProjectMapper
      */
     public function toRow(Project $project): array
     {
-        $preview = $project->toPreviewPicture();
-
         return [
             'slug' => $project->toSlug(),
-            'preview_image' => $preview?->url,
-            'preview_image_alt' => $preview === null || $preview->altLabelsMap() === []
-                ? null
-                : $preview->altLabelsMap(),
             'github_url' => $project->toSourceCodeUrl(),
             'live_demo_url' => $project->toLiveDemoUrl(),
             'tech_writeup_article_id' => $project->toTechWriteupArticleId(),
@@ -125,25 +115,6 @@ final class ProjectMapper
             'is_published' => $project->toIsPublished(),
             'published_at' => $project->toPublishedAt()?->format('Y-m-d H:i:s'),
         ];
-    }
-
-    private function previewPicture(ProjectModel $model): ?StoredPicture
-    {
-        if ($model->preview_image === null) {
-            return null;
-        }
-
-        $altLabels = [];
-        foreach ((array) ($model->preview_image_alt ?? []) as $locale => $alt) {
-            if (is_string($alt) && $alt !== '') {
-                $altLabels[(string) $locale] = $alt;
-            }
-        }
-
-        return new StoredPicture(
-            url: $model->preview_image,
-            altLabels: $altLabels,
-        );
     }
 
     private function toImmutable(mixed $date): DateTimeImmutable

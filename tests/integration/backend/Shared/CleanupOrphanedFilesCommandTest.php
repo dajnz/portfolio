@@ -22,8 +22,12 @@ describe('CleanupOrphanedFilesCommand', function (): void {
             'slug' => 'kept', 'is_published' => true, 'lead_image' => 'blog/kept/lead.jpg',
             'created_at' => now(), 'updated_at' => now(),
         ]);
-        DB::table('projects')->insert([
-            'slug' => 'kept-project', 'is_published' => true, 'preview_image' => 'projects/kept/shot.png',
+        $projectId = DB::table('projects')->insertGetId([
+            'slug' => 'kept-project', 'is_published' => true,
+            'created_at' => now(), 'updated_at' => now(),
+        ]);
+        DB::table('project_screenshots')->insert([
+            'project_id' => $projectId, 'image_path' => 'projects/kept/shot.png', 'sort_order' => 0,
             'created_at' => now(), 'updated_at' => now(),
         ]);
         DB::table('about_info')->insert([

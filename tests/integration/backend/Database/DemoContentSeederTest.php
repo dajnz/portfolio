@@ -70,7 +70,7 @@ describe('DemoContentSeeder', function (): void {
 
     it('seeds project engineering details and screenshots', function (): void {
         expect(ProjectDetailItemModel::query()->count())->toBe(7)
-            ->and(ProjectScreenshotModel::query()->count())->toBe(4);
+            ->and(ProjectScreenshotModel::query()->count())->toBe(16);
     });
 
     it('produces experience items readable through the public repository', function (): void {

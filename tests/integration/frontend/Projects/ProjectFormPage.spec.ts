@@ -70,8 +70,6 @@ const PROJECT = {
     full_description: { en: '**Full** description.', ru: null },
     problem: { en: 'Slow payouts.', ru: null },
     solution: { en: 'Queued processing.', ru: null },
-    preview_image: 'projects/preview.png',
-    preview_image_alt: { en: 'Dashboard', ru: 'Панель' },
     github_url: 'https://github.com/alex/portfolio',
     live_demo_url: null,
     is_featured: true,
@@ -322,7 +320,6 @@ describe('ProjectFormPage', () => {
             is_published: true,
             is_featured: true,
             featured_sort_order: 1,
-            preview_image: 'projects/preview.png',
         }), expect.any(Object));
 
         const payload = putMock.mock.calls[0][1] as Record<string, unknown>;
@@ -795,9 +792,9 @@ describe('ProjectFormPage', () => {
         const editors = wrapper.findAllComponents({ name: 'TextEditor' });
         expect(editors).toHaveLength(3);
 
-        // Projects upload previews/screenshots through the dedicated
-        // Media section — the Markdown editor uses the projects button
-        // config (block formatting only, no image/callout controls).
+        // Projects upload screenshots through the dedicated Media
+        // section — the Markdown editor uses the projects button config
+        // (block formatting only, no image/callout controls).
         for (const editor of editors) {
             expect(editor.props('buttons')).toEqual(PROJECT_EDITOR_BUTTONS);
         }

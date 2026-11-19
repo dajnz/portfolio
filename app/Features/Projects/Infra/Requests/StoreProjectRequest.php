@@ -71,7 +71,6 @@ final class StoreProjectRequest extends FormRequest
                     }
                 },
             ],
-            'preview_image' => ['nullable', 'string', 'max:255'],
             'github_url' => ['nullable', 'string', 'url', 'max:500'],
             'live_demo_url' => ['nullable', 'string', 'url', 'max:500'],
             'is_featured' => ['nullable', 'boolean'],
@@ -108,7 +107,6 @@ final class StoreProjectRequest extends FormRequest
             $rules["full_description.$locale"] = ['nullable', 'string'];
             $rules["problem.$locale"] = ['nullable', 'string'];
             $rules["solution.$locale"] = ['nullable', 'string'];
-            $rules["preview_image_alt.$locale"] = ['nullable', 'string', 'max:500'];
             $rules["detail_items.*.title.$locale"] = ['required_with:detail_items', 'string', 'max:200'];
             $rules["detail_items.*.description.$locale"] = ['required_with:detail_items', 'string', 'max:2000'];
         }
@@ -180,7 +178,6 @@ final class StoreProjectRequest extends FormRequest
             $attributes["full_description.$locale"] = __('admin.projects.full_description').$suffix;
             $attributes["problem.$locale"] = __('admin.projects.problem').$suffix;
             $attributes["solution.$locale"] = __('admin.projects.solution').$suffix;
-            $attributes["preview_image_alt.$locale"] = __('admin.projects.alt_text').$suffix;
         }
 
         return $attributes;

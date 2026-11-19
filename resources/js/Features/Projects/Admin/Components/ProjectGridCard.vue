@@ -15,7 +15,7 @@ interface GridProjectRow {
     id: number;
     title: string;
     slug: string;
-    preview_image: string | null;
+    cover_image: string | null;
     is_published: boolean;
     is_featured: boolean;
     tech_tags: TechTag[];
@@ -44,8 +44,8 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-function previewUrl(row: GridProjectRow): string {
-    return `/assets/${row.preview_image ?? ''}`;
+function coverUrl(row: GridProjectRow): string {
+    return `/assets/${row.cover_image ?? ''}`;
 }
 </script>
 
@@ -60,8 +60,8 @@ function previewUrl(row: GridProjectRow): string {
       @click="emit('edit', props.row as unknown as Record<string, unknown>)"
     >
       <img
-        v-if="props.row.preview_image"
-        :src="previewUrl(props.row)"
+        v-if="props.row.cover_image"
+        :src="coverUrl(props.row)"
         :alt="props.row.title"
         class="h-full w-full object-cover"
         loading="lazy"

@@ -22,8 +22,6 @@ const PROJECT = {
     title: 'Ledger — Invoice Automation',
     slug: 'ledger',
     brief_description: 'Automated invoice processing pipeline with OCR.',
-    preview_image: null,
-    preview_image_alt: '',
     github_url: 'https://example.com/ledger',
     live_demo_url: null,
     tech_tags: [
@@ -64,7 +62,7 @@ describe('ProjectCard', () => {
         expect(wrapper.get('p').text()).toBe('Automated invoice processing pipeline with OCR.');
     });
 
-    it('renders the carousel when screenshots exist and the preview image otherwise', () => {
+    it('renders the carousel when screenshots exist and a placeholder otherwise', () => {
         const withShots = mountCard({
             project: {
                 ...PROJECT,
@@ -84,17 +82,6 @@ describe('ProjectCard', () => {
         });
         // The carousel's `single` state is a static image.
         expect(singleShot.find('[data-testid="project-card-carousel"] img').exists()).toBe(true);
-
-        const withPreview = mountCard({
-            project: {
-                ...PROJECT,
-                preview_image: '/assets/projects/ledger.png',
-                preview_image_alt: 'Ledger preview',
-            },
-        });
-        const img = withPreview.get('img');
-        expect(img.attributes('src')).toBe('/assets/projects/ledger.png');
-        expect(img.attributes('alt')).toBe('Ledger preview');
 
         const placeholder = mountCard();
         expect(placeholder.find('[data-testid="project-card-placeholder"]').exists()).toBe(true);

@@ -19,8 +19,6 @@ final class ProjectModelFactory extends Factory
     {
         return [
             'slug' => $this->faker->unique()->slug(3),
-            'preview_image' => null,
-            'preview_image_alt' => null,
             'github_url' => null,
             'live_demo_url' => null,
             'tech_writeup_article_id' => null,

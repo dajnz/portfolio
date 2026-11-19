@@ -72,10 +72,9 @@ final class ListProjectsUseCase
             return [];
         }
 
-        $tagsByProject = $this->repository->techTagsFor(array_map(
-            static fn (object $row): int => (int) $row->id,
-            $rows,
-        ));
+        $projectIds = array_map(static fn (object $row): int => (int) $row->id, $rows);
+        $tagsByProject = $this->repository->techTagsFor($projectIds);
+        $coversByProject = $this->repository->coverPathsFor($projectIds);
 
         return array_map(
             static fn (object $row): ProjectListItemDto => ProjectListItemDto::fromRow(
@@ -88,6 +87,7 @@ final class ListProjectsUseCase
                     ),
                     $tagsByProject[(int) $row->id] ?? [],
                 ),
+                $coversByProject[(int) $row->id] ?? null,
             ),
             $rows,
         );

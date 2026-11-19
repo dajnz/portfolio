@@ -160,12 +160,6 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
 
         $paths = [];
 
-        foreach (ProjectModel::withTrashed()->whereIn('id', $ids)->pluck('preview_image', 'id') as $id => $path) {
-            if (is_string($path) && $path !== '') {
-                $paths[(int) $id][] = $path;
-            }
-        }
-
         foreach (ProjectScreenshotModel::query()
             ->whereIn('project_id', $ids)
             ->select(['project_id', 'image_path'])

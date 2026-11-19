@@ -78,13 +78,13 @@ final readonly class ProjectSeoDto
     }
 
     /**
-     * The absolute `og:image` URL of the project's preview image —
-     * `null` when no preview is set (the frontend falls back to the
-     * default OG image).
+     * The absolute `og:image` URL of the project's derived cover (the
+     * first screenshot) — `null` when the gallery is empty (the
+     * frontend falls back to the default OG image).
      */
     private static function imageUrl(ProjectDataDto $project, string $baseUrl): ?string
     {
-        $path = $project->preview?->url;
+        $path = $project->screenshots[0]->image->url ?? null;
 
         return $path === null || $path === '' ? null : $baseUrl.'/assets/'.$path;
     }

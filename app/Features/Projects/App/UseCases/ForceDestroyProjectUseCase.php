@@ -11,8 +11,8 @@ use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 /**
  * Permanently deletes projects (single + bulk) — the DB rows are
  * removed by the repository (with the `old_slugs` history records);
- * the RustFS files (preview image + screenshots) are deleted here via
- * the shared asset cleaner, orchestrated by this use case.
+ * the RustFS screenshot files are deleted here via the shared asset
+ * cleaner, orchestrated by this use case.
  */
 final class ForceDestroyProjectUseCase
 {

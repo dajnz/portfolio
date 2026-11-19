@@ -430,7 +430,11 @@ export interface components {
              * @description Auto-set to now() on first publish. Immutable thereafter.
              */
             readonly published_at?: string | null;
-            preview_image?: string | null;
+            /**
+             * @description The derived cover image path — the first screenshot by
+             *     `sort_order`; null when the project has no screenshots.
+             */
+            readonly cover_image?: string | null;
             github_url?: string | null;
             live_demo_url?: string | null;
             is_featured?: boolean;

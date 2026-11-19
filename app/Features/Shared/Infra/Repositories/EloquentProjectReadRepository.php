@@ -13,10 +13,11 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Eloquent-backed read model for featured projects — consumed by the landing
- * page. Mirrors the TechSkill read pattern: two queries per method (projects +
- * their tech tags separately), locale-resolved translations with an `en`
- * fallback. The Projects feature owns the write side and extends the read side;
- * this repository only covers what the landing page needs.
+ * page. Mirrors the TechSkill read pattern: the projects, their tech tags and
+ * their derived covers are read in separate queries, with locale-resolved
+ * translations and an `en` fallback. The Projects feature owns the write side
+ * and extends the read side; this repository only covers what the landing page
+ * needs.
  */
 final class EloquentProjectReadRepository implements ProjectReadRepositoryInterface
 {
@@ -26,8 +27,6 @@ final class EloquentProjectReadRepository implements ProjectReadRepositoryInterf
             ->select([
                 'p.id',
                 'p.slug',
-                'p.preview_image',
-                'p.preview_image_alt',
                 DB::raw("coalesce(pl.title, pe.title, '') as title"),
                 DB::raw("coalesce(pl.brief_description, pe.brief_description, '') as brief_description"),
             ])
@@ -47,7 +46,9 @@ final class EloquentProjectReadRepository implements ProjectReadRepositoryInterf
             ->limit($limit)
             ->get();
 
-        $tagsByProjectId = $this->techTagsByProjectId($rows->pluck('id')->all());
+        $projectIds = $rows->pluck('id')->all();
+        $tagsByProjectId = $this->techTagsByProjectId($projectIds);
+        $coversByProjectId = $this->coverPicturesByProjectId($projectIds);
 
         $projects = [];
         foreach ($rows as $row) {
@@ -56,7 +57,7 @@ final class EloquentProjectReadRepository implements ProjectReadRepositoryInterf
                 title: $row->title,
                 slug: $row->slug,
                 briefDescription: $row->brief_description,
-                previewImage: $this->toStoredPicture($row->preview_image, $row->preview_image_alt),
+                coverImage: $coversByProjectId[(int) $row->id] ?? null,
                 techTags: $tagsByProjectId[(int) $row->id] ?? [],
             );
         }
@@ -73,25 +74,46 @@ final class EloquentProjectReadRepository implements ProjectReadRepositoryInterf
     }
 
     /**
-     * @param  array<string, string|null>|null  $altMap  Raw per-locale alt map from the jsonb column.
+     * @param  int[]  $projectIds
+     * @return array<int, StoredPicture>  Keyed by project ID; missing
+     *     when the project has no screenshots.
      */
-    private function toStoredPicture(?string $previewImage, mixed $altMap): ?StoredPicture
+    private function coverPicturesByProjectId(array $projectIds): array
     {
-        if ($previewImage === null) {
-            return null;
+        if ($projectIds === []) {
+            return [];
         }
 
-        $altLabels = [];
-        foreach ((array) ($altMap ?? []) as $locale => $alt) {
+        $covers = [];
+        foreach (DB::table('project_screenshots')
+            ->selectRaw('distinct on (project_id) project_id, image_path, title')
+            ->whereIn('project_id', $projectIds)
+            ->orderBy('project_id')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get() as $row) {
+            $covers[(int) $row->project_id] = new StoredPicture(
+                url: (string) $row->image_path,
+                altLabels: $this->altLabels($row->title),
+            );
+        }
+
+        return $covers;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function altLabels(mixed $title): array
+    {
+        $labels = [];
+        foreach ((array) json_decode((string) $title, true) as $locale => $alt) {
             if (is_string($alt) && $alt !== '') {
-                $altLabels[$locale] = $alt;
+                $labels[(string) $locale] = $alt;
             }
         }
 
-        return new StoredPicture(
-            url: $previewImage,
-            altLabels: $altLabels,
-        );
+        return $labels;
     }
 
     /**

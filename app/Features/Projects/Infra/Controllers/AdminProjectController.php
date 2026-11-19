@@ -349,7 +349,6 @@ final class AdminProjectController
                 problems: $this->nullableLocaleMap((array) $request->input('problem', [])),
                 solutions: $this->nullableLocaleMap((array) $request->input('solution', [])),
             ),
-            preview: $this->buildPreview($request),
             screenshots: $this->buildScreenshots((array) $request->input('screenshots', [])),
             engineeringDetails: $this->buildEngineeringDetails((array) $request->input('detail_items', [])),
             links: new ProjectLinksDto(
@@ -366,18 +365,6 @@ final class AdminProjectController
                 ? null
                 : new BlogArticleId((int) $techWriteupArticleId),
         );
-    }
-
-    private function buildPreview(StoreProjectRequest $request): ?ProjectImageDto
-    {
-        $image = $request->input('preview_image');
-
-        return is_string($image) && $image !== ''
-            ? new ProjectImageDto(
-                url: $image,
-                altLabels: $this->nullableLocaleMap((array) $request->input('preview_image_alt', [])),
-            )
-            : null;
     }
 
     /**
@@ -510,7 +497,7 @@ final class AdminProjectController
             'id' => $item->id,
             'title' => $item->title,
             'slug' => $item->slug,
-            'preview_image' => $item->preview?->url,
+            'cover_image' => $item->coverImage,
             'is_published' => $item->isPublished,
             'is_featured' => $item->isFeatured,
             'featured_sort_order' => $item->featuredSortOrder,
@@ -543,8 +530,6 @@ final class AdminProjectController
             'full_description' => $project->translations->fullDescriptions,
             'problem' => $project->translations->problems,
             'solution' => $project->translations->solutions,
-            'preview_image' => $project->preview?->url,
-            'preview_image_alt' => $project->preview?->altLabels ?? [],
             'github_url' => $project->links->sourceCodeUrl,
             'live_demo_url' => $project->links->liveDemoUrl,
             'is_featured' => $project->isFeatured,

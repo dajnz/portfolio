@@ -373,9 +373,13 @@ components:
           nullable: true
           readOnly: true
           description: Auto-set to now() on first publish. Immutable thereafter.
-        preview_image:
+        cover_image:
           type: string
           nullable: true
+          readOnly: true
+          description: |
+            The derived cover image path — the first screenshot by
+            `sort_order`; null when the project has no screenshots.
         github_url:
           type: string
           nullable: true

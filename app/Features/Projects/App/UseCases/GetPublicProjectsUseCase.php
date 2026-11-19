@@ -93,14 +93,18 @@ final class GetPublicProjectsUseCase
             search: $query->search,
         );
 
+        $projectIds = array_map(static fn (object $row): int => (int) $row->id, $result['rows']);
+        $coversByProject = $this->repository->coverPathsFor($projectIds);
+
         return new PaginatedProjectListDto(
             rows: array_map(
-                static fn (object $row): ProjectListItemDto => ProjectListItemDto::fromRow($row),
+                static fn (object $row): ProjectListItemDto => ProjectListItemDto::fromRow(
+                    $row,
+                    coverImage: $coversByProject[(int) $row->id] ?? null,
+                ),
                 $result['rows'],
             ),
-            techTags: $this->skillTagDtos($this->repository->techTagsFor(
-                array_map(static fn (object $row): int => (int) $row->id, $result['rows']),
-            )),
+            techTags: $this->skillTagDtos($this->repository->techTagsFor($projectIds)),
             pagination: $this->pagination->lengthAware(
                 $query->page,
                 $query->perPage,

@@ -20,6 +20,16 @@ runtime support.
 
 ### Changed
 
+- **Project preview image replaced by a derived screenshot cover (v1.0.42
+  inertia + v1.0.9 REST):** `preview_image` / `preview_image_alt` were
+  removed from `ProjectCardData`, `ProjectDetailData` and `ProjectEditData`,
+  and the `projects` columns are dropped — screenshots are now the project's
+  only media source (ADR-0046). `ProjectTableRowData`, `FeaturedProjectData`
+  and the REST `ProjectItem` expose the read-only `cover_image`, derived from
+  the first screenshot by `sort_order`; the same screenshot supplies the
+  project `og:image`. `info.version` bumped to `1.0.42` in `inertia.yaml` and
+  `1.0.9` in `openapi.yaml`.
+
 - **Project screenshots dropped the separate alt text (v1.0.40 inertia):**
   `ScreenshotData.alt_text` was removed — the per-locale `title` now
   doubles as the image alt text (renderers fall back to a localized

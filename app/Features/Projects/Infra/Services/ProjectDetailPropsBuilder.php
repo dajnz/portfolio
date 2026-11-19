@@ -36,8 +36,6 @@ final class ProjectDetailPropsBuilder
             'solution' => $bodies->solution,
             'brief_description' => self::localeText($translations->briefDescriptions, $locale),
             'published_at' => $project->publishedAt?->format('c'),
-            'preview_image' => $project->preview?->url,
-            'preview_image_alt' => $project->preview?->altLabels ?? [],
             'github_url' => $project->links->sourceCodeUrl,
             'live_demo_url' => $project->links->liveDemoUrl,
             'is_featured' => $project->isFeatured,

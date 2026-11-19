@@ -10,7 +10,6 @@ return [
         'github_url' => 'https://github.com/demo-dev/portfolio-platform',
         'live_demo_url' => 'https://demo.dev',
         'skills' => ['Laravel', 'Vue', 'PostgreSQL', 'Redis', 'Docker'],
-        'preview_image' => 'demo/projects/portfolio-platform.svg',
         'en' => [
             'title' => 'Portfolio Platform',
             'brief_description' => 'The bilingual portfolio and blog you are reading right now.',
@@ -64,7 +63,6 @@ return [
         'github_url' => 'https://github.com/demo-dev/realtime-analytics-dashboard',
         'live_demo_url' => 'https://analytics.demo.dev',
         'skills' => ['Vue', 'TypeScript', 'Redis', 'Node.js', 'Grafana'],
-        'preview_image' => 'demo/projects/realtime-analytics-dashboard.svg',
         'en' => [
             'title' => 'Realtime Analytics Dashboard',
             'brief_description' => 'A streaming dashboard that aggregates millions of daily events.',
@@ -107,7 +105,6 @@ return [
         'github_url' => 'https://github.com/demo-dev/inventory-api-service',
         'live_demo_url' => null,
         'skills' => ['PHP', 'Laravel', 'PostgreSQL', 'RabbitMQ'],
-        'preview_image' => 'demo/projects/inventory-api-service.svg',
         'en' => [
             'title' => 'Inventory API Service',
             'brief_description' => 'A headless stock-management API with idempotent writes.',
@@ -150,7 +147,14 @@ return [
         'github_url' => 'https://github.com/demo-dev/ai-content-assistant',
         'live_demo_url' => null,
         'skills' => ['Laravel', 'ChatGPT', 'Claude AI', 'PostgreSQL'],
-        'preview_image' => 'demo/projects/ai-content-assistant.svg',
+        'screenshots' => [
+            [
+                'image' => 'demo/projects/ai-content-assistant.svg',
+                'order' => 0,
+                'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
+                'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
+            ],
+        ],
         'en' => [
             'title' => 'AI Content Assistant',
             'brief_description' => 'A drafting and review flow that keeps the author in control.',
@@ -173,7 +177,14 @@ return [
         'github_url' => 'https://github.com/demo-dev/bilingual-blog-engine',
         'live_demo_url' => null,
         'skills' => ['Laravel', 'PostgreSQL', 'Vue'],
-        'preview_image' => 'demo/projects/bilingual-blog-engine.svg',
+        'screenshots' => [
+            [
+                'image' => 'demo/projects/bilingual-blog-engine.svg',
+                'order' => 0,
+                'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
+                'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
+            ],
+        ],
         'en' => [
             'title' => 'Bilingual Blog Engine',
             'brief_description' => 'Markdown publishing with locale-aware routing and SEO.',
@@ -196,7 +207,14 @@ return [
         'github_url' => 'https://github.com/demo-dev/devops-control-panel',
         'live_demo_url' => null,
         'skills' => ['Ansible', 'Docker', 'Grafana', 'Zabbix'],
-        'preview_image' => 'demo/projects/devops-control-panel.svg',
+        'screenshots' => [
+            [
+                'image' => 'demo/projects/devops-control-panel.svg',
+                'order' => 0,
+                'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
+                'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
+            ],
+        ],
         'en' => [
             'title' => 'DevOps Control Panel',
             'brief_description' => 'Deployments, backups and health in one operator view.',
@@ -219,7 +237,14 @@ return [
         'github_url' => 'https://github.com/demo-dev/design-system-kit',
         'live_demo_url' => 'https://ds.demo.dev',
         'skills' => ['Figma', 'CSS', 'Vue', 'TypeScript'],
-        'preview_image' => 'demo/projects/design-system-kit.svg',
+        'screenshots' => [
+            [
+                'image' => 'demo/projects/design-system-kit.svg',
+                'order' => 0,
+                'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
+                'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
+            ],
+        ],
         'en' => [
             'title' => 'Design System Kit',
             'brief_description' => 'Tokens and components shared between Figma and code.',
@@ -242,7 +267,14 @@ return [
         'github_url' => 'https://github.com/demo-dev/queue-observability-suite',
         'live_demo_url' => null,
         'skills' => ['Laravel', 'RabbitMQ', 'Redis', 'Grafana'],
-        'preview_image' => 'demo/projects/queue-observability-suite.svg',
+        'screenshots' => [
+            [
+                'image' => 'demo/projects/queue-observability-suite.svg',
+                'order' => 0,
+                'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
+                'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
+            ],
+        ],
         'en' => [
             'title' => 'Queue Observability Suite',
             'brief_description' => 'Visibility into jobs, workers and dead letters.',
@@ -265,7 +297,14 @@ return [
         'github_url' => null,
         'live_demo_url' => null,
         'skills' => ['PHP', 'Laravel', 'Yii', 'MySQL', 'PostgreSQL'],
-        'preview_image' => 'demo/projects/legacy-crm-migration.svg',
+        'screenshots' => [
+            [
+                'image' => 'demo/projects/legacy-crm-migration.svg',
+                'order' => 0,
+                'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
+                'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
+            ],
+        ],
         'en' => [
             'title' => 'Legacy CRM Migration',
             'brief_description' => 'A strangler-fig rewrite of a ten-year-old CRM.',
@@ -288,7 +327,14 @@ return [
         'github_url' => 'https://github.com/demo-dev/resume-generator-pdf',
         'live_demo_url' => null,
         'skills' => ['Laravel', 'PHP', 'PostgreSQL'],
-        'preview_image' => 'demo/projects/resume-generator-pdf.svg',
+        'screenshots' => [
+            [
+                'image' => 'demo/projects/resume-generator-pdf.svg',
+                'order' => 0,
+                'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
+                'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
+            ],
+        ],
         'en' => [
             'title' => 'Resume Generator',
             'brief_description' => 'A PDF resume generated from structured, bilingual data.',
@@ -311,7 +357,14 @@ return [
         'github_url' => 'https://github.com/demo-dev/search-index-service',
         'live_demo_url' => null,
         'skills' => ['PHP', 'PostgreSQL', 'Redis'],
-        'preview_image' => 'demo/projects/search-index-service.svg',
+        'screenshots' => [
+            [
+                'image' => 'demo/projects/search-index-service.svg',
+                'order' => 0,
+                'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
+                'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
+            ],
+        ],
         'en' => [
             'title' => 'Search Index Service',
             'brief_description' => 'A shared search index that serves several products from one Postgres.',
@@ -334,7 +387,14 @@ return [
         'github_url' => 'https://github.com/demo-dev/billing-webhook-gateway',
         'live_demo_url' => null,
         'skills' => ['PHP', 'Laravel', 'RabbitMQ', 'MySQL'],
-        'preview_image' => 'demo/projects/billing-webhook-gateway.svg',
+        'screenshots' => [
+            [
+                'image' => 'demo/projects/billing-webhook-gateway.svg',
+                'order' => 0,
+                'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
+                'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
+            ],
+        ],
         'en' => [
             'title' => 'Billing Webhook Gateway',
             'brief_description' => 'A durable front door for payment-provider webhooks.',
@@ -357,7 +417,14 @@ return [
         'github_url' => 'https://github.com/demo-dev/ui-component-library',
         'live_demo_url' => 'https://ui.demo.dev',
         'skills' => ['Vue', 'TypeScript', 'CSS', 'Figma'],
-        'preview_image' => 'demo/projects/ui-component-library.svg',
+        'screenshots' => [
+            [
+                'image' => 'demo/projects/ui-component-library.svg',
+                'order' => 0,
+                'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
+                'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
+            ],
+        ],
         'en' => [
             'title' => 'UI Component Library',
             'brief_description' => 'A documented Vue component library shared across products.',
@@ -380,7 +447,14 @@ return [
         'github_url' => 'https://github.com/demo-dev/infrastructure-as-code',
         'live_demo_url' => null,
         'skills' => ['Ansible', 'Docker', 'Git', 'Grafana'],
-        'preview_image' => 'demo/projects/infrastructure-as-code.svg',
+        'screenshots' => [
+            [
+                'image' => 'demo/projects/infrastructure-as-code.svg',
+                'order' => 0,
+                'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
+                'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
+            ],
+        ],
         'en' => [
             'title' => 'Infrastructure as Code',
             'brief_description' => 'A codified, reviewable production environment.',
@@ -403,7 +477,14 @@ return [
         'github_url' => null,
         'live_demo_url' => null,
         'skills' => ['TypeScript', 'Node.js', 'PostgreSQL', 'Redis'],
-        'preview_image' => 'demo/projects/data-export-pipeline.svg',
+        'screenshots' => [
+            [
+                'image' => 'demo/projects/data-export-pipeline.svg',
+                'order' => 0,
+                'en' => ['title' => 'Project overview', 'description' => 'Cover image of the project.'],
+                'ru' => ['title' => 'Обзор проекта', 'description' => 'Обложка проекта.'],
+            ],
+        ],
         'en' => [
             'title' => 'Data Export Pipeline',
             'brief_description' => 'Background exports delivered as signed, expiring links.',

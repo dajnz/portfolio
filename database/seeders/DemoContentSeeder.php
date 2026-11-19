@@ -74,10 +74,6 @@ final class DemoContentSeeder extends Seeder
         }
 
         foreach ($this->data('projects') as $project) {
-            if ($project['preview_image'] !== null) {
-                $keys[] = $project['preview_image'];
-            }
-
             foreach ($project['screenshots'] ?? [] as $screenshot) {
                 $keys[] = $screenshot['image'];
             }
@@ -283,15 +279,8 @@ final class DemoContentSeeder extends Seeder
      */
     private function createProject(array $project, array $skillIds): int
     {
-        $previewImage = $project['preview_image'];
-
         $model = ProjectModel::query()->create([
             'slug' => $project['slug'],
-            'preview_image' => $previewImage,
-            'preview_image_alt' => $previewImage === null ? null : [
-                'en' => $project['en']['title'],
-                'ru' => $project['ru']['title'],
-            ],
             'github_url' => $project['github_url'],
             'live_demo_url' => $project['live_demo_url'],
             'tech_writeup_article_id' => null,

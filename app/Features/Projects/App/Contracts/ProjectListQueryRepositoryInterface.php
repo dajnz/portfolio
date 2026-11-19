@@ -108,6 +108,16 @@ interface ProjectListQueryRepositoryInterface
     public function screenshotsFor(array $projectIds): array;
 
     /**
+     * The derived cover path of the given projects — the first
+     * screenshot by display order.
+     *
+     * @param  int[]  $projectIds
+     * @return array<int, string>  Keyed by project ID; missing when the
+     *     project has no screenshots.
+     */
+    public function coverPathsFor(array $projectIds): array;
+
+    /**
      * The JSON dual-response variant of `GET /projects` — the
      * autocomplete/search: length-aware (page/per_page with a total
      * count) over the same locale-resolved projection, tag intersect

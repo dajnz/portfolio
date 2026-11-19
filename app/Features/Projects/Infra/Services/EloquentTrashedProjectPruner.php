@@ -12,8 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Hard-deletes projects past the trash retention window. Projects keep
- * their slug history (`old_slugs` upsert) and release their RustFS files
- * through the shared asset cleaner before the rows are force-deleted.
+ * their slug history (`old_slugs` upsert) and release their RustFS
+ * screenshot files through the shared asset cleaner before the rows are
+ * force-deleted.
  */
 final class EloquentTrashedProjectPruner implements TrashedItemPrunerInterface
 {
@@ -69,17 +70,9 @@ final class EloquentTrashedProjectPruner implements TrashedItemPrunerInterface
      */
     private function assetPathsOf(array $ids): array
     {
-        $paths = ProjectModel::withTrashed()
-            ->whereIn('id', $ids)
-            ->pluck('preview_image')
-            ->filter()
-            ->all();
-
-        $screenshotPaths = DB::table('project_screenshots')
+        return DB::table('project_screenshots')
             ->whereIn('project_id', $ids)
             ->pluck('image_path')
             ->all();
-
-        return array_merge($paths, $screenshotPaths);
     }
 }

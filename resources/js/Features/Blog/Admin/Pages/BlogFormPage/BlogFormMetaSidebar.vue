@@ -178,6 +178,10 @@ function nestedFieldError(field: string): string | null {
         />
       </div>
     </DropzoneUpload>
+    <div class="mt-1.5 space-y-1 text-xs text-slate-400 dark:text-slate-500">
+      <p>{{ t('admin.blog.lead_image_usage_hint') }}</p>
+      <p>{{ t('admin.blog.lead_image_size_hint') }}</p>
+    </div>
     <AdminBlogTagPicker
       :model-value="props.tags"
       :label="t('admin.blog.tags')"

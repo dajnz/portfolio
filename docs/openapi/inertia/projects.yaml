@@ -121,16 +121,6 @@ components:
           type: string
           format: date-time
           nullable: true
-        preview_image:
-          type: string
-          nullable: true
-        preview_image_alt:
-          type: object
-          properties:
-            en:
-              type: string
-            ru:
-              type: string
         github_url:
           type: string
           nullable: true
@@ -185,16 +175,6 @@ components:
           type: string
           format: date-time
           nullable: true
-        preview_image:
-          type: string
-          nullable: true
-        preview_image_alt:
-          type: object
-          properties:
-            en:
-              type: string
-            ru:
-              type: string
         github_url:
           type: string
           nullable: true
@@ -267,15 +247,6 @@ components:
           additionalProperties:
             type: string
             nullable: true
-        preview_image:
-          type: string
-          nullable: true
-        preview_image_alt:
-          type: object
-          description: Per-locale alt text values keyed by locale code (nullable values).
-          additionalProperties:
-            type: string
-            nullable: true
         github_url:
           type: string
           nullable: true
@@ -320,13 +291,15 @@ components:
           type: string
         slug:
           type: string
-        preview_image:
+        cover_image:
           type: string
           nullable: true
+          readOnly: true
           description: |
-            The stored preview image path (ADR-0027 — public URL is
+            The derived cover image path — the first screenshot by
+            `sort_order` (ADR-0027 — public URL is
             `{APP_URL}/assets/{path}`); null when the project has no
-            preview image (the Preview column shows a placeholder).
+            screenshots (the Preview column shows a placeholder).
         is_published:
           type: boolean
         is_featured:

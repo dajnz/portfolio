@@ -13,15 +13,14 @@ use App\Features\Shared\Domain\ValueObjects\PublishedState;
 use App\Features\Shared\Domain\BaseEntity;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\ValueObjects\BlogArticleId;
-use App\Features\Shared\Domain\ValueObjects\StoredPicture;
 use DateTimeImmutable;
 use InvalidArgumentException;
 
 /**
  * A portfolio project: the slug history ({@see ProjectSlugs} — the
  * current kebab-case slug and the recorded old ones), the picture set
- * ({@see ProjectPictures} — the optional preview picture and the
- * screenshot gallery), the URL pair ({@see ProjectLinks}), the
+ * ({@see ProjectPictures} — the screenshot gallery), the URL pair
+ * ({@see ProjectLinks}), the
  * application-level tech-writeup article reference ({@see BlogArticleId}
  * — no FK; the linked article may live or die independently), the
  * featured state ({@see FeaturedState}) with the zero-indexed
@@ -102,11 +101,6 @@ final class Project extends BaseEntity
     public function toSlugs(): ProjectSlugs
     {
         return $this->slugs;
-    }
-
-    public function toPreviewPicture(): ?StoredPicture
-    {
-        return $this->pictures->toPreviewPicture();
     }
 
     /**

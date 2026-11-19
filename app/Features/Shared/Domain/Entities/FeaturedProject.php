@@ -11,7 +11,8 @@ use InvalidArgumentException;
 /**
  * Read-model of a published + featured project for the landing page: the
  * locale-resolved title/brief description, the slug (kebab-case), the
- * preview image as a {@see StoredPicture} and the tech tags.
+ * cover image (the first screenshot) as a {@see StoredPicture} and the
+ * tech tags.
  */
 final class FeaturedProject extends BaseEntity
 {
@@ -25,7 +26,7 @@ final class FeaturedProject extends BaseEntity
         private readonly string $title,
         private readonly string $slug,
         private readonly string $briefDescription,
-        private readonly ?StoredPicture $previewImage,
+        private readonly ?StoredPicture $coverImage,
         private readonly array $techTags,
     ) {
         if ($title === '') {
@@ -55,9 +56,9 @@ final class FeaturedProject extends BaseEntity
         return $this->briefDescription;
     }
 
-    public function toPreviewImage(): ?StoredPicture
+    public function toCoverImage(): ?StoredPicture
     {
-        return $this->previewImage;
+        return $this->coverImage;
     }
 
     /**

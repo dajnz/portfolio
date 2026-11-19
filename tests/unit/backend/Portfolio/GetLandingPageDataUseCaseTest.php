@@ -31,7 +31,7 @@ function landingProject(int $id): FeaturedProject
         title: 'Project '.$id,
         slug: 'project-'.$id,
         briefDescription: 'Description '.$id,
-        previewImage: null,
+        coverImage: null,
         techTags: [
             new TechSkillTag(id: 1, skillName: 'Laravel', icon: new SkillIcon('devicon:laravel')),
         ],
