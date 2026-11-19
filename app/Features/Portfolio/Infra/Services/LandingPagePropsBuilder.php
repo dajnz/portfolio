@@ -133,7 +133,7 @@ final class LandingPagePropsBuilder
             'title' => $project->toTitle(),
             'slug' => $project->toSlug(),
             'brief_description' => $project->toBriefDescription(),
-            'preview_image' => $project->toPreviewImage()?->url,
+            'cover_image' => $project->toCoverImage()?->url,
             'tech_tags' => array_map(
                 static fn (TechSkillTag $tag): array => [
                     'id' => $tag->toId(),

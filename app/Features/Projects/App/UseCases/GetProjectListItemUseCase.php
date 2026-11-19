@@ -31,7 +31,11 @@ final class GetProjectListItemUseCase
             throw ProjectNotFoundException::forId($id);
         }
 
-        return ProjectListItemDto::fromRow($row, $this->techTagsFor($id));
+        return ProjectListItemDto::fromRow(
+            row: $row,
+            techTags: $this->techTagsFor($id),
+            coverImage: $this->repository->coverPathsFor([$id])[$id] ?? null,
+        );
     }
 
     /**

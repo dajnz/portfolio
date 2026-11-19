@@ -17,7 +17,7 @@ final readonly class ProjectListItemDto
         public string $title,
         public string $briefDescription,
         public ?DateTimeImmutable $publishedAt,
-        public ?ProjectImageDto $preview,
+        public ?string $coverImage,
         public ProjectLinksDto $links,
         public bool $isFeatured,
         public bool $isPublished,
@@ -32,8 +32,9 @@ final readonly class ProjectListItemDto
     /**
      * @param  object  $row  The locale-resolved list projection row.
      * @param  SkillOptionDto[]  $techTags
+     * @param  string|null  $coverImage  The derived first-screenshot path.
      */
-    public static function fromRow(object $row, array $techTags = []): self
+    public static function fromRow(object $row, array $techTags = [], ?string $coverImage = null): self
     {
         return new self(
             id: (int) $row->id,
@@ -43,12 +44,7 @@ final readonly class ProjectListItemDto
             publishedAt: $row->published_at === null || $row->published_at === ''
                 ? null
                 : new DateTimeImmutable($row->published_at),
-            preview: $row->preview_image === null || $row->preview_image === ''
-                ? null
-                : new ProjectImageDto(
-                    url: $row->preview_image,
-                    altLabels: self::decodeJsonMap($row->preview_image_alt ?? null) ?? [],
-                ),
+            coverImage: $coverImage === null || $coverImage === '' ? null : $coverImage,
             links: new ProjectLinksDto(
                 sourceCodeUrl: $row->github_url ?? null,
                 liveDemoUrl: $row->live_demo_url ?? null,
@@ -63,19 +59,5 @@ final readonly class ProjectListItemDto
             updatedAt: new DateTimeImmutable($row->updated_at),
             techTags: $techTags,
         );
-    }
-
-    /**
-     * @return array<string, string>|null
-     */
-    private static function decodeJsonMap(mixed $value): ?array
-    {
-        if (! is_string($value) || $value === '') {
-            return null;
-        }
-
-        $decoded = json_decode($value, true);
-
-        return is_array($decoded) ? $decoded : null;
     }
 }

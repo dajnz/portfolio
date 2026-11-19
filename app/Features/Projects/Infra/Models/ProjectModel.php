@@ -26,14 +26,12 @@ use Illuminate\Support\Facades\App;
  * `deleted_at` timestamp is soft-delete bookkeeping — the featured
  * projects read model (Shared) uses the same column.
  *
- * The RustFS asset deletion (preview image + screenshots) is NOT a
- * model concern — the force-delete flows orchestrate it in the use
- * cases through the shared asset cleaner.
+ * The RustFS asset deletion (screenshots) is NOT a model concern — the
+ * force-delete flows orchestrate it in the use cases through the shared
+ * asset cleaner.
  *
  * @property int $id
  * @property string $slug
- * @property string|null $preview_image
- * @property array<string, string>|null $preview_image_alt
  * @property string|null $github_url
  * @property string|null $live_demo_url
  * @property int|null $tech_writeup_article_id
@@ -57,8 +55,6 @@ final class ProjectModel extends Model
 
     protected $fillable = [
         'slug',
-        'preview_image',
-        'preview_image_alt',
         'github_url',
         'live_demo_url',
         'tech_writeup_article_id',
@@ -113,7 +109,6 @@ final class ProjectModel extends Model
     protected function casts(): array
     {
         return [
-            'preview_image_alt' => 'array',
             'is_featured' => 'boolean',
             'is_published' => 'boolean',
             'published_at' => 'datetime',

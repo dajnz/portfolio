@@ -24,7 +24,7 @@ use App\Features\Projects\Domain\Exceptions\ProjectTagAlreadyAttachedException;
  * a slug changes and on force-delete. Deletes are instance-based so the
  * sitemap invalidation events fire; bulk operations run in batched
  * queries with a single invalidation; `forceDelete()` cleans the
- * project's RustFS files (preview image + screenshots).
+ * project's RustFS screenshot files.
  */
 interface ProjectRepositoryInterface
 {
@@ -88,10 +88,10 @@ interface ProjectRepositoryInterface
     public function currentSlugForOld(string $oldSlug): ?string;
 
     /**
-     * The RustFS asset paths of the given projects (the preview image
-     * and every screenshot) — the input of the force-delete flows, in
-     * which the USE CASE orchestrates the file deletion via the
-     * asset cleaner (the repository only reports the paths).
+     * The RustFS asset paths of the given projects (every screenshot) —
+     * the input of the force-delete flows, in which the USE CASE
+     * orchestrates the file deletion via the asset cleaner (the
+     * repository only reports the paths).
      *
      * @param  int[]  $ids
      * @return array<int, string[]>  Keyed by project id.

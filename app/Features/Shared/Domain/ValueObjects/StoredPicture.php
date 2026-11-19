@@ -8,10 +8,10 @@ use InvalidArgumentException;
 
 /**
  * A stored image reference shared by every feature that works with
- * uploaded images (about photo, project preview images, article lead
+ * uploaded images (about photo, project screenshots, article lead
  * images): the RustFS path plus the per-locale alt labels and optional
  * per-locale descriptions (the DB `*_alt` jsonb columns, e.g. `photo_alt`
- * / `preview_image_alt`).
+ * / `lead_image_alt`).
  *
  * The `url` is mandatory; every PRESENT alt label must be non-empty (no
  * blank entries), but the map itself may be empty — the admin forms allow

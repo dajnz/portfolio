@@ -22,8 +22,8 @@ use Illuminate\Support\Facades\DB;
  * (`plainto_tsquery` + `ts_rank(..., 32)` normalization; when present
  * it takes over the ordering) and the keyset cursor of the sort
  * strategy (date / rank, each with the mandatory `id` tiebreaker).
- * Tech tags and screenshot paths are assembled per page from two
- * supplemental queries.
+ * Tech tags, screenshot paths and derived covers are assembled per page
+ * from supplemental queries.
  *
  * The admin list rows use the same locale-resolved query-builder
  * projection (raw rows — never Eloquent models), so the consuming use
@@ -147,6 +147,26 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
         return $shotsByProject;
     }
 
+    public function coverPathsFor(array $projectIds): array
+    {
+        if ($projectIds === []) {
+            return [];
+        }
+
+        $covers = [];
+        foreach (DB::table('project_screenshots')
+            ->selectRaw('distinct on (project_id) project_id, image_path')
+            ->whereIn('project_id', $projectIds)
+            ->orderBy('project_id')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get() as $row) {
+            $covers[(int) $row->project_id] = (string) $row->image_path;
+        }
+
+        return $covers;
+    }
+
     public function findPublicJsonPage(
         string $locale,
         int $page,
@@ -217,8 +237,6 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
                 'p.slug',
                 DB::raw('coalesce(pl.title, pe.title, \'\') as title'),
                 'p.published_at',
-                'p.preview_image',
-                'p.preview_image_alt',
                 'p.github_url',
                 'p.live_demo_url',
                 'p.is_featured',
@@ -251,8 +269,6 @@ final class EloquentProjectListQueryRepository implements ProjectListQueryReposi
                 DB::raw('coalesce(pl.title, pe.title, \'\') as title'),
                 DB::raw('coalesce(pl.brief_description, pe.brief_description, \'\') as brief_description'),
                 'p.published_at',
-                'p.preview_image',
-                'p.preview_image_alt',
                 'p.github_url',
                 'p.live_demo_url',
                 'p.is_featured',

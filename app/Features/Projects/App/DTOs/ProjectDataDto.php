@@ -18,7 +18,6 @@ final readonly class ProjectDataDto
         public int $id,
         public string $slug,
         public ProjectTranslationsDto $translations,
-        public ?ProjectImageDto $preview,
         public array $screenshots = [],
         public array $engineeringDetails = [],
         public ProjectLinksDto $links = new ProjectLinksDto(),
@@ -43,12 +42,6 @@ final readonly class ProjectDataDto
                 problems: $project->problemsByLocale(),
                 solutions: $project->solutionsByLocale(),
             ),
-            preview: $project->toPreviewPicture() === null
-                ? null
-                : new ProjectImageDto(
-                    url: $project->toPreviewPicture()?->url,
-                    altLabels: $project->toPreviewPicture()?->altLabelsMap() ?? [],
-                ),
             screenshots: array_map(
                 static fn ($screenshot): ProjectScreenshotDto => new ProjectScreenshotDto(
                     id: $screenshot->toId(),
