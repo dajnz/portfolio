@@ -217,15 +217,10 @@ function openCreate(): void {
     router.visit('/admin/experience/create');
 }
 
-// Row click switches to the edit form. Trashed rows are NOT editable (the
-// backend's edit lookup excludes soft-deleted items — a trashed row click
-// would 404), so the navigation only applies to the live view; the actions
-// controls stop their own clicks from bubbling into the row handler.
+// Row click switches to the edit form — trashed rows included (the edit
+// lookup resolves soft-deleted items); the actions controls stop their own
+// clicks from bubbling into the row handler.
 function openEdit(row: Record<string, unknown>): void {
-    if (showTrashed.value) {
-        return;
-    }
-
     router.visit(`/admin/experience/${Number(row.id)}/edit`);
 }
 

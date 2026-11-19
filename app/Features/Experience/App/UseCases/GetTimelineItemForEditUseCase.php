@@ -11,9 +11,10 @@ use App\Features\Shared\Domain\Entities\TechSkill;
 use App\Features\Shared\Domain\RepositoryInterfaces\TechSkillReadRepositoryInterface;
 
 /**
- * The experience form page data: the existing item (null when creating)
- * plus the picker options — all tech skills for the `AdminTechSkillPicker`
- * and the non-trashed portfolio projects (locale-resolved titles) for the
+ * The experience form page data: the existing item (null when creating,
+ * soft-deleted items included so trashed rows open in the form) plus the
+ * picker options — all tech skills for the `AdminTechSkillPicker` and the
+ * non-trashed portfolio projects (locale-resolved titles) for the
  * searchable `ProjectSearchCombobox`.
  */
 final class GetTimelineItemForEditUseCase
@@ -35,7 +36,7 @@ final class GetTimelineItemForEditUseCase
     public function get(?int $id, string $locale): array
     {
         return [
-            'item' => $id === null ? null : $this->repository->findById($id),
+            'item' => $id === null ? null : $this->repository->findByIdIncludingTrashed($id),
             'projects' => $this->listQueryRepository->projectsForOptions($locale),
             'skills' => $this->skills->findAll($locale),
         ];

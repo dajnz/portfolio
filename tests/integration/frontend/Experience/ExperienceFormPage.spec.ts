@@ -141,6 +141,14 @@ describe('ExperienceFormPage', () => {
         ).toBe('Руководил командой платформы.');
     });
 
+    it('marks the short description editor as required', () => {
+        const wrapper = mountPage();
+
+        expect(
+            editorByTestId(wrapper, 'experience-form-page-short-description-en').props('required'),
+        ).toBe(true);
+    });
+
     it('prefills the dates and shared fields', () => {
         const wrapper = mountPage();
 

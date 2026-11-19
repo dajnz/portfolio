@@ -53,6 +53,17 @@ final class EloquentTimelineItemRepository implements
             : $this->hydrate($model, $this->techTagsFor([$id])[$id] ?? []);
     }
 
+    public function findByIdIncludingTrashed(int $id): ?TimelineItem
+    {
+        $model = TimelineItemModel::withTrashed()
+            ->with('translations')
+            ->find($id);
+
+        return $model === null
+            ? null
+            : $this->hydrate($model, $this->techTagsFor([$id])[$id] ?? []);
+    }
+
     public function predecessorFor(DateTimeImmutable $startedAt, ?int $ignoreId = null): ?TimelineItem
     {
         $model = TimelineItemModel::query()
@@ -156,7 +167,7 @@ final class EloquentTimelineItemRepository implements
     public function save(TimelineItem $item): int
     {
         return DB::transaction(function () use ($item): int {
-            $model = TimelineItemModel::query()->updateOrCreate(
+            $model = TimelineItemModel::withTrashed()->updateOrCreate(
                 ['id' => $item->toId()],
                 $this->mapper->toRow($item),
             );

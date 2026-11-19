@@ -547,6 +547,14 @@ final class E2EDemoContentSeeder extends Seeder
             'published_at' => null,
         ]);
 
+        ArticleTranslationModel::query()->create([
+            'article_id' => $trashed->id,
+            'locale' => 'en',
+            'title' => 'Trashed article for the admin list',
+            'short_description' => 'A trashed row for the admin list filters.',
+            'content' => "## Trash\n\nThis article stays in the trash for the admin filters.",
+        ]);
+
         $trashed->delete();
 
         return $articleIds;
