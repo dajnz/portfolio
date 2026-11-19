@@ -385,6 +385,54 @@ describe('BlogListPage', () => {
         );
     });
 
+    it('applies the sort order filter with newest first as the default', async () => {
+        const wrapper = mountPage();
+        const dropdowns = wrapper.findAllComponents({ name: 'AdminBaseDropdown' });
+        const sortDropdown = dropdowns[2];
+
+        expect(sortDropdown.props('modelValue')).toBe('desc');
+        expect(sortDropdown.props('options')).toEqual([
+            { value: 'desc', label: 'Newest first' },
+            { value: 'asc', label: 'Oldest first' },
+        ]);
+
+        sortDropdown.vm.$emit('update:modelValue', 'asc');
+        await nextTick();
+
+        expect(getMock).toHaveBeenCalledWith(
+            '/admin/blog',
+            { sort_direction: 'asc' },
+            expect.any(Object),
+        );
+    });
+
+    it('initializes the sort order from the URL', () => {
+        history.replaceState({}, '', '/admin/blog?sort_direction=asc');
+        const wrapper = mountPage();
+        history.replaceState({}, '', '/admin/blog');
+
+        const dropdowns = wrapper.findAllComponents({ name: 'AdminBaseDropdown' });
+        expect(dropdowns[2].props('modelValue')).toBe('asc');
+    });
+
+    it('keeps the oldest-first sort when navigating with a cursor', async () => {
+        const wrapper = mountPage();
+        const dropdowns = wrapper.findAllComponents({ name: 'AdminBaseDropdown' });
+
+        dropdowns[2].vm.$emit('update:modelValue', 'asc');
+        await nextTick();
+
+        const pagination = wrapper.findComponent({ name: 'PaginationControls' });
+        pagination.vm.$emit('navigate', { cursor: { id: 2, sort_value: null } });
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        expect(getMock).toHaveBeenLastCalledWith(
+            '/admin/blog',
+            { sort_direction: 'asc', 'cursor[id]': 2, 'cursor[before]': 1 },
+            expect.any(Object),
+        );
+    });
+
     it('switches to the grid view with article cards (lead image + placeholder)', async () => {
         const wrapper = mountPage();
 

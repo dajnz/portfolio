@@ -9,6 +9,7 @@ import { useI18n } from '@shared-cross/Composables/useI18n';
 
 export type ProjectViewMode = 'table' | 'grid';
 export type ProjectPublishedFilter = 'all' | 'published' | 'unpublished';
+export type ProjectSortDirection = 'asc' | 'desc';
 
 /** The picker's tag shape — the wire icon is normalized to a string. */
 export interface PickerTag {
@@ -23,6 +24,7 @@ const props = withDefaults(
         featured_only?: boolean;
         filter_tags?: PickerTag[];
         published_filter?: ProjectPublishedFilter;
+        sort_direction?: ProjectSortDirection;
         show_trashed?: boolean;
         test_id?: string;
     }>(),
@@ -30,6 +32,7 @@ const props = withDefaults(
         featured_only: false,
         filter_tags: () => [],
         published_filter: 'all',
+        sort_direction: 'desc',
         show_trashed: false,
         test_id: 'project-filters-bar',
     },
@@ -41,6 +44,7 @@ const emit = defineEmits<{
     'update:featured_only': [checked: boolean];
     'update:filter_tags': [tags: PickerTag[]];
     'update:published_filter': [value: ProjectPublishedFilter];
+    'update:sort_direction': [value: ProjectSortDirection];
     'update:show_trashed': [checked: boolean];
     create: [];
 }>();
@@ -51,6 +55,13 @@ function onPublishedChange(value: string | string[]): void {
     emit(
         'update:published_filter',
         (Array.isArray(value) ? value[0] : value) as ProjectPublishedFilter,
+    );
+}
+
+function onSortDirectionChange(value: string | string[]): void {
+    emit(
+        'update:sort_direction',
+        (Array.isArray(value) ? value[0] : value) as ProjectSortDirection,
     );
 }
 </script>
@@ -130,6 +141,16 @@ function onPublishedChange(value: string | string[]): void {
           width="150px"
           :test_id="`${props.test_id}-published-filter`"
           @update:model-value="onPublishedChange"
+        />
+        <AdminBaseDropdown
+          :model-value="props.sort_direction"
+          :options="[
+            { value: 'desc', label: t('admin.lists.newest_first') },
+            { value: 'asc', label: t('admin.lists.oldest_first') },
+          ]"
+          width="170px"
+          :test_id="`${props.test_id}-sort-order-filter`"
+          @update:model-value="onSortDirectionChange"
         />
         <AdminBaseCheckbox
           :model-value="props.featured_only"

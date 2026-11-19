@@ -6,7 +6,12 @@ import {
 } from '@shared-cross/Utils/cursorNavigationParams';
 import { computed, ref } from 'vue';
 
-import type { BlogPublishedFilter, BlogTagFilter, BlogViewMode } from './BlogFiltersBar.vue';
+import type {
+    BlogPublishedFilter,
+    BlogSortDirection,
+    BlogTagFilter,
+    BlogViewMode,
+} from './BlogFiltersBar.vue';
 
 /** The paginator's keyset cursors (the `meta.cursors` prop shape). */
 export interface BlogListCursors {
@@ -46,6 +51,9 @@ export function useBlogFilters() {
               : 'all',
     );
     const yearFilter = ref(initialQueryParam('year'));
+    const sortDirection = ref<BlogSortDirection>(
+        initialQueryParam('sort_direction').toLowerCase() === 'asc' ? 'asc' : 'desc',
+    );
     const showTrashed = ref(initialQueryParam('trashed') === '1');
     const viewMode = ref<BlogViewMode>('table');
 
@@ -86,6 +94,10 @@ export function useBlogFilters() {
 
         if (yearFilter.value !== '') {
             params.year = yearFilter.value;
+        }
+
+        if (sortDirection.value === 'asc') {
+            params.sort_direction = 'asc';
         }
 
         if (showTrashed.value) {
@@ -135,6 +147,11 @@ export function useBlogFilters() {
         applyFilters();
     }
 
+    function onSortDirectionChange(value: BlogSortDirection): void {
+        sortDirection.value = value;
+        applyFilters();
+    }
+
     function onTrashedChange(checked: boolean): void {
         showTrashed.value = checked;
         applyFilters();
@@ -155,6 +172,7 @@ export function useBlogFilters() {
         filterTags,
         publishedFilter,
         yearFilter,
+        sortDirection,
         showTrashed,
         viewMode,
         hasActiveFilters,
@@ -164,6 +182,7 @@ export function useBlogFilters() {
         onFilterTagsChange,
         onPublishedFilterChange,
         onYearFilterChange,
+        onSortDirectionChange,
         onTrashedChange,
         clearFilters,
     };

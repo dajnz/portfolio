@@ -6,7 +6,12 @@ import {
 } from '@shared-cross/Utils/cursorNavigationParams';
 import { computed, ref } from 'vue';
 
-import type { PickerTag, ProjectPublishedFilter, ProjectViewMode } from './ProjectFiltersBar.vue';
+import type {
+    PickerTag,
+    ProjectPublishedFilter,
+    ProjectSortDirection,
+    ProjectViewMode,
+} from './ProjectFiltersBar.vue';
 
 /** The paginator's keyset cursors (the `meta.cursors` prop shape). */
 export interface ProjectListCursors {
@@ -43,6 +48,9 @@ export function useProjectFilters() {
               ? 'unpublished'
               : 'all',
     );
+    const sortDirection = ref<ProjectSortDirection>(
+        initialQueryParam('sort_direction').toLowerCase() === 'asc' ? 'asc' : 'desc',
+    );
     const showTrashed = ref(initialQueryParam('trashed') === '1');
     const viewMode = ref<ProjectViewMode>('table');
 
@@ -76,6 +84,10 @@ export function useProjectFilters() {
             params.published = '1';
         } else if (publishedFilter.value === 'unpublished') {
             params.published = '0';
+        }
+
+        if (sortDirection.value === 'asc') {
+            params.sort_direction = 'asc';
         }
 
         if (showTrashed.value) {
@@ -125,6 +137,11 @@ export function useProjectFilters() {
         applyFilters();
     }
 
+    function onSortDirectionChange(value: ProjectSortDirection): void {
+        sortDirection.value = value;
+        applyFilters();
+    }
+
     function onTrashedChange(checked: boolean): void {
         showTrashed.value = checked;
         applyFilters();
@@ -145,6 +162,7 @@ export function useProjectFilters() {
         featuredOnly,
         filterTags,
         publishedFilter,
+        sortDirection,
         showTrashed,
         viewMode,
         hasActiveFilters,
@@ -154,6 +172,7 @@ export function useProjectFilters() {
         onFeaturedOnlyChange,
         onFilterTagsChange,
         onPublishedFilterChange,
+        onSortDirectionChange,
         onTrashedChange,
         clearFilters,
     };

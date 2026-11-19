@@ -647,6 +647,8 @@ return [
     'lists' => [
         'all_statuses' => 'All statuses',
         'all_years' => 'All years',
+        'newest_first' => 'Newest first',
+        'oldest_first' => 'Oldest first',
         'items_selected' => '{count, plural, one {# item selected} other {# items selected}}',
         'show_trashed' => 'Show trashed',
         'confirm_delete' => 'Confirm Delete',
