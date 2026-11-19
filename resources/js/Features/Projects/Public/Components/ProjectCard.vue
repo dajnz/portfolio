@@ -105,18 +105,6 @@ function tagHref(tag: ProjectCardView['tech_tags'][number]): string {
       :test_id="`${props.test_id}-carousel`"
     />
     <div
-      v-else-if="props.project.preview_image"
-      class="card__image project-card__image"
-    >
-      <img
-        :src="props.project.preview_image"
-        :alt="props.project.preview_image_alt"
-        width="800"
-        height="450"
-        loading="lazy"
-      >
-    </div>
-    <div
       v-else
       class="card__image project-card__image"
     >

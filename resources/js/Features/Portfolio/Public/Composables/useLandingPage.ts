@@ -75,7 +75,7 @@ export interface FeaturedProjectView {
     title: string;
     slug: string;
     brief_description: string;
-    preview_image: string | null;
+    cover_image: string | null;
     tech_tags: TechTagView[];
 }
 
@@ -215,7 +215,7 @@ export function useLandingPage(props: LandingDataProps): UseLandingPageApi {
                 title: project.title ?? '',
                 slug: project.slug ?? '',
                 brief_description: project.brief_description ?? '',
-                preview_image: project.preview_image ? `/assets/${project.preview_image}` : null,
+                cover_image: project.cover_image ? `/assets/${project.cover_image}` : null,
                 tech_tags: (project.tech_tags ?? []).map(
                     (tag: WireTechTag): TechTagView => ({
                         id: tag.id ?? 0,

@@ -124,8 +124,8 @@ function openEdit(row: Record<string, unknown>): void {
     router.visit(`/admin/projects/${Number(row.id)}/edit`);
 }
 
-function previewUrl(row: ProjectRow): string {
-    return `/assets/${row.preview_image ?? ''}`;
+function coverUrl(row: ProjectRow): string {
+    return `/assets/${row.cover_image ?? ''}`;
 }
 </script>
 
@@ -235,10 +235,10 @@ function previewUrl(row: ProjectRow): string {
               @clear="onBulkClear"
             />
           </template>
-          <template #cell-preview_image="{ row }">
+          <template #cell-cover_image="{ row }">
             <img
-              v-if="row.preview_image"
-              :src="previewUrl(row as unknown as ProjectRow)"
+              v-if="row.cover_image"
+              :src="coverUrl(row as unknown as ProjectRow)"
               alt=""
               class="h-10 w-16 rounded-md border border-slate-200 object-cover dark:border-slate-700"
               :data-testid="`${props.test_id}-preview-${String(row.id)}`"

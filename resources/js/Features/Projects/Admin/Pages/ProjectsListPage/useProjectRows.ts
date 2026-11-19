@@ -14,7 +14,7 @@ export interface ProjectRow {
     id: number;
     title: string;
     slug: string;
-    preview_image: string | null;
+    cover_image: string | null;
     is_published: boolean;
     is_featured: boolean;
     featured_sort_order: number | null;
@@ -65,7 +65,7 @@ export function useProjectRows(options: {
     );
 
     const columns = computed(() => [
-        { key: 'preview_image', label: t('admin.projects.preview'), width: '112px' },
+        { key: 'cover_image', label: t('admin.projects.preview'), width: '112px' },
         { key: 'title', label: t('common.title') },
         { key: 'tech_tags', label: t('admin.projects.tech_tags') },
         { key: 'is_featured', label: t('admin.projects.featured'), width: '88px' },

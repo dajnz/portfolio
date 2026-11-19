@@ -12,9 +12,9 @@ export type ViewMode = 'grid' | 'list';
 
 // The resolved view shapes the projects index consumes — every field the
 // template reads is guaranteed present (the wire type marks all fields
-// optional). Locale-keyed maps (`preview_image_alt`, screenshot `title`)
-// are resolved for the active locale (en fallback, matching
-// the props builder) and RustFS paths gain the `/assets/` prefix.
+// optional). Locale-keyed maps (screenshot `title`) are resolved for the
+// active locale (en fallback, matching the props builder) and RustFS
+// paths gain the `/assets/` prefix.
 export interface TechTagView {
     id: number;
     name: string;
@@ -31,8 +31,6 @@ export interface ProjectCardView {
     title: string;
     slug: string;
     brief_description: string;
-    preview_image: string | null;
-    preview_image_alt: string;
     github_url: string | null;
     live_demo_url: string | null;
     tech_tags: TechTagView[];
@@ -316,8 +314,6 @@ function toProjectCardView(
         title: project.title ?? '',
         slug: project.slug ?? '',
         brief_description: project.brief_description ?? '',
-        preview_image: project.preview_image ? `/assets/${project.preview_image}` : null,
-        preview_image_alt: localeText(project.preview_image_alt, locale),
         github_url: project.github_url ?? null,
         live_demo_url: project.live_demo_url ?? null,
         tech_tags: (project.tech_tags ?? []).map((tag) => ({

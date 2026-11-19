@@ -36,9 +36,9 @@ const iconsReady = usePublicIconsReady();
       :aria-label="props.project.title"
     />
     <img
-      v-if="props.project.preview_image"
+      v-if="props.project.cover_image"
       class="card__image project-card__image"
-      :src="props.project.preview_image"
+      :src="props.project.cover_image"
       :alt="props.project.title"
       width="800"
       height="450"
