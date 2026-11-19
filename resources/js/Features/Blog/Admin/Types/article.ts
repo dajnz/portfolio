@@ -1,8 +1,12 @@
+import type { components } from '@shared-cross/Types/inertia';
+
 export interface UnifiedTagChip {
     id: number;
     name: string;
     type: 'tag' | 'skill';
 }
+
+export type ArticleRowThumbnail = components['schemas']['ThumbnailData'];
 
 export interface RelatedArticleRow {
     id: number;
@@ -18,6 +22,7 @@ export interface ArticleTableRow {
     reading_time_minutes: number;
     views: number;
     lead_image: string | null;
+    lead_image_thumbnail?: ArticleRowThumbnail | null;
     related_count: number;
     created_at: string;
     updated_at: string;

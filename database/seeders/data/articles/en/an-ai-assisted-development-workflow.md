@@ -28,7 +28,7 @@ git commit -m "feat(queue): add idempotent order handler"
 | Novel architecture | low |
 | Security-sensitive logic | review hard |
 
-![AI-assisted development](/assets/demo/articles/ai-tooling.svg)
+![AI-assisted development](/assets/demo/articles/ai-tooling.webp)
 
 > [!TRADEOFF]
 > A fast suggestion you accept blindly costs more in debugging than writing it yourself would have.

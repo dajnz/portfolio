@@ -222,6 +222,14 @@ components:
           description: |
             The derived cover image path — the first screenshot by
             `sort_order`; null when the project has no screenshots.
+        cover_thumbnail:
+          nullable: true
+          allOf:
+            - $ref: './shared.yaml#/components/schemas/ThumbnailData'
+          description: |
+            The generated thumbnail pair of the derived cover; null
+            until the background job finishes (the card falls back to
+            `cover_image`).
         tech_tags:
           type: array
           items:

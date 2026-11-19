@@ -232,6 +232,14 @@ components:
               type: string
             ru:
               type: string
+        lead_image_thumbnail:
+          nullable: true
+          allOf:
+            - $ref: './shared.yaml#/components/schemas/ThumbnailData'
+          description: |
+            The generated 1x/2x card thumbnail pair of the lead image;
+            null until the background job finishes (the card falls back
+            to `lead_image`).
         tags:
           type: array
           items:
@@ -382,6 +390,14 @@ components:
             The RustFS path of the article's lead image — the small
             preview rendered before the title in the Title cell (no
             image → the placeholder block).
+        lead_image_thumbnail:
+          nullable: true
+          allOf:
+            - $ref: './shared.yaml#/components/schemas/ThumbnailData'
+          description: |
+            The generated thumbnail pair of the lead image; null until
+            the background job finishes (the cell falls back to
+            `lead_image`).
         related_count:
           type: integer
           description: |

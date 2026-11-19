@@ -360,6 +360,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
                 DB::raw('coalesce(pl.reading_time_minutes, pe.reading_time_minutes, 0) as reading_time_minutes'),
                 'a.lead_image',
                 'a.lead_image_alt',
+                'a.thumbnail_path',
             ])
             ->get()
             ->all();
@@ -401,6 +402,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
                 DB::raw('coalesce(pl.reading_time_minutes, pe.reading_time_minutes, 0) as reading_time_minutes'),
                 'a.lead_image',
                 'a.lead_image_alt',
+                'a.thumbnail_path',
             ]);
     }
 
@@ -523,6 +525,7 @@ final class EloquentArticleListQueryRepository implements ArticleListQueryReposi
                 DB::raw('coalesce(pl.reading_time_minutes, pe.reading_time_minutes, 0) as reading_time_minutes'),
                 DB::raw('coalesce(av.views, 0) as views'),
                 'a.lead_image',
+                'a.thumbnail_path',
                 'a.created_at',
                 'a.updated_at',
             ]);

@@ -10,6 +10,7 @@ use App\Features\Portfolio\Infra\Requests\SubmitFeedbackRequest;
 use App\Features\Shared\Domain\Entities\FeaturedProject;
 use App\Features\Shared\Domain\Entities\TechSkillGroup;
 use App\Features\Shared\Domain\Entities\TechSkillTag;
+use App\Features\Shared\App\DTOs\ThumbnailDto;
 use App\Features\Shared\Infra\Services\PublicPageCache;
 use Closure;
 use Illuminate\Http\Request;
@@ -134,6 +135,7 @@ final class LandingPagePropsBuilder
             'slug' => $project->toSlug(),
             'brief_description' => $project->toBriefDescription(),
             'cover_image' => $project->toCoverImage()?->url,
+            'cover_thumbnail' => ThumbnailDto::fromStored($project->toCoverImage()?->toThumbnail())?->toArray(),
             'tech_tags' => array_map(
                 static fn (TechSkillTag $tag): array => [
                     'id' => $tag->toId(),

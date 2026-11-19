@@ -60,6 +60,8 @@ use App\Features\Blog\Domain\RepositoryInterfaces\ArticleTagRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleViewRepositoryInterface;
 use App\Features\Blog\Domain\RepositoryInterfaces\PublicArticleReadRepositoryInterface;
 use App\Features\Blog\App\Contracts\ArticleListQueryRepositoryInterface;
+use App\Features\Blog\App\Contracts\ArticleThumbnailSchedulerInterface;
+use App\Features\Blog\App\Contracts\ArticleThumbnailStoreInterface;
 use App\Features\Blog\App\Contracts\ArticleViewRecorderInterface;
 use App\Features\Blog\App\Contracts\VisitorFingerprintInterface;
 use App\Features\Blog\Infra\Repositories\EloquentArticleListQueryRepository;
@@ -69,6 +71,8 @@ use App\Features\Blog\Infra\Repositories\EloquentArticleTagRepository;
 use App\Features\Blog\Infra\Repositories\EloquentArticleViewRepository;
 use App\Features\Blog\Infra\Services\LaravelArticleViewRecorder;
 use App\Features\Blog\Infra\Services\LaravelVisitorFingerprint;
+use App\Features\Blog\Infra\Services\EloquentArticleThumbnailStore;
+use App\Features\Blog\Infra\Services\QueuedArticleThumbnailScheduler;
 use App\Features\Experience\Domain\RepositoryInterfaces\TimelineItemRepositoryInterface;
 use App\Features\Experience\App\Services\TimelineContinuityService;
 use App\Features\Experience\Infra\Repositories\EloquentTimelineItemRepository;
@@ -94,6 +98,8 @@ use App\Features\Projects\Domain\RepositoryInterfaces\ProjectRepositoryInterface
 use App\Features\Projects\Infra\Repositories\EloquentProjectListQueryRepository;
 use App\Features\Projects\Infra\Repositories\EloquentProjectRepository;
 use App\Features\Projects\App\Contracts\ProjectListQueryRepositoryInterface;
+use App\Features\Projects\App\Contracts\ScreenshotThumbnailSchedulerInterface;
+use App\Features\Projects\App\Contracts\ScreenshotThumbnailStoreInterface;
 use App\Features\Projects\Infra\Services\PublishedArticleReader;
 use App\Features\Resume\App\Contracts\ResumePdfCacheInterface;
 use App\Features\Resume\App\Contracts\ResumePdfCacheInvalidatorInterface;
@@ -105,6 +111,8 @@ use App\Features\Resume\App\Contracts\ResumeDataReaderInterface;
 use App\Features\Resume\Infra\Services\LaravelResumePdfCache;
 use App\Features\Resume\Infra\Services\ResumePdfCacheInvalidator;
 use App\Features\Projects\Infra\Services\EloquentTrashedProjectPruner;
+use App\Features\Projects\Infra\Services\EloquentScreenshotThumbnailStore;
+use App\Features\Projects\Infra\Services\QueuedScreenshotThumbnailScheduler;
 use App\Features\Resume\Infra\Services\GeneratedResumePdfAssetPathProvider;
 use App\Features\Resume\Infra\Services\ResumePdfRenderer;
 use App\Features\Settings\App\Contracts\MailTransportTesterInterface;
@@ -124,6 +132,9 @@ use App\Features\Shared\App\Contracts\CacheClearerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use App\Features\Shared\App\Contracts\EncrypterInterface;
 use App\Features\Shared\App\Contracts\ImageProcessorInterface;
+use App\Features\Shared\App\Contracts\PublicCacheInvalidatorInterface;
+use App\Features\Shared\App\Contracts\ThumbnailBacklogReaderInterface;
+use App\Features\Shared\App\Contracts\ThumbnailGeneratorInterface;
 use App\Features\Shared\App\Contracts\LoggerInterface;
 use App\Features\Shared\App\Contracts\MaintenanceModeInterface;
 use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
@@ -150,6 +161,8 @@ use App\Features\Shared\Infra\Repositories\EloquentContactReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentProjectReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentPublishedArticleReadRepository;
 use App\Features\Shared\Infra\Services\DatabaseAssetPathProvider;
+use App\Features\Shared\Infra\Services\DatabaseThumbnailBacklogReader;
+use App\Features\Shared\Infra\Services\LaravelPublicCacheInvalidator;
 use App\Features\Shared\Infra\Services\DatabaseTrashedItemPruner;
 use App\Features\Shared\Infra\Repositories\EloquentSettingsReadRepository;
 use App\Features\Shared\Infra\Repositories\EloquentTechSkillReadRepository;
@@ -175,6 +188,7 @@ use App\Features\Shared\Infra\Services\MarkdownContentPipeline;
 use App\Features\Shared\Infra\Services\RustFsAssetCleaner;
 use App\Features\Shared\Infra\Services\RustFsAssetStorage;
 use App\Features\Shared\Infra\Services\SitemapService;
+use App\Features\Shared\Infra\Services\StoredImageThumbnailer;
 use App\Features\Shared\Infra\Services\UploadedImageProcessor;
 use App\Features\Shared\Infra\Swagger\SwaggerUiService;
 use App\Features\TechSkills\Domain\RepositoryInterfaces\TechSkillWriteRepositoryInterface;
@@ -299,6 +313,41 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ProjectListQueryRepositoryInterface::class,
             EloquentProjectListQueryRepository::class,
+        );
+
+        $this->app->bind(
+            ScreenshotThumbnailSchedulerInterface::class,
+            QueuedScreenshotThumbnailScheduler::class,
+        );
+
+        $this->app->bind(
+            ArticleThumbnailSchedulerInterface::class,
+            QueuedArticleThumbnailScheduler::class,
+        );
+
+        $this->app->bind(
+            ScreenshotThumbnailStoreInterface::class,
+            EloquentScreenshotThumbnailStore::class,
+        );
+
+        $this->app->bind(
+            ArticleThumbnailStoreInterface::class,
+            EloquentArticleThumbnailStore::class,
+        );
+
+        $this->app->bind(
+            ThumbnailGeneratorInterface::class,
+            StoredImageThumbnailer::class,
+        );
+
+        $this->app->bind(
+            PublicCacheInvalidatorInterface::class,
+            LaravelPublicCacheInvalidator::class,
+        );
+
+        $this->app->bind(
+            ThumbnailBacklogReaderInterface::class,
+            DatabaseThumbnailBacklogReader::class,
         );
 
         $this->app->bind(
@@ -865,6 +914,7 @@ class AppServiceProvider extends ServiceProvider
             \App\Features\Auth\Infra\Commands\CreateAdminCommand::class,
             \App\Features\Auth\Infra\Commands\ResetAdminPasswordCommand::class,
             \App\Features\Shared\Infra\Commands\CleanupOrphanedFilesCommand::class,
+            \App\Features\Shared\Infra\Commands\GenerateThumbnailsCommand::class,
             \App\Features\Shared\Infra\Commands\PruneTrashedItemsCommand::class,
             \App\Features\Analytics\Infra\Commands\PruneAnalyticsEventsCommand::class,
             \App\Features\Analytics\Infra\Commands\GenerateDailyMetricsCommand::class,

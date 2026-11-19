@@ -141,6 +141,14 @@ components:
             properties:
               image_path:
                 type: string
+              thumbnail:
+                nullable: true
+                allOf:
+                  - $ref: './shared.yaml#/components/schemas/ThumbnailData'
+                description: |
+                  The generated 1x/2x card thumbnail pair; null until the
+                  background job finishes (the card falls back to
+                  `image_path`).
               title:
                 type: object
                 properties:
@@ -300,6 +308,14 @@ components:
             `sort_order` (ADR-0027 — public URL is
             `{APP_URL}/assets/{path}`); null when the project has no
             screenshots (the Preview column shows a placeholder).
+        cover_thumbnail:
+          nullable: true
+          allOf:
+            - $ref: './shared.yaml#/components/schemas/ThumbnailData'
+          description: |
+            The generated thumbnail pair of the derived cover; null
+            until the background job finishes (the Preview column falls
+            back to `cover_image`).
         is_published:
           type: boolean
         is_featured:

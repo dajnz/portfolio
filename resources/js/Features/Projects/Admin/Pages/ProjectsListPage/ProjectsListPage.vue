@@ -125,7 +125,15 @@ function openEdit(row: Record<string, unknown>): void {
 }
 
 function coverUrl(row: ProjectRow): string {
-    return `/assets/${row.cover_image ?? ''}`;
+    return `/assets/${row.cover_thumbnail?.path ?? row.cover_image ?? ''}`;
+}
+
+function coverSrcset(row: ProjectRow): string | undefined {
+    if (!row.cover_thumbnail) {
+        return undefined;
+    }
+
+    return `/assets/${row.cover_thumbnail.path} 1x, /assets/${row.cover_thumbnail.retina_path} 2x`;
 }
 </script>
 
@@ -239,6 +247,7 @@ function coverUrl(row: ProjectRow): string {
             <img
               v-if="row.cover_image"
               :src="coverUrl(row as unknown as ProjectRow)"
+              :srcset="coverSrcset(row as unknown as ProjectRow)"
               alt=""
               class="h-10 w-16 rounded-md border border-slate-200 object-cover dark:border-slate-700"
               :data-testid="`${props.test_id}-preview-${String(row.id)}`"

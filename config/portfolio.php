@@ -37,6 +37,25 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Card thumbnails
+    |--------------------------------------------------------------------------
+    |
+    | The 1x cover-crop box of the card thumbnail generated for every
+    | project screenshot and article lead image; the 2x variant is twice
+    | the box. The WebP encode is metadata-free at the given quality.
+    | Cards fall back to the full image until the background job stores
+    | the pair (ADR-0047).
+    |
+    */
+
+    'thumbnail' => [
+        'width' => 480,
+        'height' => 270,
+        'quality' => 80,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Supported locales
     |--------------------------------------------------------------------------
     */

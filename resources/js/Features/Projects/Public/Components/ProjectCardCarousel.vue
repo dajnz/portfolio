@@ -40,7 +40,8 @@ const activeScreenshot = computed(() => props.screenshots[0] ?? null);
     >
       <img
         v-if="single"
-        :src="activeScreenshot?.image_url"
+        :src="activeScreenshot?.thumbnail?.url ?? activeScreenshot?.image_url"
+        :srcset="activeScreenshot?.thumbnail?.srcset"
         :alt="activeScreenshot?.alt_text ?? ''"
         width="800"
         height="450"
@@ -59,7 +60,8 @@ const activeScreenshot = computed(() => props.screenshots[0] ?? null);
       >
         <template #default="{ item, index }">
           <img
-            :src="(item as ScreenshotView).image_url"
+            :src="(item as ScreenshotView).thumbnail?.url ?? (item as ScreenshotView).image_url"
+            :srcset="(item as ScreenshotView).thumbnail?.srcset"
             :alt="(item as ScreenshotView).alt_text"
             width="800"
             height="450"

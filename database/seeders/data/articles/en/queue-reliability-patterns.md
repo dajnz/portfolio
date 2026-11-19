@@ -34,7 +34,7 @@ Exponential backoff gives a failing dependency time to recover instead of hammer
 
 After the last attempt the job should land somewhere durable and visible. A dead-letter queue that nobody reads is just a more expensive log.
 
-![Queue reliability](/assets/demo/articles/queues.svg)
+![Queue reliability](/assets/demo/articles/queues.webp)
 
 > [!TIP]
 > Track the dead-letter depth as a first-class metric. Its growth is the earliest signal of a broken dependency.

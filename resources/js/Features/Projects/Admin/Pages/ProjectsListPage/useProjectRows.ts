@@ -1,5 +1,6 @@
 import { useI18n } from '@shared-cross/Composables/useI18n';
 import { useJsonApi } from '@shared-cross/Composables/useJsonApi';
+import type { WireThumbnail } from '@shared-cross/Composables/useThumbnails';
 import { useToast } from '@shared-cross/Composables/useToast';
 import { computed, type Ref, ref, watch } from 'vue';
 
@@ -15,6 +16,7 @@ export interface ProjectRow {
     title: string;
     slug: string;
     cover_image: string | null;
+    cover_thumbnail?: WireThumbnail | null;
     is_published: boolean;
     is_featured: boolean;
     featured_sort_order: number | null;

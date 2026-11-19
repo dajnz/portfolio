@@ -4,6 +4,7 @@ import TechTagList from '@projects-admin/TechTagList.vue';
 import AdminBaseBadge from '@shared-admin/AdminBaseBadge.vue';
 import AdminBaseButton from '@shared-admin/AdminBaseButton.vue';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import type { WireThumbnail } from '@shared-cross/Composables/useThumbnails';
 
 interface TechTag {
     id: number;
@@ -16,6 +17,7 @@ interface GridProjectRow {
     title: string;
     slug: string;
     cover_image: string | null;
+    cover_thumbnail?: WireThumbnail | null;
     is_published: boolean;
     is_featured: boolean;
     tech_tags: TechTag[];
@@ -45,7 +47,15 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 function coverUrl(row: GridProjectRow): string {
-    return `/assets/${row.cover_image ?? ''}`;
+    return `/assets/${row.cover_thumbnail?.path ?? row.cover_image ?? ''}`;
+}
+
+function coverSrcset(row: GridProjectRow): string | undefined {
+    if (!row.cover_thumbnail) {
+        return undefined;
+    }
+
+    return `/assets/${row.cover_thumbnail.path} 1x, /assets/${row.cover_thumbnail.retina_path} 2x`;
 }
 </script>
 
@@ -62,6 +72,7 @@ function coverUrl(row: GridProjectRow): string {
       <img
         v-if="props.row.cover_image"
         :src="coverUrl(props.row)"
+        :srcset="coverSrcset(props.row)"
         :alt="props.row.title"
         class="h-full w-full object-cover"
         loading="lazy"

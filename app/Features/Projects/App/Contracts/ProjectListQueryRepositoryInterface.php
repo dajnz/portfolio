@@ -102,20 +102,20 @@ interface ProjectListQueryRepositoryInterface
      * The gallery paths of the given projects, ordered for display.
      *
      * @param  int[]  $projectIds
-     * @return array<int, array<int, array{image_path: string, title: array<string, string>|null}>>
+     * @return array<int, array<int, array{image_path: string, thumbnail_path: string|null, title: array<string, string>|null}>>
      *     Keyed by project ID.
      */
     public function screenshotsFor(array $projectIds): array;
 
     /**
-     * The derived cover path of the given projects — the first
-     * screenshot by display order.
+     * The derived cover of the given projects — the first screenshot by
+     * display order, with its thumbnail pair when generated.
      *
      * @param  int[]  $projectIds
-     * @return array<int, string>  Keyed by project ID; missing when the
-     *     project has no screenshots.
+     * @return array<int, StoredPicture>  Keyed by project ID; missing
+     *     when the project has no screenshots.
      */
-    public function coverPathsFor(array $projectIds): array;
+    public function coverPicturesFor(array $projectIds): array;
 
     /**
      * The JSON dual-response variant of `GET /projects` — the

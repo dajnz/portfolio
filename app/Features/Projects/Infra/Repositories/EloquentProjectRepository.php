@@ -473,11 +473,12 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
      */
     private function syncScreenshots(int $projectId, Project $project): void
     {
-        // The pre-existing id set, captured BEFORE the upserts — the
+        // The pre-existing paths, captured BEFORE the upserts — the
         // cleanup must only touch rows that existed before this sync
         // (new rows carry id 0 and receive fresh ids; comparing the
         // submitted ids against the DB would delete them).
-        $preExistingIds = $this->screenshotIdsOf($projectId);
+        $preExistingPaths = $this->screenshotPathsOf($projectId);
+        $preExistingIds = array_keys($preExistingPaths);
         $submitted = $project->toScreenshots();
 
         ['upsert_rows' => $upsertRows, 'insert_rows' => $insertRows] = $this->screenshotRows($projectId, $submitted);
@@ -494,6 +495,8 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
             DB::table('project_screenshots')->insert($insertRows);
         }
 
+        $this->clearReplacedThumbnails($preExistingPaths, $submitted);
+
         $removedIds = array_values(array_diff(
             $preExistingIds,
             array_filter(array_map(static fn ($screenshot): int => $screenshot->toId(), $submitted)),
@@ -501,6 +504,33 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
 
         if ($removedIds !== []) {
             ProjectScreenshotModel::query()->whereIn('id', $removedIds)->delete();
+        }
+    }
+
+    /**
+     * Drops the thumbnail of every row whose image path changed in this
+     * save, so the cards fall back to the new full image instead of
+     * showing the previous image's thumbnail until the job finishes.
+     *
+     * @param  array<int, string>  $preExistingPaths  Screenshot id => stored path.
+     * @param  ProjectScreenshot[]  $submitted
+     */
+    private function clearReplacedThumbnails(array $preExistingPaths, array $submitted): void
+    {
+        $replacedIds = [];
+
+        foreach ($submitted as $screenshot) {
+            $previousPath = $preExistingPaths[$screenshot->toId()] ?? null;
+
+            if ($previousPath !== null && $previousPath !== $screenshot->toImagePath()) {
+                $replacedIds[] = $screenshot->toId();
+            }
+        }
+
+        if ($replacedIds !== []) {
+            ProjectScreenshotModel::query()
+                ->whereKey($replacedIds)
+                ->update(['thumbnail_path' => null]);
         }
     }
 
@@ -538,13 +568,13 @@ final class EloquentProjectRepository implements ProjectRepositoryInterface
     }
 
     /**
-     * @return int[]
+     * @return array<int, string>  Screenshot id => stored image path.
      */
-    private function screenshotIdsOf(int $projectId): array
+    private function screenshotPathsOf(int $projectId): array
     {
         return ProjectScreenshotModel::query()
             ->where('project_id', $projectId)
-            ->pluck('id')
+            ->pluck('image_path', 'id')
             ->all();
     }
 

@@ -27,7 +27,7 @@ Log::info('order.shipment.failed', [
 
 Alert when users are affected, not when a single metric twitches. A page that fires on CPU spikes trains everyone to ignore it.
 
-![Observability](/assets/demo/articles/observability.svg)
+![Observability](/assets/demo/articles/observability.webp)
 
 > [!WARNING]
 > High-cardinality labels (user IDs, request IDs) belong in logs and traces, never in metric names.

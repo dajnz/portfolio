@@ -74,7 +74,7 @@ final class ListProjectsUseCase
 
         $projectIds = array_map(static fn (object $row): int => (int) $row->id, $rows);
         $tagsByProject = $this->repository->techTagsFor($projectIds);
-        $coversByProject = $this->repository->coverPathsFor($projectIds);
+        $coversByProject = $this->repository->coverPicturesFor($projectIds);
 
         return array_map(
             static fn (object $row): ProjectListItemDto => ProjectListItemDto::fromRow(

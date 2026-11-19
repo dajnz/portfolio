@@ -1,5 +1,6 @@
 import { router, usePage } from '@inertiajs/vue3';
 import { useI18n } from '@shared-cross/Composables/useI18n';
+import { type ThumbnailView, toThumbnailView } from '@shared-cross/Composables/useThumbnails';
 import type { components } from '@shared-cross/Types/inertia';
 import { type ComputedRef, computed, type Ref, ref } from 'vue';
 
@@ -23,6 +24,7 @@ export interface TechTagView {
 
 export interface ScreenshotView {
     image_url: string;
+    thumbnail: ThumbnailView | null;
     alt_text: string;
 }
 
@@ -325,6 +327,7 @@ function toProjectCardView(
             wireScreenshots.length > 0
                 ? wireScreenshots.map((shot) => ({
                       image_url: `/assets/${shot.image_path ?? ''}`,
+                      thumbnail: toThumbnailView(shot.thumbnail),
                       alt_text: localeText(shot.title, locale) || fallbackAlt,
                   }))
                 : null,

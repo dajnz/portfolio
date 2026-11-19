@@ -9,6 +9,7 @@ use App\Features\Shared\Domain\Entities\TechSkillTag;
 use App\Features\Shared\Domain\RepositoryInterfaces\ProjectReadRepositoryInterface;
 use App\Features\Shared\Domain\ValueObjects\SkillIcon;
 use App\Features\Shared\Domain\ValueObjects\StoredPicture;
+use App\Features\Shared\Domain\ValueObjects\StoredThumbnail;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -86,7 +87,7 @@ final class EloquentProjectReadRepository implements ProjectReadRepositoryInterf
 
         $covers = [];
         foreach (DB::table('project_screenshots')
-            ->selectRaw('distinct on (project_id) project_id, image_path, title')
+            ->selectRaw('distinct on (project_id) project_id, image_path, title, thumbnail_path')
             ->whereIn('project_id', $projectIds)
             ->orderBy('project_id')
             ->orderBy('sort_order')
@@ -95,6 +96,7 @@ final class EloquentProjectReadRepository implements ProjectReadRepositoryInterf
             $covers[(int) $row->project_id] = new StoredPicture(
                 url: (string) $row->image_path,
                 altLabels: $this->altLabels($row->title),
+                thumbnail: StoredThumbnail::fromSource((string) $row->image_path, $row->thumbnail_path),
             );
         }
 

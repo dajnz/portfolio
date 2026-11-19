@@ -8,6 +8,7 @@ use App\Features\Blog\App\DTOs\ArticleDraftDto;
 use App\Features\Blog\App\Services\ArticleDraftValidator;
 use App\Features\Blog\App\Services\ArticleEntityFactory;
 use App\Features\Blog\App\Services\ArticleSlugService;
+use App\Features\Blog\App\Contracts\ArticleThumbnailSchedulerInterface;
 use App\Features\Blog\Domain\Entities\Article;
 use App\Features\Blog\Domain\Exceptions\ArticleNotFoundException;
 use App\Features\Blog\Domain\RepositoryInterfaces\ArticleRepositoryInterface;
@@ -15,6 +16,7 @@ use App\Features\Blog\Domain\ValueObjects\ArticleId;
 use App\Features\Shared\App\Contracts\AssetCleanerInterface;
 use App\Features\Shared\App\Contracts\CountCacheInvalidatorInterface;
 use App\Features\Shared\App\Contracts\SitemapInvalidatorInterface;
+use App\Features\Shared\Domain\ValueObjects\ThumbnailPath;
 use DateTimeImmutable;
 
 /**
@@ -45,6 +47,7 @@ final class UpdateArticleUseCase
         private readonly AssetCleanerInterface $assets,
         private readonly CountCacheInvalidatorInterface $countCache,
         private readonly SitemapInvalidatorInterface $sitemap,
+        private readonly ArticleThumbnailSchedulerInterface $thumbnails,
     ) {
     }
 
@@ -86,12 +89,28 @@ final class UpdateArticleUseCase
 
         $this->repository->save($article);
         $this->assets->delete($this->obsoleteLeadImagePath($existing, $draft));
+        $this->scheduleThumbnail($id, $existing, $article);
 
         if ($existing->toIsPublished() || $article->toIsPublished()) {
             $this->sitemap->invalidate();
         }
 
         $this->countCache->invalidate('articles');
+    }
+
+    /**
+     * Schedules the thumbnail generation when the lead image is set or
+     * replaced — a text-only edit enqueues nothing.
+     */
+    private function scheduleThumbnail(int $articleId, Article $existing, Article $article): void
+    {
+        $newPath = $article->toLeadImage()?->url;
+
+        if ($newPath === null || $newPath === $existing->toLeadImage()?->url) {
+            return;
+        }
+
+        $this->thumbnails->schedule([$articleId]);
     }
 
     /**
@@ -108,6 +127,8 @@ final class UpdateArticleUseCase
             return [];
         }
 
-        return $draft->leadImage?->url === $existingPath ? [] : [$existingPath];
+        return $draft->leadImage?->url === $existingPath
+            ? []
+            : ThumbnailPath::forSource($existingPath)->toFiles();
     }
 }

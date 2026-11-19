@@ -30,7 +30,7 @@ Constructing an invalid object should be impossible. Then every downstream test 
 
 One integration test per repository or endpoint proves the mapping works. The rest stays fast and focused.
 
-![Domain testing](/assets/demo/articles/testing.svg)
+![Domain testing](/assets/demo/articles/testing.webp)
 
 > [!TRADEOFF]
 > Pure domain code is more verbose up front. The payoff is a suite you can run on every save instead of once a day.

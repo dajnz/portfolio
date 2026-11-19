@@ -163,6 +163,7 @@ final class GetPublicArticleUseCase
                 ),
                 skillTags: $skillsByArticle[$card->id] ?? [],
                 leadImageAlt: $card->leadImageAlt,
+                leadImageThumbnail: $card->leadImageThumbnail,
             );
         }, $rows);
     }

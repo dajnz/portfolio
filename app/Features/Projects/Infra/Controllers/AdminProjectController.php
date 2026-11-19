@@ -498,6 +498,7 @@ final class AdminProjectController
             'title' => $item->title,
             'slug' => $item->slug,
             'cover_image' => $item->coverImage,
+            'cover_thumbnail' => $item->coverThumbnail?->toArray(),
             'is_published' => $item->isPublished,
             'is_featured' => $item->isFeatured,
             'featured_sort_order' => $item->featuredSortOrder,

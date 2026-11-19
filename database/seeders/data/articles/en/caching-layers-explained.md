@@ -26,7 +26,7 @@ Cache::put($key, $html, now()->addWeek());
 
 Short-lived, request-scoped caches remove duplicate queries inside a single request. They must never outlive the request.
 
-![Caching layers](/assets/demo/articles/caching.svg)
+![Caching layers](/assets/demo/articles/caching.webp)
 
 > [!WARNING]
 > A cache without a TTL is a memory leak with extra steps.

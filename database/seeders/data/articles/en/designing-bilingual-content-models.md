@@ -27,7 +27,7 @@ $translation = $article->translationFor($locale)
 
 A locale tab per language keeps authors honest: they see exactly what is missing instead of a half-filled form that looks complete.
 
-![Bilingual content model](/assets/demo/articles/content-model.svg)
+![Bilingual content model](/assets/demo/articles/content-model.webp)
 
 > [!TRADEOFF]
 > Translation tables cost an extra join, but they turn "untranslated" into a first-class state rather than a nullable column nobody checks.

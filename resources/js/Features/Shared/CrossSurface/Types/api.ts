@@ -376,6 +376,17 @@ export interface components {
         UnifiedTagSearchResponse: {
             data: components["schemas"]["UnifiedTagSearchItem"][];
         };
+        /**
+         * @description The generated card thumbnail pair (ADR-0047) — the 1x and 2x
+         *     RustFS paths. Null while the background generation has not
+         *     finished yet — clients fall back to the full-size image.
+         */
+        ThumbnailData: {
+            /** @description The 480x270 WebP object (RustFS path). */
+            path: string;
+            /** @description The 960x540 WebP object (RustFS path). */
+            retina_path: string;
+        };
         ArticleItem: {
             id?: number;
             slug?: string;
@@ -396,6 +407,12 @@ export interface components {
                 en?: string;
                 ru?: string;
             } | null;
+            /**
+             * @description The generated thumbnail pair of the lead image; null until
+             *     the background job finishes (clients fall back to
+             *     `lead_image`).
+             */
+            readonly lead_image_thumbnail?: components["schemas"]["ThumbnailData"] | null;
             tags?: {
                 id?: number;
                 slug?: string;
@@ -435,6 +452,12 @@ export interface components {
              *     `sort_order`; null when the project has no screenshots.
              */
             readonly cover_image?: string | null;
+            /**
+             * @description The generated thumbnail pair of the derived cover; null
+             *     until the background job finishes (clients fall back to
+             *     `cover_image`).
+             */
+            readonly cover_thumbnail?: components["schemas"]["ThumbnailData"] | null;
             github_url?: string | null;
             live_demo_url?: string | null;
             is_featured?: boolean;

@@ -94,13 +94,13 @@ final class GetPublicProjectsUseCase
         );
 
         $projectIds = array_map(static fn (object $row): int => (int) $row->id, $result['rows']);
-        $coversByProject = $this->repository->coverPathsFor($projectIds);
+        $coversByProject = $this->repository->coverPicturesFor($projectIds);
 
         return new PaginatedProjectListDto(
             rows: array_map(
                 static fn (object $row): ProjectListItemDto => ProjectListItemDto::fromRow(
                     $row,
-                    coverImage: $coversByProject[(int) $row->id] ?? null,
+                    cover: $coversByProject[(int) $row->id] ?? null,
                 ),
                 $result['rows'],
             ),
