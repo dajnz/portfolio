@@ -57,6 +57,7 @@ Source code and the OpenAPI specs (`docs/openapi/`) reference these as
 | [0044](0044-first-deploy-admin-bootstrap.md) | First-deploy admin bootstrap |
 | [0046](0046-project-media-screenshots-only.md) | Project media — screenshots as the single media concept |
 | [0047](0047-async-card-thumbnails.md) | Async card thumbnails for project screenshots and article lead images |
+| [0048](0048-commit-message-gates-on-push-and-merge.md) | Commit-message gates on push and merge |
 
 ## Format
 

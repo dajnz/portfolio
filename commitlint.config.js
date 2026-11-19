@@ -32,6 +32,7 @@ export default {
                 'portfolio',
                 'projects',
                 'resume',
+                'seed',
                 'settings',
                 'shared',
                 'techskills',

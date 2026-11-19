@@ -34,6 +34,8 @@ jobs:
       # Laravel Pint (PSR-12)
       - run: ./vendor/bin/pint --test
       - run: pnpm install --frozen-lockfile
+      # Hook config must stay valid even when hooks are not installed here.
+      - run: pnpm exec lefthook validate
       # Lint + format: TS, Vue script blocks
       - run: pnpm exec biome ci resources/js
       # Template linting only (.vue <template>)
@@ -427,7 +429,7 @@ jobs:
             exit 0
           fi
 
-          git commit -m "chore(deploy): update image manifest [skip ci]"
+          git commit -m "chore(devops): update image manifest [skip ci]"
 
           for attempt in 1 2 3; do
             if git push origin HEAD:main; then
