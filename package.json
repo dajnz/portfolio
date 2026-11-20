@@ -19,9 +19,9 @@
         "lighthouse": "lhci autorun --config=devops/lighthouse-config/lighthouserc.cjs"
     },
     "dependencies": {
-        "@iconify/vue": "^5.0.4",
-        "@inertiajs/core": "^3.9.1",
-        "@inertiajs/vue3": "^3.9.1",
+        "@iconify/vue": "^5.0.5",
+        "@inertiajs/core": "^3.11.0",
+        "@inertiajs/vue3": "^3.11.0",
         "@tiptap/core": "3.31.3",
         "@tiptap/extension-code-block-lowlight": "3.31.3",
         "@tiptap/extension-image": "3.31.3",
@@ -35,11 +35,11 @@
         "@tiptap/markdown": "3.31.3",
         "@tiptap/starter-kit": "3.31.3",
         "@tiptap/vue-3": "3.31.3",
-        "intl-messageformat": "^12.1.4",
+        "intl-messageformat": "^12.1.5",
         "lodash-es": "^4.18.1",
         "lowlight": "^3.3.0",
         "pinia": "^4.1.0",
-        "shiki": "^4.5.0",
+        "shiki": "^4.6.0",
         "vue": "^3.5.44"
     },
     "devDependencies": {
