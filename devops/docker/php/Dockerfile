@@ -1,5 +1,5 @@
 # Stage 1: Build dependencies and optimize
-FROM php:8.5.12-fpm-alpine AS build
+FROM php:8.6.0RC5-fpm-alpine AS build
 
 # redis is built from a PINNED GitHub release tarball (6.3.0) instead of
 # `pecl install redis`: the pecl.php.net channel/CDN is flaky and
@@ -66,7 +66,7 @@ RUN --mount=type=secret,id=app_env,target=/tmp/app.env \
     && rm -f .env
 
 # Stage 2: Production runtime — only built artifacts
-FROM php:8.5.12-fpm-alpine
+FROM php:8.6.0RC5-fpm-alpine
 
 # 8.5.12 is the first release fixing CVE-2026-109618 and CVE-2026-109619; a base
 # image below that floor must never reach an image.
