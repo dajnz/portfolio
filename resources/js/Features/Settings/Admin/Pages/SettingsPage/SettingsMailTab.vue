@@ -49,7 +49,7 @@ function fieldError(field: string): string | null {
       :error="fieldError('mail_api_endpoint')"
       :placeholder="'https://api.example.com/v1/mail'"
       :test_id="`${props.test_id}-api-endpoint`"
-      @update:model-value="(value) => emit('update:mail_api_endpoint', value)"
+      @update:model-value="(value: string) => emit('update:mail_api_endpoint', value)"
     />
     <AdminBaseInput
       :model-value="props.mail_api_token"
@@ -58,7 +58,7 @@ function fieldError(field: string): string | null {
       :error="fieldError('mail_api_token')"
       :help="t('admin.settings.api_token_hint')"
       :test_id="`${props.test_id}-api-token`"
-      @update:model-value="(value) => emit('update:mail_api_token', value)"
+      @update:model-value="(value: string) => emit('update:mail_api_token', value)"
     />
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <AdminBaseInput
@@ -67,14 +67,14 @@ function fieldError(field: string): string | null {
         :label="t('admin.settings.from_address')"
         :error="fieldError('mail_from_address')"
         :test_id="`${props.test_id}-from-address`"
-        @update:model-value="(value) => emit('update:mail_from_address', value)"
+        @update:model-value="(value: string) => emit('update:mail_from_address', value)"
       />
       <AdminBaseInput
         :model-value="props.mail_from_name"
         :label="t('admin.settings.from_name')"
         :error="fieldError('mail_from_name')"
         :test_id="`${props.test_id}-from-name`"
-        @update:model-value="(value) => emit('update:mail_from_name', value)"
+        @update:model-value="(value: string) => emit('update:mail_from_name', value)"
       />
     </div>
     <AdminBaseButton
@@ -96,7 +96,7 @@ function fieldError(field: string): string | null {
       :model-value="props.email_on_feedback"
       :label="t('admin.settings.email_on_feedback')"
       :test_id="`${props.test_id}-email-on-feedback`"
-      @update:model-value="(value) => emit('update:email_on_feedback', value)"
+      @update:model-value="(value: boolean) => emit('update:email_on_feedback', value)"
     />
   </fieldset>
 </template>
