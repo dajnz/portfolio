@@ -1,4 +1,4 @@
-FROM php:8.5.12-cli-alpine
+FROM php:8.6.0RC5-cli-alpine
 
 # 8.5.12 is the first release fixing CVE-2026-109618 and CVE-2026-109619; a base
 # image below that floor must never reach an image.
