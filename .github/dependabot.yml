@@ -52,6 +52,14 @@ updates:
     groups:
       # Specific groups first: the first matching group wins.
       # Major updates are not listed, so they arrive as individual PRs.
+      vue:
+        patterns:
+          - vue
+          - '@vue/*'
+          - vue-tsc
+          - vue-component-type-helpers
+        update-types: [minor, patch]
+
       tiptap:
         patterns: ['@tiptap/*']
         update-types: [minor, patch]
