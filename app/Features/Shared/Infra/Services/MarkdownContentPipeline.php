@@ -9,6 +9,7 @@ use App\Features\Shared\Infra\Markdown\CalloutBlock;
 use App\Features\Shared\Infra\Markdown\CalloutBlockRenderer;
 use App\Features\Shared\Infra\Markdown\CalloutBlockStartParser;
 use App\Features\Shared\Infra\Markdown\ContentImageListener;
+use App\Features\Shared\Infra\Markdown\HardBreakInlineParser;
 use App\Features\Shared\Infra\Markdown\HeadingIdListener;
 use App\Features\Shared\Infra\Markdown\HeadingIdRenderer;
 use App\Features\Shared\Infra\Markdown\HighlightedCodeRenderer;
@@ -50,8 +51,9 @@ use Illuminate\Support\Facades\Cache;
  * carry the anchor ids the TableOfContents scans for.
  *
  * The article variant is cached in Redis under
- * `article:html:{id}:{locale}:{content-hash}` — the content hash rotates the
- * key on every content change.
+ * `article:html:{cache-version}:{id}:{locale}:{content-hash}` — the version
+ * rotates every renderer change and the content hash rotates on every content
+ * change.
  *
  * Implements the app-layer {@see MarkdownContentPipelineInterface} — the app
  * layer never imports this concrete.
@@ -59,6 +61,8 @@ use Illuminate\Support\Facades\Cache;
 final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
 {
     private const CACHE_TTL_SECONDS = 604800;
+
+    private const CACHE_KEY_VERSION = 'v2';
 
     private readonly MarkdownConverter $converter;
 
@@ -79,6 +83,8 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
         // - GFM pipe tables (the editor's table button).
         // - `~~strikethrough~~` (the editor's strikethrough button).
         // - `++underline++` (the editor's underline button).
+        // - `<br>` (the editor's hard break — Shift+Enter, including
+        //   inside table cells).
         // - `<sub>…</sub>` / `<sup>…</sup>` (the editor's subscript /
         //   superscript buttons — claimed as structured nodes BEFORE
         //   the core HtmlInline parser, which html_input: ESCAPE would
@@ -89,8 +95,9 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
         $environment->addDelimiterProcessor(new UnderlineDelimiterProcessor());
         $environment->addRenderer(Underline::class, new UnderlineRenderer());
         // Registered above the core HtmlInlineParser (priority 40) so
-        // the tag pairs become structured nodes instead of escaped
+        // these tags become structured nodes instead of escaped
         // HtmlInline output.
+        $environment->addInlineParser(new HardBreakInlineParser(), 80);
         $environment->addInlineParser(new SubscriptInlineParser(), 80);
         $environment->addRenderer(Subscript::class, new SubscriptRenderer());
         $environment->addInlineParser(new SuperscriptInlineParser(), 80);
@@ -113,13 +120,14 @@ final class MarkdownContentPipeline implements MarkdownContentPipelineInterface
 
     /**
      * The rendered article body, cached under
-     * `article:html:{id}:{locale}:{content-hash}` — the key embeds a hash of
-     * the markdown, so ANY content change rotates the key: self-invalidating
-     * by content.
+     * `article:html:{cache-version}:{id}:{locale}:{content-hash}` — the
+     * version rotates on renderer changes and the key embeds a hash of the
+     * markdown, so any content change rotates the key (self-invalidating by
+     * content).
      */
     public function articleHtml(int $id, string $locale, string $markdown): string
     {
-        $key = 'article:html:'.$id.':'.$locale.':'.substr(hash('xxh128', $markdown), 0, 16);
+        $key = 'article:html:'.self::CACHE_KEY_VERSION.':'.$id.':'.$locale.':'.substr(hash('xxh128', $markdown), 0, 16);
 
         return Cache::remember($key, self::CACHE_TTL_SECONDS, fn (): string => $this->render($markdown));
     }
