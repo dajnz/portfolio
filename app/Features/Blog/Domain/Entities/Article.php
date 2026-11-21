@@ -110,9 +110,8 @@ final class Article extends BaseEntity
 
     /**
      * The last save stamp of the base row — the `updated_at` column.
-     * Read-only metadata: the app layer uses it for the cached-content
-     * key (`article:html:{id}:{locale}:{updated_at}`) and the SEO
-     * `dateModified`; the domain never mutates it.
+     * Read-only metadata: the app layer uses it for the SEO `dateModified`;
+     * the domain never mutates it.
      */
     public function toUpdatedAt(): ?DateTimeImmutable
     {

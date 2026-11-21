@@ -18,7 +18,8 @@ use App\Features\Shared\App\Contracts\MarkdownContentPipelineInterface;
 /**
  * The public blog article detail: the published aggregate resolved by
  * slug, with the body rendered through the shared content pipeline
- * (the Redis-cached `article:html:{id}:{locale}:{updated_at}` HTML),
+ * (the Redis-cached
+ * `article:html:{cache-version}:{id}:{locale}:{content-hash}` HTML),
  * the resolved article tags, the published related cards, the
  * pre-increment view counter and the reaction state — `null` when the
  * `social_reactions` feature flag is disabled or no fingerprint was

@@ -16,12 +16,12 @@ Markdown bodies appear on the public blog and (later) project detail pages, and 
 - **No client re-highlight (B217):** the public page never re-highlights in the browser; the server renders `content_html` for every Inertia navigation, and the `CodeBlock` component only adds a copy button — so no client/server divergence is possible.
 - **Snippet sanitization (B217):** `ts_headline` snippets return raw article text with `<mark>` tags; `ArticleCardDto::fromRow` escapes every other tag so an admin-authored raw-HTML excerpt can never execute.
 - **Project detail bodies (B261):** `ProjectDetailDtoBuilder` injects the shared `MarkdownContentPipelineInterface` and renders `full_description`/`problem`/`solution` for the request locale (en fallback) into `ProjectDetailBodiesDto`; `ProjectDetailPropsBuilder::detail()` maps the rendered HTML through for both the public and signed-preview controllers, and the frontend injects it as-is (`v-html`).
-- **HTML cache key (B270):** `article:html:{id}:{locale}:{content-hash}` where the hash is xxh128 (16 chars); any content change rotates the key, while non-content base touches (publish flags, tags) keep it. `articleHtml()` dropped its `$updatedAt` parameter.
+- **HTML cache key (B270):** `article:html:{cache-version}:{id}:{locale}:{content-hash}` where the hash is xxh128 (16 chars); the cache version rotates on renderer changes, any content change rotates the content hash, while non-content base touches (publish flags, tags) keep it. `articleHtml()` dropped its `$updatedAt` parameter.
 - **Callout headings (B273):** `CalloutBlock` always renders the heading row with the per-type icon (`heroicons:exclamation-triangle`/`light-bulb`/`information-circle`/`arrow-path`) — the Markdown title when present, otherwise the localized type label via `blog.callout_{warning,tip,important,tradeoff}` (EN/RU). Raw pipeline asides on project detail pages still show title-less callouts without the label row.
 
 ## Consequences
 
 - Highlighting is server-rendered and cached; the copy button is the only client-side code-block behaviour, so editors see a slightly different (lowlight) preview than the public render only in theme, not in engine.
-- The `article:html` cache is self-invalidating on content changes but still keyed per locale; non-content updates deliberately reuse the cached HTML.
+- The `article:html` cache is self-invalidating on content changes (and the cache version rotates on renderer changes) but still keyed per locale; non-content updates deliberately reuse the cached HTML.
 - The project detail bodies render identically in preview and public because both go through the shared pipeline and props builder.
 - The pipeline is `Shared`; any new Markdown surface must consume `MarkdownContentPipelineInterface` rather than rolling its own renderer.

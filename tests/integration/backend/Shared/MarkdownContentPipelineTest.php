@@ -43,6 +43,33 @@ describe('MarkdownContentPipeline', function (): void {
             ->and($html)->not->toContain('<sup>');
     });
 
+    it('renders the editor hard break as a line break inside table cells', function (): void {
+        $html = pipeline()->render(
+            '| Concern | Detail |'.PHP_EOL
+            .'| --- | --- |'.PHP_EOL
+            .'| Cell | first<br>second |'.PHP_EOL
+        );
+
+        expect($html)->toContain('first<br />')
+            ->and($html)->toContain('second')
+            ->not->toContain('&lt;br&gt;');
+    });
+
+    it('renders the self-closing hard-break variants', function (): void {
+        $html = pipeline()->render('first<br/>second third<br />fourth');
+
+        expect($html)->toContain('first<br />')
+            ->and($html)->toContain('third<br />')
+            ->not->toContain('&lt;br');
+    });
+
+    it('escapes hard-break tags carrying attributes', function (): void {
+        $html = pipeline()->render('<br onmouseover="alert(1)">');
+
+        expect($html)->not->toContain('<br onmouseover')
+            ->and($html)->toContain('&lt;br onmouseover');
+    });
+
     it('renders GFM pipe tables with the header row', function (): void {
         $html = pipeline()->render(
             '| Name | Role |'.PHP_EOL
@@ -183,13 +210,13 @@ describe('MarkdownContentPipeline', function (): void {
     });
 
     it('keys the cache by id/locale/content hash', function (): void {
-        $key = 'article:html:7:en:'.substr(hash('xxh128', '# Title'), 0, 16);
+        $key = 'article:html:v2:7:en:'.substr(hash('xxh128', '# Title'), 0, 16);
 
         pipeline()->articleHtml(7, 'en', '# Title');
 
         expect(Cache::has($key))->toBeTrue()
-            ->and(Cache::has('article:html:7:ru:'.substr(hash('xxh128', '# Title'), 0, 16)))->toBeFalse()
-            ->and(Cache::has('article:html:7:en:'.substr(hash('xxh128', '# Other'), 0, 16)))->toBeFalse();
+            ->and(Cache::has('article:html:v2:7:ru:'.substr(hash('xxh128', '# Title'), 0, 16)))->toBeFalse()
+            ->and(Cache::has('article:html:v2:7:en:'.substr(hash('xxh128', '# Other'), 0, 16)))->toBeFalse();
     });
 
     it('caches a rendered article once and serves the same HTML', function (): void {

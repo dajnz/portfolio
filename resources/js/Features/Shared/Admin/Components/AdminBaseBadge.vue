@@ -30,7 +30,7 @@ const emit = defineEmits<{
 
 const variantClass = computed(() => {
     const map: Record<BadgeVariant, string> = {
-        default: 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400',
+        default: 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300',
         primary: 'bg-primary-50 dark:bg-primary-950 text-primary-700 dark:text-primary-300',
         success: 'bg-success-50 dark:bg-success-950 text-success-700 dark:text-success-400',
         warning: 'bg-warning-50 dark:bg-warning-950 text-warning-700 dark:text-warning-400',

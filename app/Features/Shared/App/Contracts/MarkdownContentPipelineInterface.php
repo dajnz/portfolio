@@ -15,8 +15,9 @@ interface MarkdownContentPipelineInterface
 {
     /**
      * The rendered article body, cached under
-     * `article:html:{id}:{locale}:{content-hash}`. The key embeds a hash of
-     * the markdown, so any content change rotates the key
+     * `article:html:{cache-version}:{id}:{locale}:{content-hash}`. The
+     * version rotates on renderer changes and the key embeds a hash of the
+     * markdown, so any content change rotates the key
      * (self-invalidating by content). Non-content base-row touches (publish
      * flags, tags) keep the key — the rendered HTML does not depend on them.
      */
