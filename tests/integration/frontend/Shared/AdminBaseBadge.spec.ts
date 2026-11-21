@@ -15,6 +15,9 @@ describe('AdminBaseBadge', () => {
 
         expect(wrapper.text()).toBe('Laravel');
         expect(wrapper.get('[data-testid="base-badge"]').classes()).toContain('bg-slate-100');
+        expect(wrapper.get('[data-testid="base-badge"]').classes()).toEqual(
+            expect.arrayContaining(['dark:bg-slate-700', 'dark:text-slate-300']),
+        );
     });
 
     it('maps variants to their classes', () => {
